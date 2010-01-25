@@ -8,10 +8,10 @@
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
-#ifdef _MSC_VER
-#	include "msvcstdint.h"
-#else
+#ifndef _MSC_VER
 #	include <stdint.h>
+#else
+#	include "msvcstdint.h"
 #endif
 
 
