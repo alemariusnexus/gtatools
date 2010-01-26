@@ -8,13 +8,11 @@
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
-/*#ifndef _MSC_VER
+#ifndef _MSC_VER
 #	include <stdint.h>
 #else
 #	include "msvcstdint.h"
-#endif*/
-
-#include <stdint.h>
+#endif
 
 
 #define SkipBytes(s,c,b,l) \
