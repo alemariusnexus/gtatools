@@ -22,6 +22,9 @@
 <builder buildPath="${workspace_loc:/gtaimg/Default}" id="cdt.managedbuild.target.gnu.builder.base.1130177616" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.base"/>
 <tool id="cdt.managedbuild.tool.gnu.archiver.base.1631316386" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
 <tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.952585358" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base">
+<option id="gnu.cpp.compiler.option.include.paths.744600720" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+<listOptionValue builtIn="false" value="/usr/local/include/gtaformats"/>
+</option>
 <inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.781290207" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 </tool>
 <tool id="cdt.managedbuild.tool.gnu.c.compiler.base.1747103262" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base">
