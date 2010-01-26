@@ -7,14 +7,12 @@
 
 #include <cstring>
 #include <fstream>
-#include <FreeImage.h>
 #include <iostream>
 #include <TXDArchive.h>
 #include "cliarg.h"
 #include "ListVisitor.h"
 #include "ExtractVisitor.h"
 #include <boost/regex.hpp>
-#include <sys/time.h>
 #include <iostream>
 
 using std::ifstream;
@@ -76,13 +74,6 @@ Examples:\n\
 \n\
 "
 
-long long GGetTimestamp();
-
-long long GGetTimestamp() {
-    timeval tv;
-    gettimeofday(&tv, NULL);
-    return tv.tv_sec*1000000 + tv.tv_usec;
-}
 
 int main(int argc, char** argv) {
 	if (argc < 2) {
