@@ -229,9 +229,9 @@ void TXDTexture::convert(uint8_t* dest, const uint8_t* src, TXDMirrorFlags mirro
 			if (mirror == MIRROR_BOTH) {
 				srcIdx = (width*height) - srcIdx;
 			} else if (mirror == MIRROR_HORIZONTAL) {
-				srcIdx = (height - floor((float) (srcIdx/width)) - 1) * width + srcIdx%width;
+				srcIdx = (height - (int) floor((float) (srcIdx/width)) - 1) * width + srcIdx%width;
 			} else if (mirror == MIRROR_VERTICAL) {
-				srcIdx = (floor((float) (srcIdx/width)) * width + (height - srcIdx%width) - 1);
+				srcIdx = ((int) floor((float) (srcIdx/width)) * width + (height - srcIdx%width) - 1);
 			}
 
 			srcIdx *= srcBpp;
