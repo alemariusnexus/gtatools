@@ -1,7 +1,7 @@
 #include "cliarg.h"
 #include "ListVisitor.h"
 #include "ExtractVisitor.h"
-#include <gtaformats/IMGArchive.h>
+#include <IMGArchive.h>
 #include <cstring>
 #include <map>
 #include <fstream>

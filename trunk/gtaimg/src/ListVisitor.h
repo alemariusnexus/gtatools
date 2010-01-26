@@ -8,7 +8,7 @@
 #ifndef LISTCOMMAND_H_
 #define LISTCOMMAND_H_
 
-#include <gtaformats/IMGVisitor.h>
+#include <IMGVisitor.h>
 
 class ListVisitor: public IMGVisitor {
 public:
