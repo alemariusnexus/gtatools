@@ -43,15 +43,14 @@ ExtractVisitor::ExtractVisitor(int argc, char** argv) {
 
 	paramset::iterator it;
 
-	if (IsFlagSet("r")) {
-		useRegex = true;
-	}
-	if (IsFlagSet("s")) {
-		sourcesOnly = true;
-	}
+	useRegex = IsFlagSet("r");
+	sourcesOnly = IsFlagSet("s");
+
 	if (IsFlagSet("o")) {
 		writeToStdout = true;
 		sourcesOnly = true;
+	} else {
+		writeToStdout = false;
 	}
 
 	numPatterns = (GetStandaloneParamCount()-1);
