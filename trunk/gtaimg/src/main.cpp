@@ -34,16 +34,16 @@ Commands & Parameters:\n\
     (x|ex|extract) -s [-r] IMGFILE ENTRYNAME...\n\
     (x|ex|extract) -o [-r] IMGFILE ENTRYNAME...\n\
         Extracts files from the IMGFILE. When used without special flags, the\n\
-        IMGFILE is followed by pairs consisting of the name of the IMG entry and\n\
-        the destination file to extract it to. Using the -s flag, you only give\n\
-        the names of the entries. They will then be written to files with the\n\
-        same name as inside the archive, into the current directory. Using the -o\n\
-        flag will write the contents of all files to stdout. Note that when\n\
-        multiple files must be extracted, they are all written to stdout one\n\
-        after the other, without a separator between them. Other flags are:\n\
+        IMGFILE is followed by pairs consisting of the name of the IMG entry\n\
+        and the destination file to extract it to. Using the -s flag, you only\n\
+        give the names of the entries. They will then be written to files with\n\
+        the same name as inside the archive, into the current directory. Using\n\
+        the -oflag will write the contents of all files to stdout. Note that\n\
+        when multiple files must be extracted, they are all written to stdout\n\
+        one after the other, without a separator between them. Other flags are:\n\
             -r  Interpret the ENTRYNAME as regular expression (PCRE). All files\n\
-                matching the pattern will be extracted from the archive. You can\n\
-                access subpatterns in DESTFILE using perl-style format\n\
+                matching the pattern will be extracted from the archive. You\n\
+                can access subpatterns in DESTFILE using perl-style format\n\
                 specifiers. See the Boost::Regex documentation.\n\
 \n\
 Examples:\n\
@@ -56,8 +56,8 @@ Examples:\n\
     Extract the file 'bistro.txd' from gta3.img and save it to ./bistro.txd:\n\
         gtaimg x -s gta3.img bistro.txd\n\
     \n\
-    Extract all TXD files starting with 'a51_', and replace the beginning of their\n\
-    names with 'a69_':\n\
+    Extract all TXD files starting with 'a51_', and replace the beginning of\n\
+    their names with 'a69_':\n\
         gtaimg x -r gta3.img 'a51_(.*?)\\.txd' 'a69_$1.txd'\n\
 \n"
 

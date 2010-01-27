@@ -8,8 +8,6 @@
 #include "ExtractVisitor.h"
 #include <cstdio>
 #include <cstdlib>
-#include <regex.h>
-#include <pcre.h>
 #include <iostream>
 #include <fstream>
 
