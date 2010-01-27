@@ -120,6 +120,7 @@ ExtractVisitor::ExtractVisitor(int argc, char** argv) {
 		outputFormat = IL_TYPE_UNKNOWN;
 	}
 
+
 	int i = 0;
 	for (it = GetStandaloneParamBegin()+1 ; it != GetStandaloneParamEnd() ; it++) {
 		const char* srcfile = *it;
