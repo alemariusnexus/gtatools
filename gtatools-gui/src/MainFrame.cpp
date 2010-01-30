@@ -25,7 +25,7 @@ MainFrame::MainFrame( wxWindow* parent )
 	menuBar->SetMenuLabel(2, LangGet(MainFrame_imgMenu_label));
 	openItem->SetItemLabel(LangGet(MainFrame_openItem_label));
 	closeItem->SetItemLabel(LangGet(MainFrame_closeItem_label));
-	txdExtractItem->SetItemLabel(LangGet(MainFrame_txdExtractItem_label));
+	//txdExtractItem->SetItemLabel(LangGet(MainFrame_txdExtractItem_label));
 }
 
 
@@ -37,15 +37,15 @@ void MainFrame::onOpen( wxCommandEvent& event )
 
 	for (int i = 0 ; i < DisplayManager::getInstance()->getFormatProviderCount() ; i++) {
 		if (i != 0) {
-			wildcards.append("|");
+			wildcards.append(wxT("|"));
 		}
 
 		wxString wildcard = providers[i]->getFileWildcard();
 		wildcards.append(wildcard);
 	}
 
-	wxString path = wxFileSelector(LangGet(MainFrame_dlgOpenFile_title), getenv("HOME"), "", "",
-			wildcards);
+	wxString path = wxFileSelector(LangGet(MainFrame_dlgOpenFile_title),
+			wxString(getenv("HOME"), wxConvUTF8), wxT(""), wxT(""), wildcards);
 
 	if (!path.empty()) {
 		displayFile(path);
@@ -63,7 +63,7 @@ void MainFrame::onClose(wxCommandEvent& evt)
 }
 
 
-void MainFrame::displayFile(const char* filename)
+void MainFrame::displayFile(const wxString& filename)
 {
 	if (displayer != NULL) {
 		DisplayManager::getInstance()->closeDisplayer(displayer);
@@ -71,7 +71,7 @@ void MainFrame::displayFile(const char* filename)
 	}
 
 	FormatProvider* provider = DisplayManager::getInstance()->getFormatProvider(filename);
-	displayer = provider->openDisplayer(this, wxString(filename));
+	displayer = provider->openDisplayer(this, filename);
 
 	closeItem->Enable();
 	sizer->Add(displayer, 1, wxEXPAND);

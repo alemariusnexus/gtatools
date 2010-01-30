@@ -10,15 +10,16 @@
 
 #include <cstdarg>
 #include <cstdio>
+#include <wx/wx.h>
 
 
 #define _LANG_BEGIN(name)\
 	const LangEntry (name)[] = {
 #define _LANG_END()\
-		{INVALID_LANG_ID, ""}\
+		{INVALID_LANG_ID, wxT("")}\
 	};
 #define _LANG_VALUE(id, value)\
-	{id, value},
+	{id, wxT(value)},
 
 
 
@@ -81,14 +82,14 @@ enum {
 };
 
 
-const char* LangGet(int id);
-void LangGetFormatted(int id, char* dest, ...);
+const wxChar* LangGet(int id);
+wxString LangGetFormatted(int id, ...);
 
 
 
 struct LangEntry {
 	int id;
-	char text[128];
+	wxChar text[128];
 };
 
 
@@ -220,7 +221,7 @@ _LANG_END()
 static const LangEntry* CurrentLanguage = German;
 
 
-inline const char* LangGet(int id) {
+inline const wxChar* LangGet(int id) {
 	for (int i = 0 ; CurrentLanguage[i].id != INVALID_LANG_ID ; i++) {
 		if (CurrentLanguage[i].id == id) {
 			return CurrentLanguage[i].text;
@@ -230,18 +231,19 @@ inline const char* LangGet(int id) {
 	return NULL;
 }
 
-inline void LangGetFormatted(int id, char* dest, ...) {
+inline wxString LangGetFormatted(int id, ...) {
 	va_list list;
-	va_start(list, dest);
+	va_start(list, id);
 
 	for (int i = 0 ; CurrentLanguage[i].id != INVALID_LANG_ID ; i++) {
 		if (CurrentLanguage[i].id == id) {
-			vsprintf(dest, CurrentLanguage[i].text, list);
-			break;
+			//vsprintf(dest, CurrentLanguage[i].text, list);
+			return wxString::FormatV(CurrentLanguage[i].text, list);
 		}
 	}
 
 	va_end(list);
+	return wxString(wxT(""));
 }
 
 

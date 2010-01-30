@@ -70,16 +70,17 @@ bool IMGPanel::doDisplay(istream* stream)
 	try {
 		archive = new IMGArchive(stream);
 	} catch (IMGException ex) {
-		char error[256];
-		LangGetFormatted(Dialog_ErrorOpeningIMG, error, ex.what());
-		wxMessageBox(error, "Error", wxICON_ERROR | wxOK);
+		//char error[256];
+		//LangGetFormatted(Dialog_ErrorOpeningIMG, error, ex.what());
+		wxString error = LangGetFormatted(Dialog_ErrorOpeningIMG, ex.what());
+		wxMessageBox(error, wxT("Error"), wxICON_ERROR | wxOK);
 		return false;
 	}
 
 	IMGEntry** entries = archive->getEntries();
 
 	for (int32_t i = 0 ; i < archive->getEntryCount() ; i++) {
-		fileList->Append(entries[i]->name, entries[i]);
+		fileList->Append(wxString(entries[i]->name, wxConvUTF8), entries[i]);
 	}
 
 	return true;
@@ -105,26 +106,29 @@ void IMGPanel::onSelectionChanged(wxCommandEvent& evt)
 	if (numSel == 1) {
 		IMGEntry* entry = (IMGEntry*) fileList->GetClientData(selections[0]);
 
-		char buffer[16];
+		//char buffer[16];
 
-		fileLabel->SetLabel(wxString(entry->name));
+		fileLabel->SetLabel(wxString(entry->name, wxConvUTF8));
 
-		sprintf(buffer, "%d", entry->offset*IMG_BLOCK_SIZE);
-		offsetLabel->SetLabel(wxString(buffer));
+		//sprintf(buffer, "%d", entry->offset*IMG_BLOCK_SIZE);
+		//offsetLabel->SetLabel(wxString(buffer));
+		offsetLabel->SetLabel(wxString::Format(wxT("%d"), entry->offset*IMG_BLOCK_SIZE));
 
-		sprintf(buffer, "%d", entry->size*IMG_BLOCK_SIZE);
-		sizeLabel->SetLabel(wxString(buffer));
+		//sprintf(buffer, "%d", entry->size*IMG_BLOCK_SIZE);
+		//sizeLabel->SetLabel(wxString(buffer));
+		sizeLabel->SetLabel(wxString::Format(wxT("%d"), entry->size*IMG_BLOCK_SIZE));
 
 		istream* stream = archive->gotoEntry(entry);
-		FormatProvider* provider = DisplayManager::getInstance()->getFormatProvider(entry->name);
+		FormatProvider* provider = DisplayManager::getInstance()
+				->getFormatProvider(wxString(entry->name, wxConvUTF8));
 
 		if (provider != NULL) {
 			entryDisplayer = provider->openDisplayer(infoPanel, stream);
 			infoSizer->Add(entryDisplayer, 1, wxEXPAND);
 			infoPanel->Layout();
-			typeLabel->SetLabel(provider->getDescription(entry->name));
+			typeLabel->SetLabel(provider->getDescription(wxString(entry->name, wxConvUTF8)));
 		} else {
-			typeLabel->SetLabel(wxString(LangGet(Format_Unknown_description)));
+			typeLabel->SetLabel(LangGet(Format_Unknown_description));
 		}
 
 		/*if (TXDArchive::isValidFilename(entry->name)) {
@@ -147,5 +151,5 @@ void IMGPanel::onSelectionChanged(wxCommandEvent& evt)
 
 bool IMGPanel::canDisplay(const wxString& filename)
 {
-	return IMGArchive::isValidIMGFilename(string(filename.c_str()));
+	return IMGArchive::isValidIMGFilename(string(filename.mb_str()));
 }

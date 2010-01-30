@@ -15,7 +15,7 @@
 
 bool IMGFormatProvider::canDisplay(const wxString& filename) const
 {
-	return IMGArchive::isValidIMGFilename(std::string(filename.c_str()));
+	return IMGArchive::isValidIMGFilename(std::string(filename.mb_str()));
 }
 
 
