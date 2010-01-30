@@ -13,13 +13,9 @@
 class ListVisitor : public TXDVisitor {
 public:
 	ListVisitor(int argc, char** argv);
-	bool handleHeader(TXDTexture* header, void*& udata);
-	bool handleTexture(TXDTexture* header, uint8_t* bmp, void*& udata);
-
-	void setArchive(TXDArchive* archive) { this->archive = archive; }
+	void handleTexture(TXDArchive* archive, TXDTexture* header);
 
 private:
-	TXDArchive* archive;
 	bool useCommaAsSeparator;
 };
 

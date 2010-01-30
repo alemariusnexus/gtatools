@@ -12,7 +12,7 @@
 
 
 const char flagOptions[][PARAM_MAXLEN] = {
-		"c", "a", "b", "w", "h", "f", "s", "\0"
+		"s", "c", "a", "b", "w", "h", "f", "m", "p", "\0"
 };
 const char switchOptions[][PARAM_MAXLEN] = {
 		"\0"
@@ -34,7 +34,7 @@ ListVisitor::ListVisitor(int argc, char** argv) {
 	useCommaAsSeparator = IsFlagSet("s");
 }
 
-bool ListVisitor::handleHeader(TXDTexture* header, void*& udata) {
+void ListVisitor::handleTexture(TXDArchive* archive, TXDTexture* header) {
 	if (!useCommaAsSeparator) {
 		printf("%-35s", header->getDiffuseName());
 	} else {
@@ -96,14 +96,34 @@ bool ListVisitor::handleHeader(TXDTexture* header, void*& udata) {
 			} else {
 				printf(",%s", format);
 			}
+		} else if (strcmp(*flag, "m") == 0) {
+			if (!useCommaAsSeparator) {
+				printf("%-6d", header->getMipmapCount());
+			} else {
+				printf(",%d", header->getMipmapCount());
+			}
+		} else if (strcmp(*flag, "p") == 0) {
+			int32_t ext = header->getRasterFormatExtension();
+
+			if (!useCommaAsSeparator) {
+				if ((ext & TXD_FORMAT_EXT_PAL4) != 0) {
+					printf("%-6d", 4);
+				} else if ((ext & TXD_FORMAT_EXT_PAL8) != 0) {
+					printf("%-6d", 8);
+				} else {
+					printf("%-6c", '-');
+				}
+			} else {
+				if ((ext & TXD_FORMAT_EXT_PAL4) != 0) {
+					printf(",%d", 4);
+				} else if ((ext & TXD_FORMAT_EXT_PAL8) != 0) {
+					printf(",%d", 8);
+				} else {
+					printf(",-");
+				}
+			}
 		}
 	}
 
 	printf("\n");
-
-	return false;
-}
-
-bool ListVisitor::handleTexture(TXDTexture* header, uint8_t* data, void*& udata) {
-	return false;
 }

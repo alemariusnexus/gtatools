@@ -23,12 +23,12 @@ using std::endl;
 #define HELP_MESSAGE \
 "gtatxd - List and extract textures from GTA TXD files.\n\
 \n\
-Usages:\n\
+Usage:\n\
     gtatxd (help|-help|--help)    - Prints this help message\n\
     gtatxd COMMAND ...    - Executes a command, see below\n\
 \n\
 Commands & Parameters:\n\
-    (l|ls|list) [-c] [-a] [-b] [-w] [-h] [-f] TXDFILE\n\
+    (l|ls|list) [-c] [-a] [-b] [-w] [-h] [-f] [-m] [-p] TXDFILE\n\
         Prints a listing of all texture diffuse names in the TXDFILE. Use the\n\
         flags for printing additional information abut each texture. The data\n\
         will then be displayed table-like, separated with spaces. Information\n\
@@ -36,14 +36,20 @@ Commands & Parameters:\n\
             -c  Show texture compression type. This is one of 'DXT1', 'DXT3'\n\
                 or 'None'\n\
             -a  Show alpha texture name\n\
-            -b  Show number of bits per pixel\n\
+            -b  Show number of bytes per pixel\n\
             -w  Show image width (in pixels)\n\
             -h  Show image height (in pixels)\n\
             -f  Show image raster format. Currently, supported formats are:\n\
-                A1R5G5B5, R5G6B5, R4G4B4A4, B8G8R8A8, B8G8R8, R5G5B5\n\
+                A1R5G5B5, R5G6B5, R4G4B4A4, B8G8R8A8, B8G8R8, R5G5B5, LUM8\n\
+            -m  Show the number of mipmaps included\n\
+            -p  Show the type of palette used. This is '4' for PAL4, '8' for\n\
+                PAL8 or '-' if no palette is used\n\
+            -s  Use a comma instead of whitespaces to seperate values. This\n\
+                should be used when information needs to be processed by the\n\
+                machine.\n\
     \n\
-    (x|ex|extract) [-r] TXDFILE (TEXNAME DESTFILE)...\n\
-    (x|ex|extract) -s [-r] TXDFILE TEXNAME...\n\
+    (x|ex|extract) [-r] [-f] TXDFILE (TEXNAME DESTFILE)...\n\
+    (x|ex|extract) -s [-r] [-f] TXDFILE TEXNAME...\n\
         Extracts textures from the TXDFILE. When used without the -s flag,\n\
         the TXDFILE is followed by pairs of the texture name to extract and\n\
         the file to write it to. When using the -s flag, only the texture\n\
@@ -53,10 +59,23 @@ Commands & Parameters:\n\
                 is given, all matching files will be written to the current\n\
                 working directory with names of the form TXDNAME.png. The\n\
                 destination files will _always_ be ignored when -r is set.\n\
+            -f  The format into which textures will be extracted. If you don't\n\
+                give this option, the default is PNG. Note that not always all\n\
+                formats will work for a texture (e.g. JPEG does not work for\n\
+                textures with alpha channel. Supported formats are: bmp, png,\n\
+                jpg, pnm, psd, tga, sgi, tif.\n\
 \n\
 Notes:\n\
     Wherever you are asked to provide the TXDFILE you can also pass the string\n\
     '-', which will cause the program to read the TXDFILE from stdin.\n\
+    \n\
+    Paletted textures are currently not supported. There is code for them, but\n\
+    it will most likely fail because it was never tested. However, GTA3 is the\n\
+    only GTA to use paletted textures in it's original TXDs.\n\
+    \n\
+    Warning: There ARE textures with whitespaces in their names, so if you want\n\
+    the output of 'list' to be processed by other tools, you can't rely on using\n\
+    whitespaces as field-separators. You should use the -s option here.\n\
 \n\
 Examples:\n\
     List all textures inside test.txd with their width and height:\n\
@@ -92,7 +111,6 @@ int main(int argc, char** argv) {
 			||  strcmp(command, "list") == 0	)
 	{
 		ListVisitor* lvisitor = new ListVisitor(argc, argv);
-		lvisitor->setArchive(archive);
 		visitor = lvisitor;
 		srcfile = *GetStandaloneParamBegin();
 	} else if (	strcmp(command, "x") == 0
@@ -117,7 +135,14 @@ int main(int argc, char** argv) {
 	if (strcmp(srcfile, "-") == 0) {
 		stream = &std::cin;
 	} else {
-		stream = new ifstream(srcfile, ifstream::in | ifstream::binary);
+		ifstream* fileStream = new ifstream(srcfile, ifstream::in | ifstream::binary);
+
+		if (fileStream->fail()) {
+			cerr << "Error: Failed to open file!" << endl;
+			return 1;
+		}
+
+		stream = fileStream;
 	}
 
 	try {
