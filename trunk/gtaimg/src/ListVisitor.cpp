@@ -15,7 +15,7 @@ const char flags[][PARAM_MAXLEN] = {
 		"s", "o", "b", "\0"
 };
 const char switches[][PARAM_MAXLEN] = {
-		"\0"
+		"f", "\0"
 };
 
 ListVisitor::ListVisitor(int argc, char** argv) {
