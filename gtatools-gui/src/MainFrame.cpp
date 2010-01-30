@@ -21,8 +21,8 @@ MainFrame::MainFrame( wxWindow* parent )
 	SetTitle(LangGet(MainFrame_title));
 
 	menuBar->SetMenuLabel(0, LangGet(MainFrame_fileMenu_label));
-	menuBar->SetMenuLabel(1, LangGet(MainFrame_txdMenu_label));
-	menuBar->SetMenuLabel(2, LangGet(MainFrame_imgMenu_label));
+	//menuBar->SetMenuLabel(1, LangGet(MainFrame_txdMenu_label));
+	//menuBar->SetMenuLabel(2, LangGet(MainFrame_imgMenu_label));
 	openItem->SetItemLabel(LangGet(MainFrame_openItem_label));
 	closeItem->SetItemLabel(LangGet(MainFrame_closeItem_label));
 	//txdExtractItem->SetItemLabel(LangGet(MainFrame_txdExtractItem_label));
