@@ -107,7 +107,7 @@ bool TXDPanel::doDisplay(istream* stream)
 		TXDArchive* archive = new TXDArchive(stream);
 		displayArchive(archive);
 	} catch (TXDException ex) {
-		wxMessageBox("Error opening file!", "Error", wxOK | wxICON_ERROR);
+		wxMessageBox(wxT("Error opening file!"), wxT("Error"), wxOK | wxICON_ERROR);
 		return false;
 	}
 
@@ -118,13 +118,13 @@ bool TXDPanel::doDisplay(istream* stream)
 void TXDPanel::doClose()
 {
 	nameLabel->SetLabel(LangGet(TXDPanel_nameLabel_emptyValue));
-	formatLabel->SetLabel("-");
-	bppLabel->SetLabel("-");
-	widthLabel->SetLabel("-");
-	heightLabel->SetLabel("-");
-	alphaTextureLabel->SetLabel("-");
-	compressionLabel->SetLabel("-");
-	alphaUsedLabel->SetLabel("-");
+	formatLabel->SetLabel(wxT("-"));
+	bppLabel->SetLabel(wxT("-"));
+	widthLabel->SetLabel(wxT("-"));
+	heightLabel->SetLabel(wxT("-"));
+	alphaTextureLabel->SetLabel(wxT("-"));
+	compressionLabel->SetLabel(wxT("-"));
+	alphaUsedLabel->SetLabel(wxT("-"));
 
 	delete archive;
 }
@@ -157,7 +157,7 @@ void TXDPanel::displayArchive(TXDArchive* archive)
 
 	for (int16_t i = 0 ; i < archive->getTextureCount() ; i++) {
 		TXDTexture* texture = archive->nextTexture();
-		textureList->Append(texture->getDiffuseName(), texture);
+		textureList->Append(wxString(texture->getDiffuseName(), wxConvUTF8), texture);
 	}
 
 	if (archive->getTextureCount() != 0) {
@@ -199,22 +199,22 @@ void TXDPanel::onExtract(wxCommandEvent& evt)
 
 		for (int i = 0 ; i < numFormats ; i++) {
 			if (i != 0) {
-				wildcards.Append("|");
+				wildcards.Append(wxT("|"));
 			}
 
 			ImageFileFormat* format = supportedFormats[i];
-			wildcards.Append(format->description).Append(" (*.").Append(format->extension)
-					.Append(")|*.").Append(format->extension).Append(")");
+			wildcards.Append(format->description).Append(wxT(" (*."))
+					.Append(wxString(format->extension, wxConvUTF8)).Append(wxT(")|*."))
+					.Append(wxString(format->extension, wxConvUTF8)).Append(wxT(")"));
 
 			delete format;
 		}
 
 		delete[] supportedFormats;
 
-		wxFileDialog fd(NULL, LangGet(TXDPanel_dlgExtractItem_title), getenv("HOME"),
-				wxString(texture->getDiffuseName()) + ".png",
-				wildcards,
-				wxFD_SAVE);
+		wxFileDialog fd(NULL, LangGet(TXDPanel_dlgExtractItem_title),
+				wxString(getenv("HOME"), wxConvUTF8),
+				wxString(texture->getDiffuseName(), wxConvUTF8) + wxT(".png"), wildcards, wxFD_SAVE);
 
 		if (fd.ShowModal() != wxID_OK) {
 			return;
@@ -222,7 +222,8 @@ void TXDPanel::onExtract(wxCommandEvent& evt)
 
 		path = fd.GetPath();
 	} else {
-		wxDirDialog dd(NULL, LangGet(TXDPanel_dlgExtractItems_title), getenv("HOME"), wxDD_DIR_MUST_EXIST);
+		wxDirDialog dd(NULL, LangGet(TXDPanel_dlgExtractItems_title),
+				wxString(getenv("HOME"), wxConvUTF8), wxDD_DIR_MUST_EXIST);
 
 		if (dd.ShowModal() != wxID_OK) {
 			return;
@@ -240,7 +241,8 @@ void TXDPanel::onExtract(wxCommandEvent& evt)
 			choices.Add(format->description);
 		}
 
-		int idx = wxGetSingleChoiceIndex(LangGet(TXDPanel_dlgExtractFormat_title), "Test Test", choices);
+		int idx = wxGetSingleChoiceIndex(LangGet(TXDPanel_dlgExtractFormat_title), wxT("Test Test"),
+				choices);
 
 		if (idx == -1) {
 			return;
@@ -283,11 +285,12 @@ void TXDPanel::onExtract(wxCommandEvent& evt)
 		}
 
 		if (numSel == 1) {
-			ilSaveImage(path);
+			ilSaveImage(path.mb_str());
 		} else {
-			wxString file = wxString(path) + wxString("/") + wxString(texture->getDiffuseName())
-					+ wxString(".") + format->extension;
-			ilSave(format->format, file);
+			wxString file = wxString(path, wxConvUTF8) + wxT("/")
+					+ wxString(texture->getDiffuseName(), wxConvUTF8) + wxT(".")
+					+ wxString(format->extension, wxConvUTF8);
+			ilSave(format->format, file.mb_str());
 		}
 
 		ilDeleteImage(1);
@@ -304,23 +307,23 @@ void TXDPanel::displayTexture(TXDTexture* texture)
 {
 	char buffer[16];
 
-	nameLabel->SetLabel(wxString(texture->getDiffuseName()));
+	nameLabel->SetLabel(wxString(texture->getDiffuseName(), wxConvUTF8));
 
 	TxdGetRasterFormatName(buffer, texture->getRasterFormat());
-	formatLabel->SetLabel(wxString(buffer));
+	formatLabel->SetLabel(wxString(buffer, wxConvUTF8));
 
-	sprintf(buffer, "%d", texture->getBytesPerPixel());
-	bppLabel->SetLabel(wxString(buffer));
+	//sprintf(buffer, "%d", texture->getBytesPerPixel());
+	bppLabel->SetLabel(wxString::Format(wxT("%d"), texture->getBytesPerPixel()));
 
-	sprintf(buffer, "%d", texture->getWidth());
-	widthLabel->SetLabel(wxString(buffer));
+	//sprintf(buffer, "%d", texture->getWidth());
+	widthLabel->SetLabel(wxString::Format(wxT("%d"), texture->getWidth()));
 
-	sprintf(buffer, "%d", texture->getHeight());
-	heightLabel->SetLabel(wxString(buffer));
+	//sprintf(buffer, "%d", texture->getHeight());
+	heightLabel->SetLabel(wxString::Format(wxT("%d"), texture->getHeight()));
 
-	alphaTextureLabel->SetLabel(wxString(texture->getAlphaName()));
+	alphaTextureLabel->SetLabel(wxString(texture->getAlphaName(), wxConvUTF8));
 
-	alphaUsedLabel->SetLabel(wxString(texture->hasAlphaChannel() ? LangGet(Misc_Yes) : LangGet(Misc_No)));
+	alphaUsedLabel->SetLabel(texture->hasAlphaChannel() ? LangGet(Misc_Yes) : LangGet(Misc_No));
 
 	switch (texture->getCompression()) {
 	case DXT1:
@@ -345,5 +348,5 @@ void TXDPanel::displayTexture(TXDTexture* texture)
 
 bool TXDPanel::canDisplay(const wxString& filename)
 {
-	return TXDArchive::isValidFilename(string(filename.c_str()));
+	return TXDArchive::isValidFilename(string(filename.mb_str()));
 }

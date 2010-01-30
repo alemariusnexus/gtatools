@@ -14,7 +14,7 @@
 
 bool TXDFormatProvider::canDisplay(const wxString& filename) const
 {
-	return TXDArchive::isValidFilename(std::string(filename.c_str()));
+	return TXDArchive::isValidFilename(std::string(filename.mb_str()));
 }
 
 

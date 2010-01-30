@@ -11,10 +11,11 @@
 #include <IL/il.h>
 #include "lang/lang.h"
 #include <cstring>
+#include <wx/wx.h>
 
 struct ImageFileFormat {
 	char extension[8];
-	char description[128];
+	wxString description;
 	ILenum format;
 };
 
@@ -48,8 +49,10 @@ inline int GetSupportedImageFormats(ImageFileFormat** formats)
 
 	for (int i = 0 ; i < numFormats ; i++) {
 		formats[i] = new ImageFileFormat;
+
 		strcpy(formats[i]->extension, SupportedImageFormats[i].extension);
-		strcpy(formats[i]->description, LangGet(SupportedImageFormats[i].descriptionId));
+		//strcpy(formats[i]->description, LangGet(SupportedImageFormats[i].descriptionId));
+		formats[i]->description = LangGet(SupportedImageFormats[i].descriptionId);
 		formats[i]->format = SupportedImageFormats[i].format;
 	}
 

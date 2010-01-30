@@ -32,7 +32,6 @@ class FileDisplayer;
 
 ///////////////////////////////////////////////////////////////////////////
 
-#define wxID_TXD_EXTRACT 1000
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Class TXDPanelPrototype
@@ -94,9 +93,6 @@ class MainFramePrototype : public wxFrame
 		wxMenu* fileMenu;
 		wxMenuItem* openItem;
 		wxMenuItem* closeItem;
-		wxMenu* txdMenu;
-		wxMenuItem* txdExtractItem;
-		wxMenu* imgMenu;
 		wxBoxSizer* sizer;
 		
 		// Virtual event handlers, overide them in your derived class

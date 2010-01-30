@@ -19,7 +19,7 @@ protected:
 public:
 	/** Constructor */
 	MainFrame( wxWindow* parent );
-	void displayFile(const char* filename);
+	void displayFile(const wxString& filename);
 
 private:
 	FileDisplayer* displayer;

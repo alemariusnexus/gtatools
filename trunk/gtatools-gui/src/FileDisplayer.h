@@ -17,7 +17,7 @@ class FileDisplayer : public wxPanel {
 public:
 	FileDisplayer(wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition,
 			const wxSize& size = wxDefaultSize, long style = wxTAB_TRAVERSAL,
-			const wxString& name = "panel");
+			const wxString& name = wxT("displayer"));
 	virtual ~FileDisplayer() {};
 	bool display(istream* stream);
 	void close();

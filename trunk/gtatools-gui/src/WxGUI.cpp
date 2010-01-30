@@ -183,16 +183,6 @@ MainFramePrototype::MainFramePrototype( wxWindow* parent, wxWindowID id, const w
 	
 	menuBar->Append( fileMenu, wxT("File") );
 	
-	txdMenu = new wxMenu();
-	txdExtractItem = new wxMenuItem( txdMenu, wxID_TXD_EXTRACT, wxString( wxT("Extract...") ) , wxEmptyString, wxITEM_NORMAL );
-	txdMenu->Append( txdExtractItem );
-	txdExtractItem->Enable( false );
-	
-	menuBar->Append( txdMenu, wxT("TXD Actions") );
-	
-	imgMenu = new wxMenu();
-	menuBar->Append( imgMenu, wxT("IMG Actions") );
-	
 	this->SetMenuBar( menuBar );
 	
 	sizer = new wxBoxSizer( wxVERTICAL );

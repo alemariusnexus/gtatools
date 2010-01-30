@@ -22,7 +22,7 @@ bool FileDisplayer::displayFile(const wxString& filename)
 {
 	close();
 
-	stream = new ifstream(filename, ifstream::in | ifstream::binary);
+	stream = new ifstream(filename.mb_str(), ifstream::in | ifstream::binary);
 
 	if (stream->fail()) {
 		return false;
