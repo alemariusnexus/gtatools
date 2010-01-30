@@ -9,7 +9,7 @@
 
 ///////////////////////////////////////////////////////////////////////////
 
-TXDPanelPrototype::TXDPanelPrototype( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style ) : wxPanel( parent, id, pos, size, style )
+TXDPanelPrototype::TXDPanelPrototype( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style ) : FileDisplayer( parent, id, pos, size, style )
 {
 	wxBoxSizer* bSizer1;
 	bSizer1 = new wxBoxSizer( wxHORIZONTAL );
@@ -136,6 +136,14 @@ TXDPanelPrototype::TXDPanelPrototype( wxWindow* parent, wxWindowID id, const wxP
 	bSizer3->Fit( m_panel2 );
 	bSizer2->Add( m_panel2, 0, wxEXPAND | wxALL, 5 );
 	
+	wxBoxSizer* bSizer20;
+	bSizer20 = new wxBoxSizer( wxVERTICAL );
+	
+	extractButton = new wxButton( m_panel1, wxID_ANY, wxT("Extract"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer20->Add( extractButton, 0, wxALL, 5 );
+	
+	bSizer2->Add( bSizer20, 0, 0, 5 );
+	
 	image = new TXDTextureDisplayer(m_panel1);
 	bSizer2->Add( image, 1, wxALIGN_CENTER|wxALL|wxEXPAND, 5 );
 	
@@ -150,12 +158,14 @@ TXDPanelPrototype::TXDPanelPrototype( wxWindow* parent, wxWindowID id, const wxP
 	
 	// Connect Events
 	textureList->Connect( wxEVT_COMMAND_LISTBOX_SELECTED, wxCommandEventHandler( TXDPanelPrototype::onTextureSelectionChanged ), NULL, this );
+	extractButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( TXDPanelPrototype::onExtract ), NULL, this );
 }
 
 TXDPanelPrototype::~TXDPanelPrototype()
 {
 	// Disconnect Events
 	textureList->Disconnect( wxEVT_COMMAND_LISTBOX_SELECTED, wxCommandEventHandler( TXDPanelPrototype::onTextureSelectionChanged ), NULL, this );
+	extractButton->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( TXDPanelPrototype::onExtract ), NULL, this );
 }
 
 MainFramePrototype::MainFramePrototype( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxFrame( parent, id, title, pos, size, style )
@@ -202,7 +212,7 @@ MainFramePrototype::~MainFramePrototype()
 	this->Disconnect( wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( MainFramePrototype::onClose ) );
 }
 
-IMGPanelPrototype::IMGPanelPrototype( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style ) : wxPanel( parent, id, pos, size, style )
+IMGPanelPrototype::IMGPanelPrototype( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style ) : FileDisplayer( parent, id, pos, size, style )
 {
 	wxBoxSizer* bSizer16;
 	bSizer16 = new wxBoxSizer( wxHORIZONTAL );
@@ -271,6 +281,9 @@ IMGPanelPrototype::IMGPanelPrototype( wxWindow* parent, wxWindowID id, const wxP
 	bSizer20->Add( bSizer211, 0, wxEXPAND, 5 );
 	
 	infoSizer->Add( bSizer20, 0, wxEXPAND, 5 );
+	
+	m_staticline1 = new wxStaticLine( infoPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	infoSizer->Add( m_staticline1, 0, wxEXPAND | wxALL, 5 );
 	
 	infoPanel->SetSizer( infoSizer );
 	infoPanel->Layout();

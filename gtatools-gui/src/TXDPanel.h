@@ -6,6 +6,7 @@
 #include <istream>
 #include "guiconfig.h"
 #include "lang/lang.h"
+#include "FileDisplayer.h"
 
 using std::ifstream;
 using std::istream;
@@ -24,22 +25,29 @@ protected:
 	void onTextureSelectionChanged(wxCommandEvent& evt);
 	void onExtract(wxCommandEvent& evt);
 
-public:
-	/** Constructor */
-	TXDPanel(wxWindow* parent, wxWindow* window, istream* stream, wxMenu* menu,
-			bool autoCloseStream = false);
-	//TXDPanel(wxWindow* parent, MainFrame* mainFrame, const char* filename, wxMenu* menu);
+/*public:
+	TXDPanel(wxWindow* parent, wxWindow* window, wxMenu* menu);
 	virtual ~TXDPanel();
+	bool displayArchive(istream* stream, bool autoCloseStream = true);
+	void displayArchive(TXDArchive* archive);*/
+
+public:
+	static bool canDisplay(const wxString& filename);
+
+public:
+	TXDPanel(wxWindow* parent);
+	virtual ~TXDPanel();
+	virtual bool doDisplay(istream* stream);
+	virtual void doClose();
 	void displayArchive(TXDArchive* archive);
 
 private:
 	void displayTexture(TXDTexture* texture);
 
 private:
-	wxMenu* menu;
+	//wxMenu* menu;
 	TXDArchive* archive;
 	istream* stream;
-	bool autoCloseStream;
 };
 
 #endif // __TXDPanel__

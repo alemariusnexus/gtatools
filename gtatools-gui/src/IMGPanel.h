@@ -3,6 +3,7 @@
 
 #include <fstream>
 #include <gtaformats/IMGArchive.h>
+#include "FileDisplayer.h"
 
 using std::ifstream;
 
@@ -20,16 +21,24 @@ protected:
 	virtual void onSelectionChanged(wxCommandEvent& evt);
 
 public:
-	/** Constructor */
-	IMGPanel(wxWindow* parent, const char* filename, wxMenu* menu, wxMenu* txdMenu);
+	static bool canDisplay(const wxString& filename);
+
+public:
+	//IMGPanel(wxWindow* parent, wxMenu* menu, wxMenu* txdMenu);
+	//bool displayFile(const char* filename);
+	//virtual ~IMGPanel();
+	IMGPanel(wxWindow* parent);
 	virtual ~IMGPanel();
+	virtual bool doDisplay(istream* stream);
+	virtual void doClose();
 
 private:
-	wxMenu* menu;
-	wxMenu* txdMenu;
-	ifstream* stream;
+	//wxMenu* menu;
+	//wxMenu* txdMenu;
+	//ifstream* stream;
 	IMGArchive* archive;
-	wxWindow* pluginWindow;
+	FileDisplayer* entryDisplayer;
+	//wxWindow* pluginWindow;
 };
 
 #endif // __IMGPanel__

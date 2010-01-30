@@ -22,7 +22,7 @@ public:
 	void displayFile(const char* filename);
 
 private:
-	wxWindow* contentWidget;
+	FileDisplayer* displayer;
 };
 
 #endif // __MainFrame__

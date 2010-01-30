@@ -8,6 +8,9 @@
 #ifndef LANG_H_
 #define LANG_H_
 
+#include <cstdarg>
+#include <cstdio>
+
 
 #define _LANG_BEGIN(name)\
 	const LangEntry (name)[] = {
@@ -26,9 +29,16 @@ enum {
 	Misc_No,
 
 	Format_TXD_description,
+	Format_TXD_fileWildcard,
+	//Format_DFF_description,
+	//Format_DFF_fileWildcard,
+	Format_IMG_description,
+	Format_IMG_fileWildcard,
 	Format_Unknown_description,
 
+	Dialog_ErrorTitle,
 	Dialog_ErrorUnknownFileFormat,
+	Dialog_ErrorOpeningIMG,
 
 	ImageFormat_PNG_description,
 	ImageFormat_GIF_description,
@@ -54,6 +64,7 @@ enum {
 	TXDPanel_compression_DXT1,
 	TXDPanel_compression_DXT3,
 	TXDPanel_compression_None,
+	TXDPanel_extractButton_label,
 
 	IMGPanel_typeDescLabel_value,
 	IMGPanel_offsetDescLabel_value,
@@ -64,11 +75,14 @@ enum {
 	MainFrame_imgMenu_label,
 	MainFrame_txdMenu_label,
 	MainFrame_openItem_label,
-	MainFrame_dlgOpenFile_wildcards,
 	MainFrame_dlgOpenFile_title,
 	MainFrame_closeItem_label,
 	MainFrame_txdExtractItem_label,
 };
+
+
+const char* LangGet(int id);
+void LangGetFormatted(int id, char* dest, ...);
 
 
 
@@ -90,9 +104,14 @@ _LANG_BEGIN(English)
 	_LANG_VALUE(Misc_No, "No")
 
 	_LANG_VALUE(Format_TXD_description, "GTA Texture Dictionary (TXD)")
+	_LANG_VALUE(Format_TXD_fileWildcard, "TXD file (*.txd)|*.txd")
+	_LANG_VALUE(Format_IMG_description, "IMG archive")
+	_LANG_VALUE(Format_IMG_fileWildcard, "IMG archive (*.img)|*.img")
 	_LANG_VALUE(Format_Unknown_description, "(Unknown)")
 
+	_LANG_VALUE(Dialog_ErrorTitle, "Error")
 	_LANG_VALUE(Dialog_ErrorUnknownFileFormat, "The file has an unknown format!")
+	_LANG_VALUE(Dialog_ErrorOpeningIMG, "Error opening IMG file: %s")
 
 	_LANG_VALUE(TXDPanel_nameLabel_emptyValue, "(No texture opened)")
 	_LANG_VALUE(TXDPanel_formatDescLabel_value, "Format")
@@ -108,6 +127,7 @@ _LANG_BEGIN(English)
 	_LANG_VALUE(TXDPanel_compression_DXT1, "DXT1")
 	_LANG_VALUE(TXDPanel_compression_DXT3, "DXT2")
 	_LANG_VALUE(TXDPanel_compression_None, "None")
+	_LANG_VALUE(TXDPanel_extractButton_label, "Extract...")
 
 	_LANG_VALUE(ImageFormat_PNG_description, "PNG file")
 	_LANG_VALUE(ImageFormat_GIF_description, "GIF file")
@@ -128,7 +148,6 @@ _LANG_BEGIN(English)
 	_LANG_VALUE(MainFrame_txdMenu_label, "TXD Actions")
 	_LANG_VALUE(MainFrame_imgMenu_label, "IMG Actions")
 	_LANG_VALUE(MainFrame_openItem_label, "Open...")
-	_LANG_VALUE(MainFrame_dlgOpenFile_wildcards, "IMG files (*.img)|*.img|TXD files (*.txd)|*.txd")
 	_LANG_VALUE(MainFrame_dlgOpenFile_title, "Choose a file to open")
 	_LANG_VALUE(MainFrame_closeItem_label, "Close")
 	_LANG_VALUE(MainFrame_txdExtractItem_label, "Extract...")
@@ -148,9 +167,14 @@ _LANG_BEGIN(German)
 	_LANG_VALUE(Misc_No, "Nein")
 
 	_LANG_VALUE(Format_TXD_description, "GTA Texture Dictionary (TXD)")
+	_LANG_VALUE(Format_TXD_fileWildcard, "TXD-Datei (*.txd)|*.txd")
+	_LANG_VALUE(Format_IMG_description, "IMG-Archiv")
+	_LANG_VALUE(Format_IMG_fileWildcard, "IMG-Archiv (*.img)|*.img")
 	_LANG_VALUE(Format_Unknown_description, "(Unbekannt)")
 
+	_LANG_VALUE(Dialog_ErrorTitle, "Fehler")
 	_LANG_VALUE(Dialog_ErrorUnknownFileFormat, "Die Datei hat ein unbekanntes Format!")
+	_LANG_VALUE(Dialog_ErrorOpeningIMG, "Fehler beim Öffnen der IMG-Datei: %s")
 
 	_LANG_VALUE(TXDPanel_nameLabel_emptyValue, "(Keine Textur geöffnet)")
 	_LANG_VALUE(TXDPanel_formatDescLabel_value, "Format")
@@ -166,6 +190,7 @@ _LANG_BEGIN(German)
 	_LANG_VALUE(TXDPanel_compression_DXT1, "DXT1")
 	_LANG_VALUE(TXDPanel_compression_DXT3, "DXT3")
 	_LANG_VALUE(TXDPanel_compression_None, "Keine")
+	_LANG_VALUE(TXDPanel_extractButton_label, "Extrahieren...")
 
 	_LANG_VALUE(ImageFormat_PNG_description, "PNG-Datei")
 	_LANG_VALUE(ImageFormat_GIF_description, "GIF-Datei")
@@ -186,7 +211,6 @@ _LANG_BEGIN(German)
 	_LANG_VALUE(MainFrame_txdMenu_label, "TXD-Aktionen")
 	_LANG_VALUE(MainFrame_imgMenu_label, "IMG-Aktionen")
 	_LANG_VALUE(MainFrame_openItem_label, "Öffnen...")
-	_LANG_VALUE(MainFrame_dlgOpenFile_wildcards, "IMG-Dateien (*.img)|*.img|TXD-Dateien (*.txd)|*.txd")
 	_LANG_VALUE(MainFrame_dlgOpenFile_title, "Bitte die zu öffnende Datei auswählen")
 	_LANG_VALUE(MainFrame_closeItem_label, "Schließen")
 	_LANG_VALUE(MainFrame_txdExtractItem_label, "Entpacken...")
@@ -204,6 +228,20 @@ inline const char* LangGet(int id) {
 	}
 
 	return NULL;
+}
+
+inline void LangGetFormatted(int id, char* dest, ...) {
+	va_list list;
+	va_start(list, dest);
+
+	for (int i = 0 ; CurrentLanguage[i].id != INVALID_LANG_ID ; i++) {
+		if (CurrentLanguage[i].id == id) {
+			vsprintf(dest, CurrentLanguage[i].text, list);
+			break;
+		}
+	}
+
+	va_end(list);
 }
 
 

@@ -8,6 +8,9 @@
 #ifndef __WxGUI__
 #define __WxGUI__
 
+class FileDisplayer;
+
+#include "FileDisplayer.h"
 #include <wx/string.h>
 #include <wx/listbox.h>
 #include <wx/gdicmn.h>
@@ -17,6 +20,7 @@
 #include <wx/sizer.h>
 #include <wx/panel.h>
 #include <wx/stattext.h>
+#include <wx/button.h>
 #include "TXDTextureDisplayer.h"
 #include <wx/splitter.h>
 #include <wx/bitmap.h>
@@ -24,6 +28,7 @@
 #include <wx/icon.h>
 #include <wx/menu.h>
 #include <wx/frame.h>
+#include <wx/statline.h>
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -32,7 +37,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 /// Class TXDPanelPrototype
 ///////////////////////////////////////////////////////////////////////////////
-class TXDPanelPrototype : public wxPanel 
+class TXDPanelPrototype : public FileDisplayer
 {
 	private:
 	
@@ -57,10 +62,12 @@ class TXDPanelPrototype : public wxPanel
 		wxStaticText* compressionLabel;
 		wxStaticText* alphaUsedDescLabel;
 		wxStaticText* alphaUsedLabel;
+		wxButton* extractButton;
 		TXDTextureDisplayer* image;
 		
 		// Virtual event handlers, overide them in your derived class
 		virtual void onTextureSelectionChanged( wxCommandEvent& event ){ event.Skip(); }
+		virtual void onExtract( wxCommandEvent& event ){ event.Skip(); }
 		
 	
 	public:
@@ -106,7 +113,7 @@ class MainFramePrototype : public wxFrame
 ///////////////////////////////////////////////////////////////////////////////
 /// Class IMGPanelPrototype
 ///////////////////////////////////////////////////////////////////////////////
-class IMGPanelPrototype : public wxPanel 
+class IMGPanelPrototype : public FileDisplayer
 {
 	private:
 	
@@ -123,6 +130,7 @@ class IMGPanelPrototype : public wxPanel
 		wxStaticText* offsetLabel;
 		wxStaticText* sizeDescLabel;
 		wxStaticText* sizeLabel;
+		wxStaticLine* m_staticline1;
 		
 		// Virtual event handlers, overide them in your derived class
 		virtual void onSelectionChanged( wxCommandEvent& event ){ event.Skip(); }

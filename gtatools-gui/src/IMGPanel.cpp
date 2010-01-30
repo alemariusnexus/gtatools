@@ -1,44 +1,102 @@
 #include "IMGPanel.h"
 #include "TXDPanel.h"
+#include <gtaformats/IMGException.h>
 #include <gtaformats/TXDArchive.h>
 #include <cstdio>
 #include <fstream>
 #include "lang/lang.h"
+#include <wx/msgdlg.h>
+#include <string>
+#include "DisplayManager.h"
+#include "FormatProvider.h"
 
 using std::istream;
 using std::ofstream;
 
-IMGPanel::IMGPanel(wxWindow* parent, const char* filename, wxMenu* menu, wxMenu* txdMenu)
+/*IMGPanel::IMGPanel(wxWindow* parent, wxMenu* menu, wxMenu* txdMenu)
 		: IMGPanelPrototype(parent), menu(menu), txdMenu(txdMenu), pluginWindow(NULL)
 {
 	typeDescLabel->SetLabel(LangGet(IMGPanel_typeDescLabel_value));
 	offsetDescLabel->SetLabel(LangGet(IMGPanel_offsetDescLabel_value));
 	sizeDescLabel->SetLabel(LangGet(IMGPanel_sizeDescLabel_value));
+}
 
-	stream = new ifstream(filename, ifstream::in | ifstream::binary);
-	archive = new IMGArchive(stream);
+
+IMGPanel::~IMGPanel()
+{
+	//stream->close();
+	//delete stream;
+	delete archive;
+}
+
+
+bool IMGPanel::displayFile(const char* filename)
+{
+	try {
+		archive = new IMGArchive(filename);
+	} catch (IMGException ex) {
+		char error[256];
+		LangGetFormatted(Dialog_ErrorOpeningIMG, error, ex.what());
+		wxMessageBox(error, "Error", wxICON_ERROR | wxOK);
+		return false;
+	}
 
 	IMGEntry** entries = archive->getEntries();
 
 	for (int32_t i = 0 ; i < archive->getEntryCount() ; i++) {
 		fileList->Append(entries[i]->name, entries[i]);
 	}
+
+	return true;
+}*/
+
+IMGPanel::IMGPanel(wxWindow* parent)
+		: IMGPanelPrototype(parent), entryDisplayer(NULL)
+{
+	typeDescLabel->SetLabel(LangGet(IMGPanel_typeDescLabel_value));
+	offsetDescLabel->SetLabel(LangGet(IMGPanel_offsetDescLabel_value));
+	sizeDescLabel->SetLabel(LangGet(IMGPanel_sizeDescLabel_value));
 }
 
 
 IMGPanel::~IMGPanel()
 {
-	stream->close();
-	delete stream;
+	close();
+}
+
+
+bool IMGPanel::doDisplay(istream* stream)
+{
+	try {
+		archive = new IMGArchive(stream);
+	} catch (IMGException ex) {
+		char error[256];
+		LangGetFormatted(Dialog_ErrorOpeningIMG, error, ex.what());
+		wxMessageBox(error, "Error", wxICON_ERROR | wxOK);
+		return false;
+	}
+
+	IMGEntry** entries = archive->getEntries();
+
+	for (int32_t i = 0 ; i < archive->getEntryCount() ; i++) {
+		fileList->Append(entries[i]->name, entries[i]);
+	}
+
+	return true;
+}
+
+
+void IMGPanel::doClose()
+{
 	delete archive;
 }
 
 
 void IMGPanel::onSelectionChanged(wxCommandEvent& evt)
 {
-	if (pluginWindow) {
-		delete pluginWindow;
-		pluginWindow = NULL;
+	if (entryDisplayer != NULL) {
+		DisplayManager::getInstance()->closeDisplayer(entryDisplayer);
+		entryDisplayer = NULL;
 	}
 
 	wxArrayInt selections;
@@ -57,17 +115,37 @@ void IMGPanel::onSelectionChanged(wxCommandEvent& evt)
 		sprintf(buffer, "%d", entry->size*IMG_BLOCK_SIZE);
 		sizeLabel->SetLabel(wxString(buffer));
 
-		if (TXDArchive::isValidFilename(entry->name)) {
+		istream* stream = archive->gotoEntry(entry);
+		FormatProvider* provider = DisplayManager::getInstance()->getFormatProvider(entry->name);
+
+		if (provider != NULL) {
+			entryDisplayer = provider->openDisplayer(infoPanel, stream);
+			infoSizer->Add(entryDisplayer, 1, wxEXPAND);
+			infoPanel->Layout();
+			typeLabel->SetLabel(provider->getDescription(entry->name));
+		} else {
+			typeLabel->SetLabel(wxString(LangGet(Format_Unknown_description)));
+		}
+
+		/*if (TXDArchive::isValidFilename(entry->name)) {
 			istream* stream = archive->gotoEntry(entry);
-			TXDPanel* panel = new TXDPanel(infoPanel, GetParent(), stream,
-					txdMenu, false);
+			TXDPanel* panel = new TXDPanel(infoPanel, GetParent(), txdMenu);
+			panel->displayArchive(stream, false);
 			pluginWindow = panel;
 			infoSizer->Add(panel, 1, wxEXPAND);
 			infoPanel->Layout();
 
 			typeLabel->SetLabel(wxString(LangGet(Format_TXD_description)));
+		} else if (wxString(entry->name).EndsWith(".dff")) {
+			typeLabel->SetLabel(wxString(LangGet(Format_DFF_description)));
 		} else {
 			typeLabel->SetLabel(wxString(LangGet(Format_Unknown_description)));
-		}
+		}*/
 	}
+}
+
+
+bool IMGPanel::canDisplay(const wxString& filename)
+{
+	return IMGArchive::isValidIMGFilename(string(filename.c_str()));
 }
