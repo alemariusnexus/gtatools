@@ -21,16 +21,13 @@ class ExtractVisitor : public TXDVisitor {
 public:
 	ExtractVisitor(int argc, char** argv);
 	virtual ~ExtractVisitor();
-	bool handleHeader(TXDTexture* header, void*& udata);
-	bool handleTexture(TXDTexture* header, uint8_t* bmp, void*& udata);
-
-	void setArchive(TXDArchive* archive) { this->archive = archive; }
+	void handleTexture(TXDArchive* archive, TXDTexture* header);
 
 private:
-	TXDArchive* archive;
 	vector<const char*> temporaryStrings;
 	regex** regexes;
 	const char** destfiles;
+	int8_t* mipmapIndices;
 	int numPatterns;
 	int extractionCounter;
 	bool useRegex;

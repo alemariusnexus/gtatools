@@ -45,7 +45,8 @@ echo '      <tr bgcolor="#4682B4">' >> $ovw
 echo '        <th>TXD File</th>' >> $ovw
 echo '      </tr>' >> $ovw
 
-for txdfile in `gtaimg ls "$1" | grep '\.txd'`
+#for txdfile in `gtaimg ls "$1" | grep '\.txd'`
+for txdfile in `gtaimg ls "$1" | grep 'camera.*'`
 do
 	if [ $? -ne 0 ]
 		then
@@ -74,6 +75,12 @@ do
 	if [ -n "`tr -d ' \r\n\t' < "$texdataFile"`" ]
 	then
 		destdir=`echo "$txdfile" | awk '{print $1}'`
+		
+		i=1
+		while [ -d "$2/$destdir" ]
+		do
+			destdir="$destdir%$(( ++i ))"
+		done
 
 		echo "Extracting textures in '$txdfile'..."
 		mkdir "$2/$destdir"

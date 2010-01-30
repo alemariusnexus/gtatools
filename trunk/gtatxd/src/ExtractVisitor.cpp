@@ -13,6 +13,9 @@
 #include <string>
 #include <iostream>
 
+using std::cerr;
+using std::endl;
+
 
 
 ILenum GetFileFormat(const char* name)
@@ -31,6 +34,8 @@ ILenum GetFileFormat(const char* name)
 		return IL_TGA;
 	} else if (strcmp(name, "sgi") == 0) {
 		return IL_SGI;
+	} else if (strcmp(name, "tif") == 0) {
+		return IL_TIF;
 	}
 
 	return IL_TYPE_UNKNOWN;
@@ -60,6 +65,9 @@ void GetFileFormatExtension(char* dest, ILenum format)
 	case IL_SGI:
 		strcpy(dest, "sgi");
 		break;
+	case IL_TIF:
+		strcpy(dest, "tif");
+		break;
 	}
 }
 
@@ -68,14 +76,10 @@ const char flagOptions[][PARAM_MAXLEN] = {
 		"s", "r", "\0"
 };
 const char switchOptions[][PARAM_MAXLEN] = {
-		"f", "\0"
+		"f", "m", "\0"
 };
 
 
-struct MatchInfo {
-	boost::cmatch* match;
-	int patternIndex;
-};
 
 ExtractVisitor::ExtractVisitor(int argc, char** argv) {
 	ilInit();
@@ -111,6 +115,7 @@ ExtractVisitor::ExtractVisitor(int argc, char** argv) {
 
 	regexes = new regex*[numPatterns];
 	destfiles = new const char*[numPatterns];
+	mipmapIndices = new int8_t[numPatterns];
 
 	const char* format = GetSwitch("f");
 
@@ -125,6 +130,19 @@ ExtractVisitor::ExtractVisitor(int argc, char** argv) {
 	for (it = GetStandaloneParamBegin()+1 ; it != GetStandaloneParamEnd() ; it++) {
 		const char* srcfile = *it;
 		const char* destfile = NULL;
+
+		const char* mipmapBegin = strrchr(srcfile, '@');
+
+		if (mipmapBegin != NULL) {
+			char* realSrcfile = new char[mipmapBegin-srcfile+1];
+			strncpy(realSrcfile, srcfile, mipmapBegin-srcfile);
+			realSrcfile[mipmapBegin-srcfile] = '\0';
+			srcfile = realSrcfile;
+			temporaryStrings.push_back(realSrcfile);
+			mipmapIndices[i] = atoi(mipmapBegin+1);
+		} else {
+			mipmapIndices[i] = 0;
+		}
 
 		if (!sourcesOnly) {
 			destfile = *++it;
@@ -161,72 +179,71 @@ ExtractVisitor::~ExtractVisitor() {
 	}
 }
 
-bool ExtractVisitor::handleHeader(TXDTexture* header, void*& udata) {
+
+void ExtractVisitor::handleTexture(TXDArchive* archive, TXDTexture* header)
+{
 	for (int i = 0 ; i < numPatterns ; i++) {
 		boost::regex* reg = regexes[i];
 		boost::cmatch* match = new boost::cmatch;
 
 		if (boost::regex_match(header->getDiffuseName(), *match, *reg)) {
-			/*if (!TxdArchive::isSupported(header)) {
-				std::cerr << "Error: unsupported TXD format!" << std::endl;
-				exit(1);
-			}*/
+			const char* destfile = destfiles[i];
 
-			MatchInfo* info = new MatchInfo;
-			info->match = match;
-			info->patternIndex = i;
-			udata = info;
-			return true;
+			ILenum format = outputFormat;
+
+			if (format == IL_TYPE_UNKNOWN) {
+				format = IL_PNG;
+			}
+
+			TXDTexture* texture = header;
+
+			if (mipmapIndices[i] > header->getMipmapCount()-1) {
+				cerr << "Error: Texture " << header->getDiffuseName() << " does not have a mipmap at "
+						<< "index " << (int) mipmapIndices[i] << endl;
+				break;
+			}
+
+			for (int8_t j = 0 ; j < header->getMipmapCount() ; j++) {
+				uint8_t* rawData = archive->readTextureData(texture);
+
+				if (j != mipmapIndices[i]) {
+					delete[] rawData;
+					texture = texture->generateMipmap();
+					continue;
+				}
+
+				int16_t width = texture->getWidth();
+				int16_t height = texture->getHeight();
+
+				uint8_t* data = new uint8_t[width * height * 4];
+				texture->convert(data, rawData);
+				delete[] rawData;
+
+				ilBindImage(1);
+				ilTexImage(width, height, 0, 4, IL_RGBA, IL_UNSIGNED_BYTE, data);
+
+				if (destfile) {
+					std::string destStr = match->format(std::string(destfile), boost::format_perl);
+					const char* dest = destStr.c_str();
+					ilSave(outputFormat, dest);
+				} else {
+					char ext[8];
+					GetFileFormatExtension(ext, format);
+
+					char* autogenDestFile = new char[strlen(texture->getDiffuseName()) + strlen(ext) + 2];
+					sprintf(autogenDestFile, "%s.%s", texture->getDiffuseName(), ext);
+					ilSave(outputFormat, autogenDestFile);
+					delete[] autogenDestFile;
+				}
+
+				ilDeleteImage(1);
+
+				delete[] data;
+
+				break;
+			}
+
+			break;
 		}
-
-		delete match;
-	}
-
-	return false;
-}
-
-bool ExtractVisitor::handleTexture(TXDTexture* header, uint8_t* bmp, void*& udata) {
-	MatchInfo* info = (MatchInfo*) udata;
-	const char* destfile = destfiles[info->patternIndex];
-
-	ILenum format = outputFormat;
-
-	if (format == IL_TYPE_UNKNOWN) {
-		format = IL_PNG;
-	}
-
-	uint8_t* data = new uint8_t[header->getWidth() * header->getHeight() * 4];
-	header->convert(data, bmp);
-
-	ilBindImage(1);
-	ilTexImage(header->getWidth(), header->getHeight(), 0, 4, IL_RGBA, IL_UNSIGNED_BYTE, data);
-
-	if (destfile) {
-		std::string destStr = info->match->format(std::string(destfile), boost::format_perl);
-		const char* dest = destStr.c_str();
-
-		//long long s = GetTimestamp();
-		ilSave(outputFormat, dest);
-		//long long e = GetTimestamp();
-		//printf("        -> Took %fms\n", (e-s)/1000.0f);
-	} else {
-		char ext[8];
-		GetFileFormatExtension(ext, format);
-
-		char* autogenDestFile = new char[strlen(header->getDiffuseName()) + strlen(ext) + 2];
-		sprintf(autogenDestFile, "%s.%s", header->getDiffuseName(), ext);
-		ilSave(outputFormat, autogenDestFile);
-		delete[] autogenDestFile;
-	}
-
-	ilDeleteImage(1);
-
-	delete info->match;
-	delete info;
-
-	if (!useRegex) {
-		return ++extractionCounter < numPatterns;
-	} else {
-		return true;
 	}
 }
