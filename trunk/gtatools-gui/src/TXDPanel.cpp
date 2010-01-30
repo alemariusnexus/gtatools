@@ -3,6 +3,8 @@
 #include <wx/filedlg.h>
 #include <wx/dirdlg.h>
 #include <wx/choicdlg.h>
+#include <wx/msgdlg.h>
+#include <string>
 
 
 /*void GetFileFormatExtension(char* dest, ILenum format)
@@ -33,9 +35,8 @@
 }*/
 
 
-TXDPanel::TXDPanel(wxWindow* parent, wxWindow* window, istream* stream, wxMenu* menu,
-		bool autoCloseStream)
-		: TXDPanelPrototype(parent), menu(menu), stream(stream), autoCloseStream(autoCloseStream)
+/*TXDPanel::TXDPanel(wxWindow* parent, wxWindow* window, wxMenu* menu)
+		: TXDPanelPrototype(parent), menu(menu), stream(NULL), autoCloseStream(false)
 {
 	nameLabel->SetLabel(LangGet(TXDPanel_nameLabel_emptyValue));
 	formatDescLabel->SetLabel(LangGet(TXDPanel_formatDescLabel_value));
@@ -46,8 +47,8 @@ TXDPanel::TXDPanel(wxWindow* parent, wxWindow* window, istream* stream, wxMenu* 
 	compressionDescLabel->SetLabel(LangGet(TXDPanel_compressionDescLabel_value));
 	alphaUsedDescLabel->SetLabel(LangGet(TXDPanel_alphaUsedDescLabel_value));
 
-	TXDArchive* archive = new TXDArchive(stream);
-	displayArchive(archive);
+	//TXDArchive* archive = new TXDArchive(stream);
+	//displayArchive(archive);
 
 	wxMenuItem* extractItem = menu->FindItem(wxID_TXD_EXTRACT);
 	window->Connect(extractItem->GetId(), wxEVT_COMMAND_MENU_SELECTED,
@@ -72,7 +73,82 @@ TXDPanel::~TXDPanel()
 	extractItem->Enable(false);
 	GetParent()->Disconnect(extractItem->GetId(), wxEVT_COMMAND_MENU_SELECTED,
 			wxCommandEventHandler(TXDPanel::onExtract));
+}*/
+
+
+TXDPanel::TXDPanel(wxWindow* parent)
+		: TXDPanelPrototype(parent)
+{
+	nameLabel->SetLabel(LangGet(TXDPanel_nameLabel_emptyValue));
+	formatDescLabel->SetLabel(LangGet(TXDPanel_formatDescLabel_value));
+	bppDescLabel->SetLabel(LangGet(TXDPanel_bppDescLabel_value));
+	widthDescLabel->SetLabel(LangGet(TXDPanel_widthDescLabel_value));
+	heightDescLabel->SetLabel(LangGet(TXDPanel_heightDescLabel_value));
+	alphaTextureDescLabel->SetLabel(LangGet(TXDPanel_alphaTextureDescLabel_value));
+	compressionDescLabel->SetLabel(LangGet(TXDPanel_compressionDescLabel_value));
+	alphaUsedDescLabel->SetLabel(LangGet(TXDPanel_alphaUsedDescLabel_value));
+	extractButton->SetLabel(LangGet(TXDPanel_extractButton_label));
+
+	extractButton->Enable(false);
 }
+
+
+TXDPanel::~TXDPanel()
+{
+	close();
+}
+
+
+bool TXDPanel::doDisplay(istream* stream)
+{
+	this->stream = stream;
+
+	try {
+		TXDArchive* archive = new TXDArchive(stream);
+		displayArchive(archive);
+	} catch (TXDException ex) {
+		wxMessageBox("Error opening file!", "Error", wxOK | wxICON_ERROR);
+		return false;
+	}
+
+	return true;
+}
+
+
+void TXDPanel::doClose()
+{
+	nameLabel->SetLabel(LangGet(TXDPanel_nameLabel_emptyValue));
+	formatLabel->SetLabel("-");
+	bppLabel->SetLabel("-");
+	widthLabel->SetLabel("-");
+	heightLabel->SetLabel("-");
+	alphaTextureLabel->SetLabel("-");
+	compressionLabel->SetLabel("-");
+	alphaUsedLabel->SetLabel("-");
+
+	delete archive;
+}
+
+
+/*bool TXDPanel::displayArchive(istream* stream, bool autoCloseStream)
+{
+	if (autoCloseStream  &&  this->stream) {
+		delete this->stream;
+	}
+
+	this->stream = stream;
+	this->autoCloseStream = autoCloseStream;
+
+	try {
+		TXDArchive* archive = new TXDArchive(stream);
+		displayArchive(archive);
+	} catch (TXDException ex) {
+		wxMessageBox("Error opening file!", "Error", wxOK | wxICON_ERROR);
+		return false;
+	}
+
+	return true;
+}*/
 
 
 void TXDPanel::displayArchive(TXDArchive* archive)
@@ -146,7 +222,7 @@ void TXDPanel::onExtract(wxCommandEvent& evt)
 
 		path = fd.GetPath();
 	} else {
-		wxDirDialog dd(NULL, LangGet(TXDPanel_dlgExtractItem_title), getenv("HOME"), wxDD_DIR_MUST_EXIST);
+		wxDirDialog dd(NULL, LangGet(TXDPanel_dlgExtractItems_title), getenv("HOME"), wxDD_DIR_MUST_EXIST);
 
 		if (dd.ShowModal() != wxID_OK) {
 			return;
@@ -159,7 +235,6 @@ void TXDPanel::onExtract(wxCommandEvent& evt)
 		ImageFileFormat** supportedFormats = new ImageFileFormat*[GetSupportedImageFormatCount()];
 		int numFormats = GetSupportedImageFormats(supportedFormats);
 
-		//for (unsigned int i = 0 ; i < sizeof(SupportedImageFormats)/sizeof(ImageFileFormat) ; i++) {
 		for (int i = 0 ; i < numFormats ; i++) {
 			format = supportedFormats[i];
 			choices.Add(format->description);
@@ -213,11 +288,14 @@ void TXDPanel::onExtract(wxCommandEvent& evt)
 			wxString file = wxString(path) + wxString("/") + wxString(texture->getDiffuseName())
 					+ wxString(".") + format->extension;
 			ilSave(format->format, file);
-			delete format;
 		}
 
 		ilDeleteImage(1);
 		delete[] data;
+	}
+
+	if (numSel != 1) {
+		delete format;
 	}
 }
 
@@ -260,4 +338,12 @@ void TXDPanel::displayTexture(TXDTexture* texture)
 	uint8_t* data = archive->readTextureData(texture);
 	image->displayTexture(texture, data);
 	delete[] data;
+
+	extractButton->Enable();
+}
+
+
+bool TXDPanel::canDisplay(const wxString& filename)
+{
+	return TXDArchive::isValidFilename(string(filename.c_str()));
 }

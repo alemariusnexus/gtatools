@@ -17,9 +17,6 @@ using std::ifstream;
 bool Application::OnInit() {
 	ilInit();
 
-	/*wxFrame* frame = new wxFrame(NULL, -1, "Test Frame", wxDefaultPosition, wxSize(800, 600));
-	TXDPanel* panel = new TXDPanel(frame);*/
-
 	MainFrame* frame = new MainFrame(NULL);
 	/*TXDPanel* panel = new TXDPanel(frame);
 
