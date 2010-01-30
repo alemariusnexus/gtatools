@@ -82,14 +82,14 @@ enum {
 };
 
 
-const wxChar* LangGet(int id);
+wxString LangGet(int id);
 wxString LangGetFormatted(int id, ...);
 
 
 
 struct LangEntry {
 	int id;
-	wxChar text[128];
+	wxString text;
 };
 
 
@@ -221,14 +221,14 @@ _LANG_END()
 static const LangEntry* CurrentLanguage = German;
 
 
-inline const wxChar* LangGet(int id) {
+inline wxString LangGet(int id) {
 	for (int i = 0 ; CurrentLanguage[i].id != INVALID_LANG_ID ; i++) {
 		if (CurrentLanguage[i].id == id) {
 			return CurrentLanguage[i].text;
 		}
 	}
 
-	return NULL;
+	return wxString(wxT(""));
 }
 
 inline wxString LangGetFormatted(int id, ...) {

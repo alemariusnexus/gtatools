@@ -285,12 +285,12 @@ void TXDPanel::onExtract(wxCommandEvent& evt)
 		}
 
 		if (numSel == 1) {
-			ilSaveImage(path.mb_str());
+			ilSaveImage(path.c_str());
 		} else {
 			wxString file = wxString(path, wxConvUTF8) + wxT("/")
 					+ wxString(texture->getDiffuseName(), wxConvUTF8) + wxT(".")
 					+ wxString(format->extension, wxConvUTF8);
-			ilSave(format->format, file.mb_str());
+			ilSave(format->format, file.c_str());
 		}
 
 		ilDeleteImage(1);
