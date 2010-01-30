@@ -13,11 +13,19 @@
 
 class TXDException : public std::exception {
 public:
-	TXDException(const char* msg) throw() : message(msg) {}
+	enum ErrorCode {
+		SyntaxError,
+		Unsupported
+	};
+
+public:
+	TXDException(ErrorCode errCode, const char* msg) throw();
 	virtual const char* what() const throw() { return message; }
+	ErrorCode getErrorCode() const throw() { return errCode; }
 
 private:
-	const char* message;
+	ErrorCode errCode;
+	char* message;
 };
 
 

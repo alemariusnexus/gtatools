@@ -126,7 +126,7 @@ void RwGetSectionName(uint32_t id, char* dest) {
 		strcpy(dest, "RW_SECTION_TEXTURE");
 		break;
 	default:
-		strcpy(dest, "{invalid}");
+		sprintf(dest, "{invalid: %d}", id);
 		break;
 	}
 }
@@ -154,7 +154,7 @@ void RwGetVersionName(uint32_t version, char* dest) {
 	}
 }
 
-int RwReadSectionHeaderWithID(istream* stream, RwSectionHeader& header, uint32_t id) {
+/*int RwReadSectionHeaderWithID(istream* stream, RwSectionHeader& header, uint32_t id) {
 	int size = RwReadSectionHeader(stream, header);
 	if (header.id != id) {
 		char expected[64];
@@ -177,4 +177,4 @@ int RwSkipSectionWithID(istream* stream, uint32_t id) {
 	int size = RwReadSectionHeaderWithID(stream, header, id);
 	size += RwSkipSectionBody(stream, header);
 	return size;
-}
+}*/

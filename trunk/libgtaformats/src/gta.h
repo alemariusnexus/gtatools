@@ -68,9 +68,9 @@ inline int RwSkipSectionBody(istream* stream, RwSectionHeader& header) {
 
 void RwGetSectionName(uint32_t id, char* dest);
 void RwGetVersionName(uint32_t version, char* dest);
-int RwReadSectionHeaderWithID(istream* stream, RwSectionHeader& header, uint32_t id);
-int RwSkipSectionHeaderWithID(istream* stream, uint32_t id);
-int RwSkipSectionWithID(istream* stream, uint32_t id);
+//int RwReadSectionHeaderWithID(istream* stream, RwSectionHeader& header, uint32_t id);
+//int RwSkipSectionHeaderWithID(istream* stream, uint32_t id);
+//int RwSkipSectionWithID(istream* stream, uint32_t id);
 
 int crc32(const char value[]);
 

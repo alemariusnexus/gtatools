@@ -22,7 +22,7 @@ DffMesh* DffLoader::loadMesh(istream* stream) {
 	DffMesh* mesh = new DffMesh;
 
 	RwSectionHeader clump;
-	RwReadSectionHeaderWithID(stream, clump, RW_SECTION_CLUMP);
+	readSectionHeaderWithID(stream, clump, RW_SECTION_CLUMP);
 
 	if (verbose) {
 		char version[64];
@@ -30,13 +30,13 @@ DffMesh* DffLoader::loadMesh(istream* stream) {
 		printf("File version: %s\n", version);
 	}
 
-	RwSkipSectionWithID(stream, RW_SECTION_STRUCT);
-	RwSkipSectionWithID(stream, RW_SECTION_FRAMELIST);
+	skipSectionWithID(stream, RW_SECTION_STRUCT);
+	skipSectionWithID(stream, RW_SECTION_FRAMELIST);
 
-	RwSkipSectionHeaderWithID(stream, RW_SECTION_GEOMETRYLIST);
+	skipSectionHeaderWithID(stream, RW_SECTION_GEOMETRYLIST);
 
 	RwSectionHeader geomListStruct;
-	RwReadSectionHeaderWithID(stream, geomListStruct, RW_SECTION_STRUCT);
+	readSectionHeaderWithID(stream, geomListStruct, RW_SECTION_STRUCT);
 
 	int32_t geomCount;
 	//ReadBytes(stream, &geomCount, 4);
@@ -69,14 +69,14 @@ void DffLoader::parseGeometry(istream* stream, DffMesh* mesh) {
 	int size;
 
 	RwSectionHeader geometry;
-	RwReadSectionHeaderWithID(stream, geometry, RW_SECTION_GEOMETRY);
+	readSectionHeaderWithID(stream, geometry, RW_SECTION_GEOMETRY);
 
 	//istream::pos_type start = stream.tellg();
 	//gtastreampos start = GetStreamPosition(stream);
 	int readCount = 0;
 
 	RwSectionHeader geomStruct;
-	readCount += RwReadSectionHeaderWithID(stream, geomStruct, RW_SECTION_STRUCT);
+	readCount += readSectionHeaderWithID(stream, geomStruct, RW_SECTION_STRUCT);
 
 	DffGeometryStructHeader header;
 	//readCount += ReadBytes(stream, &header, sizeof(DffGeometryStructHeader));
@@ -161,10 +161,10 @@ void DffLoader::parseGeometry(istream* stream, DffMesh* mesh) {
 	}
 
 
-	readCount += RwSkipSectionHeaderWithID(stream, RW_SECTION_MATERIALLIST);
+	readCount += skipSectionHeaderWithID(stream, RW_SECTION_MATERIALLIST);
 
 	RwSectionHeader h;
-	readCount += RwReadSectionHeaderWithID(stream, h, RW_SECTION_STRUCT);
+	readCount += readSectionHeaderWithID(stream, h, RW_SECTION_STRUCT);
 
 	//readCount += ReadBytes(stream, &mesh->materialCount, 4);
 	stream->read((char*) &mesh->materialCount, 4);
@@ -192,10 +192,10 @@ void DffLoader::parseGeometry(istream* stream, DffMesh* mesh) {
 		}
 
 		RwSectionHeader materialHeader;
-		readCount += RwReadSectionHeaderWithID(stream, materialHeader, RW_SECTION_MATERIAL);
+		readCount += readSectionHeaderWithID(stream, materialHeader, RW_SECTION_MATERIAL);
 		int bytesReadBefore = readCount;
 
-		readCount += RwSkipSectionHeaderWithID(stream, RW_SECTION_STRUCT);
+		readCount += skipSectionHeaderWithID(stream, RW_SECTION_STRUCT);
 
 		DffMaterial* material = new DffMaterial;
 		mesh->materials[i] = material;
@@ -218,10 +218,10 @@ void DffLoader::parseGeometry(istream* stream, DffMesh* mesh) {
 			DffTexture* texture = new DffTexture;
 
 			RwSectionHeader textureHeader;
-			readCount += RwReadSectionHeaderWithID(stream, textureHeader, RW_SECTION_TEXTURE);
+			readCount += readSectionHeaderWithID(stream, textureHeader, RW_SECTION_TEXTURE);
 			int bytesReadBeforeTexture = readCount;
 
-			readCount += RwSkipSectionHeaderWithID(stream, RW_SECTION_STRUCT);
+			readCount += skipSectionHeaderWithID(stream, RW_SECTION_STRUCT);
 
 			//readCount += ReadBytes(stream, &texture->filterModeFlags, sizeof(uint16_t));
 			//readCount += SkipBytes(stream, 2);
@@ -231,13 +231,13 @@ void DffLoader::parseGeometry(istream* stream, DffMesh* mesh) {
 
 			RwSectionHeader strHeader;
 
-			readCount += RwReadSectionHeaderWithID(stream, strHeader, RW_SECTION_STRING);
+			readCount += readSectionHeaderWithID(stream, strHeader, RW_SECTION_STRING);
 			texture->textureName = new char[strHeader.size];
 			//readCount += ReadBytes(stream, texture->textureName, strHeader.size);
 			stream->read((char*) texture->textureName, strHeader.size);
 			readCount += strHeader.size;
 
-			readCount += RwReadSectionHeaderWithID(stream, strHeader, RW_SECTION_STRING);
+			readCount += readSectionHeaderWithID(stream, strHeader, RW_SECTION_STRING);
 			texture->maskName = new char[strHeader.size];
 			//readCount += ReadBytes(stream, texture->maskName, strHeader.size);
 			stream->read((char*) texture->maskName, strHeader.size);
@@ -262,10 +262,10 @@ void DffLoader::parseGeometry(istream* stream, DffMesh* mesh) {
 		readCount += size;
 	}
 
-	readCount += RwSkipSectionHeaderWithID(stream, RW_SECTION_EXTENSION);
+	readCount += skipSectionHeaderWithID(stream, RW_SECTION_EXTENSION);
 
 	RwSectionHeader materialSplit;
-	readCount += RwReadSectionHeaderWithID(stream, materialSplit, RW_SECTION_MATERIALSPLIT);
+	readCount += readSectionHeaderWithID(stream, materialSplit, RW_SECTION_MATERIALSPLIT);
 
 	int32_t triangleStrip, splitCount, faceCount;
 
