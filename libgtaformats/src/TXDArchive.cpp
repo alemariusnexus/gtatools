@@ -14,17 +14,14 @@
 using namespace squish;
 
 
-
-
-
 TXDArchive::TXDArchive(istream* stream)
 		: stream(stream), readIndex(0), currentTextureNativeSize(-1), currentTextureNativeStart(-1)
 {
 	char skipBuf[2];
 
 	RwSectionHeader header;
-	RwReadSectionHeaderWithID(stream, header, RW_SECTION_TEXTUREDICTIONARY);
-	RwReadSectionHeaderWithID(stream, header, RW_SECTION_STRUCT);
+	readSectionHeaderWithID(stream, header, RW_SECTION_TEXTUREDICTIONARY);
+	readSectionHeaderWithID(stream, header, RW_SECTION_STRUCT);
 
 	stream->read((char*) &textureCount, 2);
 	stream->read(skipBuf, 2);
@@ -89,10 +86,24 @@ TXDTexture* TXDArchive::nextTexture()
 void TXDArchive::readTextureData(uint8_t* dest, TXDTexture* texture)
 {
 	int32_t rasterSize;
-	stream->read((char*) &rasterSize, 4);
-	stream->read((char*) dest, rasterSize);
+
+	if ((texture->getRasterFormatExtension() & TXD_FORMAT_EXT_PAL4) != 0) {
+		stream->read((char*) dest, 16*4);
+		stream->read((char*) &rasterSize, 4);
+		stream->read((char*) dest + 16*4, rasterSize);
+		bytesRead += 16*4 + rasterSize + 4;
+	} else if ((texture->getRasterFormatExtension() & TXD_FORMAT_EXT_PAL8) != 0) {
+		stream->read((char*) dest, 256*4);
+		stream->read((char*) &rasterSize, 4);
+		stream->read((char*) dest + 256*4, rasterSize);
+		bytesRead += 256*4 + rasterSize + 4;
+	} else {
+		stream->read((char*) &rasterSize, 4);
+		stream->read((char*) dest, rasterSize);
+		bytesRead += rasterSize+4;
+	}
+
 	assertNoEOF();
-	bytesRead += rasterSize+4;
 }
 
 uint8_t* TXDArchive::readTextureData(TXDTexture* texture)
@@ -107,12 +118,7 @@ void TXDArchive::gotoTexture(TXDTexture* texture)
 	for (int i = 0 ; i < textureCount ; i++) {
 		if (indexedTextures[i] == texture) {
 			long long start = textureNativeStarts[i];
-			//stream->seekg(start+112, istream::beg);
 			stream->seekg((start+112) - bytesRead, istream::cur);
-
-			if (stream->fail()) {
-				throw TXDException("Unable to seek entry");
-			}
 
 			bytesRead = start+112;
 
@@ -127,13 +133,7 @@ void TXDArchive::visit(TXDVisitor* visitor, TXDTexture* texture)
 		gotoTexture(texture);
 	}
 
-	void* udata;
-
-	if (visitor->handleHeader(texture, udata)) {
-		uint8_t* data = readTextureData(texture);
-		visitor->handleTexture(texture, data, udata);
-		delete[] data;
-	}
+	visitor->handleTexture(this, texture);
 }
 
 void TXDArchive::visitAll(TXDVisitor* visitor)

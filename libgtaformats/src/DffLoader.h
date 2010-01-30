@@ -12,6 +12,7 @@
 #include "gta.h"
 #include "DffMesh.h"
 #include <istream>
+#include <cstdio>
 
 using std::istream;
 
@@ -49,6 +50,35 @@ protected:
 private:
 	void parseGeometry(istream* stream, DffMesh* mesh);
 	void parseMaterial(istream* stream, DffMesh* mesh);
+	inline int readSectionHeaderWithID(istream* stream, RwSectionHeader& header, uint32_t id)
+	{
+		RwReadSectionHeader(stream, header);
+
+		if (header.id != id) {
+			char expected[64];
+			char found[64];
+			RwGetSectionName(id, expected);
+			RwGetSectionName(header.id, found);
+			char errmsg[256];
+			sprintf(errmsg, "Error: Found section with type %s where %s was expected!\n", found, expected);
+			//throw IMGException(errmsg, bytesRead);
+			// TODO throw exception
+		}
+
+		return sizeof(header);
+	}
+	inline int skipSectionHeaderWithID(istream* stream, uint32_t id)
+	{
+		RwSectionHeader header;
+		readSectionHeaderWithID(stream, header, id);
+		return sizeof(header);
+	}
+	inline int skipSectionWithID(istream* stream, uint32_t id)
+	{
+		RwSectionHeader header;
+		readSectionHeaderWithID(stream, header, id);
+		return RwSkipSectionBody(stream, header) + sizeof(header);
+	}
 
 private:
 	bool verbose;

@@ -12,6 +12,7 @@
 #include "TXDException.h"
 #include "TXDTexture.h"
 #include "TXDVisitor.h"
+#include "gta.h"
 #include <istream>
 #include <string>
 #include <algorithm>
@@ -56,8 +57,22 @@ public:
 
 private:
 	void assertNoEOF() {
-		if (stream->eof())
-			throw TXDException("Premature end of file");
+		/*if (stream->eof())
+			throw TXDException("Premature end of file");*/
+	}
+	inline void readSectionHeaderWithID(istream* stream, RwSectionHeader& header, uint32_t id)
+	{
+		RwReadSectionHeader(stream, header);
+
+		if (header.id != id) {
+			char expected[64];
+			char found[64];
+			RwGetSectionName(id, expected);
+			RwGetSectionName(header.id, found);
+			char errmsg[256];
+			sprintf(errmsg, "Found section with type %s where %s was expected!\n", found, expected);
+			throw TXDException(TXDException::SyntaxError, errmsg);
+		}
 	}
 
 private:

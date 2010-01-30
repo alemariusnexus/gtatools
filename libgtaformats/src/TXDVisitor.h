@@ -11,12 +11,12 @@
 #include "TXDArchive.h"
 
 class TXDTexture;
+class TXDArchive;
 
 class TXDVisitor {
 public:
 	TXDVisitor();
-	virtual bool handleHeader(TXDTexture* header, void*& userData) = 0;
-	virtual bool handleTexture(TXDTexture* header, uint8_t* bmp, void*& userData) = 0;
+	virtual void handleTexture(TXDArchive* archive, TXDTexture* texture) = 0;
 };
 
 #endif /* TXDVISITOR_H_ */

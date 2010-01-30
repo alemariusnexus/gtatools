@@ -35,20 +35,24 @@ void TxdGetRasterFormatName(char* dest, int32_t rasterFormat) {
 	case TXD_FORMAT_R5G6B5:
 		strcpy(dest, "R5G6B5");
 		break;
+	case TXD_FORMAT_LUM8:
+		strcpy(dest, "LUM8");
+		break;
 	}
 }
 
 
 TXDTexture::TXDTexture(const char* diffuseName, const char* alphaName, int32_t rasterFormat,
-			TXDCompression compression, int16_t width, int16_t height, int8_t bpp, int8_t mipmapCount)
+			TXDCompression compression, int16_t width, int16_t height, int8_t bpp, int8_t mipmapCount,
+			bool alphaChannel, int8_t uWrap, int8_t vWrap, int16_t filterFlags)
 		: rasterFormat(rasterFormat), compression(compression), width(width), height(height),
-		  bytesPerPixel(bpp), mipmapCount(mipmapCount)
+		  bytesPerPixel(bpp), mipmapCount(mipmapCount), alphaChannel(alphaChannel), uWrap(uWrap),
+		  vWrap(vWrap), filterFlags(filterFlags)
 {
 	strncpy(this->diffuseName, diffuseName, 32);
 	strncpy(this->alphaName, alphaName, 32);
-
-
 }
+
 
 TXDTexture::TXDTexture(istream* stream)
 {
@@ -56,11 +60,13 @@ TXDTexture::TXDTexture(istream* stream)
 
 	int32_t platformId;
 	stream->read((char*) &platformId, 4);
-	stream->read(skipBuf, 4);
+	//stream->read(skipBuf, 4);
+	stream->read((char*) &filterFlags, 2);
+	stream->read((char*) &uWrap, 1);
+	stream->read((char*) &vWrap, 1);
 	stream->read(diffuseName, 32);
 	stream->read(alphaName, 32);
 	stream->read((char*) &rasterFormat, 4);
-	//char alphaFourCC[4];
 	int32_t alphaFourCC;
 	stream->read((char*) &alphaFourCC, 4);
 	stream->read((char*) &width, 2);
@@ -71,10 +77,6 @@ TXDTexture::TXDTexture(istream* stream)
 	stream->read(skipBuf, 1);
 	int8_t dxtType;
 	stream->read((char*) &dxtType, 1);
-
-	if (stream->eof()) {
-		throw TXDException("Premature end of file");
-	}
 
 	if (platformId == 9) {
 		alphaChannel = (dxtType == 9);
@@ -105,7 +107,7 @@ TXDTexture::TXDTexture(istream* stream)
 }
 
 void TXDTexture::getColorMasks(int32_t& redMask, int32_t& greenMask, int32_t& blueMask,
-		int32_t& alphaMask)
+		int32_t& alphaMask) const
 {
 	switch (rasterFormat) {
 	case TXD_FORMAT_A1R5G5B5:
@@ -144,10 +146,16 @@ void TXDTexture::getColorMasks(int32_t& redMask, int32_t& greenMask, int32_t& bl
 		blueMask = 0xF800;
 		alphaMask = 0;
 		break;
+	case TXD_FORMAT_LUM8:
+		redMask = 0xFF;
+		greenMask = 0xFF;
+		blueMask = 0xFF;
+		alphaMask = 0xFF;
+		break;
 	}
 }
 
-void TXDTexture::getFormat(char* dest)
+void TXDTexture::getFormat(char* dest) const
 {
 	char compStr[8];
 	char formatStr[16];
@@ -166,7 +174,7 @@ void TXDTexture::getFormat(char* dest)
 }
 
 void TXDTexture::convert(uint8_t* dest, const uint8_t* src, TXDMirrorFlags mirror,
-		int8_t bpp, int redOffset, int greenOffset, int blueOffset, int alphaOffset)
+		int8_t bpp, int redOffset, int greenOffset, int blueOffset, int alphaOffset) const
 {
 	int8_t srcBpp = bytesPerPixel;
 	const uint8_t* data;
@@ -221,6 +229,25 @@ void TXDTexture::convert(uint8_t* dest, const uint8_t* src, TXDMirrorFlags mirro
         }
 	}
 
+	bool pal4 = (getRasterFormatExtension() & TXD_FORMAT_EXT_PAL4) != 0;
+	bool pal8 = (getRasterFormatExtension() & TXD_FORMAT_EXT_PAL8) != 0;
+
+	const uint8_t* palette = NULL;
+
+	if (pal4  ||  pal8) {
+		printf("*** WARNING: Attempt to convert a paletted image which was NEVER tested and is "
+				"VERY likely to fail (Texture: %s; Warning reported by TXDTexture.cpp, line %d)!",
+				getDiffuseName(), __LINE__);
+	}
+
+	if (pal4) {
+		palette = data;
+		data += 16*4;
+	} else if (pal8) {
+		palette = data;
+		data += 256*4;
+	}
+
 	for (int16_t y = 0 ; y < height ; y++) {
 		for (int16_t x = 0 ; x < width ; x++) {
 			int srcIdx = (y*width + x);
@@ -239,12 +266,26 @@ void TXDTexture::convert(uint8_t* dest, const uint8_t* src, TXDMirrorFlags mirro
 			int32_t pixel;
 			memcpy(&pixel, data+srcIdx, srcBpp);
 
-			dest[destIdx + redOffset] = (pixel & redMask) >> rShift;
-			dest[destIdx + greenOffset] = (pixel & greenMask) >> gShift;
-			dest[destIdx + blueOffset] = (pixel & blueMask) >> bShift;
+			if (pal4) {
+				pixel = palette[pixel & 0xFF];
+				dest[destIdx + redOffset] = pixel & 0xFF;
+				dest[destIdx + greenOffset] = (pixel & 0xFF00) >> 8;
+				dest[destIdx + blueOffset] = (pixel & 0xFF0000) >> 16;
 
-			if (alphaOffset != -1) {
-				dest[destIdx + alphaOffset] = 255;
+				if (alphaOffset != -1) {
+					dest[destIdx + alphaOffset] = (pixel & 0xFF000000) >> 24;
+				}
+			} else if (pal8) {
+				throw TXDException(TXDException::Unsupported, "PAL8 files not yet supported!");
+			} else {
+				dest[destIdx + redOffset] = (pixel & redMask) >> rShift;
+				dest[destIdx + greenOffset] = (pixel & greenMask) >> gShift;
+				dest[destIdx + blueOffset] = (pixel & blueMask) >> bShift;
+
+				if (alphaOffset != -1) {
+					//dest[destIdx + alphaOffset] = 255;
+					dest[destIdx + alphaOffset] = (pixel & alphaMask) >> aShift;
+				}
 			}
 		}
 	}
@@ -252,4 +293,11 @@ void TXDTexture::convert(uint8_t* dest, const uint8_t* src, TXDMirrorFlags mirro
 	if (compression != NONE) {
 		delete[] data;
 	}
+}
+
+
+TXDTexture* TXDTexture::generateMipmap() const
+{
+	return new TXDTexture(diffuseName, alphaName, rasterFormat, compression, width/2, height/2,
+			bytesPerPixel, mipmapCount-1, alphaChannel, uWrap, vWrap, filterFlags);
 }
