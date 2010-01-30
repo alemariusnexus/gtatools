@@ -2,7 +2,7 @@
 #include "TXDPanel.h"
 #include "IMGPanel.h"
 
-#include <gtaformats/TXDArchive.h>
+#include <TXDArchive.h>
 #include <string>
 #include <fstream>
 #include <wx/filedlg.h>

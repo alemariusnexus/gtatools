@@ -10,7 +10,7 @@
 
 #include <wx/panel.h>
 #include <wx/window.h>
-#include <gtaformats/TXDTexture.h>
+#include <TXDTexture.h>
 
 class TXDTextureDisplayer : public wxWindow {
 public:

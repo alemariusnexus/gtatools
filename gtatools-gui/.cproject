@@ -26,6 +26,9 @@
 </builder>
 <tool id="cdt.managedbuild.tool.gnu.archiver.base.271827587" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
 <tool command="g++ `wx-config --cxxflags`" id="cdt.managedbuild.tool.gnu.cpp.compiler.base.456443689" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base">
+<option id="gnu.cpp.compiler.option.include.paths.277672586" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+<listOptionValue builtIn="false" value="/usr/local/include/gtaformats"/>
+</option>
 <inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1067585594" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 </tool>
 <tool id="cdt.managedbuild.tool.gnu.c.compiler.base.2144598112" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base">

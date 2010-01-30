@@ -1,7 +1,7 @@
 #include "IMGPanel.h"
 #include "TXDPanel.h"
-#include <gtaformats/IMGException.h>
-#include <gtaformats/TXDArchive.h>
+#include <IMGException.h>
+#include <TXDArchive.h>
 #include <cstdio>
 #include <fstream>
 #include "lang/lang.h"
