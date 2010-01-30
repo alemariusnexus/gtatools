@@ -21,8 +21,8 @@ class ExtractVisitor : public IMGVisitor {
 public:
 	ExtractVisitor(int argc, char** argv);
 	virtual ~ExtractVisitor();
-	bool readHeader(IMGEntry* header, void*& udata);
-	void readEntry(IMGEntry* entry, istream* stream, void*& udata);
+	int8_t readHeader(IMGEntry* header, void*& udata);
+	void readEntry(IMGEntry* entry, istream* stream, void*& udata, int8_t mipmapNum);
 
 private:
 	int numPatterns;

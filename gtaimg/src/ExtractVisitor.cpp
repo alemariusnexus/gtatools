@@ -24,7 +24,7 @@ const char flags[][PARAM_MAXLEN] = {
 		"r", "s", "o", "\0"
 };
 const char switches[][PARAM_MAXLEN] = {
-		"\0"
+		"f", "\0"
 };
 
 
