@@ -1,10 +1,19 @@
 #include "TXDPanel.h"
 #include <IL/il.h>
+#include <IL/ilu.h>
 #include <wx/filedlg.h>
 #include <wx/dirdlg.h>
 #include <wx/choicdlg.h>
 #include <wx/msgdlg.h>
 #include <string>
+
+#include <fstream>
+#include <iostream>
+
+using std::wcout;
+using std::cout;
+using std::endl;
+using std::ofstream;
 
 
 /*void GetFileFormatExtension(char* dest, ILenum format)
@@ -205,7 +214,7 @@ void TXDPanel::onExtract(wxCommandEvent& evt)
 			ImageFileFormat* format = supportedFormats[i];
 			wildcards.Append(format->description).Append(wxT(" (*."))
 					.Append(wxString(format->extension, wxConvUTF8)).Append(wxT(")|*."))
-					.Append(wxString(format->extension, wxConvUTF8)).Append(wxT(")"));
+					.Append(wxString(format->extension, wxConvUTF8));
 
 			delete format;
 		}
@@ -219,6 +228,8 @@ void TXDPanel::onExtract(wxCommandEvent& evt)
 		if (fd.ShowModal() != wxID_OK) {
 			return;
 		}
+
+		wxMessageBox(fd.GetPath());
 
 		path = fd.GetPath();
 	} else {
@@ -285,6 +296,7 @@ void TXDPanel::onExtract(wxCommandEvent& evt)
 		}
 
 		if (numSel == 1) {
+			wxMessageBox(path);
 			ilSaveImage(path.c_str());
 		} else {
 			wxString file = wxString(path, wxConvUTF8) + wxT("/")
