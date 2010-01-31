@@ -11,8 +11,13 @@
 #include <wx/frame.h>
 #include <fstream>
 #include <IL/il.h>
+#include <iostream>
+#include <cstdio>
+#include <wx/msgdlg.h>
 
 using std::ifstream;
+using std::cout;
+using std::endl;
 
 bool Application::OnInit() {
 	ilInit();
