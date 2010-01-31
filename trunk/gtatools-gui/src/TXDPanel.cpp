@@ -1,19 +1,7 @@
 #include "TXDPanel.h"
 #include <IL/il.h>
-#include <IL/ilu.h>
-#include <wx/filedlg.h>
-#include <wx/dirdlg.h>
-#include <wx/choicdlg.h>
-#include <wx/msgdlg.h>
+#include <wx/wx.h>
 #include <string>
-
-#include <fstream>
-#include <iostream>
-
-using std::wcout;
-using std::cout;
-using std::endl;
-using std::ofstream;
 
 
 /*void GetFileFormatExtension(char* dest, ILenum format)
@@ -296,13 +284,20 @@ void TXDPanel::onExtract(wxCommandEvent& evt)
 		}
 
 		if (numSel == 1) {
-			wxMessageBox(path);
-			ilSaveImage(path.c_str());
+			#if (defined(UNICODE)  ||  defined(_UNICODE))  &&  !defined(IL_NO_UNICODE)
+				ilSaveImage(file.c_str());
+			#else
+				ilSaveImage(path.mb_str());
+			#endif
 		} else {
 			wxString file = wxString(path, wxConvUTF8) + wxT("/")
 					+ wxString(texture->getDiffuseName(), wxConvUTF8) + wxT(".")
 					+ wxString(format->extension, wxConvUTF8);
-			ilSave(format->format, file.c_str());
+			#if (defined(UNICODE)  ||  defined(_UNICODE))  &&  !defined(IL_NO_UNICODE)
+				ilSave(format->format, file.c_str());
+			#else
+				ilSave(format->format, file.mb_str());
+			#endif
 		}
 
 		ilDeleteImage(1);
