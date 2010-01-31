@@ -285,7 +285,7 @@ void TXDPanel::onExtract(wxCommandEvent& evt)
 
 		if (numSel == 1) {
 			#if (defined(UNICODE)  ||  defined(_UNICODE))  &&  !defined(IL_NO_UNICODE)
-				ilSaveImage(file.c_str());
+				ilSaveImage(path.c_str());
 			#else
 				ilSaveImage(path.mb_str());
 			#endif
