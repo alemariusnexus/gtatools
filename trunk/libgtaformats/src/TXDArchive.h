@@ -56,14 +56,14 @@ private:
 
 private:
 	istream* stream;
-	long long bytesRead;
+	istream::streampos bytesRead;
 	TXDTexture** indexedTextures;
-	long long* textureNativeStarts;
+	istream::streampos* textureNativeStarts;
 	int16_t readIndex;
 	int16_t textureCount;
 	TXDTexture* currentTexture;
 	int32_t currentTextureNativeSize;
-	long long currentTextureNativeStart;
+	istream::streampos currentTextureNativeStart;
 };
 
 #endif /* TXDARCHIVE_H_ */
