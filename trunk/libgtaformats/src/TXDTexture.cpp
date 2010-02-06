@@ -315,13 +315,13 @@ void TXDTexture::convert(uint8_t* dest, const uint8_t* src, TXDMirrorFlags mirro
 			}
 
 			// Extract RGBA using the previously calculated masks and shift values.
-			r = (pixel & redMask) >> rShift;
-			g = (pixel & greenMask) >> gShift;
-			b = (pixel & blueMask) >> bShift;
+			r = (uint8_t) ((pixel & redMask) >> rShift);
+			g = (uint8_t) ((pixel & greenMask) >> gShift);
+			b = (uint8_t) ((pixel & blueMask) >> bShift);
 
 			// If there's no alpha channel bit alphaOffset is != -1, assume 255 (opaque)
 			if (alphaChannel) {
-				a = (pixel & alphaMask) >> aShift;
+				a = (uint8_t) ((pixel & alphaMask) >> aShift);
 			} else {
 				a = 255;
 			}
@@ -348,5 +348,5 @@ void TXDTexture::convert(uint8_t* dest, const uint8_t* src, TXDMirrorFlags mirro
 TXDTexture* TXDTexture::generateMipmap() const
 {
 	return new TXDTexture(diffuseName, alphaName, rasterFormat, compression, width/2, height/2,
-			bytesPerPixel, mipmapCount-1, alphaChannel, uWrap, vWrap, filterFlags);
+			bytesPerPixel, (int8_t) (mipmapCount-1), alphaChannel, uWrap, vWrap, filterFlags);
 }

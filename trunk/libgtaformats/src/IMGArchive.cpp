@@ -139,9 +139,9 @@ IMGArchive::IMGVersion IMGArchive::guessIMGVersion(const char* filename)
 
 
 istream* IMGArchive::gotoEntry(IMGEntry* entry) {
-	istream::streampos start = entry->offset*IMG_BLOCK_SIZE;
+	istream::streamoff start = entry->offset*IMG_BLOCK_SIZE;
 
-	istream::streampos cpos;
+	istream::streamoff cpos;
 
 	if (randomAccess) {
 		cpos = stream->tellg();

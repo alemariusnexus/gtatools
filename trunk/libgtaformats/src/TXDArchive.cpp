@@ -31,7 +31,7 @@ TXDArchive::TXDArchive(istream* stream)
 
 	bytesRead += 4;
 
-	textureNativeStarts = new istream::streampos[textureCount];
+	textureNativeStarts = new istream::streamoff[textureCount];
 	indexedTextures = new TXDTexture*[textureCount];
 
 	for (int16_t i = 0 ; i < textureCount ; i++) {
@@ -55,7 +55,7 @@ TXDTexture* TXDArchive::nextTexture()
 {
 	if (currentTextureNativeStart != -1) {
 		char skipBuf[2048];
-		istream::streampos len = currentTextureNativeStart + currentTextureNativeSize + 12 - bytesRead;
+		istream::streamoff len = currentTextureNativeStart + currentTextureNativeSize + 12 - bytesRead;
 		SkipBytes(stream, len, skipBuf, sizeof(skipBuf));
 		bytesRead += len;
 		assertNoEOF();
@@ -63,7 +63,7 @@ TXDTexture* TXDArchive::nextTexture()
 
 	char skipBuf[12];
 
-	istream::streampos texNativeStart = bytesRead;
+	istream::streamoff texNativeStart = bytesRead;
 
 	RwSectionHeader texNative;
     RwReadSectionHeader(stream, texNative);
@@ -128,7 +128,7 @@ void TXDArchive::gotoTexture(TXDTexture* texture)
 {
 	for (int i = 0 ; i < textureCount ; i++) {
 		if (indexedTextures[i] == texture) {
-			istream::streampos start = textureNativeStarts[i];
+			istream::streamoff start = textureNativeStarts[i];
 			stream->seekg((start+112) - bytesRead, istream::cur);
 
 			bytesRead = start+112;
