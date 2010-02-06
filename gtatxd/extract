@@ -45,8 +45,8 @@ echo '      <tr bgcolor="#4682B4">' >> $ovw
 echo '        <th>TXD File</th>' >> $ovw
 echo '      </tr>' >> $ovw
 
-#for txdfile in `gtaimg ls "$1" | grep '\.txd'`
-for txdfile in `gtaimg ls "$1" | grep 'camera.*'`
+for txdfile in `gtaimg ls "$1" | grep '\.txd'`
+#for txdfile in `gtaimg ls "$1" | grep 'camera.*'`
 do
 	if [ $? -ne 0 ]
 		then

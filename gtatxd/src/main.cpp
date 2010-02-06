@@ -54,7 +54,7 @@ Commands & Parameters:\n\
         the TXDFILE is followed by pairs of the texture name to extract and\n\
         the file to write it to. When using the -s flag, only the texture\n\
         names are given. The textures will be written to files in the current\n\
-        directory, with names of the form TXDNAME.png. Other flags are:\n\
+        directory, with names of the form TXDNAME.XXX. Other flags are:\n\
             -r  Interpret texture names as regular expressions. When this flag\n\
                 is given, all matching files will be written to the current\n\
                 working directory with names of the form TXDNAME.png. The\n\
@@ -62,20 +62,20 @@ Commands & Parameters:\n\
             -f  The format into which textures will be extracted. If you don't\n\
                 give this option, the default is PNG. Note that not always all\n\
                 formats will work for a texture (e.g. JPEG does not work for\n\
-                textures with alpha channel. Supported formats are: bmp, png,\n\
-                jpg, pnm, psd, tga, sgi, tif.\n\
+                textures with alpha channel). To be sure that extraction will \n\
+                work, you can use PNG, which should work for all textures.\n\
+                Supported formats are: bmp, png, jpg, pnm, psd, tga, sgi, tif.\n\
 \n\
 Notes:\n\
     Wherever you are asked to provide the TXDFILE you can also pass the string\n\
     '-', which will cause the program to read the TXDFILE from stdin.\n\
     \n\
-    Paletted textures are currently not supported. There is code for them, but\n\
-    it will most likely fail because it was never tested. However, GTA3 is the\n\
-    only GTA to use paletted textures in it's original TXDs.\n\
-    \n\
     Warning: There ARE textures with whitespaces in their names, so if you want\n\
     the output of 'list' to be processed by other tools, you can't rely on using\n\
     whitespaces as field-separators. You should use the -s option here.\n\
+    \n\
+    Official support is only given for TXD files of the PC versions of GTA3,\n\
+    Vice City and San Andreas. PS2 files are not supported.\n\
 \n\
 Examples:\n\
     List all textures inside test.txd with their width and height:\n\
