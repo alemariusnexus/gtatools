@@ -53,7 +53,7 @@ enum TXDMirrorFlags {
 
 class TXDTexture {
 public:
-	TXDTexture(istream* stream, long long& bytesRead);
+	TXDTexture(istream* stream, istream::streamoff& bytesRead);
 	void getColorMasks(int32_t& redMask, int32_t& greenMask, int32_t& blueMask, int32_t& alphaMask) const;
 	void getFormat(char* dest) const;
 
