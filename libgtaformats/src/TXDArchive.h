@@ -18,6 +18,7 @@
 #include <algorithm>
 #include <cctype>
 #include <cstdio>
+#include "gf_filetype.h"
 
 using std::istream;
 using std::string;
@@ -33,14 +34,8 @@ class TXDVisitor;
 
 class TXDArchive {
 public:
-	static bool isValidExtension(const string& extension) {
-		string copy = extension;
-		std::transform(extension.begin(), extension.end(), copy.begin(), tolower);
-		return copy.compare("txd") == 0;
-	}
 	static bool isValidFilename(const std::string& filename) {
-		size_t pos = filename.find_last_of('.');
-		return pos != filename.npos  &&  isValidExtension(filename.substr(pos+1));
+		return GFGuessFileType(filename) == GF_TYPE_TXD;
 	}
 
 public:
@@ -56,24 +51,8 @@ public:
 	int16_t getTextureCount() { return textureCount; }
 
 private:
-	void assertNoEOF() {
-		/*if (stream->eof())
-			throw TXDException("Premature end of file");*/
-	}
-	inline void readSectionHeaderWithID(istream* stream, RwSectionHeader& header, uint32_t id)
-	{
-		RwReadSectionHeader(stream, header);
-
-		if (header.id != id) {
-			char expected[64];
-			char found[64];
-			RwGetSectionName(id, expected);
-			RwGetSectionName(header.id, found);
-			char errmsg[256];
-			sprintf(errmsg, "Found section with type %s where %s was expected!\n", found, expected);
-			throw TXDException(TXDException::SyntaxError, errmsg);
-		}
-	}
+	void assertNoEOF() {}
+	void readSectionHeaderWithID(istream* stream, RwSectionHeader& header, uint32_t id);
 
 private:
 	istream* stream;

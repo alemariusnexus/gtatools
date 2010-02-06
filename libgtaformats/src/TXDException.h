@@ -19,12 +19,13 @@ public:
 	};
 
 public:
-	TXDException(ErrorCode errCode, const char* msg) throw();
+	TXDException(ErrorCode errCode, const char* msg, long long offset = -1) throw();
 	virtual const char* what() const throw() { return message; }
 	ErrorCode getErrorCode() const throw() { return errCode; }
 
 private:
 	ErrorCode errCode;
+	long long offset;
 	char* message;
 };
 
