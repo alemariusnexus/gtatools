@@ -8,7 +8,9 @@
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
-#pragma warning(disable : 4996)
+#ifdef _MSC_VER
+#	pragma warning(disable : 4996)
+#endif
 
 #ifndef _MSC_VER
 #	include <stdint.h>
@@ -17,11 +19,13 @@
 #endif
 
 
+#include <istream>
+
 #define SkipBytes(s,c,b,l) \
-	for (int64_t _i = (c) ; _i > 0 ;) {\
-		int skip = _i%(l);\
+	for (std::istream::streamoff _i = (c) ; _i > 0 ;) {\
+		std::istream::streamoff skip = _i%(l);\
 		skip = (skip == 0) ? (l) : skip;\
-		(s)->read((b), skip);\
+		(s)->read((b), (int) skip);\
 		_i -= skip;\
 	}
 

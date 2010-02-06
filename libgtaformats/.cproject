@@ -23,7 +23,9 @@
 <tool id="cdt.managedbuild.tool.gnu.archiver.base.941180568" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
 <tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.933978005" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base">
 <option id="gnu.cpp.compiler.option.debugging.level.406871459" name="Debug Level" superClass="gnu.cpp.compiler.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
-<option id="gnu.cpp.compiler.option.optimization.level.1321817016" superClass="gnu.cpp.compiler.option.optimization.level" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
+<option id="gnu.cpp.compiler.option.optimization.level.1321817016" name="Optimization Level" superClass="gnu.cpp.compiler.option.optimization.level" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
+<option id="gnu.cpp.compiler.option.warnings.pedantic.568771377" name="Pedantic (-pedantic)" superClass="gnu.cpp.compiler.option.warnings.pedantic" value="false" valueType="boolean"/>
+<option id="gnu.cpp.compiler.option.other.other.2017509201" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -Wconversion" valueType="string"/>
 <inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.380336744" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 </tool>
 <tool id="cdt.managedbuild.tool.gnu.c.compiler.base.1150746301" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base">
