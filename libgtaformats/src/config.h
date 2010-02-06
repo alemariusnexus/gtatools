@@ -8,6 +8,8 @@
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
+#pragma warning(disable : 4996)
+
 #ifndef _MSC_VER
 #	include <stdint.h>
 #else
@@ -16,7 +18,7 @@
 
 
 #define SkipBytes(s,c,b,l) \
-	for (int _i = (c) ; _i > 0 ;) {\
+	for (int64_t _i = (c) ; _i > 0 ;) {\
 		int skip = _i%(l);\
 		skip = (skip == 0) ? (l) : skip;\
 		(s)->read((b), skip);\

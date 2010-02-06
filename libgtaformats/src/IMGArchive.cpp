@@ -139,9 +139,9 @@ IMGArchive::IMGVersion IMGArchive::guessIMGVersion(const char* filename)
 
 
 istream* IMGArchive::gotoEntry(IMGEntry* entry) {
-	long long start = entry->offset*IMG_BLOCK_SIZE;
+	istream::streampos start = entry->offset*IMG_BLOCK_SIZE;
 
-	long long cpos;
+	istream::streampos cpos;
 
 	if (randomAccess) {
 		cpos = stream->tellg();
@@ -246,12 +246,13 @@ void IMGArchive::readHeader(istream* stream)
 
 		stream->exceptions(istream::goodbit);
 
-		int j = 0;
+		numEntries = 0;
+
 		while (!stream->eof()) {
 			IMGEntry* entry = new IMGEntry;
 			stream->read((char*) entry, sizeof(IMGEntry));
 			entryVector.push_back(entry);
-			j++;
+			numEntries++;
 		}
 
 		stream->clear();
@@ -266,7 +267,6 @@ void IMGArchive::readHeader(istream* stream)
 		}
 
 		bytesRead = 0;
-		numEntries = entryVector.size();
 	}
 }
 
