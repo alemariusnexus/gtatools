@@ -13,12 +13,12 @@ using std::ifstream;
 
 FileDisplayer::FileDisplayer(wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size,
 		long style, const wxString& name)
-		: wxPanel(parent, id, pos, size, style, name), stream(NULL), open(false)
+		: wxPanel(parent, id, pos, size, style, name), source(NULL), open(false)
 {
 }
 
 
-bool FileDisplayer::displayFile(const wxString& filename)
+/*bool FileDisplayer::displayFile(const wxString& filename)
 {
 	close();
 
@@ -29,14 +29,15 @@ bool FileDisplayer::displayFile(const wxString& filename)
 	}
 
 	return display(stream);
-}
+}*/
 
 
-bool FileDisplayer::display(istream* stream)
+bool FileDisplayer::display(DataSource* source)
 {
+	this->source = source;
 	close();
 	open = true;
-	return doDisplay(stream);
+	return doDisplay(source);
 }
 
 
@@ -46,10 +47,9 @@ void FileDisplayer::close()
 		doClose();
 		open = false;
 
-		if (stream != NULL) {
-			((ifstream*) stream)->close();
-			delete stream;
-			stream = NULL;
+		if (source != NULL) {
+			delete source;
+			source = NULL;
 		}
 	}
 }

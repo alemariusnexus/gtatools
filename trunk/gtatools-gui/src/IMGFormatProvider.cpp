@@ -15,24 +15,26 @@
 
 bool IMGFormatProvider::canDisplay(const wxString& filename) const
 {
-	return IMGArchive::isValidIMGFilename(std::string(filename.mb_str()));
+	std::string str = std::string(filename.mb_str());
+	return IMGArchive::isValidIMGFilename(str)
+			||  IMGArchive::isValidDIRFilename(str);
 }
 
 
-FileDisplayer* IMGFormatProvider::openDisplayer(wxWindow* parent, istream* stream)
+FileDisplayer* IMGFormatProvider::openDisplayer(wxWindow* parent, DataSource* source)
 {
 	IMGPanel* panel = new IMGPanel(parent);
-	panel->display(stream);
+	panel->display(source);
 	return panel;
 }
 
 
-FileDisplayer* IMGFormatProvider::openDisplayer(wxWindow* parent, const wxString& filename)
+/*FileDisplayer* IMGFormatProvider::openDisplayer(wxWindow* parent, const wxString& filename)
 {
 	IMGPanel* panel = new IMGPanel(parent);
 	panel->displayFile(filename);
 	return panel;
-}
+}*/
 
 
 wxString IMGFormatProvider::getFileWildcard() const

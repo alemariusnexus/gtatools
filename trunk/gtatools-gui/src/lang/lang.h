@@ -29,17 +29,22 @@ enum {
 	Misc_Yes,
 	Misc_No,
 
+	ILError_FileAlreadyExists,
+	ILError_Unknown,
+
 	Format_TXD_description,
 	Format_TXD_fileWildcard,
-	//Format_DFF_description,
-	//Format_DFF_fileWildcard,
 	Format_IMG_description,
 	Format_IMG_fileWildcard,
+	Format_IMG_VER1,
+	Format_IMG_VER2,
 	Format_Unknown_description,
 
 	Dialog_ErrorTitle,
 	Dialog_ErrorUnknownFileFormat,
 	Dialog_ErrorOpeningIMG,
+	Dialog_ErrorSavingTexture,
+	Dialog_ErrorOpeningTXD,
 
 	ImageFormat_PNG_description,
 	ImageFormat_GIF_description,
@@ -59,14 +64,19 @@ enum {
 	TXDPanel_alphaTextureDescLabel_value,
 	TXDPanel_compressionDescLabel_value,
 	TXDPanel_alphaUsedDescLabel_value,
+	TXDPanel_numMipmapsDescLabel_value,
+	TXDPanel_paletteDescLabel_value,
 	TXDPanel_dlgExtractItem_title,
 	TXDPanel_dlgExtractItems_title,
 	TXDPanel_dlgExtractFormat_title,
+	TXDPanel_dlgExtractFormat_text,
 	TXDPanel_compression_DXT1,
 	TXDPanel_compression_DXT3,
 	TXDPanel_compression_None,
 	TXDPanel_extractButton_label,
 
+	IMGPanel_imgVersionDescLabel_value,
+	IMGPanel_imgNumEntriesDescLabel_value,
 	IMGPanel_typeDescLabel_value,
 	IMGPanel_offsetDescLabel_value,
 	IMGPanel_sizeDescLabel_value,
@@ -104,15 +114,22 @@ _LANG_BEGIN(English)
 	_LANG_VALUE(Misc_Yes, "Yes")
 	_LANG_VALUE(Misc_No, "No")
 
+	_LANG_VALUE(ILError_FileAlreadyExists, "File already exists")
+	_LANG_VALUE(ILError_Unknown, "Unknown error")
+
 	_LANG_VALUE(Format_TXD_description, "GTA Texture Dictionary (TXD)")
 	_LANG_VALUE(Format_TXD_fileWildcard, "TXD file (*.txd)|*.txd")
-	_LANG_VALUE(Format_IMG_description, "IMG archive")
-	_LANG_VALUE(Format_IMG_fileWildcard, "IMG archive (*.img)|*.img")
+	_LANG_VALUE(Format_IMG_description, "IMG/DIR archive")
+	_LANG_VALUE(Format_IMG_fileWildcard, "IMG/DIR archive (*.img ; *.dir)|*.img;*.dir")
+	_LANG_VALUE(Format_IMG_VER1, "Version 1 (GTA III / GTA VC)")
+	_LANG_VALUE(Format_IMG_VER2, "Version 2 (GTA SA)")
 	_LANG_VALUE(Format_Unknown_description, "(Unknown)")
 
 	_LANG_VALUE(Dialog_ErrorTitle, "Error")
 	_LANG_VALUE(Dialog_ErrorUnknownFileFormat, "The file has an unknown format!")
 	_LANG_VALUE(Dialog_ErrorOpeningIMG, "Error opening IMG file: %s")
+	_LANG_VALUE(Dialog_ErrorSavingTexture, "Error saving texture! Error Code: %d (%s)")
+	_LANG_VALUE(Dialog_ErrorOpeningTXD, "Error opening TXD file: %s")
 
 	_LANG_VALUE(TXDPanel_nameLabel_emptyValue, "(No texture opened)")
 	_LANG_VALUE(TXDPanel_formatDescLabel_value, "Format")
@@ -122,9 +139,12 @@ _LANG_BEGIN(English)
 	_LANG_VALUE(TXDPanel_alphaTextureDescLabel_value, "Alpha texture")
 	_LANG_VALUE(TXDPanel_compressionDescLabel_value, "Compression")
 	_LANG_VALUE(TXDPanel_alphaUsedDescLabel_value, "Alpha used")
+	_LANG_VALUE(TXDPanel_numMipmapsDescLabel_value, "Mipmap count")
+	_LANG_VALUE(TXDPanel_paletteDescLabel_value, "Palette type")
 	_LANG_VALUE(TXDPanel_dlgExtractItem_title, "Choose the destination file")
 	_LANG_VALUE(TXDPanel_dlgExtractItems_title, "Choose the destination directory")
-	_LANG_VALUE(TXDPanel_dlgExtractFormat_title, "Choose the output file format")
+	_LANG_VALUE(TXDPanel_dlgExtractFormat_title, "Choose output format")
+	_LANG_VALUE(TXDPanel_dlgExtractFormat_text, "Choose the output file format")
 	_LANG_VALUE(TXDPanel_compression_DXT1, "DXT1")
 	_LANG_VALUE(TXDPanel_compression_DXT3, "DXT2")
 	_LANG_VALUE(TXDPanel_compression_None, "None")
@@ -140,6 +160,8 @@ _LANG_BEGIN(English)
 	_LANG_VALUE(ImageFormat_CHEAD_description, "Static C Header file")
 	_LANG_VALUE(ImageFormat_PSD_description, "PhotoShop PSD file")
 
+	_LANG_VALUE(IMGPanel_imgVersionDescLabel_value, "Version")
+	_LANG_VALUE(IMGPanel_imgNumEntriesDescLabel_value, "Number of entries")
 	_LANG_VALUE(IMGPanel_typeDescLabel_value, "File type")
 	_LANG_VALUE(IMGPanel_offsetDescLabel_value, "Offset")
 	_LANG_VALUE(IMGPanel_sizeDescLabel_value, "Size")
@@ -167,17 +189,24 @@ _LANG_BEGIN(German)
 	_LANG_VALUE(Misc_Yes, "Ja")
 	_LANG_VALUE(Misc_No, "Nein")
 
+	_LANG_VALUE(ILError_FileAlreadyExists, "Datei existiert bereits")
+	_LANG_VALUE(ILError_Unknown, "Unbekannter Fehler")
+
 	_LANG_VALUE(Format_TXD_description, "GTA Texture Dictionary (TXD)")
 	_LANG_VALUE(Format_TXD_fileWildcard, "TXD-Datei (*.txd)|*.txd")
-	_LANG_VALUE(Format_IMG_description, "IMG-Archiv")
-	_LANG_VALUE(Format_IMG_fileWildcard, "IMG-Archiv (*.img)|*.img")
+	_LANG_VALUE(Format_IMG_description, "IMG/DIR-Archiv")
+	_LANG_VALUE(Format_IMG_fileWildcard, "IMG/DIR-Archiv (*.img ; *.dir)|*.img;*.dir")
+	_LANG_VALUE(Format_IMG_VER1, "Version 1 (GTA III / GTA VC)")
+	_LANG_VALUE(Format_IMG_VER2, "Version 2 (GTA SA)")
 	_LANG_VALUE(Format_Unknown_description, "(Unbekannt)")
 
 	_LANG_VALUE(Dialog_ErrorTitle, "Fehler")
 	_LANG_VALUE(Dialog_ErrorUnknownFileFormat, "Die Datei hat ein unbekanntes Format!")
 	_LANG_VALUE(Dialog_ErrorOpeningIMG, "Fehler beim \u00D6ffnen der IMG-Datei: %s")
+	_LANG_VALUE(Dialog_ErrorSavingTexture, "Fehler beim Speichern der Textur. Fehlercode: %d (%s)")
+	_LANG_VALUE(Dialog_ErrorOpeningTXD, "Fehler beim \u00D6ffnen der TXD-Datei: %s")
 
-	_LANG_VALUE(TXDPanel_nameLabel_emptyValue, "(Keine Textur geÖffnet)")
+	_LANG_VALUE(TXDPanel_nameLabel_emptyValue, "(Keine Textur ge\u00F6ffnet)")
 	_LANG_VALUE(TXDPanel_formatDescLabel_value, "Format")
 	_LANG_VALUE(TXDPanel_bppDescLabel_value, "Bytes pro Pixel")
 	_LANG_VALUE(TXDPanel_widthDescLabel_value, "Breite")
@@ -185,9 +214,12 @@ _LANG_BEGIN(German)
 	_LANG_VALUE(TXDPanel_alphaTextureDescLabel_value, "Alphatextur")
 	_LANG_VALUE(TXDPanel_compressionDescLabel_value, "Kompression")
 	_LANG_VALUE(TXDPanel_alphaUsedDescLabel_value, "Alpha verwendet")
+	_LANG_VALUE(TXDPanel_numMipmapsDescLabel_value, "Anzahl Mipmaps")
+	_LANG_VALUE(TXDPanel_paletteDescLabel_value, "Palettentyp")
 	_LANG_VALUE(TXDPanel_dlgExtractItem_title, "Bitte die Zieldatei ausw\u00E4hlen")
 	_LANG_VALUE(TXDPanel_dlgExtractItems_title, "Bitte das Zielverzeichnis ausw\u00E4hlen")
-	_LANG_VALUE(TXDPanel_dlgExtractFormat_title, "Bitte das Format der Zieldatei angeben")
+	_LANG_VALUE(TXDPanel_dlgExtractFormat_title, "Zielformat auswählen")
+	_LANG_VALUE(TXDPanel_dlgExtractFormat_text, "Bitte das Format der Zieldatei angeben")
 	_LANG_VALUE(TXDPanel_compression_DXT1, "DXT1")
 	_LANG_VALUE(TXDPanel_compression_DXT3, "DXT3")
 	_LANG_VALUE(TXDPanel_compression_None, "Keine")
@@ -203,6 +235,8 @@ _LANG_BEGIN(German)
 	_LANG_VALUE(ImageFormat_CHEAD_description, "Statische C-Headerdatei")
 	_LANG_VALUE(ImageFormat_PSD_description, "PhotoShop PSD-Datei")
 
+	_LANG_VALUE(IMGPanel_imgVersionDescLabel_value, "Version")
+	_LANG_VALUE(IMGPanel_imgNumEntriesDescLabel_value, "Anzahl Eintr\u00E4ge")
 	_LANG_VALUE(IMGPanel_typeDescLabel_value, "Dateityp")
 	_LANG_VALUE(IMGPanel_offsetDescLabel_value, "Offset")
 	_LANG_VALUE(IMGPanel_sizeDescLabel_value, "Gr\u00F6\u00DFe")
@@ -237,7 +271,6 @@ inline wxString LangGetFormatted(int id, ...) {
 
 	for (int i = 0 ; CurrentLanguage[i].id != INVALID_LANG_ID ; i++) {
 		if (CurrentLanguage[i].id == id) {
-			//vsprintf(dest, CurrentLanguage[i].text, list);
 			return wxString::FormatV(CurrentLanguage[i].text, list);
 		}
 	}

@@ -18,20 +18,20 @@ bool TXDFormatProvider::canDisplay(const wxString& filename) const
 }
 
 
-FileDisplayer* TXDFormatProvider::openDisplayer(wxWindow* parent, istream* stream)
+FileDisplayer* TXDFormatProvider::openDisplayer(wxWindow* parent, DataSource* source)
 {
 	TXDPanel* panel = new TXDPanel(parent);
-	panel->display(stream);
+	panel->display(source);
 	return panel;
 }
 
 
-FileDisplayer* TXDFormatProvider::openDisplayer(wxWindow* parent, const wxString& filename)
+/*FileDisplayer* TXDFormatProvider::openDisplayer(wxWindow* parent, const wxString& filename)
 {
 	TXDPanel* panel = new TXDPanel(parent);
 	panel->displayFile(filename);
 	return panel;
-}
+}*/
 
 
 wxString TXDFormatProvider::getFileWildcard() const

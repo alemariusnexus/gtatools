@@ -37,7 +37,7 @@ public:
 public:
 	TXDPanel(wxWindow* parent);
 	virtual ~TXDPanel();
-	virtual bool doDisplay(istream* stream);
+	virtual bool doDisplay(DataSource* source);
 	virtual void doClose();
 	void displayArchive(TXDArchive* archive);
 

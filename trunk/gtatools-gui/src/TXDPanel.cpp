@@ -4,74 +4,6 @@
 #include <string>
 
 
-/*void GetFileFormatExtension(char* dest, ILenum format)
-{
-	switch (format) {
-	case IL_BMP:
-		strcpy(dest, "bmp");
-		break;
-	case IL_PNG:
-		strcpy(dest, "png");
-		break;
-	case IL_JPG:
-		strcpy(dest, "jpg");
-		break;
-	case IL_PNM:
-		strcpy(dest, "pnm");
-		break;
-	case IL_PSD:
-		strcpy(dest, "psd");
-		break;
-	case IL_TGA:
-		strcpy(dest, "tga");
-		break;
-	case IL_SGI:
-		strcpy(dest, "sgi");
-		break;
-	}
-}*/
-
-
-/*TXDPanel::TXDPanel(wxWindow* parent, wxWindow* window, wxMenu* menu)
-		: TXDPanelPrototype(parent), menu(menu), stream(NULL), autoCloseStream(false)
-{
-	nameLabel->SetLabel(LangGet(TXDPanel_nameLabel_emptyValue));
-	formatDescLabel->SetLabel(LangGet(TXDPanel_formatDescLabel_value));
-	bppDescLabel->SetLabel(LangGet(TXDPanel_bppDescLabel_value));
-	widthDescLabel->SetLabel(LangGet(TXDPanel_widthDescLabel_value));
-	heightDescLabel->SetLabel(LangGet(TXDPanel_heightDescLabel_value));
-	alphaTextureDescLabel->SetLabel(LangGet(TXDPanel_alphaTextureDescLabel_value));
-	compressionDescLabel->SetLabel(LangGet(TXDPanel_compressionDescLabel_value));
-	alphaUsedDescLabel->SetLabel(LangGet(TXDPanel_alphaUsedDescLabel_value));
-
-	//TXDArchive* archive = new TXDArchive(stream);
-	//displayArchive(archive);
-
-	wxMenuItem* extractItem = menu->FindItem(wxID_TXD_EXTRACT);
-	window->Connect(extractItem->GetId(), wxEVT_COMMAND_MENU_SELECTED,
-			wxCommandEventHandler(TXDPanel::onExtract), NULL, this);
-
-	extractItem->Enable(true);
-}
-
-
-TXDPanel::~TXDPanel()
-{
-	if (archive) {
-		if (autoCloseStream) {
-			//((ifstream*) stream)->close();
-			delete stream;
-		}
-
-		delete archive;
-	}
-
-	wxMenuItem* extractItem = menu->FindItem(wxID_TXD_EXTRACT);
-	extractItem->Enable(false);
-	GetParent()->Disconnect(extractItem->GetId(), wxEVT_COMMAND_MENU_SELECTED,
-			wxCommandEventHandler(TXDPanel::onExtract));
-}*/
-
 
 TXDPanel::TXDPanel(wxWindow* parent)
 		: TXDPanelPrototype(parent)
@@ -84,6 +16,8 @@ TXDPanel::TXDPanel(wxWindow* parent)
 	alphaTextureDescLabel->SetLabel(LangGet(TXDPanel_alphaTextureDescLabel_value));
 	compressionDescLabel->SetLabel(LangGet(TXDPanel_compressionDescLabel_value));
 	alphaUsedDescLabel->SetLabel(LangGet(TXDPanel_alphaUsedDescLabel_value));
+	numMipmapsDescLabel->SetLabel(LangGet(TXDPanel_numMipmapsDescLabel_value));
+	paletteDescLabel->SetLabel(LangGet(TXDPanel_paletteDescLabel_value));
 	extractButton->SetLabel(LangGet(TXDPanel_extractButton_label));
 
 	extractButton->Enable(false);
@@ -96,15 +30,20 @@ TXDPanel::~TXDPanel()
 }
 
 
-bool TXDPanel::doDisplay(istream* stream)
+bool TXDPanel::doDisplay(DataSource* source)
 {
+	istream* stream = source->getStream();
+
 	this->stream = stream;
 
 	try {
 		TXDArchive* archive = new TXDArchive(stream);
 		displayArchive(archive);
 	} catch (TXDException ex) {
-		wxMessageBox(wxT("Error opening file!"), wxT("Error"), wxOK | wxICON_ERROR);
+		//printf("%s\n", wxString::Format(wxT("%s"), ex.what()).mb_str());
+		wxString error(ex.what(), wxConvUTF8);
+		wxMessageBox(LangGetFormatted(Dialog_ErrorOpeningTXD, error.c_str()), LangGet(Dialog_ErrorTitle),
+				wxOK | wxICON_ERROR);
 		return false;
 	}
 
@@ -122,6 +61,8 @@ void TXDPanel::doClose()
 	alphaTextureLabel->SetLabel(wxT("-"));
 	compressionLabel->SetLabel(wxT("-"));
 	alphaUsedLabel->SetLabel(wxT("-"));
+	numMipmapsLabel->SetLabel(wxT("-"));
+	paletteLabel->SetLabel(wxT("-"));
 
 	delete archive;
 }
@@ -217,8 +158,6 @@ void TXDPanel::onExtract(wxCommandEvent& evt)
 			return;
 		}
 
-		wxMessageBox(fd.GetPath());
-
 		path = fd.GetPath();
 	} else {
 		wxDirDialog dd(NULL, LangGet(TXDPanel_dlgExtractItems_title),
@@ -240,8 +179,8 @@ void TXDPanel::onExtract(wxCommandEvent& evt)
 			choices.Add(format->description);
 		}
 
-		int idx = wxGetSingleChoiceIndex(LangGet(TXDPanel_dlgExtractFormat_title), wxT("Test Test"),
-				choices);
+		int idx = wxGetSingleChoiceIndex(LangGet(TXDPanel_dlgExtractFormat_text),
+				LangGet(TXDPanel_dlgExtractFormat_title), choices);
 
 		if (idx == -1) {
 			return;
@@ -283,21 +222,37 @@ void TXDPanel::onExtract(wxCommandEvent& evt)
 			ilTexImage(width, height, 1, 3, IL_RGB, IL_UNSIGNED_BYTE, data);
 		}
 
+		bool success;
+
 		if (numSel == 1) {
 			#if (defined(UNICODE)  ||  defined(_UNICODE))  &&  !defined(IL_NO_UNICODE)
-				ilSaveImage(path.c_str());
+				success = ilSaveImage(path.c_str());
 			#else
-				ilSaveImage(path.mb_str());
+				success = ilSaveImage(path.mb_str());
 			#endif
 		} else {
 			wxString file = wxString(path, wxConvUTF8) + wxT("/")
 					+ wxString(texture->getDiffuseName(), wxConvUTF8) + wxT(".")
 					+ wxString(format->extension, wxConvUTF8);
 			#if (defined(UNICODE)  ||  defined(_UNICODE))  &&  !defined(IL_NO_UNICODE)
-				ilSave(format->format, file.c_str());
+				success = ilSave(format->format, file.c_str());
 			#else
-				ilSave(format->format, file.mb_str());
+				success = ilSave(format->format, file.mb_str());
 			#endif
+		}
+
+		if (!success) {
+			wxString errString = LangGet(ILError_Unknown);
+			ILenum errCode = ilGetError();
+
+			switch (errCode) {
+			case IL_FILE_ALREADY_EXISTS:
+				errString = LangGet(ILError_FileAlreadyExists);
+				break;
+			}
+
+			wxMessageBox(LangGetFormatted(Dialog_ErrorSavingTexture, errCode, errString.c_str()),
+					LangGet(Dialog_ErrorTitle), wxOK | wxICON_ERROR);
 		}
 
 		ilDeleteImage(1);
@@ -344,12 +299,28 @@ void TXDPanel::displayTexture(TXDTexture* texture)
 		break;
 	}
 
-	archive->gotoTexture(texture);
-	uint8_t* data = archive->readTextureData(texture);
-	image->displayTexture(texture, data);
-	delete[] data;
+	int32_t ext = texture->getRasterFormatExtension();
 
-	extractButton->Enable();
+	if (ext & TXD_FORMAT_EXT_PAL4) {
+		paletteLabel->SetLabel(wxT("4"));
+	} else if (ext & TXD_FORMAT_EXT_PAL8) {
+		paletteLabel->SetLabel(wxT("8"));
+	} else {
+		paletteLabel->SetLabel(wxT("-"));
+	}
+
+	numMipmapsLabel->SetLabel(wxString::Format(wxT("%d"), texture->getMipmapCount()));
+
+
+	if (texture->canConvert()) {
+		archive->gotoTexture(texture);
+		uint8_t* data = archive->readTextureData(texture);
+		image->displayTexture(texture, data);
+		delete[] data;
+		extractButton->Enable();
+	} else {
+		extractButton->Enable(false);
+	}
 }
 
 
