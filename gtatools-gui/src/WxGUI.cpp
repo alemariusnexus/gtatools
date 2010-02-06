@@ -43,7 +43,7 @@ TXDPanelPrototype::TXDPanelPrototype( wxWindow* parent, wxWindowID id, const wxP
 	wxBoxSizer* bSizer4;
 	bSizer4 = new wxBoxSizer( wxHORIZONTAL );
 	
-	formatDescLabel = new wxStaticText( m_panel2, wxID_ANY, wxT("bla"), wxDefaultPosition, wxDefaultSize, 0 );
+	formatDescLabel = new wxStaticText( m_panel2, wxID_ANY, wxT("Format"), wxDefaultPosition, wxDefaultSize, 0 );
 	formatDescLabel->Wrap( -1 );
 	bSizer4->Add( formatDescLabel, 1, wxALIGN_CENTER_VERTICAL|wxALIGN_LEFT|wxALL, 5 );
 	
@@ -131,6 +131,32 @@ TXDPanelPrototype::TXDPanelPrototype( wxWindow* parent, wxWindowID id, const wxP
 	
 	bSizer3->Add( bSizer451, 1, wxEXPAND, 5 );
 	
+	wxBoxSizer* bSizer4511;
+	bSizer4511 = new wxBoxSizer( wxHORIZONTAL );
+	
+	numMipmapsDescLabel = new wxStaticText( m_panel2, wxID_ANY, wxT("Mipmap count"), wxDefaultPosition, wxDefaultSize, 0 );
+	numMipmapsDescLabel->Wrap( -1 );
+	bSizer4511->Add( numMipmapsDescLabel, 1, wxALIGN_CENTER_VERTICAL|wxALIGN_LEFT|wxALL, 5 );
+	
+	numMipmapsLabel = new wxStaticText( m_panel2, wxID_ANY, wxT("-"), wxDefaultPosition, wxDefaultSize, 0 );
+	numMipmapsLabel->Wrap( -1 );
+	bSizer4511->Add( numMipmapsLabel, 1, wxALL, 5 );
+	
+	bSizer3->Add( bSizer4511, 1, wxEXPAND, 5 );
+	
+	wxBoxSizer* bSizer4512;
+	bSizer4512 = new wxBoxSizer( wxHORIZONTAL );
+	
+	paletteDescLabel = new wxStaticText( m_panel2, wxID_ANY, wxT("Palette type"), wxDefaultPosition, wxDefaultSize, 0 );
+	paletteDescLabel->Wrap( -1 );
+	bSizer4512->Add( paletteDescLabel, 1, wxALIGN_CENTER_VERTICAL|wxALIGN_LEFT|wxALL, 5 );
+	
+	paletteLabel = new wxStaticText( m_panel2, wxID_ANY, wxT("-"), wxDefaultPosition, wxDefaultSize, 0 );
+	paletteLabel->Wrap( -1 );
+	bSizer4512->Add( paletteLabel, 1, wxALL, 5 );
+	
+	bSizer3->Add( bSizer4512, 1, wxEXPAND, 5 );
+	
 	m_panel2->SetSizer( bSizer3 );
 	m_panel2->Layout();
 	bSizer3->Fit( m_panel2 );
@@ -204,6 +230,53 @@ MainFramePrototype::~MainFramePrototype()
 
 IMGPanelPrototype::IMGPanelPrototype( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style ) : FileDisplayer( parent, id, pos, size, style )
 {
+	wxBoxSizer* bSizer22;
+	bSizer22 = new wxBoxSizer( wxVERTICAL );
+	
+	m_panel6 = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* bSizer24;
+	bSizer24 = new wxBoxSizer( wxVERTICAL );
+	
+	imgFileLabel = new wxStaticText( m_panel6, wxID_ANY, wxT("(IMG file name)"), wxDefaultPosition, wxDefaultSize, 0 );
+	imgFileLabel->Wrap( -1 );
+	imgFileLabel->SetFont( wxFont( wxNORMAL_FONT->GetPointSize(), 70, 90, 92, false, wxEmptyString ) );
+	
+	bSizer24->Add( imgFileLabel, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5 );
+	
+	wxBoxSizer* bSizer26;
+	bSizer26 = new wxBoxSizer( wxHORIZONTAL );
+	
+	imgVersionDescLabel = new wxStaticText( m_panel6, wxID_ANY, wxT("Version"), wxDefaultPosition, wxDefaultSize, 0 );
+	imgVersionDescLabel->Wrap( -1 );
+	bSizer26->Add( imgVersionDescLabel, 1, wxALL, 5 );
+	
+	imgVersionLabel = new wxStaticText( m_panel6, wxID_ANY, wxT("MyLabel"), wxDefaultPosition, wxDefaultSize, 0 );
+	imgVersionLabel->Wrap( -1 );
+	bSizer26->Add( imgVersionLabel, 1, wxALL, 5 );
+	
+	bSizer24->Add( bSizer26, 1, wxEXPAND, 5 );
+	
+	wxBoxSizer* bSizer27;
+	bSizer27 = new wxBoxSizer( wxHORIZONTAL );
+	
+	imgNumEntriesDescLabel = new wxStaticText( m_panel6, wxID_ANY, wxT("Number of entries"), wxDefaultPosition, wxDefaultSize, 0 );
+	imgNumEntriesDescLabel->Wrap( -1 );
+	bSizer27->Add( imgNumEntriesDescLabel, 1, wxALL, 5 );
+	
+	imgNumEntriesLabel = new wxStaticText( m_panel6, wxID_ANY, wxT("MyLabel"), wxDefaultPosition, wxDefaultSize, 0 );
+	imgNumEntriesLabel->Wrap( -1 );
+	bSizer27->Add( imgNumEntriesLabel, 1, wxALL, 5 );
+	
+	bSizer24->Add( bSizer27, 1, wxEXPAND, 5 );
+	
+	m_panel6->SetSizer( bSizer24 );
+	m_panel6->Layout();
+	bSizer24->Fit( m_panel6 );
+	bSizer22->Add( m_panel6, 0, wxEXPAND | wxALL, 5 );
+	
+	m_staticline2 = new wxStaticLine( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	bSizer22->Add( m_staticline2, 0, wxEXPAND | wxALL, 5 );
+	
 	wxBoxSizer* bSizer16;
 	bSizer16 = new wxBoxSizer( wxHORIZONTAL );
 	
@@ -225,7 +298,7 @@ IMGPanelPrototype::IMGPanelPrototype( wxWindow* parent, wxWindowID id, const wxP
 	wxBoxSizer* bSizer20;
 	bSizer20 = new wxBoxSizer( wxVERTICAL );
 	
-	fileLabel = new wxStaticText( infoPanel, wxID_ANY, wxT("MyLabel"), wxDefaultPosition, wxDefaultSize, 0 );
+	fileLabel = new wxStaticText( infoPanel, wxID_ANY, wxT("(Entry name)"), wxDefaultPosition, wxDefaultSize, 0 );
 	fileLabel->Wrap( -1 );
 	fileLabel->SetFont( wxFont( wxNORMAL_FONT->GetPointSize(), 70, 90, 92, false, wxEmptyString ) );
 	
@@ -281,7 +354,9 @@ IMGPanelPrototype::IMGPanelPrototype( wxWindow* parent, wxWindowID id, const wxP
 	m_splitter2->SplitVertically( m_panel7, infoPanel, 310 );
 	bSizer16->Add( m_splitter2, 1, wxEXPAND, 5 );
 	
-	this->SetSizer( bSizer16 );
+	bSizer22->Add( bSizer16, 1, wxEXPAND, 5 );
+	
+	this->SetSizer( bSizer22 );
 	this->Layout();
 	
 	// Connect Events
@@ -292,4 +367,17 @@ IMGPanelPrototype::~IMGPanelPrototype()
 {
 	// Disconnect Events
 	fileList->Disconnect( wxEVT_COMMAND_LISTBOX_SELECTED, wxCommandEventHandler( IMGPanelPrototype::onSelectionChanged ), NULL, this );
+}
+
+DFFPanelPrototype::DFFPanelPrototype( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style ) : wxPanel( parent, id, pos, size, style )
+{
+	wxBoxSizer* sizer;
+	sizer = new wxBoxSizer( wxVERTICAL );
+	
+	this->SetSizer( sizer );
+	this->Layout();
+}
+
+DFFPanelPrototype::~DFFPanelPrototype()
+{
 }

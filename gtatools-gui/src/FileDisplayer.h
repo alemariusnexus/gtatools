@@ -10,6 +10,7 @@
 
 #include <wx/wx.h>
 #include <istream>
+#include "DataSource.h"
 
 using std::istream;
 
@@ -19,16 +20,17 @@ public:
 			const wxSize& size = wxDefaultSize, long style = wxTAB_TRAVERSAL,
 			const wxString& name = wxT("displayer"));
 	virtual ~FileDisplayer() {};
-	bool display(istream* stream);
+	//bool display(istream* stream);
+	bool display(DataSource* source);
 	void close();
-	bool displayFile(const wxString& filename);
+	//bool displayFile(const wxString& filename);
 
 public:
-	virtual bool doDisplay(istream* stream) = 0;
+	virtual bool doDisplay(DataSource* source) = 0;
 	virtual void doClose() = 0;
 
 private:
-	istream* stream;
+	DataSource* source;
 	bool open;
 };
 

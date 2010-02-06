@@ -14,8 +14,8 @@
 class TXDFormatProvider : public FormatProvider {
 public:
 	virtual bool canDisplay(const wxString& filename) const;
-	virtual FileDisplayer* openDisplayer(wxWindow* parent, istream* stream);
-	virtual FileDisplayer* openDisplayer(wxWindow* parent, const wxString& filename);
+	virtual FileDisplayer* openDisplayer(wxWindow* parent, DataSource* source);
+	//virtual FileDisplayer* openDisplayer(wxWindow* parent, const wxString& filename);
 	virtual wxString getFileWildcard() const;
 	virtual wxString getDescription(const wxString& filename) const;
 };

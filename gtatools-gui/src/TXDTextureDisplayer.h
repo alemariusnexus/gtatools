@@ -20,6 +20,7 @@ public:
 
 private:
 	wxBitmap* bitmap;
+	wxBitmap* background;
 	TXDTexture* texture;
 	//uint8_t* data;
 };

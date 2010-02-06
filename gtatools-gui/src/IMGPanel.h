@@ -29,7 +29,7 @@ public:
 	//virtual ~IMGPanel();
 	IMGPanel(wxWindow* parent);
 	virtual ~IMGPanel();
-	virtual bool doDisplay(istream* stream);
+	virtual bool doDisplay(DataSource* source);
 	virtual void doClose();
 
 private:

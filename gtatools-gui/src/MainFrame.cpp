@@ -10,6 +10,7 @@
 #include "lang/lang.h"
 #include "DisplayManager.h"
 #include "FormatProvider.h"
+#include "FileDataSource.h"
 
 using std::string;
 using std::ifstream;
@@ -71,40 +72,9 @@ void MainFrame::displayFile(const wxString& filename)
 	}
 
 	FormatProvider* provider = DisplayManager::getInstance()->getFormatProvider(filename);
-	displayer = provider->openDisplayer(this, filename);
+	displayer = provider->openDisplayer(this, new FileDataSource(filename));
 
 	closeItem->Enable();
 	sizer->Add(displayer, 1, wxEXPAND);
 	Layout();
-
-	/*if (TXDArchive::isValidFilename(string(filename))) {
-		ifstream* stream = new ifstream(filename, ifstream::in | ifstream::binary);
-		TXDPanel* panel = new TXDPanel(this, this, txdMenu);
-
-		if (!panel->displayArchive(stream, true)) {
-			delete panel;
-		} else {
-			contentWidget = panel;
-			closeItem->Enable();
-			sizer->Add(panel, 1, wxEXPAND);
-			Layout();
-		}
-	} else if (
-				IMGArchive::isValidIMGFilename(string(filename))
-			||  IMGArchive::isValidDIRFilename(string(filename))
-	) {
-		IMGPanel* panel = new IMGPanel(this, imgMenu, txdMenu);
-
-		if (!panel->displayFile(filename)) {
-			delete panel;
-		} else {
-			contentWidget = panel;
-			closeItem->Enable();
-			sizer->Add(panel, 1, wxEXPAND);
-			Layout();
-		}
-	} else {
-		wxMessageBox(LangGet(Dialog_ErrorUnknownFileFormat), LangGet(Dialog_ErrorTitle),
-				wxOK | wxICON_ERROR);
-	}*/
 }

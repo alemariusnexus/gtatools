@@ -61,6 +61,10 @@ class TXDPanelPrototype : public FileDisplayer
 		wxStaticText* compressionLabel;
 		wxStaticText* alphaUsedDescLabel;
 		wxStaticText* alphaUsedLabel;
+		wxStaticText* numMipmapsDescLabel;
+		wxStaticText* numMipmapsLabel;
+		wxStaticText* paletteDescLabel;
+		wxStaticText* paletteLabel;
 		wxButton* extractButton;
 		TXDTextureDisplayer* image;
 		
@@ -114,6 +118,13 @@ class IMGPanelPrototype : public FileDisplayer
 	private:
 	
 	protected:
+		wxPanel* m_panel6;
+		wxStaticText* imgFileLabel;
+		wxStaticText* imgVersionDescLabel;
+		wxStaticText* imgVersionLabel;
+		wxStaticText* imgNumEntriesDescLabel;
+		wxStaticText* imgNumEntriesLabel;
+		wxStaticLine* m_staticline2;
 		wxSplitterWindow* m_splitter2;
 		wxPanel* m_panel7;
 		wxListBox* fileList;
@@ -141,6 +152,21 @@ class IMGPanelPrototype : public FileDisplayer
 		m_splitter2->Disconnect( wxEVT_IDLE, wxIdleEventHandler( IMGPanelPrototype::m_splitter2OnIdle ), NULL, this );
 		}
 		
+	
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class DFFPanelPrototype
+///////////////////////////////////////////////////////////////////////////////
+class DFFPanelPrototype : public wxPanel 
+{
+	private:
+	
+	protected:
+	
+	public:
+		DFFPanelPrototype( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 500,300 ), long style = wxTAB_TRAVERSAL );
+		~DFFPanelPrototype();
 	
 };
 

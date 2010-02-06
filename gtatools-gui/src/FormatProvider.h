@@ -9,12 +9,13 @@
 #define FORMATPROVIDER_H_
 
 #include "FileDisplayer.h"
+#include "DataSource.h"
 
 class FormatProvider {
 public:
 	virtual bool canDisplay(const wxString& filename) const = 0;
-	virtual FileDisplayer* openDisplayer(wxWindow* parent, istream* stream) = 0;
-	virtual FileDisplayer* openDisplayer(wxWindow* parent, const wxString& filename) = 0;
+	virtual FileDisplayer* openDisplayer(wxWindow* parent, DataSource* source) = 0;
+	//virtual FileDisplayer* openDisplayer(wxWindow* parent, const wxString& filename) = 0;
 	virtual wxString getFileWildcard() const = 0;
 	virtual wxString getDescription(const wxString& filename) const = 0;
 };
