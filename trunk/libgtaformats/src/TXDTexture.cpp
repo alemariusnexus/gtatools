@@ -54,7 +54,7 @@ TXDTexture::TXDTexture(const char* diffuseName, const char* alphaName, int32_t r
 }
 
 
-TXDTexture::TXDTexture(istream* stream, long long& bytesRead)
+TXDTexture::TXDTexture(istream* stream, istream::streamoff& bytesRead)
 {
 	char skipBuf[4];
 
