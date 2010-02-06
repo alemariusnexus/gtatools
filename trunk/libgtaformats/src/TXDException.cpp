@@ -7,10 +7,12 @@
 
 #include "TXDException.h"
 #include <cstring>
+#include <cstdio>
 
-TXDException::TXDException(TXDException::ErrorCode errCode, const char* msg) throw()
-		: errCode(errCode)
+TXDException::TXDException(TXDException::ErrorCode errCode, const char* msg, long long offset) throw()
+		: errCode(errCode), offset(offset)
 {
-	message = new char[strlen(msg)+1];
-	strncpy(message, msg, strlen(msg)+1);
+	message = new char[strlen(msg)+64];
+	sprintf(message, "%s (at offset %lld)", msg, offset);
+	//strncpy(message, msg, strlen(msg)+1);
 }

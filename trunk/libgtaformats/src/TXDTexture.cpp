@@ -54,13 +54,12 @@ TXDTexture::TXDTexture(const char* diffuseName, const char* alphaName, int32_t r
 }
 
 
-TXDTexture::TXDTexture(istream* stream)
+TXDTexture::TXDTexture(istream* stream, long long& bytesRead)
 {
 	char skipBuf[4];
 
 	int32_t platformId;
 	stream->read((char*) &platformId, 4);
-	//stream->read(skipBuf, 4);
 	stream->read((char*) &filterFlags, 2);
 	stream->read((char*) &uWrap, 1);
 	stream->read((char*) &vWrap, 1);
@@ -77,6 +76,8 @@ TXDTexture::TXDTexture(istream* stream)
 	stream->read(skipBuf, 1);
 	int8_t dxtType;
 	stream->read((char*) &dxtType, 1);
+
+	bytesRead += 88;
 
 	if (platformId == 9) {
 		alphaChannel = (dxtType == 9);
@@ -109,49 +110,58 @@ TXDTexture::TXDTexture(istream* stream)
 void TXDTexture::getColorMasks(int32_t& redMask, int32_t& greenMask, int32_t& blueMask,
 		int32_t& alphaMask) const
 {
-	switch (rasterFormat) {
-	case TXD_FORMAT_A1R5G5B5:
-		alphaMask = 1;
-		redMask = 0x3E;
-		greenMask = 0x7C0;
-		blueMask = 0xF800;
-		break;
-	case TXD_FORMAT_B8G8R8:
-		blueMask = 0xFF;
-		greenMask = 0xFF00;
-		redMask = 0xFF0000;
-		alphaMask = 0;
-		break;
-	case TXD_FORMAT_B8G8R8A8:
-		blueMask = 0xFF;
-		greenMask = 0xFF00;
-		redMask = 0xFF0000;
-		alphaMask = 0xFF000000;
-		break;
-	case TXD_FORMAT_R4G4B4A4:
-		redMask = 0xF;
-		greenMask = 0xF0;
-		blueMask = 0xF00;
-		alphaMask = 0xF000;
-		break;
-	case TXD_FORMAT_R5G5B5:
-		redMask = 0x1F;
-		greenMask = 0x3E0;
-		blueMask = 0x7C00;
-		alphaMask = 0;
-		break;
-	case TXD_FORMAT_R5G6B5:
-		redMask = 0x1F;
-		greenMask = 0x7E0;
-		blueMask = 0xF800;
-		alphaMask = 0;
-		break;
-	case TXD_FORMAT_LUM8:
+	if (	getRasterFormatExtension() & TXD_FORMAT_EXT_PAL4
+			||  getRasterFormatExtension() & TXD_FORMAT_EXT_PAL8
+	) {
 		redMask = 0xFF;
-		greenMask = 0xFF;
-		blueMask = 0xFF;
-		alphaMask = 0xFF;
-		break;
+		greenMask = 0xFF00;
+		blueMask = 0xFF0000;
+		alphaMask = 0xFF000000;
+	} else {
+		switch (getRasterFormat()) {
+		case TXD_FORMAT_A1R5G5B5:
+			alphaMask = 1;
+			redMask = 0x3E;
+			greenMask = 0x7C0;
+			blueMask = 0xF800;
+			break;
+		case TXD_FORMAT_B8G8R8:
+			blueMask = 0xFF;
+			greenMask = 0xFF00;
+			redMask = 0xFF0000;
+			alphaMask = 0;
+			break;
+		case TXD_FORMAT_B8G8R8A8:
+			blueMask = 0xFF;
+			greenMask = 0xFF00;
+			redMask = 0xFF0000;
+			alphaMask = 0xFF000000;
+			break;
+		case TXD_FORMAT_R4G4B4A4:
+			redMask = 0xF;
+			greenMask = 0xF0;
+			blueMask = 0xF00;
+			alphaMask = 0xF000;
+			break;
+		case TXD_FORMAT_R5G5B5:
+			redMask = 0x1F;
+			greenMask = 0x3E0;
+			blueMask = 0x7C00;
+			alphaMask = 0;
+			break;
+		case TXD_FORMAT_R5G6B5:
+			redMask = 0x1F;
+			greenMask = 0x7E0;
+			blueMask = 0xF800;
+			alphaMask = 0;
+			break;
+		case TXD_FORMAT_LUM8:
+			redMask = 0xFF;
+			greenMask = 0xFF;
+			blueMask = 0xFF;
+			alphaMask = 0xFF;
+			break;
+		}
 	}
 }
 
@@ -173,12 +183,29 @@ void TXDTexture::getFormat(char* dest) const
 	sprintf(dest, "%d BPP %scompressed %s image", bytesPerPixel, compStr, formatStr);
 }
 
+
+bool TXDTexture::canConvert()
+{
+	if (	getRasterFormatExtension() & TXD_FORMAT_EXT_PAL4
+			||  getRasterFormatExtension() & TXD_FORMAT_EXT_PAL8
+	) {
+		return true;
+	}
+
+	return true;
+}
+
+
 void TXDTexture::convert(uint8_t* dest, const uint8_t* src, TXDMirrorFlags mirror,
 		int8_t bpp, int redOffset, int greenOffset, int blueOffset, int alphaOffset) const
 {
 	int8_t srcBpp = bytesPerPixel;
+
+	// Will point to the actual, uncompressed raster data, without the palette (if any)
 	const uint8_t* data;
 
+	// The masks that extract the color channel of each pixel. For paletted images, these masks
+	// can be applied to each palette entry.
 	int32_t redMask, greenMask, blueMask, alphaMask;
 
 	if (getCompression() == NONE) {
@@ -195,6 +222,7 @@ void TXDTexture::convert(uint8_t* dest, const uint8_t* src, TXDMirrorFlags mirro
 
 		data = tmp;
 
+		// After decompression with Squish, data is stored as R8G8B8A8
 		redMask = 0xFF;
 		greenMask = 0xFF00;
 		blueMask = 0xFF0000;
@@ -202,6 +230,8 @@ void TXDTexture::convert(uint8_t* dest, const uint8_t* src, TXDMirrorFlags mirro
 		srcBpp = 4;
 	}
 
+	// How many times do we have to shift each color channel value to the right so that they
+	// can be read as plain uint8_t values?
 	int32_t rShift = 0, gShift = 0, bShift = 0, aShift = 0;
 
 	for (int i = 0 ; i < 32 ; i++) {
@@ -234,12 +264,9 @@ void TXDTexture::convert(uint8_t* dest, const uint8_t* src, TXDMirrorFlags mirro
 
 	const uint8_t* palette = NULL;
 
-	if (pal4  ||  pal8) {
-		printf("*** WARNING: Attempt to convert a paletted image which was NEVER tested and is "
-				"VERY likely to fail (Texture: %s; Warning reported by TXDTexture.cpp, line %d)!",
-				getDiffuseName(), __LINE__);
-	}
-
+	// If the image is paletted, data begins with the palette. We'll let 'palette' point to the
+	// beginning of the palette and reposition data to point to the beginning of the actual raster
+	// data
 	if (pal4) {
 		palette = data;
 		data += 16*4;
@@ -248,11 +275,18 @@ void TXDTexture::convert(uint8_t* dest, const uint8_t* src, TXDMirrorFlags mirro
 		data += 256*4;
 	}
 
+
+	// Now we will transform each pixel
 	for (int16_t y = 0 ; y < height ; y++) {
 		for (int16_t x = 0 ; x < width ; x++) {
+
+			// The index of the current pixel inside the data array
 			int srcIdx = (y*width + x);
+
+			// The index of the new pixel inside the dest array
 			int destIdx = (y*width + x) * bpp;
 
+			// To mirror each pixel, we choose another index in the data array.
 			if (mirror == MIRROR_BOTH) {
 				srcIdx = (width*height) - srcIdx;
 			} else if (mirror == MIRROR_HORIZONTAL) {
@@ -261,35 +295,50 @@ void TXDTexture::convert(uint8_t* dest, const uint8_t* src, TXDMirrorFlags mirro
 				srcIdx = ((int) floor((float) (srcIdx/width)) * width + (height - srcIdx%width) - 1);
 			}
 
+			// So far, srcIdx is the pixel index inside 'data', but each pixel consists of more than
+			// one byte, so we multiply the pixel index by the number of bytes per pixel
 			srcIdx *= srcBpp;
 
+			// Extract the pixel from data
 			int32_t pixel;
 			memcpy(&pixel, data+srcIdx, srcBpp);
 
+			// The RGBA values of the pixel
+			uint8_t r, g, b, a;
+
+			// For paletted images, pixel currently is the index into the palette, so we actually
+			// need the color at that index
 			if (pal4) {
-				pixel = palette[pixel & 0xFF];
-				dest[destIdx + redOffset] = pixel & 0xFF;
-				dest[destIdx + greenOffset] = (pixel & 0xFF00) >> 8;
-				dest[destIdx + blueOffset] = (pixel & 0xFF0000) >> 16;
-
-				if (alphaOffset != -1) {
-					dest[destIdx + alphaOffset] = (pixel & 0xFF000000) >> 24;
-				}
+				memcpy(&pixel, palette + ((pixel & 0xF) * 4), 4);
 			} else if (pal8) {
-				throw TXDException(TXDException::Unsupported, "PAL8 files not yet supported!");
-			} else {
-				dest[destIdx + redOffset] = (pixel & redMask) >> rShift;
-				dest[destIdx + greenOffset] = (pixel & greenMask) >> gShift;
-				dest[destIdx + blueOffset] = (pixel & blueMask) >> bShift;
-
-				if (alphaOffset != -1) {
-					//dest[destIdx + alphaOffset] = 255;
-					dest[destIdx + alphaOffset] = (pixel & alphaMask) >> aShift;
-				}
+				memcpy(&pixel, palette + ((pixel & 0xFF) * 4), 4);
 			}
+
+			// Extract RGBA using the previously calculated masks and shift values.
+			r = (pixel & redMask) >> rShift;
+			g = (pixel & greenMask) >> gShift;
+			b = (pixel & blueMask) >> bShift;
+
+			// If there's no alpha channel bit alphaOffset is != -1, assume 255 (opaque)
+			if (alphaChannel) {
+				a = (pixel & alphaMask) >> aShift;
+			} else {
+				a = 255;
+			}
+
+			// Write the RGBA data into dest
+			if (redOffset != -1)
+				dest[destIdx + redOffset] = r;
+			if (greenOffset != -1)
+				dest[destIdx + greenOffset] = g;
+			if (blueOffset != -1)
+				dest[destIdx + blueOffset] = b;
+			if (alphaOffset != -1)
+				dest[destIdx + alphaOffset] = a;
 		}
 	}
 
+	// If the texture was compressed, data is an array temporarily created here. Delete it!
 	if (compression != NONE) {
 		delete[] data;
 	}

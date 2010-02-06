@@ -53,7 +53,7 @@ enum TXDMirrorFlags {
 
 class TXDTexture {
 public:
-	TXDTexture(istream* stream);
+	TXDTexture(istream* stream, long long& bytesRead);
 	void getColorMasks(int32_t& redMask, int32_t& greenMask, int32_t& blueMask, int32_t& alphaMask) const;
 	void getFormat(char* dest) const;
 
@@ -72,6 +72,7 @@ public:
 	int8_t getVWrapFlags() const { return vWrap; }
 	int16_t getFilterFlags() const { return filterFlags; }
 
+	bool canConvert();
 	void convert(uint8_t* dest, const uint8_t* src, TXDMirrorFlags mirror = MIRROR_HORIZONTAL,
 			int8_t bpp = 4, int redOffset = 0, int greenOffset = 1, int blueOffset = 2,
 			int alphaOffset = 3) const;

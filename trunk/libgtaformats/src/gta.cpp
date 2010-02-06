@@ -125,6 +125,9 @@ void RwGetSectionName(uint32_t id, char* dest) {
 	case RW_SECTION_TEXTURE:
 		strcpy(dest, "RW_SECTION_TEXTURE");
 		break;
+	case RW_SECTION_TEXTUREDICTIONARY:
+		strcpy(dest, "RW_SECTION_TEXTUREDICTIONARY");
+		break;
 	default:
 		sprintf(dest, "{invalid: %d}", id);
 		break;

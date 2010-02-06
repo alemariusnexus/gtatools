@@ -15,7 +15,8 @@ using namespace squish;
 
 
 TXDArchive::TXDArchive(istream* stream)
-		: stream(stream), readIndex(0), currentTextureNativeSize(-1), currentTextureNativeStart(-1)
+		: stream(stream), bytesRead(0), readIndex(0), currentTextureNativeSize(-1),
+		  currentTextureNativeStart(-1)
 {
 	char skipBuf[2];
 
@@ -28,7 +29,7 @@ TXDArchive::TXDArchive(istream* stream)
 
 	assertNoEOF();
 
-	bytesRead = 2*sizeof(RwSectionHeader) + 4;
+	bytesRead += 4;
 
 	textureNativeStarts = new long long[textureCount];
 	indexedTextures = new TXDTexture*[textureCount];
@@ -62,23 +63,25 @@ TXDTexture* TXDArchive::nextTexture()
 
 	char skipBuf[12];
 
+	long long texNativeStart = bytesRead;
+
 	RwSectionHeader texNative;
     RwReadSectionHeader(stream, texNative);
+    bytesRead += sizeof(RwSectionHeader);
 
     stream->read(skipBuf, 12);
-    TXDTexture* texture = new TXDTexture(stream);
+    bytesRead += 12;
+    TXDTexture* texture = new TXDTexture(stream, bytesRead);
 
     assertNoEOF();
 
-    currentTextureNativeStart = bytesRead;
+    currentTextureNativeStart = texNativeStart;
     currentTextureNativeSize = texNative.size;
     currentTexture = texture;
 
     indexedTextures[readIndex] = texture;
-    textureNativeStarts[readIndex] = bytesRead;
+    textureNativeStarts[readIndex] = texNativeStart;
     readIndex++;
-
-    bytesRead += sizeof(RwSectionHeader) + 100;
 
     return texture;
 }
@@ -95,7 +98,7 @@ void TXDArchive::readTextureData(uint8_t* dest, TXDTexture* texture)
 	} else if ((texture->getRasterFormatExtension() & TXD_FORMAT_EXT_PAL8) != 0) {
 		stream->read((char*) dest, 256*4);
 		stream->read((char*) &rasterSize, 4);
-		stream->read((char*) dest + 256*4, rasterSize);
+		stream->read((char*) (dest + 256*4), rasterSize);
 		bytesRead += 256*4 + rasterSize + 4;
 	} else {
 		stream->read((char*) &rasterSize, 4);
@@ -108,7 +111,15 @@ void TXDArchive::readTextureData(uint8_t* dest, TXDTexture* texture)
 
 uint8_t* TXDArchive::readTextureData(TXDTexture* texture)
 {
-	uint8_t* raster = new uint8_t[texture->getWidth() * texture->getHeight() * texture->getBytesPerPixel()];
+	int size = texture->getWidth() * texture->getHeight() * texture->getBytesPerPixel();
+
+	if (texture->getRasterFormatExtension() & TXD_FORMAT_EXT_PAL4) {
+		size += 16*4;
+	} else if (texture->getRasterFormatExtension() & TXD_FORMAT_EXT_PAL8) {
+		size += 256*4;
+	}
+
+	uint8_t* raster = new uint8_t[size];
 	readTextureData(raster, texture);
 	return raster;
 }
@@ -149,6 +160,27 @@ void TXDArchive::visitAll(TXDVisitor* visitor)
 		}
 
 		visit(visitor, tex);
+	}
+}
+
+
+
+
+void TXDArchive::readSectionHeaderWithID(istream* stream, RwSectionHeader& header, uint32_t id)
+{
+	RwReadSectionHeader(stream, header);
+
+	bytesRead += sizeof(RwSectionHeader);
+
+	if (header.id != id) {
+		char expected[64];
+		char found[64];
+		RwGetSectionName(id, expected);
+		RwGetSectionName(header.id, found);
+		char errmsg[256];
+		printf("Throwing\n");
+		sprintf(errmsg, "Found section with type %s where %s was expected", found, expected);
+		throw TXDException(TXDException::SyntaxError, errmsg, bytesRead);
 	}
 }
 
