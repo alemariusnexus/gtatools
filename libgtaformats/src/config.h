@@ -21,6 +21,7 @@
 
 #include <istream>
 
+
 #define SkipBytes(s,c,b,l) \
 	for (std::istream::streamoff _i = (c) ; _i > 0 ;) {\
 		std::istream::streamoff skip = _i%(l);\

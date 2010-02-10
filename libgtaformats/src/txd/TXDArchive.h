@@ -8,17 +8,17 @@
 #ifndef TXDARCHIVE_H_
 #define TXDARCHIVE_H_
 
-#include "config.h"
+#include "../config.h"
 #include "TXDException.h"
 #include "TXDTexture.h"
 #include "TXDVisitor.h"
-#include "gta.h"
+#include "../gta.h"
 #include <istream>
 #include <string>
 #include <algorithm>
 #include <cctype>
 #include <cstdio>
-#include "gf_filetype.h"
+#include "../gf_filetype.h"
 
 using std::istream;
 using std::string;

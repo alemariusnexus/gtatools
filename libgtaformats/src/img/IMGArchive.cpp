@@ -10,7 +10,7 @@
 #include <string>
 #include <cstring>
 #include <vector>
-#include "gf_filetype.h"
+#include "../gf_filetype.h"
 
 using std::string;
 using std::vector;

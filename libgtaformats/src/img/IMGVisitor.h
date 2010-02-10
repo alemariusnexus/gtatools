@@ -8,7 +8,7 @@
 #ifndef IMGVISITOR_H_
 #define IMGVISITOR_H_
 
-#include "config.h"
+#include "../config.h"
 #include "IMGArchive.h"
 #include <istream>
 

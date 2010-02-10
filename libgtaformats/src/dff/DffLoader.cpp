@@ -10,7 +10,9 @@
 #include <cstdio>
 
 
-DffLoader::DffLoader() {
+DffLoader::DffLoader()
+		: verbose(false)
+{
 
 }
 
@@ -31,7 +33,18 @@ DffMesh* DffLoader::loadMesh(istream* stream) {
 	}
 
 	skipSectionWithID(stream, RW_SECTION_STRUCT);
-	skipSectionWithID(stream, RW_SECTION_FRAMELIST);
+	//skipSectionWithID(stream, RW_SECTION_FRAMELIST);
+
+
+	RwSectionHeader frameListHeader;
+	readSectionHeaderWithID(stream, frameListHeader, RW_SECTION_FRAMELIST);
+
+	//skipSectionHeaderWithID(stream, RW_SECTION_FRAMELIST);
+	//skipSectionHeaderWithID(stream, RW_STRUCT);
+	parseFrameList(stream, mesh, frameListHeader);
+
+	return mesh;
+
 
 	skipSectionHeaderWithID(stream, RW_SECTION_GEOMETRYLIST);
 
@@ -64,6 +77,75 @@ DffMesh* DffLoader::loadMesh(istream* stream) {
 }
 
 
+void DffLoader::parseFrameList(istream* stream, DffMesh* mesh, RwSectionHeader& frameListHeader)
+{
+	//skipSectionHeaderWithID(stream, RW_SECTION_STRUCT);
+	RwSectionHeader structHeader;
+	readSectionHeaderWithID(stream, structHeader, RW_SECTION_STRUCT);
+
+
+	int32_t numFrames;
+	stream->read((char*) &numFrames, 4);
+
+	if (verbose) {
+		printf("  Frame count: %d\n", numFrames);
+	}
+
+	DffFrame** frames = new DffFrame*[numFrames];
+
+	for (int32_t i = 0 ; i < numFrames ; i++) {
+		frames[i] = new DffFrame;
+		stream->read((char*) frames[i], 56);
+	}
+
+	char skipBuf[1024];
+
+	for (int32_t i = 0 ; i < numFrames ; i++) {
+		int bytesRead = 0;
+		RwSectionHeader extHeader;
+		readSectionHeaderWithID(stream, extHeader, RW_SECTION_EXTENSION);
+
+		while (true) {
+			if (bytesRead >= extHeader.size) {
+				break;
+			}
+
+			RwSectionHeader header;
+			RwReadSectionHeader(stream, header);
+			bytesRead += sizeof(header);
+
+			if (header.id == RW_SECTION_FRAME) {
+				frames[i]->name = new char[header.size+1];
+				stream->read(frames[i]->name, header.size);
+				frames[i]->name[header.size] = '\0';
+				printf("  %s\n", frames[i]->name);
+			} else {
+				SkipBytes(stream, header.size, skipBuf, sizeof(skipBuf));
+			}
+
+			bytesRead += header.size;
+		}
+
+
+		/*RwSectionHeader extHeader;
+		readSectionHeaderWithID(stream, extHeader, RW_SECTION_EXTENSION);
+
+		RwSectionHeader nameHeader;
+		readSectionHeaderWithID(stream, nameHeader, RW_SECTION_FRAME);
+		//printf("nameHeader size: %d\n", nameHeader.size);
+		frames[i]->name = new char[nameHeader.size+1];
+		stream->read(frames[i]->name, nameHeader.size);
+		frames[i]->name[nameHeader.size] = '\0';
+
+		int skipSize = extHeader.size - nameHeader.size - 12;
+		SkipBytes(stream, skipSize, skipBuf, sizeof(skipBuf));*/
+	}
+
+	mesh->frames = frames;
+	mesh->frameCount = numFrames;
+}
+
+
 void DffLoader::parseGeometry(istream* stream, DffMesh* mesh) {
 	char skipBuffer[128];
 	int size;
@@ -71,15 +153,12 @@ void DffLoader::parseGeometry(istream* stream, DffMesh* mesh) {
 	RwSectionHeader geometry;
 	readSectionHeaderWithID(stream, geometry, RW_SECTION_GEOMETRY);
 
-	//istream::pos_type start = stream.tellg();
-	//gtastreampos start = GetStreamPosition(stream);
 	int readCount = 0;
 
 	RwSectionHeader geomStruct;
 	readCount += readSectionHeaderWithID(stream, geomStruct, RW_SECTION_STRUCT);
 
 	DffGeometryStructHeader header;
-	//readCount += ReadBytes(stream, &header, sizeof(DffGeometryStructHeader));
 	stream->read((char*) &header, sizeof(DffGeometryStructHeader));
 	readCount += sizeof(DffGeometryStructHeader);
 
@@ -106,9 +185,8 @@ void DffLoader::parseGeometry(istream* stream, DffMesh* mesh) {
 	}
 
 	if ((header.flags & GEOMETRY_FLAG_COLORS) != 0) {
-		mesh->vertexColors = new uint8_t[mesh->vertexCount * 4];
-		//readCount += ReadBytes(stream, mesh->vertexColors, sizeof(uint8_t) * mesh->vertexCount * 4);
 		size = sizeof(uint8_t) * mesh->vertexCount * 4;
+		mesh->vertexColors = new uint8_t[size];
 		stream->read((char*) mesh->vertexColors, size);
 		readCount += size;
 	}
@@ -116,7 +194,6 @@ void DffLoader::parseGeometry(istream* stream, DffMesh* mesh) {
 	if ((header.flags & GEOMETRY_FLAG_TEXCOORDS) != 0) {
 		size = mesh->textureCoordinateSetCount * mesh->vertexCount * 2 * sizeof(float);
 		mesh->textureCoordinateSets = new float[size];
-		//readCount += ReadBytes(stream, mesh->textureCoordinateSets, size);
 		stream->read((char*) mesh->textureCoordinateSets, size);
 		readCount += size;
 	}
@@ -252,13 +329,15 @@ void DffLoader::parseGeometry(istream* stream, DffMesh* mesh) {
 
 			//readCount += SkipBytes(stream, textureHeader.size - (readCount - bytesReadBeforeTexture));
 			size = textureHeader.size - (readCount - bytesReadBeforeTexture);
-			stream->read(skipBuffer, size);
+			SkipBytes(stream, size, skipBuffer, sizeof(skipBuffer));
+			//stream->read(skipBuffer, size);
 			readCount += size;
 		}
 
 		//readCount += SkipBytes(stream, materialHeader.size - (readCount - bytesReadBefore));
 		size = materialHeader.size - (readCount - bytesReadBefore);
-		stream->read(skipBuffer, size);
+		//stream->read(skipBuffer, size);
+		SkipBytes(stream, size, skipBuffer, sizeof(skipBuffer));
 		readCount += size;
 	}
 
@@ -314,6 +393,7 @@ void DffLoader::parseGeometry(istream* stream, DffMesh* mesh) {
 	}
 
 	//SkipBytes(stream, geometry.size - readCount);
-	stream->read(skipBuffer, geometry.size - readCount);
+	SkipBytes(stream, geometry.size - readCount, skipBuffer, sizeof(skipBuffer));
+	//stream->read(skipBuffer, geometry.size - readCount);
 }
 
