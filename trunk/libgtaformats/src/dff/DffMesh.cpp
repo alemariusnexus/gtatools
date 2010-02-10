@@ -7,7 +7,10 @@
 
 #include "DffMesh.h"
 
-DffMesh::DffMesh() {
+DffMesh::DffMesh()
+		: vertexPositions(NULL), vertexNormals(NULL), vertexColors(NULL), faceIndices(NULL),
+		  submeshFaceIndexCounts(NULL), bounds(NULL)
+{
 
 }
 
@@ -24,6 +27,8 @@ DffMesh::~DffMesh() {
 		delete[] vertexNormals;
 	if (vertexPositions)
 		delete[] vertexPositions;
+
+
 }
 
 void DffMesh::scale(float factor) {

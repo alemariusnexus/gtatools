@@ -8,7 +8,8 @@
 #ifndef DFFMODEL_H_
 #define DFFMODEL_H_
 
-#include "config.h"
+#include "../config.h"
+
 
 struct DffBoundingSphere {
 	float x;
@@ -34,6 +35,15 @@ struct DffMaterial {
 	DffTexture** textures;
 };
 
+struct DffFrame {
+	float rotationMatrix[3][3];
+	float translationVector[3];
+	int32_t parentIndex;
+	int32_t flags;
+	char* name;
+};
+
+
 class DffMesh {
 	friend class DffLoader;
 
@@ -50,11 +60,13 @@ public:
 	int32_t getFaceIndexCount() { return faceIndexCount; }
 	int32_t* getFaceIndices() { return faceIndices; }
 	int32_t* getSubmeshFaceIndexCounts() { return submeshFaceIndexCounts; }
-	uint8_t getSubmeshCount() { return submeshCount; }
+	int32_t getSubmeshCount() { return submeshCount; }
 	DffBoundingSphere* getBounds() { return bounds; }
 	bool isUsingTriangleStrips() { return facesUseTriStrips; }
 	DffMaterial** getMaterials() { return materials; }
 	int32_t getMaterialCount() { return materialCount; }
+	DffFrame** getFrames() { return frames; }
+	int32_t getFrameCount() { return frameCount; }
 
 private:
 	DffMesh();
@@ -69,11 +81,13 @@ private:
 	int32_t faceIndexCount;
 	int32_t* faceIndices;
 	int32_t* submeshFaceIndexCounts;
-	uint8_t submeshCount;
+	int32_t submeshCount;
 	DffBoundingSphere* bounds;
 	bool facesUseTriStrips;
 	DffMaterial** materials;
 	int32_t materialCount;
+	int32_t frameCount;
+	DffFrame** frames;
 };
 
 #endif /* DFFMODEL_H_ */

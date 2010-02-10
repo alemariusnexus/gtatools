@@ -2,6 +2,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <cstdio>
+#include "config.h"
 
 int __crc_table[] = {
     0x00000000, 0x77073096, 0xEE0E612C, 0x990951BA,
@@ -71,8 +72,8 @@ int __crc_table[] = {
 };
 
 
-int Crc32(const char value[]) {
-    int checksum = 0xFFFFFFFF;
+int32_t Crc32(const char value[]) {
+    int32_t checksum = 0xFFFFFFFF;
 
     for (size_t i = 0 ; i < strlen(value) ; i++) {
         char chr = value[i];

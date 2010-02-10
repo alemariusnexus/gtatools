@@ -72,7 +72,7 @@ void RwGetVersionName(uint32_t version, char* dest);
 //int RwSkipSectionHeaderWithID(istream* stream, uint32_t id);
 //int RwSkipSectionWithID(istream* stream, uint32_t id);
 
-int crc32(const char value[]);
+int Crc32(const char value[]);
 
 #endif	/* _GTA_H */
 

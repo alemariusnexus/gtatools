@@ -8,8 +8,8 @@
 #ifndef DFFLOADER_H_
 #define DFFLOADER_H_
 
-#include "config.h"
-#include "gta.h"
+#include "../config.h"
+#include "../gta.h"
 #include "DffMesh.h"
 #include <istream>
 #include <cstdio>
@@ -50,6 +50,7 @@ protected:
 private:
 	void parseGeometry(istream* stream, DffMesh* mesh);
 	void parseMaterial(istream* stream, DffMesh* mesh);
+	void parseFrameList(istream* stream, DffMesh* mesh, RwSectionHeader& frameListHeader);
 	inline int readSectionHeaderWithID(istream* stream, RwSectionHeader& header, uint32_t id)
 	{
 		RwReadSectionHeader(stream, header);
