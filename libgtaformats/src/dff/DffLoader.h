@@ -11,6 +11,7 @@
 #include "../config.h"
 #include "../gta.h"
 #include "DffMesh.h"
+#include "DFFException.h"
 #include <istream>
 #include <cstdio>
 
@@ -35,6 +36,13 @@ struct DffGeometryStructHeader {
 	int32_t frameCount;
 };
 
+struct DffLoadContext {
+	DffMesh* mesh;
+	int32_t framesRead;
+	int32_t materialIndex;
+	int32_t textureIndex;
+};
+
 
 class DffLoader {
 public:
@@ -48,9 +56,26 @@ protected:
 
 
 private:
+	int parseSection(istream* stream, RwSectionHeader* parent, DffLoadContext* context);
+	int parseStruct(istream* stream, RwSectionHeader& structHeader, RwSectionHeader* parent,
+			DffLoadContext* context);
+	int parseString(istream* stream, RwSectionHeader& stringHeader, RwSectionHeader* parent,
+			DffLoadContext* context);
+	int parseFrame(istream* stream, RwSectionHeader& frameHeader, RwSectionHeader* parent,
+			DffLoadContext* context);
+	int parseMaterialSplit(istream* stream, RwSectionHeader& matsplitHeader, RwSectionHeader* parent,
+			DffLoadContext* context);
+
 	void parseGeometry(istream* stream, DffMesh* mesh);
 	void parseMaterial(istream* stream, DffMesh* mesh);
 	void parseFrameList(istream* stream, DffMesh* mesh, RwSectionHeader& frameListHeader);
+	int parseGeometryColors(istream* stream, DffMesh* mesh, DffGeometryStructHeader& header);
+	int parseGeometryTexCoords(istream* stream, DffMesh* mesh, DffGeometryStructHeader& header);
+	int parseGeometryFaces(istream* stream, DffMesh* mesh, DffGeometryStructHeader& header);
+	int parseGeometryPositions(istream* stream, DffMesh* mesh, DffGeometryStructHeader& header);
+	int parseGeometryNormals(istream* stream, DffMesh* mesh, DffGeometryStructHeader& header);
+	void printHeaderInfo(DffGeometryStructHeader& header);
+
 	inline int readSectionHeaderWithID(istream* stream, RwSectionHeader& header, uint32_t id)
 	{
 		RwReadSectionHeader(stream, header);
@@ -62,6 +87,7 @@ private:
 			RwGetSectionName(header.id, found);
 			char errmsg[256];
 			sprintf(errmsg, "Error: Found section with type %s where %s was expected!\n", found, expected);
+			throw DFFException(DFFException::SyntaxError, errmsg);
 			//throw IMGException(errmsg, bytesRead);
 			// TODO throw exception
 		}
