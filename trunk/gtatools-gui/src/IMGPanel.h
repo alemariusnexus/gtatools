@@ -2,7 +2,7 @@
 #define __IMGPanel__
 
 #include <fstream>
-#include <IMGArchive.h>
+#include <img/IMGArchive.h>
 #include "FileDisplayer.h"
 
 using std::ifstream;

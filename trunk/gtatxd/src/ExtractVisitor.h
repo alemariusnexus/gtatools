@@ -8,7 +8,7 @@
 #ifndef EXTRACTCOMMAND_H_
 #define EXTRACTCOMMAND_H_
 
-#include <TXDVisitor.h>
+#include <txd/TXDVisitor.h>
 #include "cliarg.h"
 #include <boost/regex.hpp>
 #include <vector>

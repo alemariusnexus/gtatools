@@ -2,7 +2,6 @@
 #include "TXDPanel.h"
 #include "IMGPanel.h"
 
-#include <TXDArchive.h>
 #include <string>
 #include <fstream>
 #include <wx/filedlg.h>

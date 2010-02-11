@@ -802,7 +802,6 @@
 <extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 <extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 <extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-<extension id="org.eclipse.cdt.core.MakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 </extensions>
 </storageModule>
 <storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -812,7 +811,7 @@
 <option id="cdt.managedbuild.option.gnu.cross.prefix.15952673" name="Prefix" superClass="cdt.managedbuild.option.gnu.cross.prefix" value="i586-mingw32msvc-" valueType="string"/>
 <option id="cdt.managedbuild.option.gnu.cross.path.1576115359" name="Path" superClass="cdt.managedbuild.option.gnu.cross.path"/>
 <targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="cdt.managedbuild.targetPlatform.gnu.cross.753619710" isAbstract="false" osList="all" superClass="cdt.managedbuild.targetPlatform.gnu.cross"/>
-<builder buildPath="${workspace_loc:/gtaformats/Win32}" id="cdt.managedbuild.builder.xlupc.exe.debug.1565981227" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" superClass="cdt.managedbuild.builder.xlupc.exe.debug"/>
+<builder buildPath="${workspace_loc:/gtaformats/Win32}" id="cdt.managedbuild.builder.xlupc.exe.debug.1565981227" keepEnvironmentInBuildfile="false" name="Gnu Make Builder"/>
 <tool id="cdt.managedbuild.tool.gnu.cross.cpp.compiler.1479415184" name="Cross G++ Compiler" superClass="cdt.managedbuild.tool.gnu.cross.cpp.compiler">
 <option id="gnu.cpp.compiler.option.include.paths.1927960443" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 <listOptionValue builtIn="false" value="/usr/local/include"/>

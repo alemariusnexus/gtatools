@@ -8,8 +8,8 @@
 #include "DffMesh.h"
 
 DffMesh::DffMesh()
-		: vertexPositions(NULL), vertexNormals(NULL), vertexColors(NULL), faceIndices(NULL),
-		  submeshFaceIndexCounts(NULL), bounds(NULL)
+		: vertexPositions(NULL), vertexNormals(NULL), vertexColors(NULL), textureCoordinateSets(NULL),
+		  faceIndices(NULL), submeshFaceIndexCounts(NULL), bounds(NULL), materials(NULL), frames(NULL)
 {
 
 }
@@ -27,8 +27,24 @@ DffMesh::~DffMesh() {
 		delete[] vertexNormals;
 	if (vertexPositions)
 		delete[] vertexPositions;
+	if (textureCoordinateSets)
+		delete[] textureCoordinateSets;
 
+	if (materials) {
+		for (int32_t i = 0 ; i < materialCount ; i++) {
+			delete materials[i];
+		}
 
+		delete[] materials;
+	}
+
+	if (frames) {
+		for (int32_t i = 0 ; i < frameCount ; i++) {
+			delete frames[i];
+		}
+
+		delete[] frames;
+	}
 }
 
 void DffMesh::scale(float factor) {

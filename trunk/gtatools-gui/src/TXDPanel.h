@@ -1,7 +1,7 @@
 #ifndef __TXDPanel__
 #define __TXDPanel__
 
-#include <TXDArchive.h>
+#include <txd/TXDArchive.h>
 #include <fstream>
 #include <istream>
 #include "guiconfig.h"
