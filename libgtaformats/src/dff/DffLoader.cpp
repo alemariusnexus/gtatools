@@ -6,6 +6,11 @@
  */
 
 #include "DffLoader.h"
+#include "DFFGeometry.h"
+#include "DFFGeometryPart.h"
+#include "DFFFrame.h"
+#include "DFFMaterial.h"
+#include "DFFTexture.h"
 #include <cstdlib>
 #include <cstdio>
 
@@ -21,7 +26,7 @@ DffLoader::~DffLoader() {
 }
 
 
-int parseSection(istream* stream, RwSectionHeader* parent, DffLoadContext* context)
+int DffLoader::parseSection(istream* stream, RwSectionHeader* parent, DffLoadContext* context)
 {
 	char skipBuf[1024];
 
@@ -29,8 +34,21 @@ int parseSection(istream* stream, RwSectionHeader* parent, DffLoadContext* conte
 
 	while (readCount < parent->size) {
 		RwSectionHeader header;
-		stream->read((char*) &header);
+		stream->read((char*) &header, sizeof(RwSectionHeader));
+		readCount += 12;
 
+		/*for (int i = 0 ; i < context->depth ; i++) {
+			printf("  ");
+		}
+
+		char sname[64];
+		RwGetSectionName(header.id, sname);
+
+		printf("%s\n", sname);*/
+
+		int readBefore = readCount;
+
+		context->depth++;
 
 		switch (header.id) {
 		case RW_SECTION_CLUMP:
@@ -63,29 +81,35 @@ int parseSection(istream* stream, RwSectionHeader* parent, DffLoadContext* conte
 
 
 		case RW_SECTION_STRING:
-			parseString(stream, header, parent, context);
+			readCount += parseString(stream, header, parent, context);
 			break;
 		case RW_SECTION_STRUCT:
-			parseStruct(stream, header, parent, context);
+			readCount += parseStruct(stream, header, parent, context);
 			break;
 		case RW_SECTION_FRAME:
-			parseFrame(stream, header, parent, context);
+			readCount += parseFrame(stream, header, parent, context);
 			break;
 		case RW_SECTION_MATERIALSPLIT:
-			parseMaterialSplit(stream, header, parent, context);
+			readCount += parseMaterialSplit(stream, header, parent, context);
 			break;
-
-
-		default:
-			SkipBytes(stream, header.size, skipBuf, sizeof(skipBuf));
 		}
+
+		context->depth--;
+
+		int skipSize = header.size - (readCount - readBefore);
+		SkipBytes(stream, skipSize, skipBuf, sizeof(skipBuf));
+		readCount += skipSize;
 	}
+
+	return parent->size;
 }
 
 
 int DffLoader::parseStruct(istream* stream, RwSectionHeader& structHeader, RwSectionHeader* parent,
 		DffLoadContext* context)
 {
+	char skipBuf[1024];
+
 	int rc = 0;
 
 	DffMesh* mesh = context->mesh;
@@ -99,26 +123,55 @@ int DffLoader::parseStruct(istream* stream, RwSectionHeader& structHeader, RwSec
 			printf("  Frame count: %d\n", numFrames);
 		}
 
-		DffFrame** frames = new DffFrame*[numFrames];
+		DFFFrame** frames = new DFFFrame*[numFrames];
+		int32_t* parentIndices = new int32_t[numFrames];
 
 		for (int32_t i = 0 ; i < numFrames ; i++) {
-			frames[i] = new DffFrame;
-			stream->read((char*) frames[i], 56);
+			DFFFrame* frame = new DFFFrame;
+			int32_t parentIdx;
+
+			stream->read((char*) frame->rotation, 36);
+			stream->read((char*) frame->translation, 12);
+			stream->read((char*) &parentIdx, 4);
+			stream->read((char*) &frame->flags, 4);
+
+			frames[i] = frame;
+			parentIndices[i] = parentIdx;
 			rc += 56;
 		}
 
-		context->mesh->frameCount = numFrames;
-		context->mesh->frames = frames;
+		for (int32_t i = 0 ; i < numFrames ; i++) {
+			int pidx = parentIndices[i];
+
+			if (pidx != -1) {
+				frames[i]->parent = frames[pidx];
+			} else {
+				frames[i]->parent = NULL;
+			}
+		}
+
+		delete[] parentIndices;
+
+		mesh->frameCount = numFrames;
+		mesh->frames = frames;
+		context->nextFrameIndex = 0;
+	} else if (parent->id == RW_SECTION_GEOMETRYLIST) {
+		stream->read((char*) &mesh->geometryCount, 4);
+		rc += 4;
+		mesh->geometries = new DFFGeometry*[mesh->geometryCount];
+		context->nextGeometryIndex = 0;
 	} else if (parent->id == RW_SECTION_GEOMETRY) {
+		DFFGeometry* geom = new DFFGeometry;
+		mesh->geometries[context->nextGeometryIndex++] = geom;
+
 		DffGeometryStructHeader header;
 		stream->read((char*) &header, sizeof(DffGeometryStructHeader));
 		rc += sizeof(DffGeometryStructHeader);
 
-		mesh->facesUseTriStrips = (header.flags & GEOMETRY_FLAG_TRISTRIP) != 0;
-		mesh->vertexCount = header.vertexCount;
+		geom->vertexCount = header.vertexCount;
 
 		if ((header.flags & GEOMETRY_FLAG_TEXCOORDS) != 0) {
-			mesh->textureCoordinateSetCount = header.uvSetCount;
+			geom->uvSetCount = header.uvSetCount;
 		}
 
 		if (verbose) {
@@ -126,54 +179,90 @@ int DffLoader::parseStruct(istream* stream, RwSectionHeader& structHeader, RwSec
 		}
 
 		if ((header.flags & GEOMETRY_FLAG_COLORS) != 0) {
-			rc += parseGeometryColors(stream, mesh, header);
+			int size = geom->vertexCount * 4;
+			geom->vertexColors = new uint8_t[size];
+			stream->read((char*) geom->vertexColors, size);
+			rc += size;
 		}
 
 		if ((header.flags & GEOMETRY_FLAG_TEXCOORDS) != 0) {
-			rc += parseGeometryTexCoords(stream, mesh, header);
+			geom->uvCoordSets = new float*[geom->uvSetCount];
+
+			for (int8_t i = 0 ; i < geom->uvSetCount ; i++) {
+				int size = geom->vertexCount * 2 * sizeof(float);
+				float* uvSet = new float[size];
+				stream->read((char*) uvSet, size);
+				geom->uvCoordSets[i] = uvSet;
+				rc += size;
+			}
 		}
 
-		rc += parseGeometryFaces(stream, mesh);
+		SkipBytes(stream, header.faceCount * sizeof(int16_t) * 4, skipBuf, sizeof(skipBuf));
+		rc += header.faceCount * sizeof(int16_t) * 4;
 
-		mesh->bounds = new DffBoundingSphere;
-		stream->read((char*) mesh->bounds, sizeof(DffBoundingSphere));
-		rc += sizeof(DffBoundingSphere);
+		/*int readCount = 0;
 
-		stream->read(skipBuffer, 8);
+		mesh->faceIndexCount = header.faceCount*3;
+		mesh->faceIndices = new int32_t[mesh->faceIndexCount];
+
+		for (int32_t i = 0 ; i < header.faceCount ; i++) {
+			int16_t face[4];
+			//readCount += ReadBytes(stream, face, sizeof(face));
+			stream->read((char*) face, sizeof(face));
+			readCount += sizeof(face);
+
+			mesh->faceIndices[i*3] = face[1];
+			mesh->faceIndices[i*3 + 1] = face[0];
+			mesh->faceIndices[i*3 + 2] = face[3];
+		}*/
+
+		stream->read((char*) &geom->bounds, 16);
+		rc += 16;
+
+		stream->read(skipBuf, 8);
 		rc += 8;
 
 		if ((header.flags & GEOMETRY_FLAG_POSITIONS) != 0) {
-			rc += parseGeometryPositions(stream, mesh, header);
+			geom->vertices = new float[geom->vertexCount * 3];
+			int size = sizeof(float) * geom->vertexCount * 3;
+			stream->read((char*) geom->vertices, size);
+			rc += size;
 		}
 
 		if ((header.flags & GEOMETRY_FLAG_NORMALS) != 0) {
-			rc += parseGeometryNormals(stream, mesh, header);
+			geom->normals = new float[geom->vertexCount * 3];
+			int size = sizeof(float) * geom->vertexCount * 3;
+			stream->read((char*) geom->normals, size);
+			rc += size;
 		}
 	} else if (parent->id == RW_SECTION_MATERIALLIST) {
-		stream->read((char*) &context->mesh->materialCount, 4);
+		DFFGeometry* geom = mesh->geometries[context->nextGeometryIndex-1];
+		stream->read((char*) &geom->materialCount, 4);
 		rc += 4;
-		context->mesh->materials = new DffMaterial*[context->mesh->materialCount];
-		context->materialIndex = 0;
+		geom->materials = new DFFMaterial*[geom->materialCount];
+		context->nextMaterialIndex = 0;
 	} else if (parent->id == RW_SECTION_MATERIAL) {
-		int idx = context->materialIndex;
-		mesh->materials[idx] = new DffMaterial;
-		stream->read((char*) &mesh->materials[idx], 36);
-		context->materialIndex++;
-		mesh->materials[idx]->textures = new DffTexture[mesh->materials[idx]->textureCount];
-		rc += 36;
-		context->textureIndex = 0;
+		DFFGeometry* geom = mesh->geometries[context->nextGeometryIndex-1];
+		DFFMaterial* mat = new DFFMaterial;
+
+		stream->read(skipBuf, 4);
+		stream->read((char*) mat->color, 4);
+		stream->read(skipBuf, 4);
+		stream->read((char*) &mat->textureCount, 4);
+		rc += 16;
+
+		mat->textures = new DFFTexture*[mat->textureCount];
+		geom->materials[context->nextMaterialIndex++] = mat;
+		context->nextTextureIndex = 0;
 	} else if (parent->id == RW_SECTION_TEXTURE) {
-		DffTexture* tex = new DffTexture;
-		DffMaterial* mat = mesh->materials[context->materialIndex];
+		DFFMaterial* mat = mesh->geometries[context->nextGeometryIndex-1]->materials[context->nextMaterialIndex-1];
+		DFFTexture* tex = new DFFTexture;
 		stream->read((char*) &tex->filterModeFlags, 2);
-		mat->textures[context->textureIndex++] = tex;
+		mat->textures[context->nextTextureIndex++] = tex;
 		rc += 2;
 	}
 
-	char skipBuf[1024];
-	SkipBytes(stream, structHeader.size - rc, skipBuf, sizeof(skipBuf));
-
-	return structHeader.size;
+	return rc;
 }
 
 
@@ -184,12 +273,14 @@ int DffLoader::parseString(istream* stream, RwSectionHeader& stringHeader, RwSec
 	stream->read(str, stringHeader.size);
 
 	if (parent->id == RW_SECTION_TEXTURE) {
-		DffTexture* tex = context->mesh->materials[context->materialIndex]->textures[context->textureIndex];
+		DFFTexture* tex = context->mesh->geometries[context->nextGeometryIndex-1]
+		                                            ->materials[context->nextMaterialIndex-1]
+		                                                        ->textures[context->nextTextureIndex-1];
 
-		if (tex->textureName == NULL) {
-			tex->textureName = str;
+		if (tex->diffuseName == NULL) {
+			tex->diffuseName = str;
 		} else {
-			tex->maskName = str;
+			tex->alphaName = str;
 		}
 	}
 
@@ -200,67 +291,66 @@ int DffLoader::parseString(istream* stream, RwSectionHeader& stringHeader, RwSec
 int DffLoader::parseFrame(istream* stream, RwSectionHeader& frameHeader, RwSectionHeader* parent,
 		DffLoadContext* context)
 {
-	int idx = context->framesRead;
+	int idx = context->nextFrameIndex;
 
-	DffFrame** frames = context->mesh->frames;
+	DFFFrame** frames = context->mesh->frames;
 	frames[idx]->name = new char[frameHeader.size+1];
 	stream->read(frames[idx]->name, frameHeader.size);
 	frames[idx]->name[frameHeader.size] = '\0';
 
-	context->framesRead++;
+	context->nextFrameIndex++;
 
 	return frameHeader.size;
 }
 
 
-int parseMaterialSplit(istream* stream, RwSectionHeader& matsplitHeader, RwSectionHeader* parent,
+int DffLoader::parseMaterialSplit(istream* stream, RwSectionHeader& matsplitHeader, RwSectionHeader* parent,
 			DffLoadContext* context)
 {
+	DFFGeometry* geom = context->mesh->geometries[context->nextGeometryIndex-1];
+
+	int readCount = 0;
+
 	int32_t triangleStrip, splitCount, faceCount;
 
-	/*readCount += ReadBytes(stream, &triangleStrip, 4);
-	readCount += ReadBytes(stream, &splitCount, 4);
-	readCount += ReadBytes(stream, &faceCount, 4);*/
 	stream->read((char*) &triangleStrip, 4);
 	stream->read((char*) &splitCount, 4);
 	stream->read((char*) &faceCount, 4);
 	readCount += 12;
 
-	delete[] mesh->faceIndices;
-	mesh->facesUseTriStrips = (triangleStrip == 1);
-	mesh->faceIndexCount = faceCount;
-	mesh->faceIndices = new int32_t[mesh->faceIndexCount];
-	int absFaceIdx = 0;
+	geom->partCount = splitCount;
+	geom->parts = new DFFGeometryPart*[splitCount];
+
+	geom->triangleStrips = (triangleStrip == 1);
 
 	if (verbose) {
-		printf("  Face format: triangle %s\n", mesh->facesUseTriStrips ? "strip" : "list");
+		printf("  Face format: triangle %s\n", geom->triangleStrips ? "strip" : "list");
 		printf("  Submesh count (material splits): %d\n", splitCount);
-		printf("  Face index count: %d\n", mesh->faceIndexCount);
+		printf("  Face index count: %d\n", faceCount);
 	}
 
-	mesh->submeshCount = splitCount;
-	mesh->submeshFaceIndexCounts = new int32_t[mesh->submeshCount];
 
-	for (int i = 0 ; i < splitCount ; i++) {
+	for (int32_t i = 0 ; i < splitCount ; i++) {
+		DFFGeometryPart* part = new DFFGeometryPart;
+
 		int32_t faceIdx, matIdx;
-
-		/*readCount += ReadBytes(stream, &faceIdx, 4);
-		readCount += ReadBytes(stream, &matIdx, 4);
-
-		readCount += ReadBytes(stream, mesh->faceIndices + absFaceIdx, faceIdx * sizeof(int32_t));*/
 
 		stream->read((char*) &faceIdx, 4);
 		stream->read((char*) &matIdx, 4);
 		readCount += 8;
 
-		size = faceIdx * sizeof(int32_t);
-		stream->read((char*) mesh->faceIndices + absFaceIdx, size);
+		int size = faceIdx * 4;
+		part->indexCount = faceIdx;
+		part->indices = new int32_t[faceIdx];
+		stream->read((char*) part->indices, size);
 		readCount += size;
 
-		absFaceIdx += faceIdx;
+		part->material = geom->materials[matIdx];
 
-		mesh->submeshFaceIndexCounts[i] = faceIdx;
+		geom->parts[i] = part;
 	}
+
+	return readCount;
 }
 
 
@@ -277,9 +367,23 @@ DffMesh* DffLoader::loadMesh(istream* stream) {
 	DffMesh* mesh = new DffMesh;
 	DffLoadContext context;
 	context.mesh = mesh;
-	context.framesRead = 0;
+	context.depth = 0;
 
-	parseSection(stream, NULL, context);
+	RwSectionHeader clump;
+
+	char skipBuf[1024];
+
+	while (!stream->eof()) {
+		RwReadSectionHeader(stream, clump);
+
+		if (clump.id != RW_SECTION_CLUMP) {
+			SkipBytes(stream, clump.size, skipBuf, sizeof(skipBuf));
+		} else {
+			break;
+		}
+	}
+
+	parseSection(stream, &clump, &context);
 
 	return mesh;
 
@@ -335,14 +439,14 @@ DffMesh* DffLoader::loadMesh(istream* stream) {
 }
 
 
-void DffLoader::parseFrameList(istream* stream, DffMesh* mesh, RwSectionHeader& frameListHeader)
+/*void DffLoader::parseFrameList(istream* stream, DffMesh* mesh, RwSectionHeader& frameListHeader)
 {
 	//skipSectionHeaderWithID(stream, RW_SECTION_STRUCT);
 	RwSectionHeader structHeader;
 	readSectionHeaderWithID(stream, structHeader, RW_SECTION_STRUCT);
 
 
-	/*int32_t numFrames;
+	int32_t numFrames;
 	stream->read((char*) &numFrames, 4);
 
 	if (verbose) {
@@ -354,7 +458,7 @@ void DffLoader::parseFrameList(istream* stream, DffMesh* mesh, RwSectionHeader& 
 	for (int32_t i = 0 ; i < numFrames ; i++) {
 		frames[i] = new DffFrame;
 		stream->read((char*) frames[i], 56);
-	}*/
+	}
 
 	char skipBuf[1024];
 
@@ -403,7 +507,7 @@ void DffLoader::parseGeometry(istream* stream, DffMesh* mesh) {
 
 	int readBefore = readCount;
 
-	/*DffGeometryStructHeader header;
+	DffGeometryStructHeader header;
 	stream->read((char*) &header, sizeof(DffGeometryStructHeader));
 	readCount += sizeof(DffGeometryStructHeader);
 
@@ -443,7 +547,7 @@ void DffLoader::parseGeometry(istream* stream, DffMesh* mesh) {
 
 	if ((header.flags & GEOMETRY_FLAG_NORMALS) != 0) {
 		readCount += parseGeometryNormals(stream, mesh, header);
-	}*/
+	}
 
 
 	printf("I have just read %d bytes\n", readCount - readBefore);
@@ -452,7 +556,7 @@ void DffLoader::parseGeometry(istream* stream, DffMesh* mesh) {
 
 	readCount += skipSectionHeaderWithID(stream, RW_SECTION_MATERIALLIST);
 
-	/*RwSectionHeader h;
+	RwSectionHeader h;
 	readCount += readSectionHeaderWithID(stream, h, RW_SECTION_STRUCT);
 
 	//readCount += ReadBytes(stream, &mesh->materialCount, 4);
@@ -460,7 +564,7 @@ void DffLoader::parseGeometry(istream* stream, DffMesh* mesh) {
 	readCount += 4;
 
 	SkipBytes(stream, h.size - 4, skipBuffer, sizeof(skipBuffer));
-	readCount += h.size - 4;*/
+	readCount += h.size - 4;
 
 	mesh->materials = new DffMaterial*[mesh->materialCount];
 
@@ -549,9 +653,6 @@ void DffLoader::parseGeometry(istream* stream, DffMesh* mesh) {
 
 	int32_t triangleStrip, splitCount, faceCount;
 
-	/*readCount += ReadBytes(stream, &triangleStrip, 4);
-	readCount += ReadBytes(stream, &splitCount, 4);
-	readCount += ReadBytes(stream, &faceCount, 4);*/
 	stream->read((char*) &triangleStrip, 4);
 	stream->read((char*) &splitCount, 4);
 	stream->read((char*) &faceCount, 4);
@@ -575,11 +676,6 @@ void DffLoader::parseGeometry(istream* stream, DffMesh* mesh) {
 	for (int i = 0 ; i < splitCount ; i++) {
 		int32_t faceIdx, matIdx;
 
-		/*readCount += ReadBytes(stream, &faceIdx, 4);
-		readCount += ReadBytes(stream, &matIdx, 4);
-
-		readCount += ReadBytes(stream, mesh->faceIndices + absFaceIdx, faceIdx * sizeof(int32_t));*/
-
 		stream->read((char*) &faceIdx, 4);
 		stream->read((char*) &matIdx, 4);
 		readCount += 8;
@@ -599,66 +695,10 @@ void DffLoader::parseGeometry(istream* stream, DffMesh* mesh) {
 	SkipBytes(stream, geometry.size - readCount, skipBuffer, sizeof(skipBuffer));
 	printf("Now at %d\n", (int) stream->tellg());
 	//stream->read(skipBuffer, geometry.size - readCount);
-}
+}*/
 
 
 
-int DffLoader::parseGeometryColors(istream* stream, DffMesh* mesh, DffGeometryStructHeader& header)
-{
-	int size = sizeof(uint8_t) * mesh->vertexCount * 4;
-	mesh->vertexColors = new uint8_t[size];
-	stream->read((char*) mesh->vertexColors, size);
-	return size;
-}
-
-
-int DffLoader::parseGeometryTexCoords(istream* stream, DffMesh* mesh, DffGeometryStructHeader& header)
-{
-	int size = mesh->textureCoordinateSetCount * mesh->vertexCount * 2 * sizeof(float);
-	mesh->textureCoordinateSets = new float[size];
-	stream->read((char*) mesh->textureCoordinateSets, size);
-	return size;
-}
-
-
-int DffLoader::parseGeometryFaces(istream* stream, DffMesh* mesh, DffGeometryStructHeader& header)
-{
-	int readCount = 0;
-
-	mesh->faceIndexCount = header.faceCount*3;
-	mesh->faceIndices = new int32_t[mesh->faceIndexCount];
-
-	for (int32_t i = 0 ; i < header.faceCount ; i++) {
-		int16_t face[4];
-		//readCount += ReadBytes(stream, face, sizeof(face));
-		stream->read((char*) face, sizeof(face));
-		readCount += sizeof(face);
-
-		mesh->faceIndices[i*3] = face[1];
-		mesh->faceIndices[i*3 + 1] = face[0];
-		mesh->faceIndices[i*3 + 2] = face[3];
-	}
-
-	return readCount;
-}
-
-
-int DffLoader::parseGeometryPositions(istream* stream, DffMesh* mesh, DffGeometryStructHeader& header)
-{
-	mesh->vertexPositions = new float[mesh->vertexCount * 3];
-	int size = sizeof(float) * mesh->vertexCount * 3;
-	stream->read((char*) mesh->vertexPositions, size);
-	return size;
-}
-
-
-int DffLoader::parseGeometryNormals(istream* stream, DffMesh* mesh, DffGeometryStructHeader& header)
-{
-	mesh->vertexNormals = new float[mesh->vertexCount * 3];
-	int size = sizeof(float) * mesh->vertexCount * 3;
-	stream->read((char*) mesh->vertexNormals, size);
-	return size;
-}
 
 
 void DffLoader::printHeaderInfo(DffGeometryStructHeader& header)
