@@ -11,5 +11,10 @@
 #include "dff/DffLoader.h"
 #include "dff/DffMesh.h"
 #include "dff/DFFException.h"
+#include "dff/DFFFrame.h"
+#include "dff/DFFGeometry.h"
+#include "dff/DFFGeometryPart.h"
+#include "dff/DFFMaterial.h"
+#include "dff/DFFTexture.h"
 
 #endif /* GTADFF_H_ */

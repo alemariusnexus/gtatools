@@ -129,8 +129,38 @@ void RwGetSectionName(uint32_t id, char* dest) {
 	case RW_SECTION_TEXTUREDICTIONARY:
 		strcpy(dest, "RW_SECTION_TEXTUREDICTIONARY");
 		break;
+	case RW_SECTION_HANIM_PLG:
+		strcpy(dest, "RW_SECTION_HANIM_PLG");
+		break;
+	case RW_SECTION_SKY_MIPMAP_VAL:
+		strcpy(dest, "RW_SECTION_SKY_MIPMAP_VAL");
+		break;
+	case RW_SECTION_MATERIAL_EFFECTS_PLG:
+		strcpy(dest, "RW_SECTION_MATERIAL_EFFECTS_PLG");
+		break;
+	case RW_SECTION_SPECULAR_MATERIAL:
+		strcpy(dest, "RW_SECTION_SPECULAR_MATERIAL");
+		break;
+	case RW_SECTION_NIGHT_VERTEX_COLORS:
+		strcpy(dest, "RW_SECTION_NIGHT_VERTEX_COLORS");
+		break;
+	case RW_SECTION_REFLECTION_MATERIAL:
+		strcpy(dest, "RW_SECTION_REFLECTION_MATERIAL");
+		break;
+	case RW_SECTION_2DFX:
+		strcpy(dest, "RW_SECTION_2DFX");
+		break;
+	case RW_SECTION_MESH_EXTENSION:
+		strcpy(dest, "RW_SECTION_MESH_EXTENSION");
+		break;
+	case RW_SECTION_RIGHT_TO_RENDER:
+		strcpy(dest, "RW_SECTION_RIGHT_TO_RENDER");
+		break;
+	case RW_SECTION_COLLISION_MODEL:
+		strcpy(dest, "RW_SECTION_COLLISION_MODEL");
+		break;
 	default:
-		sprintf(dest, "{invalid: %d}", id);
+		sprintf(dest, "{unknown: %d}", id);
 		break;
 	}
 }

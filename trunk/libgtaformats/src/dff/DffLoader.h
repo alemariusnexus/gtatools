@@ -38,9 +38,15 @@ struct DffGeometryStructHeader {
 
 struct DffLoadContext {
 	DffMesh* mesh;
-	int32_t framesRead;
-	int32_t materialIndex;
-	int32_t textureIndex;
+	//DFFGeometry* currentGeometry;
+	int32_t nextGeometryIndex;
+	int32_t nextMaterialIndex;
+	int32_t nextTextureIndex;
+	int32_t nextFrameIndex;
+	//int32_t framesRead;
+	//int32_t materialIndex;
+	//int32_t textureIndex;
+	int depth;
 };
 
 
@@ -69,6 +75,7 @@ private:
 	void parseGeometry(istream* stream, DffMesh* mesh);
 	void parseMaterial(istream* stream, DffMesh* mesh);
 	void parseFrameList(istream* stream, DffMesh* mesh, RwSectionHeader& frameListHeader);
+
 	int parseGeometryColors(istream* stream, DffMesh* mesh, DffGeometryStructHeader& header);
 	int parseGeometryTexCoords(istream* stream, DffMesh* mesh, DffGeometryStructHeader& header);
 	int parseGeometryFaces(istream* stream, DffMesh* mesh, DffGeometryStructHeader& header);
