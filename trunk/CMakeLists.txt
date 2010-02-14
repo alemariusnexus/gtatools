@@ -5,11 +5,12 @@ OPTION(GTAIMG_BUILD "Whether you want gtaimg to be built" ON)
 OPTION(GTATXD_BUILD "Whether you want gtatxd to be built" ON)
 OPTION(GTATOOLS_GUI_BUILD "Whether you want gtatools-gui to be built" ON)
 
-SET(LIBS
-	Boost::Regex boost_regex
-	Squish squish
-	DevIL IL
-	)
+IF(GTAIMG_BUILD OR GTATXD_BUILD)
+	SET(LIBS Boost::Regex boost_regex)
+ENDIF(GTAIMG_BUILD OR GTATXD_BUILD)
+IF(GTATXD_BUILD OR GTATOOLS_GUI_BUILD)
+	SET(LIBS ${LIBS} DevIL IL Squish squish)
+ENDIF(GTATXD_BUILD OR GTATOOLS_GUI_BUILD)
 
 LIST(LENGTH LIBS LIBS_LENGTH)
 MATH(EXPR LIBS_COUNT ${LIBS_LENGTH}/2-1)
