@@ -10,7 +10,7 @@
 
 #include "cliarg.h"
 //#include <ImgVisitor.h>
-#include <img/IMGVisitor.h>
+#include <IMGVisitor.h>
 #include <vector>
 #include <boost/regex.hpp>
 

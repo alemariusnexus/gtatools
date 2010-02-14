@@ -2,7 +2,6 @@
 #include <cstring>
 #include <cstdlib>
 #include <cstdio>
-#include "config.h"
 
 int __crc_table[] = {
     0x00000000, 0x77073096, 0xEE0E612C, 0x990951BA,

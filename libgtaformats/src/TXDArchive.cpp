@@ -6,7 +6,7 @@
  */
 
 #include "TXDArchive.h"
-#include "../gta.h"
+#include "gta.h"
 #include <squish.h>
 #include <cstring>
 #include <cstdio>

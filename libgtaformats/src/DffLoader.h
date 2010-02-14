@@ -8,8 +8,8 @@
 #ifndef DFFLOADER_H_
 #define DFFLOADER_H_
 
-#include "../config.h"
-#include "../gta.h"
+#include "gf_config.h"
+#include "gta.h"
 #include "DffMesh.h"
 #include "DFFException.h"
 #include <istream>

@@ -8,7 +8,7 @@
 #ifndef GXTARCHIVE_H_
 #define GXTARCHIVE_H_
 
-#include "../config.h"
+#include "gf_config.h"
 #include <istream>
 #include "GXTTable.h"
 #include "GXTPlainKeyTable.h"

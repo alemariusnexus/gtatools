@@ -8,7 +8,7 @@
 #ifndef _GTA_H
 #define	_GTA_H
 
-#include "config.h"
+#include "gf_config.h"
 #include <istream>
 
 

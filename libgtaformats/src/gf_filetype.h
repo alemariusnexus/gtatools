@@ -8,6 +8,7 @@
 #ifndef FILETYPE_H_
 #define FILETYPE_H_
 
+#include "gf_config.h"
 #include <string>
 
 using std::string;

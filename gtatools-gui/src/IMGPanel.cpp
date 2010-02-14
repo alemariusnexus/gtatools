@@ -1,6 +1,6 @@
 #include "IMGPanel.h"
 #include "TXDPanel.h"
-#include <img/IMGException.h>
+#include <IMGException.h>
 #include <cstdio>
 #include <fstream>
 #include "lang/lang.h"

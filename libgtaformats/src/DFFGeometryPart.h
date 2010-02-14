@@ -8,7 +8,7 @@
 #ifndef DFFGEOMETRYPART_H_
 #define DFFGEOMETRYPART_H_
 
-#include "../config.h"
+#include "gf_config.h"
 #include "DFFMaterial.h"
 
 

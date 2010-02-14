@@ -8,7 +8,7 @@
 #ifndef IDEREADER_H_
 #define IDEREADER_H_
 
-#include "../config.h"
+#include "gf_config.h"
 #include <istream>
 #include <cstring>
 #include <cstdlib>

@@ -9,7 +9,7 @@
 #define IMGEXCEPTION_H_
 
 #include <exception>
-#include "../config.h"
+#include "gf_config.h"
 
 class IMGException : std::exception {
 public:

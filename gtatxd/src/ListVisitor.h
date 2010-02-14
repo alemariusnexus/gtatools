@@ -8,7 +8,7 @@
 #ifndef LISTCOMMAND_H_
 #define LISTCOMMAND_H_
 
-#include <txd/TXDVisitor.h>
+#include <TXDVisitor.h>
 
 class ListVisitor : public TXDVisitor {
 public:

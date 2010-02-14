@@ -8,7 +8,7 @@
 #ifndef DFFMATERIAL_H_
 #define DFFMATERIAL_H_
 
-#include "../config.h"
+#include "gf_config.h"
 #include "DFFTexture.h"
 
 

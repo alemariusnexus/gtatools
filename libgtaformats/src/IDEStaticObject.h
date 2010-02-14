@@ -8,7 +8,7 @@
 #ifndef IDESTATICOBJECT_H_
 #define IDESTATICOBJECT_H_
 
-#include "../config.h"
+#include "gf_config.h"
 #include "IDEEntity.h"
 
 class IDEStaticObject : public IDEEntity
