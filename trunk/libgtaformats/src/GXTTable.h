@@ -8,9 +8,9 @@
 #ifndef GXTTABLE_H_
 #define GXTTABLE_H_
 
-#include "../config.h"
+#include "gf_config.h"
 #include <map>
-#include "../gta.h"
+#include "gta.h"
 
 using std::map;
 

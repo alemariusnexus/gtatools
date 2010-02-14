@@ -9,7 +9,7 @@
 #define TXDEXCEPTION_H_
 
 #include <exception>
-#include "../config.h"
+#include "gf_config.h"
 
 
 class TXDException : public std::exception {

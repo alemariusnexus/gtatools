@@ -8,7 +8,7 @@
 #ifndef GXTPLAINKEYTABLE_H_
 #define GXTPLAINKEYTABLE_H_
 
-#include "../config.h"
+#include "gf_config.h"
 #include "GXTTable.h"
 #include <map>
 

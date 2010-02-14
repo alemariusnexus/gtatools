@@ -8,7 +8,7 @@
 #ifndef TXDTEXTURE_H_
 #define TXDTEXTURE_H_
 
-#include "../config.h"
+#include "gf_config.h"
 #include <istream>
 
 using std::istream;

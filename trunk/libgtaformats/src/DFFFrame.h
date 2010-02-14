@@ -8,7 +8,7 @@
 #ifndef DFFFRAME_H_
 #define DFFFRAME_H_
 
-#include "../config.h"
+#include "gf_config.h"
 
 
 class DFFFrame {

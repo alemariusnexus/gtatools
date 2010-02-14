@@ -8,7 +8,7 @@
 #ifndef DFFMODEL_H_
 #define DFFMODEL_H_
 
-#include "../config.h"
+#include "gf_config.h"
 #include "DFFGeometry.h"
 #include "DFFFrame.h"
 

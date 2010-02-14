@@ -8,7 +8,7 @@
 #ifndef IDEENTITY_H_
 #define IDEENTITY_H_
 
-#include "../config.h"
+#include "gf_config.h"
 
 
 class IDEEntity

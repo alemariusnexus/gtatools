@@ -8,7 +8,7 @@
 #ifndef DFFTEXTURE_H_
 #define DFFTEXTURE_H_
 
-#include "../config.h"
+#include "gf_config.h"
 
 class DFFTexture {
 private:
