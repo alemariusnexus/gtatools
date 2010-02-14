@@ -2,10 +2,6 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 OPTION(GF_STATIC_BUILD "Do you want to build the library as a static library?" ON)
 
-IF(MSVC)
-	SET(INC_FILES ${INC_FILES} msvcstdint)
-ENDIF(MSVC)
-
 ADD_SUBDIRECTORY(src)
 
 FOREACH(SRC_FILE ${SRC_FILES})
