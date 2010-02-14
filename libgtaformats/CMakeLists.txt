@@ -4,12 +4,12 @@ OPTION(GF_STATIC_BUILD "Do you want to build the library as a static library?" O
 
 
 SET(SRC_FILES
-	DFFFrame DFFGeometry DFFGeometryPart DffLoader DFFMaterial DffMesh DFFTexture gf_filetype gta GXTArchive GXTPlainKeyTable GXTTable
+	DFFFrame DFFGeometry DFFGeometryPart DffLoader DFFMaterial DffMesh DFFTexture gf_filetype gta
 	IDEEntity IDEReader IDEStaticObject IMGArchive IMGException IMGVisitor TXDArchive TXDException TXDTexture TXDVisitor
 	)
 SET(INC_FILES
 	gf_config DFFException DFFFrame DFFGeometry DFFGeometryPart DffLoader DFFMaterial DffMesh DFFTexture gf_filetype gta gtadff gtaimg
-	gtatxd GXTArchive GXTPlainKeyTable GXTTable IDEEntity IDEReader IDEStaticObject IMGArchive IMGException IMGVisitor TXDArchive
+	gtatxd IDEEntity IDEReader IDEStaticObject IMGArchive IMGException IMGVisitor TXDArchive
 	TXDException TXDTexture TXDVisitor
 	)
 
