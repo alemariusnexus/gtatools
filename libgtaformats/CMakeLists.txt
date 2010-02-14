@@ -2,21 +2,9 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 OPTION(GF_STATIC_BUILD "Do you want to build the library as a static library?" ON)
 
-
-SET(SRC_FILES
-	DFFFrame DFFGeometry DFFGeometryPart DffLoader DFFMaterial DffMesh DFFTexture gf_filetype gta
-	IDEEntity IDEReader IDEStaticObject IMGArchive IMGException IMGVisitor TXDArchive TXDException TXDTexture TXDVisitor
-	)
-SET(INC_FILES
-	gf_config DFFException DFFFrame DFFGeometry DFFGeometryPart DffLoader DFFMaterial DffMesh DFFTexture gf_filetype gta gtadff gtaimg
-	gtatxd IDEEntity IDEReader IDEStaticObject IMGArchive IMGException IMGVisitor TXDArchive
-	TXDException TXDTexture TXDVisitor
-	)
-
 IF(MSVC)
 	SET(INC_FILES ${INC_FILES} msvcstdint)
 ENDIF(MSVC)
-
 
 ADD_SUBDIRECTORY(src)
 

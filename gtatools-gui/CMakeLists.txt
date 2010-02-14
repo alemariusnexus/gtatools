@@ -1,15 +1,10 @@
-SET(SRC_FILES
-	Application DataSource DFFFormatProvider DFFPanel DisplayManager FileDataSource FileDisplayer FormatProvider IMGFormatProvider IMGPanel MainFrame
-	TXDFormatProvider TXDPanel TXDTextureDisplayer WxGUI
-	)
-
+ADD_SUBDIRECTORY(src)
 
 FOREACH(SRC_FILE ${SRC_FILES})
 	SET(SRC_PATHS ${SRC_PATHS} src/${SRC_FILE})
 ENDFOREACH(SRC_FILE)
 
 INCLUDE_DIRECTORIES(${GF_INCLUDE_DIR})
-ADD_SUBDIRECTORY(src)
 ADD_DEFINITIONS(-DIL_NO_UNICODE)
 ADD_EXECUTABLE(gtatools-gui ${SRC_PATHS})
 TARGET_LINK_LIBRARIES(gtatools-gui gtaformats ${SQUISH_LIB_PATH} ${IL_LIB_PATH} ${wxWidgets_LIBRARIES})
