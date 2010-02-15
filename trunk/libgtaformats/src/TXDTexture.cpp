@@ -10,9 +10,11 @@
 #include <cstring>
 #include <cstdio>
 #include <cmath>
-#include <squish.h>
 
-using namespace squish;
+#ifdef GF_USE_SQUISH
+#	include <squish.h>
+	using namespace squish;
+#endif
 
 
 void TxdGetRasterFormatName(char* dest, int32_t rasterFormat) {
@@ -212,22 +214,27 @@ void TXDTexture::convert(uint8_t* dest, const uint8_t* src, TXDMirrorFlags mirro
 		getColorMasks(redMask, greenMask, blueMask, alphaMask);
 		data = src;
 	} else {
-		uint8_t* tmp = new uint8_t[width * height * 4];
+#		ifdef GF_USE_SQUISH
+			uint8_t* tmp = new uint8_t[width * height * 4];
 
-		if (getCompression() == DXT1) {
-			DecompressImage(tmp, width, height, src, kDxt1);
-		} else {
-			DecompressImage(tmp, width, height, src, kDxt3);
-		}
+			if (getCompression() == DXT1) {
+				DecompressImage(tmp, width, height, src, kDxt1);
+			} else {
+				DecompressImage(tmp, width, height, src, kDxt3);
+			}
 
-		data = tmp;
+			data = tmp;
 
-		// After decompression with Squish, data is stored as R8G8B8A8
-		redMask = 0xFF;
-		greenMask = 0xFF00;
-		blueMask = 0xFF0000;
-		alphaMask = 0xFF000000;
-		srcBpp = 4;
+			// After decompression with Squish, data is stored as R8G8B8A8
+			redMask = 0xFF;
+			greenMask = 0xFF00;
+			blueMask = 0xFF0000;
+			alphaMask = 0xFF000000;
+			srcBpp = 4;
+#		else
+			throw TXDException(TXDException::Unsupported,
+					"DXT-compressed textures are not supported because GF_USE_SQUISH is turned off!");
+#		endif
 	}
 
 	// How many times do we have to shift each color channel value to the right so that they
