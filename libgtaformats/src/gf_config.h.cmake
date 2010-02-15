@@ -18,6 +18,8 @@
 #	include "msvcstdint.h"
 #endif
 
+#cmakedefine GF_USE_SQUISH
+
 
 #include <istream>
 
