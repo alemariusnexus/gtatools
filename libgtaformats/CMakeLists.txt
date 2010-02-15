@@ -1,12 +1,6 @@
 PROJECT(LIBGTAFORMATS CXX)
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-SET(CPACK_DESCRIPTION_SUMMARY "A library for loading different formats of the GTA game series into easy-to-use C++ objects.")
-SET(CPACK_PACKAGE_VENDOR "Alemarius Nexus")
-SET(CPACK_VERSION_MAJOR 0)
-SET(CPACK_VERSION_MINOR 1)
-INCLUDE(CPack)
-
 OPTION(GF_STATIC_BUILD "Do you want to build the library as a static library?" ON)
 
 

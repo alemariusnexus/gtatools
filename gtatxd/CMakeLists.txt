@@ -1,12 +1,6 @@
 PROJECT(GTATXD CXX)
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-SET(CPACK_DESCRIPTION_SUMMARY "A command-line utility for listing and extracting textures from GTA texture dictionaries (TXDs), converting them to common image formats.")
-SET(CPACK_PACKAGE_VENDOR "Alemarius Nexus")
-SET(CPACK_VERSION_MAJOR 0)
-SET(CPACK_VERSION_MINOR 1)
-INCLUDE(CPack)
-
 MACRO(ADD_LIBRARY_DEPENDENCY LIB_NAME LIB_DESCR LIB_HEADER)
 	STRING(TOUPPER ${LIB_NAME} LIB_NAME_UPPER)
 	FIND_LIBRARY(${LIB_NAME_UPPER}_LIB_PATH ${LIB_NAME} DOC "Path to library ${LIB_DESCR} (including the library file itself)")
