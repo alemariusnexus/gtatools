@@ -203,13 +203,14 @@ IMGEntry* IMGArchive::getEntryByName(const char* name) {
 	return NULL;
 }
 
-bool IMGArchive::isValidFile(const char* filename) {
+/*bool IMGArchive::isValidFile(const char* filename) {
 	char ver[4];
 	std::ifstream stream(filename, std::ifstream::in | std::ifstream::binary);
 	stream.read(ver, 4);
 	stream.close();
 	return strcmp(ver, "VER2") == 0;
-}
+}*/
+
 
 void IMGArchive::readHeader(istream* stream)
 {

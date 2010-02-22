@@ -4,6 +4,8 @@ OPTION(GTAIMG_BUILD "Whether you want gtaimg to be built" ON)
 OPTION(GTATXD_BUILD "Whether you want gtatxd to be built" ON)
 OPTION(GTATOOLS_GUI_BUILD "Whether you want gtatools-gui to be built" ON)
 
+INCLUDE(InstallRequiredSystemLibraries)
+
 SET(CPACK_PACKAGE_NAME "gtatools")
 SET(CPACK_DESCRIPTION_SUMMARY "A set of tools to view and work with different file formats of the GTA game series")
 SET(CPACK_PACKAGE_VENDOR "Alemarius Nexus")

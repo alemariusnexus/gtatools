@@ -24,9 +24,17 @@ GFFileType GFGuessFileType(const string& filename)
 		return GF_TYPE_TXD;
 	} else if (ext.compare("dir") == 0) {
 		return GF_TYPE_DIR;
+	} else if (ext.compare("dff") == 0) {
+		return GF_TYPE_DFF;
 	}
 
 	return GF_TYPE_UNKNOWN;
+}
+
+
+GFFileType GFGuessFileType(istream* stream)
+{
+
 }
 
 
