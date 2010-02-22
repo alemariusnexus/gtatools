@@ -58,6 +58,9 @@ public:
 	void setVerbose(bool verbose) { this->verbose = verbose; }
 	bool isVerbose() { return verbose; }
 
+public:
+
+
 protected:
 
 

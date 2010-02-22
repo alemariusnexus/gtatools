@@ -19,7 +19,8 @@ enum GFFileType {
 
 	GF_TYPE_IMG,
 	GF_TYPE_TXD,
-	GF_TYPE_DIR
+	GF_TYPE_DIR,
+	GF_TYPE_DFF
 };
 
 
