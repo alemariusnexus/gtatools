@@ -18,20 +18,6 @@ FileDisplayer::FileDisplayer(wxWindow* parent, wxWindowID id, const wxPoint& pos
 }
 
 
-/*bool FileDisplayer::displayFile(const wxString& filename)
-{
-	close();
-
-	stream = new ifstream(filename.mb_str(), ifstream::in | ifstream::binary);
-
-	if (stream->fail()) {
-		return false;
-	}
-
-	return display(stream);
-}*/
-
-
 bool FileDisplayer::display(DataSource* source)
 {
 	this->source = source;

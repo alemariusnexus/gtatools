@@ -15,6 +15,7 @@
 
 using std::cerr;
 using std::endl;
+using std::cout;
 
 
 
@@ -96,7 +97,7 @@ ExtractVisitor::ExtractVisitor(int argc, char** argv) {
 	numPatterns = GetStandaloneParamCount()-1;
 
 	if (numPatterns < 0) {
-		fprintf(stderr, "Error: No archive file given!\n");
+		cerr << "Error: No archive file given!" << endl;
 		exit(1);
 	}
 
@@ -104,7 +105,7 @@ ExtractVisitor::ExtractVisitor(int argc, char** argv) {
 
 	if (!sourcesOnly) {
 		if (numPatterns%2 != 0) {
-			fprintf(stderr, "Error: Last entry has no destination file!\n");
+			cerr << "Error: Last entry has no destination file!" << endl;
 			exit(1);
 		}
 
@@ -160,8 +161,8 @@ ExtractVisitor::ExtractVisitor(int argc, char** argv) {
 		try {
 			reg = new regex(srcfile);
 		} catch (boost::regex_error& err) {
-			fprintf(stderr, "Error compiling source pattern %d at offset %d: %s\n",
-					i+1, err.position(), err.what());
+			cerr << "Error compiling source pattern " << i+1 << " at offset " << err.position()
+					<< ": " << err.what() << endl;
 			exit(1);
 		}
 

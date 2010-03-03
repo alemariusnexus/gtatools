@@ -32,9 +32,9 @@ GFFileType GFGuessFileType(const string& filename)
 }
 
 
-GFFileType GFGuessFileType(istream* stream)
+/*GFFileType GFGuessFileType(istream* stream)
 {
 
-}
+}*/
 
 

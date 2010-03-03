@@ -6,11 +6,11 @@
  */
 
 #include "IMGFormatProvider.h"
-#include <IMGArchive.h>
+#include <img/IMGArchive.h>
 #include <string>
 #include "IMGPanel.h"
 #include <wx/wx.h>
-#include "lang/lang.h"
+#include "../guiconfig.h"
 
 
 bool IMGFormatProvider::canDisplay(const wxString& filename) const
@@ -39,11 +39,11 @@ FileDisplayer* IMGFormatProvider::openDisplayer(wxWindow* parent, DataSource* so
 
 wxString IMGFormatProvider::getFileWildcard() const
 {
-	return LangGet(Format_IMG_fileWildcard);
+	return LangGet("Format_IMG_fileWildcard");
 }
 
 
 wxString IMGFormatProvider::getDescription(const wxString& filename) const
 {
-	return LangGet(Format_IMG_description);
+	return LangGet("Format_IMG_description");
 }

@@ -1,24 +1,31 @@
 #include "TXDPanel.h"
-#include <IL/il.h>
+#include "TXDBitmapBuilder.h"
+//#include <IL/il.h>
 #include <wx/wx.h>
 #include <string>
+#include <wx/clipbrd.h>
 
 
 
 TXDPanel::TXDPanel(wxWindow* parent)
 		: TXDPanelPrototype(parent)
 {
-	nameLabel->SetLabel(LangGet(TXDPanel_nameLabel_emptyValue));
-	formatDescLabel->SetLabel(LangGet(TXDPanel_formatDescLabel_value));
-	bppDescLabel->SetLabel(LangGet(TXDPanel_bppDescLabel_value));
-	widthDescLabel->SetLabel(LangGet(TXDPanel_widthDescLabel_value));
-	heightDescLabel->SetLabel(LangGet(TXDPanel_heightDescLabel_value));
-	alphaTextureDescLabel->SetLabel(LangGet(TXDPanel_alphaTextureDescLabel_value));
-	compressionDescLabel->SetLabel(LangGet(TXDPanel_compressionDescLabel_value));
-	alphaUsedDescLabel->SetLabel(LangGet(TXDPanel_alphaUsedDescLabel_value));
-	numMipmapsDescLabel->SetLabel(LangGet(TXDPanel_numMipmapsDescLabel_value));
-	paletteDescLabel->SetLabel(LangGet(TXDPanel_paletteDescLabel_value));
-	extractButton->SetLabel(LangGet(TXDPanel_extractButton_label));
+	nameLabel->SetLabel(LangGet("TXDPanel_nameLabel_emptyValue"));
+	formatDescLabel->SetLabel(LangGet("TXDPanel_formatDescLabel_value"));
+	bppDescLabel->SetLabel(LangGet("TXDPanel_bppDescLabel_value"));
+	widthDescLabel->SetLabel(LangGet("TXDPanel_widthDescLabel_value"));
+	heightDescLabel->SetLabel(LangGet("TXDPanel_heightDescLabel_value"));
+	alphaTextureDescLabel->SetLabel(LangGet("TXDPanel_alphaTextureDescLabel_value"));
+	compressionDescLabel->SetLabel(LangGet("TXDPanel_compressionDescLabel_value"));
+	alphaUsedDescLabel->SetLabel(LangGet("TXDPanel_alphaUsedDescLabel_value"));
+	numMipmapsDescLabel->SetLabel(LangGet("TXDPanel_numMipmapsDescLabel_value"));
+	paletteDescLabel->SetLabel(LangGet("TXDPanel_paletteDescLabel_value"));
+	extractButton->SetLabel(LangGet("TXDPanel_extractButton_label"));
+
+	//infoSizer->GetStaticBox()->SetLabel(LangGet("TXDPanel_infoSizer_label"));
+
+	entryNotebook->SetPageText(0, LangGet("TXDPanel_infoPanel_label"));
+	entryNotebook->SetPageText(1, LangGet("TXDPanel_imagePanel_label"));
 
 	extractButton->Enable(false);
 }
@@ -42,7 +49,7 @@ bool TXDPanel::doDisplay(DataSource* source)
 	} catch (TXDException ex) {
 		//printf("%s\n", wxString::Format(wxT("%s"), ex.what()).mb_str());
 		wxString error(ex.what(), wxConvUTF8);
-		wxMessageBox(LangGetFormatted(Dialog_ErrorOpeningTXD, error.c_str()), LangGet(Dialog_ErrorTitle),
+		wxMessageBox(LangGet("Dialog_ErrorOpeningTXD", error.c_str()), LangGet("Dialog_ErrorTitle"),
 				wxOK | wxICON_ERROR);
 		return false;
 	}
@@ -53,7 +60,7 @@ bool TXDPanel::doDisplay(DataSource* source)
 
 void TXDPanel::doClose()
 {
-	nameLabel->SetLabel(LangGet(TXDPanel_nameLabel_emptyValue));
+	nameLabel->SetLabel(LangGet("TXDPanel_nameLabel_emptyValue"));
 	formatLabel->SetLabel(wxT("-"));
 	bppLabel->SetLabel(wxT("-"));
 	widthLabel->SetLabel(wxT("-"));
@@ -150,7 +157,7 @@ void TXDPanel::onExtract(wxCommandEvent& evt)
 
 		delete[] supportedFormats;
 
-		wxFileDialog fd(NULL, LangGet(TXDPanel_dlgExtractItem_title),
+		wxFileDialog fd(NULL, LangGet("TXDPanel_dlgExtractItem_title"),
 				wxString(getenv("HOME"), wxConvUTF8),
 				wxString(texture->getDiffuseName(), wxConvUTF8) + wxT(".png"), wildcards, wxFD_SAVE);
 
@@ -160,7 +167,7 @@ void TXDPanel::onExtract(wxCommandEvent& evt)
 
 		path = fd.GetPath();
 	} else {
-		wxDirDialog dd(NULL, LangGet(TXDPanel_dlgExtractItems_title),
+		wxDirDialog dd(NULL, LangGet("TXDPanel_dlgExtractItems_title"),
 				wxString(getenv("HOME"), wxConvUTF8), wxDD_DIR_MUST_EXIST);
 
 		if (dd.ShowModal() != wxID_OK) {
@@ -179,8 +186,8 @@ void TXDPanel::onExtract(wxCommandEvent& evt)
 			choices.Add(format->description);
 		}
 
-		int idx = wxGetSingleChoiceIndex(LangGet(TXDPanel_dlgExtractFormat_text),
-				LangGet(TXDPanel_dlgExtractFormat_title), choices);
+		int idx = wxGetSingleChoiceIndex(LangGet("TXDPanel_dlgExtractFormat_text"),
+				LangGet("TXDPanel_dlgExtractFormat_title"), choices);
 
 		if (idx == -1) {
 			return;
@@ -200,7 +207,23 @@ void TXDPanel::onExtract(wxCommandEvent& evt)
 	for (int i = 0 ; i < numSel ; i++) {
 		TXDTexture* texture = (TXDTexture*) textureList->GetClientData(selections[i]);
 
-		ilBindImage(1);
+		archive->gotoTexture(texture);
+		uint8_t* rawData = archive->readTextureData(texture);
+
+		wxImage* image = TXDBitmapBuilder().buildImage(texture, rawData);
+
+		if (numSel == 1) {
+			image->SaveFile(path);
+		} else {
+			wxString file = wxString(path, wxConvUTF8) + wxT("/")
+					+ wxString(texture->getDiffuseName(), wxConvUTF8) + wxT(".")
+					+ wxString(format->extension, wxConvUTF8);
+			image->SaveFile(file, format->format);
+		}
+
+		delete image;
+
+		/*ilBindImage(1);
 
 		archive->gotoTexture(texture);
 		uint8_t* rawData = archive->readTextureData(texture);
@@ -242,21 +265,21 @@ void TXDPanel::onExtract(wxCommandEvent& evt)
 		}
 
 		if (!success) {
-			wxString errString = LangGet(ILError_Unknown);
+			wxString errString = LangGet("ILError_Unknown");
 			ILenum errCode = ilGetError();
 
 			switch (errCode) {
 			case IL_FILE_ALREADY_EXISTS:
-				errString = LangGet(ILError_FileAlreadyExists);
+				errString = LangGet("ILError_FileAlreadyExists");
 				break;
 			}
 
-			wxMessageBox(LangGetFormatted(Dialog_ErrorSavingTexture, errCode, errString.c_str()),
-					LangGet(Dialog_ErrorTitle), wxOK | wxICON_ERROR);
+			wxMessageBox(LangGet("Dialog_ErrorSavingTexture", errCode, errString.c_str()),
+					LangGet("Dialog_ErrorTitle"), wxOK | wxICON_ERROR);
 		}
 
 		ilDeleteImage(1);
-		delete[] data;
+		delete[] data;*/
 	}
 
 	if (numSel != 1) {
@@ -269,33 +292,31 @@ void TXDPanel::displayTexture(TXDTexture* texture)
 {
 	char buffer[16];
 
-	nameLabel->SetLabel(wxString(texture->getDiffuseName(), wxConvUTF8));
+	nameLabel->SetLabel(LangGet("TXDPanel_nameLabel_label",
+			wxString(texture->getDiffuseName(), wxConvUTF8).c_str()));
 
 	TxdGetRasterFormatName(buffer, texture->getRasterFormat());
 	formatLabel->SetLabel(wxString(buffer, wxConvUTF8));
 
-	//sprintf(buffer, "%d", texture->getBytesPerPixel());
 	bppLabel->SetLabel(wxString::Format(wxT("%d"), texture->getBytesPerPixel()));
 
-	//sprintf(buffer, "%d", texture->getWidth());
 	widthLabel->SetLabel(wxString::Format(wxT("%d"), texture->getWidth()));
 
-	//sprintf(buffer, "%d", texture->getHeight());
 	heightLabel->SetLabel(wxString::Format(wxT("%d"), texture->getHeight()));
 
 	alphaTextureLabel->SetLabel(wxString(texture->getAlphaName(), wxConvUTF8));
 
-	alphaUsedLabel->SetLabel(texture->hasAlphaChannel() ? LangGet(Misc_Yes) : LangGet(Misc_No));
+	alphaUsedLabel->SetLabel(texture->hasAlphaChannel() ? LangGet("Misc_Yes") : LangGet("Misc_No"));
 
 	switch (texture->getCompression()) {
 	case DXT1:
-		compressionLabel->SetLabel(LangGet(TXDPanel_compression_DXT1));
+		compressionLabel->SetLabel(LangGet("TXDPanel_compression_DXT1"));
 		break;
 	case DXT3:
-		compressionLabel->SetLabel(LangGet(TXDPanel_compression_DXT3));
+		compressionLabel->SetLabel(LangGet("TXDPanel_compression_DXT3"));
 		break;
 	case NONE:
-		compressionLabel->SetLabel(LangGet(TXDPanel_compression_None));
+		compressionLabel->SetLabel(LangGet("TXDPanel_compression_None"));
 		break;
 	}
 

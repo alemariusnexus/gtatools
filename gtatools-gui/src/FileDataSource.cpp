@@ -12,6 +12,5 @@
 FileDataSource::FileDataSource(const wxString& filename)
 		: DataSource(filename), filename(filename)
 {
-	//printf("NAME:%s\n", (const char*) getFilename().mb_str());
 }
 
