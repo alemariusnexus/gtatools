@@ -7,11 +7,10 @@
 
 #include "DisplayManager.h"
 #include "FormatProvider.h"
-#include "TXDPanel.h"
-#include "IMGPanel.h"
 #include <fstream>
-#include "IMGFormatProvider.h"
-#include "TXDFormatProvider.h"
+#include "img/IMGFormatProvider.h"
+#include "txd/TXDFormatProvider.h"
+#include "dff/DFFFormatProvider.h"
 
 using std::ifstream;
 
@@ -27,10 +26,11 @@ DisplayManager::DisplayManager()
 {
 	//providers = new FormatProvider*[];
 
-	numProviders = 2;
+	numProviders = 3;
 	providers = new FormatProvider*[numProviders];
 	providers[0] = new IMGFormatProvider;
 	providers[1] = new TXDFormatProvider;
+	providers[2] = new DFFFormatProvider;
 }
 
 

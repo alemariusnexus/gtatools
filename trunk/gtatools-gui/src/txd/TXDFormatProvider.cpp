@@ -6,10 +6,10 @@
  */
 
 #include "TXDFormatProvider.h"
-#include <TXDArchive.h>
+#include <txd/TXDArchive.h>
 #include "TXDPanel.h"
 #include <string>
-#include "lang/lang.h"
+#include "../guiconfig.h"
 
 
 bool TXDFormatProvider::canDisplay(const wxString& filename) const
@@ -36,11 +36,11 @@ FileDisplayer* TXDFormatProvider::openDisplayer(wxWindow* parent, DataSource* so
 
 wxString TXDFormatProvider::getFileWildcard() const
 {
-	return LangGet(Format_TXD_fileWildcard);
+	return LangGet("Format_TXD_fileWildcard");
 }
 
 
 wxString TXDFormatProvider::getDescription(const wxString& filename) const
 {
-	return LangGet(Format_TXD_description);
+	return LangGet("Format_TXD_description");
 }

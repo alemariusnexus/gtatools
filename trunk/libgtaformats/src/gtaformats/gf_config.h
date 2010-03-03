@@ -32,4 +32,14 @@
 		_i -= skip;\
 	}
 
+/*inline void SkipBytes(istream* s, istream::streamoff c, char* b, int l)
+{
+	for (std::istream::streamoff i = c ; i > 0 ;) {\
+		std::istream::streamoff skip = i % l;\
+		skip = (skip == 0) ? l : skip;\
+		s->read(b, (int) skip);\
+		i -= skip;\
+	}
+}*/
+
 #endif /* CONFIG_H_ */

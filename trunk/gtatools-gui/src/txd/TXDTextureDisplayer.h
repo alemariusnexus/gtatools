@@ -10,12 +10,13 @@
 
 #include <wx/panel.h>
 #include <wx/window.h>
-#include <TXDTexture.h>
+#include <wx/scrolwin.h>
+#include <txd/TXDTexture.h>
 
-class TXDTextureDisplayer : public wxWindow {
+class TXDTextureDisplayer : public wxScrolledWindow {
 public:
 	TXDTextureDisplayer(wxWindow* parent);
-	virtual void OnPaint(wxPaintEvent& evt);
+	virtual void OnDraw(wxDC& dc);
 	void displayTexture(TXDTexture* texture, uint8_t* data);
 
 private:

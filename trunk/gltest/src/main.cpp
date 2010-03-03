@@ -16,7 +16,7 @@ static GLfloat rotY = 0.0f;
 static GLenum polyMode = GL_FILL;
 static int32_t geomIdx = 0;
 static GLfloat scale = 10.0f;
-DffMesh* mesh;
+DFFMesh* mesh;
 
 void init(void) {
 	glClearColor(0.0, 0.0, 0.0, 0.0);
@@ -172,8 +172,9 @@ void kbdup(unsigned char c, int x, int y) {
  *  Register mouse input callback functions
  */
 int main(int argc, char** argv) {
-	DffLoader dff;
-	ifstream stream("/home/alemariusnexus/gta/infernus.dff", ifstream::in | ifstream::binary);
+	DFFLoader dff;
+	ifstream stream("/home/alemariusnexus/test/infernus.dff", ifstream::in | ifstream::binary);
+
 	mesh = dff.loadMesh(&stream);
 	mesh->mirrorYZ();
 

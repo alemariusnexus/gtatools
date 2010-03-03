@@ -20,15 +20,17 @@ class FileDisplayer;
 #include <wx/sizer.h>
 #include <wx/panel.h>
 #include <wx/stattext.h>
-#include <wx/button.h>
-#include "TXDTextureDisplayer.h"
-#include <wx/splitter.h>
 #include <wx/bitmap.h>
 #include <wx/image.h>
 #include <wx/icon.h>
+#include "txd/TXDTextureDisplayer.h"
+#include <wx/notebook.h>
+#include <wx/button.h>
+#include <wx/splitter.h>
 #include <wx/menu.h>
 #include <wx/frame.h>
-#include <wx/statline.h>
+#include <wx/textctrl.h>
+#include <wx/statbox.h>
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -45,8 +47,10 @@ class TXDPanelPrototype : public FileDisplayer
 		wxPanel* m_panel5;
 		wxListBox* textureList;
 		wxPanel* m_panel1;
-		wxPanel* m_panel2;
 		wxStaticText* nameLabel;
+		wxNotebook* entryNotebook;
+		wxPanel* infoPanel;
+		wxPanel* m_panel2;
 		wxStaticText* formatDescLabel;
 		wxStaticText* formatLabel;
 		wxStaticText* bppDescLabel;
@@ -65,8 +69,9 @@ class TXDPanelPrototype : public FileDisplayer
 		wxStaticText* numMipmapsLabel;
 		wxStaticText* paletteDescLabel;
 		wxStaticText* paletteLabel;
-		wxButton* extractButton;
+		wxPanel* imagePanel;
 		TXDTextureDisplayer* image;
+		wxButton* extractButton;
 		
 		// Virtual event handlers, overide them in your derived class
 		virtual void onTextureSelectionChanged( wxCommandEvent& event ){ event.Skip(); }
@@ -74,11 +79,11 @@ class TXDPanelPrototype : public FileDisplayer
 		
 	
 	public:
-		TXDPanelPrototype( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 528,361 ), long style = wxTAB_TRAVERSAL );
+		TXDPanelPrototype( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 615,472 ), long style = wxTAB_TRAVERSAL );
 		~TXDPanelPrototype();
 		void m_splitter1OnIdle( wxIdleEvent& )
 		{
-		m_splitter1->SetSashPosition( 0 );
+		m_splitter1->SetSashPosition( 260 );
 		m_splitter1->Disconnect( wxEVT_IDLE, wxIdleEventHandler( TXDPanelPrototype::m_splitter1OnIdle ), NULL, this );
 		}
 		
@@ -97,11 +102,14 @@ class MainFramePrototype : public wxFrame
 		wxMenu* fileMenu;
 		wxMenuItem* openItem;
 		wxMenuItem* closeItem;
+		wxMenu* helpMenu;
+		wxMenuItem* aboutItem;
 		wxBoxSizer* sizer;
 		
 		// Virtual event handlers, overide them in your derived class
 		virtual void onOpen( wxCommandEvent& event ){ event.Skip(); }
 		virtual void onClose( wxCommandEvent& event ){ event.Skip(); }
+		virtual void onAbout( wxCommandEvent& event ){ event.Skip(); }
 		
 	
 	public:
@@ -118,29 +126,38 @@ class IMGPanelPrototype : public FileDisplayer
 	private:
 	
 	protected:
-		wxPanel* m_panel6;
 		wxStaticText* imgFileLabel;
+		wxNotebook* notebook;
+		wxPanel* m_panel71;
 		wxStaticText* imgVersionDescLabel;
 		wxStaticText* imgVersionLabel;
 		wxStaticText* imgNumEntriesDescLabel;
 		wxStaticText* imgNumEntriesLabel;
-		wxStaticLine* m_staticline2;
+		wxPanel* m_panel8;
+		wxPanel* m_panel11;
+		wxStaticText* m_staticText37;
+		wxTextCtrl* filterField;
+		wxButton* applyFilterButton;
 		wxSplitterWindow* m_splitter2;
 		wxPanel* m_panel7;
 		wxListBox* fileList;
-		wxPanel* infoPanel;
-		wxBoxSizer* infoSizer;
+		wxPanel* entryPanel;
+		wxBoxSizer* entrySizer;
 		wxStaticText* fileLabel;
+		wxNotebook* entryNotebook;
+		wxPanel* entryInfoPanel;
 		wxStaticText* typeDescLabel;
 		wxStaticText* typeLabel;
 		wxStaticText* offsetDescLabel;
 		wxStaticText* offsetLabel;
 		wxStaticText* sizeDescLabel;
 		wxStaticText* sizeLabel;
-		wxStaticLine* m_staticline1;
+		wxButton* extractButton;
 		
 		// Virtual event handlers, overide them in your derived class
+		virtual void onApplyFilter( wxCommandEvent& event ){ event.Skip(); }
 		virtual void onSelectionChanged( wxCommandEvent& event ){ event.Skip(); }
+		virtual void onExtract( wxCommandEvent& event ){ event.Skip(); }
 		
 	
 	public:
@@ -148,7 +165,7 @@ class IMGPanelPrototype : public FileDisplayer
 		~IMGPanelPrototype();
 		void m_splitter2OnIdle( wxIdleEvent& )
 		{
-		m_splitter2->SetSashPosition( 310 );
+		m_splitter2->SetSashPosition( 273 );
 		m_splitter2->Disconnect( wxEVT_IDLE, wxIdleEventHandler( IMGPanelPrototype::m_splitter2OnIdle ), NULL, this );
 		}
 		
@@ -158,15 +175,135 @@ class IMGPanelPrototype : public FileDisplayer
 ///////////////////////////////////////////////////////////////////////////////
 /// Class DFFPanelPrototype
 ///////////////////////////////////////////////////////////////////////////////
-class DFFPanelPrototype : public wxPanel 
+class DFFPanelPrototype : public FileDisplayer
 {
 	private:
 	
 	protected:
+		wxNotebook* notebook;
+		wxPanel* framePanel;
+		wxSplitterWindow* m_splitter4;
+		wxPanel* m_panel17;
+		wxListBox* frameList;
+		wxPanel* m_panel18;
+		wxStaticText* frameNameLabel;
+		wxStaticText* frameOffsetDescLabel;
+		wxStaticText* frameOffsetLabel;
+		wxStaticText* frameRotationDescLabel;
+		wxStaticText* frameRotationLabel;
+		wxStaticText* frameParentDescLabel;
+		wxStaticText* frameParentLabel;
+		wxPanel* geometriesPanel;
+		wxSplitterWindow* m_splitter5;
+		wxPanel* m_panel22;
+		wxListBox* geometryList;
+		wxPanel* m_panel23;
+		wxNotebook* geometryNotebook;
+		wxPanel* geometryInfoPanel;
+		wxStaticText* geometryFormatDescLabel;
+		wxStaticText* geometryFormatLabel;
+		wxStaticText* geometryFlagsDescLabel;
+		wxStaticText* geometryFlagsLabel;
+		wxStaticText* geometryUVCountDescLabel;
+		wxStaticText* geometryUVCountLabel;
+		wxStaticText* geometryVerticesDescLabel;
+		wxStaticText* geometryVerticesLabel;
+		wxStaticText* geometryBoundsDescLabel;
+		wxStaticText* geometryBoundsLabel;
+		wxStaticText* geometryMaterialsDescLabel;
+		wxStaticText* geometryMaterialsLabel;
+		wxStaticText* geometryPartsDescLabel;
+		wxStaticText* geometryPartsLabel;
+		wxPanel* geometryMaterialsPanel;
+		wxSplitterWindow* m_splitter6;
+		wxPanel* m_panel26;
+		wxListBox* geometryMaterialsList;
+		wxPanel* m_panel27;
+		wxStaticText* geometryMaterialColorDescLabel;
+		wxStaticText* geometryMaterialColorLabel;
+		wxStaticBoxSizer* geometryMaterialTexturesSizer;
+		wxSplitterWindow* m_splitter8;
+		wxPanel* m_panel31;
+		wxListBox* geometryMaterialTextureList;
+		wxPanel* m_panel32;
+		wxStaticText* geometryMaterialTextureDiffnameDescLabel;
+		wxStaticText* geometryMaterialTextureDiffnameLabel;
+		wxStaticText* geometryMaterialTextureAlphaDescLabel;
+		wxStaticText* geometryMaterialTextureAlphaLabel;
+		wxStaticText* geometryMaterialTextureFilterDescLabel;
+		wxStaticText* geometryMaterialTextureFilterLabel;
+		wxPanel* geometryPartsPanel;
+		wxSplitterWindow* m_splitter7;
+		wxPanel* m_panel29;
+		wxListBox* geometryPartsList;
+		wxPanel* m_panel30;
+		wxStaticText* geometryPartIndicesDescLabel;
+		wxStaticText* geometryPartIndicesLabel;
+		wxStaticText* geometryPartMaterialDescLabel;
+		wxStaticText* geometryPartMaterialLabel;
+		
+		// Virtual event handlers, overide them in your derived class
+		virtual void onFrameSelectionChanged( wxCommandEvent& event ){ event.Skip(); }
+		virtual void onGeometrySelectionChanged( wxCommandEvent& event ){ event.Skip(); }
+		virtual void onGeometryMaterialSelectionChanged( wxCommandEvent& event ){ event.Skip(); }
+		virtual void onGeometryMaterialTextureSelectionChanged( wxCommandEvent& event ){ event.Skip(); }
+		virtual void onGeometryPartSelectionChanged( wxCommandEvent& event ){ event.Skip(); }
+		
 	
 	public:
-		DFFPanelPrototype( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 500,300 ), long style = wxTAB_TRAVERSAL );
+		DFFPanelPrototype( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 635,480 ), long style = wxTAB_TRAVERSAL );
 		~DFFPanelPrototype();
+		void m_splitter4OnIdle( wxIdleEvent& )
+		{
+		m_splitter4->SetSashPosition( 169 );
+		m_splitter4->Disconnect( wxEVT_IDLE, wxIdleEventHandler( DFFPanelPrototype::m_splitter4OnIdle ), NULL, this );
+		}
+		
+		void m_splitter5OnIdle( wxIdleEvent& )
+		{
+		m_splitter5->SetSashPosition( 167 );
+		m_splitter5->Disconnect( wxEVT_IDLE, wxIdleEventHandler( DFFPanelPrototype::m_splitter5OnIdle ), NULL, this );
+		}
+		
+		void m_splitter6OnIdle( wxIdleEvent& )
+		{
+		m_splitter6->SetSashPosition( 124 );
+		m_splitter6->Disconnect( wxEVT_IDLE, wxIdleEventHandler( DFFPanelPrototype::m_splitter6OnIdle ), NULL, this );
+		}
+		
+		void m_splitter8OnIdle( wxIdleEvent& )
+		{
+		m_splitter8->SetSashPosition( 129 );
+		m_splitter8->Disconnect( wxEVT_IDLE, wxIdleEventHandler( DFFPanelPrototype::m_splitter8OnIdle ), NULL, this );
+		}
+		
+		void m_splitter7OnIdle( wxIdleEvent& )
+		{
+		m_splitter7->SetSashPosition( 176 );
+		m_splitter7->Disconnect( wxEVT_IDLE, wxIdleEventHandler( DFFPanelPrototype::m_splitter7OnIdle ), NULL, this );
+		}
+		
+	
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class AboutFramePrototype
+///////////////////////////////////////////////////////////////////////////////
+class AboutFramePrototype : public wxFrame 
+{
+	private:
+	
+	protected:
+		wxBoxSizer* sizer;
+		wxStaticText* titleLabel;
+		wxStaticText* internalTitleLabel;
+		wxStaticText* versionLabel;
+		wxStaticText* authorLabel;
+		wxStaticText* licenseLabel;
+	
+	public:
+		AboutFramePrototype( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("About"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( -1,-1 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
+		~AboutFramePrototype();
 	
 };
 

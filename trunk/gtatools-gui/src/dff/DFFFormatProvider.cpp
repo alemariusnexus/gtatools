@@ -6,6 +6,8 @@
  */
 
 #include "DFFFormatProvider.h"
+#include "DFFPanel.h"
+#include "../guiconfig.h"
 
 bool DFFFormatProvider::canDisplay(const wxString& filename) const
 {
@@ -15,25 +17,19 @@ bool DFFFormatProvider::canDisplay(const wxString& filename) const
 
 FileDisplayer* DFFFormatProvider::openDisplayer(wxWindow* parent, DataSource* source)
 {
-	// TODO implement method stub
-	return NULL;
+	DFFPanel* panel = new DFFPanel(parent);
+	panel->display(source);
+	return panel;
 }
-
-
-/*FileDisplayer* DFFFormatProvider::openDisplayer(wxWindow* parent, const wxString& filename)
-{
-	// TODO implement method stub
-	return NULL;
-}*/
 
 
 wxString DFFFormatProvider::getFileWildcard() const
 {
-	return wxT("DFF files (*.dff)|*.dff");
+	return LangGet("Format_DFF_fileWildcard");
 }
 
 
 wxString DFFFormatProvider::getDescription(const wxString& filename) const
 {
-	return wxT("DFF Mesh file");
+	return LangGet("Format_DFF_description");
 }

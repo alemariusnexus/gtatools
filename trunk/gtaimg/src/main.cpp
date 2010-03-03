@@ -1,8 +1,8 @@
 #include "cliarg.h"
 #include "ListVisitor.h"
 #include "ExtractVisitor.h"
-#include <IMGException.h>
-#include <IMGArchive.h>
+#include <img/IMGException.h>
+#include <img/IMGArchive.h>
 #include <cstring>
 #include <map>
 #include <fstream>

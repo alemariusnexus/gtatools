@@ -6,13 +6,15 @@
  */
 
 #include "ExtractVisitor.h"
-#include <cstdio>
+//#include <cstdio>
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
 
 using std::ostream;
 using std::ofstream;
+using std::cout;
+using std::endl;
 
 
 struct MatchInfo {
@@ -88,8 +90,8 @@ ExtractVisitor::ExtractVisitor(int argc, char** argv) {
 		try {
 			reg = new regex(pattern);
 		} catch (boost::regex_error& err) {
-			fprintf(stderr, "Error compiling source pattern %d at offset %d: %s\n",
-					i+1, err.position(), err.what());
+			cout << "Error compiling source pattern " << i+1 << " at offset " << err.position()
+					<< ": " << err.what() << endl;
 			exit(1);
 		}
 
@@ -143,7 +145,7 @@ void ExtractVisitor::readEntry(IMGEntry* header, istream* stream, void*& udata) 
 			destfile = header->name;
 		}
 
-		printf("Writing entry %s to file %s\n", header->name, destfile);
+		cout << "Writing entry " << header->name << " to file " << destfile << endl;
 
 		out = new ofstream(destfile, ofstream::out | ofstream::binary);
 	} else {
@@ -153,12 +155,8 @@ void ExtractVisitor::readEntry(IMGEntry* header, istream* stream, void*& udata) 
 	char buffer[IMG_BLOCK_SIZE];
 
 	for (int i = 0 ; i < header->size ; i++) {
-		/*if (fread(buffer, 1, sizeof(buffer), stream) != sizeof(buffer)) {
-			fprintf(stderr, "Error: Premature end of file for entry '%s'!\n", header->name);
-		}*/
 		stream->read(buffer, sizeof(buffer));
 
-		//fwrite(buffer, 1, sizeof(buffer), out);
 		out->write(buffer, sizeof(buffer));
 	}
 

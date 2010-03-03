@@ -8,8 +8,8 @@
 #ifndef GTADFF_H_
 #define GTADFF_H_
 
-#include "dff/DffLoader.h"
-#include "dff/DffMesh.h"
+#include "dff/DFFLoader.h"
+#include "dff/DFFMesh.h"
 #include "dff/DFFException.h"
 #include "dff/DFFFrame.h"
 #include "dff/DFFGeometry.h"

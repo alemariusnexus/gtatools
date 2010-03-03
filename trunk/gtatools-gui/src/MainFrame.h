@@ -13,13 +13,18 @@ class MainFrame : public MainFramePrototype
 {
 protected:
 	// Handlers for MainFramePrototype events.
-	void onOpen( wxCommandEvent& event );
+	void onOpen(wxCommandEvent& event);
 	void onClose(wxCommandEvent& evt);
+	void onAbout(wxCommandEvent& evt);
 	
 public:
-	/** Constructor */
-	MainFrame( wxWindow* parent );
+	static MainFrame* getInstance();
+
+public:
 	void displayFile(const wxString& filename);
+
+private:
+	MainFrame( wxWindow* parent );
 
 private:
 	FileDisplayer* displayer;

@@ -1,16 +1,17 @@
 /*
- * IMGFormatProvider.h
+ * TXDFormatProvider.h
  *
  *  Created on: 30.01.2010
  *      Author: alemariusnexus
  */
 
-#ifndef IMGFORMATPROVIDER_H_
-#define IMGFORMATPROVIDER_H_
+#ifndef TXDFORMATPROVIDER_H_
+#define TXDFORMATPROVIDER_H_
 
-#include "FormatProvider.h"
+#include "../FormatProvider.h"
+#include <wx/wx.h>
 
-class IMGFormatProvider: public FormatProvider {
+class TXDFormatProvider : public FormatProvider {
 public:
 	virtual bool canDisplay(const wxString& filename) const;
 	virtual FileDisplayer* openDisplayer(wxWindow* parent, DataSource* source);
@@ -19,4 +20,4 @@ public:
 	virtual wxString getDescription(const wxString& filename) const;
 };
 
-#endif /* IMGFORMATPROVIDER_H_ */
+#endif /* TXDFORMATPROVIDER_H_ */

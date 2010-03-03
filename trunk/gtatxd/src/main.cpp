@@ -8,7 +8,7 @@
 #include <cstring>
 #include <fstream>
 #include <iostream>
-#include <TXDArchive.h>
+#include <txd/TXDArchive.h>
 #include "cliarg.h"
 #include "ListVisitor.h"
 #include "ExtractVisitor.h"
