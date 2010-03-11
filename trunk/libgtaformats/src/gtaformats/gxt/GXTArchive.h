@@ -57,7 +57,7 @@ private:
 	bool deleteStream;
 	int32_t numTables;
 	GXTTableHeader** headers;
-	istream::streamoff position;
+	long long position;
 	EncodingMap encodingMap;
 };
 

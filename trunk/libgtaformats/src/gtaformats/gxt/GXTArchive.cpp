@@ -680,7 +680,7 @@ void GXTArchive::init()
 
 GXTTable* GXTArchive::readTable(GXTTableHeader* header)
 {
-	istream::streamoff offset = header->offset - position;
+	long long offset = header->offset - position;
 
 	if (version == VER1) {
 		offset += 4;
