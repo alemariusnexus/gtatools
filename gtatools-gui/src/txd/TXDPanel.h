@@ -2,7 +2,7 @@
 #define __TXDPanel__
 
 #include "../WxGUI.h"
-#include <txd/TXDArchive.h>
+#include <gtaformats/txd/TXDArchive.h>
 #include <fstream>
 #include <istream>
 #include "../guiconfig.h"

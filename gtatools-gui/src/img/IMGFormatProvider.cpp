@@ -6,7 +6,7 @@
  */
 
 #include "IMGFormatProvider.h"
-#include <img/IMGArchive.h>
+#include <gtaformats/img/IMGArchive.h>
 #include <string>
 #include "IMGPanel.h"
 #include <wx/wx.h>

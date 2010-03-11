@@ -8,7 +8,7 @@
 #ifndef TXDBITMAPBUILDER_H_
 #define TXDBITMAPBUILDER_H_
 
-#include <txd/TXDTexture.h>
+#include <gtaformats/txd/TXDTexture.h>
 #include <wx/bitmap.h>
 #include <wx/image.h>
 

@@ -4,10 +4,10 @@
 #include <cstdlib>
 #include <cmath>
 #include <cstdio>
-#include <gtadff.h>
-#include <gtatxd.h>
+#include <gtaformats/gtadff.h>
+#include <gtaformats/gtatxd.h>
 #include <fstream>
-#include <gtaimg.h>
+#include <gtaformats/gtaimg.h>
 #include <map>
 #include <utility>
 #include <IL/il.h>

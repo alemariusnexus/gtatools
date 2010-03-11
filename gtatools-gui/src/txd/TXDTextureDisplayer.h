@@ -11,7 +11,7 @@
 #include <wx/panel.h>
 #include <wx/window.h>
 #include <wx/scrolwin.h>
-#include <txd/TXDTexture.h>
+#include <gtaformats/txd/TXDTexture.h>
 
 class TXDTextureDisplayer : public wxScrolledWindow {
 public:
