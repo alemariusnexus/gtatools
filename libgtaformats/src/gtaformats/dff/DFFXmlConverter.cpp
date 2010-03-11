@@ -76,9 +76,9 @@ TiXmlDocument* DFFXmlConverter::convert(DFFMesh* mesh)
 		eGeoms->LinkEndChild(eGeom);
 
 		TiXmlElement* eLight = new TiXmlElement("light");
-		eLight->SetAttribute("ambient", geom->getAmbientLight());
-		eLight->SetAttribute("diffuse", geom->getDiffuseLight());
-		eLight->SetAttribute("specular", geom->getSpecularLight());
+		eLight->SetDoubleAttribute("ambient", geom->getAmbientLight());
+		eLight->SetDoubleAttribute("diffuse", geom->getDiffuseLight());
+		eLight->SetDoubleAttribute("specular", geom->getSpecularLight());
 		eGeom->LinkEndChild(eLight);
 
 		TiXmlElement* eBounds = new TiXmlElement("bounds");

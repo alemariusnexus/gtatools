@@ -25,8 +25,8 @@
 
 
 #define SkipBytes(s,c,b,l) \
-	for (std::istream::streamoff _i = (c) ; _i > 0 ;) {\
-		std::istream::streamoff skip = _i%(l);\
+	for (long long _i = (c) ; _i > 0 ;) {\
+		long long skip = _i%(l);\
 		skip = (skip == 0) ? (l) : skip;\
 		(s)->read((b), (int) skip);\
 		_i -= skip;\

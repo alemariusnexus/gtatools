@@ -66,7 +66,7 @@ public:
 	 *	@param stream The stream to read from.
 	 *	@param bytesRead This will be increased by the number of bytes read by this constructor.
 	 */
-	TXDTexture(istream* stream, istream::streamoff& bytesRead);
+	TXDTexture(istream* stream, long long& bytesRead);
 
 	/**	\brief Returns the RGBA masks of the raw data of this texture.
 	 *
