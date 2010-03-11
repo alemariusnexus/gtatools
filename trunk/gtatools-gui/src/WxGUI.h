@@ -31,6 +31,7 @@ class FileDisplayer;
 #include <wx/frame.h>
 #include <wx/textctrl.h>
 #include <wx/statbox.h>
+#include "dff/DFFRenderer.h"
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -214,6 +215,8 @@ class DFFPanelPrototype : public FileDisplayer
 		wxStaticText* geometryMaterialsLabel;
 		wxStaticText* geometryPartsDescLabel;
 		wxStaticText* geometryPartsLabel;
+		wxStaticText* geometryFrameDescLabel;
+		wxStaticText* geometryFrameLabel;
 		wxPanel* geometryMaterialsPanel;
 		wxSplitterWindow* m_splitter6;
 		wxPanel* m_panel26;
@@ -241,6 +244,9 @@ class DFFPanelPrototype : public FileDisplayer
 		wxStaticText* geometryPartIndicesLabel;
 		wxStaticText* geometryPartMaterialDescLabel;
 		wxStaticText* geometryPartMaterialLabel;
+		wxPanel* geometryRenderPanel;
+		DFFRenderer* renderer;
+		wxPanel* renderPanel;
 		
 		// Virtual event handlers, overide them in your derived class
 		virtual void onFrameSelectionChanged( wxCommandEvent& event ){ event.Skip(); }

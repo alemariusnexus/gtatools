@@ -16,5 +16,6 @@
 #include "dff/DFFGeometryPart.h"
 #include "dff/DFFMaterial.h"
 #include "dff/DFFTexture.h"
+#include "dff/DFFXmlConverter.h"
 
 #endif /* GTADFF_H_ */

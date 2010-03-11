@@ -26,6 +26,8 @@ DFFPanel::DFFPanel( wxWindow* parent )
 	geometryBoundsDescLabel->SetLabel(LangGet("DFFPanel_geometryBoundsDescLabel_label"));
 	geometryMaterialsDescLabel->SetLabel(LangGet("DFFPanel_geometryMaterialsDescLabel_label"));
 	geometryPartsDescLabel->SetLabel(LangGet("DFFPanel_geometryPartsDescLabel_label"));
+	geometryFrameDescLabel->SetLabel(LangGet("DFFPanel_geometryFrameDescLabel_label"));
+
 	geometryMaterialColorDescLabel->SetLabel(LangGet("DFFPanel_geometryMaterialColorDescLabel_label"));
 	geometryMaterialTexturesSizer->GetStaticBox()->SetLabel(
 			LangGet("DFFPanel_geometryMaterialTexturesSizer_label"));
@@ -113,6 +115,10 @@ void DFFPanel::onGeometrySelectionChanged(wxCommandEvent& evt)
 				bounds->x, bounds->y, bounds->z, bounds->radius));
 		geometryMaterialsLabel->SetLabel(wxString::Format(wxT("%d"), geom->getMaterialCount()));
 		geometryPartsLabel->SetLabel(wxString::Format(wxT("%d"), geom->getPartCount()));
+		geometryFrameLabel->SetLabel(wxString(geom->getAssociatedFrame()->getName(), wxConvUTF8));
+
+		renderer->setGeometry(geom);
+		renderer->Refresh();
 
 		DFFMaterial** mats = geom->getMaterials();
 

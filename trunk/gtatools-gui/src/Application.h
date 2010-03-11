@@ -15,11 +15,17 @@
 
 #include "guiconfig.h"
 #include <wx/app.h>
+#include <wx/cmdline.h>
 
 class Application : public wxApp
 {
 public:
 	virtual bool OnInit();
+	virtual void OnInitCmdLine(wxCmdLineParser& parser);
+	virtual bool OnCmdLineParsed(wxCmdLineParser& parser);
+
+private:
+	wxString fileToOpen;
 };
 
 #endif /* APPLICATION_H_ */
