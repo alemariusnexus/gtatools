@@ -22,14 +22,40 @@ using std::endl;
 
 
 
-bool Application::OnInit() {
+bool Application::OnInit()
+{
+	if (!wxApp::OnInit()) {
+		return false;
+	}
 
 	wxInitAllImageHandlers();
 
 	MainFrame* frame = MainFrame::getInstance();
 
+	if (!fileToOpen.empty()) {
+		frame->displayFile(fileToOpen);
+	}
+
 	frame->Show(true);
 	SetTopWindow(frame);
+	return true;
+}
+
+
+void Application::OnInitCmdLine(wxCmdLineParser& parser)
+{
+	parser.AddParam(wxT("The file to open"), wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
+}
+
+
+bool Application::OnCmdLineParsed(wxCmdLineParser& parser)
+{
+	if (parser.GetParamCount() > 0) {
+		fileToOpen = parser.GetParam(0);
+	} else {
+		fileToOpen = wxT("");
+	}
+
 	return true;
 }
 

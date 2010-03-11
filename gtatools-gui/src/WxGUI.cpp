@@ -460,7 +460,7 @@ DFFPanelPrototype::DFFPanelPrototype( wxWindow* parent, wxWindowID id, const wxP
 	framePanel->SetSizer( bSizer25 );
 	framePanel->Layout();
 	bSizer25->Fit( framePanel );
-	notebook->AddPage( framePanel, wxT("Frames"), true );
+	notebook->AddPage( framePanel, wxT("Frames"), false );
 	geometriesPanel = new wxPanel( notebook, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizer29;
 	bSizer29 = new wxBoxSizer( wxHORIZONTAL );
@@ -544,10 +544,18 @@ DFFPanelPrototype::DFFPanelPrototype( wxWindow* parent, wxWindowID id, const wxP
 	geometryPartsLabel->Wrap( -1 );
 	fgSizer6->Add( geometryPartsLabel, 0, wxALL, 5 );
 	
+	geometryFrameDescLabel = new wxStaticText( geometryInfoPanel, wxID_ANY, wxT("Frame"), wxDefaultPosition, wxDefaultSize, 0 );
+	geometryFrameDescLabel->Wrap( -1 );
+	fgSizer6->Add( geometryFrameDescLabel, 0, wxALL, 5 );
+	
+	geometryFrameLabel = new wxStaticText( geometryInfoPanel, wxID_ANY, wxT("-"), wxDefaultPosition, wxDefaultSize, 0 );
+	geometryFrameLabel->Wrap( -1 );
+	fgSizer6->Add( geometryFrameLabel, 0, wxALL, 5 );
+	
 	geometryInfoPanel->SetSizer( fgSizer6 );
 	geometryInfoPanel->Layout();
 	fgSizer6->Fit( geometryInfoPanel );
-	geometryNotebook->AddPage( geometryInfoPanel, wxT("Information"), false );
+	geometryNotebook->AddPage( geometryInfoPanel, wxT("Information"), true );
 	geometryMaterialsPanel = new wxPanel( geometryNotebook, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizer32;
 	bSizer32 = new wxBoxSizer( wxVERTICAL );
@@ -692,7 +700,19 @@ DFFPanelPrototype::DFFPanelPrototype( wxWindow* parent, wxWindowID id, const wxP
 	geometryPartsPanel->SetSizer( bSizer34 );
 	geometryPartsPanel->Layout();
 	bSizer34->Fit( geometryPartsPanel );
-	geometryNotebook->AddPage( geometryPartsPanel, wxT("Parts"), true );
+	geometryNotebook->AddPage( geometryPartsPanel, wxT("Parts"), false );
+	geometryRenderPanel = new wxPanel( geometryNotebook, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* bSizer291;
+	bSizer291 = new wxBoxSizer( wxVERTICAL );
+	
+	int args[] = {WX_GL_RGBA, WX_GL_DOUBLEBUFFER, WX_GL_DEPTH_SIZE, 16, 0};
+	renderer = new DFFRenderer(geometryRenderPanel, args);
+	bSizer291->Add( renderer, 1, wxALL|wxEXPAND, 5 );
+	
+	geometryRenderPanel->SetSizer( bSizer291 );
+	geometryRenderPanel->Layout();
+	bSizer291->Fit( geometryRenderPanel );
+	geometryNotebook->AddPage( geometryRenderPanel, wxT("Rendering"), false );
 	
 	bSizer31->Add( geometryNotebook, 5, wxEXPAND | wxALL, 5 );
 	
@@ -705,7 +725,9 @@ DFFPanelPrototype::DFFPanelPrototype( wxWindow* parent, wxWindowID id, const wxP
 	geometriesPanel->SetSizer( bSizer29 );
 	geometriesPanel->Layout();
 	bSizer29->Fit( geometriesPanel );
-	notebook->AddPage( geometriesPanel, wxT("Geometries"), false );
+	notebook->AddPage( geometriesPanel, wxT("Geometries"), true );
+	renderPanel = new wxPanel( notebook, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	notebook->AddPage( renderPanel, wxT("Rendering"), false );
 	
 	sizer->Add( notebook, 1, wxEXPAND | wxALL, 5 );
 	
