@@ -1,5 +1,5 @@
 #include "IMGPanel.h"
-#include <img/IMGException.h>
+#include <gtaformats/img/IMGException.h>
 #include <cstdio>
 #include <fstream>
 #include "../guiconfig.h"

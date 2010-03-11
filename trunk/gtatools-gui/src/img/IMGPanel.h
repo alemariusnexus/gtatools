@@ -4,7 +4,7 @@
 #include "../WxGUI.h"
 #include <wx/sizer.h>
 #include <fstream>
-#include <img/IMGArchive.h>
+#include <gtaformats/img/IMGArchive.h>
 #include "../FileDisplayer.h"
 #include <vector>
 

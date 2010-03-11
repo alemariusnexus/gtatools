@@ -6,7 +6,7 @@
  */
 
 #include "TXDFormatProvider.h"
-#include <txd/TXDArchive.h>
+#include <gtaformats/txd/TXDArchive.h>
 #include "TXDPanel.h"
 #include <string>
 #include "../guiconfig.h"

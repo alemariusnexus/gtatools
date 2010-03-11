@@ -1,6 +1,6 @@
 #include "DFFPanel.h"
-#include <dff/DFFLoader.h>
-#include <dff/DFFFrame.h>
+#include <gtaformats/dff/DFFLoader.h>
+#include <gtaformats/dff/DFFFrame.h>
 #include "../lang/lang.h"
 
 
