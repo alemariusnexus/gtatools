@@ -4,4 +4,4 @@
 
 USER_OBJS :=
 
-LIBS := -lpng -lz -lboost_regex-mt -lgtaformats -lsquish
+LIBS := -lboost_regex-mt -lgtaformats -lpng -lz -lsquish
