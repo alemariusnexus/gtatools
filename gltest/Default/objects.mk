@@ -4,4 +4,4 @@
 
 USER_OBJS :=
 
-LIBS := -lgtaformats -lpng -lIL -lsquish -lGL -lGLU -lglut
+LIBS := -lgtaformats -lpng -lz -lsquish -lGL -lGLU -lglut
