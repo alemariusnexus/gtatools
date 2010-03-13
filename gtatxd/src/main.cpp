@@ -48,23 +48,18 @@ Commands & Parameters:\n\
                 should be used when information needs to be processed by the\n\
                 machine.\n\
     \n\
-    (x|ex|extract) [-r] [-f] TXDFILE (TEXNAME DESTFILE)...\n\
-    (x|ex|extract) -s [-r] [-f] TXDFILE TEXNAME...\n\
+    (x|ex|extract) [-r] TXDFILE (TEXNAME DESTFILE)...\n\
+    (x|ex|extract) -s [-r] TXDFILE TEXNAME...\n\
         Extracts textures from the TXDFILE. When used without the -s flag,\n\
         the TXDFILE is followed by pairs of the texture name to extract and\n\
         the file to write it to. When using the -s flag, only the texture\n\
-        names are given. The textures will be written to files in the current\n\
-        directory, with names of the form TXDNAME.XXX. Other flags are:\n\
+        names are given. The textures will be written to PNG files in the\n\
+        current directory, with names of the form TXDNAME.png. Other flags\n\
+        are:\n\
             -r  Interpret texture names as regular expressions. When this flag\n\
                 is given, all matching files will be written to the current\n\
                 working directory with names of the form TXDNAME.png. The\n\
                 destination files will _always_ be ignored when -r is set.\n\
-            -f  The format into which textures will be extracted. If you don't\n\
-                give this option, the default is PNG. Note that not always all\n\
-                formats will work for a texture (e.g. JPEG does not work for\n\
-                textures with alpha channel). To be sure that extraction will \n\
-                work, you can use PNG, which should work for all textures.\n\
-                Supported formats are: bmp, png, jpg, pnm, psd, tga, sgi, tif.\n\
 \n\
 Notes:\n\
     Wherever you are asked to provide the TXDFILE you can also pass the string\n\

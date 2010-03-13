@@ -10,11 +10,23 @@
 #include <cstring>
 #include <cstdio>
 #include <cmath>
+#include <png.h>
 
 #ifdef GF_USE_SQUISH
 #	include <squish.h>
 	using namespace squish;
 #endif
+
+
+void _PngErrorCallback(png_struct* png, const char* err)
+{
+	throw TXDException(TXDException::PNGError, err);
+}
+
+void _PngWarningCallback(png_struct* png, const char* err)
+{
+}
+
 
 
 void TxdGetRasterFormatName(char* dest, int32_t rasterFormat) {
@@ -357,3 +369,71 @@ TXDTexture* TXDTexture::generateMipmap() const
 	return new TXDTexture(diffuseName, alphaName, rasterFormat, compression, width/2, height/2,
 			bytesPerPixel, (int8_t) (mipmapCount-1), alphaChannel, uWrap, vWrap, filterFlags);
 }
+
+
+bool TXDTexture::writePNG(FILE* file, uint8_t* rawData)
+{
+	char err[256];
+	png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, err,
+			_PngErrorCallback, _PngWarningCallback);
+	if (!png) {
+		return false;
+	}
+
+	png_infop info = png_create_info_struct(png);
+	if (!info) {
+		png_destroy_write_struct(&png, NULL);
+	}
+
+	if (setjmp(png_jmpbuf(png))) {
+		png_destroy_write_struct(&png, &info);
+	}
+
+	png_init_io(png, file);
+
+	int bitDepth = 8;
+	int colorType;
+	int bpp;
+
+	if (hasAlphaChannel()) {
+		colorType = PNG_COLOR_TYPE_RGBA;
+		bpp = 4;
+	} else {
+		colorType = PNG_COLOR_TYPE_RGB;
+		bpp = 3;
+	}
+
+	png_set_IHDR(png, info, width, height, bitDepth, colorType, PNG_INTERLACE_NONE,
+			PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+
+	uint8_t* data = new uint8_t[width * height * bpp];
+	convert(data, rawData, MIRROR_NONE, bpp, 0, 1, 2, hasAlphaChannel() ? 3 : -1);
+
+	uint8_t** rowData = new uint8_t*[height];
+
+	for (int16_t i = 0 ; i < height ; i++) {
+		rowData[i] = data + (i * width * bpp);
+	}
+
+	png_set_rows(png, info, rowData);
+
+	png_write_png(png, info, PNG_TRANSFORM_IDENTITY, NULL);
+
+	delete[] data;
+	delete[] rowData;
+
+	png_destroy_write_struct(&png, &info);
+
+	return true;
+}
+
+
+bool TXDTexture::writePNG(const char* filename, uint8_t* rawData)
+{
+	FILE* file = fopen(filename, "wb");
+	bool status = writePNG(file, rawData);
+	fclose(file);
+	return status;
+}
+
+

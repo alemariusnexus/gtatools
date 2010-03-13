@@ -12,6 +12,7 @@
 #include <cstring>
 #include <string>
 #include <iostream>
+#include <png.h>
 
 using std::cerr;
 using std::endl;
@@ -19,7 +20,7 @@ using std::cout;
 
 
 
-ILenum GetFileFormat(const char* name)
+/*ILenum GetFileFormat(const char* name)
 {
 	if (strcmp(name, "bmp") == 0) {
 		return IL_BMP;
@@ -70,7 +71,7 @@ void GetFileFormatExtension(char* dest, ILenum format)
 		strcpy(dest, "tif");
 		break;
 	}
-}
+}*/
 
 
 const char flagOptions[][PARAM_MAXLEN] = {
@@ -83,7 +84,7 @@ const char switchOptions[][PARAM_MAXLEN] = {
 
 
 ExtractVisitor::ExtractVisitor(int argc, char** argv) {
-	ilInit();
+	//ilInit();
 
 	SetFlagOptions(flagOptions);
 	SetSwitchOptions(switchOptions);
@@ -118,13 +119,13 @@ ExtractVisitor::ExtractVisitor(int argc, char** argv) {
 	destfiles = new const char*[numPatterns];
 	mipmapIndices = new int8_t[numPatterns];
 
-	const char* format = GetSwitch("f");
+	/*const char* format = GetSwitch("f");
 
 	if (format) {
 		outputFormat = GetFileFormat(format);
 	} else {
 		outputFormat = IL_TYPE_UNKNOWN;
-	}
+	}*/
 
 
 	int i = 0;
@@ -190,12 +191,6 @@ void ExtractVisitor::handleTexture(TXDArchive* archive, TXDTexture* header)
 		if (boost::regex_match(header->getDiffuseName(), *match, *reg)) {
 			const char* destfile = destfiles[i];
 
-			ILenum format = outputFormat;
-
-			if (format == IL_TYPE_UNKNOWN) {
-				format = IL_PNG;
-			}
-
 			TXDTexture* texture = header;
 
 			if (mipmapIndices[i] > header->getMipmapCount()-1) {
@@ -213,33 +208,18 @@ void ExtractVisitor::handleTexture(TXDArchive* archive, TXDTexture* header)
 					continue;
 				}
 
-				int16_t width = texture->getWidth();
-				int16_t height = texture->getHeight();
-
-				uint8_t* data = new uint8_t[width * height * 4];
-				texture->convert(data, rawData);
-				delete[] rawData;
-
-				ilBindImage(1);
-				ilTexImage(width, height, 0, 4, IL_RGBA, IL_UNSIGNED_BYTE, data);
-
 				if (destfile) {
 					std::string destStr = match->format(std::string(destfile), boost::format_perl);
 					const char* dest = destStr.c_str();
-					ilSave(outputFormat, dest);
+					texture->writePNG(dest, rawData);
 				} else {
-					char ext[8];
-					GetFileFormatExtension(ext, format);
-
-					char* autogenDestFile = new char[strlen(texture->getDiffuseName()) + strlen(ext) + 2];
-					sprintf(autogenDestFile, "%s.%s", texture->getDiffuseName(), ext);
-					ilSave(outputFormat, autogenDestFile);
+					char* autogenDestFile = new char[strlen(texture->getDiffuseName()) + strlen("png") + 2];
+					sprintf(autogenDestFile, "%s.%s", texture->getDiffuseName(), "png");
+					texture->writePNG(autogenDestFile, rawData);
 					delete[] autogenDestFile;
 				}
 
-				ilDeleteImage(1);
-
-				delete[] data;
+				delete[] rawData;
 
 				break;
 			}

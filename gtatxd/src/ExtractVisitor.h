@@ -12,7 +12,7 @@
 #include "cliarg.h"
 #include <boost/regex.hpp>
 #include <vector>
-#include <IL/il.h>
+//#include <IL/il.h>
 
 using std::vector;
 using boost::regex;
@@ -31,7 +31,7 @@ private:
 	int numPatterns;
 	int extractionCounter;
 	bool useRegex;
-	ILenum outputFormat;
+	//ILenum outputFormat;
 };
 
 #endif /* EXTRACTCOMMAND_H_ */
