@@ -10,7 +10,6 @@
 #include <gtaformats/gtaimg.h>
 #include <map>
 #include <utility>
-#include <IL/il.h>
 
 #define MODEL_NAME "infernus"
 
@@ -47,8 +46,6 @@ DFFMesh* mesh;
 
 
 void init(void) {
-	ilInit();
-
 	//glDisable(GL_BLEND);
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	//glClearColor(0.0, 0.0, 0.0, 0.0);
