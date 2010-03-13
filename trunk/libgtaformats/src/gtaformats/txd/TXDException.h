@@ -19,8 +19,9 @@ public:
 	/**	\brief The type of error.
 	 */
 	enum ErrorCode {
-		SyntaxError,//!< SyntaxError
-		Unsupported //!< Unsupported
+		SyntaxError,	//!< SyntaxError
+		Unsupported,	//!< Unsupported
+		PNGError
 	};
 
 public:

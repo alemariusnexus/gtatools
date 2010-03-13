@@ -6,8 +6,6 @@ then
 	exit 1
 fi
 
-fileFormat=$3
-
 if [ ! -d "$2" ]
 then
   echo Error: Destination directory \'$2\' does not exist!
@@ -127,12 +125,12 @@ do
 
 			echo '      <tr bgcolor="#00BFFF" align="center">' >> "$txdOvw"
 			echo $texture | awk -F, 'BEGIN {RS=","} {gsub("\n", ""); gsub("&", "&amp;"); print "        <td>" $0 "</td>"}' >> "$txdOvw"
-			#echo "        <td><a href=\"$escapedTexname.$fileFormat\">Click</a></td>" >> "$txdOvw"
-			echo "        <td><a href=\"$escapedTexname.$fileFormat\"><img src=\"$escapedTexname.$fileFormat\" width=\"128\" height=\"128\" /></a></td>" >> "$txdOvw"
+			#echo "        <td><a href=\"$escapedTexname.png\">Click</a></td>" >> "$txdOvw"
+			echo "        <td><a href=\"$escapedTexname.png\"><img src=\"$escapedTexname.$fileFormat\" width=\"128\" height=\"128\" /></a></td>" >> "$txdOvw"
 			echo "      </tr>" >> "$txdOvw"
 
 			echo "  Extracting texture '$texname'"
-			gtatxd x -f $fileFormat "$tmpTxdfile" "$texname" "$2/$destdir/$texname.$fileFormat" > /dev/null
+			gtatxd x "$tmpTxdfile" "$texname" "$2/$destdir/$texname.png" > /dev/null
 			
 			if [ $? -ne 0 ]
 				then

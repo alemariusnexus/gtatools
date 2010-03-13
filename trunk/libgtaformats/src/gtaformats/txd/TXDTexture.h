@@ -226,6 +226,10 @@ public:
 	 */
 	TXDTexture* generateMipmap() const;
 
+
+	bool writePNG(FILE* file, uint8_t* rawData);
+	bool writePNG(const char* filename, uint8_t* rawData);
+
 private:
 	/**	\brief Creates a TXDTexture from already available information.
 	 *
