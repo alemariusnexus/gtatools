@@ -35,9 +35,11 @@ public:
 	int32_t getFrameCount() const { return frameCount; }
 	DFFFrame** getFrames() const { return frames; }
 	DFFFrame* getFrame(int32_t idx) const { return frames[idx]; }
+	DFFFrame* getFrame(const char* name) const;
 	int32_t getGeometryCount() const { return geometryCount; }
 	DFFGeometry** getGeometries() const { return geometries; }
 	DFFGeometry* getGeometry(int32_t idx) const { return geometries[idx]; }
+	DFFGeometry* getGeometry(const char* name) const;
 	int32_t indexOf(DFFFrame* frame);
 
 	void mirrorYZ();

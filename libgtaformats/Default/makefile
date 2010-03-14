@@ -11,10 +11,12 @@ RM := rm
 -include subdir.mk
 -include src/gtaformats/txd/subdir.mk
 -include src/gtaformats/tinyxml/subdir.mk
+-include src/gtaformats/internal/subdir.mk
 -include src/gtaformats/img/subdir.mk
 -include src/gtaformats/ide/subdir.mk
 -include src/gtaformats/gxt/subdir.mk
 -include src/gtaformats/subdir.mk
+-include src/gtaformats/engine/subdir.mk
 -include src/gtaformats/dff/subdir.mk
 -include objects.mk
 

@@ -18,6 +18,7 @@
  */
 
 #include "DFFMesh.h"
+#include <cstring>
 
 
 DFFMesh::~DFFMesh() {
@@ -58,4 +59,28 @@ int32_t DFFMesh::indexOf(DFFFrame* frame)
 	}
 
 	return -1;
+}
+
+
+DFFGeometry* DFFMesh::getGeometry(const char* name) const
+{
+	for (int32_t i = 0 ; i < geometryCount ; i++) {
+		if (strcmp(geometries[i]->getAssociatedFrame()->getName(), name) == 0) {
+			return geometries[i];
+		}
+	}
+
+	return NULL;
+}
+
+
+DFFFrame* DFFMesh::getFrame(const char* name) const
+{
+	for (int32_t i = 0 ; i < frameCount ; i++) {
+		if (strcmp(frames[i]->getName(), name) == 0) {
+			return frames[i];
+		}
+	}
+
+	return NULL;
 }

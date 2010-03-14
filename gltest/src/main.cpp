@@ -17,6 +17,8 @@
 	along with gltest.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "TextureProvider.h"
+#include "VehicleRenderer.h"
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
@@ -27,10 +29,12 @@
 #include <gtaformats/gtatxd.h>
 #include <fstream>
 #include <gtaformats/gtaimg.h>
+#include <gtaformats/engine.h>
 #include <map>
 #include <utility>
 
-#define MODEL_NAME "infernus"
+#define MODEL_NAME "jizzy"
+//#define MODEL_NAME "infernus"
 
 using namespace std;
 
@@ -48,7 +52,9 @@ public:
 
 
 
-static map<const char*, GLuint, StrComparator> texes;
+//static map<const char*, GLuint, StrComparator> texes;
+//static TextureProvider textureProvider;
+static DefaultTextureProvider textureProvider;
 
 static GLuint texName = 0;
 
@@ -62,11 +68,23 @@ static GLfloat scale = 10.0f;
 DFFMesh* mesh;
 
 
+const char txdTable[][256] = {
+		//"/home/alemariusnexus/GTA/GTA/Grand Theft Auto San Andreas/models/gta3.img",
+		//"/home/alemariusnexus/" MODEL_NAME ".txd",
+		"/home/alemariusnexus/gtatreeshi.txd",
+		"/home/alemariusnexus/GTA/GTA/Grand Theft Auto San Andreas/models/generic/vehicle.txd"
+};
+
+
 
 
 void init(void) {
-	//glDisable(GL_BLEND);
-	glClearColor(0.0, 0.0, 0.0, 0.0);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glBlendFunc(GL_ONE, GL_ONE);
+	//glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glClearColor(0.1, 0.2, 0.3, 0.0);
 	//glClearColor(0.0, 0.0, 0.0, 0.0);
 	glShadeModel(GL_FLAT);
 	glEnable(GL_DEPTH_TEST);
@@ -79,20 +97,17 @@ void init(void) {
 
 	//ifstream txdstream("/home/alemariusnexus/infernus.txd", ifstream::in | ifstream::binary);
 
-	char txdTable[][256] = {
-			"&" MODEL_NAME ".txd",
-			//"&jizzy.txd"
-			"/home/alemariusnexus/GTA/GTA/Grand Theft Auto San Andreas/models/generic/vehicle.txd"
-	};
-
-	IMGArchive img("/home/alemariusnexus/GTA/GTA/Grand Theft Auto San Andreas/models/gta3.img");
+	//IMGArchive img("/home/alemariusnexus/GTA/GTA/Grand Theft Auto San Andreas/models/gta3.img");
 
 
-	DFFLoader dff;
-	dff.setVerbose(true);
+	//DFFLoader dff;
+	//dff.setVerbose(true);
 
-	mesh = dff.loadMesh(img.gotoEntry(MODEL_NAME ".dff"));
-	mesh->mirrorYZ();
+	mesh = NULL;
+	//mesh = dff.loadMesh(img.gotoEntry(MODEL_NAME ".dff"));
+	//mesh->mirrorYZ();
+
+	//mesh = new DFFMesh;
 
 	/*DFFFrame** frames = mesh->getFrames();
 	DFFGeometry** geoms = mesh->getGeometries();
@@ -127,12 +142,17 @@ void init(void) {
 
 	//exit(0);
 
+	//textureProvider->addResource("/home/alemariusnexus/gtatreeshi.txd");
+	//textureProvider->addResource("/home/alemariusnexus/GTA/GTA/Grand Theft Auto San Andreas/models/generic/vehicle.txd");
 
+	//return;
 
 	for (unsigned int i = 0 ; i < sizeof(txdTable)/sizeof(txdTable[0]) ; i++) {
-		char* txdn = txdTable[i];
+		const char* txdn = txdTable[i];
 
-		TXDArchive* txd;
+		textureProvider.addResource(txdn);
+
+		/*TXDArchive* txd;
 		ifstream* stream = NULL;
 
 		if (txdn[0] == '&') {
@@ -147,9 +167,7 @@ void init(void) {
 			TXDTexture* tex = txd->nextTexture();
 			uint8_t* rawData = txd->readTextureData(tex);
 			uint8_t* data = new uint8_t[tex->getWidth() * tex->getHeight() * 3];
-			//tex->convert(data, rawData, MIRROR_NONE);
 			tex->convert(data, rawData, MIRROR_NONE, 3, 0, 1, 2, -1);
-			//tex->convert(data, rawData);
 			delete[] rawData;
 
 			GLuint texName = 0;
@@ -173,7 +191,7 @@ void init(void) {
 
 		if (stream != NULL) {
 			delete stream;
-		}
+		}*/
 	}
 
 	DFFXmlConverter conv;
@@ -187,7 +205,7 @@ void display(void) {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_TEXTURE_2D);
-	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+	//glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 	//glColor3f(1.0f, 0.0f, 0.0f);
 
 	//glPolygonMode(GL_FRONT_AND_BACK, polyMode);
@@ -196,7 +214,7 @@ void display(void) {
 
 	//glLoadIdentity();
 
-	glBindTexture(GL_TEXTURE_2D, texName);
+	//glBindTexture(GL_TEXTURE_2D, texName);
 
 	//glScalef(5.0f, 5.0f, 5.0f);
 
@@ -230,8 +248,12 @@ void display(void) {
 	glRotatef(rotX, 0.0f, 0.0f, 1.0f);
 	glRotatef(rotY, 1.0f, 0.0f, 0.0f);
 
+	OpenGLDFFRenderer renderer(&textureProvider);
 
-	DFFGeometry** geoms = mesh->getGeometries();
+	//renderer.renderVehicle(mesh);
+	renderer.renderStaticMesh(mesh);
+
+	/*DFFGeometry** geoms = mesh->getGeometries();
 
 	for (int32_t i = 0 ; i < mesh->getGeometryCount() ; i++) {
 		if (i != geomIdx) {
@@ -240,12 +262,9 @@ void display(void) {
 
 		DFFGeometry* geom = geoms[i];
 
-		/*printf("################### %s\n", geom->getAssociatedFrame()->getName());
+		glPushMatrix();
 
-		if (strstr(geom->getAssociatedFrame()->getName(), "dam") != NULL) {
-			printf("***** %s contains LOD\n", geom->getAssociatedFrame()->getName());
-			continue;
-		}*/
+
 
 		if (	strcmp(geom->getAssociatedFrame()->getName(), "chassis") != 0
 		) {
@@ -325,7 +344,7 @@ void display(void) {
 		}
 
 		glPopMatrix();
-	}
+	}*/
 
 	glPopMatrix();
 
