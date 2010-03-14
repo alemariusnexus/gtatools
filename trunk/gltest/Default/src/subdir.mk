@@ -4,12 +4,18 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
+../src/TextureProvider.cpp \
+../src/VehicleRenderer.cpp \
 ../src/main.cpp 
 
 OBJS += \
+./src/TextureProvider.o \
+./src/VehicleRenderer.o \
 ./src/main.o 
 
 CPP_DEPS += \
+./src/TextureProvider.d \
+./src/VehicleRenderer.d \
 ./src/main.d 
 
 

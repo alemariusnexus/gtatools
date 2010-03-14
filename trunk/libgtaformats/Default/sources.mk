@@ -25,9 +25,11 @@ C_UPPER_DEPS :=
 SUBDIRS := \
 src/gtaformats/txd \
 src/gtaformats/tinyxml \
+src/gtaformats/internal \
 src/gtaformats/img \
 src/gtaformats/ide \
 src/gtaformats/gxt \
 src/gtaformats \
+src/gtaformats/engine \
 src/gtaformats/dff \
 

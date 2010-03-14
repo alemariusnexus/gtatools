@@ -106,7 +106,8 @@ TXDTexture::TXDTexture(istream* stream, long long& bytesRead)
 	bytesRead += 88;
 
 	if (platformId == 9) {
-		alphaChannel = (dxtType == 9);
+		printf("The alpha channel (%s) is %d\n", diffuseName, dxtType);
+		alphaChannel = (dxtType == 9  ||  dxtType == 1);
 		char* dxtFourCC = (char*) &alphaFourCC;
 
 		if (dxtFourCC[0] == 'D'  &&  dxtFourCC[1] == 'X'  &&  dxtFourCC[2] == 'T') {
