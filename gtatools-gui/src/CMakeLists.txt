@@ -8,6 +8,11 @@ ADD_SUBDIRECTORY(txd)
 
 SET(SRCS ${SRCS} AboutFrame Application DataSource DisplayManager FileDataSource FileDisplayer FormatProvider MainFrame WxGUI)
 
+SET(GTAFORMATS_INCLUDE_PATH '' CACHE PATH "Path to the gtaformats include dir (EXCLUDING the 'gtaformats' part)")
+SET(GTAFORMATS_LIB_PATH 'gtaformats' CACHE PATH "Path to (or name of) the libgtaformats library file")
+SET(SQUISH_INCLUDE_PATH '' CACHE PATH "Directory containing libsquish header files.")
+SET(SQUISH_LIB_PATH 'squish' CACHE PATH "Path to (or name of) libsquish library file")
+
 IF(UNIX)
 	SET(wxWidgets_USE_UNICODE ON)
 	SET(wxWidgets_DEBUG ON CACHE BOOL "Whether to use wxWidgets debug libraries")
@@ -23,8 +28,17 @@ FIND_PACKAGE(wxWidgets COMPONENTS base core gl)
 
 INCLUDE(${wxWidgets_USE_FILE})
 
+IF(NOT GTAFORMATS_LIB_PATH)
+	SET(GTAFORMATS_LIB_PATH gtaformats)
+ENDIF(NOT GTAFORMATS_LIB_PATH)
+IF(NOT SQUISH_LIB_PATH)
+	SET(SQUISH_LIB_PATH squish)
+ENDIF(NOT SQUISH_LIB_PATH)
+
+INCLUDE_DIRECTORIES(${GTAFORMATS_INCLUDE_PATH} ${SQUISH_INCLUDE_PATH})
+
 ADD_EXECUTABLE(gtatools-gui ${SRCS})
-TARGET_LINK_LIBRARIES(gtatools-gui gtaformats squish)
+TARGET_LINK_LIBRARIES(gtatools-gui ${GTAFORMATS_LIB_PATH} ${SQUISH_LIB_PATH})
 
 TARGET_LINK_LIBRARIES(gtatools-gui ${wxWidgets_LIBRARIES})
 
