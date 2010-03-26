@@ -1,12 +1,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
-PROJECT(gtatools-gui CXX)
+PROJECT(gtatools-gtatools-gui CXX)
 
-ADD_SUBDIRECTORY(dff)
-ADD_SUBDIRECTORY(img)
-ADD_SUBDIRECTORY(lang)
-ADD_SUBDIRECTORY(txd)
-
-SET(SRCS ${SRCS} AboutFrame Application DataSource DisplayManager FileDataSource FileDisplayer FormatProvider MainFrame WxGUI)
+ADD_SUBDIRECTORY(gtatools-gui)
 
 SET(GTAFORMATS_INCLUDE_PATH '' CACHE PATH "Path to the gtaformats include dir (EXCLUDING the 'gtaformats' part)")
 SET(GTAFORMATS_LIB_PATH 'gtaformats' CACHE PATH "Path to (or name of) the libgtaformats library file")

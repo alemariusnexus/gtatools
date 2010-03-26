@@ -1,5 +1,5 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
-PROJECT(gtaformats CXX)
+PROJECT(gtatools-gtaformats CXX)
 
 ADD_SUBDIRECTORY(gtaformats)
 

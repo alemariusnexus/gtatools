@@ -1,7 +1,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
-PROJECT(gtaimg CXX)
+PROJECT(gtatools-gtaimg CXX)
 
-SET(SRCS cliarg ExtractVisitor ListVisitor main)
+ADD_SUBDIRECTORY(gtaimg)
 
 SET(GTAFORMATS_INCLUDE_PATH '' CACHE PATH "Path to the gtaformats include dir (EXCLUDING the 'gtaformats' part)")
 SET(GTAFORMATS_LIB_PATH 'gtaformats' CACHE PATH "Path to (or name of) the libgtaformats library file")
