@@ -1,0 +1,6 @@
+Library dependencies for various projects:
+	- libsquish (For support of DXT compressed TXD textures. Used by libgtaformats [optional], gtatxd and gtatools-gui)
+	- Boost::RegEx (For gtaimg and gtatxd)
+	- libpng (For libgtaformats [optional, for simple TXD -> PNG conversion], gtatxd)
+	- wxWidgets base, core [, gl] (For gtatools-gui)
+
