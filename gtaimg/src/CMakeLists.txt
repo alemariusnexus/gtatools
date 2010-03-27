@@ -3,6 +3,8 @@ PROJECT(gtatools-gtaimg CXX)
 
 ADD_SUBDIRECTORY(gtaimg)
 
+MESSAGE("${SRCS}")
+
 SET(GTAFORMATS_INCLUDE_PATH '' CACHE PATH "Path to the gtaformats include dir (EXCLUDING the 'gtaformats' part)")
 SET(GTAFORMATS_LIB_PATH 'gtaformats' CACHE PATH "Path to (or name of) the libgtaformats library file")
 SET(BOOST_INCLUDE_PATH '' CACHE PATH "Path to the Boost include dir")
