@@ -1,7 +1,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
-PROJECT(gtatools-gtatxd CXX)
+PROJECT(prj-gtatxd CXX)
 
-ADD_SUBDIRECTORY(gtatxd)
+ADD_SUBDIRECTORY(src)
 
 SET(GTAFORMATS_INCLUDE_PATH '' CACHE PATH "Path to the gtaformats include dir (EXCLUDING the 'gtaformats' part)")
 SET(GTAFORMATS_LIB_PATH 'gtaformats' CACHE PATH "Path to (or name of) the libgtaformats library file")
