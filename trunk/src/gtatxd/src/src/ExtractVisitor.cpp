@@ -31,6 +31,16 @@ using std::endl;
 using std::cout;
 
 
+void _PngErrorCallback(png_struct* png, const char* err)
+{
+	//throw TXDException(TXDException::PNGError, err);
+	cerr << "ERROR (libpng): " << err << endl;
+}
+
+void _PngWarningCallback(png_struct* png, const char* err)
+{
+}
+
 
 /*ILenum GetFileFormat(const char* name)
 {
@@ -223,11 +233,13 @@ void ExtractVisitor::handleTexture(TXDArchive* archive, TXDTexture* header)
 				if (destfile) {
 					std::string destStr = match->format(std::string(destfile), boost::format_perl);
 					const char* dest = destStr.c_str();
-					texture->writePNG(dest, rawData);
+					//texture->writePNG(dest, rawData);
+					doExtract(texture, rawData, dest);
 				} else {
 					char* autogenDestFile = new char[strlen(texture->getDiffuseName()) + strlen("png") + 2];
 					sprintf(autogenDestFile, "%s.%s", texture->getDiffuseName(), "png");
-					texture->writePNG(autogenDestFile, rawData);
+					//texture->writePNG(autogenDestFile, rawData);
+					doExtract(texture, rawData, autogenDestFile);
 					delete[] autogenDestFile;
 				}
 
@@ -239,4 +251,66 @@ void ExtractVisitor::handleTexture(TXDArchive* archive, TXDTexture* header)
 			break;
 		}
 	}
+}
+
+
+void ExtractVisitor::doExtract(TXDTexture* tex, uint8_t* rawData, const char* dest)
+{
+	char err[256];
+	png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, err,
+			_PngErrorCallback, _PngWarningCallback);
+	if (!png) {
+		return;
+	}
+
+	png_infop info = png_create_info_struct(png);
+	if (!info) {
+		png_destroy_write_struct(&png, NULL);
+	}
+
+	if (setjmp(png_jmpbuf(png))) {
+		png_destroy_write_struct(&png, &info);
+	}
+
+	FILE* file = fopen(dest, "wb");
+
+	png_init_io(png, file);
+
+	int bitDepth = 8;
+	int colorType;
+	int bpp;
+
+	if (tex->hasAlphaChannel()) {
+		colorType = PNG_COLOR_TYPE_RGBA;
+		bpp = 4;
+	} else {
+		colorType = PNG_COLOR_TYPE_RGB;
+		bpp = 3;
+	}
+
+	int32_t width = tex->getWidth();
+	int32_t height = tex->getHeight();
+
+	png_set_IHDR(png, info, width, height, bitDepth, colorType, PNG_INTERLACE_NONE,
+			PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+
+	uint8_t* data = new uint8_t[width * height * bpp];
+	tex->convert(data, rawData, MIRROR_NONE, bpp, 0, 1, 2, tex->hasAlphaChannel() ? 3 : -1);
+
+	uint8_t** rowData = new uint8_t*[height];
+
+	for (int16_t i = 0 ; i < height ; i++) {
+		rowData[i] = data + (i * width * bpp);
+	}
+
+	png_set_rows(png, info, rowData);
+
+	png_write_png(png, info, PNG_TRANSFORM_IDENTITY, NULL);
+
+	delete[] data;
+	delete[] rowData;
+
+	png_destroy_write_struct(&png, &info);
+
+	fclose(file);
 }
