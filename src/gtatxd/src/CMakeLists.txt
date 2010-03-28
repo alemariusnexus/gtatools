@@ -3,7 +3,12 @@ PROJECT(prj-gtatxd CXX)
 
 ADD_SUBDIRECTORY(src)
 
-SET(GTAFORMATS_INCLUDE_PATH '' CACHE PATH "Path to the gtaformats include dir (EXCLUDING the 'gtaformats' part)")
+IF(prj-gtaformats_SOURCE_DIR)
+    SET(GTAFORMATS_INCLUDE_PATH ${prj-gtaformats_SOURCE_DIR} CACHE PATH "Path to the gtaformats include dir (EXCLUDING the 'gtaformats' part)")
+ELSE(prj-gtaformats_SOURCE_DIR)
+    SET(GTAFORMATS_INCLUDE_PATH '' CACHE PATH "Path to the gtaformats include dir (EXCLUDING the 'gtaformats' part)")
+ENDIF(prj-gtaformats_SOURCE_DIR)
+
 SET(GTAFORMATS_LIB_PATH 'gtaformats' CACHE PATH "Path to (or name of) the libgtaformats library file")
 SET(BOOST_INCLUDE_PATH '' CACHE PATH "Path to the Boost include dir")
 SET(BOOST_REGEX_LIB_PATH 'boost_regex' CACHE PATH "Path to (or name of) the Boost::RegEx library file")

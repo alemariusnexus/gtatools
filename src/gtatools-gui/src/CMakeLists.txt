@@ -3,7 +3,12 @@ PROJECT(prj-gtatools-gui CXX)
 
 ADD_SUBDIRECTORY(src)
 
-SET(GTAFORMATS_INCLUDE_PATH '' CACHE PATH "Path to the gtaformats include dir (EXCLUDING the 'gtaformats' part)")
+IF(prj-gtaformats_SOURCE_DIR)
+    SET(GTAFORMATS_INCLUDE_PATH ${prj-gtaformats_SOURCE_DIR} CACHE PATH "Path to the gtaformats include dir (EXCLUDING the 'gtaformats' part)")
+ELSE(prj-gtaformats_SOURCE_DIR)
+    SET(GTAFORMATS_INCLUDE_PATH '' CACHE PATH "Path to the gtaformats include dir (EXCLUDING the 'gtaformats' part)")
+ENDIF(prj-gtaformats_SOURCE_DIR)
+
 SET(GTAFORMATS_LIB_PATH 'gtaformats' CACHE PATH "Path to (or name of) the libgtaformats library file")
 SET(SQUISH_INCLUDE_PATH '' CACHE PATH "Directory containing libsquish header files.")
 SET(SQUISH_LIB_PATH 'squish' CACHE PATH "Path to (or name of) libsquish library file")
