@@ -1,7 +1,24 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 PROJECT(gtatools CXX)
 
-ADD_SUBDIRECTORY(libgtaformats/src libgtaformats/build EXCLUDE_FROM_ALL)
-ADD_SUBDIRECTORY(gtaimg/src gtaimg/build EXCLUDE_FROM_ALL)
-ADD_SUBDIRECTORY(gtatxd/src gtatxd/build EXCLUDE_FROM_ALL)
-ADD_SUBDIRECTORY(gtatools-gui/src gtatools-gui/build EXCLUDE_FROM_ALL)
+SET(LIBGTAFORMATS_BUILD ON CACHE BOOL "Whether you want to build libgtaformats")
+SET(GTAIMG_BUILD ON CACHE BOOL "Whether you want to build gtaimg")
+SET(GTATXD_BUILD ON CACHE BOOL "Whether you want to build gtatxd")
+SET(GTATOOLS_GUI_BUILD ON CACHE BOOL "Whether you want to build gtatools-gui")
+
+IF(LIBGTAFORMATS_BUILD)
+    ADD_SUBDIRECTORY(libgtaformats/src libgtaformats/build) #EXCLUDE_FROM_ALL)
+ENDIF(LIBGTAFORMATS_BUILD)
+
+IF(GTAIMG_BUILD)
+    ADD_SUBDIRECTORY(gtaimg/src gtaimg/build) #EXCLUDE_FROM_ALL)
+ENDIF(GTAIMG_BUILD)
+
+IF(GTATXD_BUILD)
+    ADD_SUBDIRECTORY(gtatxd/src gtatxd/build) #EXCLUDE_FROM_ALL)
+ENDIF(GTATXD_BUILD)
+
+IF(GTATOOLS_GUI_BUILD)
+    ADD_SUBDIRECTORY(gtatools-gui/src gtatools-gui/build) #EXCLUDE_FROM_ALL)
+ENDIF(GTATOOLS_GUI_BUILD)
+
