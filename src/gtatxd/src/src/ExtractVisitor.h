@@ -36,6 +36,9 @@ public:
 	void handleTexture(TXDArchive* archive, TXDTexture* header);
 
 private:
+	void doExtract(TXDTexture* tex, uint8_t* data, const char* dest);
+
+private:
 	vector<const char*> temporaryStrings;
 	regex** regexes;
 	const char** destfiles;

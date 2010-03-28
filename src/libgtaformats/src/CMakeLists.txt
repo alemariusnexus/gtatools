@@ -5,25 +5,15 @@ ADD_SUBDIRECTORY(gtaformats)
 
 SET(SQUISH_INCLUDE_PATH '' CACHE PATH "Directory containing libsquish header files.")
 SET(SQUISH_LIB_PATH 'squish' CACHE PATH "Path to (or name of) libsquish library file")
-SET(PNG_INCLUDE_PATH '' CACHE PATH "Path to the libpng include dir")
-SET(PNG_LIB_PATH 'png' CACHE PATH "Path to (or name of) the libpng library file")
-SET(Z_INCLUDE_PATH '' CACHE PATH "Path to the zlib include dir")
-SET(Z_LIB_PATH 'png' CACHE PATH "Path to (or name of) the zlib library file")
 
 IF(NOT SQUISH_LIB_PATH)
 	SET(SQUISH_LIB_PATH squish)
 ENDIF(NOT SQUISH_LIB_PATH)
-IF(NOT PNG_LIB_PATH)
-	SET(PNG_LIB_PATH png)
-ENDIF(NOT PNG_LIB_PATH)
-IF(NOT Z_LIB_PATH)
-	SET(Z_LIB_PATH png)
-ENDIF(NOT Z_LIB_PATH)
 
-INCLUDE_DIRECTORIES(${SQUISH_INCLUDE_PATH} ${PNG_INCLUDE_PATH} ${Z_INCLUDE_PATH})
+INCLUDE_DIRECTORIES(${SQUISH_INCLUDE_PATH})
 
 ADD_LIBRARY(gtaformats STATIC ${SRCS})
-TARGET_LINK_LIBRARIES(gtaformats ${SQUISH_LIB_PATH} ${PNG_LIB_PATH} ${Z_LIB_PATH})
+TARGET_LINK_LIBRARIES(gtaformats ${SQUISH_LIB_PATH})
 
 INSTALL(TARGETS gtaformats DESTINATION lib)
 INSTALL(	DIRECTORY gtaformats
