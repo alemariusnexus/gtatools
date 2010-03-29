@@ -20,7 +20,7 @@ TXDPanelPrototype::TXDPanelPrototype( wxWindow* parent, wxWindowID id, const wxP
 	wxBoxSizer* bSizer11;
 	bSizer11 = new wxBoxSizer( wxVERTICAL );
 	
-	textureList = new wxListBox( m_panel5, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_HSCROLL|wxLB_MULTIPLE|wxLB_SORT ); 
+	textureList = new wxListBox( m_panel5, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_EXTENDED|wxLB_HSCROLL|wxLB_SORT ); 
 	bSizer11->Add( textureList, 1, wxALL|wxEXPAND, 5 );
 	
 	m_panel5->SetSizer( bSizer11 );
@@ -297,7 +297,7 @@ IMGPanelPrototype::IMGPanelPrototype( wxWindow* parent, wxWindowID id, const wxP
 	wxBoxSizer* bSizer18;
 	bSizer18 = new wxBoxSizer( wxVERTICAL );
 	
-	fileList = new wxListBox( m_panel7, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_MULTIPLE ); 
+	fileList = new wxListBox( m_panel7, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_EXTENDED ); 
 	bSizer18->Add( fileList, 1, wxALL|wxEXPAND, 5 );
 	
 	m_panel7->SetSizer( bSizer18 );
