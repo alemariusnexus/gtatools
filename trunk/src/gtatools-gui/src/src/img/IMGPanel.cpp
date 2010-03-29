@@ -181,6 +181,8 @@ void IMGPanel::onSelectionChanged(wxCommandEvent& evt)
 				if (selBefore != -1) {
 					entryNotebook->SetSelection(selBefore);
 				}
+
+				entryNotebook->Refresh();
 			}
 		} else {
 			typeLabel->SetLabel(LangGet("Format_Unknown_description"));
