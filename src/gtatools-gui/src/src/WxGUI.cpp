@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// C++ code generated with wxFormBuilder (version Dec 29 2008)
+// C++ code generated with wxFormBuilder (version Mar 29 2010)
 // http://www.wxformbuilder.org/
 //
 // PLEASE DO "NOT" EDIT THIS FILE!
@@ -260,7 +260,7 @@ IMGPanelPrototype::IMGPanelPrototype( wxWindow* parent, wxWindowID id, const wxP
 	m_panel71->SetSizer( fgSizer5 );
 	m_panel71->Layout();
 	fgSizer5->Fit( m_panel71 );
-	notebook->AddPage( m_panel71, wxT("a page"), true );
+	notebook->AddPage( m_panel71, wxT("a page"), false );
 	m_panel8 = new wxPanel( notebook, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizer331;
 	bSizer331 = new wxBoxSizer( wxVERTICAL );
@@ -297,7 +297,7 @@ IMGPanelPrototype::IMGPanelPrototype( wxWindow* parent, wxWindowID id, const wxP
 	wxBoxSizer* bSizer18;
 	bSizer18 = new wxBoxSizer( wxVERTICAL );
 	
-	fileList = new wxListBox( m_panel7, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_EXTENDED|wxLB_MULTIPLE ); 
+	fileList = new wxListBox( m_panel7, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_MULTIPLE ); 
 	bSizer18->Add( fileList, 1, wxALL|wxEXPAND, 5 );
 	
 	m_panel7->SetSizer( bSizer18 );
@@ -367,7 +367,7 @@ IMGPanelPrototype::IMGPanelPrototype( wxWindow* parent, wxWindowID id, const wxP
 	m_panel8->SetSizer( bSizer331 );
 	m_panel8->Layout();
 	bSizer331->Fit( m_panel8 );
-	notebook->AddPage( m_panel8, wxT("a page"), false );
+	notebook->AddPage( m_panel8, wxT("a page"), true );
 	
 	bSizer22->Add( notebook, 1, wxEXPAND | wxALL, 5 );
 	
