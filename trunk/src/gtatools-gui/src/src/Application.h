@@ -24,6 +24,7 @@
 #define wxUSE_FILEDLG 1
 #define wxUSE_DIRDLG 1
 #define wxUSE_CHOICEDLG 1
+#define wxUSE_GLCANVAS 1
 
 #include "guiconfig.h"
 #include <wx/app.h>
