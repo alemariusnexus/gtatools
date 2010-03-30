@@ -19,9 +19,9 @@ IF(UNIX)
 	SET(wxWidgets_STATIC ON CACHE BOOL "Whether to use wxWidgets as a static library")
 	SET(wxWidgets_UNIVERSAL OFF CACHE BOOL "Whether to use wxWidgets universal mode libraries")
 ELSE(UNIX) # Windows...
-	SET(wxWidgets_ROOT_DIR '' CACHE PATH "Path to wxWidgets root directory")
-	SET(wxWidgets_LIB_DIR '' CACHE PATH "Path to wxWidgets library directory")
-	SET(wxWidgets_CONFIGURATION '' CACHE STRING "wxWidgets configuration to use (e.g. msw, mswd, mswu, mswunivud etc.)")
+	SET(wxWidgets_ROOT_DIR "" CACHE PATH "Path to wxWidgets root directory")
+	SET(wxWidgets_LIB_DIR "" CACHE PATH "Path to wxWidgets library directory")
+	SET(wxWidgets_CONFIGURATION "" CACHE STRING "wxWidgets configuration to use (e.g. msw, mswd, mswu, mswunivud etc.)")
 ENDIF(UNIX)
 
 FIND_PACKAGE(wxWidgets COMPONENTS base core gl)
