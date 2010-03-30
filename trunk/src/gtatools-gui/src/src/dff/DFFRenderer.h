@@ -20,7 +20,10 @@
 #ifndef DFFRENDERER_H_
 #define DFFRENDERER_H_
 
-#include <windows.h>
+#ifdef _MSC_VER
+#	include <windows.h>
+#endif
+
 #include <gtaformats/gtadff.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
