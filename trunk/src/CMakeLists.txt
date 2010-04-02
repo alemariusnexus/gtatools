@@ -1,6 +1,15 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 PROJECT(gtatools CXX)
 
+INCLUDE(CPack)
+
+SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "gtatools - A collection of tools and libraries for loading formats of the GTA game series.")
+SET(CPACK_PACKAGE_VENDOR "Alemarius Nexus (David Lerch)")
+SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING")
+SET(CPACK_PACKAGE_VERSION_MAJOR "0")
+SET(CPACK_PACKAGE_VERSION_MINOR "1")
+SET(CPACK_PACKAGE_VERSION_PATCH "0")
+
 SET(LIBGTAFORMATS_BUILD ON CACHE BOOL "Whether you want to build libgtaformats")
 SET(GTAIMG_BUILD ON CACHE BOOL "Whether you want to build gtaimg")
 SET(GTATXD_BUILD ON CACHE BOOL "Whether you want to build gtatxd")
