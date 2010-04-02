@@ -1,7 +1,10 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 PROJECT(gtatools CXX)
 
-INCLUDE(CPack)
+SET(LIBGTAFORMATS_BUILD ON CACHE BOOL "Whether you want to build libgtaformats")
+SET(GTAIMG_BUILD ON CACHE BOOL "Whether you want to build gtaimg")
+SET(GTATXD_BUILD ON CACHE BOOL "Whether you want to build gtatxd")
+SET(GTATOOLS_GUI_BUILD ON CACHE BOOL "Whether you want to build gtatools-gui")
 
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "gtatools - A collection of tools and libraries for loading formats of the GTA game series.")
 SET(CPACK_PACKAGE_VENDOR "Alemarius Nexus (David Lerch)")
@@ -9,11 +12,14 @@ SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING")
 SET(CPACK_PACKAGE_VERSION_MAJOR "0")
 SET(CPACK_PACKAGE_VERSION_MINOR "1")
 SET(CPACK_PACKAGE_VERSION_PATCH "0")
+SET(CPACK_SOURCE_IGNORE_FILES "\\\\.svn;.*~")
 
-SET(LIBGTAFORMATS_BUILD ON CACHE BOOL "Whether you want to build libgtaformats")
-SET(GTAIMG_BUILD ON CACHE BOOL "Whether you want to build gtaimg")
-SET(GTATXD_BUILD ON CACHE BOOL "Whether you want to build gtatxd")
-SET(GTATOOLS_GUI_BUILD ON CACHE BOOL "Whether you want to build gtatools-gui")
+IF(GTATOOLS_GUI_BUILD)
+	SET(CPACK_PACKAGE_EXECUTABLES "gtatools-gui;GTATools GUI Viewer")
+ENDIF(GTATOOLS_GUI_BUILD)
+
+INCLUDE(CPack)
+
 
 IF(LIBGTAFORMATS_BUILD)
     ADD_SUBDIRECTORY(libgtaformats/src libgtaformats/build) #EXCLUDE_FROM_ALL)
