@@ -163,7 +163,7 @@ istream* IMGArchive::gotoEntry(IMGEntry* entry) {
 		cpos = bytesRead;
 	}
 
-	if (start > bytesRead) {
+	if (start > bytesRead  &&  !randomAccess) {
 		char skipBuffer[4096];
 		SkipBytes(stream, start - cpos, skipBuffer, sizeof(skipBuffer));
 		bytesRead = start;
