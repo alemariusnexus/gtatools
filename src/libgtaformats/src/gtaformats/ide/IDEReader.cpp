@@ -19,54 +19,175 @@
 
 #include "IDEReader.h"
 #include "IDEStaticObject.h"
+#include "IDETimedObject.h"
+#include "IDEAnimation.h"
 #include <string>
 #include <fstream>
+#include <cstdlib>
 
 using std::string;
 using std::ifstream;
+using std::ofstream;
 
 
 
 IDEReader::IDEReader(istream* stream, bool deleteStream)
-		: stream(stream), currentSection(NONE), deleteStream(deleteStream)
+		: GTASectionFileReader(stream, deleteStream), currentSection(NONE)
 {
 }
 
 
 IDEReader::~IDEReader()
 {
-	if (deleteStream) {
-		delete stream;
-	}
 }
 
 
 IDEReader::IDEReader(const char* filename)
-		: stream(new ifstream(filename, ifstream::in)), currentSection(NONE), deleteStream(true)
+		: GTASectionFileReader(filename), currentSection(NONE)
 {
 }
 
 
-IDEEntity* IDEReader::readEntity()
+IDEStatement* IDEReader::readStatement()
 {
 	while (true) {
 		char line[4096];
-		stream->getline(line, sizeof(line));
 
-		for (unsigned int i = 0 ; i < sizeof(line)  &&  line[i] != '\0' ; i++) {
-			if (line[i] == '#') {
-				line[i] = '\0';
-				break;
-			}
+		if (!readNextLine(line, sizeof(line))) {
+			return NULL;
 		}
-
-		printf("%s\n", line);
 
 		if (strcmp(line, "end") == 0) {
 			currentSection = NONE;
 			continue;
 		} else if (strcmp(line, "objs") == 0) {
 			currentSection = OBJS;
+			continue;
+		} else if (strcmp(line, "tobj") == 0) {
+			currentSection = TOBJ;
+			continue;
+		} else if (strcmp(line, "anim") == 0) {
+			currentSection = ANIM;
+			continue;
+		}
+
+		if (currentSection == OBJS) {
+			int32_t id = nextInt(line);
+			char* modelName = nextString();
+			char* texName = nextString();
+			int32_t numSubobjects;
+			float* drawDists;
+			int32_t flags;
+
+			char* param4 = nextString();
+			char* param5 = nextString();
+			char* param6 = nextString();
+
+			if (param6 == NULL) {
+				numSubobjects = 1;
+				drawDists = new float[1];
+				drawDists[0] = atof(param4);
+				flags = atoi(param5);
+			} else {
+				numSubobjects = atoi(param4);
+				drawDists = new float[numSubobjects];
+				int ddIdx = 0;
+				drawDists[ddIdx++] = atof(param5);
+
+				if (numSubobjects > 1) {
+					drawDists[ddIdx++] = atof(param6);
+
+					for (; ddIdx < numSubobjects ; ddIdx++) {
+						drawDists[ddIdx] = nextFloat();
+					}
+
+					flags = nextInt();
+				} else {
+					flags = atoi(param6);
+				}
+			}
+
+			return new IDEStaticObject(id, modelName, texName, numSubobjects, drawDists, flags);
+		} else if (currentSection == TOBJ) {
+			int numParams = 1;
+
+			for (int i = 0 ; i < strlen(line) ; i++) {
+				if (line[i] == ',') {
+					numParams++;
+				}
+			}
+
+			int32_t id = nextInt(line);
+			char* modelName = nextString();
+			char* texName = nextString();
+			int32_t numSubobjects;
+			float* drawDists;
+			int32_t flags;
+			int32_t timeOn;
+			int32_t timeOff;
+
+			if (numParams == 7) {
+				// Object count not given, default 1
+				numSubobjects = 1;
+			} else {
+				numSubobjects = nextInt();
+			}
+
+			drawDists = new float[numSubobjects];
+
+			for (int i = 0 ; i < numSubobjects ; i++) {
+				//drawDists[i] = nextFloat();
+			}
+
+			flags = nextInt();
+			timeOn = nextInt();
+			timeOff = nextInt();
+
+			return new IDETimedObject(id, modelName, texName, numSubobjects, drawDists,
+					flags, timeOn, timeOff);
+		} else if (currentSection == ANIM) {
+			int32_t id = nextInt(line);
+			char* modelName = nextString();
+			char* texName = nextString();
+			char* animName = nextString();
+			float drawDist = nextFloat();
+			int32_t flags = nextInt();
+
+			return new IDEAnimation(id, modelName, texName, animName, drawDist, flags);
+		} else {
+			continue;
+		}
+	}
+
+	/*while (true) {
+		char line[4096];
+		stream->getline(line, sizeof(line));
+
+		if (stream->eof()) {
+			return NULL;
+		}
+
+		if (line[strlen(line)-1] == '\r') {
+			line[strlen(line)-1] = '\0';
+		}
+
+		char* cmtStart = strchr(line, '#');
+
+		if (cmtStart) {
+			cmtStart[0] = '\0';
+		}
+
+		if (strcmp(line, "end") == 0) {
+			currentSection = NONE;
+			continue;
+		} else if (strcmp(line, "objs") == 0) {
+			currentSection = OBJS;
+			continue;
+		} else if (strcmp(line, "tobj") == 0) {
+			currentSection = TOBJ;
+			continue;
+		} else if (strcmp(line, "anim") == 0) {
+			currentSection = ANIM;
 			continue;
 		} else if (strlen(line) == 0) {
 			continue;
@@ -76,25 +197,86 @@ IDEEntity* IDEReader::readEntity()
 			int32_t id = nextInt(line);
 			char* modelName = nextString();
 			char* texName = nextString();
-			int32_t numSubobjects = nextInt();
+			int32_t numSubobjects;
+			float* drawDists;
+			int32_t flags;
 
-			float* drawDists = new float[numSubobjects];
+			char* param4 = nextString();
+			char* param5 = nextString();
+			char* param6 = nextString();
 
-			for (int32_t i = 0 ; i < numSubobjects ; i++) {
+			if (param6 == NULL) {
+				numSubobjects = 1;
+				drawDists = new float[1];
+				drawDists[0] = atof(param4);
+				flags = atoi(param5);
+			} else {
+				numSubobjects = atoi(param4);
+				drawDists = new float[numSubobjects];
+				int ddIdx = 0;
+				drawDists[ddIdx++] = atof(param5);
+
+				if (numSubobjects > 1) {
+					drawDists[ddIdx++] = atof(param6);
+
+					for (; ddIdx < numSubobjects ; ddIdx++) {
+						drawDists[ddIdx] = nextFloat();
+					}
+
+					flags = nextInt();
+				} else {
+					flags = atoi(param6);
+				}
+			}
+
+			return new IDEStaticObject(id, modelName, texName, numSubobjects, drawDists, flags);
+		} else if (currentSection == TOBJ) {
+			int32_t id = nextInt(line);
+			char* modelName = nextString();
+			char* texName = nextString();
+			int32_t numSubobjects;
+			float* drawDists;
+			int32_t flags;
+			int32_t timeOn;
+			int32_t timeOff;
+
+			int numParams = 1;
+
+			for (int i = 0 ; i < strlen(line) ; i++) {
+				if (line[i] == ',') {
+					numParams++;
+				}
+			}
+
+			if (numParams == 7) {
+				// Object count not given, default 1
+				numSubobjects = 1;
+			} else {
+				numSubobjects = nextInt();
+			}
+
+			for (int i = 0 ; i < numSubobjects ; i++) {
 				drawDists[i] = nextFloat();
 			}
 
+			flags = nextInt();
+			timeOn = nextInt();
+			timeOff = nextInt();
+
+			return new IDETimedObject(id, modelName, texName, numSubobjects, drawDists,
+					flags, timeOn, timeOff);
+		} else if (currentSection == ANIM) {
+			int32_t id = nextInt(line);
+			char* modelName = nextString();
+			char* texName = nextString();
+			char* animName = nextString();
+			float drawDist = nextFloat();
 			int32_t flags = nextInt();
 
-			char* modelNameCpy = new char[strlen(modelName)];
-			char* texNameCpy = new char[strlen(texName)];
-			strcpy(modelNameCpy, modelName);
-			strcpy(texNameCpy, texName);
-
-			return new IDEStaticObject(id, modelNameCpy, texNameCpy, numSubobjects, drawDists, flags);
+			return new IDEAnimation(id, modelName, texName, animName, drawDist, flags);
 		} else {
 			continue;
 		}
-	}
+	}*/
 }
 

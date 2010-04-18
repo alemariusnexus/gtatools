@@ -1,3 +1,7 @@
-SET(SRCS ${SRCS} gtaformats/dff/DFFFrame gtaformats/dff/DFFGeometry gtaformats/dff/DFFGeometryPart gtaformats/dff/DFFLoader gtaformats/dff/DFFMaterial gtaformats/dff/DFFMesh gtaformats/dff/DFFTexture gtaformats/dff/DFFXmlConverter PARENT_SCOPE)
+SET(FILES   DFFException DFFFrame DFFGeometry DFFGeometryPart DFFLoader DFFMaterial DFFMesh DFFTexture )
 
+FOREACH(FILE ${FILES})
+    SET(SRCS ${SRCS} "gtaformats/dff/${FILE}")
+ENDFOREACH(FILE)
 
+SET(SRCS ${SRCS} PARENT_SCOPE)

@@ -74,28 +74,50 @@ TXDTexture::TXDTexture(istream* stream, long long& bytesRead)
 	char skipBuf[4];
 
 	int32_t platformId;
-	stream->read((char*) &platformId, 4);
+	int32_t alphaFourCC;
+	int8_t dxtType;
+
+	char buf[16];
+	stream->read(buf, 8);
+
+	platformId = *((int32_t*) buf);
+	filterFlags = *((int16_t*) (buf+4));
+	uWrap = *((int8_t*) (buf+6));
+	vWrap = *((int8_t*) (buf+7));
+
+	stream->read(diffuseName, 32);
+	stream->read(alphaName, 32);
+
+	stream->read(buf, 16);
+
+	rasterFormat = *((int32_t*) buf);
+	alphaFourCC = *((int32_t*) (buf+4));
+	width = *((int16_t*) (buf+8));
+	height = *((int16_t*) (buf+10));
+	bytesPerPixel = *((int8_t*) (buf+12));
+	mipmapCount = *((int8_t*) (buf+13));
+	dxtType = *((int8_t*) (buf+15));
+
+	/*stream->read((char*) &platformId, 4);
 	stream->read((char*) &filterFlags, 2);
 	stream->read((char*) &uWrap, 1);
 	stream->read((char*) &vWrap, 1);
 	stream->read(diffuseName, 32);
 	stream->read(alphaName, 32);
 	stream->read((char*) &rasterFormat, 4);
-	int32_t alphaFourCC;
 	stream->read((char*) &alphaFourCC, 4);
 	stream->read((char*) &width, 2);
 	stream->read((char*) &height, 2);
 	stream->read((char*) &bytesPerPixel, 1);
-	bytesPerPixel /= 8;
 	stream->read((char*) &mipmapCount, 1);
 	stream->read(skipBuf, 1);
-	int8_t dxtType;
-	stream->read((char*) &dxtType, 1);
+	stream->read((char*) &dxtType, 1);*/
+
+	bytesPerPixel /= 8;
 
 	bytesRead += 88;
 
 	if (platformId == 9) {
-		printf("The alpha channel (%s) is %d\n", diffuseName, dxtType);
 		alphaChannel = (dxtType == 9  ||  dxtType == 1);
 		char* dxtFourCC = (char*) &alphaFourCC;
 

@@ -79,6 +79,16 @@ void DFFGeometry::mirrorYZ()
 }
 
 
+void DFFGeometry::scale(float x, float y, float z)
+{
+	for (int32_t i = 0 ; i < vertexCount ; i++) {
+		vertices[(i*3) + 0] *= x;
+		vertices[(i*3) + 1] *= y;
+		vertices[(i*3) + 2] *= z;
+	}
+}
+
+
 int32_t DFFGeometry::indexOf(DFFMaterial* mat) const
 {
 	for (int32_t i = 0 ; i < materialCount ; i++) {

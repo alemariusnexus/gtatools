@@ -37,6 +37,7 @@ public:
 	char* getName() const { return name; }
 
 	void mirrorYZ();
+	void scale(float x, float y, float z);
 
 private:
 	float rotation[9];

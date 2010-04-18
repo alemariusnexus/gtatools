@@ -17,24 +17,20 @@
 	along with gtaformats.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "IDEStaticObject.h"
+#include "EngineException.h"
 #include <cstring>
 
 
-IDEStaticObject::IDEStaticObject(int32_t id, const char* modelName, const char* texName,
-			int32_t numSubObjects, float* drawDistances, int32_t flags)
-		: IDEEntity(id), modelName(new char[strlen(modelName)+1]),
-		  textureName(new char[strlen(texName)+1]), numSubObjects(numSubObjects),
-		  drawDistances(drawDistances), flags(flags)
+EngineException::EngineException(ErrorCode code, const char* errmsg) throw()
+		: errmsg(new char[strlen(errmsg)+1]), errcode(code)
 {
-	strcpy(this->modelName, modelName);
-	strcpy(this->textureName, texName);
+	strcpy(this->errmsg, errmsg);
 }
 
 
-IDEStaticObject::~IDEStaticObject()
+EngineException::~EngineException() throw()
 {
-	delete[] modelName;
-	delete[] textureName;
+	// TODO
+	//delete[] errmsg;
 }
 

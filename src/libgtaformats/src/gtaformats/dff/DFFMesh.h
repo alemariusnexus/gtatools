@@ -43,6 +43,7 @@ public:
 	int32_t indexOf(DFFFrame* frame);
 
 	void mirrorYZ();
+	void scale(float x, float y, float z);
 
 private:
 	DFFMesh() {};

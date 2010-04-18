@@ -4,6 +4,7 @@ PROJECT(gtatools CXX)
 SET(LIBGTAFORMATS_BUILD ON CACHE BOOL "Whether you want to build libgtaformats")
 SET(GTAIMG_BUILD ON CACHE BOOL "Whether you want to build gtaimg")
 SET(GTATXD_BUILD ON CACHE BOOL "Whether you want to build gtatxd")
+SET(GTADFF_BUILD OFF CACHE BOOL "Whether you want to build gtadff")
 SET(GTATOOLS_GUI_BUILD ON CACHE BOOL "Whether you want to build gtatools-gui")
 
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "gtatools - A collection of tools and libraries for loading formats of the GTA game series.")
@@ -32,6 +33,10 @@ ENDIF(GTAIMG_BUILD)
 IF(GTATXD_BUILD)
     ADD_SUBDIRECTORY(gtatxd/src gtatxd/build) #EXCLUDE_FROM_ALL)
 ENDIF(GTATXD_BUILD)
+
+IF(GTADFF_BUILD)
+    ADD_SUBDIRECTORY(gtadff/src gtadff/build)
+ENDIF(GTADFF_BUILD)
 
 IF(GTATOOLS_GUI_BUILD)
     ADD_SUBDIRECTORY(gtatools-gui/src gtatools-gui/build) #EXCLUDE_FROM_ALL)

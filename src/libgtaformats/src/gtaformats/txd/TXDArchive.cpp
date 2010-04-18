@@ -21,30 +21,35 @@
 #include "../gta.h"
 #include <cstring>
 #include <cstdio>
+#include <fstream>
+
+using std::ifstream;
 
 
-TXDArchive::TXDArchive(istream* stream)
-		: stream(stream), bytesRead(0), readIndex(0), currentTextureNativeSize(-1),
-		  currentTextureNativeStart(-1)
+TXDArchive::TXDArchive(istream* stream, bool randomAccess)
+		: randomAccess(randomAccess), stream(stream), bytesRead(0), readIndex(0),
+		  currentTextureNativeSize(-1), currentTextureNativeStart(-1), deleteStream(false)
 {
-	char skipBuf[2];
-
-	RwSectionHeader header;
-	readSectionHeaderWithID(stream, header, RW_SECTION_TEXTUREDICTIONARY);
-	readSectionHeaderWithID(stream, header, RW_SECTION_STRUCT);
-
-	stream->read((char*) &textureCount, 2);
-	stream->read(skipBuf, 2);
-
-	bytesRead += 4;
-
-	textureNativeStarts = new long long[textureCount];
-	indexedTextures = new TXDTexture*[textureCount];
-
-	for (int16_t i = 0 ; i < textureCount ; i++) {
-		indexedTextures[i] = NULL;
+	if (stream->fail()) {
+		throw TXDException(TXDException::IOError, "failbit was set in the given TXD stream");
 	}
+
+	init();
 }
+
+
+TXDArchive::TXDArchive(const char* filename)
+		: randomAccess(true), stream(new ifstream(filename, ifstream::in | ifstream::binary)),
+		  bytesRead(0), readIndex(0), currentTextureNativeSize(-1), currentTextureNativeStart(-1),
+		  deleteStream(true)
+{
+	if (stream->fail()) {
+		throw TXDException(TXDException::UnableToOpen, "Unable to open TXD file");
+	}
+
+	init();
+}
+
 
 TXDArchive::~TXDArchive()
 {
@@ -57,14 +62,59 @@ TXDArchive::~TXDArchive()
 	}*/
 
 	delete[] indexedTextures;
+
+	if (deleteStream) {
+		delete stream;
+	}
 }
+
+
+void TXDArchive::init()
+{
+	char skipBuf[2];
+
+	RwSectionHeader header;
+	readSectionHeaderWithID(stream, header, RW_SECTION_TEXTUREDICTIONARY);
+	readSectionHeaderWithID(stream, header, RW_SECTION_STRUCT);
+
+	stream->read((char*) &textureCount, 2);
+	stream->read(skipBuf, 2);
+
+	if (stream->fail()) {
+		throw TXDException(TXDException::SyntaxError, "Premature end of file");
+	}
+
+	if (textureCount < 0) {
+		throw TXDException(TXDException::SyntaxError, "Texture count is < 0");
+	}
+
+	bytesRead += 4;
+
+	textureNativeStarts = new long long[textureCount];
+	indexedTextures = new TXDTexture*[textureCount];
+
+	for (int16_t i = 0 ; i < textureCount ; i++) {
+		indexedTextures[i] = NULL;
+	}
+}
+
 
 TXDTexture* TXDArchive::nextTexture()
 {
 	if (currentTextureNativeStart != -1) {
-		char skipBuf[2048];
 		long long len = currentTextureNativeStart + currentTextureNativeSize + 12 - bytesRead;
-		SkipBytes(stream, len, skipBuf, sizeof(skipBuf));
+
+		if (randomAccess) {
+			stream->seekg(len, istream::cur);
+
+			if (stream->fail()) {
+				throw TXDException(TXDException::SyntaxError, "Could not reach texture");
+			}
+		} else {
+			char skipBuf[2048];
+			SkipBytes(stream, len, skipBuf, sizeof(skipBuf));
+		}
+
 		bytesRead += len;
 	}
 
@@ -76,8 +126,17 @@ TXDTexture* TXDArchive::nextTexture()
     RwReadSectionHeader(stream, texNative);
     bytesRead += sizeof(RwSectionHeader);
 
+    if (stream->fail()) {
+    	throw TXDException(TXDException::SyntaxError, "Premature end of file");
+    }
+
     stream->read(skipBuf, 12);
     bytesRead += 12;
+
+    if (stream->fail()) {
+		throw TXDException(TXDException::SyntaxError, "Premature end of file");
+	}
+
     TXDTexture* texture = new TXDTexture(stream, bytesRead);
 
     currentTextureNativeStart = texNativeStart;
@@ -110,6 +169,10 @@ void TXDArchive::readTextureData(uint8_t* dest, TXDTexture* texture)
 		stream->read((char*) dest, rasterSize);
 		bytesRead += rasterSize+4;
 	}
+
+	if (stream->fail()) {
+		throw TXDException(TXDException::SyntaxError, "Premature end of file");
+	}
 }
 
 uint8_t* TXDArchive::readTextureData(TXDTexture* texture)
@@ -133,6 +196,10 @@ void TXDArchive::gotoTexture(TXDTexture* texture)
 		if (indexedTextures[i] == texture) {
 			long long start = textureNativeStarts[i];
 			stream->seekg((start+112) - bytesRead, istream::cur);
+
+			if (stream->fail()) {
+				throw TXDException(TXDException::IOError, "Unable to go to indexed texture");
+			}
 
 			bytesRead = start+112;
 
@@ -172,6 +239,10 @@ void TXDArchive::visitAll(TXDVisitor* visitor)
 void TXDArchive::readSectionHeaderWithID(istream* stream, RwSectionHeader& header, uint32_t id)
 {
 	RwReadSectionHeader(stream, header);
+
+	if (stream->fail()) {
+		throw TXDException(TXDException::SyntaxError, "Premature end of file");
+	}
 
 	bytesRead += sizeof(RwSectionHeader);
 

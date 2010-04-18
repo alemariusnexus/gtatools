@@ -73,6 +73,7 @@ public:
 	DFFLoader();
 	virtual ~DFFLoader();
 	DFFMesh* loadMesh(istream* stream);
+	DFFMesh* loadMesh(const char* filename);
 	void setVerbose(bool verbose) { this->verbose = verbose; }
 	bool isVerbose() { return verbose; }
 

@@ -34,3 +34,13 @@ void DFFFrame::mirrorYZ()
 	translation[1] = translation[2];
 	translation[2] = y;
 }
+
+
+void DFFFrame::scale(float x, float y, float z)
+{
+	translation[0] *= x;
+	translation[1] *= y;
+	translation[2] *= z;
+}
+
+

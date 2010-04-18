@@ -50,6 +50,18 @@ void DFFMesh::mirrorYZ()
 }
 
 
+void DFFMesh::scale(float x, float y, float z)
+{
+	for (int32_t i = 0 ; i < geometryCount ; i++) {
+		geometries[i]->scale(x, y, z);
+	}
+
+	for (int32_t i = 0 ; i < frameCount ; i++) {
+		frames[i]->scale(x, y, z);
+	}
+}
+
+
 int32_t DFFMesh::indexOf(DFFFrame* frame)
 {
 	for (int32_t i = 0 ; i < frameCount ; i++) {

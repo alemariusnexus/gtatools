@@ -24,34 +24,31 @@
 #include <istream>
 #include <cstring>
 #include <cstdlib>
-#include "IDEEntity.h"
+#include <cstdio>
+#include "IDEStatement.h"
+#include "../GTASectionFileReader.h"
 
 using std::istream;
 
 
-class IDEReader
+class IDEReader : public GTASectionFileReader
 {
 private:
 	enum SectionType {
 		NONE,
-		OBJS
+		OBJS,
+		TOBJ,
+		ANIM
 	};
 
 public:
 	IDEReader(istream* stream, bool deleteStream = true);
 	IDEReader(const char* filename);
 	~IDEReader();
-	IDEEntity* readEntity();
+	IDEStatement* readStatement();
 
 private:
-	char* nextString(char* str = NULL) { return strtok(str, ","); }
-	int32_t nextInt(char* str = NULL) { return atoi(nextString(str)); }
-	float nextFloat(char* str = NULL) { return (float) atof(nextString(str)); }
-
-private:
-	istream* stream;
 	SectionType currentSection;
-	bool deleteStream;
 };
 
 #endif /* IDEREADER_H_ */

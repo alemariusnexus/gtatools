@@ -21,10 +21,17 @@
 #define IDEENTITY_H_
 
 #include "../gf_config.h"
+#include "IDEStatement.h"
 
 
-class IDEEntity
+class IDEEntity : public IDEStatement
 {
+public:
+	IDEEntity(int32_t id) : id(id) {}
+	int32_t getId() { return id; }
+
+private:
+	int32_t id;
 };
 
 #endif /* IDEENTITY_H_ */

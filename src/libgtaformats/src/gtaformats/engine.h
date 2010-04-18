@@ -8,9 +8,11 @@
 #ifndef ENGINE_H_
 #define ENGINE_H_
 
-#include "engine/DefaultTextureProvider.h"
-#include "engine/NullTextureProvider.h"
-#include "engine/DFFRenderer.h"
-#include "engine/TextureProvider.h"
+#include "engine/DefaultResourceManager.h"
+#include "engine/DFFOpenGLRenderer.h"
+#include "engine/EngineException.h"
+#include "engine/OpenGLResourceManager.h"
+#include "engine/ResourceIndex.h"
+
 
 #endif /* ENGINE_H_ */

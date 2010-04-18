@@ -25,6 +25,9 @@
 #include "DFFTexture.h"
 #include <cstdlib>
 #include <cstdio>
+#include <fstream>
+
+using std::ifstream;
 
 
 DFFLoader::DFFLoader()
@@ -414,10 +417,22 @@ int DFFLoader::parseMaterialSplit(istream* stream, RwSectionHeader& matsplitHead
 
 
 
+DFFMesh* DFFLoader::loadMesh(const char* filename)
+{
+	ifstream stream(filename, ifstream::in | ifstream::binary);
+	DFFMesh* mesh = loadMesh(&stream);
+	stream.close();
+	return mesh;
+}
+
 
 DFFMesh* DFFLoader::loadMesh(istream* stream) {
+	if (stream->fail()) {
+		throw DFFException(DFFException::IOError, "failbit was set in the given DFF stream");
+	}
+
 	istream::iostate exState = stream->exceptions();
-	stream->exceptions(istream::failbit | istream::badbit);
+	//stream->exceptions(istream::failbit | istream::badbit);
 
 	DFFMesh* mesh = new DFFMesh;
 	DFFLoadContext context;
