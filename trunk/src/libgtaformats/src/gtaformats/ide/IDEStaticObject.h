@@ -23,11 +23,16 @@
 #include "../gf_config.h"
 #include "IDEEntity.h"
 
+#define IDE_TYPE_STATIC_OBJECT 0
+
+
+
 class IDEStaticObject : public IDEEntity
 {
 public:
-	IDEStaticObject(int32_t id, char* modelName, char* textureName, int32_t numSubObjects,
+	IDEStaticObject(int32_t id, const char* modelName, const char* textureName, int32_t numSubObjects,
 			float* drawDistances, int32_t flags);
+	virtual ~IDEStaticObject();
 
 
     float *getDrawDistances() const
@@ -38,11 +43,6 @@ public:
     int32_t getFlags() const
     {
         return flags;
-    }
-
-    int32_t getId() const
-    {
-        return id;
     }
 
     char *getModelName() const
@@ -60,8 +60,9 @@ public:
         return textureName;
     }
 
+    virtual idetype_t getType() const { return IDE_TYPE_STATIC_OBJECT; }
+
 private:
-	int32_t id;
 	char* modelName;
 	char* textureName;
 	int32_t numSubObjects;

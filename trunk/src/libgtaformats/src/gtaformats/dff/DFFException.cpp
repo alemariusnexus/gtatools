@@ -17,21 +17,19 @@
 	along with gtaformats.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DFFXMLCONVERTER_H_
-#define DFFXMLCONVERTER_H_
-
-#include "DFFMesh.h"
-#include "../tinyxml/tinyxml.h"
-#include <iostream>
-
-using std::ostream;
+#include "DFFException.h"
+#include <cstring>
 
 
-class DFFXmlConverter
+DFFException::DFFException(ErrorCode code, const char* errmsg) throw()
+		: message(new char[strlen(errmsg)+1]), errCode(code)
 {
-public:
-	TiXmlDocument* convert(DFFMesh* mesh);
-	bool save(DFFMesh* mesh, const char* filename);
-};
+	strcpy(message, errmsg);
+}
 
-#endif /* DFFXMLCONVERTER_H_ */
+
+DFFException::~DFFException() throw()
+{
+	delete[] message;
+}
+

@@ -33,7 +33,9 @@ public:
 	enum ErrorCode {
 		SyntaxError,	//!< SyntaxError
 		Unsupported,	//!< Unsupported
-		PNGError
+		PNGError,		//!< PNGError
+		IOError,		//!< IOError
+		UnableToOpen	//!< UnableToOpen
 	};
 
 public:

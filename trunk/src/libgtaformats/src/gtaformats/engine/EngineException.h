@@ -17,24 +17,31 @@
 	along with gtaformats.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "IDEStaticObject.h"
-#include <cstring>
+#ifndef ENGINEEXCEPTION_H_
+#define ENGINEEXCEPTION_H_
+
+#include <exception>
+
+using std::exception;
 
 
-IDEStaticObject::IDEStaticObject(int32_t id, const char* modelName, const char* texName,
-			int32_t numSubObjects, float* drawDistances, int32_t flags)
-		: IDEEntity(id), modelName(new char[strlen(modelName)+1]),
-		  textureName(new char[strlen(texName)+1]), numSubObjects(numSubObjects),
-		  drawDistances(drawDistances), flags(flags)
-{
-	strcpy(this->modelName, modelName);
-	strcpy(this->textureName, texName);
-}
+class EngineException : public exception {
+public:
+	enum ErrorCode {
+		NoSuchTexture,
+		NoSuchMesh,
+		InvalidArgument
+	};
 
+public:
+	EngineException(ErrorCode code, const char* errmsg) throw();
+	virtual ~EngineException() throw();
+	virtual const char* what() const throw() { return errmsg; }
+	ErrorCode getErrorCode() { return errcode; }
 
-IDEStaticObject::~IDEStaticObject()
-{
-	delete[] modelName;
-	delete[] textureName;
-}
+private:
+	ErrorCode errcode;
+	char* errmsg;
+};
 
+#endif /* ENGINEEXCEPTION_H_ */

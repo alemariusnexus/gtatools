@@ -66,6 +66,7 @@ public:
 	//int32_t indexOf(DFFFrame* frame) const;
 
 	void mirrorYZ();
+	void scale(float x, float y, float z);
 
 private:
 	bool triangleStrips;

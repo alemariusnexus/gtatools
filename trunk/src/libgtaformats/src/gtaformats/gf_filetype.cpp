@@ -38,6 +38,8 @@ GFFileType GFGuessFileType(const string& filename)
 		return GF_TYPE_DIR;
 	} else if (ext.compare("dff") == 0) {
 		return GF_TYPE_DFF;
+	} else if (ext.compare("ide") == 0) {
+		return GF_TYPE_IDE;
 	}
 
 	return GF_TYPE_UNKNOWN;

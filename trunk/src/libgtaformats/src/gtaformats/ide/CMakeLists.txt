@@ -1,2 +1,7 @@
-SET(SRCS ${SRCS} gtaformats/ide/IDEEntity gtaformats/ide/IDEReader gtaformats/ide/IDEStaticObject PARENT_SCOPE)
+SET(FILES IDEAnimation IDEEntity IDEReader IDEStatement IDEStaticObject IDETimedObject)
 
+FOREACH(FILE ${FILES})
+    SET(SRCS ${SRCS} "gtaformats/ide/${FILE}")
+ENDFOREACH(FILE)
+
+SET(SRCS ${SRCS} PARENT_SCOPE)

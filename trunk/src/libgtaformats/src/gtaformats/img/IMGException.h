@@ -26,7 +26,7 @@
 
 /**	\brief Objects of this class are thrown by IMGArchive when an error occurs.
  */
-class IMGException : std::exception {
+class IMGException : public std::exception {
 public:
 	/**	\brief The type of error that happened
 	 */
@@ -34,7 +34,8 @@ public:
 		UnknownFileType,//!< UnknownFileType
 		UnableToOpen,   //!< UnableToOpen
 		MayNotSeek,     //!< MayNotSeek
-		SyntaxError     //!< SyntaxError
+		SyntaxError,    //!< SyntaxError
+		IOError			//!< IOError
 	};
 
 public:
@@ -53,7 +54,7 @@ public:
 	 *
 	 *	@return The error message.
 	 */
-	virtual const char* what() const throw() { return message; };
+	virtual const char* what() const throw() { return message; }
 
 	/**	\brief Returns the error code.
 	 *

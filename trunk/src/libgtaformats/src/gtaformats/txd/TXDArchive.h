@@ -62,7 +62,10 @@ public:
 	 *
 	 *	@param stream The stream.
 	 */
-	TXDArchive(istream* stream);
+	TXDArchive(istream* stream, bool randomAccess = true);
+
+
+	TXDArchive(const char* filename);
 
 	/**	\brief Deletes this TXDArchive.
 	 *
@@ -159,7 +162,10 @@ private:
 	 */
 	void readSectionHeaderWithID(istream* stream, RwSectionHeader& header, uint32_t id);
 
+	void init();
+
 private:
+	bool randomAccess;
 	istream* stream;
 	long long bytesRead;
 	TXDTexture** indexedTextures;
@@ -169,6 +175,7 @@ private:
 	TXDTexture* currentTexture;
 	int32_t currentTextureNativeSize;
 	long long currentTextureNativeStart;
+	bool deleteStream;
 };
 
 #endif /* TXDARCHIVE_H_ */

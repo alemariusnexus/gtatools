@@ -1,10 +1,17 @@
-SET(SRCS ${SRCS} gtaformats/gf_filetype gtaformats/gta)
+SET(FILES gf_filetype gta GTASectionFileReader)
+
+FOREACH(FILE ${FILES})
+    SET(SRCS ${SRCS} "gtaformats/${FILE}")
+ENDFOREACH(FILE)
 
 ADD_SUBDIRECTORY(dff)
 ADD_SUBDIRECTORY(gxt)
 ADD_SUBDIRECTORY(ide)
+ADD_SUBDIRECTORY(ipl)
 ADD_SUBDIRECTORY(img)
-ADD_SUBDIRECTORY(tinyxml)
 ADD_SUBDIRECTORY(txd)
+ADD_SUBDIRECTORY(engine)
+ADD_SUBDIRECTORY(internal)
+
 SET(SRCS ${SRCS} PARENT_SCOPE)
 

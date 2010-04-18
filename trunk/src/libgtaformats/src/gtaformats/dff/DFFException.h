@@ -23,11 +23,12 @@
 #include <exception>
 
 
-class DFFException : std::exception {
+class DFFException : public std::exception {
 public:
 	enum ErrorCode {
 		UnknownFileType,
-		SyntaxError
+		SyntaxError,
+		IOError
 	};
 
 public:

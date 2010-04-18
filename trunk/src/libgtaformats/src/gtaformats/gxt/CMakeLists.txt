@@ -1,2 +1,7 @@
-SET(SRCS ${SRCS} gtaformats/gxt/GXTArchive gtaformats/gxt/GXTPlainKeyTable gtaformats/gxt/GXTTable PARENT_SCOPE)
+SET(FILES "")
 
+FOREACH(FILE ${FILES})
+    SET(SRCS ${SRCS} "gtaformats/gxt/${FILE}")
+ENDFOREACH(FILE)
+
+SET(SRCS ${SRCS} PARENT_SCOPE)
