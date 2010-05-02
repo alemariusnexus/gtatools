@@ -10,10 +10,34 @@
 #include "../dff/DFFMesh.h"
 #include "../dff/DFFLoader.h"
 #include "EngineException.h"
+#include "../internal/util.h"
 #include <utility>
 #include <cstring>
 
 using std::pair;
+
+
+ResourceIndex::~ResourceIndex()
+{
+	TextureMap::iterator it;
+
+	for (it = textureIndex.begin() ; it != textureIndex.end() ; it++) {
+		delete[] it->first;
+		delete it->second;
+	}
+
+	textureIndex.clear();
+
+
+	MeshMap::iterator mit;
+
+	for (mit = meshIndex.begin() ; mit != meshIndex.end() ; mit++) {
+		delete[] mit->first;
+		delete[] mit->second;
+	}
+
+	meshIndex.clear();
+}
 
 
 void ResourceIndex::addResource(const char* filename)
@@ -55,30 +79,36 @@ void ResourceIndex::indexTXD(TXDArchive* txd, const char* filename, int32_t imgI
 		TXDTexture* tex = txd->nextTexture();
 		const char* name = tex->getDiffuseName();
 
+		char* lName = new char[strlen(name)+1];
+		strtolower(lName, name);
+
+		delete tex;
+
 		TextureEntry* entry = new TextureEntry;
 		entry->filename = filename;
 		entry->imgIndex = imgIndex;
 		entry->txdIndex = i;
 
-		textureIndex.insert(pair<const char*, TextureEntry*>(name, entry));
+		textureIndex.insert(pair<const char*, TextureEntry*>(lName, entry));
 	}
 }
 
 
 void ResourceIndex::indexDFF(const char* filename, const char* dffName, int32_t imgIndex)
 {
-	if (strlen(dffName) < 4) {
-		throw EngineException(EngineException::InvalidArgument, "Mesh file name does not end in .dff");
-	}
-
 	const char* fnameBegin = strrchr(dffName, '/');
 
 	if (fnameBegin == NULL) {
 		fnameBegin = dffName;
 	}
+	if (strlen(fnameBegin) <= 4) {
+		char errmsg[2048];
+		sprintf(errmsg, "Invalid mesh file name, must be *.dff: %s", fnameBegin);
+		throw EngineException(EngineException::InvalidArgument, errmsg);
+	}
 
 	char* meshName = new char[strlen(fnameBegin)+1];
-	strcpy(meshName, fnameBegin);
+	strtolower(meshName, fnameBegin);
 	meshName[strlen(meshName)-4] = '\0';
 
 	MeshEntry* entry = new MeshEntry;

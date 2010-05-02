@@ -150,6 +150,8 @@ public:
 	 */
 	int16_t getTextureCount() { return textureCount; }
 
+	void destroyTexture(TXDTexture* tex);
+
 private:
 	/**	\brief Reads an RW section header with a given ID.
 	 *

@@ -18,6 +18,7 @@
  */
 
 #include "DFFOpenGLRenderer.h"
+#include "../internal/util.h"
 #include <GL/gl.h>
 #include <GL/glu.h>
 
@@ -141,7 +142,12 @@ void DFFOpenGLRenderer::renderGeometryPart(DFFGeometry* geom, DFFGeometryPart* p
 				printf("WARNING: Texture not found: %s\n", tex->getDiffuseName());
 			}*/
 
-			applyTexture(tex->getDiffuseName());
+			char* lName = new char[strlen(tex->getDiffuseName())+1];
+			strtolower(lName, tex->getDiffuseName());
+
+			applyTexture(lName);
+
+			delete[] lName;
 
 			/*TXDTexture* txdTex;
 			uint8_t* rawData = NULL;

@@ -41,6 +41,7 @@ private:
 
 public:
 	DefaultResourceManager(bool cacheTextureData = true);
+	~DefaultResourceManager();
 	virtual bool getTextureHeader(const char* name, TXDTexture*& texture);
 	virtual bool getTexture(const char* name, TXDTexture*& texture, uint8_t*& rawData);
 	virtual bool getMesh(const char* name, DFFMesh*& mesh);
@@ -51,6 +52,8 @@ public:
 
 private:
 	void cacheTexture(TXDTexture* texture, uint8_t* data = NULL);
+	void uncacheTexture(TextureCacheMap::iterator it);
+	void uncacheMesh(MeshCacheMap::iterator it);
 
 private:
 	bool cacheTextureData;
