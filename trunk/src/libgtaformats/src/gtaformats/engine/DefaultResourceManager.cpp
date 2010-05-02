@@ -7,6 +7,7 @@
 
 #include "DefaultResourceManager.h"
 #include <utility>
+#include "../internal/util.h"
 
 using std::pair;
 
@@ -14,6 +15,23 @@ using std::pair;
 DefaultResourceManager::DefaultResourceManager(bool cacheTextureData)
 		: cacheTextureData(true)
 {
+}
+
+
+DefaultResourceManager::~DefaultResourceManager()
+{
+	TextureCacheMap::iterator tit;
+
+	for (tit = textureCache.begin() ; tit != textureCache.end() ; tit++) {
+		uncacheTexture(tit);
+	}
+
+
+	MeshCacheMap::iterator mit;
+
+	for (mit = meshCache.begin() ; mit != meshCache.end() ; mit++) {
+		uncacheMesh(mit);
+	}
 }
 
 
@@ -66,13 +84,33 @@ void DefaultResourceManager::cacheTexture(TXDTexture* texture, uint8_t* data)
 	entry->texture = texture;
 	entry->data = data;
 
-	textureCache.insert(pair<const char*, TextureCacheEntry*>(texture->getDiffuseName(), entry));
+	char* texName = new char[strlen(texture->getDiffuseName()) + 1];
+	strtolower(texName, texture->getDiffuseName());
+
+	textureCache.insert(pair<const char*, TextureCacheEntry*>(texName, entry));
+}
+
+
+void DefaultResourceManager::uncacheTexture(TextureCacheMap::iterator it)
+{
+	delete[] it->first;
+	delete it->second->texture;
+	delete it->second->data;
+	delete it->second;
+	textureCache.erase(it);
 }
 
 
 bool DefaultResourceManager::uncacheTexture(const char* name)
 {
-	return textureCache.erase(name) == 1;
+	TextureCacheMap::iterator it = textureCache.find(name);
+
+	if (it == textureCache.end()) {
+		return false;
+	}
+
+	uncacheTexture(it);
+	return true;
 }
 
 
@@ -103,8 +141,24 @@ void DefaultResourceManager::cacheMesh(const char* name)
 }
 
 
+void DefaultResourceManager::uncacheMesh(MeshCacheMap::iterator it)
+{
+	delete[] it->first;
+	delete it->second->mesh;
+	delete it->second;
+	meshCache.erase(it);
+}
+
+
 bool DefaultResourceManager::uncacheMesh(const char* name)
 {
-	return meshCache.erase(name) == 1;
+	MeshCacheMap::iterator it = meshCache.find(name);
+
+	if (it != meshCache.end()) {
+		uncacheMesh(it);
+		return true;
+	}
+
+	return false;
 }
 

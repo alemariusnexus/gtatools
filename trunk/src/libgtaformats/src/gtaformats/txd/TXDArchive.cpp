@@ -234,6 +234,19 @@ void TXDArchive::visitAll(TXDVisitor* visitor)
 }
 
 
+void TXDArchive::destroyTexture(TXDTexture* tex)
+{
+	for (int16_t i = 0 ; i < textureCount ; i++) {
+		if (indexedTextures[i] == tex) {
+			indexedTextures[i] = NULL;
+			break;
+		}
+	}
+
+	delete tex;
+}
+
+
 
 
 void TXDArchive::readSectionHeaderWithID(istream* stream, RwSectionHeader& header, uint32_t id)
@@ -252,7 +265,6 @@ void TXDArchive::readSectionHeaderWithID(istream* stream, RwSectionHeader& heade
 		RwGetSectionName(id, expected);
 		RwGetSectionName(header.id, found);
 		char errmsg[256];
-		printf("Throwing\n");
 		sprintf(errmsg, "Found section with type %s where %s was expected", found, expected);
 		throw TXDException(TXDException::SyntaxError, errmsg, bytesRead);
 	}

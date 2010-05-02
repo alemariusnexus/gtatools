@@ -1,4 +1,4 @@
-SET(FILES StringComparator)
+SET(FILES StringComparator util)
 
 FOREACH(FILE ${FILES})
     SET(SRCS ${SRCS} "gtaformats/internal/${FILE}")

@@ -24,6 +24,7 @@ public:
 
 public:
 	OpenGLResourceManager(bool cacheTextureData = true);
+	~OpenGLResourceManager();
 	void cacheTexture(const char* name);
 	bool uncacheTexture(const char* name);
 	bool bindTexture(const char* name);
@@ -35,6 +36,8 @@ public:
 
 private:
 	void cacheTexture(TXDTexture* texture, uint8_t* data);
+	void uncacheTexture(TextureCacheMap::iterator it);
+	void uncacheMesh(MeshCacheMap::iterator it);
 	GLuint generateTexture(TXDTexture* texture, uint8_t* data);
 
 private:

@@ -34,11 +34,6 @@ struct MeshEntry
 	int32_t imgIndex;
 };
 
-/*struct IDEEntry
-{
-	const char* filename;
-	int32_t imgIndex;
-};*/
 
 
 class ResourceIndex {
@@ -53,6 +48,7 @@ private:
 	typedef map<const char*, MeshEntry*, StringComparator> MeshMap;
 
 public:
+	~ResourceIndex();
 	void addResource(const char* filename);
 	virtual bool getTextureHeader(const char* name, TXDTexture*& texture);
 	virtual bool getTexture(const char* name, TXDTexture*& texture, uint8_t*& rawData);

@@ -10,6 +10,7 @@
 #include <utility>
 #include <iostream>
 #include <cstdlib>
+#include "../internal/util.h"
 
 using std::pair;
 using std::cerr;
@@ -19,6 +20,22 @@ using std::endl;
 OpenGLResourceManager::OpenGLResourceManager(bool cacheTextureData)
 		: cacheTextureData(cacheTextureData)
 {
+}
+
+
+OpenGLResourceManager::~OpenGLResourceManager()
+{
+	TextureCacheMap::iterator tit;
+
+	for (tit = textureCache.begin() ; tit != textureCache.end() ; tit++) {
+		uncacheTexture(tit);
+	}
+
+	MeshCacheMap::iterator mit;
+
+	for (mit = meshCache.begin() ; mit != meshCache.end() ; mit++) {
+		uncacheMesh(mit);
+	}
 }
 
 
@@ -61,8 +78,20 @@ GLuint OpenGLResourceManager::generateTexture(TXDTexture* texture, uint8_t* data
 
 void OpenGLResourceManager::cacheTexture(TXDTexture* texture, uint8_t* data)
 {
+	char* lName = new char[strlen(texture->getDiffuseName())+1];
+	strtolower(lName, texture->getDiffuseName());
+
 	GLuint texID = generateTexture(texture, data);
-	textureCache.insert(pair<const char*, GLuint>(texture->getDiffuseName(), texID));
+	textureCache.insert(pair<const char*, GLuint>(lName, texID));
+}
+
+
+void OpenGLResourceManager::uncacheTexture(TextureCacheMap::iterator it)
+{
+	delete[] it->first;
+	GLuint texID = it->second;
+	glDeleteTextures(1, &texID);
+	textureCache.erase(it);
 }
 
 
@@ -71,9 +100,7 @@ bool OpenGLResourceManager::uncacheTexture(const char* name)
 	TextureCacheMap::iterator it = textureCache.find(name);
 
 	if (it != textureCache.end()) {
-		GLuint texID = it->second;
-		glDeleteTextures(1, &texID);
-		textureCache.erase(it);
+		uncacheTexture(it);
 		return true;
 	}
 
@@ -129,8 +156,11 @@ void OpenGLResourceManager::cacheTexture(const char* name)
 
 void OpenGLResourceManager::beginCacheMesh(const char* name)
 {
+	char* lName = new char[strlen(name)+1];
+	strtolower(lName, name);
+
 	GLuint meshID = glGenLists(1);
-	meshCache.insert(pair<const char*, GLuint>(name, meshID));
+	meshCache.insert(pair<const char*, GLuint>(lName, meshID));
 	glNewList(meshID, GL_COMPILE);
 }
 
@@ -141,13 +171,21 @@ void OpenGLResourceManager::endCacheMesh()
 }
 
 
+void OpenGLResourceManager::uncacheMesh(MeshCacheMap::iterator it)
+{
+	delete it->first;
+	GLuint meshID = it->second;
+	glDeleteLists(meshID, 1);
+}
+
+
 void OpenGLResourceManager::uncacheMesh(const char* name)
 {
 	MeshCacheMap::iterator it = meshCache.find(name);
 
-	GLuint meshID = it->second;
-
-	glDeleteLists(meshID, 1);
+	if (it != meshCache.end()) {
+		uncacheMesh(it);
+	}
 }
 
 
