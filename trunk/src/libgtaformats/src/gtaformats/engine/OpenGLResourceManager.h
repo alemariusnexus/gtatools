@@ -8,6 +8,10 @@
 #ifndef OPENGLRESOURCEMANAGER_H_
 #define OPENGLRESOURCEMANAGER_H_
 
+#ifdef _WIN32
+	#include <windows.h>
+#endif
+
 #include "../gf_config.h"
 #include "../internal/StringComparator.h"
 #include "ResourceIndex.h"
