@@ -23,6 +23,7 @@
 #include <wx/wx.h>
 #include <string>
 #include <wx/clipbrd.h>
+#include <gtaformats/util/stream/InputStream.h>
 
 
 
@@ -58,7 +59,7 @@ TXDPanel::~TXDPanel()
 
 bool TXDPanel::doDisplay(DataSource* source)
 {
-	istream* stream = source->getStream();
+	InputStream* stream = source->getStream();
 
 	this->stream = stream;
 

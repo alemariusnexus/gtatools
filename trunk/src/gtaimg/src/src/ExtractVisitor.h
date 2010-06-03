@@ -34,7 +34,7 @@ public:
 	ExtractVisitor(int argc, char** argv);
 	virtual ~ExtractVisitor();
 	bool readHeader(IMGEntry* header, void*& udata);
-	void readEntry(IMGEntry* entry, istream* stream, void*& udata);
+	void readEntry(IMGEntry* entry, InputStream* stream, void*& udata);
 
 private:
 	int numPatterns;

@@ -7,7 +7,7 @@
 
 #include "DefaultResourceManager.h"
 #include <utility>
-#include "../internal/util.h"
+#include "../util/util.h"
 
 using std::pair;
 

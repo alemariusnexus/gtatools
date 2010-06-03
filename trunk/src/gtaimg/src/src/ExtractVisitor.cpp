@@ -138,7 +138,7 @@ bool ExtractVisitor::readHeader(IMGEntry* header, void*& udata) {
 	return false;
 }
 
-void ExtractVisitor::readEntry(IMGEntry* header, istream* stream, void*& udata) {
+void ExtractVisitor::readEntry(IMGEntry* header, InputStream* stream, void*& udata) {
 	MatchInfo* info = (MatchInfo*) udata;
 
 	const char* rawDestfile = destfiles[info->matchedPatternIndex];

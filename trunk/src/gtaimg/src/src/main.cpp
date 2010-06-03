@@ -23,13 +23,13 @@
 #include "ExtractVisitor.h"
 #include <gtaformats/img/IMGException.h>
 #include <gtaformats/img/IMGArchive.h>
+#include <gtaformats/util/stream/IOException.h>
+#include <gtaformats/util/File.h>
 #include <cstring>
 #include <map>
-#include <fstream>
 #include <iostream>
 #include <string>
 
-using std::ifstream;
 using std::cout;
 using std::cerr;
 using std::endl;
@@ -135,15 +135,6 @@ int main(int argc, char** argv) {
 		return 1;
 	}
 
-	/*ifstream stream(srcfile, ifstream::in | ifstream::binary);
-
-	if (stream.fail()) {
-		cerr << "Failed to load file " << srcfile << "!" << endl;
-		return 1;
-	}*/
-
-	//IMGArchive archive(&stream);
-
 	IMGArchive* archive = NULL;
 
 	try {
@@ -151,39 +142,24 @@ int main(int argc, char** argv) {
 			const char* dirFile = GetSwitch("f");
 			archive = new IMGArchive(dirFile, srcfile);
 		} else {
-			archive = new IMGArchive(srcfile);
+			//archive = new IMGArchive(srcfile);
+			archive = new IMGArchive("/home/alemariusnexus/gtasa/models/gta3.img");
 		}
 
 		archive->visitAll(visitor);
 
 		delete archive;
-	} catch (ifstream::failure ex) {
-		cerr << "I/O error: " << ex.what() << endl;
+	} catch (IOException ex) {
+		cerr << "I/O error: " << ex.getFullMessage() << endl;
 		if (archive) {
 			delete archive;
 		}
 	} catch (IMGException ex) {
-		cerr << "IMG error: " << ex.what() << endl;
+		cerr << "IMG error: " << ex.getFullMessage() << endl;
 		if (archive) {
 			delete archive;
 		}
 	}
-
-	//stream.close();
-
-
-	/*FILE* stream = fopen(srcfile, "rb");
-
-	if (!stream  ||  ferror(stream)) {
-		fprintf(stderr, "Error opening input file!\n");
-		exit(1);
-	}
-
-	ImgArchive* archive = ImgOpen(stream);
-	ImgExecuteCommand(archive, *imgCommand);
-	delete archive;
-	fclose(stream);
-	delete imgCommand;*/
 
 	delete visitor;
 

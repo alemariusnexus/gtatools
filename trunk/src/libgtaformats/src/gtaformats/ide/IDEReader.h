@@ -21,14 +21,11 @@
 #define IDEREADER_H_
 
 #include "../gf_config.h"
-#include <istream>
 #include <cstring>
 #include <cstdlib>
 #include <cstdio>
 #include "IDEStatement.h"
 #include "../GTASectionFileReader.h"
-
-using std::istream;
 
 
 class IDEReader : public GTASectionFileReader
@@ -42,7 +39,7 @@ private:
 	};
 
 public:
-	IDEReader(istream* stream, bool deleteStream = true);
+	IDEReader(InputStream* stream, bool deleteStream = true);
 	IDEReader(const char* filename);
 	~IDEReader();
 	IDEStatement* readStatement();

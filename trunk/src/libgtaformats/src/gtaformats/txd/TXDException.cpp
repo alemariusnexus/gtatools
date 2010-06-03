@@ -21,10 +21,9 @@
 #include <cstring>
 #include <cstdio>
 
-TXDException::TXDException(TXDException::ErrorCode errCode, const char* msg, long long offset) throw()
-		: errCode(errCode), offset(offset)
+TXDException::TXDException(const char* message, const char* srcFile, int srcLine) throw()
+		: Exception(message, srcFile, srcLine)
 {
-	message = new char[strlen(msg)+64];
-	sprintf(message, "%s (at offset %lld)", msg, offset);
-	//strncpy(message, msg, strlen(msg)+1);
 }
+
+

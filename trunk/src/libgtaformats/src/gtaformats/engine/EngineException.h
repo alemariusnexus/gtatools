@@ -20,28 +20,14 @@
 #ifndef ENGINEEXCEPTION_H_
 #define ENGINEEXCEPTION_H_
 
-#include <exception>
-
-using std::exception;
+#include "../util/Exception.h"
 
 
-class EngineException : public exception {
+class EngineException : public Exception {
 public:
-	enum ErrorCode {
-		NoSuchTexture,
-		NoSuchMesh,
-		InvalidArgument
-	};
-
-public:
-	EngineException(ErrorCode code, const char* errmsg) throw();
-	virtual ~EngineException() throw();
-	virtual const char* what() const throw() { return errmsg; }
-	ErrorCode getErrorCode() { return errcode; }
-
-private:
-	ErrorCode errcode;
-	char* errmsg;
+	EngineException(const char* msg, const char* srcFile = NULL, int srcLine = -1) throw()
+			: Exception(msg, srcFile, srcLine) {}
+	EngineException(const EngineException& ex) throw() : Exception(ex) {}
 };
 
 #endif /* ENGINEEXCEPTION_H_ */

@@ -23,7 +23,7 @@
 	#include <windows.h>
 #endif
 
-#include "../internal/util.h"
+#include "../util/util.h"
 #include <GL/gl.h>
 #include <GL/glu.h>
 
@@ -88,7 +88,46 @@ void DFFOpenGLRenderer::applyTexture(const char* name)
 void DFFOpenGLRenderer::applyFrameTransformation(DFFFrame* frame)
 {
 	const float* trans = frame->getTranslation();
-	glTranslatef(trans[0], trans[1], trans[2]);
+	//glTranslatef(trans[0], trans[1], trans[2]);
+
+	const float* rot = frame->getRotation();
+
+	/*float transMatrix[] = {
+			1,		1,		1,		trans[0],
+			1,		1,		1,		trans[2],
+			1,		1,		1,		trans[1],
+			1,		1,		1,		1
+	};*/
+
+	float transMatrix[] = {
+			rot[0], rot[3], rot[6], 0,
+			rot[1], rot[4], rot[7], 0,
+			rot[2], rot[5], rot[8], 0,
+			trans[0], trans[2], trans[1], 1
+	};
+
+	/*float transMatrix[] = {
+			rot[0], rot[2], rot[1], 0,
+			rot[3], rot[5], rot[4], 0,
+			rot[6], rot[8], rot[7], 0,
+			trans[0], trans[2], trans[1], 1
+	};*/
+
+	/*float transMatrix[] = {
+			1, 0, 0, 0,
+			0, 1, 0, 0,
+			0, 0, 1, 0,
+			trans[0], trans[2], trans[1], 1
+	};*/
+
+	/*float transMatrix[] = {
+			rot[0],	rot[2],	rot[1],	trans[0],
+			rot[3],	rot[5],	rot[4],	trans[2],
+			rot[6],	rot[8],	rot[7],	trans[1],
+			0,		0,		0,		1
+	};*/
+
+	glMultMatrixf(transMatrix);
 }
 
 

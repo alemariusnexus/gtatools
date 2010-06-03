@@ -9,7 +9,7 @@
 #define DEFAULTRESOURCEMANAGER_H_
 
 #include "../gf_config.h"
-#include "../internal/StringComparator.h"
+#include "../util/StringComparator.h"
 #include "ResourceIndex.h"
 #include "../txd/TXDArchive.h"
 #include "../txd/TXDTexture.h"

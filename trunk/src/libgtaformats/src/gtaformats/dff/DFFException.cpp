@@ -18,18 +18,4 @@
  */
 
 #include "DFFException.h"
-#include <cstring>
-
-
-DFFException::DFFException(ErrorCode code, const char* errmsg) throw()
-		: message(new char[strlen(errmsg)+1]), errCode(code)
-{
-	strcpy(message, errmsg);
-}
-
-
-DFFException::~DFFException() throw()
-{
-	delete[] message;
-}
 

@@ -10,7 +10,7 @@
 #include <utility>
 #include <iostream>
 #include <cstdlib>
-#include "../internal/util.h"
+#include "../util/util.h"
 
 using std::pair;
 using std::cerr;
@@ -140,13 +140,13 @@ void OpenGLResourceManager::cacheTexture(const char* name)
 		if (!ResourceIndex::getTexture(name, tex, data)) {
 			char errmsg[128];
 			sprintf(errmsg, "Texture %s not found", name);
-			throw EngineException(EngineException::NoSuchTexture, errmsg);
+			throw EngineException(errmsg, __FILE__, __LINE__);
 		}
 	} else {
 		if (!ResourceIndex::getTextureHeader(name ,tex)) {
 			char errmsg[128];
 			sprintf(errmsg, "Texture %s not found", name);
-			throw EngineException(EngineException::NoSuchTexture, errmsg);
+			throw EngineException(errmsg, __FILE__, __LINE__);
 		}
 	}
 
@@ -194,7 +194,7 @@ void OpenGLResourceManager::renderMesh(const char* name)
 	MeshCacheMap::iterator it = meshCache.find(name);
 
 	if (it == meshCache.end()) {
-		throw EngineException(EngineException::NoSuchMesh, "Mesh not found");
+		throw EngineException("Mesh not found", __FILE__, __LINE__);
 	}
 
 	GLuint meshID = it->second;

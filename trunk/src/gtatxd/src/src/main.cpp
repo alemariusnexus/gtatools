@@ -25,9 +25,10 @@
 #include "ListVisitor.h"
 #include "ExtractVisitor.h"
 #include <boost/regex.hpp>
-#include <iostream>
+#include <gtaformats/util/stream/InputStream.h>
+#include <gtaformats/util/stream/FileInputStream.h>
+#include <gtaformats/util/stream/STLInputStream.h>
 
-using std::ifstream;
 using std::istream;
 using std::cerr;
 using std::endl;
@@ -137,23 +138,28 @@ int main(int argc, char** argv) {
 		return 1;
 	}
 
-	istream* stream;
+	InputStream* stream;
+
+	bool randomAccess = true;
 
 	if (strcmp(srcfile, "-") == 0) {
-		stream = &std::cin;
+		stream = new STLInputStream(&std::cin, false, false);
+		randomAccess = false;
 	} else {
-		ifstream* fileStream = new ifstream(srcfile, ifstream::in | ifstream::binary);
+		/*ifstream* fileStream = new ifstream(srcfile, ifstream::in | ifstream::binary);
 
 		if (fileStream->fail()) {
 			cerr << "Error: Failed to open file!" << endl;
 			return 1;
 		}
 
-		stream = fileStream;
+		stream = fileStream;*/
+
+		stream = new FileInputStream(srcfile, STREAM_BINARY);
 	}
 
 	try {
-		archive = new TXDArchive(stream);
+		archive = new TXDArchive(stream, randomAccess);
 		archive->visitAll(visitor);
 		delete archive;
 	} catch (TXDException ex) {
@@ -161,11 +167,7 @@ int main(int argc, char** argv) {
 		return 1;
 	}
 
-	if (stream != &std::cin) {
-		dynamic_cast<ifstream*>(stream)->close();
-		delete stream;
-	}
-
+	delete stream;
 	delete visitor;
 
 	return 0;

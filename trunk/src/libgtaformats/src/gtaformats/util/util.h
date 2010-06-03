@@ -9,5 +9,6 @@
 #define UTIL_H_
 
 void strtolower(char* dest, const char* src);
+bool isDirectory(const char* path);
 
 #endif /* UTIL_H_ */

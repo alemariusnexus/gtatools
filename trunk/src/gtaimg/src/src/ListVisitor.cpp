@@ -70,4 +70,4 @@ bool ListVisitor::readHeader(IMGEntry* entry, void*& udata) {
 	return false;
 }
 
-void ListVisitor::readEntry(IMGEntry* entry, istream* stream, void*& udata) {}
+void ListVisitor::readEntry(IMGEntry* entry, InputStream* stream, void*& udata) {}

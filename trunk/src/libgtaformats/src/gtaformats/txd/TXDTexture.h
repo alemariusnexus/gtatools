@@ -21,9 +21,7 @@
 #define TXDTEXTURE_H_
 
 #include "../gf_config.h"
-#include <istream>
-
-using std::istream;
+#include "../util/stream/InputStream.h"
 
 #define TXD_FORMAT_A1R5G5B5 0x100
 #define TXD_FORMAT_R5G6B5 0x200
@@ -78,7 +76,7 @@ public:
 	 *	@param stream The stream to read from.
 	 *	@param bytesRead This will be increased by the number of bytes read by this constructor.
 	 */
-	TXDTexture(istream* stream, long long& bytesRead);
+	TXDTexture(InputStream* stream, long long& bytesRead);
 
 	/**	\brief Returns the RGBA masks of the raw data of this texture.
 	 *

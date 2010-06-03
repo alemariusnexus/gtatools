@@ -22,9 +22,8 @@
 
 #include "../gf_config.h"
 #include "IMGArchive.h"
-#include <istream>
+#include "../util/stream/InputStream.h"
 
-using std::istream;
 
 struct IMGEntry;
 
@@ -58,7 +57,7 @@ public:
 	 *	@param stream The stream you can read the data from. Don't read beyond the end of the entry!
 	 *	@param udata The user data set by readHeader(), if any. You are responsible for deleting it.
 	 */
-	virtual void readEntry(IMGEntry* entry, istream* stream, void*& udata) = 0;
+	virtual void readEntry(IMGEntry* entry, InputStream* stream, void*& udata) = 0;
 };
 
 #endif /* IMGVISITOR_H_ */

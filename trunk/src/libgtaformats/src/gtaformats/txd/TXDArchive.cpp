@@ -21,31 +21,29 @@
 #include "../gta.h"
 #include <cstring>
 #include <cstdio>
-#include <fstream>
-
-using std::ifstream;
+#include "../util/stream/FileInputStream.h"
 
 
-TXDArchive::TXDArchive(istream* stream, bool randomAccess)
+TXDArchive::TXDArchive(InputStream* stream, bool randomAccess)
 		: randomAccess(randomAccess), stream(stream), bytesRead(0), readIndex(0),
 		  currentTextureNativeSize(-1), currentTextureNativeStart(-1), deleteStream(false)
 {
-	if (stream->fail()) {
+	/*if (stream->fail()) {
 		throw TXDException(TXDException::IOError, "failbit was set in the given TXD stream");
-	}
+	}*/
 
 	init();
 }
 
 
 TXDArchive::TXDArchive(const char* filename)
-		: randomAccess(true), stream(new ifstream(filename, ifstream::in | ifstream::binary)),
+		: randomAccess(true), stream(new FileInputStream(filename, STREAM_BINARY)),
 		  bytesRead(0), readIndex(0), currentTextureNativeSize(-1), currentTextureNativeStart(-1),
 		  deleteStream(true)
 {
-	if (stream->fail()) {
+	/*if (stream->fail()) {
 		throw TXDException(TXDException::UnableToOpen, "Unable to open TXD file");
-	}
+	}*/
 
 	init();
 }
@@ -78,14 +76,14 @@ void TXDArchive::init()
 	readSectionHeaderWithID(stream, header, RW_SECTION_STRUCT);
 
 	stream->read((char*) &textureCount, 2);
-	stream->read(skipBuf, 2);
+	stream->skip(2);
 
-	if (stream->fail()) {
+	/*if (stream->fail()) {
 		throw TXDException(TXDException::SyntaxError, "Premature end of file");
-	}
+	}*/
 
 	if (textureCount < 0) {
-		throw TXDException(TXDException::SyntaxError, "Texture count is < 0");
+		throw TXDException("Texture count is < 0", __FILE__, __LINE__);
 	}
 
 	bytesRead += 4;
@@ -104,7 +102,7 @@ TXDTexture* TXDArchive::nextTexture()
 	if (currentTextureNativeStart != -1) {
 		long long len = currentTextureNativeStart + currentTextureNativeSize + 12 - bytesRead;
 
-		if (randomAccess) {
+		/*if (randomAccess) {
 			stream->seekg(len, istream::cur);
 
 			if (stream->fail()) {
@@ -113,7 +111,9 @@ TXDTexture* TXDArchive::nextTexture()
 		} else {
 			char skipBuf[2048];
 			SkipBytes(stream, len, skipBuf, sizeof(skipBuf));
-		}
+		}*/
+
+		stream->skip(len);
 
 		bytesRead += len;
 	}
@@ -126,16 +126,16 @@ TXDTexture* TXDArchive::nextTexture()
     RwReadSectionHeader(stream, texNative);
     bytesRead += sizeof(RwSectionHeader);
 
-    if (stream->fail()) {
+    /*if (stream->fail()) {
     	throw TXDException(TXDException::SyntaxError, "Premature end of file");
-    }
+    }*/
 
-    stream->read(skipBuf, 12);
+    stream->skip(12);
     bytesRead += 12;
 
-    if (stream->fail()) {
+    /*if (stream->fail()) {
 		throw TXDException(TXDException::SyntaxError, "Premature end of file");
-	}
+	}*/
 
     TXDTexture* texture = new TXDTexture(stream, bytesRead);
 
@@ -170,9 +170,9 @@ void TXDArchive::readTextureData(uint8_t* dest, TXDTexture* texture)
 		bytesRead += rasterSize+4;
 	}
 
-	if (stream->fail()) {
+	/*if (stream->fail()) {
 		throw TXDException(TXDException::SyntaxError, "Premature end of file");
-	}
+	}*/
 }
 
 uint8_t* TXDArchive::readTextureData(TXDTexture* texture)
@@ -195,11 +195,11 @@ void TXDArchive::gotoTexture(TXDTexture* texture)
 	for (int i = 0 ; i < textureCount ; i++) {
 		if (indexedTextures[i] == texture) {
 			long long start = textureNativeStarts[i];
-			stream->seekg((start+112) - bytesRead, istream::cur);
+			stream->seek((start+112) - bytesRead);
 
-			if (stream->fail()) {
+			/*if (stream->fail()) {
 				throw TXDException(TXDException::IOError, "Unable to go to indexed texture");
-			}
+			}*/
 
 			bytesRead = start+112;
 
@@ -249,13 +249,13 @@ void TXDArchive::destroyTexture(TXDTexture* tex)
 
 
 
-void TXDArchive::readSectionHeaderWithID(istream* stream, RwSectionHeader& header, uint32_t id)
+void TXDArchive::readSectionHeaderWithID(InputStream* stream, RwSectionHeader& header, uint32_t id)
 {
 	RwReadSectionHeader(stream, header);
 
-	if (stream->fail()) {
+	/*if (stream->fail()) {
 		throw TXDException(TXDException::SyntaxError, "Premature end of file");
-	}
+	}*/
 
 	bytesRead += sizeof(RwSectionHeader);
 
@@ -266,7 +266,7 @@ void TXDArchive::readSectionHeaderWithID(istream* stream, RwSectionHeader& heade
 		RwGetSectionName(header.id, found);
 		char errmsg[256];
 		sprintf(errmsg, "Found section with type %s where %s was expected", found, expected);
-		throw TXDException(TXDException::SyntaxError, errmsg, bytesRead);
+		throw TXDException(errmsg, __FILE__, __LINE__);
 	}
 }
 

@@ -7,17 +7,14 @@
 
 #include "IPLReader.h"
 #include <string>
-#include <fstream>
 #include <cstdlib>
 #include "IPLInstance.h"
 
 using std::string;
-using std::ifstream;
-using std::ofstream;
 
 
 
-IPLReader::IPLReader(istream* stream, bool deleteStream)
+IPLReader::IPLReader(InputStream* stream, bool deleteStream)
 		: GTASectionFileReader(stream, deleteStream), currentSection(NONE)
 {
 }

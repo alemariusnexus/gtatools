@@ -26,7 +26,7 @@ class ListVisitor: public IMGVisitor {
 public:
 	ListVisitor(int argc, char** argv);
 	bool readHeader(IMGEntry* header, void*& udata);
-	void readEntry(IMGEntry* entry, istream* stream, void*& udata);
+	void readEntry(IMGEntry* entry, InputStream* stream, void*& udata);
 };
 
 #endif /* LISTCOMMAND_H_ */

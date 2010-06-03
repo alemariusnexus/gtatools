@@ -24,10 +24,8 @@
 #include "../gta.h"
 #include "DFFMesh.h"
 #include "DFFException.h"
-#include <istream>
 #include <cstdio>
-
-using std::istream;
+#include "../util/stream/InputStream.h"
 
 
 #define GEOMETRY_FLAG_TRISTRIP (1<<0)
@@ -72,7 +70,7 @@ class DFFLoader {
 public:
 	DFFLoader();
 	virtual ~DFFLoader();
-	DFFMesh* loadMesh(istream* stream);
+	DFFMesh* loadMesh(InputStream* stream);
 	DFFMesh* loadMesh(const char* filename);
 	void setVerbose(bool verbose) { this->verbose = verbose; }
 	bool isVerbose() { return verbose; }
@@ -84,23 +82,19 @@ protected:
 
 
 private:
-	int parseSection(istream* stream, RwSectionHeader* parent, DFFLoadContext* context);
-	int parseStruct(istream* stream, RwSectionHeader& structHeader, RwSectionHeader* parent,
+	int parseSection(InputStream* stream, RwSectionHeader* parent, DFFLoadContext* context);
+	int parseStruct(InputStream* stream, RwSectionHeader& structHeader, RwSectionHeader* parent,
 			DFFLoadContext* context);
-	int parseString(istream* stream, RwSectionHeader& stringHeader, RwSectionHeader* parent,
+	int parseString(InputStream* stream, RwSectionHeader& stringHeader, RwSectionHeader* parent,
 			DFFLoadContext* context);
-	int parseFrame(istream* stream, RwSectionHeader& frameHeader, RwSectionHeader* parent,
+	int parseFrame(InputStream* stream, RwSectionHeader& frameHeader, RwSectionHeader* parent,
 			DFFLoadContext* context);
-	int parseMaterialSplit(istream* stream, RwSectionHeader& matsplitHeader, RwSectionHeader* parent,
+	int parseMaterialSplit(InputStream* stream, RwSectionHeader& matsplitHeader, RwSectionHeader* parent,
 			DFFLoadContext* context);
-
-	void parseGeometry(istream* stream, DFFMesh* mesh);
-	void parseMaterial(istream* stream, DFFMesh* mesh);
-	void parseFrameList(istream* stream, DFFMesh* mesh, RwSectionHeader& frameListHeader);
 
 	void printHeaderInfo(DFFGeometryStructHeader& header, DFFLoadContext* context);
 
-	inline int readSectionHeaderWithID(istream* stream, RwSectionHeader& header, uint32_t id)
+	inline int readSectionHeaderWithID(InputStream* stream, RwSectionHeader& header, uint32_t id)
 	{
 		RwReadSectionHeader(stream, header);
 
@@ -111,18 +105,18 @@ private:
 			RwGetSectionName(header.id, found);
 			char errmsg[256];
 			sprintf(errmsg, "Error: Found section with type %s where %s was expected!\n", found, expected);
-			throw DFFException(DFFException::SyntaxError, errmsg);
+			throw DFFException(errmsg, __FILE__, __LINE__);
 		}
 
 		return sizeof(header);
 	}
-	inline int skipSectionHeaderWithID(istream* stream, uint32_t id)
+	inline int skipSectionHeaderWithID(InputStream* stream, uint32_t id)
 	{
 		RwSectionHeader header;
 		readSectionHeaderWithID(stream, header, id);
 		return sizeof(header);
 	}
-	inline int skipSectionWithID(istream* stream, uint32_t id)
+	inline int skipSectionWithID(InputStream* stream, uint32_t id)
 	{
 		RwSectionHeader header;
 		readSectionHeaderWithID(stream, header, id);
