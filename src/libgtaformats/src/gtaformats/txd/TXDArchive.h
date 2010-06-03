@@ -26,11 +26,11 @@
 #include "TXDException.h"
 #include "TXDTexture.h"
 #include "TXDVisitor.h"
-#include <istream>
 #include <string>
 #include <algorithm>
 #include <cctype>
 #include <cstdio>
+#include "../util/stream/InputStream.h"
 
 using std::istream;
 using std::string;
@@ -62,7 +62,7 @@ public:
 	 *
 	 *	@param stream The stream.
 	 */
-	TXDArchive(istream* stream, bool randomAccess = true);
+	TXDArchive(InputStream* stream, bool randomAccess = true);
 
 
 	TXDArchive(const char* filename);
@@ -162,13 +162,13 @@ private:
 	 *	@param header Where to header should be read to.
 	 *	@param id The ID which is assumed to be the one of the header.
 	 */
-	void readSectionHeaderWithID(istream* stream, RwSectionHeader& header, uint32_t id);
+	void readSectionHeaderWithID(InputStream* stream, RwSectionHeader& header, uint32_t id);
 
 	void init();
 
 private:
 	bool randomAccess;
-	istream* stream;
+	InputStream* stream;
 	long long bytesRead;
 	TXDTexture** indexedTextures;
 	long long* textureNativeStarts;

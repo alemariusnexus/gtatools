@@ -20,23 +20,14 @@
 #ifndef TXDEXCEPTION_H_
 #define TXDEXCEPTION_H_
 
-#include <exception>
 #include "../gf_config.h"
+#include "../util/Exception.h"
 
 
 /**	\brief This exception can be thrown by TXDArchive.
  */
-class TXDException : public std::exception {
+class TXDException : public Exception {
 public:
-	/**	\brief The type of error.
-	 */
-	enum ErrorCode {
-		SyntaxError,	//!< SyntaxError
-		Unsupported,	//!< Unsupported
-		PNGError,		//!< PNGError
-		IOError,		//!< IOError
-		UnableToOpen	//!< UnableToOpen
-	};
 
 public:
 	/**	\brief Creates a new exception.
@@ -45,24 +36,8 @@ public:
 	 *	@param msg The error message.
 	 *	@param offset The offset at which the error happened (optional).
 	 */
-	TXDException(ErrorCode errCode, const char* msg, long long offset = -1) throw();
-
-	/**	\brief Returns the error message.
-	 *
-	 *	@return The error message.
-	 */
-	virtual const char* what() const throw() { return message; }
-
-	/**	\brief Returns the error code.
-	 *
-	 *	@return The error code.
-	 */
-	ErrorCode getErrorCode() const throw() { return errCode; }
-
-private:
-	ErrorCode errCode;
-	long long offset;
-	char* message;
+	TXDException(const char* message, const char* srcFile = NULL, int srcLine = -1) throw();
+	TXDException(const TXDException& ex) : Exception(ex) {}
 };
 
 

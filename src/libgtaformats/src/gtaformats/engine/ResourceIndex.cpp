@@ -10,7 +10,7 @@
 #include "../dff/DFFMesh.h"
 #include "../dff/DFFLoader.h"
 #include "EngineException.h"
-#include "../internal/util.h"
+#include "../util/util.h"
 #include <utility>
 #include <cstring>
 
@@ -42,33 +42,37 @@ ResourceIndex::~ResourceIndex()
 
 void ResourceIndex::addResource(const char* filename)
 {
-	GFFileType type = GFGuessFileType(filename);
+	if (isDirectory(filename)) {
 
-	if (type == GF_TYPE_TXD) {
-		TXDArchive txd(filename);
-		indexTXD(&txd, filename);
-	} else if (type == GF_TYPE_IMG  ||  type == GF_TYPE_DIR) {
-		IMGArchive img(filename);
-		IMGEntry** entries = img.getEntries();
-
-		for (int32_t i = 0 ; i < img.getEntryCount() ; i++) {
-			IMGEntry* entry = entries[i];
-			GFFileType entryType = GFGuessFileType(entry->name);
-
-			if (entryType == GF_TYPE_TXD) {
-				istream* stream = img.gotoEntry(entry);
-				TXDArchive txd(stream);
-				indexTXD(&txd, filename, i);
-			} else if (entryType == GF_TYPE_DFF) {
-				indexDFF(filename, entry->name, i);
-			}
-		}
-	} else if (type == GF_TYPE_DFF) {
-		indexDFF(filename, filename);
 	} else {
-		char errmsg[2048];
-		sprintf(errmsg, "Unknown resource type for file %s", filename);
-		throw EngineException(EngineException::InvalidArgument, errmsg);
+		GFFileType type = GFGuessFileType(filename);
+
+		if (type == GF_TYPE_TXD) {
+			TXDArchive txd(filename);
+			indexTXD(&txd, filename);
+		} else if (type == GF_TYPE_IMG  ||  type == GF_TYPE_DIR) {
+			IMGArchive img(filename);
+			IMGEntry** entries = img.getEntries();
+
+			for (int32_t i = 0 ; i < img.getEntryCount() ; i++) {
+				IMGEntry* entry = entries[i];
+				GFFileType entryType = GFGuessFileType(entry->name);
+
+				if (entryType == GF_TYPE_TXD) {
+					InputStream* stream = img.gotoEntry(entry);
+					TXDArchive txd(stream);
+					indexTXD(&txd, filename, i);
+				} else if (entryType == GF_TYPE_DFF) {
+					indexDFF(filename, entry->name, i);
+				}
+			}
+		} else if (type == GF_TYPE_DFF) {
+			indexDFF(filename, filename);
+		} else {
+			char errmsg[2048];
+			sprintf(errmsg, "Unknown resource type for file %s", filename);
+			throw EngineException(errmsg, __FILE__, __LINE__);
+		}
 	}
 }
 
@@ -104,7 +108,7 @@ void ResourceIndex::indexDFF(const char* filename, const char* dffName, int32_t 
 	if (strlen(fnameBegin) <= 4) {
 		char errmsg[2048];
 		sprintf(errmsg, "Invalid mesh file name, must be *.dff: %s", fnameBegin);
-		throw EngineException(EngineException::InvalidArgument, errmsg);
+		throw EngineException(errmsg, __FILE__, __LINE__);
 	}
 
 	char* meshName = new char[strlen(fnameBegin)+1];
@@ -139,7 +143,7 @@ bool ResourceIndex::gotoTexture(	const char* name, TXDArchive*& txd, TXDTexture*
 	} else {
 		img = new IMGArchive(texEntry->filename);
 		IMGEntry* entry = img->getEntries()[texEntry->imgIndex];
-		istream* stream = img->gotoEntry(entry);
+		InputStream* stream = img->gotoEntry(entry);
 
 		txd = new TXDArchive(stream);
 
@@ -221,7 +225,7 @@ bool ResourceIndex::getMesh(const char* name, DFFMesh*& mesh)
 	} else {
 		IMGArchive img(meshEntry->filename);
 		IMGEntry* entry = img.getEntries()[meshEntry->imgIndex];
-		istream* stream = img.gotoEntry(entry);
+		InputStream* stream = img.gotoEntry(entry);
 		mesh = dff.loadMesh(stream);
 	}
 

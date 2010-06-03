@@ -6,20 +6,18 @@
  */
 
 #include "GTASectionFileReader.h"
-#include <fstream>
-
-using std::ifstream;
+#include "util/stream/FileInputStream.h"
 
 
 
-GTASectionFileReader::GTASectionFileReader(istream* stream, bool deleteStream)
+GTASectionFileReader::GTASectionFileReader(InputStream* stream, bool deleteStream)
 		: stream(stream), deleteStream(deleteStream)
 {
 }
 
 
 GTASectionFileReader::GTASectionFileReader(const char* filename)
-		: stream(new ifstream(filename)), deleteStream(true)
+		: stream(new FileInputStream(filename)), deleteStream(true)
 {
 }
 
@@ -35,9 +33,10 @@ GTASectionFileReader::~GTASectionFileReader()
 bool GTASectionFileReader::readNextLine(char* buf, int len)
 {
 	while (true) {
-		stream->getline(buf, len);
+		//stream->getline(buf, len);
+		stream->readLine(buf, len);
 
-		if (stream->eof()) {
+		if (stream->hasReachedEnd()) {
 			return false;
 		}
 

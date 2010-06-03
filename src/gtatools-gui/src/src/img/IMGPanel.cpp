@@ -20,7 +20,6 @@
 #include "IMGPanel.h"
 #include <gtaformats/img/IMGException.h>
 #include <cstdio>
-#include <fstream>
 #include "../guiconfig.h"
 #include <wx/msgdlg.h>
 #include <string>
@@ -30,9 +29,9 @@
 #include <iostream>
 #include <wx/filedlg.h>
 #include "../MainFrame.h"
+#include <gtaformats/util/stream/InputStream.h>
 
 using std::string;
-using std::istream;
 using std::ofstream;
 using std::cout;
 using std::endl;
@@ -65,15 +64,15 @@ IMGPanel::~IMGPanel()
 
 bool IMGPanel::doDisplay(DataSource* source)
 {
-	istream* stream = source->getStream();
+	InputStream* stream = source->getStream();
 
 	IMGArchive::IMGVersion version = IMGArchive::guessIMGVersion(stream);
 
 	if (version == IMGArchive::VER1) {
 		FileDataSource* fileSource = (FileDataSource*) source;
 		const wxString& fname = fileSource->getFilename();
-		istream* dirStream = NULL;
-		istream* imgStream = NULL;
+		InputStream* dirStream = NULL;
+		InputStream* imgStream = NULL;
 		wxString prefix = fname.substr(0, fname.find_last_of('.'));
 
 		wxString imgFile;
@@ -83,12 +82,12 @@ bool IMGPanel::doDisplay(DataSource* source)
 			dirStream = stream;
 			imgFile = prefix.Append(wxT(".img"));
 			dirFile = fname;
-			imgStream = new ifstream(imgFile.mb_str(), ifstream::in | ifstream::binary);
+			imgStream = new FileInputStream(imgFile.mb_str(), STREAM_BINARY);
 		} else if (IMGArchive::isValidIMGFilename(string(fname.mb_str()))) {
 			imgStream = stream;
 			imgFile = fname;
 			dirFile = prefix.Append(wxT(".dir"));
-			dirStream = new ifstream(dirFile.mb_str(), ifstream::in | ifstream::binary);
+			dirStream = new FileInputStream(dirFile.mb_str(), STREAM_BINARY);
 		}
 
 		cout << "Opening VER1 IMG file " << imgFile.mb_str() << " (" << dirFile.mb_str() << ")..." << endl;
@@ -166,7 +165,7 @@ void IMGPanel::onSelectionChanged(wxCommandEvent& evt)
 
 		sizeLabel->SetLabel(wxString::Format(wxT("%d"), entry->size*IMG_BLOCK_SIZE));
 
-		istream* stream = archive->gotoEntry(entry);
+		InputStream* stream = archive->gotoEntry(entry);
 		DataSource* source = new DataSource(stream, wxString(entry->name, wxConvUTF8), false);
 		FormatProvider* provider = DisplayManager::getInstance()
 				->getFormatProvider(wxString(entry->name, wxConvUTF8));
@@ -208,7 +207,7 @@ void IMGPanel::onExtract(wxCommandEvent& evt)
 
 			ofstream out(path.mb_str(), ofstream::out | ofstream::binary);
 
-			istream* in = archive->gotoEntry(entry);
+			InputStream* in = archive->gotoEntry(entry);
 
 			char buffer[IMG_BLOCK_SIZE];
 
@@ -234,7 +233,7 @@ void IMGPanel::onExtract(wxCommandEvent& evt)
 
 				ofstream out(fpath.mb_str(), ofstream::out | ofstream::binary);
 
-				istream* in = archive->gotoEntry(entry);
+				InputStream* in = archive->gotoEntry(entry);
 
 				char buffer[IMG_BLOCK_SIZE];
 

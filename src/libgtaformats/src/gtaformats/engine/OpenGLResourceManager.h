@@ -13,7 +13,7 @@
 #endif
 
 #include "../gf_config.h"
-#include "../internal/StringComparator.h"
+#include "../util/StringComparator.h"
 #include "ResourceIndex.h"
 #include "../txd/TXDTexture.h"
 #include <GL/gl.h>

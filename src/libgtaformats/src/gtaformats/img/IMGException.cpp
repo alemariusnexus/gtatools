@@ -18,17 +18,3 @@
  */
 
 #include "IMGException.h"
-#include <cstring>
-
-IMGException::IMGException(IMGException::ErrorCode errCode, const char* msg) throw()
-		: errCode(errCode)
-{
-	message = new char[strlen(msg)+1];
-	strncpy(message, msg, strlen(msg)+1);
-}
-
-
-IMGException::~IMGException() throw()
-{
-	delete[] message;
-}

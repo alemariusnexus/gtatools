@@ -18,19 +18,4 @@
  */
 
 #include "EngineException.h"
-#include <cstring>
-
-
-EngineException::EngineException(ErrorCode code, const char* errmsg) throw()
-		: errmsg(new char[strlen(errmsg)+1]), errcode(code)
-{
-	strcpy(this->errmsg, errmsg);
-}
-
-
-EngineException::~EngineException() throw()
-{
-	// TODO
-	//delete[] errmsg;
-}
 

@@ -20,10 +20,9 @@
 #ifndef DATASOURCE_H_
 #define DATASOURCE_H_
 
-#include <istream>
 #include <wx/wx.h>
+#include <gtaformats/util/stream/InputStream.h>
 
-using std::istream;
 
 
 /**	\brief Represents a source from which data can be read.
@@ -44,7 +43,7 @@ public:
 	 *	@param name A name that can be used to describe this DataSource to the user.
 	 *	@param deleteStream Whether to automatically delete the associated stream on destruction.
 	 */
-	DataSource(istream* stream, const wxString& name = wxT("(Unknown)"), bool deleteStream = true);
+	DataSource(InputStream* stream, const wxString& name = wxT("(Unknown)"), bool deleteStream = true);
 
 	/**	\brief Deletes this DataSource.
 	 *
@@ -56,7 +55,7 @@ public:
 	 *
 	 *	@return The associated stream.
 	 */
-	istream* getStream() const { return stream; }
+	InputStream* getStream() const { return stream; }
 
 	/**	\brief Sets the associated stream.
 	 *
@@ -64,7 +63,7 @@ public:
 	 *
 	 *	@param stream The new stream.
 	 */
-	void setStream(istream* stream) { this->stream = stream; }
+	void setStream(InputStream* stream) { this->stream = stream; }
 
 	/**	\brief Returns the name of this DataSource that can be used as a description to the user.
 	 *
@@ -86,7 +85,7 @@ protected:
 	DataSource(const wxString& filename);
 
 private:
-	istream* stream;
+	InputStream* stream;
 	wxString name;
 	bool deleteStream;
 };

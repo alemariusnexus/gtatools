@@ -22,15 +22,12 @@
 
 #include "../gf_config.h"
 #include "IMGVisitor.h"
-#include <istream>
 #include <string>
 #include <algorithm>
 #include <cctype>
 #include <cstdio>
-#include <fstream>
-
-using std::istream;
-using std::ifstream;
+#include "../util/stream/InputStream.h"
+#include "../util/stream/FileInputStream.h"
 
 
 /**	\brief The size of a block in IMG files in bytes.
@@ -118,7 +115,7 @@ public:
 	 *	@param returnToStart When true, the stream will be put back to the position where it was before.
 	 *	@return The guessed version.
 	 */
-	static IMGVersion guessIMGVersion(istream* stream, bool returnToStart = true);
+	static IMGVersion guessIMGVersion(InputStream* stream, bool returnToStart = true);
 
 public:
 	/**	\brief Creates an archive from a file.
@@ -143,7 +140,7 @@ public:
 	 *		be fine for most streams. However, for unbuffered streams where seeking is impossible, this
 	 *		is not possible and you can not jump to entries before the current position. Use false then.
 	 */
-	IMGArchive(istream* stream, bool randomAccess = true);
+	IMGArchive(InputStream* stream, bool randomAccess = true);
 
 	/**	\brief Creates an archive from two VER1 streams.
 	 *
@@ -155,7 +152,7 @@ public:
 	 *	@param imgStream The stream from which to read the IMG data.
 	 *	@param randomAccess Whether to enable random access in imgStream. dirStream doesn't need this.
 	 */
-	IMGArchive(istream* dirStream, istream* imgStream, bool randomAccess = true);
+	IMGArchive(InputStream* dirStream, InputStream* imgStream, bool randomAccess = true);
 
 	/**	\brief Creates an archive from a VER1 DIR and IMG file.
 	 *
@@ -181,7 +178,7 @@ public:
 	 *	@param entry The entry to jump to.
 	 *	@return The IMG stream.
 	 */
-	istream* gotoEntry(IMGEntry* entry);
+	InputStream* gotoEntry(IMGEntry* entry);
 
 	/**	\brief Goes to the first entry with the given name.
 	 *
@@ -189,7 +186,7 @@ public:
 	 *	@return The IMG stream.
 	 *	\see gotoEntry(IMGEntry*)
 	 */
-	istream* gotoEntry(const char* name);
+	InputStream* gotoEntry(const char* name);
 
 	/**	\brief Visits the IMGEntry with the given visitor.
 	 *
@@ -233,7 +230,7 @@ public:
 	 *
 	 *	@return The IMG stream.
 	 */
-	istream* getStream() {
+	InputStream* getStream() {
 		return stream;
 	}
 
@@ -263,7 +260,7 @@ private:
 	 *	@param filename The file to open a stream for.
 	 *	@return A stream with exception flags assigned.
 	 */
-	ifstream* openStream(const char* filename);
+	InputStream* openStream(const char* filename);
 
 	/**	\brief Reads the IMG/DIR header out of the given stream.
 	 *
@@ -271,10 +268,10 @@ private:
 	 *
 	 *	@param stream The stream to read from (the DIR stream for VER1).
 	 */
-	void readHeader(istream* stream);
+	void readHeader(InputStream* stream);
 
 private:
-	istream* stream;
+	InputStream* stream;
 	IMGEntry** entries;
 	int32_t numEntries;
 	IMGVersion version;

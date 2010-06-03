@@ -26,6 +26,7 @@
 #include <istream>
 #include "../guiconfig.h"
 #include "../FileDisplayer.h"
+#include <gtaformats/util/stream/InputStream.h>
 
 using std::ifstream;
 using std::istream;
@@ -60,7 +61,7 @@ private:
 private:
 	//wxMenu* menu;
 	TXDArchive* archive;
-	istream* stream;
+	InputStream* stream;
 };
 
 #endif // __TXDPanel__

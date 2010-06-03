@@ -18,23 +18,20 @@
  */
 
 #include "DataSource.h"
-#include <fstream>
 #include <wx/filename.h>
+#include <gtaformats/util/stream/FileInputStream.h>
 
-using std::ifstream;
 
-
-DataSource::DataSource(istream* stream, const wxString& name, bool deleteStream)
+DataSource::DataSource(InputStream* stream, const wxString& name, bool deleteStream)
 		: stream(stream), name(name), deleteStream(deleteStream)
 {
 }
 
 
 DataSource::DataSource(const wxString& filename)
-		: stream(new ifstream(filename.mb_str(), ifstream::in | ifstream::binary)),
+		: stream(new FileInputStream(filename.mb_str(), STREAM_BINARY)),
 		  name(wxFileName(filename).GetFullName()), deleteStream(true)
 {
-	stream->exceptions(ifstream::failbit | ifstream::badbit | ifstream::eofbit);
 }
 
 

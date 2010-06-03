@@ -20,26 +20,14 @@
 #ifndef DFFEXCEPTION_H_
 #define DFFEXCEPTION_H_
 
-#include <exception>
+#include "../util/Exception.h"
 
 
-class DFFException : public std::exception {
+class DFFException : public Exception {
 public:
-	enum ErrorCode {
-		UnknownFileType,
-		SyntaxError,
-		IOError
-	};
-
-public:
-	DFFException(ErrorCode code, const char* message) throw();
-	virtual ~DFFException() throw();
-	virtual const char* what() const throw() { return message; };
-	ErrorCode getErrorCode() const throw() { return errCode; }
-
-private:
-	char* message;
-	ErrorCode errCode;
+	DFFException(const char* msg, const char* srcFile = NULL, int srcLine = -1) throw()
+			: Exception(msg, srcFile, srcLine) {}
+	DFFException(const DFFException& ex) throw() : Exception(ex) {}
 };
 
 #endif /* DFFEXCEPTION_H_ */

@@ -22,16 +22,14 @@
 #include "IDETimedObject.h"
 #include "IDEAnimation.h"
 #include <string>
-#include <fstream>
 #include <cstdlib>
+#include "../util/stream/FileInputStream.h"
 
 using std::string;
-using std::ifstream;
-using std::ofstream;
 
 
 
-IDEReader::IDEReader(istream* stream, bool deleteStream)
+IDEReader::IDEReader(InputStream* stream, bool deleteStream)
 		: GTASectionFileReader(stream, deleteStream), currentSection(NONE)
 {
 }

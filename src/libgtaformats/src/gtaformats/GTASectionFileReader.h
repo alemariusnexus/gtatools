@@ -9,17 +9,15 @@
 #define GTASECTIONFILEREADER_H_
 
 #include "gf_config.h"
-#include <istream>
 #include <cstring>
 #include <cstdlib>
-
-using std::istream;
+#include "util/stream/InputStream.h"
 
 
 
 class GTASectionFileReader {
 protected:
-	GTASectionFileReader(istream* stream, bool deleteStream = true);
+	GTASectionFileReader(InputStream* stream, bool deleteStream = true);
 	GTASectionFileReader(const char* filename);
 	virtual ~GTASectionFileReader();
 
@@ -31,7 +29,7 @@ protected:
 	char* trim(char* str);
 
 private:
-	istream* stream;
+	InputStream* stream;
 	bool deleteStream;
 };
 

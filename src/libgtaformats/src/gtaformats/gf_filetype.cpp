@@ -21,6 +21,7 @@
 #include <cstring>
 #include <algorithm>
 #include <istream>
+#include <cstdio>
 
 using std::istream;
 

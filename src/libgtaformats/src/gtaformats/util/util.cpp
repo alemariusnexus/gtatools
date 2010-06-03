@@ -7,6 +7,12 @@
 
 #include <cctype>
 
+#ifdef linux
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <dirent.h>
+#endif
+
 
 void strtolower(char* dest, const char* src)
 {
@@ -17,3 +23,18 @@ void strtolower(char* dest, const char* src)
 
 	dest[i] = '\0';
 }
+
+
+bool isDirectory(const char* path)
+{
+	struct stat data;
+	stat(path, &data);
+
+	if (S_ISDIR(data.st_mode)) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+

@@ -21,10 +21,8 @@
 #define	_GTA_H
 
 #include "gf_config.h"
-#include <istream>
+#include "util/stream/InputStream.h"
 
-
-using std::istream;
 
 
 
@@ -77,14 +75,15 @@ struct RwSectionHeader {
 
 //#define RwReadSectionHeader(s,h) (s)->read(&(h), sizeof(RwSectionHeader))
 
-inline int RwReadSectionHeader(istream* stream, RwSectionHeader& header) {
+inline int RwReadSectionHeader(InputStream* stream, RwSectionHeader& header) {
 	stream->read((char*) &header, sizeof(RwSectionHeader));
 	return sizeof(RwSectionHeader);
 }
 
-inline int RwSkipSectionBody(istream* stream, RwSectionHeader& header) {
-	char* skipBuffer = new char[header.size];
-	stream->read(skipBuffer, header.size);
+inline int RwSkipSectionBody(InputStream* stream, RwSectionHeader& header) {
+	//char* skipBuffer = new char[header.size];
+	//stream->read(skipBuffer, header.size);
+	stream->skip(header.size);
 	return header.size;
 }
 
