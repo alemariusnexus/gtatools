@@ -1,0 +1,7 @@
+SET(FILES IPLReader IPLStatement IPLInstance)
+
+FOREACH(FILE ${FILES})
+    SET(SRCS ${SRCS} "gtaformats/ipl/${FILE}")
+ENDFOREACH(FILE)
+
+SET(SRCS ${SRCS} PARENT_SCOPE)

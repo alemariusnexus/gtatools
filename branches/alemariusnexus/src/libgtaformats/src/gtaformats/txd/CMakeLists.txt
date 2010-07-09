@@ -1,0 +1,7 @@
+SET(FILES TXDArchive TXDException TXDTexture TXDVisitor)
+
+FOREACH(FILE ${FILES})
+    SET(SRCS ${SRCS} "gtaformats/txd/${FILE}")
+ENDFOREACH(FILE)
+
+SET(SRCS ${SRCS} PARENT_SCOPE)

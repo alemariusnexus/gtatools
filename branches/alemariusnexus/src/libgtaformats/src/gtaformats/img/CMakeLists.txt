@@ -1,0 +1,7 @@
+SET(FILES IMGArchive IMGException IMGVisitor)
+
+FOREACH(FILE ${FILES})
+    SET(SRCS ${SRCS} "gtaformats/img/${FILE}")
+ENDFOREACH(FILE)
+
+SET(SRCS ${SRCS} PARENT_SCOPE)
