@@ -1,5 +1,5 @@
 /*
-	Copyright 2010 David Lerch
+	Copyright 2010 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats.
 
@@ -40,8 +40,8 @@ IDEReader::~IDEReader()
 }
 
 
-IDEReader::IDEReader(const char* filename)
-		: GTASectionFileReader(filename), currentSection(NONE)
+IDEReader::IDEReader(const File& file)
+		: GTASectionFileReader(file), currentSection(NONE)
 {
 }
 

@@ -1,5 +1,5 @@
 /*
-	Copyright 2010 David Lerch
+	Copyright 2010 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats.
 
@@ -20,12 +20,13 @@
 #ifndef DFFLOADER_H_
 #define DFFLOADER_H_
 
-#include "../gf_config.h"
+#include <gf_config.h>
 #include "../gta.h"
 #include "DFFMesh.h"
 #include "DFFException.h"
 #include <cstdio>
 #include "../util/stream/InputStream.h"
+#include "../util/File.h"
 
 
 #define GEOMETRY_FLAG_TRISTRIP (1<<0)
@@ -71,7 +72,7 @@ public:
 	DFFLoader();
 	virtual ~DFFLoader();
 	DFFMesh* loadMesh(InputStream* stream);
-	DFFMesh* loadMesh(const char* filename);
+	DFFMesh* loadMesh(const File& file);
 	void setVerbose(bool verbose) { this->verbose = verbose; }
 	bool isVerbose() { return verbose; }
 

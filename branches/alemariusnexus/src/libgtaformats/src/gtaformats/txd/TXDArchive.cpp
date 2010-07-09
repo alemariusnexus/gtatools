@@ -1,5 +1,5 @@
 /*
-	Copyright 2010 David Lerch
+	Copyright 2010 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats.
 
@@ -36,8 +36,8 @@ TXDArchive::TXDArchive(InputStream* stream, bool randomAccess)
 }
 
 
-TXDArchive::TXDArchive(const char* filename)
-		: randomAccess(true), stream(new FileInputStream(filename, STREAM_BINARY)),
+TXDArchive::TXDArchive(const File& file)
+		: randomAccess(true), stream(new FileInputStream(file, STREAM_BINARY)),
 		  bytesRead(0), readIndex(0), currentTextureNativeSize(-1), currentTextureNativeStart(-1),
 		  deleteStream(true)
 {

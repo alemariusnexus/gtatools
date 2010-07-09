@@ -1,5 +1,5 @@
 /*
-	Copyright 2010 David Lerch
+	Copyright 2010 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats.
 
@@ -20,7 +20,7 @@
 #ifndef DFFGEOMETRYPART_H_
 #define DFFGEOMETRYPART_H_
 
-#include "../gf_config.h"
+#include <gf_config.h>
 #include "DFFMaterial.h"
 
 

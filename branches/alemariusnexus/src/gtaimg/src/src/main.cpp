@@ -1,7 +1,7 @@
 /*
-	Copyright 2010 David Lerch
-
-	This file is part of gtaimg.
+	Copyright 2010 David "Alemarius Nexus" Lerch
+    
+    This file is part ofrt of his file is part of gtaimg.
 
 	gtaimg is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by

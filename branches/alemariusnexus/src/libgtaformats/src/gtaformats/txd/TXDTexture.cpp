@@ -1,5 +1,5 @@
 /*
-	Copyright 2010 David Lerch
+	Copyright 2010 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats.
 
@@ -268,8 +268,8 @@ void TXDTexture::convert(uint8_t* dest, const uint8_t* src, TXDMirrorFlags mirro
 			alphaMask = 0xFF000000;
 			srcBpp = 4;
 #		else
-			throw TXDException(TXDException::Unsupported,
-					"DXT-compressed textures are not supported because GF_USE_SQUISH is turned off!");
+			throw TXDException("DXT-compressed textures are not supported because GF_USE_SQUISH is turned off!",
+					__FILE__, __LINE__);
 #		endif
 	}
 

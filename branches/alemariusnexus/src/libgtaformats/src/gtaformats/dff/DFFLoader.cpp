@@ -1,5 +1,5 @@
 /*
-	Copyright 2010 David Lerch
+	Copyright 2010 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats.
 
@@ -417,9 +417,9 @@ int DFFLoader::parseMaterialSplit(InputStream* stream, RwSectionHeader& matsplit
 
 
 
-DFFMesh* DFFLoader::loadMesh(const char* filename)
+DFFMesh* DFFLoader::loadMesh(const File& file)
 {
-	FileInputStream stream(filename, STREAM_BINARY);
+	FileInputStream stream(file, STREAM_BINARY);
 	DFFMesh* mesh = loadMesh(&stream);
 	return mesh;
 }

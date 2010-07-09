@@ -1,5 +1,5 @@
 /*
-	Copyright 2010 David Lerch
+	Copyright 2010 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats.
 
@@ -20,12 +20,13 @@
 #ifndef IDEREADER_H_
 #define IDEREADER_H_
 
-#include "../gf_config.h"
+#include <gf_config.h>
 #include <cstring>
 #include <cstdlib>
 #include <cstdio>
 #include "IDEStatement.h"
 #include "../GTASectionFileReader.h"
+#include "../util/File.h"
 
 
 class IDEReader : public GTASectionFileReader
@@ -40,7 +41,7 @@ private:
 
 public:
 	IDEReader(InputStream* stream, bool deleteStream = true);
-	IDEReader(const char* filename);
+	IDEReader(const File& file);
 	~IDEReader();
 	IDEStatement* readStatement();
 
