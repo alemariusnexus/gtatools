@@ -184,9 +184,14 @@ public:
 
 	int getDirectoryIndex() const;
 
-	bool operator==(const File& other) const;
+	bool isArchiveFile() const;
 
+	bool operator==(const File& other) const;
 	bool operator!=(const File& other) const { return !(*this == other); }
+	bool operator>(const File& other) const;
+	bool operator>=(const File& other) const { return !(*this < other); }
+	bool operator<(const File& other) const;
+	bool operator<=(const File& other) const { return !(*this > other); }
 
 private:
 	FilePath* path;

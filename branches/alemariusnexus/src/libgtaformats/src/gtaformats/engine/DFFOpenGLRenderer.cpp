@@ -88,8 +88,6 @@ void DFFOpenGLRenderer::applyTexture(const char* name)
 void DFFOpenGLRenderer::applyFrameTransformation(DFFFrame* frame)
 {
 	const float* trans = frame->getTranslation();
-	//glTranslatef(trans[0], trans[1], trans[2]);
-
 	const float* rot = frame->getRotation();
 
 	/*float transMatrix[] = {

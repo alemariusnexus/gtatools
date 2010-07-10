@@ -33,6 +33,7 @@ FilePath::FilePath(const char* path)
 FilePath::FilePath(const FilePath& other)
 		: path(new char[strlen(other.path)+1])
 {
+	printf("Copying path %s\n", other.path);
 	strcpy(path, other.path);
 }
 
@@ -187,5 +188,17 @@ char* FilePath::normalize(const char* src)
 	rtrim(dest, '/');
 
 	return dest;
+}
+
+
+bool FilePath::operator>(const FilePath& other) const
+{
+	return strcmp(path, other.path) > 0;
+}
+
+
+bool FilePath::operator<(const FilePath& other) const
+{
+	return strcmp(path, other.path) < 0;
 }
 

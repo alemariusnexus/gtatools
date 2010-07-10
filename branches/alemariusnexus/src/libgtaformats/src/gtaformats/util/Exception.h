@@ -31,12 +31,15 @@ public:
 	Exception(const char* message, const char* srcFile = NULL, int srcLine = -1);
 	Exception(const Exception& ex);
 	virtual ~Exception() throw();
-	virtual const char* what() const throw() { return message; };
+	virtual const char* what() const throw() { return fullMessage; };
 	const char* getMessage() const throw() { return message; }
-	const char* getFullMessage() const throw();
+
+private:
+	char* buildFullMessage() const throw();
 
 private:
 	char* message;
+	char* fullMessage;
 	const char* srcFile;
 	int srcLine;
 };

@@ -339,10 +339,25 @@ bool File::operator==(const File& other) const
 }
 
 
+bool File::operator>(const File& other) const
+{
+	return *path > *other.path;
+}
 
 
+bool File::operator<(const File& other) const
+{
+	return *path < *other.path;
+}
 
 
+bool File::isArchiveFile() const
+{
+	if (!isRegularFile()) {
+		return false;
+	}
 
-
+	FileContentType type = guessContentType();
+	return type == CONTENT_TYPE_IMG  ||  type == CONTENT_TYPE_DIR;
+}
 

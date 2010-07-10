@@ -45,8 +45,7 @@ GLuint OpenGLResourceManager::generateTexture(TXDTexture* texture, uint8_t* data
 
 	switch (textureFormat) {
 	case Native:
-		cerr << "OpenGLResourceManager currently does not support native texture formats!" << endl;
-		exit(0);
+		throw EngineException("OpenGLResourceManager currently does not support native texture formats!", __FILE__, __LINE__);
 		break;
 
 	case R8G8B8A8:

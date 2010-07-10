@@ -1,6 +1,7 @@
 SET(CONFIG_DIR "/etc/gtatools-gui" CACHE PATH "The configuration directory of gtatools-gui")
 
 ADD_SUBDIRECTORY(gui)
+ADD_SUBDIRECTORY(formats)
 
 CONFIGURE_FILE(config.cmake.h config.h)
 

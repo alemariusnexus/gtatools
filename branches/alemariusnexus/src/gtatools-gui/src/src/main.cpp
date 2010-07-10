@@ -4,7 +4,6 @@
 #include <QtCore/qdir.h>
 #include <QtGui/qfilesystemmodel.h>
 #include "gui/FileItemModel.h"
-#include "gui/TreeModel.h"
 #include "Profile.h"
 #include "ProfileManager.h"
 #include <gtaformats/util/File.h>
@@ -36,8 +35,11 @@ int main(int argc, char** argv)
 {
 	QApplication app(argc, argv);
 
+
+
 	Profile* profile = new Profile("Testprofil");
-	profile->addResource(File("/home/alemariusnexus/Windows-Programme"));
+	File rootFile("/home/alemariusnexus/Windows-Programme/Rockstar Games/Grand Theft Auto San Andreas");
+	profile->addResource(rootFile);
 
 	QWidget win;
 	win.setWindowTitle("GTATools GUI Viewer");

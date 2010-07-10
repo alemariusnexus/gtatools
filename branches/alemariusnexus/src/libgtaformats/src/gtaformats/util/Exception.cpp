@@ -27,6 +27,7 @@ Exception::Exception(const char* message, const char* srcFile, int srcLine)
 		: message(new char[strlen(message)+1]), srcFile(srcFile), srcLine(srcLine)
 {
 	strcpy(this->message, message);
+	fullMessage = buildFullMessage();
 }
 
 
@@ -34,16 +35,18 @@ Exception::Exception(const Exception& ex)
 		: message(new char[strlen(ex.message)+1]), srcFile(ex.srcFile), srcLine(ex.srcLine)
 {
 	strcpy(message, ex.message);
+	fullMessage = buildFullMessage();
 }
 
 
 Exception::~Exception() throw()
 {
 	delete[] message;
+	delete[] fullMessage;
 }
 
 
-const char* Exception::getFullMessage() const throw()
+char* Exception::buildFullMessage() const throw()
 {
 	int len = strlen(message);
 

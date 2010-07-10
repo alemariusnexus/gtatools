@@ -23,6 +23,7 @@ ResourceIndex::~ResourceIndex()
 
 	for (it = textureIndex.begin() ; it != textureIndex.end() ; it++) {
 		delete[] it->first;
+		delete it->second->file;
 		delete it->second;
 	}
 
@@ -33,51 +34,61 @@ ResourceIndex::~ResourceIndex()
 
 	for (mit = meshIndex.begin() ; mit != meshIndex.end() ; mit++) {
 		delete[] mit->first;
-		delete[] mit->second;
+		delete mit->second->file;
+		delete mit->second;
 	}
 
 	meshIndex.clear();
 }
 
 
-void ResourceIndex::addResource(const char* filename)
+void ResourceIndex::addResource(const File& file)
 {
-	if (isDirectory(filename)) {
+	if (file.isDirectory()) {
+		FileIterator* it = file.getIterator();
+		File* child;
 
+		while ((child = it->next())  !=  NULL) {
+			addResource(*child);
+			delete child;
+		}
+
+		delete it;
 	} else {
-		GFFileType type = GFGuessFileType(filename);
+		FileContentType type = file.guessContentType();
 
-		if (type == GF_TYPE_TXD) {
-			TXDArchive txd(filename);
-			indexTXD(&txd, filename);
-		} else if (type == GF_TYPE_IMG  ||  type == GF_TYPE_DIR) {
-			IMGArchive img(filename);
-			IMGEntry** entries = img.getEntries();
+		if (type == CONTENT_TYPE_TXD) {
+			TXDArchive txd(file);
+			indexTXD(&txd, file);
+		} else if (type == CONTENT_TYPE_IMG  ||  type == CONTENT_TYPE_DIR) {
+			FileIterator* it = file.getIterator();
+			File* entry;
 
-			for (int32_t i = 0 ; i < img.getEntryCount() ; i++) {
-				IMGEntry* entry = entries[i];
-				GFFileType entryType = GFGuessFileType(entry->name);
+			while ((entry = it->next())  !=  NULL) {
+				FileContentType entryType = entry->guessContentType();
 
-				if (entryType == GF_TYPE_TXD) {
-					InputStream* stream = img.gotoEntry(entry);
-					TXDArchive txd(stream);
-					indexTXD(&txd, filename, i);
-				} else if (entryType == GF_TYPE_DFF) {
-					indexDFF(filename, entry->name, i);
+				if (entryType == CONTENT_TYPE_TXD  ||  entryType == CONTENT_TYPE_DFF) {
+					addResource(*entry);
 				}
+
+				delete entry;
 			}
-		} else if (type == GF_TYPE_DFF) {
-			indexDFF(filename, filename);
+
+			delete it;
+		} else if (type == CONTENT_TYPE_DFF) {
+			indexDFF(file);
 		} else {
-			char errmsg[2048];
-			sprintf(errmsg, "Unknown resource type for file %s", filename);
-			throw EngineException(errmsg, __FILE__, __LINE__);
+			char* errmsg = new char[strlen(file.getPath()->toString()) + 128];
+			sprintf(errmsg, "Unknown resource type for file %s", file.getPath()->toString());
+			EngineException ex(errmsg, __FILE__, __LINE__);
+			delete[] errmsg;
+			throw ex;
 		}
 	}
 }
 
 
-void ResourceIndex::indexTXD(TXDArchive* txd, const char* filename, int32_t imgIndex)
+void ResourceIndex::indexTXD(TXDArchive* txd, const File& file)
 {
 	for (int32_t i = 0 ; i < txd->getTextureCount() ; i++) {
 		TXDTexture* tex = txd->nextTexture();
@@ -89,8 +100,7 @@ void ResourceIndex::indexTXD(TXDArchive* txd, const char* filename, int32_t imgI
 		delete tex;
 
 		TextureEntry* entry = new TextureEntry;
-		entry->filename = filename;
-		entry->imgIndex = imgIndex;
+		entry->file = new File(file);
 		entry->txdIndex = i;
 
 		textureIndex.insert(pair<const char*, TextureEntry*>(lName, entry));
@@ -98,33 +108,22 @@ void ResourceIndex::indexTXD(TXDArchive* txd, const char* filename, int32_t imgI
 }
 
 
-void ResourceIndex::indexDFF(const char* filename, const char* dffName, int32_t imgIndex)
+void ResourceIndex::indexDFF(const File& file)
 {
-	const char* fnameBegin = strrchr(dffName, '/');
-
-	if (fnameBegin == NULL) {
-		fnameBegin = dffName;
-	}
-	if (strlen(fnameBegin) <= 4) {
-		char errmsg[2048];
-		sprintf(errmsg, "Invalid mesh file name, must be *.dff: %s", fnameBegin);
-		throw EngineException(errmsg, __FILE__, __LINE__);
-	}
+	const char* fnameBegin = file.getPath()->getFileName();
 
 	char* meshName = new char[strlen(fnameBegin)+1];
 	strtolower(meshName, fnameBegin);
 	meshName[strlen(meshName)-4] = '\0';
 
 	MeshEntry* entry = new MeshEntry;
-	entry->filename = filename;
-	entry->imgIndex = imgIndex;
+	entry->file = new File(file);
 
 	meshIndex.insert(pair<const char*, MeshEntry*>(meshName, entry));
 }
 
 
-bool ResourceIndex::gotoTexture(	const char* name, TXDArchive*& txd, TXDTexture*& texture,
-									IMGArchive*& img	)
+bool ResourceIndex::gotoTexture(const char* name, TXDArchive*& txd, TXDTexture*& texture)
 {
 	TextureMap::iterator it = textureIndex.find(name);
 
@@ -134,23 +133,9 @@ bool ResourceIndex::gotoTexture(	const char* name, TXDArchive*& txd, TXDTexture*
 
 	TextureEntry* texEntry = it->second;
 
-	if (texEntry->imgIndex == -1) {
-		txd = new TXDArchive(texEntry->filename);
-
-		for (int32_t i = 0 ; i < texEntry->txdIndex ; i++) delete txd->nextTexture();
-
-		texture = txd->nextTexture();
-	} else {
-		img = new IMGArchive(texEntry->filename);
-		IMGEntry* entry = img->getEntries()[texEntry->imgIndex];
-		InputStream* stream = img->gotoEntry(entry);
-
-		txd = new TXDArchive(stream);
-
-		for (int32_t i = 0 ; i < texEntry->txdIndex ; i++) delete txd->nextTexture();
-
-		texture = txd->nextTexture();
-	}
+	txd = new TXDArchive(*texEntry->file);
+	for (int32_t i = 0 ; i < texEntry->txdIndex ; i++) delete txd->nextTexture();
+	texture = txd->nextTexture();
 
 	return true;
 }
@@ -158,15 +143,11 @@ bool ResourceIndex::gotoTexture(	const char* name, TXDArchive*& txd, TXDTexture*
 
 bool ResourceIndex::getTextureHeader(const char* name, TXDTexture*& texture)
 {
-	IMGArchive* img = NULL;
 	TXDArchive* txd = NULL;
-	bool retval = gotoTexture(name, txd, texture, img);
+	bool retval = gotoTexture(name, txd, texture);
 
 	if (txd) {
 		delete txd;
-	}
-	if (img) {
-		delete img;
 	}
 
 	return retval;
@@ -175,9 +156,8 @@ bool ResourceIndex::getTextureHeader(const char* name, TXDTexture*& texture)
 
 bool ResourceIndex::getTexture(const char* name, TXDTexture*& texture, uint8_t*& data)
 {
-	IMGArchive* img = NULL;
 	TXDArchive* txd = NULL;
-	bool retval = gotoTexture(name, txd, texture, img);
+	bool retval = gotoTexture(name, txd, texture);
 
 	if (retval) {
 		uint8_t* rawData = txd->readTextureData(texture);
@@ -200,9 +180,6 @@ bool ResourceIndex::getTexture(const char* name, TXDTexture*& texture, uint8_t*&
 	if (txd) {
 		delete txd;
 	}
-	if (img) {
-		delete img;
-	}
 
 	return retval;
 }
@@ -219,17 +196,35 @@ bool ResourceIndex::getMesh(const char* name, DFFMesh*& mesh)
 	MeshEntry* meshEntry = it->second;
 
 	DFFLoader dff;
-
-	if (meshEntry->imgIndex == -1) {
-		mesh = dff.loadMesh(meshEntry->filename);
-	} else {
-		IMGArchive img(meshEntry->filename);
-		IMGEntry* entry = img.getEntries()[meshEntry->imgIndex];
-		InputStream* stream = img.gotoEntry(entry);
-		mesh = dff.loadMesh(stream);
-	}
+	mesh = dff.loadMesh(*meshEntry->file);
 
 	return true;
+}
+
+
+const File* ResourceIndex::findTexture(const char* name)
+{
+	TextureMap::iterator it = textureIndex.find(name);
+
+	if (it == textureIndex.end()) {
+		return NULL;
+	}
+
+	TextureEntry* texEntry = it->second;
+	return texEntry->file;
+}
+
+
+const File* ResourceIndex::findMesh(const char* name)
+{
+	MeshMap::iterator it = meshIndex.find(name);
+
+	if (it == meshIndex.end()) {
+		return NULL;
+	}
+
+	MeshEntry* entry = it->second;
+	return entry->file;
 }
 
 
