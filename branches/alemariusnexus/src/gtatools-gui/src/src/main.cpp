@@ -64,7 +64,7 @@ int main(int argc, char** argv)
 
 	if (!File(CONFIG_FILE).exists()) {
 		if (!File(CONFIG_DIR).exists()) {
-
+			File(CONFIG_DIR).mkdir();
 		}
 
 		wiz.exec();
