@@ -24,11 +24,7 @@
 #	pragma warning(disable : 4996)
 #endif
 
-#ifndef _MSC_VER
-#	include <stdint.h>
-#else
-#	include "msvcstdint.h"
-#endif
+#include "stdint.h"
 
 
 #cmakedefine GF_USE_SQUISH

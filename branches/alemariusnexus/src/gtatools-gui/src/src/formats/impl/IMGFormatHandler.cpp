@@ -27,18 +27,18 @@ QString IMGFormatHandler::getFileFormatName(const File& file, bool fromContent)
 	FileContentType type = file.guessContentType();
 
 	if (type == CONTENT_TYPE_DIR) {
-		return "IMG Archive Header (DIR)";
+		return tr("IMG Archive Header (DIR)");
 	} else {
 		if (fromContent) {
 			IMGArchive::IMGVersion ver = IMGArchive::guessIMGVersion(file);
 
 			if (ver == IMGArchive::VER1) {
-				return "IMG Archive Version 1 (GTA III/VC)";
+				return tr("IMG Archive Version 1 (GTA III/VC)");
 			} else {
-				return "IMG Archive Version 2 (GTA SA)";
+				return tr("IMG Archive Version 2 (GTA SA)");
 			}
 		} else {
-			return "IMG Archive";
+			return tr("IMG Archive");
 		}
 	}
 }

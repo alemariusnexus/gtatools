@@ -39,7 +39,7 @@ public:
 	 * 	@param maxRead The maximum number of bytes to be readable from the current stream position. This defines the end point.
 	 * 	@param autoDeleteBackend If true, the backend stream will be deleted by this stream's destructor.
 	 */
-	RangedInputStream(InputStream* backend, int maxRead, bool autoDeleteBackend = true);
+	RangedInputStream(InputStream* backend, streamsize maxRead, bool autoDeleteBackend = true);
 
 	/**	\brief Destructor.
 	 */
@@ -53,13 +53,13 @@ public:
 	 * 	@param pos The position to go to (relative to startPos)
 	 * 	@param startPos The reference point.
 	 */
-	virtual void seek(int pos, SeekPosition startPos = STREAM_SEEK_CURRENT);
+	virtual void seek(streampos pos, SeekPosition startPos = STREAM_SEEK_CURRENT);
 
 	/**	\brief Tells the position of this stream.
 	 *
 	 * 	@return The position of this stream relative to the range start.
 	 */
-	virtual int tell();
+	virtual streampos tell();
 
 	/**	\brief Reads data from the stream.
 	 *
@@ -68,7 +68,7 @@ public:
 	 * 	@param dest The buffer to read to.
 	 * 	@param len The maximum number of bytes to be read.
 	 */
-	virtual void read(char* dest, int len);
+	virtual void read(char* dest, streamsize len);
 
 	/**	\brief Returns whether the stream has reached the range end.
 	 *
@@ -80,21 +80,21 @@ public:
 	 *
 	 *	@return The number of bytes actually read by the last read() call.
 	 */
-	virtual int getLastReadCount();
+	virtual streamsize getLastReadCount();
 
 private:
 	/**	\brief Returns the number of bytes which can be read until the range end is reached.
 	 *
 	 *	@return The number of bytes which can be read until the range end is reached.
 	 */
-	int getMaxReadUntilEnd();
+	streamsize getMaxReadUntilEnd();
 
 private:
 	InputStream* backend;
 	bool autoDeleteBackend;
-	int readStart;
-	int maxRead;
-	int readCount;
+	streampos readStart;
+	streamsize maxRead;
+	streampos readCount;
 };
 
 #endif /* RANGEDINPUTSTREAM_H_ */

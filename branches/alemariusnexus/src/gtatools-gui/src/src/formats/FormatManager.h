@@ -22,6 +22,7 @@ public:
 public:
 	void registerFormatHandler(FormatHandler* provider);
 	FormatHandler* getHandler(const File& file, FormatHandler::features feature, bool fromContent = true);
+	QLinkedList<FormatHandler*> getHandlers(const File& file, FormatHandler::features feature, bool fromContent = true);
 
 private:
 	FormatManager();

@@ -19,6 +19,8 @@
 
 #include "STLInputStream.h"
 #include "IOException.h"
+#include <limits>
+#include <cstdio>
 
 
 STLInputStream::STLInputStream(istream* backend, bool autoClose, bool randomAccess)
@@ -41,14 +43,23 @@ STLInputStream::~STLInputStream()
 }
 
 
-int STLInputStream::tell()
+STLInputStream::streampos STLInputStream::tell()
 {
 	return backend->tellg();
 }
 
 
-void STLInputStream::seek(int pos, SeekPosition startPos)
+void STLInputStream::seek(streampos pos, SeekPosition startPos)
 {
+	if (pos > std::numeric_limits<std::streamoff>::max()) {
+		char* errmsg = new char[256];
+		sprintf(errmsg, "Stream position too high! Maximum value allowed by the STL streams on this platform is %d",
+				std::numeric_limits<std::streamoff>::max());
+		IOException ex(errmsg);
+		delete[] errmsg;
+		throw ex;
+	}
+
 	if (randomAccess) {
 		istream::seekdir dir;
 
@@ -64,7 +75,7 @@ void STLInputStream::seek(int pos, SeekPosition startPos)
 			break;
 		}
 
-		backend->seekg(pos, dir);
+		backend->seekg((std::streampos) pos, dir);
 	} else {
 		if (startPos == STREAM_SEEK_CURRENT) {
 			char skipBuf[4096];
@@ -81,9 +92,18 @@ void STLInputStream::seek(int pos, SeekPosition startPos)
 }
 
 
-void STLInputStream::read(char* dest, int len)
+void STLInputStream::read(char* dest, streamsize len)
 {
-	backend->read(dest, len);
+	if (len > std::numeric_limits<std::streamsize>::max()) {
+		char* errmsg = new char[256];
+		sprintf(errmsg, "Stream size too high! Maximum value allowed by the STL streams on this platform is %d",
+				std::numeric_limits<std::streamsize>::max());
+		IOException ex(errmsg);
+		delete[] errmsg;
+		throw ex;
+	}
+
+	backend->read(dest, (std::streamsize) len);
 }
 
 
@@ -93,7 +113,7 @@ bool STLInputStream::hasReachedEnd()
 }
 
 
-int STLInputStream::getLastReadCount()
+STLInputStream::streamsize STLInputStream::getLastReadCount()
 {
 	return backend->gcount();
 }

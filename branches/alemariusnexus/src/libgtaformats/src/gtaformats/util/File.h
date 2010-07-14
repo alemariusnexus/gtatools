@@ -23,6 +23,7 @@
 #include "FilePath.h"
 #include "FileIterator.h"
 #include <cstdlib>
+#include "../stdint.h"
 
 struct IMGEntry;
 class IMGArchive;
@@ -62,6 +63,9 @@ enum FileType {
  * 	iterated over. Files inside IMG files may be opened using openStream().
  */
 class File {
+public:
+	typedef int64_t filesize;
+
 public:
 	/**	\brief Constructs a file from the given path.
 	 *
@@ -185,6 +189,8 @@ public:
 	int getDirectoryIndex() const;
 
 	bool isArchiveFile() const;
+
+	filesize getSize() const;
 
 	bool operator==(const File& other) const;
 	bool operator!=(const File& other) const { return !(*this == other); }

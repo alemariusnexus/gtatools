@@ -6,15 +6,40 @@
  */
 
 #include "ProfileManager.h"
-#include <QtXml/qdom.h>
-#include <QtCore/qfile.h>
-#include <QtCore/qtextstream.h>
 #include "config.h"
+#include <qsettings.h>
+#include <qstring.h>
+#include <gtaformats/util/File.h>
 
 
 ProfileManager::ProfileManager(QObject* parent)
 		: QObject(parent), currentProfile(NULL)
 {
+	QSettings settings(CONFIG_FILE, QSettings::IniFormat);
+
+	for (int i = 0 ; true ; i++) {
+		if (!settings.contains(QString("profile%1/name").arg(i))) {
+			break;
+		}
+
+		Profile* profile = new Profile(settings.value(QString("profile%1/name").arg(i)).toString());
+
+		for (int j = 0 ; true ; j++) {
+			if (!settings.contains(QString("profile%1/resource%2").arg(i).arg(j))) {
+				break;
+			}
+
+			QString resource = settings.value(QString("profile%1/resource%2").arg(i).arg(j)).toString();
+			profile->addResource(File(resource.toLocal8Bit().constData()));
+		}
+
+		profiles << profile;
+	}
+
+	setCurrentProfile(getProfile(settings.value("main/current_profile").toInt()));
+
+	connect(this, SIGNAL(currentProfileChanged(Profile*, Profile*)), this,
+			SLOT(currentProfileChangedSlot(Profile*, Profile*)));
 }
 
 
@@ -42,37 +67,6 @@ ProfileManager::ProfileIterator ProfileManager::getProfileEnd()
 }
 
 
-void ProfileManager::saveProfiles()
-{
-	QDomDocument doc;
-	QDomElement profilesElem = doc.createElement("profiles");
-	doc.appendChild(profilesElem);
-
-	ProfileIterator it;
-
-	for (it = profiles.begin() ; it != profiles.end() ; it++) {
-		Profile* profile = *it;
-
-		QDomElement profileElem = doc.createElement("profile");
-		profileElem.setAttribute("name", profile->getName());
-		profilesElem.appendChild(profileElem);
-
-		Profile::ResourceIterator rit;
-		for (rit = profile->getResourceBegin() ; rit != profile->getResourceEnd() ; rit++) {
-			File* resource = *rit;
-
-			QDomElement resourceElem = doc.createElement("resource");
-			resourceElem.setNodeValue(resource->getPath()->toString());
-			profileElem.appendChild(resourceElem);
-		}
-	}
-
-	QFile file(QString(CONFIG_DIR).append("/profiles.xml"));
-	QTextStream stream(&file);
-	doc.save(stream, 4);
-}
-
-
 Profile* ProfileManager::setCurrentProfile(Profile* profile)
 {
 	Profile* oldProfile = currentProfile;
@@ -80,5 +74,46 @@ Profile* ProfileManager::setCurrentProfile(Profile* profile)
 	emit currentProfileChanged(oldProfile, profile);
 	return oldProfile;
 }
+
+
+void ProfileManager::saveProfiles()
+{
+	QSettings settings(CONFIG_FILE, QSettings::IniFormat);
+
+	ProfileIterator it;
+	int i = 0;
+
+	for (it = getProfileBegin() ; it != getProfileEnd() ; it++, i++) {
+		Profile* profile = *it;
+		settings.setValue(QString("profile%1/name").arg(i), profile->getName());
+
+		Profile::ResourceIterator rit;
+
+		int j;
+
+		for (j = 0 ; true ; j++) {
+			if (settings.contains(QString("profile%1/resource%2").arg(i).arg(j))) {
+				settings.remove(QString("profile%1/resource%2").arg(i).arg(j));
+			} else {
+				break;
+			}
+		}
+
+		j = 0;
+
+		for (rit = profile->getResourceBegin() ; rit != profile->getResourceEnd() ; rit++, j++) {
+			settings.setValue(QString("profile%1/resource%2").arg(i).arg(j), (*rit)->getPath()->toString());
+		}
+	}
+}
+
+
+void ProfileManager::currentProfileChangedSlot(Profile* oldProfile, Profile* newProfile)
+{
+	QSettings settings(CONFIG_FILE, QSettings::IniFormat);
+	settings.setValue("main/current_profile", indexOfProfile(newProfile));
+	settings.sync();
+}
+
 
 

@@ -52,7 +52,7 @@ public:
 	 *
 	 * 	@return The stream position or -1 in case of error.
 	 */
-	virtual int tell();
+	virtual streampos tell();
 
 	/**	\brief Repositions this stream.
 	 *
@@ -62,7 +62,7 @@ public:
 	 * 	@param pos The position to go to (relative to startPos)
 	 * 	@param startPos The reference point.
 	 */
-	virtual void seek(int pos, SeekPosition startPos = STREAM_SEEK_CURRENT);
+	virtual void seek(streampos pos, SeekPosition startPos = STREAM_SEEK_CURRENT);
 
 	/**	\brief Reads from this stream.
 	 *
@@ -72,7 +72,7 @@ public:
 	 * 	@param len The maximum number of bytes to be read. The actual amount read may differ if the end of stream is reached. Use
 	 * 		getLastReadCount() to get the actual amount of data read.
 	 */
-	virtual void read(char* dest, int len);
+	virtual void read(char* dest, streamsize len);
 
 	/**	\brief Returns whether this stream has reached it's end.
 	 *
@@ -88,7 +88,7 @@ public:
 	 *
 	 * 	@return The number of characters read by the last read() call.
 	 */
-	virtual int getLastReadCount();
+	virtual streamsize getLastReadCount();
 
 protected:
 	/**	\brief Construct an STLInputStream without a backend.

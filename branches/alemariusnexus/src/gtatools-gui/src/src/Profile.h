@@ -13,9 +13,12 @@
 #include <QtCore/qstring.h>
 #include <QtCore/qfile.h>
 #include <gtaformats/engine/OpenGLResourceManager.h>
+#include <qmetatype.h>
 
 
-class Profile {
+class Profile : public QObject {
+	Q_OBJECT
+
 public:
 	typedef QLinkedList<File*>::iterator ResourceIterator;
 
@@ -26,14 +29,39 @@ public:
 	ResourceIterator getResourceBegin();
 	ResourceIterator getResourceEnd();
 	QString getName() const { return name; }
+	ResourceIterator removeResource(ResourceIterator it);
+	void clearResources();
+	void setName(const QString& name) { this->name = name; }
+	void synchronize();
 
 public slots:
 	void currentProfileChanged(Profile* oldProfile, Profile* newProfile);
+
+signals:
+	void changed();
 
 private:
 	QLinkedList<File*> resources;
 	QString name;
 	OpenGLResourceManager* resourceIndex;
+
+
+
+
+public:
+	/**	\brief Just here for compatibility with Qt's meta type system and QVariant.
+	 *
+	 * 	NEVER EVER CALL THIS CONSTRUCTOR!
+	 */
+	Profile();
+
+	/**	\brief Just here for compatibility with Qt's meta type system and QVariant.
+	 *
+	 * 	NEVER EVER CALL THIS CONSTRUCTOR!
+	 */
+	Profile(const Profile& other);
 };
+
+//Q_DECLARE_METATYPE(Profile)
 
 #endif /* PROFILE_H_ */

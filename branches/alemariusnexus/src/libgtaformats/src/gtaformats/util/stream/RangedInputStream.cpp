@@ -21,7 +21,7 @@
 #include "IOException.h"
 
 
-RangedInputStream::RangedInputStream(InputStream* backend, int maxRead, bool autoDeleteBackend)
+RangedInputStream::RangedInputStream(InputStream* backend, streamsize maxRead, bool autoDeleteBackend)
 		: backend(backend), autoDeleteBackend(autoDeleteBackend), maxRead(maxRead), readCount(0), readStart(backend->tell())
 {
 	if (readStart == -1) {
@@ -38,13 +38,13 @@ RangedInputStream::~RangedInputStream()
 }
 
 
-int RangedInputStream::tell()
+RangedInputStream::streampos RangedInputStream::tell()
 {
 	return backend->tell() - readStart;
 }
 
 
-void RangedInputStream::seek(int pos, SeekPosition startPos)
+void RangedInputStream::seek(streampos pos, SeekPosition startPos)
 {
 	if (startPos == STREAM_SEEK_BEGIN) {
 		if (pos > maxRead  ||  pos < 0) {
@@ -74,9 +74,9 @@ void RangedInputStream::seek(int pos, SeekPosition startPos)
 }
 
 
-void RangedInputStream::read(char* dest, int len)
+void RangedInputStream::read(char* dest, streamsize len)
 {
-	int max = getMaxReadUntilEnd();
+	streamsize max = getMaxReadUntilEnd();
 
 	if (len > max) {
 		len = max;
@@ -87,7 +87,7 @@ void RangedInputStream::read(char* dest, int len)
 }
 
 
-int RangedInputStream::getMaxReadUntilEnd()
+RangedInputStream::streamsize RangedInputStream::getMaxReadUntilEnd()
 {
 	return maxRead-readCount;
 }
@@ -99,7 +99,7 @@ bool RangedInputStream::hasReachedEnd()
 }
 
 
-int RangedInputStream::getLastReadCount()
+RangedInputStream::streamsize RangedInputStream::getLastReadCount()
 {
 	return backend->getLastReadCount();
 }

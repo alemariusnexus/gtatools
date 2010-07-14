@@ -20,6 +20,8 @@
 #ifndef INPUTSTREAM_H_
 #define INPUTSTREAM_H_
 
+#include <gtaformats/stdint.h>
+
 
 
 /**	\brief Abstract class representing any kind of input streams
@@ -27,6 +29,10 @@
  * 	This class defines an interface for any kind of input streams. Subclasses read from files, stdin etc.
  */
 class InputStream {
+public:
+	typedef int64_t streampos;
+	typedef int64_t streamsize;
+
 public:
 	/**	\brief Positions used as reference points in the seek() method.
 	 */
@@ -45,7 +51,7 @@ public:
 	 *
 	 *	@return The current stream position or -1 if it can't be told.
 	 */
-	virtual int tell() = 0;
+	virtual streampos tell() = 0;
 
 	/**	\brief Reposition the stream.
 	 *
@@ -55,7 +61,7 @@ public:
 	 * 	@param pos The position to go to (relative to startPos)
 	 * 	@param startPos The reference point.
 	 */
-	virtual void seek(int pos, SeekPosition startPos = STREAM_SEEK_CURRENT) = 0;
+	virtual void seek(streampos pos, SeekPosition startPos = STREAM_SEEK_CURRENT) = 0;
 
 	/**	\brief Read a given amount of data from the stream.
 	 *
@@ -65,7 +71,7 @@ public:
 	 * 	@param len The maximum number of bytes to be read. The actual amount read may differ if the end of stream is reached. Use
 	 * 		getLastReadCount() to get the actual amount of data read.
 	 */
-	virtual void read(char* dest, int len) = 0;
+	virtual void read(char* dest, streamsize len) = 0;
 
 	/**	\brief Return whether the stream has reached it's end.
 	 *
@@ -77,7 +83,7 @@ public:
 	 *
 	 * 	@return The number of bytes actually read by the last read() call.
 	 */
-	virtual int getLastReadCount() = 0;
+	virtual streamsize getLastReadCount() = 0;
 
 	/**	\brief Read up to the next newline character.
 	 *
@@ -87,7 +93,7 @@ public:
 	 *	@param len The maximum amount of bytes to be read.
 	 *	@return The number of bytes read (don't use getLastReadCount() here, because it will always result in the value 1).
 	 */
-	int readLine(char* dest, int len);
+	int readLine(char* dest, streamsize len);
 
 	/**	\brief Skip data.
 	 *
@@ -95,7 +101,7 @@ public:
 	 *
 	 * 	@param len The number of bytes to be skipped.
 	 */
-	void skip(int len);
+	void skip(streamsize len);
 
 protected:
 	/**	\brief Constructs an InputStream.

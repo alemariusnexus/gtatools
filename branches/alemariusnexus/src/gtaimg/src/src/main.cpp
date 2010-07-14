@@ -150,12 +150,12 @@ int main(int argc, char** argv) {
 
 		delete archive;
 	} catch (IOException ex) {
-		cerr << "I/O error: " << ex.getFullMessage() << endl;
+		cerr << "I/O error: " << ex.what() << endl;
 		if (archive) {
 			delete archive;
 		}
 	} catch (IMGException ex) {
-		cerr << "IMG error: " << ex.getFullMessage() << endl;
+		cerr << "IMG error: " << ex.what() << endl;
 		if (archive) {
 			delete archive;
 		}

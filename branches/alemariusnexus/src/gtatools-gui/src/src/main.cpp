@@ -7,6 +7,16 @@
 #include "Profile.h"
 #include "ProfileManager.h"
 #include <gtaformats/util/File.h>
+#include "gui/MainWindow.h"
+#include <qsettings.h>
+#include <config.h>
+#include "gui/FirstStartWizard.h"
+#include <ui_FirstStartWizard.h>
+#include "Profile.h"
+#include <qmetatype.h>
+#include "gui/ConfigWidget.h"
+#include <qtranslator.h>
+#include <qlibraryinfo.h>
 
 
 
@@ -35,23 +45,33 @@ int main(int argc, char** argv)
 {
 	QApplication app(argc, argv);
 
+	printf("%s\n", QLibraryInfo::location(QLibraryInfo::TranslationsPath).toLocal8Bit().constData());
 
+	QTranslator qtTrans;
+	qtTrans.load("qt_" + QLocale::system().name(), QLibraryInfo::location(QLibraryInfo::TranslationsPath));
+	app.installTranslator(&qtTrans);
 
-	Profile* profile = new Profile("Testprofil");
-	File rootFile("/home/alemariusnexus/Windows-Programme/Rockstar Games/Grand Theft Auto San Andreas");
-	profile->addResource(rootFile);
+	QTranslator trans;
+	trans.load("gtatools-gui_" + QLocale::system().name());
+	app.installTranslator(&trans);
 
-	QWidget win;
-	win.setWindowTitle("GTATools GUI Viewer");
-	win.resize(800, 800);
+	//qRegisterMetaType<Profile>("Profile");
 
-	FileItemModel* model = new FileItemModel(profile);
-
-	QTreeView tv(&win);
-	tv.resize(800, 800);
-	tv.setModel(model);
-
+	MainWindow win;
 	win.show();
+
+	FirstStartWizard wiz;
+
+	if (!File(CONFIG_FILE).exists()) {
+		wiz.exec();
+	}
+
+	ProfileManager::getInstance();
+
+	//ConfigWidget cfgWidget;
+	//cfgWidget.show();
+
+	win.initialize();
 
 	return app.exec();
 }

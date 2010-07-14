@@ -6,6 +6,8 @@
  */
 
 #include "Profile.h"
+#include <cstdio>
+#include <cstdlib>
 
 
 
@@ -47,4 +49,60 @@ void Profile::currentProfileChanged(Profile* oldProfile, Profile* newProfile)
 			resourceIndex->addResource(*resource);
 		}
 	}
+}
+
+
+Profile::ResourceIterator Profile::removeResource(ResourceIterator it)
+{
+	File* file = *it;
+	ResourceIterator next = resources.erase(it);
+	delete file;
+	return next;
+}
+
+
+void Profile::clearResources()
+{
+	ResourceIterator it;
+
+	for (it = getResourceBegin() ; it != getResourceEnd() ;) {
+		it = removeResource(it);
+	}
+}
+
+
+void Profile::synchronize()
+{
+	emit changed();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Profile::Profile()
+{
+	fprintf(stderr, "UUUUUUUAAAAAARRRGGGHHH! Profile::Profile() should NEVER EVER be called. It's just here "
+			"for compatibility with QVariant and Qt's meta type system! Program will exit now!");
+	exit(1);
+}
+
+
+Profile::Profile(const Profile& other)
+{
+	fprintf(stderr, "UUUUUUUAAAAAARRRGGGHHH! Profile::Profile(const Profile&) should NEVER EVER be called. It's "
+				"just here for compatibility with QVariant and Qt's meta type system! Program will exit now!");
+	exit(1);
 }

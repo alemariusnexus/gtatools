@@ -12,6 +12,8 @@
 
 
 class IMGFormatHandler : public FormatHandler {
+	Q_OBJECT
+
 public:
 	virtual features getFileFeatures(const File& file, bool fromContent);
 	virtual QString getFileFormatName(const File& file, bool fromContent = true);

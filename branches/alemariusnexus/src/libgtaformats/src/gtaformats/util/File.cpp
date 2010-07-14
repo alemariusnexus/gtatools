@@ -25,6 +25,10 @@
 #include "stream/FileInputStream.h"
 #include "../img/IMGArchive.h"
 
+#ifdef linux
+#include <errno.h>
+#endif
+
 
 
 
@@ -359,5 +363,48 @@ bool File::isArchiveFile() const
 
 	FileContentType type = guessContentType();
 	return type == CONTENT_TYPE_IMG  ||  type == CONTENT_TYPE_DIR;
+}
+
+
+File::filesize File::getSize() const
+{
+	if (!physicallyExists()) {
+		if (path->isIMGPath()) {
+			File* imgFile = getParent();
+			IMGArchive* img = new IMGArchive(*imgFile);
+			IMGEntry* entry = img->getEntryByName(path->getFileName());
+			filesize size = entry->size * IMG_BLOCK_SIZE;
+			delete img;
+			delete imgFile;
+			return size;
+		} else {
+			char* errMsg = new char[strlen(path->toString()) + 64];
+			sprintf(errMsg, "Attempt to get size of non-existent file %s", path->toString());
+			FileException ex(errMsg);
+			delete[] errMsg;
+			throw ex;
+		}
+	}
+
+#ifdef linux
+	struct stat fileInfo;
+
+	if (stat(path->toString(), &fileInfo) != 0) {
+		char* errStr = strerror(errno);
+		char* errMsg = new char[strlen(errStr) + strlen(path->toString()) + 64];
+		sprintf(errMsg, "Internal error receiving size of file %s: %s", path->toString(), errStr);
+		FileException ex(errMsg, __FILE__, __LINE__);
+		delete[] errMsg;
+		throw ex;
+	}
+
+	return fileInfo.st_size;
+#else
+	InputStream* stream = openStream(STREAM_BINARY);
+	stream->seek(0, InputStream::STREAM_SEEK_END);
+	InputStream::streampos size = stream->tell();
+	delete stream;
+	return size;
+#endif
 }
 

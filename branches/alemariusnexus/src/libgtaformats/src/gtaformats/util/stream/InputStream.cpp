@@ -20,9 +20,9 @@
 #include "InputStream.h"
 
 
-int InputStream::readLine(char* dest, int len)
+int InputStream::readLine(char* dest, streamsize len)
 {
-	int i;
+	streamsize i;
 
 	for (i = 0 ; i < len  &&  !hasReachedEnd() ; i++) {
 		read(dest+i, 1);
@@ -41,7 +41,7 @@ int InputStream::readLine(char* dest, int len)
 }
 
 
-void InputStream::skip(int len)
+void InputStream::skip(streamsize len)
 {
 	seek(len);
 }

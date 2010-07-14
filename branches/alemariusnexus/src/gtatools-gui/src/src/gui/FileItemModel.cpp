@@ -67,10 +67,10 @@ QVariant FileItemModel::headerData(int section, Qt::Orientation orient, int role
 	if (role == Qt::DisplayRole) {
 		switch (section) {
 		case 0:
-			return "Filename";
+			return tr("Filename");
 			break;
 		case 1:
-			return "File Type";
+			return tr("File Type");
 			break;
 		}
 	}
@@ -98,14 +98,14 @@ QVariant FileItemModel::data(const QModelIndex& index, int role) const
 		File* realFile = file->getFile();
 
 		if (realFile->isDirectory()) {
-			return "Directory";
+			return tr("Directory");
 		} else {
 			FormatHandler* handler = FormatManager::getInstance()->getHandler(*realFile, FORMAT_HANDLER_DESCRIBE, true);
 
 			if (handler) {
 				return handler->getFileFormatName(*realFile, true);
 			} else {
-				return "Unrecognized File";
+				return tr("Unrecognized File");
 			}
 		}
 	}
