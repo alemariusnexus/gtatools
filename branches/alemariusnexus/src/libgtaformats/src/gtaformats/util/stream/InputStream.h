@@ -20,7 +20,7 @@
 #ifndef INPUTSTREAM_H_
 #define INPUTSTREAM_H_
 
-#include <gtaformats/stdint.h>
+#include "../../stdint.h"
 
 
 

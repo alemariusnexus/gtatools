@@ -4,32 +4,32 @@
 <context>
     <name>ConfigWidget</name>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_ConfigWidget.h" line="145"/>
+        <location filename="../../../build/gtatools-gui/build/ui_ConfigWidget.h" line="145"/>
         <source>Settings</source>
         <translation>Settings</translation>
     </message>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_ConfigWidget.h" line="146"/>
+        <location filename="../../../build/gtatools-gui/build/ui_ConfigWidget.h" line="146"/>
         <source>Selected Profile</source>
         <translation>Selected Profile</translation>
     </message>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_ConfigWidget.h" line="147"/>
+        <location filename="../../../build/gtatools-gui/build/ui_ConfigWidget.h" line="147"/>
         <source>Profile Settings</source>
         <translation>Profile Settings</translation>
     </message>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_ConfigWidget.h" line="148"/>
+        <location filename="../../../build/gtatools-gui/build/ui_ConfigWidget.h" line="148"/>
         <source>Profiles</source>
         <translation>Profiles</translation>
     </message>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_ConfigWidget.h" line="149"/>
+        <location filename="../../../build/gtatools-gui/build/ui_ConfigWidget.h" line="149"/>
         <source>Cancel</source>
         <translation>Cancel</translation>
     </message>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_ConfigWidget.h" line="150"/>
+        <location filename="../../../build/gtatools-gui/build/ui_ConfigWidget.h" line="150"/>
         <source>Apply</source>
         <translation>Apply</translation>
     </message>
@@ -73,37 +73,37 @@
 <context>
     <name>FirstStartWizard</name>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_FirstStartWizard.h" line="65"/>
+        <location filename="../../../build/gtatools-gui/build/ui_FirstStartWizard.h" line="65"/>
         <source>Initial Setup</source>
         <translation>Initial Setup</translation>
     </message>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_FirstStartWizard.h" line="66"/>
+        <location filename="../../../build/gtatools-gui/build/ui_FirstStartWizard.h" line="66"/>
         <source>Introduction</source>
         <translation>Introduction</translation>
     </message>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_FirstStartWizard.h" line="67"/>
+        <location filename="../../../build/gtatools-gui/build/ui_FirstStartWizard.h" line="67"/>
         <source>This seems to be the first time you start GTATools GUI Tool. Please take some time to configure the basic options.</source>
         <translation>This seems to be the first time you start GTATools GUI Tool. Please take some time to configure the basic options.</translation>
     </message>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_FirstStartWizard.h" line="68"/>
+        <location filename="../../../build/gtatools-gui/build/ui_FirstStartWizard.h" line="68"/>
         <source>Default Profile</source>
         <translation>Default Profile</translation>
     </message>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_FirstStartWizard.h" line="69"/>
+        <location filename="../../../build/gtatools-gui/build/ui_FirstStartWizard.h" line="69"/>
         <source>To allow multiple configurations, this program uses a concept of profiles. At any time, you can easily switch between and edit the profiles. Please provide some information for the default profile.</source>
         <translation>To allow multiple configurations, this program uses a concept of profiles. At any time, you can easily switch between and edit the profiles. Please provide some information for the default profile.</translation>
     </message>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_FirstStartWizard.h" line="70"/>
+        <location filename="../../../build/gtatools-gui/build/ui_FirstStartWizard.h" line="70"/>
         <source>Initialization Complete</source>
         <translation>Initialization Complete</translation>
     </message>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_FirstStartWizard.h" line="71"/>
+        <location filename="../../../build/gtatools-gui/build/ui_FirstStartWizard.h" line="71"/>
         <source>The initial configuration is done! Click finish to save it to disk and use the program.</source>
         <translation>The initial configuration is done! Click finish to save it to disk and use the program.</translation>
     </message>
@@ -196,42 +196,42 @@
         <translation>GTATools GUI Tool - %1</translation>
     </message>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_MainFrame.h" line="185"/>
+        <location filename="../../../build/gtatools-gui/build/ui_MainFrame.h" line="185"/>
         <source>Settings...</source>
         <translation>Settings...</translation>
     </message>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_MainFrame.h" line="186"/>
+        <location filename="../../../build/gtatools-gui/build/ui_MainFrame.h" line="186"/>
         <source>(No File Opened)</source>
         <translation>(No File Opened)</translation>
     </message>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_MainFrame.h" line="187"/>
+        <location filename="../../../build/gtatools-gui/build/ui_MainFrame.h" line="187"/>
         <source>File Type</source>
         <translation>File Type</translation>
     </message>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_MainFrame.h" line="188"/>
+        <location filename="../../../build/gtatools-gui/build/ui_MainFrame.h" line="188"/>
         <source>File Size</source>
         <translation>File Size</translation>
     </message>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_MainFrame.h" line="189"/>
+        <location filename="../../../build/gtatools-gui/build/ui_MainFrame.h" line="189"/>
         <source>Profile</source>
         <translation>Profile</translation>
     </message>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_MainFrame.h" line="190"/>
+        <location filename="../../../build/gtatools-gui/build/ui_MainFrame.h" line="190"/>
         <source>Switch</source>
         <translation>Switch</translation>
     </message>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_MainFrame.h" line="191"/>
+        <location filename="../../../build/gtatools-gui/build/ui_MainFrame.h" line="191"/>
         <source>Settings</source>
         <translation>Settings</translation>
     </message>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_MainFrame.h" line="192"/>
+        <location filename="../../../build/gtatools-gui/build/ui_MainFrame.h" line="192"/>
         <source>Edit</source>
         <translation type="unfinished">Edit</translation>
     </message>
@@ -239,27 +239,27 @@
 <context>
     <name>ProfileConfigWidget</name>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_ProfileConfigWidget.h" line="139"/>
+        <location filename="../../../build/gtatools-gui/build/ui_ProfileConfigWidget.h" line="139"/>
         <source>Profile Name</source>
         <translation>Profile Name</translation>
     </message>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_ProfileConfigWidget.h" line="140"/>
+        <location filename="../../../build/gtatools-gui/build/ui_ProfileConfigWidget.h" line="140"/>
         <source>Add File</source>
         <translation>Add File</translation>
     </message>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_ProfileConfigWidget.h" line="141"/>
+        <location filename="../../../build/gtatools-gui/build/ui_ProfileConfigWidget.h" line="141"/>
         <source>Add Directory</source>
         <translation>Add Directory</translation>
     </message>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_ProfileConfigWidget.h" line="142"/>
+        <location filename="../../../build/gtatools-gui/build/ui_ProfileConfigWidget.h" line="142"/>
         <source>Edit</source>
         <translation>Edit</translation>
     </message>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_ProfileConfigWidget.h" line="143"/>
+        <location filename="../../../build/gtatools-gui/build/ui_ProfileConfigWidget.h" line="143"/>
         <source>Remove</source>
         <translation>Remove</translation>
     </message>

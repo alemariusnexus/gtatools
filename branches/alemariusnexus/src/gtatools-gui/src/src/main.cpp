@@ -63,6 +63,10 @@ int main(int argc, char** argv)
 	FirstStartWizard wiz;
 
 	if (!File(CONFIG_FILE).exists()) {
+		if (!File(CONFIG_DIR).exists()) {
+
+		}
+
 		wiz.exec();
 	}
 

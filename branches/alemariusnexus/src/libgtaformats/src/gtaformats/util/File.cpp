@@ -408,3 +408,13 @@ File::filesize File::getSize() const
 #endif
 }
 
+
+bool File::mkdir() const
+{
+#ifdef linux
+	return ::mkdir(path->toString(), S_IRWXU | S_IRWXG | S_IRWXO) == 0;
+#else
+	return CreateDirectory(path->toString()) != 0;
+#endif
+}
+

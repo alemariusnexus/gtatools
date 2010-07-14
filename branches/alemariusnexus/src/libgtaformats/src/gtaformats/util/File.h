@@ -192,6 +192,8 @@ public:
 
 	filesize getSize() const;
 
+	bool mkdir() const;
+
 	bool operator==(const File& other) const;
 	bool operator!=(const File& other) const { return !(*this == other); }
 	bool operator>(const File& other) const;
