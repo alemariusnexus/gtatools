@@ -6,11 +6,11 @@
  */
 
 #include "FormatManager.h"
-#include "impl/IMGFormatHandler.h"
-#include "impl/TXDFormatHandler.h"
-#include "impl/IPLFormatHandler.h"
-#include "impl/IDEFormatHandler.h"
-#include "impl/DFFFormatHandler.h"
+#include "img/IMGFormatHandler.h"
+#include "txd/TXDFormatHandler.h"
+#include "ipl/IPLFormatHandler.h"
+#include "ide/IDEFormatHandler.h"
+#include "dff/DFFFormatHandler.h"
 
 
 

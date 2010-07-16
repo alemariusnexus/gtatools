@@ -16,11 +16,14 @@
 #include "ConfigWidget.h"
 #include <qmenu.h>
 #include <config.h>
-#include "../formats/impl/TXDGUIModule.h"
+#include "../formats/txd/TXDGUIModule.h"
+#include "../System.h"
+#include "DefaultGUIModule.h"
 
 
 
 MainWindow::MainWindow()
+		: currentDisplayWidget(NULL)
 {
 	ui.setupUi(this);
 	setWindowTitle(tr("ProgramBaseName"));
@@ -54,18 +57,17 @@ void MainWindow::initialize()
 
 	currentProfileChanged(NULL, currentProfile);
 
+	connect(System::getInstance(), SIGNAL(fileOpened(const File&)), this, SLOT(openFile(const File&)));
 	connect(ui.fileTree, SIGNAL(activated(const QModelIndex&)), this, SLOT(fileSelectedInTree(const QModelIndex&)));
 	connect(ui.actionSettings, SIGNAL(triggered(bool)), this, SLOT(settingsRequested(bool)));
 	connect(switchProfileGroup, SIGNAL(triggered(QAction*)), this, SLOT(profileSwitchRequested(QAction*)));
 	connect(pm, SIGNAL(currentProfileChanged(Profile*, Profile*)), this,
 			SLOT(currentProfileChanged(Profile*, Profile*)));
+	connect(ui.fileTree, SIGNAL(customContextMenuRequested(const QPoint&)), this,
+			SLOT(fileTreeContextMenuRequested(const QPoint&)));
 
-	globalModules << new TXDGUIModule();
-
-	QLinkedList<GUIModule*>::iterator mit;
-	for (mit = globalModules.begin() ; mit != globalModules.end() ; mit++) {
-		(*mit)->apply(this);
-	}
+	globalModules << new DefaultGUIModule(this);
+	globalModules << new TXDGUIModule(this);
 
 	QSettings settings(CONFIG_FILE, QSettings::IniFormat);
 
@@ -77,7 +79,7 @@ MainWindow::~MainWindow()
 {
 	QLinkedList<GUIModule*>::iterator it;
 	for (it = globalModules.begin() ; it != globalModules.end() ; it++) {
-		(*it)->remove(this);
+		delete *it;
 	}
 
 	QSettings settings(CONFIG_FILE, QSettings::IniFormat);
@@ -92,24 +94,31 @@ void MainWindow::fileSelectedInTree(const QModelIndex& index)
 	}
 
 	File* file = static_cast<StaticFile*>(index.internalPointer())->getFile();
-	openFile(*file);
+	System::getInstance()->openFile(*file);
 }
 
 
 void MainWindow::openFile(const File& file)
 {
-	/*if (currentFileModule) {
-		currentFileModule->remove(this);
-		delete currentFileModule;
-		currentFileModule = NULL;
-	}*/
+	FileItemModel* model = (FileItemModel*) ui.fileTree->model();
+	if (*model->getFileForIndex(ui.fileTree->currentIndex()) != file) {
+		QModelIndex index = indexOfFileInTree(file);
+
+		if (index.isValid()) {
+			ui.fileTree->setCurrentIndex(index);
+		}
+	}
 
 	QLinkedList<GUIModule*>::iterator it;
 	for (it = currentFileModules.begin() ; it != currentFileModules.end() ; it++) {
-		(*it)->remove(this);
 		delete *it;
 	}
 	currentFileModules.clear();
+
+	if (currentDisplayWidget) {
+		delete currentDisplayWidget;
+		currentDisplayWidget = NULL;
+	}
 
 	ui.fileNameLabel->setText(QString(file.getPath()->getFileName()));
 
@@ -140,12 +149,18 @@ void MainWindow::openFile(const File& file)
 
 		for (fhit = modHandlers.begin() ; fhit != modHandlers.end() ; fhit++) {
 			FormatHandler* handler = *fhit;
-			GUIModule* mod = handler->createGUIModuleForFile(file);
+			GUIModule* mod = handler->createGUIModuleForFile(file, this);
 
 			if (mod) {
 				currentFileModules << mod;
-				mod->apply(this);
 			}
+		}
+
+		FormatHandler* widgetHandler = FormatManager::getInstance()->getHandler(file, FORMAT_HANDLER_WIDGET, true);
+
+		if (widgetHandler) {
+			currentDisplayWidget = widgetHandler->createWidgetForFile(file, ui.contentPluginWidget);
+			ui.contentPluginWidget->layout()->addWidget(currentDisplayWidget);
 		}
 	}
 }
@@ -196,5 +211,52 @@ void MainWindow::profileSwitchRequested(QAction* action)
 	ProfileManager* pm = ProfileManager::getInstance();
 	Profile* profile = pm->getProfile(action->data().toInt());
 	pm->setCurrentProfile(profile);
+}
+
+
+void MainWindow::fileTreeContextMenuRequested(const QPoint& pos)
+{
+	printf("Requested menu\n");
+
+	FileItemModel* model = (FileItemModel*) ui.fileTree->model();
+	QModelIndex index = ui.fileTree->indexAt(pos);
+
+	if (index.isValid()) {
+		File* file = model->getFileForIndex(index);
+
+		QMenu* menu = new QMenu(ui.fileTree);
+		menu->setAttribute(Qt::WA_DeleteOnClose);
+
+		QLinkedList<GUIModule*>::iterator it;
+		for (it = globalModules.begin() ; it != globalModules.end() ; it++) {
+			GUIModule* module = *it;
+			module->buildFileTreeMenu(*file, *menu);
+		}
+
+		if (!file->isDirectory()) {
+			QLinkedList<FormatHandler*> handlers = FormatManager::getInstance()->
+					getHandlers(*file, FORMAT_HANDLER_FILETREEMENU, true);
+			QLinkedList<FormatHandler*>::iterator it;
+			for (it = handlers.begin() ; it != handlers.end() ; it++) {
+				FormatHandler* handler = *it;
+				handler->buildFileTreeMenu(*file, *menu);
+			}
+		}
+
+		for (it = currentFileModules.begin() ; it != currentFileModules.end() ; it++) {
+			GUIModule* module = *it;
+			module->buildFileTreeMenu(*file, *menu);
+		}
+
+		menu->popup(ui.fileTree->mapToGlobal(pos));
+	}
+}
+
+
+QModelIndex MainWindow::indexOfFileInTree(const File& file)
+{
+	QModelIndex root = ui.fileTree->rootIndex();
+	FileItemModel* model = (FileItemModel*) ui.fileTree->model();
+	return model->indexOf(file, root);
 }
 

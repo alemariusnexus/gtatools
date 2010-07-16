@@ -11,6 +11,8 @@
 class MainWindow;
 
 #include <qobject.h>
+#include <qmenu.h>
+#include <gtaformats/util/File.h>
 
 
 
@@ -18,8 +20,12 @@ class GUIModule : public QObject {
 	Q_OBJECT
 
 public:
-	virtual void apply(MainWindow* mw) = 0;
-	virtual void remove(MainWindow* mw) = 0;
+	GUIModule(MainWindow* mw) : mainWindow(mw) {};
+	virtual ~GUIModule() {};
+	virtual void buildFileTreeMenu(const File& file, QMenu& menu) {}
+
+protected:
+	MainWindow* mainWindow;
 };
 
 #endif /* GUIMODULE_H_ */

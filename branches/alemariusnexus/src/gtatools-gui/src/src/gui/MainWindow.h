@@ -13,6 +13,9 @@
 #include <qmainwindow.h>
 #include "../Profile.h"
 #include "GUIModule.h"
+#include <qabstractitemmodel.h>
+#include <qmenu.h>
+#include <qpoint.h>
 
 
 class MainWindow : public QMainWindow {
@@ -22,11 +25,13 @@ public:
 	MainWindow();
 	~MainWindow();
 	void initialize();
-	void openFile(const File& file);
 	QMenuBar* getMenuBar() { return ui.menuBar; }
 	QMenu* getSettingsMenu() { return ui.menuSettings; }
 	QMenu* getProfileMenu() { return ui.menuProfile; }
 	QMenu* getEditMenu() { return ui.menuEdit; }
+
+private:
+	QModelIndex indexOfFileInTree(const File& file);
 
 private slots:
 	void fileSelectedInTree(const QModelIndex& index);
@@ -34,11 +39,14 @@ private slots:
 	void currentProfileContentChanged();
 	void settingsRequested(bool checked);
 	void profileSwitchRequested(QAction* action);
+	void openFile(const File& file);
+	void fileTreeContextMenuRequested(const QPoint& pos);
 
 private:
 	Ui_MainWindow ui;
 	QLinkedList<GUIModule*> globalModules;
 	QLinkedList<GUIModule*> currentFileModules;
+	QWidget* currentDisplayWidget;
 };
 
 #endif /* MAINWINDOW_H_ */

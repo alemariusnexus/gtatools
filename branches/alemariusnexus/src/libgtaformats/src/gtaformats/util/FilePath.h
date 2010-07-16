@@ -107,7 +107,9 @@ public:
 	 *
 	 *	@return true if this path points to a file inside an IMG/DIR archive.
 	 */
-	bool isIMGPath();
+	bool isIMGPath() const;
+
+	bool isChildOf(const FilePath& other) const;
 
 	bool operator==(const FilePath& other) const;
 	bool operator!=(const FilePath& other) const { return !(*this == other); }

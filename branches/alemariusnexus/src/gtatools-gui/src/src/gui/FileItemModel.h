@@ -17,6 +17,9 @@ public:
 	FileItemModel(Profile* profile, QObject* parent = 0);
 	virtual ~FileItemModel() {};
 
+	QModelIndex indexOf(const File& file, const QModelIndex& start);
+	File* getFileForIndex(const QModelIndex& index);
+
 	int rowCount(const QModelIndex& parent = QModelIndex()) const;
 	int columnCount(const QModelIndex& parent = QModelIndex()) const { return 2; }
 	Qt::ItemFlags flags(const QModelIndex& index) const;

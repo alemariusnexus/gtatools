@@ -17,13 +17,15 @@ class TXDGUIModule : public GUIModule {
 	Q_OBJECT
 
 public:
-	virtual void apply(MainWindow* mw);
-	virtual void remove(MainWindow* mw);
+	TXDGUIModule(MainWindow* mw);
+	virtual ~TXDGUIModule();
+	virtual void buildFileTreeMenu(const File& file, QMenu& menu);
 
 private slots:
 	void onFindTexture(bool checked);
 
 private:
+	File* contextFile;
 	QAction* findTextureAction;
 };
 

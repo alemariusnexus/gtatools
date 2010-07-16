@@ -30,6 +30,33 @@ FileItemModel::FileItemModel(Profile* profile, QObject* parent)
 }
 
 
+QModelIndex FileItemModel::indexOf(const File& file, const QModelIndex& start)
+{
+	int rc = rowCount(start);
+
+	for (int i = 0 ; i < rc ; i++) {
+		//QModelIndex child = start.child(i, 0);
+		QModelIndex child = index(i, 0, start);
+
+		StaticFile* sf = static_cast<StaticFile*>(child.internalPointer());
+
+		if (*sf->getFile() == file) {
+			return child;
+		} else if (file.isChildOf(*sf->getFile())) {
+			return indexOf(file, child);
+		}
+	}
+
+	return QModelIndex();
+}
+
+
+File* FileItemModel::getFileForIndex(const QModelIndex& index)
+{
+	return static_cast<StaticFile*>(index.internalPointer())->getFile();
+}
+
+
 int FileItemModel::rowCount(const QModelIndex& parent) const
 {
 	if (parent.column() > 0) {

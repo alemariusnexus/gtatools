@@ -41,6 +41,9 @@
             <property name="text">
              <string>Selected Profile</string>
             </property>
+            <property name="buddy">
+             <cstring>profileBox</cstring>
+            </property>
            </widget>
           </item>
           <item row="0" column="1">

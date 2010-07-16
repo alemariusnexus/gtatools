@@ -203,7 +203,7 @@ InputStream* File::openStream(int flags) const
 	} else {
 		if (path->isIMGPath()) {
 			File* parent = getParent();
-			InputStream* stream = parent->openStream();
+			InputStream* stream = parent->openStream(STREAM_BINARY);
 			IMGArchive archive(stream);
 			delete parent;
 			InputStream* rstream = archive.gotoEntry(path->getFileName(), true);
@@ -416,5 +416,11 @@ bool File::mkdir() const
 #else
 	return CreateDirectory(path->toString()) != 0;
 #endif
+}
+
+
+bool File::isChildOf(const File& other) const
+{
+	return path->isChildOf(*other.path);
 }
 

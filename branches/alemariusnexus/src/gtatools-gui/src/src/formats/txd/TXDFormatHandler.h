@@ -16,6 +16,7 @@ class TXDFormatHandler: public FormatHandler {
 public:
 	virtual features getFileFeatures(const File& file, bool fromContent);
 	virtual QString getFileFormatName(const File& file, bool fromContent = true);
+	virtual QWidget* createWidgetForFile(const File& file, QWidget* parent);
 };
 
 #endif /* TXDFORMATHANDLER_H_ */

@@ -103,7 +103,7 @@ FilePath* FilePath::getParentPath() const
 {
 	char* parentEnd = strrchr(path, '/');
 
-	if (parentEnd == NULL) {
+	if (parentEnd == NULL  ||  parentEnd == path) {
 		return NULL;
 	}
 
@@ -145,7 +145,7 @@ FileContentType FilePath::guessContentType() const
 }
 
 
-bool FilePath::isIMGPath()
+bool FilePath::isIMGPath() const
 {
 	FilePath* parent = getParentPath();
 	bool imgPath = false;
@@ -160,6 +160,22 @@ bool FilePath::isIMGPath()
 
 	delete parent;
 	return imgPath;
+}
+
+
+bool FilePath::isChildOf(const FilePath& other) const
+{
+	FilePath* parent = getParentPath();
+
+	if (parent == NULL) {
+		return false;
+	}
+
+	if (*parent == other) {
+		return true;
+	} else {
+		return parent->isChildOf(other);
+	}
 }
 
 
