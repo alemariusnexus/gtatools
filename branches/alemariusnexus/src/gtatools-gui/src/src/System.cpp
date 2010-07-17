@@ -17,6 +17,14 @@ System* System::getInstance()
 
 void System::openFile(const File& file)
 {
+	fileOpen = true;
 	emit fileOpened(file);
+}
+
+
+void System::closeCurrentFile()
+{
+	emit currentFileClosed();
+	fileOpen = false;
 }
 

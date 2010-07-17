@@ -21,12 +21,18 @@ public:
 
 public:
 	void openFile(const File& file);
+	void closeCurrentFile();
+	bool hasOpenFile() { return fileOpen; }
 
 signals:
 	void fileOpened(const File& file);
+	void currentFileClosed();
 
 private:
 	System() {}
+
+private:
+	bool fileOpen;
 };
 
 #endif /* SYSTEM_H_ */

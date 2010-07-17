@@ -4,39 +4,39 @@
 <context>
     <name>ConfigWidget</name>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_ConfigWidget.h" line="148"/>
+        <location filename="src/gui/ConfigWidget.cpp" line="20"/>
+        <source>ProgramBaseName</source>
+        <translation>GTATools GUI Tool</translation>
+    </message>
+    <message>
+        <location filename="src/gui/ConfigWidget.ui" line="14"/>
         <source>Settings</source>
-        <translation>Optionen</translation>
+        <translation>Einstellungen</translation>
     </message>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_ConfigWidget.h" line="149"/>
-        <source>Selected Profile</source>
-        <translation>Ausgewähltes Profil</translation>
-    </message>
-    <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_ConfigWidget.h" line="150"/>
-        <source>Profile Settings</source>
-        <translation>Profileinstellungen</translation>
-    </message>
-    <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_ConfigWidget.h" line="151"/>
+        <location filename="src/gui/ConfigWidget.ui" line="30"/>
         <source>Profiles</source>
         <translation>Profile</translation>
     </message>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_ConfigWidget.h" line="152"/>
+        <location filename="src/gui/ConfigWidget.ui" line="42"/>
+        <source>Selected Profile</source>
+        <translation>Ausgewähltes Profil</translation>
+    </message>
+    <message>
+        <location filename="src/gui/ConfigWidget.ui" line="64"/>
+        <source>Profile Settings</source>
+        <translation>Profileinstellungen</translation>
+    </message>
+    <message>
+        <location filename="src/gui/ConfigWidget.ui" line="108"/>
         <source>Cancel</source>
         <translation>Abbrechen</translation>
     </message>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_ConfigWidget.h" line="153"/>
+        <location filename="src/gui/ConfigWidget.ui" line="115"/>
         <source>Apply</source>
-        <translation>Übernehmen</translation>
-    </message>
-    <message>
-        <location filename="src/gui/ConfigWidget.cpp" line="20"/>
-        <source>ProgramBaseName</source>
-        <translation>GTATools GUI Tool</translation>
+        <translation>Anwenden</translation>
     </message>
 </context>
 <context>
@@ -44,15 +44,67 @@
     <message>
         <location filename="src/formats/dff/DFFFormatHandler.cpp" line="26"/>
         <source>DFF Mesh</source>
-        <translation>DFF Mesh</translation>
+        <translation>DFF-Mesh</translation>
     </message>
 </context>
 <context>
     <name>DefaultGUIModule</name>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="17"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="32"/>
+        <source>Open...</source>
+        <translation>Öffnen...</translation>
+    </message>
+    <message>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="36"/>
+        <source>Close</source>
+        <translation>Schließen</translation>
+    </message>
+    <message>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="41"/>
+        <source>Settings...</source>
+        <translation>Einstellungen...</translation>
+    </message>
+    <message>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="45"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="143"/>
+        <source>About Qt</source>
+        <translation>Über Qt</translation>
+    </message>
+    <message>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="49"/>
+        <source>About</source>
+        <translation>Über</translation>
+    </message>
+    <message>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="53"/>
+        <source>Switch</source>
+        <translation>Wechseln</translation>
+    </message>
+    <message>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="56"/>
         <source>Execute System Program</source>
         <translation>Systemprogramm ausführen</translation>
+    </message>
+    <message>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="151"/>
+        <source>About GTATools GUI Tool</source>
+        <translation>Über GTATools GUI Tool</translation>
+    </message>
+    <message>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="149"/>
+        <source>AboutText</source>
+        <translation>Dies ist gtatools-gui. Dieses Programm ist Teil der gtatools und läuft mit Version %1.
+
+Dieses Programm ist freie Software. Sie können es unter den Bedingungen der GNU General Public License, wie von der Free Software Foundation veröffentlicht, weitergeben und/oder modifizieren, entweder gemäß Version 3 der Lizenz oder (nach Ihrer Option) jeder späteren Version.
+
+Die Veröffentlichung dieses Programms erfolgt in der Hoffnung, daß es Ihnen von Nutzen sein wird, aber OHNE IRGENDEINE GARANTIE, sogar ohne die implizite Garantie der MARKTREIFE oder der VERWENDBARKEIT FÜR EINEN BESTIMMTEN ZWECK. Details finden Sie in der GNU General Public License.
+
+Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem Programm erhalten haben. Falls nicht, siehe &lt;http://www.gnu.org/licenses/&gt;.</translation>
+    </message>
+    <message>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="157"/>
+        <source>Select file</source>
+        <translation>Datei auswählen</translation>
     </message>
 </context>
 <context>
@@ -81,44 +133,44 @@
 <context>
     <name>FirstStartWizard</name>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_FirstStartWizard.h" line="65"/>
-        <source>Initial Setup</source>
-        <translation>Initialer Setup</translation>
+        <location filename="src/gui/FirstStartWizard.cpp" line="21"/>
+        <source>ProgramBaseName</source>
+        <translation>GTATools GUI Tool</translation>
     </message>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_FirstStartWizard.h" line="66"/>
+        <location filename="src/gui/FirstStartWizard.ui" line="14"/>
+        <source>Initial Setup</source>
+        <translation>Einrichtung</translation>
+    </message>
+    <message>
+        <location filename="src/gui/FirstStartWizard.ui" line="24"/>
         <source>Introduction</source>
         <translation>Einführung</translation>
     </message>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_FirstStartWizard.h" line="67"/>
+        <location filename="src/gui/FirstStartWizard.ui" line="27"/>
         <source>This seems to be the first time you start GTATools GUI Tool. Please take some time to configure the basic options.</source>
-        <translation>Dies scheint das erste Mal zu sein, dass du GTATools GUI Tool startest. Butte nimm dir die Zeit, die grundlegenden Optionen zu konfigurieren.</translation>
+        <translation>Dies scheint das erste Mal zu sein, dass du GTATools GUI Tool startest. Bitte nimm dir die Zeit, die grundlegenden Optionen zu konfigurieren.</translation>
     </message>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_FirstStartWizard.h" line="68"/>
+        <location filename="src/gui/FirstStartWizard.ui" line="32"/>
         <source>Default Profile</source>
         <translation>Standardprofil</translation>
     </message>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_FirstStartWizard.h" line="69"/>
+        <location filename="src/gui/FirstStartWizard.ui" line="35"/>
         <source>To allow multiple configurations, this program uses a concept of profiles. At any time, you can easily switch between and edit the profiles. Please provide some information for the default profile.</source>
-        <translation>Um mehrere Konfigurationen zu erlauben, verwendet dieses Programm das Konzept der Profile. Du kannst einfach zwischen diesen wechseln und sie bearbeiten. Butte gib einige Informationen zum Standardprofil an.</translation>
+        <translation>[[ Viiiel zu langer Text ]].</translation>
     </message>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_FirstStartWizard.h" line="70"/>
+        <location filename="src/gui/FirstStartWizard.ui" line="45"/>
         <source>Initialization Complete</source>
-        <translation>Einrichtung Komplett</translation>
+        <translation>Einrichtung komplett</translation>
     </message>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_FirstStartWizard.h" line="71"/>
+        <location filename="src/gui/FirstStartWizard.ui" line="48"/>
         <source>The initial configuration is done! Click finish to save it to disk and use the program.</source>
-        <translation>Die initiale Konfiguration ist abgeschlossen! Klicke Fertigstellen um sie auf die Festplatte zu sichern und das Programm zu benutzen.</translation>
-    </message>
-    <message>
-        <location filename="src/gui/FirstStartWizard.cpp" line="21"/>
-        <source>ProgramBaseName</source>
-        <translation>GTATools GUI Tool</translation>
+        <translation>Die Einrichtung ist abgeschlossen! Wähle Fertigstellen um sie zu speichern und das Programm zu verwenden.</translation>
     </message>
 </context>
 <context>
@@ -126,7 +178,7 @@
     <message>
         <location filename="src/formats/ide/IDEFormatHandler.cpp" line="25"/>
         <source>Item Definition File (IDE)</source>
-        <translation>Itemdefinitionsdatei (IDE)</translation>
+        <translation>Item Definition File (IDE)</translation>
     </message>
 </context>
 <context>
@@ -134,7 +186,7 @@
     <message>
         <location filename="src/formats/img/IMGFormatHandler.cpp" line="30"/>
         <source>IMG Archive Header (DIR)</source>
-        <translation>IMG Archivheader (DIR)</translation>
+        <translation>IMG-Archivheader (DIR)</translation>
     </message>
     <message>
         <location filename="src/formats/img/IMGFormatHandler.cpp" line="36"/>
@@ -168,109 +220,90 @@
         <translation>GTATools GUI Tool</translation>
     </message>
     <message>
-        <location filename="src/gui/MainWindow.cpp" line="126"/>
+        <location filename="src/gui/MainWindow.cpp" line="99"/>
         <source>Directory</source>
         <translation>Verzeichnis</translation>
     </message>
     <message>
-        <location filename="src/gui/MainWindow.cpp" line="127"/>
+        <location filename="src/gui/MainWindow.cpp" line="100"/>
         <source>%1 files</source>
         <translation>%1 Dateien</translation>
     </message>
     <message>
-        <location filename="src/gui/MainWindow.cpp" line="132"/>
+        <location filename="src/gui/MainWindow.cpp" line="105"/>
         <source>%1MB</source>
         <translation>%1MB</translation>
     </message>
     <message>
-        <location filename="src/gui/MainWindow.cpp" line="134"/>
+        <location filename="src/gui/MainWindow.cpp" line="107"/>
         <source>%1kB</source>
         <translation>%1kB</translation>
     </message>
     <message>
-        <location filename="src/gui/MainWindow.cpp" line="136"/>
+        <location filename="src/gui/MainWindow.cpp" line="109"/>
         <source>%1B</source>
         <translation>%1B</translation>
     </message>
     <message>
-        <location filename="src/gui/MainWindow.cpp" line="142"/>
+        <location filename="src/gui/MainWindow.cpp" line="115"/>
         <source>Unrecognized File</source>
         <translation>Nicht erkannte Datei</translation>
     </message>
     <message>
-        <location filename="src/gui/MainWindow.cpp" line="173"/>
-        <location filename="src/gui/MainWindow.cpp" line="193"/>
+        <location filename="src/gui/MainWindow.cpp" line="165"/>
+        <location filename="src/gui/MainWindow.cpp" line="185"/>
         <source>GTATools GUI Tool - %1</source>
         <translation>GTATools GUI Tool - %1</translation>
     </message>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_MainFrame.h" line="190"/>
-        <source>Settings...</source>
-        <translation>Optionen...</translation>
-    </message>
-    <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_MainFrame.h" line="191"/>
+        <location filename="src/gui/MainFrame.ui" line="88"/>
+        <location filename="src/gui/MainWindow.cpp" line="155"/>
         <source>(No File Opened)</source>
         <translation>(Keine Datei geöffnet)</translation>
     </message>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_MainFrame.h" line="192"/>
+        <location filename="src/gui/MainFrame.ui" line="113"/>
         <source>File Type</source>
         <translation>Dateityp</translation>
     </message>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_MainFrame.h" line="193"/>
+        <location filename="src/gui/MainFrame.ui" line="120"/>
         <source>File Size</source>
         <translation>Dateigröße</translation>
     </message>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_MainFrame.h" line="194"/>
+        <location filename="src/gui/MainFrame.ui" line="169"/>
         <source>Profile</source>
         <translation>Profil</translation>
     </message>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_MainFrame.h" line="195"/>
-        <source>Switch</source>
-        <translation>Wechseln</translation>
-    </message>
-    <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_MainFrame.h" line="196"/>
+        <location filename="src/gui/MainFrame.ui" line="174"/>
         <source>Settings</source>
-        <translation>Optionen</translation>
+        <translation>Einstellungen</translation>
     </message>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_MainFrame.h" line="197"/>
+        <location filename="src/gui/MainFrame.ui" line="179"/>
         <source>Edit</source>
         <translation>Bearbeiten</translation>
+    </message>
+    <message>
+        <location filename="src/gui/MainFrame.ui" line="184"/>
+        <source>File</source>
+        <translation>Datei</translation>
+    </message>
+    <message>
+        <location filename="src/gui/MainFrame.ui" line="189"/>
+        <source>Help</source>
+        <translation>Hilfe</translation>
+    </message>
+    <message>
+        <location filename="src/gui/MainFrame.ui" line="201"/>
+        <source>Settings...</source>
+        <translation>Einstellungen...</translation>
     </message>
 </context>
 <context>
     <name>ProfileConfigWidget</name>
-    <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_ProfileConfigWidget.h" line="142"/>
-        <source>Profile Name</source>
-        <translation>Profilname</translation>
-    </message>
-    <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_ProfileConfigWidget.h" line="143"/>
-        <source>Add File</source>
-        <translation>Datei Hinzufügen</translation>
-    </message>
-    <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_ProfileConfigWidget.h" line="144"/>
-        <source>Add Directory</source>
-        <translation>Verzeichnis Hinzufügen</translation>
-    </message>
-    <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_ProfileConfigWidget.h" line="145"/>
-        <source>Edit</source>
-        <translation>Bearbeiten</translation>
-    </message>
-    <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_ProfileConfigWidget.h" line="146"/>
-        <source>Remove</source>
-        <translation>Entfernen</translation>
-    </message>
     <message>
         <location filename="src/gui/ProfileConfigWidget.cpp" line="66"/>
         <location filename="src/gui/ProfileConfigWidget.cpp" line="77"/>
@@ -281,7 +314,32 @@
         <location filename="src/gui/ProfileConfigWidget.cpp" line="97"/>
         <location filename="src/gui/ProfileConfigWidget.cpp" line="103"/>
         <source>Select new resource</source>
-        <translation>Wähle eine neue Resource aus</translation>
+        <translation>Wähle eine neue Ressource aus</translation>
+    </message>
+    <message>
+        <location filename="src/gui/ProfileConfigWidget.ui" line="23"/>
+        <source>Profile Name</source>
+        <translation>Profilname</translation>
+    </message>
+    <message>
+        <location filename="src/gui/ProfileConfigWidget.ui" line="61"/>
+        <source>Add File</source>
+        <translation>Datei hinzufügen</translation>
+    </message>
+    <message>
+        <location filename="src/gui/ProfileConfigWidget.ui" line="68"/>
+        <source>Add Directory</source>
+        <translation>Verzeichnis hinzufügen</translation>
+    </message>
+    <message>
+        <location filename="src/gui/ProfileConfigWidget.ui" line="75"/>
+        <source>Edit</source>
+        <translation>Bearbeiten</translation>
+    </message>
+    <message>
+        <location filename="src/gui/ProfileConfigWidget.ui" line="82"/>
+        <source>Remove</source>
+        <translation>Entfernen</translation>
     </message>
 </context>
 <context>
@@ -296,61 +354,13 @@
     <name>TXDGUIModule</name>
     <message>
         <location filename="src/formats/txd/TXDGUIModule.cpp" line="19"/>
+        <location filename="src/formats/txd/TXDGUIModule.cpp" line="23"/>
         <source>Search Texture...</source>
         <translation>Textur Suchen...</translation>
-    </message>
-    <message>
-        <source>Ctrl+T</source>
-        <translation type="obsolete">Strg+T</translation>
     </message>
 </context>
 <context>
     <name>TXDWidget</name>
-    <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_TXDWidget.h" line="248"/>
-        <source>Texture Count</source>
-        <translation>Anzahl Texturen</translation>
-    </message>
-    <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_TXDWidget.h" line="249"/>
-        <source>Raster Format</source>
-        <translation>Rasterformat</translation>
-    </message>
-    <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_TXDWidget.h" line="250"/>
-        <source>Diffuse Name</source>
-        <translation>Diffuse Name</translation>
-    </message>
-    <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_TXDWidget.h" line="251"/>
-        <source>Alpha Name</source>
-        <translation>Alpha Name</translation>
-    </message>
-    <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_TXDWidget.h" line="252"/>
-        <source>Compression</source>
-        <translation>Kompression</translation>
-    </message>
-    <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_TXDWidget.h" line="253"/>
-        <source>Dimensions</source>
-        <translation>Dimensionen</translation>
-    </message>
-    <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_TXDWidget.h" line="254"/>
-        <source>Bits Per Pixel</source>
-        <translation>Bits Pro Pixel</translation>
-    </message>
-    <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_TXDWidget.h" line="255"/>
-        <source>MipMap Count</source>
-        <translation>Anzahl MipMaps</translation>
-    </message>
-    <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_TXDWidget.h" line="256"/>
-        <source>Alpha Channel</source>
-        <translation>Alphakanal</translation>
-    </message>
     <message>
         <location filename="src/formats/txd/TXDWidget.cpp" line="68"/>
         <source>DXT1</source>
@@ -381,92 +391,63 @@
         <source>no</source>
         <translation>nein</translation>
     </message>
+    <message>
+        <location filename="src/formats/txd/TXDWidget.ui" line="23"/>
+        <source>Texture Count</source>
+        <translation>Anzahl Texturen</translation>
+    </message>
+    <message>
+        <location filename="src/formats/txd/TXDWidget.ui" line="63"/>
+        <source>Raster Format</source>
+        <translation>Rasterformat</translation>
+    </message>
+    <message>
+        <location filename="src/formats/txd/TXDWidget.ui" line="77"/>
+        <source>Diffuse Name</source>
+        <translation>Diffuse Name</translation>
+    </message>
+    <message>
+        <location filename="src/formats/txd/TXDWidget.ui" line="91"/>
+        <source>Alpha Name</source>
+        <translation>Alpha Name</translation>
+    </message>
+    <message>
+        <location filename="src/formats/txd/TXDWidget.ui" line="105"/>
+        <source>Compression</source>
+        <translation>Kompression</translation>
+    </message>
+    <message>
+        <location filename="src/formats/txd/TXDWidget.ui" line="119"/>
+        <source>Dimensions</source>
+        <translation>Dimensionen</translation>
+    </message>
+    <message>
+        <location filename="src/formats/txd/TXDWidget.ui" line="133"/>
+        <source>Bits Per Pixel</source>
+        <translation>Bits Pro Pixel</translation>
+    </message>
+    <message>
+        <location filename="src/formats/txd/TXDWidget.ui" line="147"/>
+        <source>MipMap Count</source>
+        <translation>Anzahl MipMaps</translation>
+    </message>
+    <message>
+        <location filename="src/formats/txd/TXDWidget.ui" line="161"/>
+        <source>Alpha Channel</source>
+        <translation>Alphakanal</translation>
+    </message>
 </context>
 <context>
     <name>TextureSearchDialog</name>
     <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_TextureSearchDialog.h" line="156"/>
-        <source>Search Texture</source>
-        <translation>Textur Suchen</translation>
-    </message>
-    <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_TextureSearchDialog.h" line="157"/>
-        <source>Search Criteria</source>
-        <translation>Suchkriterien</translation>
-    </message>
-    <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_TextureSearchDialog.h" line="158"/>
-        <source>&amp;Texture Name</source>
-        <translation>&amp;Texturname</translation>
-    </message>
-    <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_TextureSearchDialog.h" line="159"/>
-        <source>TXD &amp;Archive Name</source>
-        <translation>TXD-&amp;Archivname</translation>
-    </message>
-    <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_TextureSearchDialog.h" line="161"/>
-        <source>&amp;Exact Match</source>
-        <translation>&amp;Exakte Übereinstimmung</translation>
-    </message>
-    <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_TextureSearchDialog.h" line="162"/>
-        <source>&amp;Regular Expression</source>
-        <translation>&amp;Regulärer Ausdruck</translation>
-    </message>
-    <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_TextureSearchDialog.h" line="163"/>
-        <source>Case-&amp;Sensitive</source>
-        <translation>&amp;Groß-/Kleinschreibung beachten</translation>
-    </message>
-    <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_TextureSearchDialog.h" line="164"/>
-        <source>&amp;Cancel</source>
-        <translation>&amp;Abbrechen</translation>
-    </message>
-    <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_TextureSearchDialog.h" line="165"/>
-        <source>&amp;Search</source>
-        <translation>&amp;Suchen</translation>
-    </message>
-    <message>
-        <source>Texture Name</source>
-        <translation type="obsolete">Texturname</translation>
-    </message>
-    <message>
-        <source>TXD Archive Name</source>
-        <translation type="obsolete">TXD-Archivname</translation>
-    </message>
-    <message>
-        <location filename="../../../build-lin/gtatools-gui/build/ui_TextureSearchDialog.h" line="160"/>
-        <source>Options</source>
-        <translation>Optionen</translation>
-    </message>
-    <message>
-        <source>Regular Expression</source>
-        <translation type="obsolete">Regulärer Ausdruck</translation>
-    </message>
-    <message>
-        <source>Case-Sensitive</source>
-        <translation type="obsolete">Groß-/Kleinschreibung beachten</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Abbrechen</translation>
-    </message>
-    <message>
-        <source>Search</source>
-        <translation type="obsolete">Suchen</translation>
+        <location filename="src/formats/txd/TextureSearchDialog.cpp" line="82"/>
+        <source>No Match</source>
+        <translation>Keine Übereinstimmung</translation>
     </message>
     <message>
         <location filename="src/formats/txd/TextureSearchDialog.cpp" line="82"/>
         <source>No texture matching your criteria was found!</source>
-        <translation>Keine Textur, die den Kriterien entspricht, wurde gefunden!</translation>
-    </message>
-    <message>
-        <location filename="src/formats/txd/TextureSearchDialog.cpp" line="82"/>
-        <source>No Match</source>
-        <translation>Keine Übereinstimmung</translation>
+        <translation>Keine Textur wurde gefunden, die den Kriterien entspricht!</translation>
     </message>
     <message>
         <location filename="src/formats/txd/TextureSearchDialog.cpp" line="92"/>
@@ -481,7 +462,57 @@
     <message>
         <location filename="src/formats/txd/TextureSearchDialog.cpp" line="96"/>
         <source>Please select the texture you want to open:</source>
-        <translation>Bitte wähle die Textur aus, die geöffnet werden soll:</translation>
+        <translation>Bitte wähle die zu öffnende Textur auf:</translation>
+    </message>
+    <message>
+        <location filename="src/formats/txd/TextureSearchDialog.ui" line="20"/>
+        <source>Search Texture</source>
+        <translation>Texture Suchen</translation>
+    </message>
+    <message>
+        <location filename="src/formats/txd/TextureSearchDialog.ui" line="35"/>
+        <source>Search Criteria</source>
+        <translation>Suchkriterien</translation>
+    </message>
+    <message>
+        <location filename="src/formats/txd/TextureSearchDialog.ui" line="41"/>
+        <source>&amp;Texture Name</source>
+        <translation>&amp;Texturname</translation>
+    </message>
+    <message>
+        <location filename="src/formats/txd/TextureSearchDialog.ui" line="54"/>
+        <source>TXD &amp;Archive Name</source>
+        <translation>TXD-&amp;Archivname</translation>
+    </message>
+    <message>
+        <location filename="src/formats/txd/TextureSearchDialog.ui" line="76"/>
+        <source>Options</source>
+        <translation>Optionen</translation>
+    </message>
+    <message>
+        <location filename="src/formats/txd/TextureSearchDialog.ui" line="82"/>
+        <source>&amp;Exact Match</source>
+        <translation>&amp;Exakte Übereinstimmung</translation>
+    </message>
+    <message>
+        <location filename="src/formats/txd/TextureSearchDialog.ui" line="89"/>
+        <source>&amp;Regular Expression</source>
+        <translation>&amp;Regulärer Ausdruck</translation>
+    </message>
+    <message>
+        <location filename="src/formats/txd/TextureSearchDialog.ui" line="96"/>
+        <source>Case-&amp;Sensitive</source>
+        <translation>&amp;Groß- und Kleinschreibung beachten</translation>
+    </message>
+    <message>
+        <location filename="src/formats/txd/TextureSearchDialog.ui" line="122"/>
+        <source>&amp;Cancel</source>
+        <translation>&amp;Abbrechen</translation>
+    </message>
+    <message>
+        <location filename="src/formats/txd/TextureSearchDialog.ui" line="129"/>
+        <source>&amp;Search</source>
+        <translation>&amp;Suchen</translation>
     </message>
 </context>
 </TS>

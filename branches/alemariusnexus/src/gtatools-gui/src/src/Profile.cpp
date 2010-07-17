@@ -77,6 +77,21 @@ void Profile::synchronize()
 }
 
 
+bool Profile::containsFile(const File& file)
+{
+	ResourceIterator it;
+	for (it = getResourceBegin() ; it != getResourceEnd() ; it++) {
+		File* res = *it;
+
+		if (file.isChildOf(*res)) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+
 
 
 

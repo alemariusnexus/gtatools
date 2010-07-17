@@ -19,7 +19,12 @@ TXDGUIModule::TXDGUIModule(MainWindow* mw)
 	findTextureAction = new QAction(tr("Search Texture..."), mw);
 	findTextureAction->setShortcut(QKeySequence("Ctrl+T"));
 	editMenu->addAction(findTextureAction);
+
+	findTextureInFileAction = new QAction(tr("Search Texture..."), mw);
+	findTextureInFileAction->setShortcut(QKeySequence("Ctrl+T"));
+
 	connect(findTextureAction, SIGNAL(triggered(bool)), this, SLOT(onFindTexture(bool)));
+	connect(findTextureInFileAction, SIGNAL(triggered(bool)), this, SLOT(onFindTextureInFile(bool)));
 }
 
 
@@ -30,6 +35,7 @@ TXDGUIModule::~TXDGUIModule()
 	}
 
 	delete findTextureAction;
+	delete findTextureInFileAction;
 }
 
 
@@ -41,13 +47,20 @@ void TXDGUIModule::buildFileTreeMenu(const File& file, QMenu& menu)
 	}
 
 	if (file.isDirectory()  ||  file.isArchiveFile()) {
-		menu.addAction(findTextureAction);
+		menu.addAction(findTextureInFileAction);
 		contextFile = new File(file);
 	}
 }
 
 
 void TXDGUIModule::onFindTexture(bool checked)
+{
+	TextureSearchDialog dialog(mainWindow);
+	dialog.exec();
+}
+
+
+void TXDGUIModule::onFindTextureInFile(bool checked)
 {
 	TextureSearchDialog dialog(mainWindow, contextFile);
 	dialog.exec();

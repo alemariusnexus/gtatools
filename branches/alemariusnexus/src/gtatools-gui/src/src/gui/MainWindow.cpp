@@ -34,33 +34,15 @@ MainWindow::MainWindow()
 void MainWindow::initialize()
 {
 	ProfileManager* pm = ProfileManager::getInstance();
+	System* sys = System::getInstance();
+
 	Profile* currentProfile = pm->getCurrentProfile();
-
-	ProfileManager::ProfileIterator it;
-
-	QActionGroup* switchProfileGroup = new QActionGroup(this);
-
-	for (it = pm->getProfileBegin() ; it != pm->getProfileEnd() ; it++) {
-		Profile* profile = *it;
-
-		QAction* action = new QAction(profile->getName(), this);
-		action->setCheckable(true);
-		action->setData(pm->indexOfProfile(profile));
-
-		if (profile == currentProfile) {
-			action->setChecked(true);
-		}
-
-		switchProfileGroup->addAction(action);
-		ui.menuSwitchProfile->addAction(action);
-	}
 
 	currentProfileChanged(NULL, currentProfile);
 
-	connect(System::getInstance(), SIGNAL(fileOpened(const File&)), this, SLOT(openFile(const File&)));
+	connect(sys, SIGNAL(fileOpened(const File&)), this, SLOT(openFile(const File&)));
+	connect(sys, SIGNAL(currentFileClosed()), this, SLOT(closeCurrentFile()));
 	connect(ui.fileTree, SIGNAL(activated(const QModelIndex&)), this, SLOT(fileSelectedInTree(const QModelIndex&)));
-	connect(ui.actionSettings, SIGNAL(triggered(bool)), this, SLOT(settingsRequested(bool)));
-	connect(switchProfileGroup, SIGNAL(triggered(QAction*)), this, SLOT(profileSwitchRequested(QAction*)));
 	connect(pm, SIGNAL(currentProfileChanged(Profile*, Profile*)), this,
 			SLOT(currentProfileChanged(Profile*, Profile*)));
 	connect(ui.fileTree, SIGNAL(customContextMenuRequested(const QPoint&)), this,
@@ -109,16 +91,7 @@ void MainWindow::openFile(const File& file)
 		}
 	}
 
-	QLinkedList<GUIModule*>::iterator it;
-	for (it = currentFileModules.begin() ; it != currentFileModules.end() ; it++) {
-		delete *it;
-	}
-	currentFileModules.clear();
-
-	if (currentDisplayWidget) {
-		delete currentDisplayWidget;
-		currentDisplayWidget = NULL;
-	}
+	closeCurrentFile();
 
 	ui.fileNameLabel->setText(QString(file.getPath()->getFileName()));
 
@@ -166,6 +139,25 @@ void MainWindow::openFile(const File& file)
 }
 
 
+void MainWindow::closeCurrentFile()
+{
+	QLinkedList<GUIModule*>::iterator it;
+	for (it = currentFileModules.begin() ; it != currentFileModules.end() ; it++) {
+		delete *it;
+	}
+	currentFileModules.clear();
+
+	if (currentDisplayWidget) {
+		delete currentDisplayWidget;
+		currentDisplayWidget = NULL;
+	}
+
+	ui.fileNameLabel->setText(tr("(No File Opened)"));
+	ui.fileTypeLabel->setText("-");
+	ui.fileSizeLabel->setText("-");
+}
+
+
 void MainWindow::currentProfileChanged(Profile* oldProfile, Profile* newProfile)
 {
 	FileItemModel* model = new FileItemModel(newProfile);
@@ -199,25 +191,8 @@ void MainWindow::currentProfileContentChanged()
 }
 
 
-void MainWindow::settingsRequested(bool checked)
-{
-	ConfigWidget* cfgWidget = new ConfigWidget;
-	cfgWidget->show();
-}
-
-
-void MainWindow::profileSwitchRequested(QAction* action)
-{
-	ProfileManager* pm = ProfileManager::getInstance();
-	Profile* profile = pm->getProfile(action->data().toInt());
-	pm->setCurrentProfile(profile);
-}
-
-
 void MainWindow::fileTreeContextMenuRequested(const QPoint& pos)
 {
-	printf("Requested menu\n");
-
 	FileItemModel* model = (FileItemModel*) ui.fileTree->model();
 	QModelIndex index = ui.fileTree->indexAt(pos);
 

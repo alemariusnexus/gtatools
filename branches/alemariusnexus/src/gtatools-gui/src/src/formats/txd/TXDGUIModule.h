@@ -23,10 +23,12 @@ public:
 
 private slots:
 	void onFindTexture(bool checked);
+	void onFindTextureInFile(bool checked);
 
 private:
 	File* contextFile;
 	QAction* findTextureAction;
+	QAction* findTextureInFileAction;
 };
 
 #endif /* TXDGUIMODULE_H_ */

@@ -14,6 +14,7 @@
 #include <QtCore/qfile.h>
 #include <gtaformats/engine/OpenGLResourceManager.h>
 #include <qmetatype.h>
+#include <gtaformats/util/File.h>
 
 
 class Profile : public QObject {
@@ -33,6 +34,7 @@ public:
 	void clearResources();
 	void setName(const QString& name) { this->name = name; }
 	void synchronize();
+	bool containsFile(const File& file);
 
 public slots:
 	void currentProfileChanged(Profile* oldProfile, Profile* newProfile);

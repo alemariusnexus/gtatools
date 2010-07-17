@@ -23,7 +23,7 @@ PROJECT(gtatools CXX)
 SET(GTATOOLS_VERSION_MAJOR "0") # Major version, must be numeric
 SET(GTATOOLS_VERSION_MINOR "1") # Minor version, must be numeric
 SET(GTATOOLS_VERSION_PATCH "0") # Patch version, must be numeric
-SET(GTATOOLS_VERSION_SUFFIX "_devel") # A suffix for the version string, could e.g. be 'b' for beta versions, or empty
+SET(GTATOOLS_VERSION_SUFFIX "-devel") # A suffix for the version string, could e.g. be 'b' for beta versions, or empty
 
 
 SET(LIBGTAFORMATS_BUILD ON CACHE BOOL "Whether you want to build libgtaformats")

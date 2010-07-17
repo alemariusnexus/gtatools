@@ -35,6 +35,7 @@ public:
 	virtual GUIModule* createGUIModuleForFile(const File& file, MainWindow* mw) { return NULL; }
 	virtual QWidget* createWidgetForFile(const File& file, QWidget* parent) { return NULL; }
 	virtual void buildFileTreeMenu(const File& file, QMenu& menu) {}
+	virtual void destroyFileTreeMenu() {}
 };
 
 #endif /* FORMATHANDLER_H_ */

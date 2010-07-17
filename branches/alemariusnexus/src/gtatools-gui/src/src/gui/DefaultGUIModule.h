@@ -12,6 +12,7 @@
 #include "MainWindow.h"
 #include <qobject.h>
 #include <qaction.h>
+#include <qmenu.h>
 
 
 
@@ -25,10 +26,25 @@ public:
 
 private slots:
 	void onOpenSystemProgram(bool checked);
+	void profileSwitchRequested(QAction* action);
+	void settingsRequested(bool checked);
+	void onAboutQt(bool checked);
+	void onAbout(bool checked);
+	void onFileOpen(bool checked);
+	void onFileClose(bool checked);
+	void fileOpened(const File& file);
+	void fileClosed();
 
 private:
+	QActionGroup* profileSwitchGroup;
+	QAction* fileOpenAction;
+	QAction* fileCloseAction;
+	QAction* settingsAction;
+	QAction* aboutQtAction;
+	QAction* aboutAction;
 	QAction* systemOpenAction;
 	File* contextFile;
+	QMenu* profileSwitchMenu;
 };
 
 #endif /* DEFAULTGUIMODULE_H_ */
