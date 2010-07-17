@@ -25,6 +25,37 @@
      <property name="currentIndex">
       <number>0</number>
      </property>
+     <widget class="QWidget" name="tab_2">
+      <attribute name="title">
+       <string>Search</string>
+      </attribute>
+      <layout class="QFormLayout" name="formLayout_2">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>&amp;Regular Expression Format</string>
+         </property>
+         <property name="buddy">
+          <cstring>regexFormatBox</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QComboBox" name="regexFormatBox">
+         <item>
+          <property name="text">
+           <string>Simple (Wildcards)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Full (Perl-like)</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+      </layout>
+     </widget>
      <widget class="QWidget" name="tab">
       <attribute name="title">
        <string>Profiles</string>

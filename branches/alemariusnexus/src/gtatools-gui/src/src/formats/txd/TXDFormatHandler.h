@@ -10,12 +10,15 @@
 
 #include "../FormatHandler.h"
 
+
+
 class TXDFormatHandler: public FormatHandler {
 	Q_OBJECT
 
 public:
-	virtual features getFileFeatures(const File& file, bool fromContent);
-	virtual QString getFileFormatName(const File& file, bool fromContent = true);
+	virtual QString getFormatName(const File* file = NULL) const { return tr("Texture Dictionary (TXD)"); };
+	virtual QLinkedList<QString> getFileFormatExtensions() const { return QLinkedList<QString>() << "txd"; }
+	virtual bool hasFileFormat(const File& file) const { return file.guessContentType() == CONTENT_TYPE_TXD; }
 	virtual QWidget* createWidgetForFile(const File& file, QWidget* parent);
 };
 

@@ -13,13 +13,7 @@
 #include <qobject.h>
 #include "../gui/GUIModule.h"
 #include <qwidget.h>
-
-
-
-#define FORMAT_HANDLER_DESCRIBE (1 << 0)
-#define FORMAT_HANDLER_GUIMODULE (1 << 1)
-#define FORMAT_HANDLER_WIDGET (1 << 2)
-#define FORMAT_HANDLER_FILETREEMENU (1 << 3)
+#include <qlinkedlist.h>
 
 
 
@@ -30,12 +24,14 @@ public:
 	typedef char features;
 
 public:
-	virtual features getFileFeatures(const File& file, bool fromContent) = 0;
-	virtual QString getFileFormatName(const File& file, bool fromContent = true) = 0;
+	FormatHandler() {}
+	virtual ~FormatHandler() {}
+	virtual QString getFormatName(const File* file = NULL) const = 0;
+	virtual QLinkedList<QString> getFileFormatExtensions() const = 0;
+	virtual bool hasFileFormat(const File& file) const = 0;
 	virtual GUIModule* createGUIModuleForFile(const File& file, MainWindow* mw) { return NULL; }
 	virtual QWidget* createWidgetForFile(const File& file, QWidget* parent) { return NULL; }
 	virtual void buildFileTreeMenu(const File& file, QMenu& menu) {}
-	virtual void destroyFileTreeMenu() {}
 };
 
 #endif /* FORMATHANDLER_H_ */

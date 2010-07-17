@@ -39,6 +39,4 @@ fi
 
 echo "Using lupdate executable $LUPDATE"
 
-SRCFILES="`find "$GTATOOLSGUI_ROOT_DIR" -iname '*.cpp' -or -iname '*.c' -or -iname '*.cxx' -or -iname '*.h' -or -iname '*.hpp' -or -iname '*.ui' | sed 's/ /\\ /' | tr '\n' ' '`"
-
-$LUPDATE $SRCFILES -ts "$GTATOOLSGUI_ROOT_DIR/gtatools-gui_en.ts" "$GTATOOLSGUI_ROOT_DIR/gtatools-gui_de.ts"
+$LUPDATE "$GTATOOLSGUI_ROOT_DIR" -ts "$GTATOOLSGUI_ROOT_DIR/gtatools-gui_en.ts" "$GTATOOLSGUI_ROOT_DIR/gtatools-gui_de.ts"

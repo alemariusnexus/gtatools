@@ -10,35 +10,24 @@
 
 
 
-IMGFormatHandler::features IMGFormatHandler::getFileFeatures(const File& file, bool fromContent)
-{
-	FileContentType type = file.guessContentType();
 
-	if (type == CONTENT_TYPE_DIR  ||  type == CONTENT_TYPE_IMG) {
-		return FORMAT_HANDLER_DESCRIBE;
-	} else {
-		return 0;
+QString IMGFormatHandler::getFormatName(const File* file) const
+{
+	if (!file) {
+		return tr("IMG Archive");
 	}
-}
 
-
-QString IMGFormatHandler::getFileFormatName(const File& file, bool fromContent)
-{
-	FileContentType type = file.guessContentType();
+	FileContentType type = file->guessContentType();
 
 	if (type == CONTENT_TYPE_DIR) {
 		return tr("IMG Archive Header (DIR)");
 	} else {
-		if (fromContent) {
-			IMGArchive::IMGVersion ver = IMGArchive::guessIMGVersion(file);
+		IMGArchive::IMGVersion ver = IMGArchive::guessIMGVersion(*file);
 
-			if (ver == IMGArchive::VER1) {
-				return tr("IMG Archive Version 1 (GTA III/VC)");
-			} else {
-				return tr("IMG Archive Version 2 (GTA SA)");
-			}
+		if (ver == IMGArchive::VER1) {
+			return tr("IMG Archive Version 1 (GTA III/VC)");
 		} else {
-			return tr("IMG Archive");
+			return tr("IMG Archive Version 2 (GTA SA)");
 		}
 	}
 }

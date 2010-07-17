@@ -8,6 +8,7 @@
 #include "ConfigWidget.h"
 #include "../ProfileManager.h"
 #include <qsettings.h>
+#include <config.h>
 
 
 
@@ -32,6 +33,18 @@ ConfigWidget::ConfigWidget()
 	connect(ui.cancelButton, SIGNAL(clicked(bool)), this, SLOT(onCancel(bool)));
 
 	selectedProfileChanged(0);
+
+	QSettings settings(CONFIG_FILE, QSettings::IniFormat);
+
+	QString regexSyntax = settings.value("main/regex_syntax", "wildcard").toString();
+
+	if (regexSyntax == "wildcard") {
+		ui.regexFormatBox->setCurrentIndex(0);
+	} else if (regexSyntax == "full") {
+		ui.regexFormatBox->setCurrentIndex(1);
+	} else {
+		ui.regexFormatBox->setCurrentIndex(0);
+	}
 }
 
 
@@ -45,6 +58,17 @@ void ConfigWidget::selectedProfileChanged(int index)
 
 void ConfigWidget::onApply(bool checked)
 {
+	QSettings settings(CONFIG_FILE, QSettings::IniFormat);
+
+	switch (ui.regexFormatBox->currentIndex()) {
+	case 0:
+		settings.setValue("main/regex_syntax", "wildcard");
+		break;
+	case 1:
+		settings.setValue("main/regex_syntax", "full");
+		break;
+	}
+
 	Profile* profile = ProfileManager::getInstance()->getProfile(ui.profileBox->currentIndex());
 	profile->setName(ui.profileWidget->getProfileName());
 	profile->clearResources();
@@ -59,6 +83,8 @@ void ConfigWidget::onApply(bool checked)
 
 	ProfileManager::getInstance()->saveProfiles();
 	profile->synchronize();
+
+	settings.sync();
 }
 
 

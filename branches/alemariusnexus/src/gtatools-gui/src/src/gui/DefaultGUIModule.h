@@ -34,6 +34,7 @@ private slots:
 	void onFileClose(bool checked);
 	void fileOpened(const File& file);
 	void fileClosed();
+	void onSearchFile(bool checked);
 
 private:
 	QActionGroup* profileSwitchGroup;
@@ -42,6 +43,7 @@ private:
 	QAction* settingsAction;
 	QAction* aboutQtAction;
 	QAction* aboutAction;
+	QAction* searchFileAction;
 	QAction* systemOpenAction;
 	File* contextFile;
 	QMenu* profileSwitchMenu;

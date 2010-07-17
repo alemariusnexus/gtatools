@@ -16,8 +16,8 @@
 
 FormatManager::FormatManager()
 {
-	registerFormatHandler(new IMGFormatHandler);
 	registerFormatHandler(new TXDFormatHandler);
+	registerFormatHandler(new IMGFormatHandler);
 	registerFormatHandler(new IPLFormatHandler);
 	registerFormatHandler(new IDEFormatHandler);
 	registerFormatHandler(new DFFFormatHandler);
@@ -37,32 +37,32 @@ void FormatManager::registerFormatHandler(FormatHandler* handler)
 }
 
 
-FormatHandler* FormatManager::getHandler(const File& file, FormatHandler::features feature, bool fromContent)
-{
-	HandlerList::iterator it;
-
-	for (it = handlers.begin() ; it != handlers.end() ; it++) {
-		FormatHandler* handler = *it;
-		if ((feature & handler->getFileFeatures(file, fromContent)) == feature) {
-			return handler;
-		}
-	}
-
-	return NULL;
-}
-
-
-QLinkedList<FormatHandler*> FormatManager::getHandlers(const File& file, FormatHandler::features feature, bool fromContent)
+QLinkedList<FormatHandler*> FormatManager::getHandlers(const File& file)
 {
 	QLinkedList<FormatHandler*> list;
-	HandlerList::iterator it;
 
+	HandlerList::iterator it;
 	for (it = handlers.begin() ; it != handlers.end() ; it++) {
 		FormatHandler* handler = *it;
-		if ((feature & handler->getFileFeatures(file, fromContent)) == feature) {
+		if (handler->hasFileFormat(file)) {
 			list << handler;
 		}
 	}
 
 	return list;
+}
+
+
+FormatHandler* FormatManager::getHandler(const File& file)
+{
+	HandlerList::iterator it;
+
+	for (it = handlers.begin() ; it != handlers.end() ; it++) {
+		FormatHandler* handler = *it;
+		if (handler->hasFileFormat(file)) {
+			return handler;
+		}
+	}
+
+	return NULL;
 }

@@ -109,19 +109,18 @@ void MainWindow::openFile(const File& file)
 			ui.fileSizeLabel->setText(QString(tr("%1B")).arg(size));
 		}
 
-		FormatHandler* descHandler = FormatManager::getInstance()->getHandler(file, FORMAT_HANDLER_DESCRIBE, true);
+		QLinkedList<FormatHandler*> handlers = FormatManager::getInstance()->getHandlers(file);
 
-		if (!descHandler) {
+		if (handlers.size() == 0) {
 			ui.fileTypeLabel->setText(QString(tr("Unrecognized File")));
 		} else {
-			ui.fileTypeLabel->setText(descHandler->getFileFormatName(file, true));
+			ui.fileTypeLabel->setText((*handlers.begin())->getFormatName(&file));
 		}
 
-		QLinkedList<FormatHandler*> modHandlers = FormatManager::getInstance()->getHandlers(file, FORMAT_HANDLER_GUIMODULE, true);
-		QLinkedList<FormatHandler*>::iterator fhit;
+		QLinkedList<FormatHandler*>::iterator it;
 
-		for (fhit = modHandlers.begin() ; fhit != modHandlers.end() ; fhit++) {
-			FormatHandler* handler = *fhit;
+		for (it = handlers.begin() ; it != handlers.end() ; it++) {
+			FormatHandler* handler = *it;
 			GUIModule* mod = handler->createGUIModuleForFile(file, this);
 
 			if (mod) {
@@ -129,11 +128,14 @@ void MainWindow::openFile(const File& file)
 			}
 		}
 
-		FormatHandler* widgetHandler = FormatManager::getInstance()->getHandler(file, FORMAT_HANDLER_WIDGET, true);
+		for (it = handlers.begin() ; it != handlers.end() ; it++) {
+			FormatHandler* handler = *it;
+			currentDisplayWidget = handler->createWidgetForFile(file, ui.contentPluginWidget);
 
-		if (widgetHandler) {
-			currentDisplayWidget = widgetHandler->createWidgetForFile(file, ui.contentPluginWidget);
-			ui.contentPluginWidget->layout()->addWidget(currentDisplayWidget);
+			if (currentDisplayWidget) {
+				ui.contentPluginWidget->layout()->addWidget(currentDisplayWidget);
+				break;
+			}
 		}
 	}
 }
@@ -209,8 +211,7 @@ void MainWindow::fileTreeContextMenuRequested(const QPoint& pos)
 		}
 
 		if (!file->isDirectory()) {
-			QLinkedList<FormatHandler*> handlers = FormatManager::getInstance()->
-					getHandlers(*file, FORMAT_HANDLER_FILETREEMENU, true);
+			QLinkedList<FormatHandler*> handlers = FormatManager::getInstance()->getHandlers(*file);
 			QLinkedList<FormatHandler*>::iterator it;
 			for (it = handlers.begin() ; it != handlers.end() ; it++) {
 				FormatHandler* handler = *it;

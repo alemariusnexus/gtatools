@@ -16,7 +16,7 @@
 #include <qfiledialog.h>
 #include "../System.h"
 #include <gf_config.h>
-#include <cstdio>
+#include "FileSearchDialog.h"
 
 
 
@@ -26,20 +26,29 @@ DefaultGUIModule::DefaultGUIModule(MainWindow* mw)
 	System* sys = System::getInstance();
 
 	QMenu* fileMenu = mw->getFileMenu();
+	QMenu* editMenu = mw->getEditMenu();
 	QMenu* settingsMenu = mw->getSettingsMenu();
 	QMenu* profileMenu = mw->getProfileMenu();
 	QMenu* helpMenu = mw->getHelpMenu();
 
 	fileOpenAction = new QAction(tr("Open..."), mw);
+	fileOpenAction->setShortcut(QKeySequence::Open);
 	connect(fileOpenAction, SIGNAL(triggered(bool)), this, SLOT(onFileOpen(bool)));
 	fileMenu->addAction(fileOpenAction);
 
 	fileCloseAction = new QAction(tr("Close"), mw);
+	fileCloseAction->setShortcut(QKeySequence::Close);
 	connect(fileCloseAction, SIGNAL(triggered(bool)), this, SLOT(onFileClose(bool)));
 	fileMenu->addAction(fileCloseAction);
 	fileCloseAction->setEnabled(false);
 
+	searchFileAction = new QAction(tr("Search File..."), mw);
+	searchFileAction->setShortcut(QKeySequence::Find);
+	connect(searchFileAction, SIGNAL(triggered(bool)), this, SLOT(onSearchFile(bool)));
+	editMenu->addAction(searchFileAction);
+
 	settingsAction = new QAction(tr("Settings..."), mw);
+	settingsAction->setShortcut(QKeySequence::Preferences);
 	connect(settingsAction, SIGNAL(triggered(bool)), this, SLOT(settingsRequested(bool)));
 	settingsMenu->addAction(settingsAction);
 
@@ -82,6 +91,7 @@ DefaultGUIModule::DefaultGUIModule(MainWindow* mw)
 	connect(profileSwitchGroup, SIGNAL(triggered(QAction*)), this, SLOT(profileSwitchRequested(QAction*)));
 	connect(sys, SIGNAL(fileOpened(const File&)), this, SLOT(fileOpened(const File&)));
 	connect(sys, SIGNAL(currentFileClosed()), this, SLOT(fileClosed()));
+
 }
 
 
@@ -177,4 +187,11 @@ void DefaultGUIModule::fileOpened(const File& file)
 void DefaultGUIModule::fileClosed()
 {
 	fileCloseAction->setEnabled(false);
+}
+
+
+void DefaultGUIModule::onSearchFile(bool checked)
+{
+	FileSearchDialog dialog(mainWindow);
+	dialog.exec();
 }

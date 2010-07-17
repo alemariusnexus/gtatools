@@ -4,7 +4,7 @@
 <context>
     <name>ConfigWidget</name>
     <message>
-        <location filename="src/gui/ConfigWidget.cpp" line="20"/>
+        <location filename="src/gui/ConfigWidget.cpp" line="21"/>
         <source>ProgramBaseName</source>
         <translation>GTATools GUI Tool</translation>
     </message>
@@ -15,26 +15,46 @@
     </message>
     <message>
         <location filename="src/gui/ConfigWidget.ui" line="30"/>
+        <source>Search</source>
+        <translation>Search</translation>
+    </message>
+    <message>
+        <location filename="src/gui/ConfigWidget.ui" line="36"/>
+        <source>&amp;Regular Expression Format</source>
+        <translation>&amp;Regular Expression Format</translation>
+    </message>
+    <message>
+        <location filename="src/gui/ConfigWidget.ui" line="47"/>
+        <source>Simple (Wildcards)</source>
+        <translation>Simple (Wildcards)</translation>
+    </message>
+    <message>
+        <location filename="src/gui/ConfigWidget.ui" line="52"/>
+        <source>Full (Perl-like)</source>
+        <translation>Full (Perl-like)</translation>
+    </message>
+    <message>
+        <location filename="src/gui/ConfigWidget.ui" line="61"/>
         <source>Profiles</source>
         <translation>Profiles</translation>
     </message>
     <message>
-        <location filename="src/gui/ConfigWidget.ui" line="42"/>
+        <location filename="src/gui/ConfigWidget.ui" line="73"/>
         <source>Selected Profile</source>
         <translation>Selected Profile</translation>
     </message>
     <message>
-        <location filename="src/gui/ConfigWidget.ui" line="64"/>
+        <location filename="src/gui/ConfigWidget.ui" line="95"/>
         <source>Profile Settings</source>
         <translation>Profile Settings</translation>
     </message>
     <message>
-        <location filename="src/gui/ConfigWidget.ui" line="108"/>
+        <location filename="src/gui/ConfigWidget.ui" line="139"/>
         <source>Cancel</source>
         <translation>Cancel</translation>
     </message>
     <message>
-        <location filename="src/gui/ConfigWidget.ui" line="115"/>
+        <location filename="src/gui/ConfigWidget.ui" line="146"/>
         <source>Apply</source>
         <translation>Apply</translation>
     </message>
@@ -42,7 +62,7 @@
 <context>
     <name>DFFFormatHandler</name>
     <message>
-        <location filename="src/formats/dff/DFFFormatHandler.cpp" line="26"/>
+        <location filename="src/formats/dff/DFFFormatHandler.h" line="18"/>
         <source>DFF Mesh</source>
         <translation>DFF Mesh</translation>
     </message>
@@ -50,48 +70,53 @@
 <context>
     <name>DefaultGUIModule</name>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="32"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="34"/>
         <source>Open...</source>
         <translation>Open...</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="36"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="39"/>
         <source>Close</source>
         <translation>Close</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="41"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="45"/>
+        <source>Search File...</source>
+        <translation>Search File...</translation>
+    </message>
+    <message>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="50"/>
         <source>Settings...</source>
         <translation>Settings...</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="45"/>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="143"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="55"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="154"/>
         <source>About Qt</source>
         <translation>About Qt</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="49"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="59"/>
         <source>About</source>
         <translation>About</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="53"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="63"/>
         <source>Switch</source>
         <translation>Switch</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="56"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="66"/>
         <source>Execute System Program</source>
         <translation>Execute System Program</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="151"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="161"/>
         <source>About GTATools GUI Tool</source>
         <translation>About GTATools GUI Tool</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="149"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="160"/>
         <source>AboutText</source>
         <translation>This is gtatools-gui. This program is part of gtatools and runs with version %1.
 
@@ -102,7 +127,7 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="157"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="167"/>
         <source>Select file</source>
         <translation>Select file</translation>
     </message>
@@ -128,6 +153,84 @@ You should have received a copy of the GNU General Public License along with thi
         <location filename="src/gui/FileItemModel.cpp" line="135"/>
         <source>Unrecognized File</source>
         <translation>Unrecognized File</translation>
+    </message>
+</context>
+<context>
+    <name>FileSearchDialog</name>
+    <message>
+        <location filename="src/gui/FileSearchDialog.ui" line="14"/>
+        <source>Search File</source>
+        <translation>Search File</translation>
+    </message>
+    <message>
+        <location filename="src/gui/FileSearchDialog.ui" line="26"/>
+        <source>Criteria</source>
+        <translation>Criteria</translation>
+    </message>
+    <message>
+        <location filename="src/gui/FileSearchDialog.ui" line="32"/>
+        <source>&amp;Filename</source>
+        <translation>&amp;Filename</translation>
+    </message>
+    <message>
+        <location filename="src/gui/FileSearchDialog.ui" line="45"/>
+        <source>File &amp;Type</source>
+        <translation>File &amp;Type</translation>
+    </message>
+    <message>
+        <location filename="src/gui/FileSearchDialog.ui" line="71"/>
+        <source>Options</source>
+        <translation>Options</translation>
+    </message>
+    <message>
+        <location filename="src/gui/FileSearchDialog.ui" line="77"/>
+        <source>&amp;Exact Match</source>
+        <translation>&amp;Exact Match</translation>
+    </message>
+    <message>
+        <location filename="src/gui/FileSearchDialog.ui" line="84"/>
+        <source>&amp;Regular Expression</source>
+        <translation>&amp;Regular Expression</translation>
+    </message>
+    <message>
+        <location filename="src/gui/FileSearchDialog.ui" line="91"/>
+        <source>Case-&amp;Sensitive</source>
+        <translation>Case-&amp;Sensitive</translation>
+    </message>
+    <message>
+        <location filename="src/gui/FileSearchDialog.ui" line="123"/>
+        <source>&amp;Cancel</source>
+        <translation>&amp;Cancel</translation>
+    </message>
+    <message>
+        <location filename="src/gui/FileSearchDialog.ui" line="130"/>
+        <source>&amp;Search</source>
+        <translation>&amp;Search</translation>
+    </message>
+    <message>
+        <location filename="src/gui/FileSearchDialog.cpp" line="28"/>
+        <source>Directory</source>
+        <translation>Directory</translation>
+    </message>
+    <message>
+        <location filename="src/gui/FileSearchDialog.cpp" line="94"/>
+        <source>No Match</source>
+        <translation>No Match</translation>
+    </message>
+    <message>
+        <location filename="src/gui/FileSearchDialog.cpp" line="94"/>
+        <source>No file matching your criteria was found!</source>
+        <translation>No file matching your criteria was found!</translation>
+    </message>
+    <message>
+        <location filename="src/gui/FileSearchDialog.cpp" line="108"/>
+        <source>Multiple Matches</source>
+        <translation>Multiple Matches</translation>
+    </message>
+    <message>
+        <location filename="src/gui/FileSearchDialog.cpp" line="108"/>
+        <source>Please select the file you want to open:</source>
+        <translation>Please select the file you want to open:</translation>
     </message>
 </context>
 <context>
@@ -176,7 +279,7 @@ You should have received a copy of the GNU General Public License along with thi
 <context>
     <name>IDEFormatHandler</name>
     <message>
-        <location filename="src/formats/ide/IDEFormatHandler.cpp" line="25"/>
+        <location filename="src/formats/ide/IDEFormatHandler.h" line="17"/>
         <source>Item Definition File (IDE)</source>
         <translation>Item Definition File (IDE)</translation>
     </message>
@@ -184,22 +287,22 @@ You should have received a copy of the GNU General Public License along with thi
 <context>
     <name>IMGFormatHandler</name>
     <message>
-        <location filename="src/formats/img/IMGFormatHandler.cpp" line="30"/>
+        <location filename="src/formats/img/IMGFormatHandler.cpp" line="23"/>
         <source>IMG Archive Header (DIR)</source>
         <translation>IMG Archive Header (DIR)</translation>
     </message>
     <message>
-        <location filename="src/formats/img/IMGFormatHandler.cpp" line="36"/>
+        <location filename="src/formats/img/IMGFormatHandler.cpp" line="28"/>
         <source>IMG Archive Version 1 (GTA III/VC)</source>
         <translation>IMG Archive Version 1 (GTA III/VC)</translation>
     </message>
     <message>
-        <location filename="src/formats/img/IMGFormatHandler.cpp" line="38"/>
+        <location filename="src/formats/img/IMGFormatHandler.cpp" line="30"/>
         <source>IMG Archive Version 2 (GTA SA)</source>
         <translation>IMG Archive Version 2 (GTA SA)</translation>
     </message>
     <message>
-        <location filename="src/formats/img/IMGFormatHandler.cpp" line="41"/>
+        <location filename="src/formats/img/IMGFormatHandler.cpp" line="17"/>
         <source>IMG Archive</source>
         <translation>IMG Archive</translation>
     </message>
@@ -207,7 +310,7 @@ You should have received a copy of the GNU General Public License along with thi
 <context>
     <name>IPLFormatHandler</name>
     <message>
-        <location filename="src/formats/ipl/IPLFormatHandler.cpp" line="25"/>
+        <location filename="src/formats/ipl/IPLFormatHandler.h" line="17"/>
         <source>Item Placement File (IPL)</source>
         <translation>Item Placement File (IPL)</translation>
     </message>
@@ -250,14 +353,14 @@ You should have received a copy of the GNU General Public License along with thi
         <translation>Unrecognized File</translation>
     </message>
     <message>
-        <location filename="src/gui/MainWindow.cpp" line="165"/>
-        <location filename="src/gui/MainWindow.cpp" line="185"/>
+        <location filename="src/gui/MainWindow.cpp" line="167"/>
+        <location filename="src/gui/MainWindow.cpp" line="187"/>
         <source>GTATools GUI Tool - %1</source>
         <translation>GTATools GUI Tool - %1</translation>
     </message>
     <message>
         <location filename="src/gui/MainFrame.ui" line="88"/>
-        <location filename="src/gui/MainWindow.cpp" line="155"/>
+        <location filename="src/gui/MainWindow.cpp" line="157"/>
         <source>(No File Opened)</source>
         <translation>(No File Opened)</translation>
     </message>
@@ -277,22 +380,22 @@ You should have received a copy of the GNU General Public License along with thi
         <translation>Profile</translation>
     </message>
     <message>
-        <location filename="src/gui/MainFrame.ui" line="174"/>
+        <location filename="src/gui/MainFrame.ui" line="189"/>
         <source>Settings</source>
         <translation>Settings</translation>
     </message>
     <message>
-        <location filename="src/gui/MainFrame.ui" line="179"/>
+        <location filename="src/gui/MainFrame.ui" line="174"/>
         <source>Edit</source>
         <translation>Edit</translation>
     </message>
     <message>
-        <location filename="src/gui/MainFrame.ui" line="184"/>
+        <location filename="src/gui/MainFrame.ui" line="179"/>
         <source>File</source>
         <translation>File</translation>
     </message>
     <message>
-        <location filename="src/gui/MainFrame.ui" line="189"/>
+        <location filename="src/gui/MainFrame.ui" line="184"/>
         <source>Help</source>
         <translation>Help</translation>
     </message>
@@ -345,7 +448,7 @@ You should have received a copy of the GNU General Public License along with thi
 <context>
     <name>TXDFormatHandler</name>
     <message>
-        <location filename="src/formats/txd/TXDFormatHandler.cpp" line="29"/>
+        <location filename="src/formats/txd/TXDFormatHandler.h" line="19"/>
         <source>Texture Dictionary (TXD)</source>
         <translation>Texture Dictionary (TXD)</translation>
     </message>

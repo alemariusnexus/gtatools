@@ -169,11 +169,6 @@
      <string>Profile</string>
     </property>
    </widget>
-   <widget class="QMenu" name="menuSettings">
-    <property name="title">
-     <string>Settings</string>
-    </property>
-   </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
      <string>Edit</string>
@@ -187,6 +182,11 @@
    <widget class="QMenu" name="menuHelp">
     <property name="title">
      <string>Help</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuSettings">
+    <property name="title">
+     <string>Settings</string>
     </property>
    </widget>
    <addaction name="menuFile"/>

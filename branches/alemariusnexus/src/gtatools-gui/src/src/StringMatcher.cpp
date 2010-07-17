@@ -6,14 +6,30 @@
  */
 
 #include "StringMatcher.h"
+#include <qsettings.h>
+#include <config.h>
 
 
 StringMatcher::StringMatcher(const QString& pattern, flags flags)
 		: plainPattern(NULL), regexPattern(NULL)
 {
+	QSettings settings(CONFIG_FILE, QSettings::IniFormat);
+
 	if ((flags & STRING_MATCHER_REGEX) != 0) {
+		QRegExp::PatternSyntax syntax;
+
+		QString cfgSyntax = settings.value("main/regex_syntax", "wildcard").toString();
+
+		if (cfgSyntax == "wildcard") {
+			syntax = QRegExp::WildcardUnix;
+		} else if (cfgSyntax == "full") {
+			syntax = QRegExp::RegExp;
+		} else {
+			syntax = QRegExp::WildcardUnix;
+		}
+
 		regexPattern = new QRegExp(pattern, ((flags & STRING_MATCHER_CASEINSENSITIVE) != 0)
-				? Qt::CaseInsensitive : Qt::CaseSensitive, QRegExp::WildcardUnix);
+				? Qt::CaseInsensitive : Qt::CaseSensitive, syntax);
 	} else {
 		plainPattern = new QString(pattern);
 	}

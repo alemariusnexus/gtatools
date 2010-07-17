@@ -127,10 +127,10 @@ QVariant FileItemModel::data(const QModelIndex& index, int role) const
 		if (realFile->isDirectory()) {
 			return tr("Directory");
 		} else {
-			FormatHandler* handler = FormatManager::getInstance()->getHandler(*realFile, FORMAT_HANDLER_DESCRIBE, true);
+			FormatHandler* handler = FormatManager::getInstance()->getHandler(*realFile);
 
 			if (handler) {
-				return handler->getFileFormatName(*realFile, true);
+				return handler->getFormatName(realFile);
 			} else {
 				return tr("Unrecognized File");
 			}
