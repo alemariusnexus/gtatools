@@ -451,7 +451,7 @@ bool File::mkdir() const
 #ifdef linux
 	return ::mkdir(path->toString(), S_IRWXU | S_IRWXG | S_IRWXO) == 0;
 #else
-	return CreateDirectory(path->toString()) != 0;
+	return CreateDirectory(path->toString(), NULL) != 0;
 #endif
 }
 

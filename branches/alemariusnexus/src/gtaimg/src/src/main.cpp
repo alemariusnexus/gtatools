@@ -132,7 +132,12 @@ int main(int argc, char** argv) {
 		srcfile = *param;
 	} else {
 		fprintf(stderr, "Error: Invalid command '%s'!\n", command);
-		return 1;
+		return 2;
+	}
+
+	if (!File(srcfile).exists()) {
+		fprintf(stderr, "Error: Source file does not exist!\n");
+		return 3;
 	}
 
 	IMGArchive* archive = NULL;
@@ -142,8 +147,7 @@ int main(int argc, char** argv) {
 			const char* dirFile = GetSwitch("f");
 			archive = new IMGArchive(dirFile, srcfile);
 		} else {
-			//archive = new IMGArchive(srcfile);
-			archive = new IMGArchive("/home/alemariusnexus/gtasa/models/gta3.img");
+			archive = new IMGArchive(srcfile);
 		}
 
 		archive->visitAll(visitor);

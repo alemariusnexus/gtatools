@@ -119,6 +119,10 @@ MainWindow::~MainWindow()
 	QSettings settings(CONFIG_FILE, QSettings::IniFormat);
 	settings.setValue("gui/mainwindow_size", size());
 
+	if (currentDisplayWidget) {
+		delete currentDisplayWidget;
+	}
+
 	System* sys = System::getInstance();
 	QLinkedList<GUIModule*> modules = sys->getInstalledGUIModules();
 	QLinkedList<GUIModule*>::iterator it;

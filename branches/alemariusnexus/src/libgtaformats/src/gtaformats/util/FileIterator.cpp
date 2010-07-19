@@ -21,7 +21,7 @@ FileIterator::FileIterator(const File* file)
 #ifdef linux
 		  , dir(NULL)
 #else
-		  , dirHandle(NULL)
+		  , dirHandle(NULL), nextFile(NULL)
 #endif
 {
 	if (file->physicallyExists()) {
@@ -61,12 +61,20 @@ FileIterator::FileIterator(const File* file)
 			strcat(pattern, "/*");
 			dirHandle = FindFirstFile(pattern, &fdata);
 
+			bool empty = false;
+
 			while(strcmp(fdata.cFileName, ".") == 0  ||  strcmp(fdata.cFileName, "..") == 0) {
-				FindNextFile(dirHandle, &fdata);
+				if (FindNextFile(dirHandle, &fdata) == 0) {
+					empty = true;
+					break;
+				}
 			}
 
-			nextFile = new File(*file, fdata.cFileName);
-
+			if (!empty) {
+				nextFile = new File(*file, fdata.cFileName);
+			} else {
+				nextFile = NULL;
+			}
 #endif
 		}
 	} else {
@@ -90,7 +98,9 @@ FileIterator::~FileIterator()
 		closedir(dir);
 	}
 #else
-	FindClose(dirHandle);
+	if (dirHandle != NULL) {
+		FindClose(dirHandle);
+	}
 
 	if (nextFile != NULL) {
 		delete nextFile;
@@ -126,7 +136,15 @@ File* FileIterator::next()
 			if (FindNextFile(dirHandle, &fdata) == 0) {
 				nextFile = NULL;
 			} else {
-				if (strcmp(fdata.cFileName, ".") == 0  ||  strcmp(fdata.cFileName, "..") == 0) {
+				/*if (strcmp(fdata.cFileName, ".") == 0  ||  strcmp(fdata.cFileName, "..") == 0) {
+					continue;
+				}*/
+				int len = strlen(fdata.cFileName);
+
+				if (len == 1  &&  fdata.cFileName[0] == '.') {
+					continue;
+				}
+				if (len == 2  &&  fdata.cFileName[0] == '.'  &&  fdata.cFileName[1] == '.') {
 					continue;
 				}
 

@@ -46,6 +46,8 @@ ENDIF(GTATOOLS_GUI_BUILD)
 
 INCLUDE(CPack)
 
+SET(INSTALL_DEPENDENCIES OFF CACHE BOOL "If true, dependency libraries will be installed into the same folder as the executables.")
+
 
 IF(LIBGTAFORMATS_BUILD)
     ADD_SUBDIRECTORY(libgtaformats/src libgtaformats/build)
