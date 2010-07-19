@@ -29,7 +29,16 @@ FileIterator::FileIterator(const File* file)
 			FileContentType type = file->guessContentType();
 
 			if (type == CONTENT_TYPE_DIR  ||  type == CONTENT_TYPE_IMG) {
-				archive = new IMGArchive(*file);
+				try {
+					archive = new IMGArchive(*file);
+				} catch (Exception& ex) {
+					char* errMsg = new char[strlen(file->getPath()->toString()) + 128];
+					sprintf(errMsg, "Exception thrown during initialization of a FileIterator over IMG archive %s.",
+							file->getPath()->toString());
+					FileException fex(errMsg, __FILE__, __LINE__, &ex);
+					delete[] errMsg;
+					throw fex;
+				}
 			} else {
 				throw FileException("Attempt to iterate over regular non-archive file!", __FILE__, __LINE__);
 			}
@@ -130,16 +139,24 @@ File* FileIterator::next()
 		return retFile;
 #endif
 	} else {
-		IMGEntry** entries = archive->getEntries();
+		try {
+			IMGEntry** entries = archive->getEntries();
 
-		if (archiveIdx >= archive->getEntryCount()) {
-			return NULL;
+			if (archiveIdx >= archive->getEntryCount()) {
+				return NULL;
+			}
+
+			IMGEntry* entry = entries[archiveIdx++];
+
+			File* nextFile = new File(*iteratedDir, entry->name);
+			return nextFile;
+		} catch (Exception& ex) {
+			char* errMsg = new char[strlen(iteratedDir->getPath()->toString()) + 128];
+			sprintf(errMsg, "Exception thrown during iteration over IMG archive", iteratedDir->getPath()->toString());
+			FileException fex(errMsg, __FILE__, __LINE__, &ex);
+			delete[] errMsg;
+			throw fex;
 		}
-
-		IMGEntry* entry = entries[archiveIdx++];
-
-		File* nextFile = new File(*iteratedDir, entry->name);
-		return nextFile;
 	}
 }
 

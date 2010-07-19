@@ -21,8 +21,8 @@
 #include <cstring>
 #include <cstdio>
 
-TXDException::TXDException(const char* message, const char* srcFile, int srcLine) throw()
-		: Exception(message, srcFile, srcLine)
+TXDException::TXDException(const char* message, const char* srcFile, int srcLine, Exception* nestedException) throw()
+		: Exception(message, srcFile, srcLine, nestedException, "TXDException")
 {
 }
 

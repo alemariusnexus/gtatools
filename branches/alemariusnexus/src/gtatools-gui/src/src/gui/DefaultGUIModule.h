@@ -20,9 +20,13 @@ class DefaultGUIModule : public GUIModule {
 	Q_OBJECT
 
 public:
-	DefaultGUIModule(MainWindow* mw);
+	DefaultGUIModule();
 	virtual ~DefaultGUIModule();
 	virtual void buildFileTreeMenu(const File& file, QMenu& menu);
+
+private:
+	virtual void doInstall();
+	virtual void doUninstall();
 
 private slots:
 	void onOpenSystemProgram(bool checked);

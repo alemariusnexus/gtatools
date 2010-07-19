@@ -17,9 +17,13 @@ class TXDGUIModule : public GUIModule {
 	Q_OBJECT
 
 public:
-	TXDGUIModule(MainWindow* mw);
+	TXDGUIModule();
 	virtual ~TXDGUIModule();
 	virtual void buildFileTreeMenu(const File& file, QMenu& menu);
+
+private:
+	virtual void doInstall();
+	virtual void doUninstall();
 
 private slots:
 	void onFindTexture(bool checked);

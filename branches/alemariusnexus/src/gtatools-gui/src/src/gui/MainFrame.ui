@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>896</width>
-    <height>648</height>
+    <width>923</width>
+    <height>663</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -46,13 +46,13 @@
         <bool>true</bool>
        </attribute>
        <attribute name="headerStretchLastSection">
-        <bool>true</bool>
+        <bool>false</bool>
        </attribute>
        <attribute name="headerCascadingSectionResizes">
         <bool>true</bool>
        </attribute>
        <attribute name="headerStretchLastSection">
-        <bool>true</bool>
+        <bool>false</bool>
        </attribute>
       </widget>
       <widget class="QWidget" name="contentWidget" native="true">
@@ -64,7 +64,7 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>550</width>
+         <width>0</width>
          <height>0</height>
         </size>
        </property>
@@ -99,7 +99,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QWidget" name="widget" native="true">
+         <widget class="QWidget" name="fileInfoWidget" native="true">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
             <horstretch>0</horstretch>
@@ -160,7 +160,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>896</width>
+     <width>923</width>
      <height>20</height>
     </rect>
    </property>
@@ -195,7 +195,11 @@
    <addaction name="menuSettings"/>
    <addaction name="menuHelp"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QStatusBar" name="statusbar">
+   <property name="sizeGripEnabled">
+    <bool>true</bool>
+   </property>
+  </widget>
   <action name="actionSettings">
    <property name="text">
     <string>Settings...</string>

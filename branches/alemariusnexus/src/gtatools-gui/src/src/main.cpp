@@ -17,6 +17,10 @@
 #include "gui/ConfigWidget.h"
 #include <qtranslator.h>
 #include <qlibraryinfo.h>
+#include "System.h"
+#include <gtaformats/util/Exception.h>
+#include <qmessagebox.h>
+#include <qtimer.h>
 
 
 
@@ -43,41 +47,43 @@ void listRecurse(File* file, int ind = 0)
 
 int main(int argc, char** argv)
 {
-	QApplication app(argc, argv);
+	try {
+		QApplication app(argc, argv);
 
-	printf("%s\n", QLibraryInfo::location(QLibraryInfo::TranslationsPath).toLocal8Bit().constData());
+		QTranslator qtTrans;
+		qtTrans.load("qt_" + QLocale::system().name(), QLibraryInfo::location(QLibraryInfo::TranslationsPath));
+		app.installTranslator(&qtTrans);
 
-	QTranslator qtTrans;
-	qtTrans.load("qt_" + QLocale::system().name(), QLibraryInfo::location(QLibraryInfo::TranslationsPath));
-	app.installTranslator(&qtTrans);
+		QTranslator trans;
+		trans.load("gtatools-gui_" + QLocale::system().name());
+		app.installTranslator(&trans);
 
-	QTranslator trans;
-	trans.load("gtatools-gui_" + QLocale::system().name());
-	app.installTranslator(&trans);
+		MainWindow win;
+		win.show();
 
-	//qRegisterMetaType<Profile>("Profile");
+		FirstStartWizard wiz;
 
-	MainWindow win;
-	win.show();
+		if (!File(CONFIG_FILE).exists()) {
+			if (!File(CONFIG_DIR).exists()) {
+				File(CONFIG_DIR).mkdir();
+			}
 
-	FirstStartWizard wiz;
-
-	if (!File(CONFIG_FILE).exists()) {
-		if (!File(CONFIG_DIR).exists()) {
-			File(CONFIG_DIR).mkdir();
+			wiz.exec();
 		}
 
-		wiz.exec();
+		ProfileManager::getInstance();
+
+		win.initialize();
+
+		try {
+			return app.exec();
+		} catch (Exception& ex) {
+			System* sys = System::getInstance();
+			sys->unhandeledException(ex);
+		}
+	} catch (Exception& ex) {
+		fprintf(stderr, "### Caught unhandeled exception ###\n%s", ex.what());
 	}
-
-	ProfileManager::getInstance();
-
-	//ConfigWidget cfgWidget;
-	//cfgWidget.show();
-
-	win.initialize();
-
-	return app.exec();
 }
 
 

@@ -1,32 +1,25 @@
 #include "FileItemModel.h"
 #include "../formats/FormatManager.h"
 #include <cstring>
+#include <qprogressdialog.h>
+#include <qsettings.h>
+#include <config.h>
 
 
 
-FileItemModel::FileItemModel(Profile* profile, QObject* parent)
+FileItemModel::FileItemModel(Profile* profile, QWidget* parent)
 		: QAbstractItemModel(parent), profile(profile)
 {
+	QSettings settings(CONFIG_FILE, QSettings::IniFormat);
+
+	showFileType = settings.value("gui/file_tree_types", true).toBool();
+
 	rootFile = new StaticFile;
 	Profile::ResourceIterator it;
 
 	for (it = profile->getResourceBegin() ; it != profile->getResourceEnd() ; it++) {
 		rootFile->addRootChild(new StaticFile(**it));
 	}
-
-	/*rootFile = new StaticFile("null");
-
-	StaticFile* root = new StaticFile("root", rootFile);
-		StaticFile* root1 = new StaticFile("root.1", root);
-			StaticFile* root11 = new StaticFile("root.1.1", root1);
-				StaticFile* root111 = new StaticFile("root.1.1.1", root11);
-			StaticFile* root12 = new StaticFile("root.1.2", root1);
-				StaticFile* root121 = new StaticFile("root.1.2.1", root12);
-			StaticFile* root13 = new StaticFile("root.1.3", root1);
-				StaticFile* root131 = new StaticFile("root.1.3.1", root13);
-		StaticFile* root2 = new StaticFile("root.2", root);
-			StaticFile* root21 = new StaticFile("root.2.1", root2);
-			StaticFile* root22 = new StaticFile("root.2.2", root2);*/
 }
 
 

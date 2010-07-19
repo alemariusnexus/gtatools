@@ -15,6 +15,7 @@
 #include <qlist.h>
 #include "../StringMatcher.h"
 #include "../formats/FormatHandler.h"
+#include <qprogressdialog.h>
 
 
 
@@ -26,7 +27,7 @@ public:
 
 private:
 	void collectResults(const File& file, StringMatcher* matcher, bool dirs, QLinkedList<FormatHandler*> handlers,
-			QList<File*>& results);
+			QList<File*>& results, int filesMax, int& filesDone);
 
 private slots:
 	void onCancel(bool checked);

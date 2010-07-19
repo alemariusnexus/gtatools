@@ -16,7 +16,7 @@
 
 FormatManager::FormatManager()
 {
-	registerFormatHandler(new TXDFormatHandler);
+	registerFormatHandler(TXDFormatHandler::getInstance());
 	registerFormatHandler(new IMGFormatHandler);
 	registerFormatHandler(new IPLFormatHandler);
 	registerFormatHandler(new IDEFormatHandler);

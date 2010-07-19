@@ -17,7 +17,7 @@ class ConfigWidget : public QWidget {
 	Q_OBJECT
 
 public:
-	ConfigWidget();
+	ConfigWidget(QWidget* parent = NULL);
 
 public slots:
 	void selectedProfileChanged(int index);

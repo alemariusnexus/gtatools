@@ -67,14 +67,35 @@ void TextureSearchDialog::onSearch(bool checked)
 
 	QList<TextureMatch*> results;
 
+	int numFiles = 0;
+	int filesDone = 0;
+
 	if (rootFile) {
-		collectSearchResults(*rootFile, &texMatcher, txdMatcher, results);
+		numFiles = rootFile->getChildCount(true);
 	} else {
 		for (it = profile->getResourceBegin() ; it != profile->getResourceEnd() ; it++) {
 			File* resource = *it;
-			collectSearchResults(*resource, &texMatcher, txdMatcher, results);
+			numFiles += resource->getChildCount(true);
 		}
 	}
+
+	/*QProgressDialog pd(tr("Searching texture..."), tr("&Cancel"), 0, numFiles, this);
+	pd.setMinimumDuration(1000);
+	pd.setWindowModality(Qt::WindowModal);*/
+
+	System* sys = System::getInstance();
+	sys->startTask(0, 100, tr("Searching texture..."));
+
+	if (rootFile) {
+		collectSearchResults(*rootFile, &texMatcher, txdMatcher, results, numFiles, filesDone);
+	} else {
+		for (it = profile->getResourceBegin() ; it != profile->getResourceEnd() ; it++) {
+			File* resource = *it;
+			collectSearchResults(*resource, &texMatcher, txdMatcher, results, numFiles, filesDone);
+		}
+	}
+
+	sys->endTask();
 
 	bool closeDialog = false;
 
@@ -117,14 +138,14 @@ void TextureSearchDialog::onSearch(bool checked)
 
 
 void TextureSearchDialog::collectSearchResults(const File& resource, StringMatcher* texMatcher, StringMatcher* txdMatcher,
-			QList<TextureMatch*>& results)
+			QList<TextureMatch*>& results, int filesMax, int& filesDone)
 {
 	if (resource.isDirectory()  ||  resource.isArchiveFile()) {
 		FileIterator* it = resource.getIterator();
 		File* child;
 
 		while ((child = it->next())  !=  NULL) {
-			collectSearchResults(*child, texMatcher, txdMatcher, results);
+			collectSearchResults(*child, texMatcher, txdMatcher, results, filesMax, filesDone);
 			delete child;
 		}
 
@@ -154,6 +175,13 @@ void TextureSearchDialog::collectSearchResults(const File& resource, StringMatch
 				}
 			}
 		}
+	}
+
+	filesDone++;
+
+	if (filesDone%(filesMax/100) == 0) {
+		System* sys = System::getInstance();
+		sys->updateTaskValue(sys->getTaskValue()+1);
 	}
 }
 

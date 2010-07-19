@@ -20,51 +20,91 @@
 
 
 
-DefaultGUIModule::DefaultGUIModule(MainWindow* mw)
-		: GUIModule(mw), contextFile(NULL)
+DefaultGUIModule::DefaultGUIModule()
+		: contextFile(NULL)
 {
 	System* sys = System::getInstance();
 
-	QMenu* fileMenu = mw->getFileMenu();
-	QMenu* editMenu = mw->getEditMenu();
-	QMenu* settingsMenu = mw->getSettingsMenu();
-	QMenu* profileMenu = mw->getProfileMenu();
-	QMenu* helpMenu = mw->getHelpMenu();
-
-	fileOpenAction = new QAction(tr("Open..."), mw);
+	fileOpenAction = new QAction(tr("Open..."), NULL);
 	fileOpenAction->setShortcut(QKeySequence::Open);
 	connect(fileOpenAction, SIGNAL(triggered(bool)), this, SLOT(onFileOpen(bool)));
-	fileMenu->addAction(fileOpenAction);
 
-	fileCloseAction = new QAction(tr("Close"), mw);
+	fileCloseAction = new QAction(tr("Close"), NULL);
 	fileCloseAction->setShortcut(QKeySequence::Close);
 	connect(fileCloseAction, SIGNAL(triggered(bool)), this, SLOT(onFileClose(bool)));
-	fileMenu->addAction(fileCloseAction);
 	fileCloseAction->setEnabled(false);
 
-	searchFileAction = new QAction(tr("Search File..."), mw);
+	searchFileAction = new QAction(tr("Search File..."), NULL);
 	searchFileAction->setShortcut(QKeySequence::Find);
 	connect(searchFileAction, SIGNAL(triggered(bool)), this, SLOT(onSearchFile(bool)));
-	editMenu->addAction(searchFileAction);
 
-	settingsAction = new QAction(tr("Settings..."), mw);
+	settingsAction = new QAction(tr("Settings..."), NULL);
 	settingsAction->setShortcut(QKeySequence::Preferences);
 	connect(settingsAction, SIGNAL(triggered(bool)), this, SLOT(settingsRequested(bool)));
-	settingsMenu->addAction(settingsAction);
 
-	aboutQtAction = new QAction(tr("About Qt"), mw);
+	aboutQtAction = new QAction(tr("About Qt"), NULL);
 	connect(aboutQtAction, SIGNAL(triggered(bool)), this, SLOT(onAboutQt(bool)));
-	helpMenu->addAction(aboutQtAction);
 
-	aboutAction = new QAction(tr("About"), mw);
+	aboutAction = new QAction(tr("About"), NULL);
 	connect(aboutAction, SIGNAL(triggered(bool)), this, SLOT(onAbout(bool)));
+
+	systemOpenAction = new QAction(tr("Execute System Program"), NULL);
+	connect(systemOpenAction, SIGNAL(triggered(bool)), this, SLOT(onOpenSystemProgram(bool)));
+
+	connect(sys, SIGNAL(fileOpened(const File&)), this, SLOT(fileOpened(const File&)));
+	connect(sys, SIGNAL(currentFileClosed()), this, SLOT(fileClosed()));
+
+}
+
+
+DefaultGUIModule::~DefaultGUIModule()
+{
+	delete fileOpenAction;
+	delete fileCloseAction;
+	delete searchFileAction;
+	delete settingsAction;
+	delete aboutQtAction;
+	delete aboutAction;
+	delete systemOpenAction;
+
+	if (contextFile) {
+		delete contextFile;
+	}
+
+	QList<QAction*> actions = profileSwitchGroup->actions();
+	for (int i = 0 ; i < actions.size() ; i++) {
+		delete actions.at(i);
+	}
+
+	delete profileSwitchGroup;
+}
+
+
+void DefaultGUIModule::doInstall()
+{
+	QMenu* fileMenu = mainWindow->getFileMenu();
+	QMenu* editMenu = mainWindow->getEditMenu();
+	QMenu* settingsMenu = mainWindow->getSettingsMenu();
+	QMenu* profileMenu = mainWindow->getProfileMenu();
+	QMenu* helpMenu = mainWindow->getHelpMenu();
+
+	fileOpenAction->setParent(mainWindow);
+	fileCloseAction->setParent(mainWindow);
+	searchFileAction->setParent(mainWindow);
+	settingsAction->setParent(mainWindow);
+	aboutQtAction->setParent(mainWindow);
+	aboutAction->setParent(mainWindow);
+	systemOpenAction->setParent(mainWindow);
+
+	fileMenu->addAction(fileOpenAction);
+	fileMenu->addAction(fileCloseAction);
+	editMenu->addAction(searchFileAction);
+	settingsMenu->addAction(settingsAction);
+	helpMenu->addAction(aboutQtAction);
 	helpMenu->addAction(aboutAction);
 
 	profileSwitchMenu = new QMenu(tr("Switch"), profileMenu);
 	profileMenu->addMenu(profileSwitchMenu);
-
-	systemOpenAction = new QAction(tr("Execute System Program"), mw);
-	connect(systemOpenAction, SIGNAL(triggered(bool)), this, SLOT(onOpenSystemProgram(bool)));
 
 	ProfileManager* pm = ProfileManager::getInstance();
 	Profile* currentProfile = pm->getCurrentProfile();
@@ -89,30 +129,32 @@ DefaultGUIModule::DefaultGUIModule(MainWindow* mw)
 	}
 
 	connect(profileSwitchGroup, SIGNAL(triggered(QAction*)), this, SLOT(profileSwitchRequested(QAction*)));
-	connect(sys, SIGNAL(fileOpened(const File&)), this, SLOT(fileOpened(const File&)));
-	connect(sys, SIGNAL(currentFileClosed()), this, SLOT(fileClosed()));
-
 }
 
 
-DefaultGUIModule::~DefaultGUIModule()
+void DefaultGUIModule::doUninstall()
 {
-	delete systemOpenAction;
+	QMenu* fileMenu = mainWindow->getFileMenu();
+	QMenu* editMenu = mainWindow->getEditMenu();
+	QMenu* settingsMenu = mainWindow->getSettingsMenu();
+	QMenu* profileMenu = mainWindow->getProfileMenu();
+	QMenu* helpMenu = mainWindow->getHelpMenu();
 
-	if (contextFile) {
-		delete contextFile;
-	}
+	fileOpenAction->setParent(NULL);
+	fileCloseAction->setParent(NULL);
+	searchFileAction->setParent(NULL);
+	settingsAction->setParent(NULL);
+	aboutQtAction->setParent(NULL);
+	aboutAction->setParent(NULL);
 
-	delete settingsAction;
-	delete fileOpenAction;
-	delete fileCloseAction;
+	fileMenu->removeAction(fileOpenAction);
+	fileMenu->removeAction(fileCloseAction);
+	editMenu->removeAction(searchFileAction);
+	settingsMenu->removeAction(settingsAction);
+	helpMenu->removeAction(aboutQtAction);
+	helpMenu->removeAction(aboutAction);
 
-	QList<QAction*> actions = profileSwitchGroup->actions();
-	for (int i = 0 ; i < actions.size() ; i++) {
-		delete actions.at(i);
-	}
-
-	delete profileSwitchGroup;
+	delete profileSwitchMenu;
 }
 
 

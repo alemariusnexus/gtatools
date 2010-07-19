@@ -13,6 +13,7 @@
 #include "../../StringMatcher.h"
 #include <qlinkedlist.h>
 #include <gtaformats/util/File.h>
+#include <qprogressdialog.h>
 
 
 
@@ -31,7 +32,7 @@ public:
 
 private:
 	void collectSearchResults(const File& resource, StringMatcher* texMatcher, StringMatcher* txdMatcher,
-			QList<TextureMatch*>& results);
+			QList<TextureMatch*>& results, int maxFiles, int& filesDone);
 
 private slots:
 	void onCancel(bool checked);

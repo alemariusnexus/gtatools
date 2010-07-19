@@ -23,21 +23,34 @@
 #include <exception>
 #include <cstdlib>
 
+#ifdef linux
+#include <execinfo.h>
+#endif
+
+
 using std::exception;
 
 
 class Exception : public exception {
 public:
-	Exception(const char* message, const char* srcFile = NULL, int srcLine = -1);
+	Exception(const char* message, const char* srcFile = NULL, int srcLine = -1,
+			Exception* nestedException = NULL, const char* exceptionName = "Exception");
 	Exception(const Exception& ex);
 	virtual ~Exception() throw();
 	virtual const char* what() const throw() { return fullMessage; };
 	const char* getMessage() const throw() { return message; }
+	char* getBacktrace() const throw();
 
 private:
 	char* buildFullMessage() const throw();
 
 private:
+#ifdef linux
+	char* backTrace;
+#endif
+
+	Exception* nestedException;
+	const char* exceptionName;
 	char* message;
 	char* fullMessage;
 	const char* srcFile;

@@ -115,14 +115,22 @@ bool File::exists() const
 		return true;
 	} else {
 		if (path->isIMGPath()) {
-			File* parent = getParent();
-			IMGArchive archive(*parent);
-			delete parent;
+			try {
+				File* parent = getParent();
+				IMGArchive archive(*parent);
+				delete parent;
 
-			if (archive.getEntryByName(path->getFileName()) != NULL) {
-				return true;
-			} else {
-				return false;
+				if (archive.getEntryByName(path->getFileName()) != NULL) {
+					return true;
+				} else {
+					return false;
+				}
+			} catch (Exception& ex) {
+				char* errMsg = new char[strlen(path->toString()) + 64];
+				sprintf(errMsg, "Exception thrown during existence check of IMG entry %s.", path->toString());
+				FileException fex(errMsg, __FILE__, __LINE__, &ex);
+				delete[] errMsg;
+				throw fex;
 			}
 		} else {
 			return false;
@@ -202,18 +210,26 @@ InputStream* File::openStream(int flags) const
 		return new FileInputStream(*this, flags);
 	} else {
 		if (path->isIMGPath()) {
-			File* parent = getParent();
-			InputStream* stream = parent->openStream(STREAM_BINARY);
-			IMGArchive archive(stream);
-			delete parent;
-			InputStream* rstream = archive.gotoEntry(path->getFileName(), true);
+			try {
+				File* parent = getParent();
+				InputStream* stream = parent->openStream(STREAM_BINARY);
+				IMGArchive archive(stream);
+				delete parent;
+				InputStream* rstream = archive.gotoEntry(path->getFileName(), true);
 
-			if (rstream != NULL) {
-				return rstream;
-			} else {
-				delete rstream;
-				delete stream;
-				return NULL;
+				if (rstream != NULL) {
+					return rstream;
+				} else {
+					delete rstream;
+					delete stream;
+					return NULL;
+				}
+			} catch (Exception& ex) {
+				char* errMsg = new char[strlen(path->toString()) + 64];
+				sprintf(errMsg, "Exception thrown during stream opening of IMG entry %s.", path->toString());
+				FileException fex(errMsg, __FILE__, __LINE__, &ex);
+				delete[] errMsg;
+				throw fex;
 			}
 		} else {
 			return NULL;
@@ -229,13 +245,21 @@ File* File::getChild(int childIdx) const
 			FileContentType type = guessContentType();
 
 			if (type == CONTENT_TYPE_DIR  ||  type == CONTENT_TYPE_IMG) {
-				IMGArchive archive(*this);
+				try {
+					IMGArchive archive(*this);
 
-				if (childIdx >= archive.getEntryCount()) {
-					return NULL;
+					if (childIdx >= archive.getEntryCount()) {
+						return NULL;
+					}
+
+					return new File(*this, archive.getEntries()[childIdx]->name);
+				} catch (Exception& ex) {
+					char* errMsg = new char[strlen(path->toString()) + 64];
+					sprintf(errMsg, "Exception thrown during child count of IMG archive %s.", path->toString());
+					FileException fex(errMsg, __FILE__, __LINE__, &ex);
+					delete[] errMsg;
+					throw fex;
 				}
-
-				return new File(*this, archive.getEntries()[childIdx]->name);
 			} else {
 				char* errmsg = new char[strlen(path->toString())+128];
 				sprintf(errmsg, "Called getChild(int) with a regular non-archive file: '%s'", path->toString());
@@ -273,7 +297,7 @@ File* File::getChild(int childIdx) const
 }
 
 
-int File::getChildCount() const
+int File::getChildCount(bool recursive) const
 {
 	if (isRegularFile()) {
 		FileContentType type = guessContentType();
@@ -289,6 +313,10 @@ int File::getChildCount() const
 	File* child;
 
 	while ((child = it->next())  !=  NULL) {
+		if (recursive) {
+			i += child->getChildCount(true);
+		}
+
 		delete child;
 		i++;
 	}
@@ -308,13 +336,13 @@ int File::indexOf(const File& other) const
 
 	while ((child = it->next())  !=  NULL) {
 		if (strcmp(child->getPath()->toString(), other.getPath()->toString()) == 0) {
-			//delete child;
+			delete child;
 			delete it;
 			return i;
 		}
 
 		i++;
-		//delete child;
+		delete child;
 	}
 
 	delete it;
@@ -332,7 +360,7 @@ int File::getDirectoryIndex() const
 	}
 
 	int index = parent->indexOf(*this);
-	//delete parent;
+	delete parent;
 	return index;
 }
 
@@ -371,12 +399,21 @@ File::filesize File::getSize() const
 	if (!physicallyExists()) {
 		if (path->isIMGPath()) {
 			File* imgFile = getParent();
-			IMGArchive* img = new IMGArchive(*imgFile);
-			IMGEntry* entry = img->getEntryByName(path->getFileName());
-			filesize size = entry->size * IMG_BLOCK_SIZE;
-			delete img;
-			delete imgFile;
-			return size;
+
+			try {
+				IMGArchive* img = new IMGArchive(*imgFile);
+				IMGEntry* entry = img->getEntryByName(path->getFileName());
+				filesize size = entry->size * IMG_BLOCK_SIZE;
+				delete img;
+				delete imgFile;
+				return size;
+			} catch (Exception& ex) {
+				char* errMsg = new char[strlen(path->toString()) + 64];
+				sprintf(errMsg, "Exception thrown during size retrieval of IMG entry %s.", path->toString());
+				FileException fex(errMsg, __FILE__, __LINE__, &ex);
+				delete[] errMsg;
+				throw fex;
+			}
 		} else {
 			char* errMsg = new char[strlen(path->toString()) + 64];
 			sprintf(errMsg, "Attempt to get size of non-existent file %s", path->toString());

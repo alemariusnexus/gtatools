@@ -16,6 +16,8 @@
 #include <qabstractitemmodel.h>
 #include <qmenu.h>
 #include <qpoint.h>
+#include <qprogressbar.h>
+#include <qtabwidget.h>
 
 
 class MainWindow : public QMainWindow {
@@ -34,20 +36,27 @@ public:
 
 private:
 	QModelIndex indexOfFileInTree(const File& file);
+	void loadConfigUiSettings();
 
 private slots:
+	void taskStarted(int min, int max, const QString& message);
+	void taskValueUpdated(int value);
+	void taskEnded();
+	void statusMessageShown(const QString& message, int timeout);
 	void fileSelectedInTree(const QModelIndex& index);
 	void currentProfileChanged(Profile* oldProfile, Profile* newProfile);
 	void currentProfileContentChanged();
 	void openFile(const File& file);
 	void closeCurrentFile();
 	void fileTreeContextMenuRequested(const QPoint& pos);
+	void configurationChanged();
 
 private:
+	QTabWidget* contentTabCompact;
 	Ui_MainWindow ui;
-	QLinkedList<GUIModule*> globalModules;
-	QLinkedList<GUIModule*> currentFileModules;
+	QProgressBar* progressBar;
 	QWidget* currentDisplayWidget;
+	bool hasOpenFile;
 };
 
 #endif /* MAINWINDOW_H_ */

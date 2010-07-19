@@ -182,7 +182,7 @@ public:
 
 	File* getChild(int childIdx) const;
 
-	int getChildCount() const;
+	int getChildCount(bool recursive = false) const;
 
 	int indexOf(const File& other) const;
 

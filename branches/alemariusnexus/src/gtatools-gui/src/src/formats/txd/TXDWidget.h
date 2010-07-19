@@ -14,6 +14,8 @@
 #include <qlistwidget.h>
 #include <gtaformats/txd/TXDArchive.h>
 #include <gtaformats/txd/TXDTexture.h>
+#include "OpenTXDGUIModule.h"
+#include <qlinkedlist.h>
 
 
 
@@ -23,11 +25,19 @@ class TXDWidget : public QWidget {
 public:
 	TXDWidget(const File& file, QWidget* parent);
 	~TXDWidget();
+	TXDArchive* getArchive() { return txd; }
+	QLinkedList<TXDTexture*> getSelectedTextures();
+
+private:
+	void loadConfigUiSettings();
 
 private slots:
 	void textureActivated(QListWidgetItem* item);
+	void configurationChanged();
 
 private:
+	OpenTXDGUIModule* openGUIModule;
+	QTabWidget* compactTab;
 	Ui_TXDWidget ui;
 	TXDArchive* txd;
 	TXDTexture** textures;

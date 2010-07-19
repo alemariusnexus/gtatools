@@ -28,7 +28,7 @@
  */
 class IOException : public Exception {
 public:
-	IOException(const char* message, const char* srcFile = NULL, int srcLine = -1);
+	IOException(const char* message, const char* srcFile = NULL, int srcLine = -1, Exception* nestedException = NULL);
 };
 
 #endif /* IOEXCEPTION_H_ */

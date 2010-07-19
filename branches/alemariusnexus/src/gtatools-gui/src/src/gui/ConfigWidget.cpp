@@ -9,11 +9,12 @@
 #include "../ProfileManager.h"
 #include <qsettings.h>
 #include <config.h>
+#include "../System.h"
 
 
 
-ConfigWidget::ConfigWidget()
-		: QWidget()
+ConfigWidget::ConfigWidget(QWidget* parent)
+		: QWidget(parent)
 {
 	setAttribute(Qt::WA_DeleteOnClose);
 	ui.setupUi(this);
@@ -45,6 +46,9 @@ ConfigWidget::ConfigWidget()
 	} else {
 		ui.regexFormatBox->setCurrentIndex(0);
 	}
+
+	ui.fileTypesInTreeBox->setChecked(settings.value("gui/file_tree_types", true).toBool());
+	ui.compactBox->setChecked(settings.value("gui/compact_mode", false).toBool());
 }
 
 
@@ -69,6 +73,9 @@ void ConfigWidget::onApply(bool checked)
 		break;
 	}
 
+	settings.setValue("gui/file_tree_types", ui.fileTypesInTreeBox->isChecked());
+	settings.setValue("gui/compact_mode", ui.compactBox->isChecked());
+
 	Profile* profile = ProfileManager::getInstance()->getProfile(ui.profileBox->currentIndex());
 	profile->setName(ui.profileWidget->getProfileName());
 	profile->clearResources();
@@ -85,6 +92,12 @@ void ConfigWidget::onApply(bool checked)
 	profile->synchronize();
 
 	settings.sync();
+
+	System* sys = System::getInstance();
+	sys->showStatusMessage(tr("Configuration saved!"));
+	sys->emitConfigurationChange();
+
+	close();
 }
 
 

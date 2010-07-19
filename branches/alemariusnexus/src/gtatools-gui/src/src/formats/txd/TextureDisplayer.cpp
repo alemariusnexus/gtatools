@@ -8,6 +8,7 @@
 #include "TextureDisplayer.h"
 #include <qimage.h>
 #include <qbitmap.h>
+#include "TXDFormatHandler.h"
 
 
 
@@ -38,14 +39,10 @@ void TextureDisplayer::display(TXDTexture* texture, uint8_t* rawData)
 		delete[] data;
 	}
 
-	int16_t w = texture->getWidth();
-	int16_t h = texture->getHeight();
-
 	this->texture = texture;
-	this->data = new uint8_t[w*h*4];
 
-	texture->convert(data, rawData, MIRROR_NONE, 4, 2, 1, 0, 3);
-	QImage image(data, w, h, QImage::Format_ARGB32);
+	QImage image = TXDFormatHandler::getInstance()->createImageFromTexture(texture, rawData, this->data);
+
 	QPixmap pmp = QPixmap::fromImage(image);
 	setPixmap(pmp);
 }

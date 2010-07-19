@@ -33,7 +33,6 @@ FilePath::FilePath(const char* path)
 FilePath::FilePath(const FilePath& other)
 		: path(new char[strlen(other.path)+1])
 {
-	printf("Copying path %s\n", other.path);
 	strcpy(path, other.path);
 }
 

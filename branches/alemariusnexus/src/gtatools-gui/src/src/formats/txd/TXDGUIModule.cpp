@@ -12,15 +12,13 @@
 
 
 
-TXDGUIModule::TXDGUIModule(MainWindow* mw)
-		: GUIModule(mw), contextFile(NULL)
+TXDGUIModule::TXDGUIModule()
+		: contextFile(NULL)
 {
-	QMenu* editMenu = mw->getEditMenu();
-	findTextureAction = new QAction(tr("Search Texture..."), mw);
+	findTextureAction = new QAction(tr("Search Texture..."), NULL);
 	findTextureAction->setShortcut(QKeySequence("Ctrl+T"));
-	editMenu->addAction(findTextureAction);
 
-	findTextureInFileAction = new QAction(tr("Search Texture..."), mw);
+	findTextureInFileAction = new QAction(tr("Search Texture..."), NULL);
 	findTextureInFileAction->setShortcut(QKeySequence("Ctrl+T"));
 
 	connect(findTextureAction, SIGNAL(triggered(bool)), this, SLOT(onFindTexture(bool)));
@@ -36,6 +34,26 @@ TXDGUIModule::~TXDGUIModule()
 
 	delete findTextureAction;
 	delete findTextureInFileAction;
+}
+
+
+void TXDGUIModule::doInstall()
+{
+	findTextureAction->setParent(mainWindow);
+	findTextureInFileAction->setParent(mainWindow);
+
+	QMenu* editMenu = mainWindow->getEditMenu();
+	editMenu->addAction(findTextureAction);
+}
+
+
+void TXDGUIModule::doUninstall()
+{
+	findTextureAction->setParent(NULL);
+	findTextureInFileAction->setParent(NULL);
+
+	QMenu* editMenu = mainWindow->getEditMenu();
+	editMenu->removeAction(findTextureAction);
 }
 
 

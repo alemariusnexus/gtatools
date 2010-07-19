@@ -19,15 +19,24 @@
 #include "../formats/txd/TXDGUIModule.h"
 #include "../System.h"
 #include "DefaultGUIModule.h"
+#include <qprogressbar.h>
+#include <qheaderview.h>
+#include <qlayout.h>
+#include <qtablewidget.h>
 
 
 
 MainWindow::MainWindow()
-		: currentDisplayWidget(NULL)
+		: currentDisplayWidget(NULL), hasOpenFile(false)
 {
 	ui.setupUi(this);
 	setWindowTitle(tr("ProgramBaseName"));
 	ui.mainSplitter->setSizes(QList<int>() << width()/3 << width()/3*2);
+	progressBar = new QProgressBar(ui.statusbar);
+	progressBar->setMaximumWidth(400);
+	ui.statusbar->addPermanentWidget(progressBar);
+
+	System::getInstance()->setMainWindow(this);
 }
 
 
@@ -40,32 +49,114 @@ void MainWindow::initialize()
 
 	currentProfileChanged(NULL, currentProfile);
 
+	connect(sys, SIGNAL(taskStarted(int, int, const QString&)), this, SLOT(taskStarted(int, int, const QString&)));
+	connect(sys, SIGNAL(taskValueUpdated(int)), this, SLOT(taskValueUpdated(int)));
+	connect(sys, SIGNAL(taskEnded()), this, SLOT(taskEnded()));
+	connect(sys, SIGNAL(statusMessageShown(const QString&, int)), this, SLOT(statusMessageShown(const QString&, int)));
 	connect(sys, SIGNAL(fileOpened(const File&)), this, SLOT(openFile(const File&)));
 	connect(sys, SIGNAL(currentFileClosed()), this, SLOT(closeCurrentFile()));
+	connect(sys, SIGNAL(configurationChanged()), this, SLOT(configurationChanged()));
 	connect(ui.fileTree, SIGNAL(activated(const QModelIndex&)), this, SLOT(fileSelectedInTree(const QModelIndex&)));
 	connect(pm, SIGNAL(currentProfileChanged(Profile*, Profile*)), this,
 			SLOT(currentProfileChanged(Profile*, Profile*)));
 	connect(ui.fileTree, SIGNAL(customContextMenuRequested(const QPoint&)), this,
 			SLOT(fileTreeContextMenuRequested(const QPoint&)));
 
-	globalModules << new DefaultGUIModule(this);
-	globalModules << new TXDGUIModule(this);
+	sys->installGUIModule(new DefaultGUIModule);
+	sys->installGUIModule(new TXDGUIModule);
 
 	QSettings settings(CONFIG_FILE, QSettings::IniFormat);
 
 	resize(settings.value("gui/mainwindow_size", size()).toSize());
+
+	contentTabCompact = NULL;
+
+	loadConfigUiSettings();
+}
+
+
+void MainWindow::loadConfigUiSettings()
+{
+	QSettings settings(CONFIG_FILE, QSettings::IniFormat);
+
+	if (settings.value("gui/compact_mode", false).toBool()) {
+		QLayout* layout = ui.contentWidget->layout();
+		layout->removeWidget(ui.fileInfoWidget);
+		layout->removeWidget(ui.contentPluginWidget);
+
+		QTabWidget* tw = new QTabWidget(ui.contentWidget);
+		tw->addTab(ui.fileInfoWidget, tr("&General Information"));
+		tw->addTab(ui.contentPluginWidget, tr("&Content"));
+		tw->setTabEnabled(1, hasOpenFile);
+		layout->addWidget(tw);
+
+		contentTabCompact = tw;
+	} else {
+		if (contentTabCompact) {
+			QVBoxLayout* layout = (QVBoxLayout*) ui.contentWidget->layout();
+			layout->removeWidget(contentTabCompact);
+			contentTabCompact->removeTab(0);
+			contentTabCompact->removeTab(1);
+			ui.fileInfoWidget->setParent(ui.contentWidget);
+			ui.contentPluginWidget->setParent(ui.contentWidget);
+			ui.fileInfoWidget->show();
+			ui.contentPluginWidget->show();
+			delete contentTabCompact;
+			layout->addWidget(ui.fileInfoWidget);
+			layout->addWidget(ui.contentPluginWidget);
+		}
+
+		contentTabCompact = NULL;
+	}
+
+	ui.fileTree->header()->setResizeMode(0, QHeaderView::Stretch);
+	ui.fileTree->header()->setResizeMode(1, QHeaderView::ResizeToContents);
 }
 
 
 MainWindow::~MainWindow()
 {
-	QLinkedList<GUIModule*>::iterator it;
-	for (it = globalModules.begin() ; it != globalModules.end() ; it++) {
-		delete *it;
-	}
-
 	QSettings settings(CONFIG_FILE, QSettings::IniFormat);
 	settings.setValue("gui/mainwindow_size", size());
+
+	System* sys = System::getInstance();
+	QLinkedList<GUIModule*> modules = sys->getInstalledGUIModules();
+	QLinkedList<GUIModule*>::iterator it;
+
+	for (it = modules.begin() ; it != modules.end() ; it++) {
+		GUIModule* module = *it;
+		sys->uninstallGUIModule(module);
+		delete module;
+	}
+}
+
+
+void MainWindow::taskStarted(int min, int max, const QString& message)
+{
+	progressBar->setMinimum(min);
+	progressBar->setMaximum(max);
+	ui.statusbar->showMessage(message);
+}
+
+
+void MainWindow::taskValueUpdated(int value)
+{
+	progressBar->setValue(value);
+}
+
+
+void MainWindow::taskEnded()
+{
+	progressBar->reset();
+	progressBar->update();
+	ui.statusbar->clearMessage();
+	System::getInstance()->showStatusMessage(tr("Done!"), 2000);
+}
+
+
+void MainWindow::statusMessageShown(const QString& message, int timeout)
+{
+	ui.statusbar->showMessage(message, timeout);
 }
 
 
@@ -119,14 +210,14 @@ void MainWindow::openFile(const File& file)
 
 		QLinkedList<FormatHandler*>::iterator it;
 
-		for (it = handlers.begin() ; it != handlers.end() ; it++) {
+		/*for (it = handlers.begin() ; it != handlers.end() ; it++) {
 			FormatHandler* handler = *it;
 			GUIModule* mod = handler->createGUIModuleForFile(file, this);
 
 			if (mod) {
 				currentFileModules << mod;
 			}
-		}
+		}*/
 
 		for (it = handlers.begin() ; it != handlers.end() ; it++) {
 			FormatHandler* handler = *it;
@@ -137,17 +228,23 @@ void MainWindow::openFile(const File& file)
 				break;
 			}
 		}
+
+		if (contentTabCompact) {
+			contentTabCompact->setTabEnabled(1, currentDisplayWidget != NULL);
+		}
 	}
+
+	hasOpenFile = true;
 }
 
 
 void MainWindow::closeCurrentFile()
 {
-	QLinkedList<GUIModule*>::iterator it;
+	/*QLinkedList<GUIModule*>::iterator it;
 	for (it = currentFileModules.begin() ; it != currentFileModules.end() ; it++) {
 		delete *it;
 	}
-	currentFileModules.clear();
+	currentFileModules.clear();*/
 
 	if (currentDisplayWidget) {
 		delete currentDisplayWidget;
@@ -157,12 +254,14 @@ void MainWindow::closeCurrentFile()
 	ui.fileNameLabel->setText(tr("(No File Opened)"));
 	ui.fileTypeLabel->setText("-");
 	ui.fileSizeLabel->setText("-");
+
+	hasOpenFile = false;
 }
 
 
 void MainWindow::currentProfileChanged(Profile* oldProfile, Profile* newProfile)
 {
-	FileItemModel* model = new FileItemModel(newProfile);
+	FileItemModel* model = new FileItemModel(newProfile, this);
 
 	setWindowTitle(QString(tr("GTATools GUI Tool - %1")).arg(newProfile->getName()));
 
@@ -195,6 +294,8 @@ void MainWindow::currentProfileContentChanged()
 
 void MainWindow::fileTreeContextMenuRequested(const QPoint& pos)
 {
+	System* sys = System::getInstance();
+
 	FileItemModel* model = (FileItemModel*) ui.fileTree->model();
 	QModelIndex index = ui.fileTree->indexAt(pos);
 
@@ -204,8 +305,9 @@ void MainWindow::fileTreeContextMenuRequested(const QPoint& pos)
 		QMenu* menu = new QMenu(ui.fileTree);
 		menu->setAttribute(Qt::WA_DeleteOnClose);
 
+		QLinkedList<GUIModule*> modules = sys->getInstalledGUIModules();
 		QLinkedList<GUIModule*>::iterator it;
-		for (it = globalModules.begin() ; it != globalModules.end() ; it++) {
+		for (it = modules.begin() ; it != modules.end() ; it++) {
 			GUIModule* module = *it;
 			module->buildFileTreeMenu(*file, *menu);
 		}
@@ -219,11 +321,6 @@ void MainWindow::fileTreeContextMenuRequested(const QPoint& pos)
 			}
 		}
 
-		for (it = currentFileModules.begin() ; it != currentFileModules.end() ; it++) {
-			GUIModule* module = *it;
-			module->buildFileTreeMenu(*file, *menu);
-		}
-
 		menu->popup(ui.fileTree->mapToGlobal(pos));
 	}
 }
@@ -234,5 +331,11 @@ QModelIndex MainWindow::indexOfFileInTree(const File& file)
 	QModelIndex root = ui.fileTree->rootIndex();
 	FileItemModel* model = (FileItemModel*) ui.fileTree->model();
 	return model->indexOf(file, root);
+}
+
+
+void MainWindow::configurationChanged()
+{
+	loadConfigUiSettings();
 }
 

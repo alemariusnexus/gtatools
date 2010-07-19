@@ -15,6 +15,7 @@
 #include <qmessagebox.h>
 #include <qinputdialog.h>
 #include "../System.h"
+#include <qprogressdialog.h>
 
 
 
@@ -80,13 +81,27 @@ void FileSearchDialog::onSearch(bool checked)
 
 	QList<File*> results;
 
+	int numFiles = 0;
+	int filesDone = 0;
+
 	Profile* profile = ProfileManager::getInstance()->getCurrentProfile();
 	Profile::ResourceIterator rit;
 
+	System* sys = System::getInstance();
+
 	for (rit = profile->getResourceBegin() ; rit != profile->getResourceEnd() ; rit++) {
 		File* resource = *rit;
-		collectResults(*resource, &matcher, dirs, selectedFormats, results);
+		numFiles += resource->getChildCount(true);
 	}
+
+	sys->startTask(0, 100, tr("Searching files..."));
+
+	for (rit = profile->getResourceBegin() ; rit != profile->getResourceEnd() ; rit++) {
+		File* resource = *rit;
+		collectResults(*resource, &matcher, dirs, selectedFormats, results, numFiles, filesDone);
+	}
+
+	sys->endTask();
 
 	bool closeDialog = false;
 
@@ -127,7 +142,7 @@ void FileSearchDialog::onSearch(bool checked)
 
 
 void FileSearchDialog::collectResults(const File& file, StringMatcher* matcher, bool dirs, QLinkedList<FormatHandler*> handlers,
-		QList<File*>& results)
+		QList<File*>& results, int filesMax, int& filesDone)
 {
 	bool matches = false;
 
@@ -159,11 +174,18 @@ void FileSearchDialog::collectResults(const File& file, StringMatcher* matcher, 
 		File* child;
 
 		while ((child = it->next())  !=  NULL) {
-			collectResults(*child, matcher, dirs, handlers, results);
+			collectResults(*child, matcher, dirs, handlers, results, filesMax, filesDone);
 			delete child;
 		}
 
 		delete it;
+	}
+
+	filesDone++;
+
+	if (filesDone%(filesMax/100) == 0) {
+		System* sys = System::getInstance();
+		sys->updateTaskValue(sys->getTaskValue()+1);
 	}
 }
 
