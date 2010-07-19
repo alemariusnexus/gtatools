@@ -1,3 +1,20 @@
+# Copyright 2010 David "Alemarius Nexus" Lerch
+# 
+# This file is part of gtatools-gui.
+#
+# gtatools-gui is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# gtatools-gui is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
+
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 PROJECT(prj-gtatools-gui CXX)
 
@@ -41,4 +58,5 @@ ADD_EXECUTABLE(gtatools-gui ${SRCS} ${MOC_COMPILED_SRCS} ${UIC_COMPILED_SRCS} ${
 TARGET_LINK_LIBRARIES(gtatools-gui ${GTAFORMATS_LIB_PATH} ${QT_LIBRARIES} ${GL_LIB_PATH} ${GLU_LIB_PATH})
 
 INSTALL(TARGETS gtatools-gui DESTINATION bin)
+INSTALL(FILES ${QM_FILES} DESTINATION bin)
 
