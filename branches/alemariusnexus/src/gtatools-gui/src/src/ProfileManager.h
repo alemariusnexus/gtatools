@@ -32,6 +32,7 @@ public:
 
 public:
 	static ProfileManager* getInstance();
+	void loadProfiles();
 	ProfileIterator getProfileBegin();
 	ProfileIterator getProfileEnd();
 	Profile* setCurrentProfile(Profile* profile);

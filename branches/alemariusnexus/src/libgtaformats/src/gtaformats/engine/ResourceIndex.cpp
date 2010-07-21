@@ -77,13 +77,13 @@ void ResourceIndex::addResource(const File& file)
 			delete it;
 		} else if (type == CONTENT_TYPE_DFF) {
 			indexDFF(file);
-		} else {
+		} /*else {
 			char* errmsg = new char[strlen(file.getPath()->toString()) + 128];
 			sprintf(errmsg, "Unknown resource type for file %s", file.getPath()->toString());
 			EngineException ex(errmsg, __FILE__, __LINE__);
 			delete[] errmsg;
 			throw ex;
-		}
+		}*/
 	}
 }
 

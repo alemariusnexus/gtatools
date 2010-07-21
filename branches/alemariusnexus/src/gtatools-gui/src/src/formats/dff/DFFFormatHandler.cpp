@@ -19,6 +19,11 @@
 
 #include "DFFFormatHandler.h"
 #include <qapplication.h>
+#include "DFFWidget.h"
 
 
 
+QWidget* DFFFormatHandler::createWidgetForFile(const File& file, QWidget* parent)
+{
+	return new DFFWidget(file, parent);
+}

@@ -90,7 +90,7 @@ int main(int argc, char** argv)
 			wiz.exec();
 		}
 
-		ProfileManager::getInstance();
+		ProfileManager::getInstance()->loadProfiles();
 
 		win.initialize();
 

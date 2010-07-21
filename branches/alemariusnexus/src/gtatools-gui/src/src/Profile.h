@@ -47,6 +47,7 @@ public:
 	void setName(const QString& name) { this->name = name; }
 	void synchronize();
 	bool containsFile(const File& file);
+	OpenGLResourceManager* getResourceManager() { return resourceIndex; };
 
 public slots:
 	void currentProfileChanged(Profile* oldProfile, Profile* newProfile);

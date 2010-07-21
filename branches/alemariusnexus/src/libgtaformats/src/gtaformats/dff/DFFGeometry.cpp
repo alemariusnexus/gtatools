@@ -18,6 +18,8 @@
  */
 
 #include "DFFGeometry.h"
+#include <cstring>
+
 
 
 DFFGeometry::~DFFGeometry()

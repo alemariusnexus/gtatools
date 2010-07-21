@@ -29,6 +29,25 @@
 ProfileManager::ProfileManager(QObject* parent)
 		: QObject(parent), currentProfile(NULL)
 {
+	connect(this, SIGNAL(currentProfileChanged(Profile*, Profile*)), this,
+			SLOT(currentProfileChangedSlot(Profile*, Profile*)));
+}
+
+
+ProfileManager::~ProfileManager()
+{
+}
+
+
+ProfileManager* ProfileManager::getInstance()
+{
+	static ProfileManager* inst = new ProfileManager;
+	return inst;
+}
+
+
+void ProfileManager::loadProfiles()
+{
 	QSettings settings(CONFIG_FILE, QSettings::IniFormat);
 
 	for (int i = 0 ; true ; i++) {
@@ -51,21 +70,6 @@ ProfileManager::ProfileManager(QObject* parent)
 	}
 
 	setCurrentProfile(getProfile(settings.value("main/current_profile").toInt()));
-
-	connect(this, SIGNAL(currentProfileChanged(Profile*, Profile*)), this,
-			SLOT(currentProfileChangedSlot(Profile*, Profile*)));
-}
-
-
-ProfileManager::~ProfileManager()
-{
-}
-
-
-ProfileManager* ProfileManager::getInstance()
-{
-	static ProfileManager* inst = new ProfileManager;
-	return inst;
 }
 
 

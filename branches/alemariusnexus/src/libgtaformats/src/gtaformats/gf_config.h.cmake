@@ -27,6 +27,22 @@
 #include "stdint.h"
 
 
+typedef float v4sf __attribute__((vector_size(16)));
+typedef int32_t v4i32 __attribute__((vector_size(16)));
+
+union Vec4SF
+{
+	v4sf v;
+	float f[4];
+};
+
+union Vec4I32
+{
+	v4i32 v;
+	int32_t i[4];
+};
+
+
 #cmakedefine GF_USE_SQUISH
 
 #cmakedefine EXCEPTION_POSITION_INFO

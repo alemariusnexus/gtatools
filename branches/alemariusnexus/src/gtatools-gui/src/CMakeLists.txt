@@ -40,7 +40,7 @@ SET(GL_LIB_PATH "${GL_DEFAULT_LIB}" CACHE PATH "Path to (or name of) the OpenGL 
 SET(GLU_INCLUDE_PATH "" CACHE PATH "Directory containing the OpenGL Utility (GLU) header file(s)")
 SET(GLU_LIB_PATH "${GLU_DEFAULT_LIB}" CACHE PATH "Path to (or name of) the OpenGL Utility (GLU) library file")
 
-FIND_PACKAGE(Qt4 4.6.0 COMPONENTS QtCore QtGui QtXml REQUIRED)
+FIND_PACKAGE(Qt4 4.6.0 COMPONENTS QtCore QtGui QtXml QtOpenGL REQUIRED)
 INCLUDE(${QT_USE_FILE})
 
 IF(NOT GTAFORMATS_LIB_PATH)

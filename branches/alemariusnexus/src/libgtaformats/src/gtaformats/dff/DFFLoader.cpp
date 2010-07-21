@@ -419,8 +419,9 @@ int DFFLoader::parseMaterialSplit(InputStream* stream, RwSectionHeader& matsplit
 
 DFFMesh* DFFLoader::loadMesh(const File& file)
 {
-	FileInputStream stream(file, STREAM_BINARY);
-	DFFMesh* mesh = loadMesh(&stream);
+	InputStream* stream = file.openStream(STREAM_BINARY);
+	DFFMesh* mesh = loadMesh(stream);
+	delete stream;
 	return mesh;
 }
 

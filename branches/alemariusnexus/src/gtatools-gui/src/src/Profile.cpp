@@ -20,12 +20,15 @@
 #include "Profile.h"
 #include <cstdio>
 #include <cstdlib>
+#include "ProfileManager.h"
 
 
 
 Profile::Profile(const QString& name)
-		: name(QString(name))
+		: name(QString(name)), resourceIndex(NULL)
 {
+	connect(ProfileManager::getInstance(), SIGNAL(currentProfileChanged(Profile*, Profile*)), this,
+			SLOT(currentProfileChanged(Profile*, Profile*)));
 }
 
 
@@ -49,17 +52,27 @@ Profile::ResourceIterator Profile::getResourceEnd()
 
 void Profile::currentProfileChanged(Profile* oldProfile, Profile* newProfile)
 {
+	printf("Current profile changed");
+
 	if (oldProfile == this  &&  newProfile != this) {
 		delete resourceIndex;
 	} else if (oldProfile != this  &&  newProfile == this) {
 		resourceIndex = new OpenGLResourceManager;
+		resourceIndex->setTextureRasterFormat(OpenGLResourceManager::R8G8B8A8);
 
 		ResourceIterator it;
+
+		printf("Adding resources\n");
 
 		for (it = resources.begin() ; it != resources.end() ; it++) {
 			File* resource = *it;
 			resourceIndex->addResource(*resource);
 		}
+
+		printf("End resources\n");
+
+		resourceIndex->bindTexture("jizzy");
+		printf("Täxtscher baund\n");
 	}
 }
 
