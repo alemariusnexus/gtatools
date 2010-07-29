@@ -34,9 +34,6 @@
 
 File::File(const char* path)
 		: path(new FilePath(path)), autoDeletePath(true)
-#ifdef linux
-		  , dir(NULL)
-#endif
 
 {
 }
@@ -44,27 +41,18 @@ File::File(const char* path)
 
 File::File(FilePath* path, bool autoDeletePath)
 		: path(path), autoDeletePath(autoDeletePath)
-#ifdef linux
-		  , dir(NULL)
-#endif
 {
 }
 
 
 File::File(const File& other)
 		: path(new FilePath(*other.path)), autoDeletePath(true)
-#ifdef linux
-		  , dir(NULL)
-#endif
 {
 }
 
 
 File::File(const File& parent, const char* child)
 		: path(NULL), autoDeletePath(true)
-#ifdef linux
-		  , dir(NULL)
-#endif
 {
 	if (!parent.isDirectory()) {
 		FileContentType type = parent.guessContentType();
@@ -88,12 +76,6 @@ File::~File()
 	if (autoDeletePath) {
 		delete path;
 	}
-
-#ifdef linux
-	if (dir != NULL) {
-		closedir(dir);
-	}
-#endif
 }
 
 

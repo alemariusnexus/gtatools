@@ -31,10 +31,10 @@ System* System::getInstance()
 }
 
 
-void System::openFile(const File& file)
+void System::openFile(const File& file, const QHash<QString, QVariant>& data)
 {
 	fileOpen = true;
-	emit fileOpened(file);
+	emit fileOpened(file, data);
 }
 
 

@@ -26,6 +26,8 @@
 #include "gui/GUIModule.h"
 #include <qlinkedlist.h>
 #include "gui/MainWindow.h"
+#include <qhash.h>
+#include <qvariant.h>
 
 
 class System : public QObject {
@@ -35,7 +37,7 @@ public:
 	static System* getInstance();
 
 public:
-	void openFile(const File& file);
+	void openFile(const File& file, const QHash<QString, QVariant>& data = QHash<QString, QVariant>());
 	void closeCurrentFile();
 	bool hasOpenFile() { return fileOpen; }
 	void startTask(int min, int max, const QString& message);
@@ -50,7 +52,7 @@ public:
 	QLinkedList<GUIModule*> getInstalledGUIModules() { return installedGUIModules; }
 
 signals:
-	void fileOpened(const File& file);
+	void fileOpened(const File& file, const QHash<QString, QVariant>& data);
 	void currentFileClosed();
 	void taskStarted(int min, int max, const QString& message);
 	void taskValueUpdated(int value);

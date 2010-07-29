@@ -103,7 +103,9 @@ void ResourceIndex::indexTXD(TXDArchive* txd, const File& file)
 		entry->file = new File(file);
 		entry->txdIndex = i;
 
+		textureMutex.lock();
 		textureIndex.insert(pair<const char*, TextureEntry*>(lName, entry));
+		textureMutex.unlock();
 	}
 }
 
@@ -119,12 +121,16 @@ void ResourceIndex::indexDFF(const File& file)
 	MeshEntry* entry = new MeshEntry;
 	entry->file = new File(file);
 
+	meshMutex.lock();
 	meshIndex.insert(pair<const char*, MeshEntry*>(meshName, entry));
+	meshMutex.unlock();
 }
 
 
 bool ResourceIndex::gotoTexture(const char* name, TXDArchive*& txd, TXDTexture*& texture)
 {
+	textureMutex.lock();
+
 	TextureMap::iterator it = textureIndex.find(name);
 
 	if (it == textureIndex.end()) {
@@ -133,8 +139,13 @@ bool ResourceIndex::gotoTexture(const char* name, TXDArchive*& txd, TXDTexture*&
 
 	TextureEntry* texEntry = it->second;
 
+	int txdIndex = texEntry->txdIndex;
+
 	txd = new TXDArchive(*texEntry->file);
-	for (int32_t i = 0 ; i < texEntry->txdIndex ; i++) delete txd->nextTexture();
+
+	textureMutex.unlock();
+
+	for (int32_t i = 0 ; i < txdIndex ; i++) delete txd->nextTexture();
 	texture = txd->nextTexture();
 
 	return true;
@@ -187,6 +198,8 @@ bool ResourceIndex::getTexture(const char* name, TXDTexture*& texture, uint8_t*&
 
 bool ResourceIndex::getMesh(const char* name, DFFMesh*& mesh)
 {
+	meshMutex.lock();
+
 	MeshMap::iterator it = meshIndex.find(name);
 
 	if (it == meshIndex.end()) {
@@ -198,12 +211,16 @@ bool ResourceIndex::getMesh(const char* name, DFFMesh*& mesh)
 	DFFLoader dff;
 	mesh = dff.loadMesh(*meshEntry->file);
 
+	meshMutex.unlock();
+
 	return true;
 }
 
 
 const File* ResourceIndex::findTexture(const char* name)
 {
+	textureMutex.lock();
+
 	TextureMap::iterator it = textureIndex.find(name);
 
 	if (it == textureIndex.end()) {
@@ -211,12 +228,18 @@ const File* ResourceIndex::findTexture(const char* name)
 	}
 
 	TextureEntry* texEntry = it->second;
-	return texEntry->file;
+	File* file = new File(*texEntry->file);
+
+	textureMutex.unlock();
+
+	return file;
 }
 
 
 const File* ResourceIndex::findMesh(const char* name)
 {
+	meshMutex.lock();
+
 	MeshMap::iterator it = meshIndex.find(name);
 
 	if (it == meshIndex.end()) {
@@ -224,7 +247,11 @@ const File* ResourceIndex::findMesh(const char* name)
 	}
 
 	MeshEntry* entry = it->second;
-	return entry->file;
+	File* file = new File(*entry->file);
+
+	meshMutex.unlock();
+
+	return file;
 }
 
 

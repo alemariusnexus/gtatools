@@ -114,7 +114,10 @@ void TextureSearchDialog::onSearch(bool checked)
 	if (results.size() == 0) {
 		QMessageBox::information(this, tr("No Match"), tr("No texture matching your criteria was found!"));
 	} else if (results.size() == 1) {
-		System::getInstance()->openFile(*results.at(0)->txdFile);
+		TextureMatch* match = results.at(0);
+		QHash<QString, QVariant> data;
+		data["texture"] = match->textureName;
+		System::getInstance()->openFile(*match->txdFile, data);
 		closeDialog = true;
 	} else {
 		QStringList userItems;
@@ -131,7 +134,9 @@ void TextureSearchDialog::onSearch(bool checked)
 
 		if (okSelected) {
 			TextureMatch* match = results.at(userItems.indexOf(sel));
-			System::getInstance()->openFile(*match->txdFile);
+			QHash<QString, QVariant> data;
+			data["texture"] = match->textureName;
+			System::getInstance()->openFile(*match->txdFile, data);
 			closeDialog = true;
 		}
 	}
@@ -191,9 +196,14 @@ void TextureSearchDialog::collectSearchResults(const File& resource, StringMatch
 
 	filesDone++;
 
-	if (filesDone%(filesMax/100) == 0) {
+	if (filesMax < 100) {
 		System* sys = System::getInstance();
-		sys->updateTaskValue(sys->getTaskValue()+1);
+		sys->updateTaskValue((int) (((float)filesDone / (float) filesMax)*100.0f));
+	} else {
+		if (filesDone%(filesMax / 100) == 0) {
+			System* sys = System::getInstance();
+			sys->updateTaskValue(sys->getTaskValue()+1);
+		}
 	}
 }
 

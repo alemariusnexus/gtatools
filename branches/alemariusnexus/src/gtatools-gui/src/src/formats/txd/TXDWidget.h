@@ -35,7 +35,7 @@ class TXDWidget : public QWidget {
 	Q_OBJECT
 
 public:
-	TXDWidget(const File& file, QWidget* parent);
+	TXDWidget(const File& file, const QString& texture, QWidget* parent);
 	~TXDWidget();
 	TXDArchive* getArchive() { return txd; }
 	QLinkedList<TXDTexture*> getSelectedTextures();
@@ -44,7 +44,7 @@ private:
 	void loadConfigUiSettings();
 
 private slots:
-	void textureActivated(QListWidgetItem* item);
+	void textureActivated(QListWidgetItem* item, QListWidgetItem* previous);
 	void configurationChanged();
 
 private:

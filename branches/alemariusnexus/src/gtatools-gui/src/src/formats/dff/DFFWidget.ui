@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>906</width>
-    <height>558</height>
+    <height>618</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -172,7 +172,7 @@
            <item>
             <widget class="QTabWidget" name="tabWidget_2">
              <property name="currentIndex">
-              <number>3</number>
+              <number>2</number>
              </property>
              <widget class="QWidget" name="tab_3">
               <attribute name="title">
@@ -577,7 +577,14 @@
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
                  </property>
-                 <widget class="QListWidget" name="geometryPartList"/>
+                 <widget class="QListWidget" name="geometryPartList">
+                  <property name="maximumSize">
+                   <size>
+                    <width>200</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                 </widget>
                  <widget class="QWidget" name="widget_10" native="true">
                   <layout class="QVBoxLayout" name="verticalLayout_7">
                    <item>
@@ -598,43 +605,69 @@
                     </widget>
                    </item>
                    <item>
-                    <widget class="QWidget" name="widget_8" native="true">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                       <horstretch>0</horstretch>
-                       <verstretch>1</verstretch>
-                      </sizepolicy>
+                    <widget class="QTabWidget" name="tabWidget_3">
+                     <property name="currentIndex">
+                      <number>1</number>
                      </property>
-                     <layout class="QFormLayout" name="formLayout_5">
-                      <item row="0" column="0">
-                       <widget class="QLabel" name="label_11">
-                        <property name="text">
-                         <string>Index Count</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="0" column="1">
-                       <widget class="QLabel" name="geometryPartIndexCountLabel">
-                        <property name="text">
-                         <string notr="true">-</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="0">
-                       <widget class="QLabel" name="label_17">
-                        <property name="text">
-                         <string>Material</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="1">
-                       <widget class="QLabel" name="geometryPartMaterialLabel">
-                        <property name="text">
-                         <string notr="true">-</string>
-                        </property>
-                       </widget>
-                      </item>
-                     </layout>
+                     <widget class="QWidget" name="tab_7">
+                      <attribute name="title">
+                       <string>General Information</string>
+                      </attribute>
+                      <layout class="QHBoxLayout" name="horizontalLayout_6">
+                       <item>
+                        <widget class="QWidget" name="widget_8" native="true">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                           <horstretch>0</horstretch>
+                           <verstretch>1</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <layout class="QFormLayout" name="formLayout_5">
+                          <item row="0" column="0">
+                           <widget class="QLabel" name="label_11">
+                            <property name="text">
+                             <string>Index Count</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item row="0" column="1">
+                           <widget class="QLabel" name="geometryPartIndexCountLabel">
+                            <property name="text">
+                             <string notr="true">-</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item row="1" column="0">
+                           <widget class="QLabel" name="label_17">
+                            <property name="text">
+                             <string>Material</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item row="1" column="1">
+                           <widget class="QLabel" name="geometryPartMaterialLabel">
+                            <property name="text">
+                             <string notr="true">-</string>
+                            </property>
+                           </widget>
+                          </item>
+                         </layout>
+                        </widget>
+                       </item>
+                      </layout>
+                     </widget>
+                     <widget class="QWidget" name="tab_8">
+                      <attribute name="title">
+                       <string>Rendering</string>
+                      </attribute>
+                      <layout class="QHBoxLayout" name="horizontalLayout_7">
+                       <item>
+                        <widget class="QWidget" name="geometryPartRenderContainerWidget" native="true">
+                         <layout class="QVBoxLayout" name="verticalLayout_9"/>
+                        </widget>
+                       </item>
+                      </layout>
+                     </widget>
                     </widget>
                    </item>
                   </layout>

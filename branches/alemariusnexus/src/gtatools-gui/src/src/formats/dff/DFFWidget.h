@@ -13,6 +13,7 @@
 #include <gtaformats/util/File.h>
 #include <gtaformats/gtadff.h>
 #include "DFFRenderWidget.h"
+#include "DFFGUIModule.h"
 
 
 
@@ -34,11 +35,15 @@ private slots:
 	void materialSelected(QListWidgetItem* item);
 	void textureSelected(QListWidgetItem* item);
 	void geometryPartSelected(QListWidgetItem* item);
+	void texturedPropertyChanged(bool textured);
+	void wireframePropertyChanged(bool wireframe);
 
 private:
 	Ui_DFFWidget ui;
+	DFFGUIModule* guiModule;
 	DFFMesh* mesh;
 	DFFRenderWidget* geometryRenderWidget;
+	DFFRenderWidget* geometryPartRenderWidget;
 };
 
 #endif /* DFFWIDGET_H_ */

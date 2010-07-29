@@ -65,7 +65,8 @@ void MainWindow::initialize()
 	connect(sys, SIGNAL(taskValueUpdated(int)), this, SLOT(taskValueUpdated(int)));
 	connect(sys, SIGNAL(taskEnded()), this, SLOT(taskEnded()));
 	connect(sys, SIGNAL(statusMessageShown(const QString&, int)), this, SLOT(statusMessageShown(const QString&, int)));
-	connect(sys, SIGNAL(fileOpened(const File&)), this, SLOT(openFile(const File&)));
+	connect(sys, SIGNAL(fileOpened(const File&, const QHash<QString, QVariant>&)), this,
+			SLOT(openFile(const File&, const QHash<QString, QVariant>&)));
 	connect(sys, SIGNAL(currentFileClosed()), this, SLOT(closeCurrentFile()));
 	connect(sys, SIGNAL(configurationChanged()), this, SLOT(configurationChanged()));
 	connect(ui.fileTree, SIGNAL(activated(const QModelIndex&)), this, SLOT(fileSelectedInTree(const QModelIndex&)));
@@ -92,17 +93,19 @@ void MainWindow::loadConfigUiSettings()
 	QSettings settings(CONFIG_FILE, QSettings::IniFormat);
 
 	if (settings.value("gui/compact_mode", false).toBool()) {
-		QLayout* layout = ui.contentWidget->layout();
-		layout->removeWidget(ui.fileInfoWidget);
-		layout->removeWidget(ui.contentPluginWidget);
+		if (!contentTabCompact) {
+			QLayout* layout = ui.contentWidget->layout();
+			layout->removeWidget(ui.fileInfoWidget);
+			layout->removeWidget(ui.contentPluginWidget);
 
-		QTabWidget* tw = new QTabWidget(ui.contentWidget);
-		tw->addTab(ui.fileInfoWidget, tr("&General Information"));
-		tw->addTab(ui.contentPluginWidget, tr("&Content"));
-		tw->setTabEnabled(1, hasOpenFile);
-		layout->addWidget(tw);
+			QTabWidget* tw = new QTabWidget(ui.contentWidget);
+			tw->addTab(ui.fileInfoWidget, tr("&General Information"));
+			tw->addTab(ui.contentPluginWidget, tr("&Content"));
+			tw->setTabEnabled(1, hasOpenFile);
+			layout->addWidget(tw);
 
-		contentTabCompact = tw;
+			contentTabCompact = tw;
+		}
 	} else {
 		if (contentTabCompact) {
 			QVBoxLayout* layout = (QVBoxLayout*) ui.contentWidget->layout();
@@ -187,10 +190,12 @@ void MainWindow::fileSelectedInTree(const QModelIndex& index)
 }
 
 
-void MainWindow::openFile(const File& file)
+void MainWindow::openFile(const File& file, const QHash<QString, QVariant>& data)
 {
 	FileItemModel* model = (FileItemModel*) ui.fileTree->model();
-	if (*model->getFileForIndex(ui.fileTree->currentIndex()) != file) {
+	QModelIndex current = ui.fileTree->currentIndex();
+
+	if (!current.isValid()  ||  *model->getFileForIndex(ui.fileTree->currentIndex()) != file) {
 		QModelIndex index = indexOfFileInTree(file);
 
 		if (index.isValid()) {
@@ -237,7 +242,7 @@ void MainWindow::openFile(const File& file)
 
 		for (it = handlers.begin() ; it != handlers.end() ; it++) {
 			FormatHandler* handler = *it;
-			currentDisplayWidget = handler->createWidgetForFile(file, ui.contentPluginWidget);
+			currentDisplayWidget = handler->createWidgetForFile(file, ui.contentPluginWidget, data);
 
 			if (currentDisplayWidget) {
 				ui.contentPluginWidget->layout()->addWidget(currentDisplayWidget);
@@ -262,16 +267,18 @@ void MainWindow::closeCurrentFile()
 	}
 	currentFileModules.clear();*/
 
-	if (currentDisplayWidget) {
-		delete currentDisplayWidget;
-		currentDisplayWidget = NULL;
+	if (hasOpenFile) {
+		if (currentDisplayWidget) {
+			delete currentDisplayWidget;
+			currentDisplayWidget = NULL;
+		}
+
+		ui.fileNameLabel->setText(tr("(No File Opened)"));
+		ui.fileTypeLabel->setText("-");
+		ui.fileSizeLabel->setText("-");
+
+		hasOpenFile = false;
 	}
-
-	ui.fileNameLabel->setText(tr("(No File Opened)"));
-	ui.fileTypeLabel->setText("-");
-	ui.fileSizeLabel->setText("-");
-
-	hasOpenFile = false;
 }
 
 

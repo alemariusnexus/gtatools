@@ -63,7 +63,8 @@ DefaultGUIModule::DefaultGUIModule()
 	systemOpenAction = new QAction(tr("Execute System Program"), NULL);
 	connect(systemOpenAction, SIGNAL(triggered(bool)), this, SLOT(onOpenSystemProgram(bool)));
 
-	connect(sys, SIGNAL(fileOpened(const File&)), this, SLOT(fileOpened(const File&)));
+	connect(sys, SIGNAL(fileOpened(const File&, const QHash<QString, QVariant>&)), this,
+			SLOT(fileOpened(const File&, const QHash<QString, QVariant>&)));
 	connect(sys, SIGNAL(currentFileClosed()), this, SLOT(fileClosed()));
 
 }
@@ -232,7 +233,7 @@ void DefaultGUIModule::onFileClose(bool checked)
 }
 
 
-void DefaultGUIModule::fileOpened(const File& file)
+void DefaultGUIModule::fileOpened(const File& file, const QHash<QString, QVariant>& data)
 {
 	fileCloseAction->setEnabled(true);
 }

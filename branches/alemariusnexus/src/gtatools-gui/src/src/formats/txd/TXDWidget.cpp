@@ -23,14 +23,23 @@
 #include <qlayout.h>
 #include <qtabwidget.h>
 #include "../../System.h"
+#include <qstring.h>
 
 
 
-TXDWidget::TXDWidget(const File& file, QWidget* parent)
+TXDWidget::TXDWidget(const File& file, const QString& selectedTex, QWidget* parent)
 		: QWidget(parent), compactTab(NULL)
 {
 	ui.setupUi(this);
 	ui.mainSplitter->setSizes(QList<int>() << width()/4 << width()/4*3);
+
+
+	QWidget* displayContainer = ui.renderArea->takeWidget();
+	displayContainer->layout()->removeWidget(ui.displayLabel);
+	ui.renderArea->setWidget(ui.displayLabel);
+	delete displayContainer;
+
+	ui.renderArea->viewport()->setMouseTracking(true);
 
 	loadConfigUiSettings();
 
@@ -38,10 +47,16 @@ TXDWidget::TXDWidget(const File& file, QWidget* parent)
 
 	textures = new TXDTexture*[txd->getTextureCount()];
 
+	int currentRow = -1;
+
 	for (int i = 0 ; i < txd->getTextureCount() ; i++) {
 		TXDTexture* texture = txd->nextTexture();
 		textures[i] = texture;
 		ui.textureList->addItem(texture->getDiffuseName());
+
+		if (!selectedTex.isNull()  &&  selectedTex == QString(texture->getDiffuseName())) {
+			currentRow = i;
+		}
 	}
 
 	ui.textureCountLabel->setText(QString("%1").arg(txd->getTextureCount()));
@@ -49,11 +64,16 @@ TXDWidget::TXDWidget(const File& file, QWidget* parent)
 	System* sys = System::getInstance();
 
 	connect(sys, SIGNAL(configurationChanged()), this, SLOT(configurationChanged()));
-	connect(ui.textureList, SIGNAL(itemActivated(QListWidgetItem*)), this, SLOT(textureActivated(QListWidgetItem*)));
+	connect(ui.textureList, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)), this,
+			SLOT(textureActivated(QListWidgetItem*, QListWidgetItem*)));
 
 	openGUIModule = new OpenTXDGUIModule(this);
 
 	sys->installGUIModule(openGUIModule);
+
+	if (currentRow != -1) {
+		ui.textureList->setCurrentRow(currentRow);
+	}
 }
 
 
@@ -121,7 +141,7 @@ QLinkedList<TXDTexture*> TXDWidget::getSelectedTextures()
 }
 
 
-void TXDWidget::textureActivated(QListWidgetItem* item)
+void TXDWidget::textureActivated(QListWidgetItem* item, QListWidgetItem* previous)
 {
 	int row = ui.textureList->currentRow();
 

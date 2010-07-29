@@ -21,6 +21,7 @@
 #include <qimage.h>
 #include <qbitmap.h>
 #include "TXDFormatHandler.h"
+#include "../../System.h"
 
 
 
@@ -28,6 +29,7 @@ TextureDisplayer::TextureDisplayer(TXDTexture* texture, uint8_t* rawData, QWidge
 		: QLabel(parent), texture(NULL), data(NULL)
 {
 	display(texture, rawData);
+	setMouseTracking(true);
 }
 
 
@@ -57,5 +59,15 @@ void TextureDisplayer::display(TXDTexture* texture, uint8_t* rawData)
 
 	QPixmap pmp = QPixmap::fromImage(image);
 	setPixmap(pmp);
+}
+
+
+void TextureDisplayer::mouseMoveEvent(QMouseEvent* evt)
+{
+	const QPoint pos = evt->pos();
+	int offs = (pos.y()*texture->getWidth() + pos.x()) * 4;
+
+	System::getInstance()->showStatusMessage(QString("(%1, %2, %3; %4)")
+			.arg(data[offs]).arg(data[offs+1]).arg(data[offs+2]).arg(data[offs+3]), 0);
 }
 

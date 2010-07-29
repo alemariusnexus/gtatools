@@ -63,8 +63,8 @@ GLuint OpenGLResourceManager::generateTexture(TXDTexture* texture, uint8_t* data
 
 	glBindTexture(GL_TEXTURE_2D, texID);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
@@ -122,6 +122,9 @@ bool OpenGLResourceManager::bindTexture(const char* name)
 		}
 
 		generateTexture(tex, data);
+
+		delete tex;
+		delete[] data;
 	} else {
 		glBindTexture(GL_TEXTURE_2D, it->second);
 	}

@@ -29,6 +29,7 @@
 #include "../util/File.h"
 #include <map>
 #include <vector>
+#include "../util/thread/Mutex.h"
 
 using std::map;
 using std::vector;
@@ -194,6 +195,9 @@ protected:
 private:
 	TextureMap textureIndex;
 	MeshMap meshIndex;
+
+	Mutex textureMutex;
+	Mutex meshMutex;
 };
 
 #endif /* RESOURCEINDEX_H_ */

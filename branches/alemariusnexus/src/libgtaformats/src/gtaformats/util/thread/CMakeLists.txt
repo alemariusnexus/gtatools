@@ -16,13 +16,10 @@
 # along with gtaformats.  If not, see <http://www.gnu.org/licenses/>.
 
 
-SET(FILES StringComparator util File FileException FilePath Exception FileIterator)
+SET(FILES Thread Mutex MainThread)
 
 FOREACH(FILE ${FILES})
-    SET(SRCS ${SRCS} "gtaformats/util/${FILE}")
+    SET(SRCS ${SRCS} "gtaformats/util/thread/${FILE}")
 ENDFOREACH(FILE)
-
-ADD_SUBDIRECTORY(stream)
-ADD_SUBDIRECTORY(thread)
 
 SET(SRCS ${SRCS} PARENT_SCOPE)

@@ -26,6 +26,8 @@
 #include "../gui/GUIModule.h"
 #include <qwidget.h>
 #include <qlinkedlist.h>
+#include <qhash.h>
+#include <qvariant.h>
 
 
 
@@ -42,7 +44,7 @@ public:
 	virtual QLinkedList<QString> getFileFormatExtensions() const = 0;
 	virtual bool hasFileFormat(const File& file) const = 0;
 	virtual GUIModule* createGUIModuleForFile(const File& file, MainWindow* mw) { return NULL; }
-	virtual QWidget* createWidgetForFile(const File& file, QWidget* parent) { return NULL; }
+	virtual QWidget* createWidgetForFile(const File& file, QWidget* parent, const QHash<QString, QVariant>& data) { return NULL; }
 	virtual void buildFileTreeMenu(const File& file, QMenu& menu) {}
 };
 

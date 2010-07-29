@@ -7,6 +7,7 @@
 
 #include "DFFWidget.h"
 #include <qlistwidget.h>
+#include "../../System.h"
 
 
 
@@ -17,6 +18,9 @@ DFFWidget::DFFWidget(const File& file, QWidget* parent)
 
 	geometryRenderWidget = new DFFRenderWidget(ui.geometryRenderContainerWidget);
 	ui.geometryRenderContainerWidget->layout()->addWidget(geometryRenderWidget);
+
+	geometryPartRenderWidget = new DFFRenderWidget(ui.geometryPartRenderContainerWidget);
+	ui.geometryPartRenderContainerWidget->layout()->addWidget(geometryPartRenderWidget);
 
 	DFFLoader dff;
 	mesh = dff.loadMesh(file);
@@ -48,6 +52,10 @@ DFFWidget::DFFWidget(const File& file, QWidget* parent)
 		ui.geometryList->addItem(item);
 	}
 
+	guiModule = new DFFGUIModule(this);
+
+	System::getInstance()->installGUIModule(guiModule);
+
 
 	connect(ui.frameList, SIGNAL(itemActivated(QListWidgetItem*)), this, SLOT(frameSelected(QListWidgetItem*)));
 	connect(ui.geometryList, SIGNAL(itemActivated(QListWidgetItem*)), this, SLOT(geometrySelected(QListWidgetItem*)));
@@ -59,15 +67,22 @@ DFFWidget::DFFWidget(const File& file, QWidget* parent)
 
 DFFWidget::~DFFWidget()
 {
+	System::getInstance()->uninstallGUIModule(guiModule);
+	delete guiModule;
+
 	clearMaterialList();
 	clearGeometryPartList();
 
-	for (int i = 0 ; i < ui.frameList->count() ; i++) {
-		delete ui.frameList->item(i);
+	int count = ui.frameList->count();
+
+	for (int i = 0 ; i < count ; i++) {
+		delete ui.frameList->item(0);
 	}
 
-	for (int i = 0 ; i < ui.geometryList->count() ; i++) {
-		delete ui.geometryList->item(i);
+	count = ui.geometryList->count();
+
+	for (int i = 0 ; i < count ; i++) {
+		delete ui.geometryList->item(0);
 	}
 
 	delete mesh;
@@ -78,24 +93,30 @@ void DFFWidget::clearMaterialList()
 {
 	clearTextureList();
 
-	for (int i = 0 ; i < ui.materialList->count() ; i++) {
-		delete ui.materialList->item(i);
+	int count = ui.materialList->count();
+
+	for (int i = 0 ; i < count ; i++) {
+		delete ui.materialList->item(0);
 	}
 }
 
 
 void DFFWidget::clearGeometryPartList()
 {
-	for (int i = 0 ; i < ui.geometryPartList->count() ; i++) {
-		delete ui.geometryPartList->item(i);
+	int count = ui.geometryPartList->count();
+
+	for (int i = 0 ; i < count ; i++) {
+		delete ui.geometryPartList->item(0);
 	}
 }
 
 
 void DFFWidget::clearTextureList()
 {
-	for (int i = 0 ; i < ui.textureList->count() ; i++) {
-		delete ui.textureList->item(i);
+	int count = ui.textureList->count();
+
+	for (int i = 0 ; i < count ; i++) {
+		delete ui.textureList->item(0);
 	}
 }
 
@@ -165,6 +186,7 @@ void DFFWidget::geometrySelected(QListWidgetItem* item)
 	}
 
 	geometryRenderWidget->renderGeometry(geom);
+	geometryRenderWidget->updateGL();
 }
 
 
@@ -213,5 +235,22 @@ void DFFWidget::geometryPartSelected(QListWidgetItem* item)
 	ui.geometryPartNameLabel->setText(item->text());
 	ui.geometryPartIndexCountLabel->setText(QString("%1").arg(part->getIndexCount()));
 	ui.geometryPartMaterialLabel->setText(ui.materialList->item(geom->indexOf(part->getMaterial()))->text());
+
+	geometryPartRenderWidget->renderGeometryPart(geom, part);
+	geometryPartRenderWidget->updateGL();
+}
+
+
+void DFFWidget::texturedPropertyChanged(bool textured)
+{
+	geometryRenderWidget->setShowTextures(textured);
+	geometryPartRenderWidget->setShowTextures(textured);
+}
+
+
+void DFFWidget::wireframePropertyChanged(bool wireframe)
+{
+	geometryRenderWidget->setShowWireframe(wireframe);
+	geometryPartRenderWidget->setShowWireframe(wireframe);
 }
 

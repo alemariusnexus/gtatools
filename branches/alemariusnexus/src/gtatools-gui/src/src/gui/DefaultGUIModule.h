@@ -48,7 +48,7 @@ private slots:
 	void onAbout(bool checked);
 	void onFileOpen(bool checked);
 	void onFileClose(bool checked);
-	void fileOpened(const File& file);
+	void fileOpened(const File& file, const QHash<QString, QVariant>& data);
 	void fileClosed();
 	void onSearchFile(bool checked);
 

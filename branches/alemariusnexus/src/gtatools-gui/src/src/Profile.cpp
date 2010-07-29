@@ -52,8 +52,6 @@ Profile::ResourceIterator Profile::getResourceEnd()
 
 void Profile::currentProfileChanged(Profile* oldProfile, Profile* newProfile)
 {
-	printf("Current profile changed");
-
 	if (oldProfile == this  &&  newProfile != this) {
 		delete resourceIndex;
 	} else if (oldProfile != this  &&  newProfile == this) {
@@ -62,17 +60,10 @@ void Profile::currentProfileChanged(Profile* oldProfile, Profile* newProfile)
 
 		ResourceIterator it;
 
-		printf("Adding resources\n");
-
 		for (it = resources.begin() ; it != resources.end() ; it++) {
 			File* resource = *it;
 			resourceIndex->addResource(*resource);
 		}
-
-		printf("End resources\n");
-
-		resourceIndex->bindTexture("jizzy");
-		printf("Täxtscher baund\n");
 	}
 }
 

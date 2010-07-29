@@ -184,6 +184,9 @@
               <verstretch>1</verstretch>
              </sizepolicy>
             </property>
+            <property name="mouseTracking">
+             <bool>false</bool>
+            </property>
             <property name="frameShadow">
              <enum>QFrame::Sunken</enum>
             </property>
@@ -198,6 +201,9 @@
                <width>219</width>
                <height>379</height>
               </rect>
+             </property>
+             <property name="mouseTracking">
+              <bool>true</bool>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_2">
               <item>

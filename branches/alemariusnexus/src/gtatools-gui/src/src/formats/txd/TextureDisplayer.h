@@ -22,7 +22,7 @@
 
 #include <qlabel.h>
 #include <gtaformats/txd/TXDTexture.h>
-
+#include <QMouseEvent>
 
 
 class TextureDisplayer : public QLabel {
@@ -33,6 +33,9 @@ public:
 	TextureDisplayer(TXDTexture* texture, uint8_t* rawData, QWidget* parent);
 	~TextureDisplayer();
 	void display(TXDTexture* texture, uint8_t* rawData);
+
+protected:
+	virtual void mouseMoveEvent(QMouseEvent* evt);
 
 private:
 	TXDTexture* texture;

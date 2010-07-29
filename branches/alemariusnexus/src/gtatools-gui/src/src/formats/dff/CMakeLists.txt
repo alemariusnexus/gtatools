@@ -17,8 +17,10 @@
 
 SET(SRCS ${SRCS}
     src/formats/dff/DFFFormatHandler.cpp src/formats/dff/DFFWidget.cpp src/formats/dff/DFFRenderWidget.cpp
+    src/formats/dff/DFFGUIModule.cpp
     PARENT_SCOPE)
 SET(MOC_SRCS ${MOC_SRCS}
     src/formats/dff/DFFFormatHandler.h src/formats/dff/DFFWidget.h src/formats/dff/DFFRenderWidget.h
+    src/formats/dff/DFFGUIModule.h
     PARENT_SCOPE)
 SET(UIC_SRCS ${UIC_SRCS} src/formats/dff/DFFWidget.ui PARENT_SCOPE)

@@ -23,7 +23,7 @@
 
 
 
-QWidget* DFFFormatHandler::createWidgetForFile(const File& file, QWidget* parent)
+QWidget* DFFFormatHandler::createWidgetForFile(const File& file, QWidget* parent, const QHash<QString, QVariant>& data)
 {
 	return new DFFWidget(file, parent);
 }

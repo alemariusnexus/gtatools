@@ -206,9 +206,6 @@ public:
 private:
 	FilePath* path;
 	bool autoDeletePath;
-#ifdef linux
-	DIR* dir;
-#endif
 };
 
 #endif /* FILE_H_ */

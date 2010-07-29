@@ -23,6 +23,9 @@ public:
 	DFFRenderWidget(QWidget* parent);
 	virtual ~DFFRenderWidget();
 	void renderGeometry(DFFGeometry* geometry);
+	void renderGeometryPart(DFFGeometry* geometry, DFFGeometryPart* part);
+	void setShowTextures(bool textures);
+	void setShowWireframe(bool wireframe);
 
 protected:
 	virtual void initializeGL();
@@ -32,7 +35,10 @@ protected:
 	void mouseMoveEvent(QMouseEvent* evt);
 
 private:
-	DFFGeometry* geometry;
+	bool textures;
+	bool wireframe;
+	GLuint testTex;
+	GLuint transTex;
 	GLuint renderList;
 	QPoint lastDragPos;
 	float rx;

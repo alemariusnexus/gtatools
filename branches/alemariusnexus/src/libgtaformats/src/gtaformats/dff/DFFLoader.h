@@ -27,6 +27,7 @@
 #include <cstdio>
 #include "../util/stream/InputStream.h"
 #include "../util/File.h"
+#include "../util/thread/Mutex.h"
 
 
 #define GEOMETRY_FLAG_TRISTRIP (1<<0)
@@ -73,7 +74,7 @@ public:
 	virtual ~DFFLoader();
 	DFFMesh* loadMesh(InputStream* stream);
 	DFFMesh* loadMesh(const File& file);
-	void setVerbose(bool verbose) { this->verbose = verbose; }
+	void setVerbose(bool verbose) { verboseMutex.lock(); this->verbose = verbose; verboseMutex.unlock(); }
 	bool isVerbose() { return verbose; }
 
 public:
@@ -126,6 +127,7 @@ private:
 
 private:
 	bool verbose;
+	Mutex verboseMutex;
 };
 
 #endif /* DFFLOADER_H_ */

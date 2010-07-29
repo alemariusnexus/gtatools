@@ -45,6 +45,7 @@ public:
 	QMenu* getEditMenu() { return ui.menuEdit; }
 	QMenu* getHelpMenu() { return ui.menuHelp; }
 	QMenu* getFileMenu() { return ui.menuFile; }
+	QMenu* getViewMenu() { return ui.menuView; }
 
 private:
 	QModelIndex indexOfFileInTree(const File& file);
@@ -58,7 +59,7 @@ private slots:
 	void fileSelectedInTree(const QModelIndex& index);
 	void currentProfileChanged(Profile* oldProfile, Profile* newProfile);
 	void currentProfileContentChanged();
-	void openFile(const File& file);
+	void openFile(const File& file, const QHash<QString, QVariant>& data);
 	void closeCurrentFile();
 	void fileTreeContextMenuRequested(const QPoint& pos);
 	void configurationChanged();
