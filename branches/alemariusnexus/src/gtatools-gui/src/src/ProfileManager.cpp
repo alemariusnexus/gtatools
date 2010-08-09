@@ -88,16 +88,11 @@ ProfileManager::ProfileIterator ProfileManager::getProfileEnd()
 Profile* ProfileManager::setCurrentProfile(Profile* profile)
 {
 	System* sys = System::getInstance();
-	sys->startTask(0, 1, "Opening profile...");
-
 	sys->closeCurrentFile();
 
 	Profile* oldProfile = currentProfile;
 	currentProfile = profile;
 	emit currentProfileChanged(oldProfile, profile);
-
-	sys->updateTaskValue(1);
-	sys->endTask();
 
 	return oldProfile;
 }

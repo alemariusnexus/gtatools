@@ -28,6 +28,7 @@ private:
 	virtual void doUninstall();
 
 private:
+	QAction* dumpAction;
 	QAction* texturedAction;
 	QAction* wireframeAction;
 };

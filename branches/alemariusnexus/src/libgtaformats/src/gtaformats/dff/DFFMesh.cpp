@@ -21,51 +21,61 @@
 #include <cstring>
 
 
+DFFMesh::DFFMesh(const DFFMesh& other)
+{
+	ConstGeometryIterator git;
+	for (git = other.getGeometryBegin() ; git != other.getGeometryEnd() ; git++) {
+		geometries.push_back(new DFFGeometry(**git));
+	}
+
+	ConstFrameIterator fit;
+	for (fit = other.getFrameBegin() ; fit != other.getFrameEnd() ; fit++) {
+		frames.push_back(new DFFFrame(**fit));
+	}
+}
+
+
 DFFMesh::~DFFMesh() {
-	if (frames) {
-		for (int32_t i = 0 ; i < frameCount ; i++) {
-			delete frames[i];
-		}
-
-		delete[] frames;
-	}
-
-	for (int32_t i = 0 ; i < geometryCount ; i++) {
-		delete geometries[i];
-	}
-
-	delete[] geometries;
+	removeFrames();
+	removeGeometries();
 }
 
 
 void DFFMesh::mirrorYZ()
 {
-	for (int32_t i = 0 ; i < geometryCount ; i++) {
-		geometries[i]->mirrorYZ();
+	GeometryIterator git;
+	for (git = geometries.begin() ; git != geometries.end() ; git++) {
+		(*git)->mirrorYZ();
 	}
 
-	for (int32_t i = 0 ; i < frameCount ; i++) {
-		frames[i]->mirrorYZ();
+	FrameIterator fit;
+	for (fit = frames.begin() ; fit != frames.end() ; fit++) {
+		(*fit)->mirrorYZ();
 	}
 }
 
 
 void DFFMesh::scale(float x, float y, float z)
 {
-	for (int32_t i = 0 ; i < geometryCount ; i++) {
-		geometries[i]->scale(x, y, z);
+	GeometryIterator git;
+	for (git = geometries.begin() ; git != geometries.end() ; git++) {
+		(*git)->scale(x, y, z);
 	}
 
-	for (int32_t i = 0 ; i < frameCount ; i++) {
-		frames[i]->scale(x, y, z);
+	FrameIterator fit;
+	for (fit = frames.begin() ; fit != frames.end() ; fit++) {
+		(*fit)->scale(x, y, z);
 	}
 }
 
 
-int32_t DFFMesh::indexOf(DFFFrame* frame)
+int32_t DFFMesh::indexOf(const DFFFrame* frame) const
 {
-	for (int32_t i = 0 ; i < frameCount ; i++) {
-		if (frames[i] == frame) {
+	ConstFrameIterator it;
+	int i = 0;
+
+	for (it = frames.begin() ; it != frames.end() ; it++, i++) {
+		if (*it == frame) {
 			return i;
 		}
 	}
@@ -74,11 +84,13 @@ int32_t DFFMesh::indexOf(DFFFrame* frame)
 }
 
 
-DFFGeometry* DFFMesh::getGeometry(const char* name) const
+const DFFGeometry* DFFMesh::getGeometry(const char* name) const
 {
-	for (int32_t i = 0 ; i < geometryCount ; i++) {
-		if (strcmp(geometries[i]->getAssociatedFrame()->getName(), name) == 0) {
-			return geometries[i];
+	ConstGeometryIterator it;
+
+	for (it = geometries.begin() ; it != geometries.end() ; it++) {
+		if (strcmp((*it)->getAssociatedFrame()->getName(), name) == 0) {
+			return *it;
 		}
 	}
 
@@ -86,13 +98,93 @@ DFFGeometry* DFFMesh::getGeometry(const char* name) const
 }
 
 
-DFFFrame* DFFMesh::getFrame(const char* name) const
+DFFGeometry* DFFMesh::getGeometry(const char* name)
 {
-	for (int32_t i = 0 ; i < frameCount ; i++) {
-		if (strcmp(frames[i]->getName(), name) == 0) {
-			return frames[i];
+	GeometryIterator it;
+
+	for (it = geometries.begin() ; it != geometries.end() ; it++) {
+		if (strcmp((*it)->getAssociatedFrame()->getName(), name) == 0) {
+			return *it;
 		}
 	}
 
 	return NULL;
+}
+
+
+const DFFFrame* DFFMesh::getFrame(const char* name) const
+{
+	ConstFrameIterator it;
+
+	for (it = frames.begin() ; it != frames.end() ; it++) {
+		if (strcmp((*it)->getName(), name) == 0) {
+			return *it;
+		}
+	}
+
+	return NULL;
+}
+
+
+DFFFrame* DFFMesh::getFrame(const char* name)
+{
+	FrameIterator it;
+
+	for (it = frames.begin() ; it != frames.end() ; it++) {
+		if (strcmp((*it)->getName(), name) == 0) {
+			return *it;
+		}
+	}
+
+	return NULL;
+}
+
+
+void DFFMesh::removeFrame(DFFFrame* frame)
+{
+	FrameIterator it;
+
+	for (it = frames.begin() ; it != frames.end() ; it++) {
+		if (*it == frame) {
+			delete *it;
+			frames.erase(it);
+		}
+	}
+}
+
+
+void DFFMesh::removeGeometry(DFFGeometry* geom)
+{
+	GeometryIterator it;
+
+	for (it = geometries.begin() ; it != geometries.end() ; it++) {
+		if (*it == geom) {
+			delete *it;
+			geometries.erase(it);
+		}
+	}
+}
+
+
+void DFFMesh::removeFrames()
+{
+	FrameIterator it;
+
+	for (it = frames.begin() ; it != frames.end() ; it++) {
+		delete *it;
+	}
+
+	frames.clear();
+}
+
+
+void DFFMesh::removeGeometries()
+{
+	GeometryIterator it;
+
+	for (it = geometries.begin() ; it != geometries.end() ; it++) {
+		delete *it;
+	}
+
+	geometries.clear();
 }

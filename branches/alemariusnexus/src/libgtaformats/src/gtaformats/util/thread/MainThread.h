@@ -16,7 +16,7 @@ class MainThread : public Thread {
 protected:
 	virtual void run() {}
 
-private:
+public:
 	MainThread();
 
 private:

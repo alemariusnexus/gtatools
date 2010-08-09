@@ -16,7 +16,14 @@ using std::pair;
 
 
 
+MainThread mainThread;
 map<unsigned long, Thread*> threads;
+
+
+struct ThreadContainer
+{
+	Thread* thread;
+};
 
 
 
@@ -24,9 +31,11 @@ map<unsigned long, Thread*> threads;
 #ifdef linux
 void* __posixThreadStarter(void* param)
 {
-	Thread* thread = (Thread*) param;
+	ThreadContainer* tc = (ThreadContainer*) param;
+	Thread* thread = tc->thread;
 	thread->run();
 	thread->terminated();
+	delete tc;
 }
 #else
 DWORD WINAPI __winThreadStarter(LPVOID param)
@@ -40,8 +49,9 @@ DWORD WINAPI __winThreadStarter(LPVOID param)
 
 
 
-Thread::Thread()
-		: parentThread(currentThread())
+Thread::Thread(bool deleteOnTermination)
+		: parentThread(currentThread()), running(false), deleteOnTermination(deleteOnTermination),
+		  terminationHandler(NULL)
 #ifdef linux
 #else
 		  , winHandle(NULL)
@@ -53,12 +63,12 @@ Thread::Thread()
 
 #ifdef linux
 Thread::Thread(pthread_t posixThread)
-		: posixThread(posixThread), parentThread(NULL)
+		: posixThread(posixThread), parentThread(NULL), deleteOnTermination(false), terminationHandler(NULL)
 {
 }
 #else
 Thread::Thread(HANDLE winHandle)
-		: winHandle(winHandle)
+		: winHandle(winHandle), parentThread(NULL), deleteOnTermination(false), terminationHandler(NULL)
 {
 }
 #endif
@@ -86,9 +96,8 @@ Thread* Thread::currentThread()
 	map<unsigned long, Thread*>::iterator it = threads.find(threadId);
 
 	if (it == threads.end()) {
-		Thread* mainThread = new MainThread();
-		threads.insert(pair<unsigned long, Thread*>(threadId, mainThread));
-		return mainThread;
+		threads.insert(pair<unsigned long, Thread*>(threadId, &mainThread));
+		return &mainThread;
 	} else {
 		return it->second;
 	}
@@ -99,12 +108,15 @@ void Thread::start()
 {
 	unsigned long id;
 
+	ThreadContainer* tc = new ThreadContainer;
+	tc->thread = this;
+
 #ifdef linux
-	pthread_create(&posixThread, NULL, __posixThreadStarter, (void*) this);
+	pthread_create(&posixThread, NULL, __posixThreadStarter, tc);
 	running = true;
 	id = (unsigned long) posixThread;
 #else
-	winHandle = CreateThread(NULL, 0, __winThreadStarter, (void*) this, 0, &id);
+	winHandle = CreateThread(NULL, 0, __winThreadStarter, tc, 0, &id);
 	running = true;
 
 	int winPriority;
@@ -143,6 +155,10 @@ void Thread::start()
 void Thread::terminated()
 {
 	running = false;
+
+	if (terminationHandler != NULL) {
+		terminationHandler();
+	}
 }
 
 
@@ -161,7 +177,6 @@ void Thread::setPriority(Priority priority)
 	if (priority == Inherit) {
 		Thread* cur = currentThread();
 		priority = cur->getPriority();
-		delete cur;
 	}
 
 	this->priority = priority;

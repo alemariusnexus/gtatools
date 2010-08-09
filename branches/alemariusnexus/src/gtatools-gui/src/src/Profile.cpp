@@ -21,11 +21,21 @@
 #include <cstdio>
 #include <cstdlib>
 #include "ProfileManager.h"
+#include "ProfileInitializer.h"
+#include "System.h"
+
+
+/*void profileInitialized()
+{
+	System* sys = System::getInstance();
+	sys->updateTaskValue(1);
+	sys->endTask();
+}*/
 
 
 
 Profile::Profile(const QString& name)
-		: name(QString(name)), resourceIndex(NULL)
+		: name(QString(name)), resourceIndex(NULL), resourceIdxInitialized(false)
 {
 	connect(ProfileManager::getInstance(), SIGNAL(currentProfileChanged(Profile*, Profile*)), this,
 			SLOT(currentProfileChanged(Profile*, Profile*)));
@@ -58,12 +68,19 @@ void Profile::currentProfileChanged(Profile* oldProfile, Profile* newProfile)
 		resourceIndex = new OpenGLResourceManager;
 		resourceIndex->setTextureRasterFormat(OpenGLResourceManager::R8G8B8A8);
 
-		ResourceIterator it;
+		ProfileInitializer* thread = new ProfileInitializer(this);
+		currentInitializer = thread;
+
+		connect(thread, SIGNAL(finished()), this, SLOT(resourcesInitialized()));
+
+		thread->start();
+
+		/*ResourceIterator it;
 
 		for (it = resources.begin() ; it != resources.end() ; it++) {
 			File* resource = *it;
 			resourceIndex->addResource(*resource);
-		}
+		}*/
 	}
 }
 
@@ -105,6 +122,15 @@ bool Profile::containsFile(const File& file)
 	}
 
 	return false;
+}
+
+
+void Profile::resourcesInitialized()
+{
+	resourceIdxInitialized = true;
+	emit resourceIndexInitialized();
+	disconnect(currentInitializer, SIGNAL(finished()), this, SLOT(resourcesInitialized()));
+	delete currentInitializer;
 }
 
 

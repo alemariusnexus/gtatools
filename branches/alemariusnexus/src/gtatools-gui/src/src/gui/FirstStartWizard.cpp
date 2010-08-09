@@ -38,6 +38,8 @@ FirstStartWizard::FirstStartWizard()
 
 void FirstStartWizard::finished(int result)
 {
+	printf("Finished\n");
+
 	if (result == Accepted) {
 		QSettings settings(CONFIG_FILE, QSettings::IniFormat);
 

@@ -30,15 +30,6 @@
 #include "../util/thread/Mutex.h"
 
 
-#define GEOMETRY_FLAG_TRISTRIP (1<<0)
-#define GEOMETRY_FLAG_POSITIONS (1<<1)
-#define GEOMETRY_FLAG_TEXCOORDS (1<<2)
-#define GEOMETRY_FLAG_COLORS (1<<3)
-#define GEOMETRY_FLAG_NORMALS (1<<4)
-#define GEOMETRY_FLAG_UNKNOWN1 (1<<5)
-#define GEOMETRY_FLAG_UNKNOWN2 (1<<6)
-#define GEOMETRY_FLAG_MULTIPLEUVSETS (1<<7)
-
 #define DFF_VERSION_GTA3_1 0
 #define DFF_VERSION_GTA3_2 2048
 #define DFF_VERSION_GTA3_3 65400
@@ -60,10 +51,6 @@ struct DFFGeometryStructHeader {
 struct DFFLoadContext {
 	DFFMesh* mesh;
 	int32_t version;
-	int32_t nextGeometryIndex;
-	int32_t nextMaterialIndex;
-	int32_t nextTextureIndex;
-	int32_t nextFrameIndex;
 	int depth;
 };
 

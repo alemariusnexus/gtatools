@@ -22,8 +22,12 @@ DFFGUIModule::DFFGUIModule(DFFWidget* dffWidget)
 	wireframeAction->setCheckable(true);
 	wireframeAction->setChecked(false);
 
+	dumpAction = new QAction(tr("Dump XML"), NULL);
+
 	connect(texturedAction, SIGNAL(triggered(bool)), dffWidget, SLOT(texturedPropertyChanged(bool)));
 	connect(wireframeAction, SIGNAL(triggered(bool)), dffWidget, SLOT(wireframePropertyChanged(bool)));
+	connect(dumpAction, SIGNAL(triggered(bool)), dffWidget, SLOT(xmlDumpRequested(bool)));
+
 }
 
 

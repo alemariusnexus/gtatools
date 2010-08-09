@@ -18,6 +18,16 @@
  */
 
 #include "DFFFrame.h"
+#include <cstring>
+
+
+
+DFFFrame::DFFFrame(const DFFFrame& other)
+		: rotation(new Matrix3(*other.rotation)), translation(new Vector3(*other.translation)),
+		  flags(other.flags), name(new char[strlen(other.name)+1])
+{
+	strcpy(name, other.name);
+}
 
 
 DFFFrame::~DFFFrame()
@@ -30,17 +40,76 @@ DFFFrame::~DFFFrame()
 
 void DFFFrame::mirrorYZ()
 {
-	float y = translation[1];
-	translation[1] = translation[2];
-	translation[2] = y;
+	translation->mirrorYZ();
 }
 
 
 void DFFFrame::scale(float x, float y, float z)
 {
-	translation[0] *= x;
-	translation[1] *= y;
-	translation[2] *= z;
+	translation->scale(x, y, z);
 }
 
+
+DFFFrame* DFFFrame::getChild(const char* name)
+{
+	ChildIterator it;
+
+	for (it = children.begin() ; it != children.end() ; it++) {
+		if (strcmp((*it)->getName(), name) == 0) {
+			return *it;
+		}
+	}
+}
+
+
+const DFFFrame* DFFFrame::getChild(const char* name) const
+{
+	ConstChildIterator it;
+
+	for (it = children.begin() ; it != children.end() ; it++) {
+		if (strcmp((*it)->getName(), name) == 0) {
+			return *it;
+		}
+	}
+}
+
+
+void DFFFrame::removeChild(DFFFrame* child)
+{
+	ChildIterator it;
+
+	for (it = children.begin() ; it != children.end() ; it++) {
+		if (*it == child) {
+			delete *it;
+			children.erase(it);
+		}
+	}
+}
+
+
+void DFFFrame::removeChildren()
+{
+	ChildIterator it;
+
+	for (it = children.begin() ; it != children.end() ; it++) {
+		delete *it;
+	}
+
+	children.clear();
+}
+
+
+int32_t DFFFrame::indexOf(const DFFFrame* child) const
+{
+	ConstChildIterator it;
+	int i = 0;
+
+	for (it = children.begin() ; it != children.end() ; it++, i++) {
+		if (*it == child) {
+			return i;
+		}
+	}
+
+	return -1;
+}
 

@@ -40,6 +40,7 @@
 #include <gtaformats/util/Exception.h>
 #include <qmessagebox.h>
 #include <qtimer.h>
+#include <qmessagebox.h>
 
 
 
@@ -84,7 +85,11 @@ int main(int argc, char** argv)
 
 		if (!File(CONFIG_FILE).exists()) {
 			if (!File(CONFIG_DIR).exists()) {
-				File(CONFIG_DIR).mkdir();
+				if (!File(CONFIG_DIR).mkdir()) {
+					QMessageBox::critical(NULL, "Configuration Error",
+							"Configuration directory could not be created. Program will terminate.");
+					return 1;
+				}
 			}
 
 			wiz.exec();

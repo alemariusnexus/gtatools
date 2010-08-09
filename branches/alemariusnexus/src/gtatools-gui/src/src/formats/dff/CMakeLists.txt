@@ -17,10 +17,11 @@
 
 SET(SRCS ${SRCS}
     src/formats/dff/DFFFormatHandler.cpp src/formats/dff/DFFWidget.cpp src/formats/dff/DFFRenderWidget.cpp
-    src/formats/dff/DFFGUIModule.cpp
+    src/formats/dff/DFFGUIModule.cpp src/formats/dff/DFFFrameItemModel.cpp
+    src/formats/dff/DFFXMLDumpDialog.cpp
     PARENT_SCOPE)
 SET(MOC_SRCS ${MOC_SRCS}
     src/formats/dff/DFFFormatHandler.h src/formats/dff/DFFWidget.h src/formats/dff/DFFRenderWidget.h
-    src/formats/dff/DFFGUIModule.h
+    src/formats/dff/DFFGUIModule.h src/formats/dff/DFFFrameItemModel.h src/formats/dff/DFFXMLDumpDialog.h
     PARENT_SCOPE)
-SET(UIC_SRCS ${UIC_SRCS} src/formats/dff/DFFWidget.ui PARENT_SCOPE)
+SET(UIC_SRCS ${UIC_SRCS} src/formats/dff/DFFWidget.ui src/formats/dff/DFFXMLDumpDialog.ui PARENT_SCOPE)

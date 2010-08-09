@@ -15,6 +15,8 @@
 #include <windows.h>
 #endif
 
+#include <cstdio>
+
 #define GTHREADS_MAX 2048
 
 
@@ -39,15 +41,21 @@ public:
 	static Thread* currentThread();
 
 public:
-	Thread();
+	Thread(bool deleteOnTermination = false);
 	~Thread();
 	void start();
 	void join();
 	void setPriority(Priority priority);
 	Priority getPriority() { return priority; }
+	void setTerminationHandler(void (*terminationHandler)())
+	{
+		this->terminationHandler = terminationHandler;
+	}
 
 protected:
 	virtual void run() = 0;
+
+	void blubb(void* test);
 
 private:
 #ifdef linux
@@ -58,9 +66,11 @@ private:
 	void terminated();
 
 private:
+	bool deleteOnTermination;
 	bool running;
 	Priority priority;
 	Thread* parentThread;
+	void (*terminationHandler)();
 #ifdef linux
 	pthread_t posixThread;
 #else

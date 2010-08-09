@@ -16,7 +16,7 @@
 # along with gtaformats.  If not, see <http://www.gnu.org/licenses/>.
 
 
-SET(FILES   DFFException DFFFrame DFFGeometry DFFGeometryPart DFFLoader DFFMaterial DFFMesh DFFTexture )
+SET(FILES DFFException DFFFrame DFFGeometry DFFGeometryPart DFFLoader DFFMaterial DFFMesh DFFTexture)
 
 FOREACH(FILE ${FILES})
     SET(SRCS ${SRCS} "gtaformats/dff/${FILE}")

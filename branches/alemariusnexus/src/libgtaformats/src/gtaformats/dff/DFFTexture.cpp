@@ -18,6 +18,16 @@
  */
 
 #include "DFFTexture.h"
+#include <cstring>
+
+
+
+DFFTexture::DFFTexture(const DFFTexture& other)
+		: diffuseName(new char[strlen(other.diffuseName)+1]), alphaName(new char[strlen(other.alphaName)+1])
+{
+	strcpy(diffuseName, other.diffuseName);
+	strcpy(alphaName, other.alphaName);
+}
 
 
 DFFTexture::~DFFTexture()
@@ -29,4 +39,18 @@ DFFTexture::~DFFTexture()
 	if (alphaName != NULL) {
 		delete[] alphaName;
 	}
+}
+
+
+void DFFTexture::setAlphaName(const char* name)
+{
+	alphaName = new char[strlen(name)+1];
+	strcpy(alphaName, name);
+}
+
+
+void DFFTexture::setDiffuseName(const char* name)
+{
+	diffuseName = new char[strlen(name)+1];
+	strcpy(diffuseName, name);
 }

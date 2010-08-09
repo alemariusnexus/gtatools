@@ -27,6 +27,7 @@
 #include <gtaformats/engine/OpenGLResourceManager.h>
 #include <qmetatype.h>
 #include <gtaformats/util/File.h>
+#include "ProfileInitializer.h"
 
 
 class Profile : public QObject {
@@ -48,17 +49,24 @@ public:
 	void synchronize();
 	bool containsFile(const File& file);
 	OpenGLResourceManager* getResourceManager() { return resourceIndex; };
+	bool isResourceIndexInitialized() { return resourceIdxInitialized; }
 
 public slots:
 	void currentProfileChanged(Profile* oldProfile, Profile* newProfile);
 
+private slots:
+	void resourcesInitialized();
+
 signals:
 	void changed();
+	void resourceIndexInitialized();
 
 private:
 	QLinkedList<File*> resources;
 	QString name;
 	OpenGLResourceManager* resourceIndex;
+	ProfileInitializer* currentInitializer;
+	bool resourceIdxInitialized;
 
 
 

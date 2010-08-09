@@ -23,24 +23,55 @@
 #include <gf_config.h>
 #include "DFFGeometry.h"
 #include "DFFFrame.h"
+#include <vector>
+
+using std::vector;
 
 
 
 
 class DFFMesh {
+private:
 	friend class DFFLoader;
 
 public:
+	typedef vector<DFFFrame*>::iterator FrameIterator;
+	typedef vector<DFFFrame*>::const_iterator ConstFrameIterator;
+	typedef vector<DFFGeometry*>::iterator GeometryIterator;
+	typedef vector<DFFGeometry*>::const_iterator ConstGeometryIterator;
+
+public:
+	DFFMesh(const DFFMesh& other);
 	~DFFMesh();
-	int32_t getFrameCount() const { return frameCount; }
-	DFFFrame** getFrames() const { return frames; }
-	DFFFrame* getFrame(int32_t idx) const { return frames[idx]; }
-	DFFFrame* getFrame(const char* name) const;
-	int32_t getGeometryCount() const { return geometryCount; }
-	DFFGeometry** getGeometries() const { return geometries; }
-	DFFGeometry* getGeometry(int32_t idx) const { return geometries[idx]; }
-	DFFGeometry* getGeometry(const char* name) const;
-	int32_t indexOf(DFFFrame* frame);
+	int32_t getFrameCount() const { return frames.size(); }
+	FrameIterator getFrameBegin() { return frames.begin(); }
+	ConstFrameIterator getFrameBegin() const { return frames.begin(); }
+	FrameIterator getFrameEnd() { return frames.end(); }
+	ConstFrameIterator getFrameEnd() const { return frames.end(); }
+	DFFFrame* getFrame(int32_t idx) { return frames[idx]; }
+	const DFFFrame* getFrame(int32_t idx) const { return frames[idx]; }
+	DFFFrame* getFrame(const char* name);
+	const DFFFrame* getFrame(const char* name) const;
+	int32_t getGeometryCount() const { return geometries.size(); }
+	GeometryIterator getGeometryBegin() { return geometries.begin(); }
+	ConstGeometryIterator getGeometryBegin() const { return geometries.begin(); }
+	GeometryIterator getGeometryEnd() { return geometries.end(); }
+	ConstGeometryIterator getGeometryEnd() const { return geometries.end(); }
+	DFFGeometry* getGeometry(int32_t idx) { return geometries[idx]; }
+	const DFFGeometry* getGeometry(int32_t idx) const { return geometries[idx]; }
+	DFFGeometry* getGeometry(const char* name);
+	const DFFGeometry* getGeometry(const char* name) const;
+	int32_t indexOf(const DFFFrame* frame) const;
+	void addFrame(DFFFrame* frame) { frames.push_back(frame); }
+	void removeFrame(DFFFrame* frame);
+	void removeFrame(int32_t index) { removeFrame(frames[index]); }
+	void removeFrame(const char* name) { removeFrame(getFrame(name)); }
+	void removeFrames();
+	void addGeometry(DFFGeometry* geom) { geometries.push_back(geom); }
+	void removeGeometry(DFFGeometry* geom);
+	void removeGeometry(int32_t index) { removeGeometry(geometries[index]); }
+	void removeGeometry(const char* name) { removeGeometry(getGeometry(name)); }
+	void removeGeometries();
 
 	void mirrorYZ();
 	void scale(float x, float y, float z);
@@ -49,26 +80,8 @@ private:
 	DFFMesh() {};
 
 private:
-	int32_t frameCount;
-	DFFFrame** frames;
-	int32_t geometryCount;
-	DFFGeometry** geometries;
-	/*int32_t vertexCount;
-	float* vertexPositions;
-	float* vertexNormals;
-	uint8_t* vertexColors;
-	int8_t textureCoordinateSetCount;
-	float* textureCoordinateSets;
-	int32_t faceIndexCount;
-	int32_t* faceIndices;
-	int32_t* submeshFaceIndexCounts;
-	int32_t submeshCount;
-	DffBoundingSphere* bounds;
-	bool facesUseTriStrips;
-	DffMaterial** materials;
-	int32_t materialCount;
-	int32_t frameCount;
-	DffFrame** frames;*/
+	vector<DFFFrame*> frames;
+	vector<DFFGeometry*> geometries;
 };
 
 #endif /* DFFMODEL_H_ */

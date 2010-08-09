@@ -14,6 +14,7 @@
 #include <gtaformats/gtadff.h>
 #include "DFFRenderWidget.h"
 #include "DFFGUIModule.h"
+#include "DFFFrameItemModel.h"
 
 
 
@@ -28,15 +29,17 @@ private:
 	void clearMaterialList();
 	void clearGeometryPartList();
 	void clearTextureList();
+	void xmlDumpFrame(DFFFrame* frame, QTextStream& xml, int indLevel);
 
 private slots:
-	void frameSelected(QListWidgetItem* item);
-	void geometrySelected(QListWidgetItem* item);
-	void materialSelected(QListWidgetItem* item);
-	void textureSelected(QListWidgetItem* item);
-	void geometryPartSelected(QListWidgetItem* item);
+	void frameSelected(const QModelIndex& index);
+	void geometrySelected(int row);
+	void materialSelected(int row);
+	void textureSelected(int row);
+	void geometryPartSelected(int row);
 	void texturedPropertyChanged(bool textured);
 	void wireframePropertyChanged(bool wireframe);
+	void xmlDumpRequested(bool);
 
 private:
 	Ui_DFFWidget ui;
@@ -44,6 +47,7 @@ private:
 	DFFMesh* mesh;
 	DFFRenderWidget* geometryRenderWidget;
 	DFFRenderWidget* geometryPartRenderWidget;
+	DFFFrameItemModel* frameModel;
 };
 
 #endif /* DFFWIDGET_H_ */

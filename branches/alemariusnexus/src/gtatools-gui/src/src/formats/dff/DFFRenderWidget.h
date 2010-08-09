@@ -13,6 +13,8 @@
 #include <gtaformats/gtadff.h>
 #include <QtGui/QMouseEvent>
 #include <qpoint.h>
+#include "../../Profile.h"
+#include "../../ProfileManager.h"
 
 
 
@@ -34,6 +36,10 @@ protected:
 	void mousePressEvent(QMouseEvent* evt);
 	void mouseMoveEvent(QMouseEvent* evt);
 
+private slots:
+	void currentProfileChanged(Profile* oldProfile, Profile* newProfile);
+	void currentProfileResourceIndexInitialized();
+
 private:
 	bool textures;
 	bool wireframe;
@@ -43,6 +49,8 @@ private:
 	QPoint lastDragPos;
 	float rx;
 	float ry;
+	DFFGeometry* currentGeometry;
+	DFFGeometryPart* currentPart;
 };
 
 #endif /* DFFRENDERWIDGET_H_ */

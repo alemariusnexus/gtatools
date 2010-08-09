@@ -16,7 +16,7 @@
 # along with gtaformats.  If not, see <http://www.gnu.org/licenses/>.
 
 
-SET(FILES StringComparator util File FileException FilePath Exception FileIterator)
+SET(FILES StringComparator util File FileException FilePath Exception FileIterator Vector3 Matrix3)
 
 FOREACH(FILE ${FILES})
     SET(SRCS ${SRCS} "gtaformats/util/${FILE}")

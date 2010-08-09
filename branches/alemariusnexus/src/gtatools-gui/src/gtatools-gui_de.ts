@@ -91,6 +91,19 @@
     </message>
 </context>
 <context>
+    <name>DFFFrameItemModel</name>
+    <message>
+        <location filename="src/formats/dff/DFFFrameItemModel.cpp" line="27"/>
+        <source>Unnamed %1</source>
+        <translation>Unbenannt %1</translation>
+    </message>
+    <message>
+        <location filename="src/formats/dff/DFFFrameItemModel.cpp" line="40"/>
+        <source>Frame</source>
+        <translation>Frame</translation>
+    </message>
+</context>
+<context>
     <name>DFFGUIModule</name>
     <message>
         <location filename="src/formats/dff/DFFGUIModule.cpp" line="17"/>
@@ -284,69 +297,68 @@
         <translation>Rendering</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="37"/>
         <source>Unnamed %1</source>
-        <translation>Unbenannt %1</translation>
+        <translation type="obsolete">Unbenannt %1</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="51"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="55"/>
         <source>Geometry %1</source>
         <translation>Geometrie %1</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="132"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="145"/>
         <source>(%1, %2, %3)</source>
         <translation>(%1, %2, %3)</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="133"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="146"/>
         <source>(%1, %2, %3) (%4, %5, %6) (%7, %8, %9)</source>
         <translation>(%1, %2, %3) (%4, %5, %6) (%7, %8, %9)</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="137"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="151"/>
         <source>None</source>
         <translation>Keine</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="154"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="171"/>
         <source>Triangle Strips</source>
         <translation>Triangle Strips</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="154"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="171"/>
         <source>Triangle List</source>
         <translation>Triangle List</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="162"/>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="163"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="179"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="180"/>
         <source>no</source>
         <translation>nein</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="162"/>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="163"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="179"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="180"/>
         <source>yes</source>
         <translation>ja</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="164"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="181"/>
         <source>(%1, %2, %3 : %4)</source>
         <translation>(%1, %2, %3 : %4)</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="176"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="203"/>
         <source>Material %1</source>
         <translation>Material %1</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="184"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="212"/>
         <source>Part %1</source>
         <translation>Teil %1</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="202"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="233"/>
         <source>(%1, %2, %3, %4)</source>
         <translation>(%1, %2, %3, %4)</translation>
     </message>
@@ -612,61 +624,61 @@ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem Prog
         <translation>GTATools GUI Tool</translation>
     </message>
     <message>
-        <location filename="src/gui/MainWindow.cpp" line="102"/>
+        <location filename="src/gui/MainWindow.cpp" line="104"/>
         <source>&amp;General Information</source>
         <oldsource>General Information</oldsource>
         <translation>&amp;Allgemeine Informationen</translation>
     </message>
     <message>
-        <location filename="src/gui/MainWindow.cpp" line="103"/>
+        <location filename="src/gui/MainWindow.cpp" line="105"/>
         <source>&amp;Content</source>
         <oldsource>Content</oldsource>
         <translation>&amp;Inhalt</translation>
     </message>
     <message>
-        <location filename="src/gui/MainWindow.cpp" line="172"/>
+        <location filename="src/gui/MainWindow.cpp" line="174"/>
         <source>Done!</source>
         <translation>Fertig!</translation>
     </message>
     <message>
-        <location filename="src/gui/MainWindow.cpp" line="211"/>
+        <location filename="src/gui/MainWindow.cpp" line="213"/>
         <source>Directory</source>
         <translation>Verzeichnis</translation>
     </message>
     <message>
-        <location filename="src/gui/MainWindow.cpp" line="212"/>
+        <location filename="src/gui/MainWindow.cpp" line="214"/>
         <source>%1 files</source>
         <translation>%1 Dateien</translation>
     </message>
     <message>
-        <location filename="src/gui/MainWindow.cpp" line="217"/>
+        <location filename="src/gui/MainWindow.cpp" line="219"/>
         <source>%1MB</source>
         <translation>%1MB</translation>
     </message>
     <message>
-        <location filename="src/gui/MainWindow.cpp" line="219"/>
+        <location filename="src/gui/MainWindow.cpp" line="221"/>
         <source>%1kB</source>
         <translation>%1kB</translation>
     </message>
     <message>
-        <location filename="src/gui/MainWindow.cpp" line="221"/>
+        <location filename="src/gui/MainWindow.cpp" line="223"/>
         <source>%1B</source>
         <translation>%1B</translation>
     </message>
     <message>
-        <location filename="src/gui/MainWindow.cpp" line="227"/>
+        <location filename="src/gui/MainWindow.cpp" line="229"/>
         <source>Unrecognized File</source>
         <translation>Nicht erkannte Datei</translation>
     </message>
     <message>
-        <location filename="src/gui/MainWindow.cpp" line="289"/>
-        <location filename="src/gui/MainWindow.cpp" line="309"/>
+        <location filename="src/gui/MainWindow.cpp" line="291"/>
+        <location filename="src/gui/MainWindow.cpp" line="311"/>
         <source>GTATools GUI Tool - %1</source>
         <translation>GTATools GUI Tool - %1</translation>
     </message>
     <message>
         <location filename="src/gui/MainFrame.ui" line="88"/>
-        <location filename="src/gui/MainWindow.cpp" line="276"/>
+        <location filename="src/gui/MainWindow.cpp" line="278"/>
         <source>(No File Opened)</source>
         <translation>(Keine Datei geöffnet)</translation>
     </message>
@@ -778,6 +790,13 @@ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem Prog
         <location filename="src/gui/ProfileConfigWidget.ui" line="82"/>
         <source>Remove</source>
         <translation>Entfernen</translation>
+    </message>
+</context>
+<context>
+    <name>ProfileInitializer</name>
+    <message>
+        <source>Building resource index...</source>
+        <translation type="obsolete">Erstelle Ressourcenindex...</translation>
     </message>
 </context>
 <context>

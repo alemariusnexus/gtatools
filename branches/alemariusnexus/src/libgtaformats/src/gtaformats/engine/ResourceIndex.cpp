@@ -134,6 +134,7 @@ bool ResourceIndex::gotoTexture(const char* name, TXDArchive*& txd, TXDTexture*&
 	TextureMap::iterator it = textureIndex.find(name);
 
 	if (it == textureIndex.end()) {
+		textureMutex.unlock();
 		return false;
 	}
 
@@ -203,6 +204,7 @@ bool ResourceIndex::getMesh(const char* name, DFFMesh*& mesh)
 	MeshMap::iterator it = meshIndex.find(name);
 
 	if (it == meshIndex.end()) {
+		meshMutex.unlock();
 		return false;
 	}
 
@@ -224,6 +226,7 @@ const File* ResourceIndex::findTexture(const char* name)
 	TextureMap::iterator it = textureIndex.find(name);
 
 	if (it == textureIndex.end()) {
+		textureMutex.unlock();
 		return NULL;
 	}
 
@@ -243,6 +246,7 @@ const File* ResourceIndex::findMesh(const char* name)
 	MeshMap::iterator it = meshIndex.find(name);
 
 	if (it == meshIndex.end()) {
+		meshMutex.unlock();
 		return NULL;
 	}
 

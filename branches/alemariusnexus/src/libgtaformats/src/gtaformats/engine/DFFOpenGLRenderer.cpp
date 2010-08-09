@@ -38,7 +38,9 @@ DFFOpenGLRenderer::DFFOpenGLRenderer(OpenGLResourceManager* resourceManager)
 void DFFOpenGLRenderer::applyTexture(const char* name)
 {
 
-	resourceManager->bindTexture(name);
+	if (!resourceManager->bindTexture(name)) {
+		//printf("Binding failed!\n");
+	}
 
 
 	/*GLenum texFormat;
@@ -87,8 +89,8 @@ void DFFOpenGLRenderer::applyTexture(const char* name)
 
 void DFFOpenGLRenderer::applyFrameTransformation(DFFFrame* frame)
 {
-	const float* trans = frame->getTranslation();
-	const float* rot = frame->getRotation();
+	Vector3 trans = frame->getTranslation();
+	Matrix3 rot = frame->getRotation();
 
 	/*float transMatrix[] = {
 			1,		1,		1,		trans[0],
@@ -131,15 +133,17 @@ void DFFOpenGLRenderer::applyFrameTransformation(DFFFrame* frame)
 
 void DFFOpenGLRenderer::renderStaticMesh(DFFMesh* mesh)
 {
-	DFFGeometry** geoms = mesh->getGeometries();
+	//DFFGeometry** geoms = mesh->getGeometries();
+	DFFMesh::GeometryIterator it;
 
-	for (int32_t i = 0 ; i < mesh->getGeometryCount() ; i++) {
-		DFFGeometry* geom = geoms[i];
+	//for (int32_t i = 0 ; i < mesh->getGeometryCount() ; i++) {
+	for (it = mesh->getGeometryBegin() ; it != mesh->getGeometryEnd() ; it++) {
+		DFFGeometry* geom = *it;
 		DFFFrame* frame = geom->getAssociatedFrame();
 
 		renderGeometry(geom);
 
-		char* fname = frame->getName();
+		const char* fname = frame->getName();
 		size_t len = strlen(fname);
 
 		if (	(len < 4  ||  strcmp((fname+len-4), "_vlo") != 0)
@@ -153,20 +157,19 @@ void DFFOpenGLRenderer::renderStaticMesh(DFFMesh* mesh)
 
 void DFFOpenGLRenderer::renderGeometry(DFFGeometry* geom, bool transform)
 {
-	DFFGeometryPart** parts = geom->getParts();
-
 	if (transform) {
 		glPushMatrix();
 		applyFrameTransformation(geom->getAssociatedFrame());
 	}
 
-	for (int32_t j = 0 ; j < geom->getPartCount() ; j++) {
-		DFFGeometryPart* part = parts[j];
+	DFFGeometry::PartIterator it;
+
+	for (it = geom->getPartBegin() ; it != geom->getPartEnd() ; it++) {
+		DFFGeometryPart* part = *it;
 		renderGeometryPart(geom, part);
 	}
 
 	if (transform) {
-		//backend->endFrameTransformation(geom->getAssociatedFrame());
 		glPopMatrix();
 	}
 }
@@ -178,7 +181,7 @@ void DFFOpenGLRenderer::renderGeometryPart(DFFGeometry* geom, DFFGeometryPart* p
 
 	if (mat) {
 		if (mat->getTextureCount() > 0) {
-			DFFTexture* tex = mat->getTextures()[0];
+			DFFTexture* tex = mat->getTexture(0);
 
 			/*if (!cache->applyCachedTexture(tex->getDiffuseName())) {
 				printf("WARNING: Texture not found: %s\n", tex->getDiffuseName());
@@ -210,7 +213,7 @@ void DFFOpenGLRenderer::renderGeometryPart(DFFGeometry* geom, DFFGeometryPart* p
 	float* verts = geom->getVertices();
 	float* normals = geom->getNormals();
 	uint8_t* colors = geom->getVertexColors();
-	float** uvSets = geom->getUVCoordSets();
+	float* uvSets = geom->getUVCoordSets();
 
 	int32_t* indices = part->getIndices();
 
@@ -226,7 +229,7 @@ void DFFOpenGLRenderer::renderGeometryPart(DFFGeometry* geom, DFFGeometryPart* p
 			glColor4f(colors[idx*4], colors[idx*4 + 1], colors[idx*4 + 2], colors[idx*4 + 3]);
 		}
 		if (uvSets) {
-			glTexCoord2f(uvSets[0][idx*2], uvSets[0][idx*2 + 1]);
+			glTexCoord2f(uvSets[idx*2], uvSets[idx*2 + 1]);
 		}
 
 		glVertex3f(verts[idx*3], verts[idx*3 + 1], verts[idx*3 + 2]);

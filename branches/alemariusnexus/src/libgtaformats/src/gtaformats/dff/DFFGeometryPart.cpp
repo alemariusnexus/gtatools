@@ -18,6 +18,15 @@
  */
 
 #include "DFFGeometryPart.h"
+#include <cstring>
+
+
+DFFGeometryPart::DFFGeometryPart(const DFFGeometryPart& other)
+		: indexCount(other.indexCount), indices(new int32_t[indexCount]),
+		  material(new DFFMaterial(*other.material))
+{
+	memcpy(indices, other.indices, 4*indexCount);
+}
 
 
 DFFGeometryPart::~DFFGeometryPart()

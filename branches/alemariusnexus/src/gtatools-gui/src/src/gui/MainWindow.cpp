@@ -48,7 +48,13 @@ MainWindow::MainWindow()
 	progressBar->setMaximumWidth(400);
 	ui.statusbar->addPermanentWidget(progressBar);
 
-	System::getInstance()->setMainWindow(this);
+	System* sys = System::getInstance();
+	sys->setMainWindow(this);
+
+	connect(sys, SIGNAL(taskStarted(int, int, const QString&)), this, SLOT(taskStarted(int, int, const QString&)));
+	connect(sys, SIGNAL(taskValueUpdated(int)), this, SLOT(taskValueUpdated(int)));
+	connect(sys, SIGNAL(taskEnded()), this, SLOT(taskEnded()));
+	connect(sys, SIGNAL(statusMessageShown(const QString&, int)), this, SLOT(statusMessageShown(const QString&, int)));
 }
 
 
@@ -61,10 +67,6 @@ void MainWindow::initialize()
 
 	currentProfileChanged(NULL, currentProfile);
 
-	connect(sys, SIGNAL(taskStarted(int, int, const QString&)), this, SLOT(taskStarted(int, int, const QString&)));
-	connect(sys, SIGNAL(taskValueUpdated(int)), this, SLOT(taskValueUpdated(int)));
-	connect(sys, SIGNAL(taskEnded()), this, SLOT(taskEnded()));
-	connect(sys, SIGNAL(statusMessageShown(const QString&, int)), this, SLOT(statusMessageShown(const QString&, int)));
 	connect(sys, SIGNAL(fileOpened(const File&, const QHash<QString, QVariant>&)), this,
 			SLOT(openFile(const File&, const QHash<QString, QVariant>&)));
 	connect(sys, SIGNAL(currentFileClosed()), this, SLOT(closeCurrentFile()));

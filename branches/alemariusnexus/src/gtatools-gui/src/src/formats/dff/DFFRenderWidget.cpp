@@ -139,7 +139,6 @@ void DFFRenderWidget::initializeGL()
 
 void DFFRenderWidget::resizeGL(int w, int h)
 {
-	//printf("Resized to %d %d\n", w, h);
 	glViewport(0, 0, w, h);
 
 	glMatrixMode(GL_PROJECTION);
@@ -154,6 +153,8 @@ void DFFRenderWidget::resizeGL(int w, int h)
 
 void DFFRenderWidget::paintGL()
 {
+	glColor3f(1.0f, 0.0f, 0.0f);
+
 	glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
 
 	if (textures) {
@@ -210,7 +211,7 @@ void DFFRenderWidget::paintGL()
 
 	glDepthMask(GL_TRUE);*/
 
-	if (renderList) {
+	if (renderList != -1) {
 		glCallList(renderList);
 	}
 
@@ -307,4 +308,23 @@ void DFFRenderWidget::setShowWireframe(bool wireframe)
 {
 	this->wireframe = wireframe;
 	updateGL();
+}
+
+
+void DFFRenderWidget::currentProfileChanged(Profile* oldProfile, Profile* newProfile)
+{
+	disconnect(oldProfile, SIGNAL(resourceIndexInitialized()), this,
+			SLOT(currentProfileResourceIndexInitialized()));
+	connect(newProfile, SIGNAL(resourceIndexInitialized()), this,
+			SLOT(currentProfileResourceIndexInitialized()));
+}
+
+
+void DFFRenderWidget::currentProfileResourceIndexInitialized()
+{
+	Profile* profile = ProfileManager::getInstance()->getCurrentProfile();
+
+	if (currentGeometry) {
+		renderGeometry(currentGeometry);
+	}
 }
