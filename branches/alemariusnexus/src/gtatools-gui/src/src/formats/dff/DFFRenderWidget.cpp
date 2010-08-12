@@ -17,9 +17,13 @@
 
 
 DFFRenderWidget::DFFRenderWidget(QWidget* parent)
-		: QGLWidget(parent), rx(0.0f), ry(0.0f), renderList(-1), textures(true), wireframe(false)
+		: QGLWidget(parent), rx(0.0f), ry(0.0f), renderList(-1), textures(true), wireframe(false),
+		  currentGeometry(NULL), currentPart(NULL)
 {
-
+	connect(ProfileManager::getInstance(), SIGNAL(currentProfileChanged(Profile*, Profile*)), this,
+			SLOT(currentProfileChanged(Profile*, Profile*)));
+	connect(ProfileManager::getInstance()->getCurrentProfile(), SIGNAL(resourceIndexInitialized()), this,
+			SLOT(currentProfileResourceIndexInitialized()));
 }
 
 
@@ -30,26 +34,46 @@ DFFRenderWidget::~DFFRenderWidget()
 
 void DFFRenderWidget::renderGeometry(DFFGeometry* geometry)
 {
+	if (renderList != -1) {
+		glDeleteLists(renderList, 1);
+	}
+
+	printf("1\n");
+
 	Profile* profile = ProfileManager::getInstance()->getCurrentProfile();
 
 	OpenGLResourceManager* rm = profile->getResourceManager();
 
 	DFFOpenGLRenderer renderer(rm);
 
+	printf("2\n");
+
 	GLuint list = glGenLists(1);
 
 	glNewList(list, GL_COMPILE);
+	printf("3\n");
 	renderer.renderGeometry(geometry, false);
+	printf("4\n");
 	glEndList();
 
 	renderList = list;
 
+	currentGeometry = geometry;
+
+	printf("5\n");
+
 	updateGL();
+
+	printf("6\n");
 }
 
 
 void DFFRenderWidget::renderGeometryPart(DFFGeometry* geometry, DFFGeometryPart* part)
 {
+	if (renderList != -1) {
+		glDeleteLists(renderList, 1);
+	}
+
 	Profile* profile = ProfileManager::getInstance()->getCurrentProfile();
 
 	OpenGLResourceManager* rm = profile->getResourceManager();
@@ -63,6 +87,9 @@ void DFFRenderWidget::renderGeometryPart(DFFGeometry* geometry, DFFGeometryPart*
 	glEndList();
 
 	renderList = list;
+
+	currentGeometry = geometry;
+	currentPart = part;
 
 	updateGL();
 }
@@ -325,6 +352,10 @@ void DFFRenderWidget::currentProfileResourceIndexInitialized()
 	Profile* profile = ProfileManager::getInstance()->getCurrentProfile();
 
 	if (currentGeometry) {
-		renderGeometry(currentGeometry);
+		if (currentPart) {
+			renderGeometryPart(currentGeometry, currentPart);
+		} else {
+			renderGeometry(currentGeometry);
+		}
 	}
 }

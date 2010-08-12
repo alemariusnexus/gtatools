@@ -29,61 +29,15 @@
 
 
 DFFOpenGLRenderer::DFFOpenGLRenderer(OpenGLResourceManager* resourceManager)
-		: resourceManager(resourceManager)
+		: resourceManager(resourceManager), texturing(true)
 {
 }
 
 
-//void DFFOpenGLRenderer::applyTexture(TXDTexture* texture, uint8_t* data)
 void DFFOpenGLRenderer::applyTexture(const char* name)
 {
 
-	if (!resourceManager->bindTexture(name)) {
-		//printf("Binding failed!\n");
-	}
-
-
-	/*GLenum texFormat;
-	uint8_t* data = rawData;
-
-	bool nativeFormat = false;
-	int8_t bpp = txdTex->getBytesPerPixel();
-
-	if (	txdTex->getCompression() == TXD_COMPRESSION_NONE
-			&&  (txdTex->getRasterFormatExtension() & TXD_FORMAT_EXT_PAL4) == 0
-			&&  (txdTex->getRasterFormatExtension() & TXD_FORMAT_EXT_PAL8) == 0
-	) {
-		nativeFormat = true;
-
-		switch (txdTex->getRasterFormat()) {
-		case TXD_FORMAT_B8G8R8:
-			texFormat = GL_BGR;
-			if (bpp != 3)
-				nativeFormat = false;
-			break;
-		case TXD_FORMAT_B8G8R8A8:
-			texFormat = GL_BGRA;
-			if (bpp != 4)
-				nativeFormat = false;
-			break;
-		case TXD_FORMAT_LUM8:
-			texFormat = GL_LUMINANCE;
-			if (bpp != 1)
-				nativeFormat = false;
-			break;
-		default:
-			nativeFormat = false;
-		}
-	}
-
-	if (!nativeFormat) {
-		texFormat = GL_RGBA;
-		data = new uint8_t[width * height * 4];
-		txdTex->convert(data, rawData, MIRROR_NONE);
-		delete[] rawData;
-	}*/
-
-	//cache->applyCachedTexture();
+	resourceManager->bindTexture(name);
 }
 
 
@@ -92,13 +46,6 @@ void DFFOpenGLRenderer::applyFrameTransformation(DFFFrame* frame)
 	Vector3 trans = frame->getTranslation();
 	Matrix3 rot = frame->getRotation();
 
-	/*float transMatrix[] = {
-			1,		1,		1,		trans[0],
-			1,		1,		1,		trans[2],
-			1,		1,		1,		trans[1],
-			1,		1,		1,		1
-	};*/
-
 	float transMatrix[] = {
 			rot[0], rot[3], rot[6], 0,
 			rot[1], rot[4], rot[7], 0,
@@ -106,37 +53,14 @@ void DFFOpenGLRenderer::applyFrameTransformation(DFFFrame* frame)
 			trans[0], trans[2], trans[1], 1
 	};
 
-	/*float transMatrix[] = {
-			rot[0], rot[2], rot[1], 0,
-			rot[3], rot[5], rot[4], 0,
-			rot[6], rot[8], rot[7], 0,
-			trans[0], trans[2], trans[1], 1
-	};*/
-
-	/*float transMatrix[] = {
-			1, 0, 0, 0,
-			0, 1, 0, 0,
-			0, 0, 1, 0,
-			trans[0], trans[2], trans[1], 1
-	};*/
-
-	/*float transMatrix[] = {
-			rot[0],	rot[2],	rot[1],	trans[0],
-			rot[3],	rot[5],	rot[4],	trans[2],
-			rot[6],	rot[8],	rot[7],	trans[1],
-			0,		0,		0,		1
-	};*/
-
 	glMultMatrixf(transMatrix);
 }
 
 
 void DFFOpenGLRenderer::renderStaticMesh(DFFMesh* mesh)
 {
-	//DFFGeometry** geoms = mesh->getGeometries();
 	DFFMesh::GeometryIterator it;
 
-	//for (int32_t i = 0 ; i < mesh->getGeometryCount() ; i++) {
 	for (it = mesh->getGeometryBegin() ; it != mesh->getGeometryEnd() ; it++) {
 		DFFGeometry* geom = *it;
 		DFFFrame* frame = geom->getAssociatedFrame();
@@ -183,10 +107,6 @@ void DFFOpenGLRenderer::renderGeometryPart(DFFGeometry* geom, DFFGeometryPart* p
 		if (mat->getTextureCount() > 0) {
 			DFFTexture* tex = mat->getTexture(0);
 
-			/*if (!cache->applyCachedTexture(tex->getDiffuseName())) {
-				printf("WARNING: Texture not found: %s\n", tex->getDiffuseName());
-			}*/
-
 			if (texturing) {
 				char* lName = new char[strlen(tex->getDiffuseName())+1];
 				strtolower(lName, tex->getDiffuseName());
@@ -195,20 +115,8 @@ void DFFOpenGLRenderer::renderGeometryPart(DFFGeometry* geom, DFFGeometryPart* p
 
 				delete[] lName;
 			}
-
-			/*TXDTexture* txdTex;
-			uint8_t* rawData = NULL;
-			bool texFound = textureProvider->findTexture(tex->getDiffuseName(), txdTex, rawData);
-
-			if (texFound) {
-				applyTexture(txdTex, rawData);
-			} else {
-				printf("WARNING: Texture not found: %s\n", tex->getDiffuseName());
-			}*/
 		}
 	}
-
-	//backend->renderGeometryPart(geom, part);
 
 	float* verts = geom->getVertices();
 	float* normals = geom->getNormals();

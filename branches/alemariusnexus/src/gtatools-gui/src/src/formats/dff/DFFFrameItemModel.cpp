@@ -6,6 +6,8 @@
  */
 
 #include "DFFFrameItemModel.h"
+#include <cstdio>
+
 
 
 Qt::ItemFlags DFFFrameItemModel::flags(const QModelIndex& index) const

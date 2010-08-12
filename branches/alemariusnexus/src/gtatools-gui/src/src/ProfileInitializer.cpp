@@ -25,7 +25,8 @@ void ProfileInitializer::run()
 
 	int numRes = 0;
 	for (it = profile->getResourceBegin() ; it != profile->getResourceEnd() ; it++, numRes++) {
-		rm->addResource(**it);
+		File* file = *it;
+		rm->addResource(File(*file));
 		//sys->updateTaskValue(numRes);
 	}
 }

@@ -34,12 +34,16 @@ DFFGUIModule::DFFGUIModule(DFFWidget* dffWidget)
 void DFFGUIModule::doInstall()
 {
 	QMenu* viewMenu = mainWindow->getViewMenu();
+	QMenu* fileMenu = mainWindow->getFileMenu();
 
 	viewMenu->addAction(texturedAction);
 	texturedAction->setParent(mainWindow);
 
 	viewMenu->addAction(wireframeAction);
 	wireframeAction->setParent(mainWindow);
+
+	fileMenu->addAction(dumpAction);
+	dumpAction->setParent(mainWindow);
 }
 
 

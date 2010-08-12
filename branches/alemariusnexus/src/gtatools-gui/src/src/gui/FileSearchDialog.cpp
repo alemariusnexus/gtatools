@@ -113,23 +113,16 @@ void FileSearchDialog::onSearch(bool checked)
 		collectResults(*resource, &matcher, dirs, selectedFormats, results, numFiles, filesDone);
 	}
 
-	printf("1\n");
-
 	sys->endTask();
 
 	bool closeDialog = false;
 
-	printf("2\n");
-
 	if (results.size() == 0) {
-		printf("3\n");
 		QMessageBox::information(this, tr("No Match"), tr("No file matching your criteria was found!"));
 	} else if (results.size() == 1) {
-		printf("4\n");
 		System::getInstance()->openFile(*results.at(0));
 		closeDialog = true;
 	} else {
-		printf("5\n");
 		QStringList userItems;
 
 		QList<File*>::iterator resIt;

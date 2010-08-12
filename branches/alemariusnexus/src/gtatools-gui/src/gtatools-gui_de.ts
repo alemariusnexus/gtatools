@@ -93,12 +93,12 @@
 <context>
     <name>DFFFrameItemModel</name>
     <message>
-        <location filename="src/formats/dff/DFFFrameItemModel.cpp" line="27"/>
+        <location filename="src/formats/dff/DFFFrameItemModel.cpp" line="34"/>
         <source>Unnamed %1</source>
         <translation>Unbenannt %1</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFFrameItemModel.cpp" line="40"/>
+        <location filename="src/formats/dff/DFFFrameItemModel.cpp" line="51"/>
         <source>Frame</source>
         <translation>Frame</translation>
     </message>
@@ -114,6 +114,11 @@
         <location filename="src/formats/dff/DFFGUIModule.cpp" line="21"/>
         <source>Show wireframe</source>
         <translation>Wireframe anzeigen</translation>
+    </message>
+    <message>
+        <location filename="src/formats/dff/DFFGUIModule.cpp" line="25"/>
+        <source>Dump XML</source>
+        <translation>Nach XML dumpen</translation>
     </message>
 </context>
 <context>
@@ -301,66 +306,124 @@
         <translation type="obsolete">Unbenannt %1</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="55"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="60"/>
         <source>Geometry %1</source>
         <translation>Geometrie %1</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="145"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="150"/>
         <source>(%1, %2, %3)</source>
         <translation>(%1, %2, %3)</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="146"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="151"/>
         <source>(%1, %2, %3) (%4, %5, %6) (%7, %8, %9)</source>
-        <translation>(%1, %2, %3) (%4, %5, %6) (%7, %8, %9)</translation>
+        <oldsource>(%1, %2, %3)
+(%4, %5, %6)
+(%7, %8, %9)</oldsource>
+        <translation>(%1, %2, %3)
+(%4, %5, %6)
+(%7, %8, %9)</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="151"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="156"/>
         <source>None</source>
         <translation>Keine</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="171"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="176"/>
         <source>Triangle Strips</source>
         <translation>Triangle Strips</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="171"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="176"/>
         <source>Triangle List</source>
         <translation>Triangle List</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="179"/>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="180"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="184"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="185"/>
         <source>no</source>
         <translation>nein</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="179"/>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="180"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="184"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="185"/>
         <source>yes</source>
         <translation>ja</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="181"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="186"/>
         <source>(%1, %2, %3 : %4)</source>
         <translation>(%1, %2, %3 : %4)</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="203"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="208"/>
         <source>Material %1</source>
         <translation>Material %1</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="212"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="217"/>
         <source>Part %1</source>
         <translation>Teil %1</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="233"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="238"/>
         <source>(%1, %2, %3, %4)</source>
         <translation>(%1, %2, %3, %4)</translation>
+    </message>
+    <message>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="298"/>
+        <source>Choose a destination file</source>
+        <translation>Wähle eine Zieldatei</translation>
+    </message>
+    <message>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="299"/>
+        <source>XML Files (*.xml)</source>
+        <translation>XML-Dateien (*.xml)</translation>
+    </message>
+</context>
+<context>
+    <name>DFFXMLDumpDialog</name>
+    <message>
+        <location filename="src/formats/dff/DFFXMLDumpDialog.ui" line="14"/>
+        <source>XML Dump Options</source>
+        <translation>XML-Dump Optionen</translation>
+    </message>
+    <message>
+        <location filename="src/formats/dff/DFFXMLDumpDialog.ui" line="20"/>
+        <source>General</source>
+        <translation>Allgemein</translation>
+    </message>
+    <message>
+        <location filename="src/formats/dff/DFFXMLDumpDialog.ui" line="29"/>
+        <source>Dump Frames</source>
+        <translation>Frames dumpen</translation>
+    </message>
+    <message>
+        <location filename="src/formats/dff/DFFXMLDumpDialog.ui" line="42"/>
+        <source>Geometries</source>
+        <translation>Geometrien</translation>
+    </message>
+    <message>
+        <location filename="src/formats/dff/DFFXMLDumpDialog.ui" line="54"/>
+        <source>Dump Vertex Data</source>
+        <translation>Vertexdaten dumpen</translation>
+    </message>
+    <message>
+        <location filename="src/formats/dff/DFFXMLDumpDialog.ui" line="61"/>
+        <source>Dump Materials</source>
+        <translation>Materialien dumpen</translation>
+    </message>
+    <message>
+        <location filename="src/formats/dff/DFFXMLDumpDialog.ui" line="74"/>
+        <source>Parts</source>
+        <translation>Teile</translation>
+    </message>
+    <message>
+        <location filename="src/formats/dff/DFFXMLDumpDialog.ui" line="86"/>
+        <source>Dump Vertex Indices</source>
+        <translation>Vertexindizes dumpen</translation>
     </message>
 </context>
 <context>
@@ -514,22 +577,22 @@ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem Prog
         <translation>Suche Dateien...</translation>
     </message>
     <message>
-        <location filename="src/gui/FileSearchDialog.cpp" line="126"/>
+        <location filename="src/gui/FileSearchDialog.cpp" line="121"/>
         <source>No Match</source>
         <translation>Keine Übereinstimmung</translation>
     </message>
     <message>
-        <location filename="src/gui/FileSearchDialog.cpp" line="126"/>
+        <location filename="src/gui/FileSearchDialog.cpp" line="121"/>
         <source>No file matching your criteria was found!</source>
         <translation>Keine Datei wurde gefunden, die auf die Kriterien passt!</translation>
     </message>
     <message>
-        <location filename="src/gui/FileSearchDialog.cpp" line="142"/>
+        <location filename="src/gui/FileSearchDialog.cpp" line="135"/>
         <source>Multiple Matches</source>
         <translation>Mehrere Übereinstimmungen</translation>
     </message>
     <message>
-        <location filename="src/gui/FileSearchDialog.cpp" line="142"/>
+        <location filename="src/gui/FileSearchDialog.cpp" line="135"/>
         <source>Please select the file you want to open:</source>
         <translation>Bitte wähle die zu öffnende Datei aus:</translation>
     </message>

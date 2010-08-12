@@ -74,13 +74,6 @@ void Profile::currentProfileChanged(Profile* oldProfile, Profile* newProfile)
 		connect(thread, SIGNAL(finished()), this, SLOT(resourcesInitialized()));
 
 		thread->start();
-
-		/*ResourceIterator it;
-
-		for (it = resources.begin() ; it != resources.end() ; it++) {
-			File* resource = *it;
-			resourceIndex->addResource(*resource);
-		}*/
 	}
 }
 
@@ -127,6 +120,7 @@ bool Profile::containsFile(const File& file)
 
 void Profile::resourcesInitialized()
 {
+	printf("Resources initialized\n");
 	resourceIdxInitialized = true;
 	emit resourceIndexInitialized();
 	disconnect(currentInitializer, SIGNAL(finished()), this, SLOT(resourcesInitialized()));

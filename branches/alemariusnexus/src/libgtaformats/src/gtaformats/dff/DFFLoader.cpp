@@ -135,10 +135,19 @@ int DFFLoader::parseStruct(InputStream* stream, RwSectionHeader& structHeader, R
 			DFFFrame* frame = new DFFFrame;
 			int32_t parentIdx;
 
-			stream->read((char*) frame->rotation, 36);
-			stream->read((char*) frame->translation, 12);
+			float* rotData = new float[9];
+			float* transData = new float[3];
+
+			Matrix3* rot = new Matrix3(rotData);
+			Vector3* trans = new Vector3(transData);
+
+			stream->read((char*) rotData, 36);
+			stream->read((char*) transData, 12);
 			stream->read((char*) &parentIdx, 4);
 			stream->read((char*) &frame->flags, 4);
+
+			frame->setRotation(rot);
+			frame->setTranslation(trans);
 
 			frames[i] = frame;
 			parentIndices[i] = parentIdx;
