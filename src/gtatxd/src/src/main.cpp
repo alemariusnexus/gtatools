@@ -1,5 +1,5 @@
 /*
-	Copyright 2010 David Lerch
+	Copyright 2010 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatxd.
 
@@ -146,15 +146,6 @@ int main(int argc, char** argv) {
 		stream = new STLInputStream(&std::cin, false, false);
 		randomAccess = false;
 	} else {
-		/*ifstream* fileStream = new ifstream(srcfile, ifstream::in | ifstream::binary);
-
-		if (fileStream->fail()) {
-			cerr << "Error: Failed to open file!" << endl;
-			return 1;
-		}
-
-		stream = fileStream;*/
-
 		stream = new FileInputStream(srcfile, STREAM_BINARY);
 	}
 

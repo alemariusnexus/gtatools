@@ -1,7 +1,7 @@
 /*
-	Copyright 2010 David Lerch
-
-	This file is part of gtaformats.
+	Copyright 2010 David "Alemarius Nexus" Lerch
+    
+    This file is part of gtaformats.
 
 	gtaformats is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,8 +20,7 @@
 #ifndef GXTARCHIVE_H_
 #define GXTARCHIVE_H_
 
-#include "../gf_config.h"
-#include <istream>
+#include <gf_config.h>\n#includelude <istream>
 #include "GXTTable.h"
 #include "GXTPlainKeyTable.h"
 #include <map>

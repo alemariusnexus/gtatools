@@ -29,75 +29,22 @@
 
 
 DFFOpenGLRenderer::DFFOpenGLRenderer(OpenGLResourceManager* resourceManager)
-		: resourceManager(resourceManager)
+		: resourceManager(resourceManager), texturing(true)
 {
 }
 
 
-//void DFFOpenGLRenderer::applyTexture(TXDTexture* texture, uint8_t* data)
 void DFFOpenGLRenderer::applyTexture(const char* name)
 {
 
 	resourceManager->bindTexture(name);
-
-
-	/*GLenum texFormat;
-	uint8_t* data = rawData;
-
-	bool nativeFormat = false;
-	int8_t bpp = txdTex->getBytesPerPixel();
-
-	if (	txdTex->getCompression() == TXD_COMPRESSION_NONE
-			&&  (txdTex->getRasterFormatExtension() & TXD_FORMAT_EXT_PAL4) == 0
-			&&  (txdTex->getRasterFormatExtension() & TXD_FORMAT_EXT_PAL8) == 0
-	) {
-		nativeFormat = true;
-
-		switch (txdTex->getRasterFormat()) {
-		case TXD_FORMAT_B8G8R8:
-			texFormat = GL_BGR;
-			if (bpp != 3)
-				nativeFormat = false;
-			break;
-		case TXD_FORMAT_B8G8R8A8:
-			texFormat = GL_BGRA;
-			if (bpp != 4)
-				nativeFormat = false;
-			break;
-		case TXD_FORMAT_LUM8:
-			texFormat = GL_LUMINANCE;
-			if (bpp != 1)
-				nativeFormat = false;
-			break;
-		default:
-			nativeFormat = false;
-		}
-	}
-
-	if (!nativeFormat) {
-		texFormat = GL_RGBA;
-		data = new uint8_t[width * height * 4];
-		txdTex->convert(data, rawData, MIRROR_NONE);
-		delete[] rawData;
-	}*/
-
-	//cache->applyCachedTexture();
 }
 
 
 void DFFOpenGLRenderer::applyFrameTransformation(DFFFrame* frame)
 {
-	const float* trans = frame->getTranslation();
-	//glTranslatef(trans[0], trans[1], trans[2]);
-
-	const float* rot = frame->getRotation();
-
-	/*float transMatrix[] = {
-			1,		1,		1,		trans[0],
-			1,		1,		1,		trans[2],
-			1,		1,		1,		trans[1],
-			1,		1,		1,		1
-	};*/
+	Vector3 trans = frame->getTranslation();
+	Matrix3 rot = frame->getRotation();
 
 	float transMatrix[] = {
 			rot[0], rot[3], rot[6], 0,
@@ -106,42 +53,21 @@ void DFFOpenGLRenderer::applyFrameTransformation(DFFFrame* frame)
 			trans[0], trans[2], trans[1], 1
 	};
 
-	/*float transMatrix[] = {
-			rot[0], rot[2], rot[1], 0,
-			rot[3], rot[5], rot[4], 0,
-			rot[6], rot[8], rot[7], 0,
-			trans[0], trans[2], trans[1], 1
-	};*/
-
-	/*float transMatrix[] = {
-			1, 0, 0, 0,
-			0, 1, 0, 0,
-			0, 0, 1, 0,
-			trans[0], trans[2], trans[1], 1
-	};*/
-
-	/*float transMatrix[] = {
-			rot[0],	rot[2],	rot[1],	trans[0],
-			rot[3],	rot[5],	rot[4],	trans[2],
-			rot[6],	rot[8],	rot[7],	trans[1],
-			0,		0,		0,		1
-	};*/
-
 	glMultMatrixf(transMatrix);
 }
 
 
 void DFFOpenGLRenderer::renderStaticMesh(DFFMesh* mesh)
 {
-	DFFGeometry** geoms = mesh->getGeometries();
+	DFFMesh::GeometryIterator it;
 
-	for (int32_t i = 0 ; i < mesh->getGeometryCount() ; i++) {
-		DFFGeometry* geom = geoms[i];
+	for (it = mesh->getGeometryBegin() ; it != mesh->getGeometryEnd() ; it++) {
+		DFFGeometry* geom = *it;
 		DFFFrame* frame = geom->getAssociatedFrame();
 
 		renderGeometry(geom);
 
-		char* fname = frame->getName();
+		const char* fname = frame->getName();
 		size_t len = strlen(fname);
 
 		if (	(len < 4  ||  strcmp((fname+len-4), "_vlo") != 0)
@@ -155,20 +81,19 @@ void DFFOpenGLRenderer::renderStaticMesh(DFFMesh* mesh)
 
 void DFFOpenGLRenderer::renderGeometry(DFFGeometry* geom, bool transform)
 {
-	DFFGeometryPart** parts = geom->getParts();
-
 	if (transform) {
 		glPushMatrix();
 		applyFrameTransformation(geom->getAssociatedFrame());
 	}
 
-	for (int32_t j = 0 ; j < geom->getPartCount() ; j++) {
-		DFFGeometryPart* part = parts[j];
+	DFFGeometry::PartIterator it;
+
+	for (it = geom->getPartBegin() ; it != geom->getPartEnd() ; it++) {
+		DFFGeometryPart* part = *it;
 		renderGeometryPart(geom, part);
 	}
 
 	if (transform) {
-		//backend->endFrameTransformation(geom->getAssociatedFrame());
 		glPopMatrix();
 	}
 }
@@ -180,37 +105,23 @@ void DFFOpenGLRenderer::renderGeometryPart(DFFGeometry* geom, DFFGeometryPart* p
 
 	if (mat) {
 		if (mat->getTextureCount() > 0) {
-			DFFTexture* tex = mat->getTextures()[0];
+			DFFTexture* tex = mat->getTexture(0);
 
-			/*if (!cache->applyCachedTexture(tex->getDiffuseName())) {
-				printf("WARNING: Texture not found: %s\n", tex->getDiffuseName());
-			}*/
+			if (texturing) {
+				char* lName = new char[strlen(tex->getDiffuseName())+1];
+				strtolower(lName, tex->getDiffuseName());
 
-			char* lName = new char[strlen(tex->getDiffuseName())+1];
-			strtolower(lName, tex->getDiffuseName());
+				applyTexture(lName);
 
-			applyTexture(lName);
-
-			delete[] lName;
-
-			/*TXDTexture* txdTex;
-			uint8_t* rawData = NULL;
-			bool texFound = textureProvider->findTexture(tex->getDiffuseName(), txdTex, rawData);
-
-			if (texFound) {
-				applyTexture(txdTex, rawData);
-			} else {
-				printf("WARNING: Texture not found: %s\n", tex->getDiffuseName());
-			}*/
+				delete[] lName;
+			}
 		}
 	}
-
-	//backend->renderGeometryPart(geom, part);
 
 	float* verts = geom->getVertices();
 	float* normals = geom->getNormals();
 	uint8_t* colors = geom->getVertexColors();
-	float** uvSets = geom->getUVCoordSets();
+	float* uvSets = geom->getUVCoordSets();
 
 	int32_t* indices = part->getIndices();
 
@@ -226,7 +137,7 @@ void DFFOpenGLRenderer::renderGeometryPart(DFFGeometry* geom, DFFGeometryPart* p
 			glColor4f(colors[idx*4], colors[idx*4 + 1], colors[idx*4 + 2], colors[idx*4 + 3]);
 		}
 		if (uvSets) {
-			glTexCoord2f(uvSets[0][idx*2], uvSets[0][idx*2 + 1]);
+			glTexCoord2f(uvSets[idx*2], uvSets[idx*2 + 1]);
 		}
 
 		glVertex3f(verts[idx*3], verts[idx*3 + 1], verts[idx*3 + 2]);

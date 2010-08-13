@@ -1,5 +1,5 @@
 /*
-	Copyright 2010 David Lerch
+	Copyright 2010 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats.
 
@@ -20,7 +20,7 @@
 #ifndef TXDTEXTURE_H_
 #define TXDTEXTURE_H_
 
-#include "../gf_config.h"
+#include <gf_config.h>
 #include "../util/stream/InputStream.h"
 
 #define TXD_FORMAT_A1R5G5B5 0x100

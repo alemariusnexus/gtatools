@@ -1,5 +1,5 @@
 /*
-	Copyright 2010 David Lerch
+	Copyright 2010 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats.
 
@@ -20,7 +20,7 @@
 #ifndef IMGEXCEPTION_H_
 #define IMGEXCEPTION_H_
 
-#include "../gf_config.h"
+#include <gf_config.h>
 #include "../util/Exception.h"
 
 
@@ -33,8 +33,8 @@ public:
 	 *	@param code The error code.
 	 *	@param message The error message.
 	 */
-	IMGException(const char* message, const char* srcFile = NULL, int srcLine = -1) throw()
-			: Exception(message, srcFile, srcLine) {}
+	IMGException(const char* message, const char* srcFile = NULL, int srcLine = -1, Exception* nestedException = NULL) throw()
+			: Exception(message, srcFile, srcLine, nestedException, "IMGException") {}
 	IMGException(const IMGException& ex) throw() : Exception(ex) {}
 };
 

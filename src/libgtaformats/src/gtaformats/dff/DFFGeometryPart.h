@@ -1,5 +1,5 @@
 /*
-	Copyright 2010 David Lerch
+	Copyright 2010 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats.
 
@@ -20,7 +20,7 @@
 #ifndef DFFGEOMETRYPART_H_
 #define DFFGEOMETRYPART_H_
 
-#include "../gf_config.h"
+#include <gf_config.h>
 #include "DFFMaterial.h"
 
 
@@ -29,10 +29,16 @@ private:
 	friend class DFFLoader;
 
 public:
+	DFFGeometryPart(int32_t ic, int32_t* indices) : indexCount(ic), indices(indices) {}
+	DFFGeometryPart() : indexCount(0), indices(new int32_t[0]) {}
+	DFFGeometryPart(const DFFGeometryPart& other);
 	~DFFGeometryPart();
 	int32_t getIndexCount() const { return indexCount; }
 	int32_t* getIndices() const { return indices; }
 	DFFMaterial* getMaterial() const { return material; }
+	void setIndices(int32_t count, int32_t* indices)
+			{ delete[] indices; this->indices = indices; indexCount = count; }
+	void setMaterial(DFFMaterial* mat) { material = mat; }
 
 private:
 	int32_t indexCount;

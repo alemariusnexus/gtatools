@@ -1,5 +1,5 @@
 /*
-	Copyright 2010 David Lerch
+	Copyright 2010 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats.
 
@@ -36,8 +36,8 @@ TXDArchive::TXDArchive(InputStream* stream, bool randomAccess)
 }
 
 
-TXDArchive::TXDArchive(const char* filename)
-		: randomAccess(true), stream(new FileInputStream(filename, STREAM_BINARY)),
+TXDArchive::TXDArchive(const File& file)
+		: randomAccess(true), stream(file.openStream(STREAM_BINARY)),
 		  bytesRead(0), readIndex(0), currentTextureNativeSize(-1), currentTextureNativeStart(-1),
 		  deleteStream(true)
 {
@@ -78,10 +78,6 @@ void TXDArchive::init()
 	stream->read((char*) &textureCount, 2);
 	stream->skip(2);
 
-	/*if (stream->fail()) {
-		throw TXDException(TXDException::SyntaxError, "Premature end of file");
-	}*/
-
 	if (textureCount < 0) {
 		throw TXDException("Texture count is < 0", __FILE__, __LINE__);
 	}
@@ -101,20 +97,7 @@ TXDTexture* TXDArchive::nextTexture()
 {
 	if (currentTextureNativeStart != -1) {
 		long long len = currentTextureNativeStart + currentTextureNativeSize + 12 - bytesRead;
-
-		/*if (randomAccess) {
-			stream->seekg(len, istream::cur);
-
-			if (stream->fail()) {
-				throw TXDException(TXDException::SyntaxError, "Could not reach texture");
-			}
-		} else {
-			char skipBuf[2048];
-			SkipBytes(stream, len, skipBuf, sizeof(skipBuf));
-		}*/
-
 		stream->skip(len);
-
 		bytesRead += len;
 	}
 
@@ -126,16 +109,8 @@ TXDTexture* TXDArchive::nextTexture()
     RwReadSectionHeader(stream, texNative);
     bytesRead += sizeof(RwSectionHeader);
 
-    /*if (stream->fail()) {
-    	throw TXDException(TXDException::SyntaxError, "Premature end of file");
-    }*/
-
     stream->skip(12);
     bytesRead += 12;
-
-    /*if (stream->fail()) {
-		throw TXDException(TXDException::SyntaxError, "Premature end of file");
-	}*/
 
     TXDTexture* texture = new TXDTexture(stream, bytesRead);
 

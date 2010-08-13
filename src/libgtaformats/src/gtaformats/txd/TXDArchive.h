@@ -1,5 +1,5 @@
 /*
-	Copyright 2010 David Lerch
+	Copyright 2010 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats.
 
@@ -20,9 +20,8 @@
 #ifndef TXDARCHIVE_H_
 #define TXDARCHIVE_H_
 
-#include "../gf_config.h"
+#include <gf_config.h>
 #include "../gta.h"
-#include "../gf_filetype.h"
 #include "TXDException.h"
 #include "TXDTexture.h"
 #include "TXDVisitor.h"
@@ -31,6 +30,7 @@
 #include <cctype>
 #include <cstdio>
 #include "../util/stream/InputStream.h"
+#include "../util/File.h"
 
 using std::istream;
 using std::string;
@@ -51,11 +51,6 @@ class TXDVisitor;
  */
 class TXDArchive {
 public:
-	static bool isValidFilename(const std::string& filename) {
-		return GFGuessFileType(filename) == GF_TYPE_TXD;
-	}
-
-public:
 	/**	\brief Constructs a TXDArchive from the given stream.
 	 *
 	 * 	This reads/skips the header of the TXD file to the first TextureNative section.
@@ -65,7 +60,7 @@ public:
 	TXDArchive(InputStream* stream, bool randomAccess = true);
 
 
-	TXDArchive(const char* filename);
+	TXDArchive(const File& file);
 
 	/**	\brief Deletes this TXDArchive.
 	 *

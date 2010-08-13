@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>FirstStartWizard</class>
+ <widget class="QWizard" name="FirstStartWizard">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>697</width>
+    <height>552</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Initial Setup</string>
+  </property>
+  <property name="modal">
+   <bool>true</bool>
+  </property>
+  <property name="wizardStyle">
+   <enum>QWizard::ModernStyle</enum>
+  </property>
+  <widget class="QWizardPage" name="wizardPage1">
+   <property name="title">
+    <string>Introduction</string>
+   </property>
+   <property name="subTitle">
+    <string>This seems to be the first time you start GTATools GUI Tool. Please take some time to configure the basic options.</string>
+   </property>
+  </widget>
+  <widget class="QWizardPage" name="wizardPage2">
+   <property name="title">
+    <string>Default Profile</string>
+   </property>
+   <property name="subTitle">
+    <string>To allow multiple configurations, this program uses a concept of profiles. At any time, you can easily switch between and edit the profiles. Please provide some information for the default profile.</string>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
+     <widget class="ProfileConfigWidget" name="profileWidget" native="true"/>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWizardPage" name="wizardPage">
+   <property name="title">
+    <string>Initialization Complete</string>
+   </property>
+   <property name="subTitle">
+    <string>The initial configuration is done! Click finish to save it to disk and use the program.</string>
+   </property>
+  </widget>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ProfileConfigWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">ProfileConfigWidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

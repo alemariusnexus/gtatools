@@ -1,5 +1,5 @@
 /*
-	Copyright 2010 David Lerch
+	Copyright 2010 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats.
 
@@ -21,8 +21,8 @@
 #include <cstring>
 #include <cstdio>
 
-TXDException::TXDException(const char* message, const char* srcFile, int srcLine) throw()
-		: Exception(message, srcFile, srcLine)
+TXDException::TXDException(const char* message, const char* srcFile, int srcLine, Exception* nestedException) throw()
+		: Exception(message, srcFile, srcLine, nestedException, "TXDException")
 {
 }
 

@@ -1,5 +1,5 @@
 /*
-	Copyright 2010 David Lerch
+	Copyright 2010 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats.
 
@@ -268,8 +268,8 @@ void TXDTexture::convert(uint8_t* dest, const uint8_t* src, TXDMirrorFlags mirro
 			alphaMask = 0xFF000000;
 			srcBpp = 4;
 #		else
-			throw TXDException(TXDException::Unsupported,
-					"DXT-compressed textures are not supported because GF_USE_SQUISH is turned off!");
+			throw TXDException("DXT-compressed textures are not supported because GF_USE_SQUISH is turned off!",
+					__FILE__, __LINE__);
 #		endif
 	}
 
@@ -318,16 +318,14 @@ void TXDTexture::convert(uint8_t* dest, const uint8_t* src, TXDMirrorFlags mirro
 		data += 256*4;
 	}
 
-
 	// Now we will transform each pixel
 	for (int16_t y = 0 ; y < height ; y++) {
 		for (int16_t x = 0 ; x < width ; x++) {
+			// The index of the new pixel inside the dest array
+			int destIdx = (y*width + x) * bpp;
 
 			// The index of the current pixel inside the data array
 			int srcIdx = (y*width + x);
-
-			// The index of the new pixel inside the dest array
-			int destIdx = (y*width + x) * bpp;
 
 			// To mirror each pixel, we choose another index in the data array.
 			if (mirror == MIRROR_BOTH) {

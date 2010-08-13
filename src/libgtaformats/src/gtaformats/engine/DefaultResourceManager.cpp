@@ -40,7 +40,8 @@ bool DefaultResourceManager::getTextureHeader(const char* name, TXDTexture*& tex
 	TextureCacheMap::iterator it = textureCache.find(name);
 
 	if (it == textureCache.end()) {
-		return ResourceIndex::getTextureHeader(name, texture);
+		uint8_t* tmpData;
+		return cacheTexture(name, texture, tmpData);
 	}
 
 	TextureCacheEntry* entry = it->second;
@@ -54,7 +55,7 @@ bool DefaultResourceManager::getTexture(const char* name, TXDTexture*& texture, 
 	TextureCacheMap::iterator it = textureCache.find(name);
 
 	if (it == textureCache.end()) {
-		return ResourceIndex::getTexture(name, texture, rawData);
+		return cacheTexture(name, texture, rawData);
 	}
 
 	TextureCacheEntry* entry = it->second;
@@ -69,7 +70,7 @@ bool DefaultResourceManager::getMesh(const char* name, DFFMesh*& mesh)
 	MeshCacheMap::iterator it = meshCache.find(name);
 
 	if (it == meshCache.end()) {
-		return ResourceIndex::getMesh(name, mesh);
+		return cacheMesh(name, mesh, true);
 	}
 
 	MeshCacheEntry* entry = it->second;
@@ -95,7 +96,7 @@ void DefaultResourceManager::uncacheTexture(TextureCacheMap::iterator it)
 {
 	delete[] it->first;
 	delete it->second->texture;
-	delete it->second->data;
+	delete[] it->second->data;
 	delete it->second;
 	textureCache.erase(it);
 }
@@ -114,30 +115,63 @@ bool DefaultResourceManager::uncacheTexture(const char* name)
 }
 
 
-void DefaultResourceManager::cacheTexture(const char* name)
+bool DefaultResourceManager::cacheTexture(const char* name, TXDTexture*& texture, uint8_t*& data)
 {
-	TXDTexture* tex = NULL;
-	uint8_t* data = NULL;
-
 	if (cacheTextureData) {
-		ResourceIndex::getTexture(name, tex, data);
+		if (!ResourceIndex::getTexture(name, texture, data)) {
+			return false;
+		}
 	} else {
-		ResourceIndex::getTextureHeader(name ,tex);
+		if (!ResourceIndex::getTextureHeader(name, texture)) {
+			return false;
+		}
 	}
 
-	cacheTexture(tex, data);
+	cacheTexture(texture, data);
+	return true;
 }
 
 
-void DefaultResourceManager::cacheMesh(const char* name)
+bool DefaultResourceManager::cacheTexture(const char* name)
 {
-	DFFMesh* mesh;
-	ResourceIndex::getMesh(name, mesh);
+	if (isTextureCached(name)) {
+		return true;
+	}
 
+	TXDTexture* tex = NULL;
+	uint8_t* data = NULL;
+	return cacheTexture(name, tex, data);
+}
+
+
+void DefaultResourceManager::cacheMesh(const char* name, DFFMesh* mesh)
+{
 	MeshCacheEntry* entry = new MeshCacheEntry;
 	entry->mesh = mesh;
 
 	meshCache.insert(pair<const char*, MeshCacheEntry*>(name, entry));
+}
+
+
+bool DefaultResourceManager::cacheMesh(const char* name, DFFMesh*& mesh, bool placeholder)
+{
+	if (!ResourceIndex::getMesh(name, mesh)) {
+		return false;
+	}
+
+	cacheMesh(name, mesh);
+	return true;
+}
+
+
+bool DefaultResourceManager::cacheMesh(const char* name)
+{
+	if (isMeshCached(name)) {
+		return true;
+	}
+
+	DFFMesh* mesh;
+	return cacheMesh(name, mesh, true);
 }
 
 
@@ -160,5 +194,17 @@ bool DefaultResourceManager::uncacheMesh(const char* name)
 	}
 
 	return false;
+}
+
+
+bool DefaultResourceManager::isTextureCached(const char* name)
+{
+	return textureCache.find(name) != textureCache.end();
+}
+
+
+bool DefaultResourceManager::isMeshCached(const char* name)
+{
+	return meshCache.find(name) != meshCache.end();
 }
 

@@ -1,3 +1,20 @@
+# Copyright 2010 David "Alemarius Nexus" Lerch
+# 
+# This file is part of gtatools-gui.
+#
+# gtatools-gui is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# gtatools-gui is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
+
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 PROJECT(prj-gtatools-gui CXX)
 
@@ -18,41 +35,49 @@ ELSE(UNIX) # Windows...
 ENDIF(UNIX)
 
 SET(GTAFORMATS_LIB_PATH "gtaformats" CACHE PATH "Path to (or name of) the libgtaformats library file")
-SET(SQUISH_INCLUDE_PATH "" CACHE PATH "Directory containing libsquish header files.")
-SET(SQUISH_LIB_PATH "squish" CACHE PATH "Path to (or name of) libsquish library file")
 SET(GL_INCLUDE_PATH "" CACHE PATH "Directory containing the OpenGL header file(s)")
 SET(GL_LIB_PATH "${GL_DEFAULT_LIB}" CACHE PATH "Path to (or name of) the OpenGL library file")
 SET(GLU_INCLUDE_PATH "" CACHE PATH "Directory containing the OpenGL Utility (GLU) header file(s)")
 SET(GLU_LIB_PATH "${GLU_DEFAULT_LIB}" CACHE PATH "Path to (or name of) the OpenGL Utility (GLU) library file")
 
+FIND_PACKAGE(Qt4 4.6.0 COMPONENTS QtCore QtGui QtXml QtOpenGL REQUIRED)
+
+IF(WIN32)
+    STRING(REGEX MATCH "-lGL" QTOPENGL_DEPS_UNIX "${QT_QTOPENGL_LIB_DEPENDENCIES}")
+    
+    IF(QTOPENGL_DEPS_UNIX)
+        SET(QT_QTOPENGL_LIB_DEPENDENCIES "")
+    ENDIF(QTOPENGL_DEPS_UNIX)
+ENDIF(WIN32)
+
 IF(UNIX)
-	SET(wxWidgets_USE_UNICODE ON)
-	SET(wxWidgets_DEBUG ON CACHE BOOL "Whether to use wxWidgets debug libraries")
-	SET(wxWidgets_STATIC ON CACHE BOOL "Whether to use wxWidgets as a static library")
-	SET(wxWidgets_UNIVERSAL OFF CACHE BOOL "Whether to use wxWidgets universal mode libraries")
-ELSE(UNIX) # Windows...
-	SET(wxWidgets_ROOT_DIR "" CACHE PATH "Path to wxWidgets root directory")
-	SET(wxWidgets_LIB_DIR "" CACHE PATH "Path to wxWidgets library directory")
-	SET(wxWidgets_CONFIGURATION "" CACHE STRING "wxWidgets configuration to use (e.g. msw, mswd, mswu, mswunivud etc.)")
+    SET(THREAD_LIB "pthread")
+ELSE(UNIX)
+    SET(THREAD_LIB "")
 ENDIF(UNIX)
 
-FIND_PACKAGE(wxWidgets COMPONENTS base core gl)
-
-INCLUDE(${wxWidgets_USE_FILE})
+INCLUDE(${QT_USE_FILE})
 
 IF(NOT GTAFORMATS_LIB_PATH)
 	SET(GTAFORMATS_LIB_PATH gtaformats)
 ENDIF(NOT GTAFORMATS_LIB_PATH)
-IF(NOT SQUISH_LIB_PATH)
-	SET(SQUISH_LIB_PATH squish)
-ENDIF(NOT SQUISH_LIB_PATH)
 
-INCLUDE_DIRECTORIES(${GTAFORMATS_INCLUDE_PATH} ${SQUISH_INCLUDE_PATH} ${GL_INCLUDE_PATH} ${GLU_INCLUDE_PATH})
+QT4_WRAP_CPP(MOC_COMPILED_SRCS ${MOC_SRCS})
+QT4_WRAP_UI(UIC_COMPILED_SRCS ${UIC_SRCS})
+QT4_ADD_TRANSLATION(QM_FILES gtatools-gui_en.ts gtatools-gui_de.ts)
 
-ADD_EXECUTABLE(gtatools-gui WIN32 ${SRCS})
-TARGET_LINK_LIBRARIES(gtatools-gui ${GTAFORMATS_LIB_PATH} ${SQUISH_LIB_PATH} ${GL_LIB_PATH} ${GLU_LIB_PATH})
+FILE(COPY ${QM_FILES} DESTINATION "${CMAKE_SOURCE_DIR}/gtatools-gui/src")
+QT4_ADD_RESOURCES(QT_RESOURCE_FILES "${CMAKE_SOURCE_DIR}/gtatools-gui/src/resources.qrc")
+MESSAGE("Generated ${QT_RESOURCE_FILES}")
 
-TARGET_LINK_LIBRARIES(gtatools-gui ${wxWidgets_LIBRARIES})
+ADD_DEFINITIONS(-DGL_GLEXT_PROTOTYPES)
+
+INCLUDE_DIRECTORIES(${GL_INCLUDE_PATH} ${GLU_INCLUDE_PATH} ${GTAFORMATS_INCLUDE_PATH} ${CMAKE_BINARY_DIR}/gtatools-gui/build/src
+         ${CMAKE_BINARY_DIR} ${CMAKE_BINARY_DIR}/gtatools-gui/build ${INCS})
+
+ADD_EXECUTABLE(gtatools-gui ${SRCS} ${MOC_COMPILED_SRCS} ${UIC_COMPILED_SRCS} ${QM_FILES} ${QT_RESOURCE_FILES})
+TARGET_LINK_LIBRARIES(gtatools-gui ${GTAFORMATS_LIB_PATH} ${QT_LIBRARIES} ${GL_LIB_PATH} ${GLU_LIB_PATH} ${THREAD_LIB})
 
 INSTALL(TARGETS gtatools-gui DESTINATION bin)
+INSTALL(FILES ${QM_FILES} DESTINATION bin)
 

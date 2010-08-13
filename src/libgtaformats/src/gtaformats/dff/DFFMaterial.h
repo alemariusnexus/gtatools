@@ -1,5 +1,5 @@
 /*
-	Copyright 2010 David Lerch
+	Copyright 2010 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats.
 
@@ -20,24 +20,45 @@
 #ifndef DFFMATERIAL_H_
 #define DFFMATERIAL_H_
 
-#include "../gf_config.h"
+#include <gf_config.h>
 #include "DFFTexture.h"
+#include <vector>
+
+using std::vector;
 
 
 class DFFMaterial {
+public:
+	typedef vector<DFFTexture*>::iterator TextureIterator;
+	typedef vector<DFFTexture*>::const_iterator ConstTextureIterator;
+
 private:
 	friend class DFFLoader;
 
 public:
+	DFFMaterial() {};
+	DFFMaterial(const DFFMaterial& other);
 	~DFFMaterial();
-	void getColor(uint8_t& r, uint8_t& g, uint8_t& b, uint8_t& a) { r=color[0];g=color[1];b=color[2];a=color[3]; }
-	int32_t getTextureCount() { return textureCount; }
-	DFFTexture** getTextures() { return textures; }
+	void getColor(uint8_t& r, uint8_t& g, uint8_t& b, uint8_t& a) const
+			{ r=color[0];g=color[1];b=color[2];a=color[3]; }
+	uint8_t* getColor() { return color; }
+	int32_t getTextureCount() const { return textures.size(); }
+	TextureIterator getTextureBegin() { return textures.begin(); }
+	TextureIterator getTextureEnd() { return textures.end(); }
+	ConstTextureIterator getTextureBegin() const { return textures.begin(); }
+	ConstTextureIterator getTextureEnd() const { return textures.end(); }
+	DFFTexture* getTexture(int index) { return textures[index]; }
+	const DFFTexture* getTexture(int index) const { return textures[index]; }
+	void setColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+			{ color[0] = r; color[1] = g; color[2] = b; color[3] = a; }
+	void addTexture(DFFTexture* texture) { textures.push_back(texture); }
+	void removeTexture(DFFTexture* texture);
+	void removeTexture(int index) { removeTexture(textures[index]); }
+	void removeTextures();
 
 private:
 	uint8_t color[4];
-	int32_t textureCount;
-	DFFTexture** textures;
+	vector<DFFTexture*> textures;
 };
 
 #endif /* DFFMATERIAL_H_ */
