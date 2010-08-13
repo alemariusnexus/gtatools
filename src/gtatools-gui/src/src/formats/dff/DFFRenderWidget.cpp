@@ -38,33 +38,23 @@ void DFFRenderWidget::renderGeometry(DFFGeometry* geometry)
 		glDeleteLists(renderList, 1);
 	}
 
-	printf("1\n");
-
 	Profile* profile = ProfileManager::getInstance()->getCurrentProfile();
 
 	OpenGLResourceManager* rm = profile->getResourceManager();
 
 	DFFOpenGLRenderer renderer(rm);
 
-	printf("2\n");
-
 	GLuint list = glGenLists(1);
 
 	glNewList(list, GL_COMPILE);
-	printf("3\n");
 	renderer.renderGeometry(geometry, false);
-	printf("4\n");
 	glEndList();
 
 	renderList = list;
 
 	currentGeometry = geometry;
 
-	printf("5\n");
-
 	updateGL();
-
-	printf("6\n");
 }
 
 

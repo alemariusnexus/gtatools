@@ -306,17 +306,17 @@
         <translation type="obsolete">Unnamed %1</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="60"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="59"/>
         <source>Geometry %1</source>
         <translation>Geometry %1</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="150"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="149"/>
         <source>(%1, %2, %3)</source>
         <translation>(%1, %2, %3)</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="151"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="150"/>
         <source>(%1, %2, %3) (%4, %5, %6) (%7, %8, %9)</source>
         <oldsource>(%1, %2, %3)
 (%4, %5, %6)
@@ -326,59 +326,60 @@
 (%7, %8, %9)</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="156"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="155"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="225"/>
         <source>None</source>
         <translation>None</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="176"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="182"/>
         <source>Triangle Strips</source>
         <translation>Triangle Strips</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="176"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="182"/>
         <source>Triangle List</source>
         <translation>Triangle List</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="184"/>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="185"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="190"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="191"/>
         <source>no</source>
         <translation>no</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="184"/>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="185"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="190"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="191"/>
         <source>yes</source>
         <translation>yes</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="186"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="192"/>
         <source>(%1, %2, %3 : %4)</source>
         <translation>(%1, %2, %3 : %4)</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="208"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="240"/>
         <source>Material %1</source>
         <translation>Material %1</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="217"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="249"/>
         <source>Part %1</source>
         <translation>Part %1</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="238"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="273"/>
         <source>(%1, %2, %3, %4)</source>
         <translation>(%1, %2, %3, %4)</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="298"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="339"/>
         <source>Choose a destination file</source>
         <translation>Choose a destination file</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="299"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="340"/>
         <source>XML Files (*.xml)</source>
         <translation>XML Files (*.xml)</translation>
     </message>
@@ -429,53 +430,58 @@
 <context>
     <name>DefaultGUIModule</name>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="40"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="41"/>
         <source>Open...</source>
         <translation>Open...</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="44"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="45"/>
         <source>Close</source>
         <translation>Close</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="49"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="50"/>
         <source>Search File...</source>
         <translation>Search File...</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="53"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="54"/>
         <source>Settings...</source>
         <translation>Settings...</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="57"/>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="209"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="58"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="217"/>
         <source>About Qt</source>
         <translation>About Qt</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="60"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="61"/>
         <source>About</source>
         <translation>About</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="119"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="64"/>
+        <source>Version Information</source>
+        <translation>Version Information</translation>
+    </message>
+    <message>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="125"/>
         <source>Switch</source>
         <translation>Switch</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="63"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="67"/>
         <source>Execute System Program</source>
         <translation>Execute System Program</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="216"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="224"/>
         <source>About GTATools GUI Tool</source>
         <translation>About GTATools GUI Tool</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="215"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="223"/>
         <source>AboutText</source>
         <translation>This is gtatools-gui. This program is part of gtatools and runs with version %1.
 
@@ -486,7 +492,7 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="222"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="237"/>
         <source>Select file</source>
         <translation>Select file</translation>
     </message>
@@ -687,61 +693,61 @@ You should have received a copy of the GNU General Public License along with thi
         <translation>GTATools GUI Tool</translation>
     </message>
     <message>
-        <location filename="src/gui/MainWindow.cpp" line="104"/>
+        <location filename="src/gui/MainWindow.cpp" line="107"/>
         <source>&amp;General Information</source>
         <oldsource>General Information</oldsource>
         <translation>&amp;General Information</translation>
     </message>
     <message>
-        <location filename="src/gui/MainWindow.cpp" line="105"/>
+        <location filename="src/gui/MainWindow.cpp" line="108"/>
         <source>&amp;Content</source>
         <oldsource>Content</oldsource>
         <translation>&amp;Content</translation>
     </message>
     <message>
-        <location filename="src/gui/MainWindow.cpp" line="174"/>
+        <location filename="src/gui/MainWindow.cpp" line="177"/>
         <source>Done!</source>
         <translation>Done!</translation>
     </message>
     <message>
-        <location filename="src/gui/MainWindow.cpp" line="213"/>
+        <location filename="src/gui/MainWindow.cpp" line="216"/>
         <source>Directory</source>
         <translation>Directory</translation>
     </message>
     <message>
-        <location filename="src/gui/MainWindow.cpp" line="214"/>
+        <location filename="src/gui/MainWindow.cpp" line="217"/>
         <source>%1 files</source>
         <translation>%1 files</translation>
     </message>
     <message>
-        <location filename="src/gui/MainWindow.cpp" line="219"/>
+        <location filename="src/gui/MainWindow.cpp" line="222"/>
         <source>%1MB</source>
         <translation>%1MB</translation>
     </message>
     <message>
-        <location filename="src/gui/MainWindow.cpp" line="221"/>
+        <location filename="src/gui/MainWindow.cpp" line="224"/>
         <source>%1kB</source>
         <translation>%1kB</translation>
     </message>
     <message>
-        <location filename="src/gui/MainWindow.cpp" line="223"/>
+        <location filename="src/gui/MainWindow.cpp" line="226"/>
         <source>%1B</source>
         <translation>%1B</translation>
     </message>
     <message>
-        <location filename="src/gui/MainWindow.cpp" line="229"/>
+        <location filename="src/gui/MainWindow.cpp" line="232"/>
         <source>Unrecognized File</source>
         <translation>Unrecognized File</translation>
     </message>
     <message>
-        <location filename="src/gui/MainWindow.cpp" line="291"/>
-        <location filename="src/gui/MainWindow.cpp" line="311"/>
+        <location filename="src/gui/MainWindow.cpp" line="294"/>
+        <location filename="src/gui/MainWindow.cpp" line="314"/>
         <source>GTATools GUI Tool - %1</source>
         <translation>GTATools GUI Tool - %1</translation>
     </message>
     <message>
         <location filename="src/gui/MainFrame.ui" line="88"/>
-        <location filename="src/gui/MainWindow.cpp" line="278"/>
+        <location filename="src/gui/MainWindow.cpp" line="281"/>
         <source>(No File Opened)</source>
         <translation>(No File Opened)</translation>
     </message>
@@ -1080,6 +1086,45 @@ The exception text:
         <location filename="src/formats/txd/TextureSearchDialog.ui" line="129"/>
         <source>&amp;Search</source>
         <translation>&amp;Search</translation>
+    </message>
+</context>
+<context>
+    <name>VersionDialog</name>
+    <message>
+        <location filename="src/gui/VersionDialog.ui" line="14"/>
+        <location filename="src/gui/VersionDialog.ui" line="27"/>
+        <source>Version Information</source>
+        <translation>Version Information</translation>
+    </message>
+    <message>
+        <location filename="src/gui/VersionDialog.ui" line="46"/>
+        <source>GTATools Version</source>
+        <translation>GTATools Version</translation>
+    </message>
+    <message>
+        <location filename="src/gui/VersionDialog.ui" line="60"/>
+        <source>Qt Version</source>
+        <translation>Qt Version</translation>
+    </message>
+    <message>
+        <location filename="src/gui/VersionDialog.ui" line="81"/>
+        <source>Linked Against Qt</source>
+        <translation>Linked Against Qt</translation>
+    </message>
+    <message>
+        <location filename="src/gui/VersionDialog.ui" line="88"/>
+        <source>OpenGL Vendor</source>
+        <translation>OpenGL Vendor</translation>
+    </message>
+    <message>
+        <location filename="src/gui/VersionDialog.ui" line="102"/>
+        <source>OpenGL Renderer</source>
+        <translation>OpenGL Renderer</translation>
+    </message>
+    <message>
+        <location filename="src/gui/VersionDialog.ui" line="116"/>
+        <source>OpenGL Version</source>
+        <translation>OpenGL Version</translation>
     </message>
 </context>
 </TS>

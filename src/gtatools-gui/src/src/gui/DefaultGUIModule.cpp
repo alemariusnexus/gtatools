@@ -29,6 +29,7 @@
 #include "../System.h"
 #include <gf_config.h>
 #include "FileSearchDialog.h"
+#include "VersionDialog.h"
 
 
 
@@ -59,6 +60,9 @@ DefaultGUIModule::DefaultGUIModule()
 
 	aboutAction = new QAction(tr("About"), NULL);
 	connect(aboutAction, SIGNAL(triggered(bool)), this, SLOT(onAbout(bool)));
+
+	versionInfoAction = new QAction(tr("Version Information"), NULL);
+	connect(versionInfoAction, SIGNAL(triggered(bool)), this, SLOT(onVersionInfo(bool)));
 
 	systemOpenAction = new QAction(tr("Execute System Program"), NULL);
 	connect(systemOpenAction, SIGNAL(triggered(bool)), this, SLOT(onOpenSystemProgram(bool)));
@@ -107,6 +111,7 @@ void DefaultGUIModule::doInstall()
 	settingsAction->setParent(mainWindow);
 	aboutQtAction->setParent(mainWindow);
 	aboutAction->setParent(mainWindow);
+	versionInfoAction->setParent(mainWindow);
 	systemOpenAction->setParent(mainWindow);
 
 	fileMenu->addAction(fileOpenAction);
@@ -115,6 +120,7 @@ void DefaultGUIModule::doInstall()
 	settingsMenu->addAction(settingsAction);
 	helpMenu->addAction(aboutQtAction);
 	helpMenu->addAction(aboutAction);
+	helpMenu->addAction(versionInfoAction);
 
 	profileSwitchMenu = new QMenu(tr("Switch"), profileMenu);
 	profileMenu->addMenu(profileSwitchMenu);
@@ -159,6 +165,7 @@ void DefaultGUIModule::doUninstall()
 	settingsAction->setParent(NULL);
 	aboutQtAction->setParent(NULL);
 	aboutAction->setParent(NULL);
+	versionInfoAction->setParent(NULL);
 
 	fileMenu->removeAction(fileOpenAction);
 	fileMenu->removeAction(fileCloseAction);
@@ -166,6 +173,7 @@ void DefaultGUIModule::doUninstall()
 	settingsMenu->removeAction(settingsAction);
 	helpMenu->removeAction(aboutQtAction);
 	helpMenu->removeAction(aboutAction);
+	helpMenu->removeAction(versionInfoAction);
 
 	delete profileSwitchMenu;
 }
@@ -214,6 +222,13 @@ void DefaultGUIModule::onAbout(bool checked)
 {
 	QString aboutText = tr("AboutText").arg(GTATOOLS_VERSION);
 	QMessageBox::about(mainWindow, tr("About GTATools GUI Tool"), aboutText);
+}
+
+
+void DefaultGUIModule::onVersionInfo(bool checked)
+{
+	VersionDialog dialog(mainWindow);
+	dialog.exec();
 }
 
 
