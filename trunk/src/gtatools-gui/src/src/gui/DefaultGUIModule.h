@@ -46,6 +46,7 @@ private slots:
 	void settingsRequested(bool checked);
 	void onAboutQt(bool checked);
 	void onAbout(bool checked);
+	void onVersionInfo(bool checked);
 	void onFileOpen(bool checked);
 	void onFileClose(bool checked);
 	void fileOpened(const File& file, const QHash<QString, QVariant>& data);
@@ -59,6 +60,7 @@ private:
 	QAction* settingsAction;
 	QAction* aboutQtAction;
 	QAction* aboutAction;
+	QAction* versionInfoAction;
 	QAction* searchFileAction;
 	QAction* systemOpenAction;
 	File* contextFile;
