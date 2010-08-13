@@ -1,3 +1,21 @@
+# Copyright 2010 David "Alemarius Nexus" Lerch
+# 
+# This file is part of gtatxd.
+#
+# gtatxd is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# gtatxd is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with gtatxd.  If not, see <http://www.gnu.org/licenses/>.
+
+
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 PROJECT(prj-gtatxd CXX)
 
@@ -35,7 +53,8 @@ IF(NOT Z_LIB_PATH)
 	SET(Z_LIB_PATH png)
 ENDIF(NOT Z_LIB_PATH)
 
-INCLUDE_DIRECTORIES(${GTAFORMATS_INCLUDE_PATH} ${BOOST_INCLUDE_PATH} ${SQUISH_INCLUDE_PATH} ${PNG_INCLUDE_PATH} ${Z_INCLUDE_PATH})
+INCLUDE_DIRECTORIES(${GTAFORMATS_INCLUDE_PATH} ${BOOST_INCLUDE_PATH} ${SQUISH_INCLUDE_PATH} ${PNG_INCLUDE_PATH} ${Z_INCLUDE_PATH}
+         ${CMAKE_BINARY_DIR})
 
 ADD_EXECUTABLE(gtatxd ${SRCS})
 TARGET_LINK_LIBRARIES(gtatxd ${BOOST_REGEX_LIB_PATH} ${GTAFORMATS_LIB_PATH} ${SQUISH_LIB_PATH} ${PNG_LIB_PATH} ${Z_LIB_PATH})

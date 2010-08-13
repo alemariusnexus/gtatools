@@ -1,5 +1,5 @@
 /*
-	Copyright 2010 David Lerch
+	Copyright 2010 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats.
 
@@ -20,7 +20,13 @@
 #ifndef DFFFRAME_H_
 #define DFFFRAME_H_
 
-#include "../gf_config.h"
+#include <gf_config.h>
+#include <cstdlib>
+#include "../util/Matrix3.h"
+#include "../util/Vector3.h"
+#include <vector>
+
+using std::vector;
 
 
 class DFFFrame {
@@ -28,21 +34,54 @@ private:
 	friend class DFFLoader;
 
 public:
-	DFFFrame() : name(NULL) {}
+	typedef vector<DFFFrame*>::iterator ChildIterator;
+	typedef vector<DFFFrame*>::const_iterator ConstChildIterator;
+
+public:
+	DFFFrame(Vector3* trans, Matrix3* rot)
+			: name(NULL), translation(trans), rotation(rot), parent(NULL), flags(0) {}
+	DFFFrame() : name(NULL), translation(new Vector3), rotation(new Matrix3), parent(NULL), flags(0) {}
+	DFFFrame(const DFFFrame& other);
 	~DFFFrame();
-	const float* getRotation() const { return &rotation[0]; }
-	const float* getTranslation() const { return &translation[0]; }
-	DFFFrame* getParent() const { return parent; }
+	Matrix3& getRotation() { return *rotation; }
+	const Matrix3& getRotation() const { return *rotation; }
+	Vector3& getTranslation() { return *translation; }
+	const Vector3& getTranslation() const { return *translation; }
+	DFFFrame* getParent() { return parent; }
+	const DFFFrame* getParent() const { return parent; }
 	int32_t getFlags() const { return flags; }
-	char* getName() const { return name; }
+	const char* getName() const { return name; }
+	int32_t getChildCount() { return children.size(); }
+	ChildIterator getChildBegin() { return children.begin(); }
+	ConstChildIterator getChildBegin() const { return children.begin(); }
+	ChildIterator getChildEnd() { return children.end(); }
+	ConstChildIterator getChildEnd() const { return children.end(); }
+	DFFFrame* getChild(int32_t index) { return children[index]; }
+	const DFFFrame* getChild(int32_t index) const { return children[index]; }
+	DFFFrame* getChild(const char* name);
+	const DFFFrame* getChild(const char* name) const;
+	int32_t indexOf(const DFFFrame* child) const;
+	void setRotation(const Matrix3& rot) { rotation = new Matrix3(rot); }
+	void setRotation(Matrix3* rot) { rotation = rot; }
+	void setTranslation(const Vector3& trans) { translation = new Vector3(trans); }
+	void setTranslation(Vector3* trans) { translation = trans; }
+	void setFlags(int32_t flags) { this->flags = flags; }
+	void setName(const char* name) { this->name = new char[strlen(name)+1]; strcpy(this->name, name); }
+	void setName(char* name) { this->name = name; }
+	void addChild(DFFFrame* child) { children.push_back(child); child->parent = this; }
+	void removeChild(DFFFrame* child);
+	void removeChild(int32_t index) { removeChild(children[index]); }
+	void removeChild(const char* name) { removeChild(getChild(name)); }
+	void removeChildren();
 
 	void mirrorYZ();
 	void scale(float x, float y, float z);
 
 private:
-	float rotation[9];
-	float translation[3];
+	Matrix3* rotation;
+	Vector3* translation;
 	DFFFrame* parent;
+	vector<DFFFrame*> children;
 	int32_t flags;
 	char* name;
 };

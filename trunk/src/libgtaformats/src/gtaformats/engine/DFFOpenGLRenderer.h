@@ -35,15 +35,16 @@ public:
 	void applyFrameTransformation(DFFFrame* frame);
 	void applyTexture(const char*);
 
+	void setTexturing(bool texturing) { this->texturing = texturing; }
+
 	/*virtual void applyTexture(TXDTexture* texture, uint8_t* data);
 	virtual void renderGeometryPart(DFFGeometry* geometry, DFFGeometryPart* part);
 	virtual void applyFrameTransformation(DFFFrame* frame);
 	virtual void endFrameTransformation(DFFFrame* frame);*/
 
 private:
-	//TextureProvider* textureProvider;
 	OpenGLResourceManager* resourceManager;
-	//OpenGLCache* cache;
+	bool texturing;
 };
 
 #endif /* DFFOPENGLRENDERER_H_ */

@@ -1,5 +1,5 @@
 /*
-	Copyright 2010 David Lerch
+	Copyright 2010 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats.
 
@@ -18,13 +18,46 @@
  */
 
 #include "DFFMaterial.h"
+#include <cstring>
+
+
+DFFMaterial::DFFMaterial(const DFFMaterial& other)
+{
+	memcpy(color, other.color, sizeof(color));
+
+	ConstTextureIterator it;
+	for (it = other.getTextureBegin() ; it != other.getTextureEnd() ; it++) {
+		textures.push_back(new DFFTexture(**it));
+	}
+}
 
 
 DFFMaterial::~DFFMaterial()
 {
-	for (int32_t i = 0 ; i < textureCount ; i++) {
-		delete textures[i];
+	removeTextures();
+}
+
+
+void DFFMaterial::removeTexture(DFFTexture* texture)
+{
+	TextureIterator it;
+
+	for (it = textures.begin() ; it != textures.end() ; it++) {
+		if (*it == texture) {
+			delete *it;
+			textures.erase(it);
+		}
+	}
+}
+
+
+void DFFMaterial::removeTextures()
+{
+	TextureIterator it;
+
+	for (it = textures.begin() ; it != textures.end() ; it++) {
+		delete *it;
 	}
 
-	delete[] textures;
+	textures.clear();
 }

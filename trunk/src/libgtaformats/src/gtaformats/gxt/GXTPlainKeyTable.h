@@ -1,5 +1,5 @@
 /*
-	Copyright 2010 David Lerch
+	Copyright 2010 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats.
 
@@ -20,8 +20,7 @@
 #ifndef GXTPLAINKEYTABLE_H_
 #define GXTPLAINKEYTABLE_H_
 
-#include "../gf_config.h"
-#include "GXTTable.h"
+#include <gf_config.h>\n#includelude "GXTTable.h"
 #include <map>
 
 using std::map;

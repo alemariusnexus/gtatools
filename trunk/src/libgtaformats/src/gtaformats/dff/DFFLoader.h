@@ -1,5 +1,5 @@
 /*
-	Copyright 2010 David Lerch
+	Copyright 2010 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats.
 
@@ -20,22 +20,15 @@
 #ifndef DFFLOADER_H_
 #define DFFLOADER_H_
 
-#include "../gf_config.h"
+#include <gf_config.h>
 #include "../gta.h"
 #include "DFFMesh.h"
 #include "DFFException.h"
 #include <cstdio>
 #include "../util/stream/InputStream.h"
+#include "../util/File.h"
+#include "../util/thread/Mutex.h"
 
-
-#define GEOMETRY_FLAG_TRISTRIP (1<<0)
-#define GEOMETRY_FLAG_POSITIONS (1<<1)
-#define GEOMETRY_FLAG_TEXCOORDS (1<<2)
-#define GEOMETRY_FLAG_COLORS (1<<3)
-#define GEOMETRY_FLAG_NORMALS (1<<4)
-#define GEOMETRY_FLAG_UNKNOWN1 (1<<5)
-#define GEOMETRY_FLAG_UNKNOWN2 (1<<6)
-#define GEOMETRY_FLAG_MULTIPLEUVSETS (1<<7)
 
 #define DFF_VERSION_GTA3_1 0
 #define DFF_VERSION_GTA3_2 2048
@@ -58,10 +51,6 @@ struct DFFGeometryStructHeader {
 struct DFFLoadContext {
 	DFFMesh* mesh;
 	int32_t version;
-	int32_t nextGeometryIndex;
-	int32_t nextMaterialIndex;
-	int32_t nextTextureIndex;
-	int32_t nextFrameIndex;
 	int depth;
 };
 
@@ -71,8 +60,8 @@ public:
 	DFFLoader();
 	virtual ~DFFLoader();
 	DFFMesh* loadMesh(InputStream* stream);
-	DFFMesh* loadMesh(const char* filename);
-	void setVerbose(bool verbose) { this->verbose = verbose; }
+	DFFMesh* loadMesh(const File& file);
+	void setVerbose(bool verbose) { verboseMutex.lock(); this->verbose = verbose; verboseMutex.unlock(); }
 	bool isVerbose() { return verbose; }
 
 public:
@@ -125,6 +114,7 @@ private:
 
 private:
 	bool verbose;
+	Mutex verboseMutex;
 };
 
 #endif /* DFFLOADER_H_ */

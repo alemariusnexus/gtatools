@@ -1,5 +1,5 @@
 /*
-	Copyright 2010 David Lerch
+	Copyright 2010 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats.
 
@@ -20,18 +20,26 @@
 #ifndef DFFTEXTURE_H_
 #define DFFTEXTURE_H_
 
-#include "../gf_config.h"
+#include <gf_config.h>
+#include <cstdlib>
 
 class DFFTexture {
 private:
 	friend class DFFLoader;
 
 public:
-	DFFTexture() : diffuseName(NULL), alphaName(NULL) {}
+	DFFTexture(char* diffuseName, char* alphaName = NULL, int16_t filterModeFlags = 0)
+			: diffuseName(diffuseName), alphaName(alphaName), filterModeFlags(filterModeFlags) {}
+	DFFTexture(const DFFTexture& other);
 	~DFFTexture();
 	int16_t getFilterModeFlags() const { return filterModeFlags; }
 	const char* getDiffuseName() const { return diffuseName; }
 	const char* getAlphaName() const { return alphaName; }
+	void setFilterModeFlags(int16_t flags) { filterModeFlags = flags; }
+	void setDiffuseName(char* name) { diffuseName = name; }
+	void setDiffuseName(const char* name);
+	void setAlphaName(char* name) { alphaName = name; }
+	void setAlphaName(const char* name);
 
 private:
 	int16_t filterModeFlags;

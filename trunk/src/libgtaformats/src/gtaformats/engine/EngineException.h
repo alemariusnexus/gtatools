@@ -25,8 +25,8 @@
 
 class EngineException : public Exception {
 public:
-	EngineException(const char* msg, const char* srcFile = NULL, int srcLine = -1) throw()
-			: Exception(msg, srcFile, srcLine) {}
+	EngineException(const char* msg, const char* srcFile = NULL, int srcLine = -1, Exception* nestedException = NULL) throw()
+			: Exception(msg, srcFile, srcLine, nestedException, "EngineException") {}
 	EngineException(const EngineException& ex) throw() : Exception(ex) {}
 };
 

@@ -1,5 +1,5 @@
 /*
-	Copyright 2010 David Lerch
+	Copyright 2010 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats.
 
@@ -20,7 +20,7 @@
 #ifndef TXDEXCEPTION_H_
 #define TXDEXCEPTION_H_
 
-#include "../gf_config.h"
+#include <gf_config.h>
 #include "../util/Exception.h"
 
 
@@ -36,7 +36,7 @@ public:
 	 *	@param msg The error message.
 	 *	@param offset The offset at which the error happened (optional).
 	 */
-	TXDException(const char* message, const char* srcFile = NULL, int srcLine = -1) throw();
+	TXDException(const char* message, const char* srcFile = NULL, int srcLine = -1, Exception* nestedException = NULL) throw();
 	TXDException(const TXDException& ex) : Exception(ex) {}
 };
 

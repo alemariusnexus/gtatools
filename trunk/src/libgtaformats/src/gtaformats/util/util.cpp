@@ -1,17 +1,24 @@
 /*
- * util.cpp
- *
- *  Created on: 24.04.2010
- *      Author: alemariusnexus
+	Copyright 2010 David "Alemarius Nexus" Lerch
+
+	This file is part of gtaformats.
+
+	gtaformats is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	gtaformats is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with gtaformats.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include <cctype>
-
-#ifdef linux
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <dirent.h>
-#endif
+#include <cstring>
 
 
 void strtolower(char* dest, const char* src)
@@ -25,16 +32,10 @@ void strtolower(char* dest, const char* src)
 }
 
 
-bool isDirectory(const char* path)
+void rtrim(char* str, char chr)
 {
-	struct stat data;
-	stat(path, &data);
-
-	if (S_ISDIR(data.st_mode)) {
-		return true;
-	} else {
-		return false;
-	}
+	str += strlen(str);
+	while (*str == chr) *str-- = '\0';
 }
 
 
