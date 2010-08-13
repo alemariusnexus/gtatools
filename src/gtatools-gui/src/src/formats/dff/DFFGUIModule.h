@@ -22,6 +22,7 @@ class DFFGUIModule : public GUIModule {
 
 public:
 	DFFGUIModule(DFFWidget* dffWidget);
+	~DFFGUIModule();
 
 private:
 	virtual void doInstall();

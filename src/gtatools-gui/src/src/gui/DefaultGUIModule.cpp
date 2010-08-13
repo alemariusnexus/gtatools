@@ -82,6 +82,7 @@ DefaultGUIModule::~DefaultGUIModule()
 	delete settingsAction;
 	delete aboutQtAction;
 	delete aboutAction;
+	delete versionInfoAction;
 	delete systemOpenAction;
 
 	if (contextFile) {

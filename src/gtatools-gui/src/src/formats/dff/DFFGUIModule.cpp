@@ -31,6 +31,14 @@ DFFGUIModule::DFFGUIModule(DFFWidget* dffWidget)
 }
 
 
+DFFGUIModule::~DFFGUIModule()
+{
+	delete texturedAction;
+	delete wireframeAction;
+	delete dumpAction;
+}
+
+
 void DFFGUIModule::doInstall()
 {
 	QMenu* viewMenu = mainWindow->getViewMenu();
@@ -50,11 +58,15 @@ void DFFGUIModule::doInstall()
 void DFFGUIModule::doUninstall()
 {
 	QMenu* viewMenu = mainWindow->getViewMenu();
+	QMenu* fileMenu = mainWindow->getFileMenu();
 
 	viewMenu->removeAction(texturedAction);
 	texturedAction->setParent(NULL);
 
 	viewMenu->removeAction(wireframeAction);
 	wireframeAction->setParent(NULL);
+
+	fileMenu->removeAction(dumpAction);
+	dumpAction->setParent(NULL);
 }
 
