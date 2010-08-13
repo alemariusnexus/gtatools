@@ -26,6 +26,9 @@
 #include <cstdlib>
 #include <cstdio>
 #include "../util/stream/FileInputStream.h"
+#include <utility>
+
+using std::pair;
 
 
 DFFLoader::DFFLoader()
@@ -134,6 +137,8 @@ int DFFLoader::parseStruct(InputStream* stream, RwSectionHeader& structHeader, R
 		for (int32_t i = 0 ; i < numFrames ; i++) {
 			DFFFrame* frame = new DFFFrame;
 			int32_t parentIdx;
+
+			context->frameInternalIndexMap.insert(pair<int32_t, DFFFrame*>(i, frame));
 
 			float* rotData = new float[9];
 			float* transData = new float[3];
@@ -320,7 +325,7 @@ int DFFLoader::parseStruct(InputStream* stream, RwSectionHeader& structHeader, R
 		stream->read((char*) &frameIdx, 4);
 		stream->read((char*) &geomIdx, 4);
 		rc += 8;
-		mesh->getGeometry(geomIdx)->setAssociatedFrame(mesh->getFrame(frameIdx));
+		mesh->getGeometry(geomIdx)->setAssociatedFrame(context->frameInternalIndexMap.find(frameIdx)->second);
 	}
 
 	return rc;
