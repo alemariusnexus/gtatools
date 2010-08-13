@@ -28,6 +28,7 @@
 #include "gui/MainWindow.h"
 #include <qhash.h>
 #include <qvariant.h>
+#include <qstring.h>
 
 
 class System : public QObject {

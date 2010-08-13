@@ -65,8 +65,8 @@ DFFWidget::DFFWidget(const File& file, QWidget* parent)
 	System::getInstance()->installGUIModule(guiModule);
 
 
-	connect(ui.frameTree, SIGNAL(activated(const QModelIndex&)), this,
-			SLOT(frameSelected(const QModelIndex&)));
+	connect(ui.frameTree->selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
+			this, SLOT(frameSelected(const QModelIndex&, const QModelIndex&)));
 	connect(ui.geometryList, SIGNAL(currentRowChanged(int)), this, SLOT(geometrySelected(int)));
 	connect(ui.materialList, SIGNAL(currentRowChanged(int)), this, SLOT(materialSelected(int)));
 	connect(ui.textureList, SIGNAL(currentRowChanged(int)), this, SLOT(textureSelected(int)));
@@ -138,7 +138,7 @@ void DFFWidget::clearTextureList()
 }
 
 
-void DFFWidget::frameSelected(const QModelIndex& index)
+void DFFWidget::frameSelected(const QModelIndex& index, const QModelIndex& previous)
 {
 	DFFFrame* frame = (DFFFrame*) index.internalPointer();
 

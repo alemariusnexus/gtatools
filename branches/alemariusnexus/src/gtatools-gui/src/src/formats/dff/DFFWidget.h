@@ -32,7 +32,7 @@ private:
 	void xmlDumpFrame(DFFFrame* frame, QTextStream& xml, int indLevel);
 
 private slots:
-	void frameSelected(const QModelIndex& index);
+	void frameSelected(const QModelIndex& index, const QModelIndex& previous);
 	void geometrySelected(int row);
 	void materialSelected(int row);
 	void textureSelected(int row);

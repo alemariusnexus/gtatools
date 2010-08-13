@@ -56,7 +56,7 @@ private slots:
 	void taskValueUpdated(int value);
 	void taskEnded();
 	void statusMessageShown(const QString& message, int timeout);
-	void fileSelectedInTree(const QModelIndex& index);
+	void fileSelectedInTree(const QModelIndex& index, const QModelIndex& previous);
 	void currentProfileChanged(Profile* oldProfile, Profile* newProfile);
 	void currentProfileContentChanged();
 	void openFile(const File& file, const QHash<QString, QVariant>& data);

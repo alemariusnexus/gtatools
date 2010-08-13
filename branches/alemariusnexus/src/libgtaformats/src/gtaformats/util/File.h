@@ -194,6 +194,8 @@ public:
 
 	bool mkdir() const;
 
+	bool mkdirs() const;
+
 	bool isChildOf(const File& other) const;
 
 	bool operator==(const File& other) const;

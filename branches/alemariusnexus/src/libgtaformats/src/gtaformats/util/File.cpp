@@ -438,6 +438,20 @@ bool File::mkdir() const
 }
 
 
+bool File::mkdirs() const
+{
+	File* parent = getParent();
+
+	if (parent != NULL  &&  !parent->exists()) {
+		if (!parent->mkdirs()) {
+			return false;
+		}
+	}
+
+	return mkdir();
+}
+
+
 bool File::isChildOf(const File& other) const
 {
 	return path->isChildOf(*other.path);

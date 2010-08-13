@@ -149,6 +149,10 @@ bool FilePath::isIMGPath() const
 	FilePath* parent = getParentPath();
 	bool imgPath = false;
 
+	if (!parent) {
+		return false;
+	}
+
 	if (File(parent, false).isRegularFile()) {
 		FileContentType type = parent->guessContentType();
 

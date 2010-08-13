@@ -51,10 +51,12 @@ MainWindow::MainWindow()
 	System* sys = System::getInstance();
 	sys->setMainWindow(this);
 
-	connect(sys, SIGNAL(taskStarted(int, int, const QString&)), this, SLOT(taskStarted(int, int, const QString&)));
+	connect(sys, SIGNAL(taskStarted(int, int, const QString&)), this,
+			SLOT(taskStarted(int, int, const QString&)));
 	connect(sys, SIGNAL(taskValueUpdated(int)), this, SLOT(taskValueUpdated(int)));
 	connect(sys, SIGNAL(taskEnded()), this, SLOT(taskEnded()));
-	connect(sys, SIGNAL(statusMessageShown(const QString&, int)), this, SLOT(statusMessageShown(const QString&, int)));
+	connect(sys, SIGNAL(statusMessageShown(const QString&, int)), this,
+			SLOT(statusMessageShown(const QString&, int)));
 }
 
 
@@ -71,7 +73,8 @@ void MainWindow::initialize()
 			SLOT(openFile(const File&, const QHash<QString, QVariant>&)));
 	connect(sys, SIGNAL(currentFileClosed()), this, SLOT(closeCurrentFile()));
 	connect(sys, SIGNAL(configurationChanged()), this, SLOT(configurationChanged()));
-	connect(ui.fileTree, SIGNAL(activated(const QModelIndex&)), this, SLOT(fileSelectedInTree(const QModelIndex&)));
+	connect(ui.fileTree->selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
+			this, SLOT(fileSelectedInTree(const QModelIndex&, const QModelIndex)));
 	connect(pm, SIGNAL(currentProfileChanged(Profile*, Profile*)), this,
 			SLOT(currentProfileChanged(Profile*, Profile*)));
 	connect(ui.fileTree, SIGNAL(customContextMenuRequested(const QPoint&)), this,
@@ -181,7 +184,7 @@ void MainWindow::statusMessageShown(const QString& message, int timeout)
 }
 
 
-void MainWindow::fileSelectedInTree(const QModelIndex& index)
+void MainWindow::fileSelectedInTree(const QModelIndex& index, const QModelIndex& previous)
 {
 	if (!index.isValid()) {
 		return;
