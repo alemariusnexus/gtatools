@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<!DOCTYPE RCC>
+<RCC version="1.0">
+	<qresource>
+		<file>gtatools-gui_de.qm</file>
+		<file>gtatools-gui_en.qm</file>
+	</qresource>
+</RCC>

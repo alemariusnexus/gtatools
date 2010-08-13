@@ -75,7 +75,7 @@ int main(int argc, char** argv)
 		app.installTranslator(&qtTrans);
 
 		QTranslator trans;
-		trans.load("gtatools-gui_" + QLocale::system().name());
+		trans.load(":/gtatools-gui_" + QLocale::system().name());
 		app.installTranslator(&trans);
 
 		MainWindow win;
