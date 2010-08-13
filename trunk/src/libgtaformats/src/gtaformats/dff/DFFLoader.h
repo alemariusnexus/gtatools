@@ -28,6 +28,9 @@
 #include "../util/stream/InputStream.h"
 #include "../util/File.h"
 #include "../util/thread/Mutex.h"
+#include <map>
+
+using std::map;
 
 
 #define DFF_VERSION_GTA3_1 0
@@ -52,6 +55,7 @@ struct DFFLoadContext {
 	DFFMesh* mesh;
 	int32_t version;
 	int depth;
+	map<int32_t, DFFFrame*> frameInternalIndexMap;
 };
 
 
