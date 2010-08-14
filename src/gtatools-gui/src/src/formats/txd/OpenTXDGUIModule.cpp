@@ -86,8 +86,6 @@ void OpenTXDGUIModule::onExtract(bool checked)
 			writer.write(image);
 
 			delete[] data;
-
-			sys->showStatusMessage(tr("Extraction successful!"));
 		}
 	} else if (textures.count() > 1) {
 		QString dname = QFileDialog::getExistingDirectory(txdWidget, tr("Select the destination directory"));
@@ -108,8 +106,6 @@ void OpenTXDGUIModule::onExtract(bool checked)
 
 				delete[] data;
 			}
-
-			sys->showStatusMessage(tr("Extraction successful!"));
 		}
 	}
 }

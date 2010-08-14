@@ -39,6 +39,7 @@ Profile::Profile(const QString& name)
 {
 	connect(ProfileManager::getInstance(), SIGNAL(currentProfileChanged(Profile*, Profile*)), this,
 			SLOT(currentProfileChanged(Profile*, Profile*)));
+	connect(this, SIGNAL(changed()), this, SLOT(selfChanged()));
 }
 
 
@@ -60,20 +61,31 @@ Profile::ResourceIterator Profile::getResourceEnd()
 }
 
 
+void Profile::loadResourceIndex()
+{
+	if (resourceIndex) {
+		delete resourceIndex;
+	}
+
+	resourceIndex = new OpenGLResourceManager;
+	resourceIndex->setTextureRasterFormat(OpenGLResourceManager::R8G8B8A8);
+
+	ProfileInitializer* thread = new ProfileInitializer(this);
+	currentInitializer = thread;
+
+	connect(thread, SIGNAL(finished()), this, SLOT(resourcesInitialized()));
+
+	thread->start();
+}
+
+
 void Profile::currentProfileChanged(Profile* oldProfile, Profile* newProfile)
 {
 	if (oldProfile == this  &&  newProfile != this) {
 		delete resourceIndex;
+		resourceIndex = NULL;
 	} else if (oldProfile != this  &&  newProfile == this) {
-		resourceIndex = new OpenGLResourceManager;
-		resourceIndex->setTextureRasterFormat(OpenGLResourceManager::R8G8B8A8);
-
-		ProfileInitializer* thread = new ProfileInitializer(this);
-		currentInitializer = thread;
-
-		connect(thread, SIGNAL(finished()), this, SLOT(resourcesInitialized()));
-
-		thread->start();
+		loadResourceIndex();
 	}
 }
 
@@ -120,11 +132,18 @@ bool Profile::containsFile(const File& file)
 
 void Profile::resourcesInitialized()
 {
-	printf("Resources initialized\n");
 	resourceIdxInitialized = true;
 	emit resourceIndexInitialized();
 	disconnect(currentInitializer, SIGNAL(finished()), this, SLOT(resourcesInitialized()));
 	delete currentInitializer;
+}
+
+
+void Profile::selfChanged()
+{
+	if (ProfileManager::getInstance()->getCurrentProfile() == this) {
+		loadResourceIndex();
+	}
 }
 
 

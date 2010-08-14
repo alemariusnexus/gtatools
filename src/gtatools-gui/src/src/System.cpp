@@ -21,6 +21,7 @@
 #include <qmessagebox.h>
 #include <qfile.h>
 #include <qdatetime.h>
+#include <QThread>
 
 
 
@@ -33,19 +34,40 @@ System* System::getInstance()
 
 void System::openFile(const File& file, const QHash<QString, QVariant>& data)
 {
-	fileOpen = true;
-	emit fileOpened(file, data);
+	if (strcmp(file.getPath()->toString(), "/home/alemariusnexus/jizzy.dff") == 0) {
+		printf("Ja!\n");
+	}
+
+	if (hasOpenFile()) {
+		closeCurrentFile();
+	}
+
+	openedFile = new File(file);
+	emit fileOpened(*openedFile, data);
 }
 
 
 void System::closeCurrentFile()
 {
 	emit currentFileClosed();
-	fileOpen = false;
+	delete openedFile;
+	openedFile = NULL;
 }
 
 
-void System::startTask(int min, int max, const QString& message)
+bool System::hasOpenFile()
+{
+	return openedFile != NULL;
+}
+
+
+File* System::getOpenFile()
+{
+	return openedFile;
+}
+
+
+/*void System::startTask(int min, int max, const QString& message)
 {
 	emit taskStarted(min, max, message);
 	updateTaskValue(min);
@@ -63,12 +85,19 @@ void System::endTask()
 {
 	taskValue = 0;
 	emit taskEnded();
+}*/
+
+
+Task* System::createTask()
+{
+	Task* task = new Task(mainWindow);
+	return task;
 }
 
 
 void System::showStatusMessage(const QString& message, int timeout)
 {
-	emit statusMessageShown(message, timeout);
+	mainWindow->getStatusBar()->showMessage(message, timeout);
 }
 
 
@@ -92,7 +121,14 @@ void System::unhandeledException(Exception& ex)
 
 	delete[] bt;
 
-	QMessageBox::critical(NULL, tr("Unhandeled Exception"), tr("Unhandeled Exception %1%2").arg(ex.what()).arg(logfileName));
+	QString exText = tr("Unhandeled Exception %1%2").arg(ex.what()).arg(logfileName);
+
+	if (QThread::currentThread() == qApp->thread()) {
+		QMessageBox::critical(NULL, tr("Unhandeled Exception"), exText);
+	} else {
+		fprintf(stderr, "### Unhandeled exception caught ###\n");
+		fprintf(stderr, "%s\n", exText.toLocal8Bit().constData());
+	}
 }
 
 
@@ -104,16 +140,20 @@ void System::emitConfigurationChange()
 
 void System::installGUIModule(GUIModule* module)
 {
-	installedGUIModules << module;
-	module->install(mainWindow);
-	emit installedGUIModule(module);
+	if (!isGUIModuleInstalled(module)) {
+		installedGUIModules << module;
+		module->install(mainWindow);
+		emit installedGUIModule(module);
+	}
 }
 
 
 void System::uninstallGUIModule(GUIModule* module)
 {
-	installedGUIModules.removeOne(module);
-	module->uninstall();
-	emit uninstalledGUIModule(module);
+	if (isGUIModuleInstalled(module)) {
+		installedGUIModules.removeOne(module);
+		module->uninstall();
+		emit uninstalledGUIModule(module);
+	}
 }
 

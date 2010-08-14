@@ -23,13 +23,16 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
        <string>&amp;Search</string>
       </attribute>
       <layout class="QFormLayout" name="formLayout_2">
+       <property name="horizontalSpacing">
+        <number>15</number>
+       </property>
        <item row="0" column="0">
         <widget class="QLabel" name="label_2">
          <property name="text">
@@ -66,6 +69,9 @@
          <layout class="QFormLayout" name="formLayout">
           <property name="fieldGrowthPolicy">
            <enum>QFormLayout::ExpandingFieldsGrow</enum>
+          </property>
+          <property name="horizontalSpacing">
+           <number>15</number>
           </property>
           <item row="0" column="0">
            <widget class="QLabel" name="label">

@@ -194,16 +194,14 @@ InputStream* File::openStream(int flags) const
 		if (path->isIMGPath()) {
 			try {
 				File* parent = getParent();
-				InputStream* stream = parent->openStream(STREAM_BINARY);
-				IMGArchive archive(stream);
+				IMGArchive archive(*parent, false);
 				delete parent;
 				InputStream* rstream = archive.gotoEntry(path->getFileName(), true);
 
 				if (rstream != NULL) {
 					return rstream;
 				} else {
-					delete rstream;
-					delete stream;
+					delete archive.getStream();
 					return NULL;
 				}
 			} catch (Exception& ex) {
@@ -249,7 +247,7 @@ File* File::getChild(int childIdx) const
 				delete[] errmsg;
 				throw ex;
 			}
-		} else {
+		} else if (isDirectory()) {
 			FileIterator* it = getIterator();
 			File* nextFile = NULL;
 
@@ -268,6 +266,12 @@ File* File::getChild(int childIdx) const
 			delete it;
 
 			return nextFile;
+		} else {
+			char* errmsg = new char[strlen(path->toString())+128];
+			sprintf(errmsg, "Called getChild(int) with file of invalid type: '%s'", path->toString());
+			FileException ex(errmsg, __FILE__, __LINE__);
+			delete[] errmsg;
+			throw ex;
 		}
 	} else {
 		char* errmsg = new char[strlen(path->toString())+128];
@@ -279,14 +283,23 @@ File* File::getChild(int childIdx) const
 }
 
 
-int File::getChildCount(bool recursive) const
+int File::getChildCount(bool recursive, bool archiveEntries) const
 {
 	if (isRegularFile()) {
 		FileContentType type = guessContentType();
 
 		if (type != CONTENT_TYPE_DIR  &&  type != CONTENT_TYPE_IMG) {
 			return 0;
+		} else {
+			if (!recursive  ||  archiveEntries) {
+				IMGArchive img(*this);
+				return img.getEntryCount();
+			} else {
+				return 0;
+			}
 		}
+	} else if (!isDirectory()) {
+		return 0;
 	}
 
 	FileIterator* it = getIterator();
@@ -296,7 +309,7 @@ int File::getChildCount(bool recursive) const
 
 	while ((child = it->next())  !=  NULL) {
 		if (recursive) {
-			i += child->getChildCount(true);
+			i += child->getChildCount(true, archiveEntries);
 		}
 
 		delete child;
@@ -311,6 +324,14 @@ int File::getChildCount(bool recursive) const
 
 int File::indexOf(const File& other) const
 {
+	if (!isDirectory()  &&  !isArchiveFile()) {
+		char* errmsg = new char[strlen(path->toString())+128];
+		sprintf(errmsg, "Called indexOf(const File&) with an invalid file type: '%s'", path->toString());
+		FileException ex(errmsg, __FILE__, __LINE__);
+		delete[] errmsg;
+		throw ex;
+	}
+
 	FileIterator* it = getIterator();
 
 	int i = 0;
@@ -403,6 +424,14 @@ File::filesize File::getSize() const
 			delete[] errMsg;
 			throw ex;
 		}
+	}
+
+	if (!isRegularFile()) {
+		char* errmsg = new char[strlen(path->toString())+128];
+		sprintf(errmsg, "Attemp to get size of non-regular file: '%s'", path->toString());
+		FileException ex(errmsg, __FILE__, __LINE__);
+		delete[] errmsg;
+		throw ex;
 	}
 
 #ifdef linux

@@ -29,6 +29,7 @@
 #include <qhash.h>
 #include <qvariant.h>
 #include <qstring.h>
+#include "Task.h"
 
 
 class System : public QObject {
@@ -40,37 +41,32 @@ public:
 public:
 	void openFile(const File& file, const QHash<QString, QVariant>& data = QHash<QString, QVariant>());
 	void closeCurrentFile();
-	bool hasOpenFile() { return fileOpen; }
-	void startTask(int min, int max, const QString& message);
-	void updateTaskValue(int value);
-	int getTaskValue() { return taskValue; }
-	void endTask();
-	void showStatusMessage(const QString& message, int timeout = 4000);
+	bool hasOpenFile();
+	File* getOpenFile();
 	void unhandeledException(Exception& ex);
 	void emitConfigurationChange();
+	void showStatusMessage(const QString& message, int timeout = 4000);
 	void installGUIModule(GUIModule* module);
 	void uninstallGUIModule(GUIModule* module);
 	QLinkedList<GUIModule*> getInstalledGUIModules() { return installedGUIModules; }
+	bool isGUIModuleInstalled(GUIModule* module) { return installedGUIModules.contains(module); }
+	Task* createTask();
 
 signals:
 	void fileOpened(const File& file, const QHash<QString, QVariant>& data);
 	void currentFileClosed();
-	void taskStarted(int min, int max, const QString& message);
-	void taskValueUpdated(int value);
-	void taskEnded();
-	void statusMessageShown(const QString& message, int timeout);
 	void configurationChanged();
 	void installedGUIModule(GUIModule* module);
 	void uninstalledGUIModule(GUIModule* module);
 
 private:
-	System() {}
+	System() : openedFile(NULL) {}
 	void setMainWindow(MainWindow* mw) { mainWindow = mw; }
 
 private:
 	MainWindow* mainWindow;
 	QLinkedList<GUIModule*> installedGUIModules;
-	bool fileOpen;
+	File* openedFile;
 	int taskValue;
 
 private:

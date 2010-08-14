@@ -64,10 +64,11 @@ void TextureDisplayer::display(TXDTexture* texture, uint8_t* rawData)
 
 void TextureDisplayer::mouseMoveEvent(QMouseEvent* evt)
 {
+	// TODO Make this work...
 	const QPoint pos = evt->pos();
 	int offs = (pos.y()*texture->getWidth() + pos.x()) * 4;
 
-	System::getInstance()->showStatusMessage(QString("(%1, %2, %3; %4)")
-			.arg(data[offs]).arg(data[offs+1]).arg(data[offs+2]).arg(data[offs+3]), 0);
+	System::getInstance()->showStatusMessage(QString("Pixel: (%1, %2), RGBA: (%3, %4, %5; %6)")
+			.arg(pos.x(), pos.y(), data[offs]).arg(data[offs+1]).arg(data[offs+2]).arg(data[offs+3]), 0);
 }
 

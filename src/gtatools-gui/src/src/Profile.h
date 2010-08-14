@@ -28,6 +28,7 @@
 #include <qmetatype.h>
 #include <gtaformats/util/File.h>
 #include "ProfileInitializer.h"
+#include "Task.h"
 
 
 class Profile : public QObject {
@@ -42,6 +43,7 @@ public:
 	void addResource(const File& resource);
 	ResourceIterator getResourceBegin();
 	ResourceIterator getResourceEnd();
+	int getResourceCount() { return resources.size(); }
 	QString getName() const { return name; }
 	ResourceIterator removeResource(ResourceIterator it);
 	void clearResources();
@@ -51,11 +53,15 @@ public:
 	OpenGLResourceManager* getResourceManager() { return resourceIndex; };
 	bool isResourceIndexInitialized() { return resourceIdxInitialized; }
 
+private:
+	void loadResourceIndex();
+
 public slots:
 	void currentProfileChanged(Profile* oldProfile, Profile* newProfile);
 
 private slots:
 	void resourcesInitialized();
+	void selfChanged();
 
 signals:
 	void changed();
@@ -67,6 +73,7 @@ private:
 	OpenGLResourceManager* resourceIndex;
 	ProfileInitializer* currentInitializer;
 	bool resourceIdxInitialized;
+	Task* resourceInitTask;
 
 
 
