@@ -16,9 +16,9 @@
 
 
 
-DFFRenderWidget::DFFRenderWidget(QWidget* parent)
-		: QGLWidget(parent), rx(0.0f), ry(0.0f), renderList(-1), textures(true), wireframe(false),
-		  currentGeometry(NULL), currentPart(NULL)
+DFFRenderWidget::DFFRenderWidget(QWidget* parent, QGLWidget* shareWidget)
+		: QGLWidget(parent, shareWidget), rx(0.0f), ry(0.0f), renderList(-1), textures(true),
+		  wireframe(false), currentGeometry(NULL), currentPart(NULL)
 {
 	connect(ProfileManager::getInstance(), SIGNAL(currentProfileChanged(Profile*, Profile*)), this,
 			SLOT(currentProfileChanged(Profile*, Profile*)));
@@ -34,6 +34,8 @@ DFFRenderWidget::~DFFRenderWidget()
 
 void DFFRenderWidget::renderGeometry(DFFGeometry* geometry)
 {
+	makeCurrent();
+
 	if (renderList != -1) {
 		glDeleteLists(renderList, 1);
 	}
@@ -60,6 +62,8 @@ void DFFRenderWidget::renderGeometry(DFFGeometry* geometry)
 
 void DFFRenderWidget::renderGeometryPart(DFFGeometry* geometry, DFFGeometryPart* part)
 {
+	makeCurrent();
+
 	if (renderList != -1) {
 		glDeleteLists(renderList, 1);
 	}
@@ -87,6 +91,8 @@ void DFFRenderWidget::renderGeometryPart(DFFGeometry* geometry, DFFGeometryPart*
 
 void DFFRenderWidget::initializeGL()
 {
+	glColor3f(1.0f, 0.0f, 0.0f);
+
 	glEnable(GL_DEPTH_TEST);
 
 	glEnable(GL_BLEND);
@@ -150,7 +156,6 @@ void DFFRenderWidget::initializeGL()
 	};
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 3, 3, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex2);
-	//glCullFace(GL_NONE);
 }
 
 
@@ -170,8 +175,6 @@ void DFFRenderWidget::resizeGL(int w, int h)
 
 void DFFRenderWidget::paintGL()
 {
-	glColor3f(1.0f, 0.0f, 0.0f);
-
 	glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
 
 	if (textures) {
@@ -180,108 +183,11 @@ void DFFRenderWidget::paintGL()
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
-	/*glBindTexture(GL_TEXTURE_2D, testTex);
-
-	glBegin(GL_QUADS);
-
-	glTexCoord2f(0, 0);
-	glVertex3f(-3.0, -3.0,-2.0);
-
-	glTexCoord2f(1, 0);
-	glVertex3f(3.0, -3.0, -2.0);
-
-	glTexCoord2f(1, 1);
-	glVertex3f(3.0, 3.0, -2.0);
-
-	glTexCoord2f(0, 1);
-	glVertex3f(-3.0, 3.0, -2.0);
-
-	glEnd();
-
-
-	Profile* profile = ProfileManager::getInstance()->getCurrentProfile();
-	OpenGLResourceManager* rm = profile->getResourceManager();
-	DFFOpenGLRenderer renderer(rm);
-
-	renderer.applyTexture("vehiclesteering128");
-
-	//glBindTexture(GL_TEXTURE_2D, transTex);
-
-	glDepthMask(GL_FALSE);
-
-	glBegin(GL_QUADS);
-
-	glTexCoord2f(0, 0);
-	glVertex3f(-1.0, -1.0, 0.0);
-
-	glTexCoord2f(1, 0);
-	glVertex3f(1.0, -1.0, 0.0);
-
-	glTexCoord2f(1, 1);
-	glVertex3f(1.0, 1.0, 0.0);
-
-	glTexCoord2f(0, 1);
-	glVertex3f(-1.0, 1.0, 0.0);
-
-	glEnd();
-
-	glDepthMask(GL_TRUE);*/
-
 	if (renderList != -1) {
 		glCallList(renderList);
 	}
 
 	glDisable(GL_TEXTURE_2D);
-
-	/*Profile* profile = ProfileManager::getInstance()->getCurrentProfile();
-
-	OpenGLResourceManager* rm = profile->getResourceManager();
-
-	DFFOpenGLRenderer renderer(rm);
-
-	//glEnable(GL_TEXTURE_2D);
-
-	//renderer.applyTexture("jizzy");
-	//glBindTexture(GL_TEXTURE_2D, testTex);
-
-	glBegin(GL_QUADS);
-
-	glTexCoord2f(0, 0);
-	glVertex3f(-1.0, -1.0, 0.0);
-
-	glTexCoord2f(1, 0);
-	glVertex3f(1.0, -1.0, 0.0);
-
-	glTexCoord2f(1, 1);
-	glVertex3f(1.0, 1.0, 0.0);
-
-	glTexCoord2f(0, 1);
-	glVertex3f(-1.0, 1.0, 0.0);
-
-	glEnd();
-
-	//glBindTexture(GL_TEXTURE_2D, testTex);
-
-	glColor3f(1.0, 0.0, 0.0);
-
-	glBegin(GL_QUADS);
-
-	glTexCoord2f(0, 0);
-	glVertex3f(-3.0, -3.0,-2.0);
-
-	glTexCoord2f(1, 0);
-	glVertex3f(3.0, -3.0, -2.0);
-
-	glTexCoord2f(1, 1);
-	glVertex3f(3.0, 3.0, -2.0);
-
-	glTexCoord2f(0, 1);
-	glVertex3f(-3.0, 3.0, -2.0);
-
-	glEnd();
-
-	//glDisable(GL_TEXTURE_2D);*/
 }
 
 

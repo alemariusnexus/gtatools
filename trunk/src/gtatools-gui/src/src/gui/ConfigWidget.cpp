@@ -106,7 +106,6 @@ void ConfigWidget::onApply(bool checked)
 	settings.sync();
 
 	System* sys = System::getInstance();
-	sys->showStatusMessage(tr("Configuration saved!"));
 	sys->emitConfigurationChange();
 
 	close();

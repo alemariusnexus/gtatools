@@ -26,6 +26,7 @@
 #include <qlinkedlist.h>
 #include <gtaformats/util/File.h>
 #include <qprogressdialog.h>
+#include "../../Task.h"
 
 
 
@@ -43,8 +44,8 @@ public:
 	TextureSearchDialog(QWidget* parent, const File* root = NULL);
 
 private:
-	void collectSearchResults(const File& resource, StringMatcher* texMatcher, StringMatcher* txdMatcher,
-			QList<TextureMatch*>& results, int maxFiles, int& filesDone);
+	bool collectSearchResults(const File& resource, StringMatcher* texMatcher, StringMatcher* txdMatcher,
+			QList<TextureMatch*>& results, int maxFiles, int& filesDone, Task* task);
 
 private slots:
 	void onCancel(bool checked);
@@ -53,6 +54,7 @@ private slots:
 private:
 	Ui_TextureSearchDialog ui;
 	const File* rootFile;
+	bool cancelled;
 };
 
 #endif /* TEXTURESEARCHDIALOG_H_ */

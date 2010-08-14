@@ -18,4 +18,11 @@
  */
 
 #include "GUIModule.h"
+#include "../System.h"
 
+
+GUIModule::~GUIModule()
+{
+	System* sys = System::getInstance();
+	sys->uninstallGUIModule(this);
+}

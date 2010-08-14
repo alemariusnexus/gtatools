@@ -29,24 +29,6 @@ DFFWidget::DFFWidget(const File& file, QWidget* parent)
 	DFFLoader dff;
 	mesh = dff.loadMesh(file);
 
-
-	/*DFFMesh::FrameIterator fit;
-
-	int numUnnamed = 0;
-	for (fit = mesh->getFrameBegin() ; fit != mesh->getFrameEnd() ; fit++) {
-		DFFFrame* frame = *fit;
-		QString fname;
-
-		if (frame->getName() == NULL) {
-			fname = tr("Unnamed %1").arg(++numUnnamed);
-		} else {
-			fname = frame->getName();
-		}
-
-		QListWidgetItem* item = new QListWidgetItem(fname);
-		ui.frameList->addItem(item);
-	}*/
-
 	frameModel = new DFFFrameItemModel(mesh);
 	ui.frameTree->setModel(frameModel);
 
@@ -75,8 +57,7 @@ DFFWidget::DFFWidget(const File& file, QWidget* parent)
 	geometryRenderWidget->updateGL();
 	geometryPartRenderWidget->updateGL();
 
-	//ui.frameList->setCurrentRow(0);
-	//ui.geometryList->setCurrentRow(0);
+	ui.geometryList->setCurrentRow(0);
 }
 
 
@@ -85,19 +66,13 @@ DFFWidget::~DFFWidget()
 	System::getInstance()->uninstallGUIModule(guiModule);
 	delete guiModule;
 
-	clearMaterialList();
 	clearGeometryPartList();
-
-	/*int count = ui.frameList->count();
-
-	for (int i = 0 ; i < count ; i++) {
-		delete ui.frameList->item(0);
-	}*/
+	clearMaterialList();
 
 	int count = ui.geometryList->count();
 
 	for (int i = 0 ; i < count ; i++) {
-		delete ui.geometryList->item(0);
+		delete ui.geometryList->takeItem(0);
 	}
 
 	delete mesh;
@@ -113,7 +88,7 @@ void DFFWidget::clearMaterialList()
 	int count = ui.materialList->count();
 
 	for (int i = 0 ; i < count ; i++) {
-		delete ui.materialList->item(0);
+		delete ui.materialList->takeItem(0);
 	}
 }
 
@@ -123,7 +98,7 @@ void DFFWidget::clearGeometryPartList()
 	int count = ui.geometryPartList->count();
 
 	for (int i = 0 ; i < count ; i++) {
-		delete ui.geometryPartList->item(0);
+		delete ui.geometryPartList->takeItem(0);
 	}
 }
 
@@ -133,7 +108,7 @@ void DFFWidget::clearTextureList()
 	int count = ui.textureList->count();
 
 	for (int i = 0 ; i < count ; i++) {
-		delete ui.textureList->item(0);
+		delete ui.textureList->takeItem(0);
 	}
 }
 
@@ -167,15 +142,9 @@ void DFFWidget::geometrySelected(int row)
 	if (row == -1)
 		return;
 
-	printf("A\n");
-
 	DFFGeometry* geom = mesh->getGeometry(row);
 
-	printf("B\n");
-
 	const DFFBoundingSphere* bounds = geom->getBounds();
-
-	printf("C\n");
 
 	ui.geometryNameLabel->setText(ui.geometryList->item(row)->text());
 	ui.geometryFaceFormatLabel->setText(geom->isTriangleStripFormat()
@@ -194,43 +163,31 @@ void DFFWidget::geometrySelected(int row)
 	ui.geometryMaterialCountLabel->setText(QString("%1").arg(geom->getMaterialCount()));
 	ui.geometryPartCountLabel->setText(QString("%1").arg(geom->getPartCount()));
 
-	printf("D\n");
-
 	DFFFrame* frame = geom->getAssociatedFrame();
-
-	printf("E\n");
 
 	QStringList framePath;
 
 	if (frame) {
-		printf("E1\n");
 		do {
-			printf("E2: %p\n", frame);
 			if (frame->getName()) {
-				printf("E3 %p\n", frame->getName());
 				framePath.insert(0, frame->getName());
-				printf("E31\n");
 			} else {
-				printf("E4\n");
 				if (frame->getParent()) {
 					framePath.insert(0, QString("%1")
 							.arg(frame->getParent()->indexOf(frame)));
 				} else {
 					framePath.insert(0, QString("%1").arg(mesh->indexOf(frame)));
 				}
-				printf("E41\n");
 			}
 		} while ((frame = frame->getParent())  !=  NULL);
 	} else {
 		framePath << tr("None");
 	}
 
-	printf("F\n");
-
 	ui.geometryFrameLabel->setText(framePath.join("/"));
 
-	clearMaterialList();
 	clearGeometryPartList();
+	clearMaterialList();
 
 	DFFGeometry::MaterialIterator mit;
 
@@ -250,8 +207,8 @@ void DFFWidget::geometrySelected(int row)
 		ui.geometryPartList->addItem(item);
 	}
 
-	//ui.materialList->setCurrentRow(0);
-	//ui.geometryPartList->setCurrentRow(0);
+	ui.materialList->setCurrentRow(0);
+	ui.geometryPartList->setCurrentRow(0);
 
 	geometryRenderWidget->renderGeometry(geom);
 	geometryRenderWidget->updateGL();
@@ -310,10 +267,17 @@ void DFFWidget::geometryPartSelected(int row)
 
 	DFFGeometry* geom = mesh->getGeometry(ui.geometryList->currentRow());
 	DFFGeometryPart* part = geom->getPart(row);
+	DFFMaterial* mat = part->getMaterial();
 
 	ui.geometryPartNameLabel->setText(ui.geometryPartList->item(row)->text());
 	ui.geometryPartIndexCountLabel->setText(QString("%1").arg(part->getIndexCount()));
-	ui.geometryPartMaterialLabel->setText(ui.materialList->item(geom->indexOf(part->getMaterial()))->text());
+
+	if (mat) {
+		QListWidgetItem* item = ui.materialList->item(geom->indexOf(mat));
+		ui.geometryPartMaterialLabel->setText(ui.materialList->item(geom->indexOf(mat))->text());
+	} else {
+		ui.geometryPartMaterialLabel->setText(tr("None"));
+	}
 
 	geometryPartRenderWidget->renderGeometryPart(geom, part);
 	geometryPartRenderWidget->updateGL();

@@ -28,6 +28,7 @@
 #include "../StringMatcher.h"
 #include "../formats/FormatHandler.h"
 #include <qprogressdialog.h>
+#include "../Task.h"
 
 
 
@@ -38,8 +39,8 @@ public:
 	FileSearchDialog(QWidget* parent = NULL);
 
 private:
-	void collectResults(const File& file, StringMatcher* matcher, bool dirs, QLinkedList<FormatHandler*> handlers,
-			QList<File*>& results, int filesMax, int& filesDone);
+	bool collectResults(const File& file, StringMatcher* matcher, bool dirs, QLinkedList<FormatHandler*> handlers,
+			QList<File*>& results, int filesMax, int& filesDone, Task* task);
 
 private slots:
 	void onCancel(bool checked);
@@ -47,6 +48,7 @@ private slots:
 
 private:
 	Ui_FileSearchDialog ui;
+	bool cancelled;
 };
 
 #endif /* FILESEARCHDIALOG_H_ */

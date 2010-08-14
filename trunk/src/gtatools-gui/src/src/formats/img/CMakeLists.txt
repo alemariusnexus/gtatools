@@ -15,5 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
 
-SET(SRCS ${SRCS} src/formats/img/IMGFormatHandler.cpp PARENT_SCOPE)
-SET(MOC_SRCS ${MOC_SRCS} src/formats/img/IMGFormatHandler.h PARENT_SCOPE)
+SET(SRCS ${SRCS}
+    src/formats/img/IMGFormatHandler.cpp src/formats/img/IMGGUIModule.cpp
+    PARENT_SCOPE)
+SET(MOC_SRCS ${MOC_SRCS}
+    src/formats/img/IMGFormatHandler.h src/formats/img/IMGGUIModule.h
+    PARENT_SCOPE)

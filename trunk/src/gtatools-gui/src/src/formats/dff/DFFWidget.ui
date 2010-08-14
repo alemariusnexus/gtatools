@@ -61,6 +61,9 @@
               <property name="fieldGrowthPolicy">
                <enum>QFormLayout::ExpandingFieldsGrow</enum>
               </property>
+              <property name="horizontalSpacing">
+               <number>15</number>
+              </property>
               <item row="0" column="0">
                <widget class="QLabel" name="label_2">
                 <property name="text">
@@ -172,7 +175,7 @@
            <item>
             <widget class="QTabWidget" name="tabWidget_2">
              <property name="currentIndex">
-              <number>1</number>
+              <number>2</number>
              </property>
              <widget class="QWidget" name="tab_3">
               <attribute name="title">
@@ -181,6 +184,9 @@
               <layout class="QFormLayout" name="formLayout_2">
                <property name="fieldGrowthPolicy">
                 <enum>QFormLayout::ExpandingFieldsGrow</enum>
+               </property>
+               <property name="horizontalSpacing">
+                <number>15</number>
                </property>
                <item row="0" column="0">
                 <widget class="QLabel" name="label">
@@ -432,6 +438,9 @@
                       </sizepolicy>
                      </property>
                      <layout class="QFormLayout" name="formLayout_3">
+                      <property name="horizontalSpacing">
+                       <number>15</number>
+                      </property>
                       <item row="0" column="0">
                        <widget class="QLabel" name="label_5">
                         <property name="text">
@@ -508,6 +517,9 @@
                             <layout class="QFormLayout" name="formLayout_4">
                              <property name="fieldGrowthPolicy">
                               <enum>QFormLayout::ExpandingFieldsGrow</enum>
+                             </property>
+                             <property name="horizontalSpacing">
+                              <number>15</number>
                              </property>
                              <item row="0" column="0">
                               <widget class="QLabel" name="label_9">
@@ -623,6 +635,9 @@
                           </sizepolicy>
                          </property>
                          <layout class="QFormLayout" name="formLayout_5">
+                          <property name="horizontalSpacing">
+                           <number>15</number>
+                          </property>
                           <item row="0" column="0">
                            <widget class="QLabel" name="label_11">
                             <property name="text">

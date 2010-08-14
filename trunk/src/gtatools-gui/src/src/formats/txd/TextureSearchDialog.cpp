@@ -31,7 +31,7 @@
 
 
 TextureSearchDialog::TextureSearchDialog(QWidget* parent, const File* root)
-		: QDialog(parent), rootFile(root)
+		: QDialog(parent), rootFile(root), cancelled(false)
 {
 	ui.setupUi(this);
 	connect(ui.searchButton, SIGNAL(clicked(bool)), this, SLOT(onSearch(bool)));
@@ -41,12 +41,15 @@ TextureSearchDialog::TextureSearchDialog(QWidget* parent, const File* root)
 
 void TextureSearchDialog::onCancel(bool checked)
 {
+	cancelled = true;
 	close();
 }
 
 
 void TextureSearchDialog::onSearch(bool checked)
 {
+	ui.searchButton->setEnabled(false);
+
 	QString texName = ui.nameField->text();
 	QString txdName = ui.txdField->text();
 	bool regex = ui.regexBox->isChecked();
@@ -83,36 +86,57 @@ void TextureSearchDialog::onSearch(bool checked)
 	int filesDone = 0;
 
 	if (rootFile) {
-		numFiles = rootFile->getChildCount(true);
+		numFiles = rootFile->getChildCount(true, true);
 	} else {
 		for (it = profile->getResourceBegin() ; it != profile->getResourceEnd() ; it++) {
 			File* resource = *it;
-			numFiles += resource->getChildCount(true);
+			numFiles += resource->getChildCount(true, true);
 		}
 	}
-
-	/*QProgressDialog pd(tr("Searching texture..."), tr("&Cancel"), 0, numFiles, this);
-	pd.setMinimumDuration(1000);
-	pd.setWindowModality(Qt::WindowModal);*/
 
 	System* sys = System::getInstance();
-	sys->startTask(0, 100, tr("Searching texture..."));
+
+	Task* task = sys->createTask();
+	task->start(0, 100, tr("Searching texture..."));
 
 	if (rootFile) {
-		collectSearchResults(*rootFile, &texMatcher, txdMatcher, results, numFiles, filesDone);
+		if (!collectSearchResults(*rootFile, &texMatcher, txdMatcher, results, numFiles, filesDone, task)) {
+			delete task;
+
+			QList<TextureMatch*>::iterator rit;
+			for (rit = results.begin() ; rit != results.end() ; rit++) {
+				TextureMatch* match = *rit;
+				delete match->txdFile;
+				delete match;
+			}
+
+			return;
+		}
 	} else {
 		for (it = profile->getResourceBegin() ; it != profile->getResourceEnd() ; it++) {
 			File* resource = *it;
-			collectSearchResults(*resource, &texMatcher, txdMatcher, results, numFiles, filesDone);
+			if (!collectSearchResults(*resource, &texMatcher, txdMatcher, results, numFiles, filesDone, task)) {
+				delete task;
+
+				QList<TextureMatch*>::iterator rit;
+				for (rit = results.begin() ; rit != results.end() ; rit++) {
+					TextureMatch* match = *rit;
+					delete match->txdFile;
+					delete match;
+				}
+
+				return;
+			}
 		}
 	}
 
-	sys->endTask();
+	delete task;
 
 	bool closeDialog = false;
 
 	if (results.size() == 0) {
 		QMessageBox::information(this, tr("No Match"), tr("No texture matching your criteria was found!"));
+		ui.searchButton->setEnabled(true);
 	} else if (results.size() == 1) {
 		TextureMatch* match = results.at(0);
 		QHash<QString, QVariant> data;
@@ -138,6 +162,8 @@ void TextureSearchDialog::onSearch(bool checked)
 			data["texture"] = match->textureName;
 			System::getInstance()->openFile(*match->txdFile, data);
 			closeDialog = true;
+		} else {
+			ui.searchButton->setEnabled(true);
 		}
 	}
 
@@ -154,15 +180,19 @@ void TextureSearchDialog::onSearch(bool checked)
 }
 
 
-void TextureSearchDialog::collectSearchResults(const File& resource, StringMatcher* texMatcher, StringMatcher* txdMatcher,
-			QList<TextureMatch*>& results, int filesMax, int& filesDone)
+bool TextureSearchDialog::collectSearchResults(const File& resource, StringMatcher* texMatcher, StringMatcher* txdMatcher,
+			QList<TextureMatch*>& results, int filesMax, int& filesDone, Task* task)
 {
 	if (resource.isDirectory()  ||  resource.isArchiveFile()) {
 		FileIterator* it = resource.getIterator();
 		File* child;
 
 		while ((child = it->next())  !=  NULL) {
-			collectSearchResults(*child, texMatcher, txdMatcher, results, filesMax, filesDone);
+			if (!collectSearchResults(*child, texMatcher, txdMatcher, results, filesMax, filesDone, task)) {
+				delete child;
+				return false;
+			}
+
 			delete child;
 		}
 
@@ -194,16 +224,24 @@ void TextureSearchDialog::collectSearchResults(const File& resource, StringMatch
 		}
 	}
 
+	qApp->processEvents();
+
+	if (cancelled) {
+		return false;
+	}
+
 	filesDone++;
 
 	if (filesMax < 100) {
 		System* sys = System::getInstance();
-		sys->updateTaskValue((int) (((float)filesDone / (float) filesMax)*100.0f));
+		task->update((int) (((float)filesDone / (float) filesMax)*100.0f));
 	} else {
 		if (filesDone%(filesMax / 100) == 0) {
 			System* sys = System::getInstance();
-			sys->updateTaskValue(sys->getTaskValue()+1);
+			task->update();
 		}
 	}
+
+	return true;
 }
 

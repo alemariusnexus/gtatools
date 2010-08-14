@@ -22,7 +22,7 @@ class DFFRenderWidget : public QGLWidget {
 	Q_OBJECT
 
 public:
-	DFFRenderWidget(QWidget* parent);
+	DFFRenderWidget(QWidget* parent, QGLWidget* shareWidget = NULL);
 	virtual ~DFFRenderWidget();
 	void renderGeometry(DFFGeometry* geometry);
 	void renderGeometryPart(DFFGeometry* geometry, DFFGeometryPart* part);

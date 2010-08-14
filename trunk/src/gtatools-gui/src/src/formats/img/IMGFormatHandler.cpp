@@ -19,8 +19,22 @@
 
 #include "IMGFormatHandler.h"
 #include <gtaformats/img/IMGArchive.h>
+#include "../../System.h"
 
 
+
+IMGFormatHandler::IMGFormatHandler()
+		: guiModule(new IMGGUIModule)
+{
+	System* sys = System::getInstance();
+	sys->installGUIModule(guiModule);
+}
+
+
+IMGFormatHandler::~IMGFormatHandler()
+{
+	delete guiModule;
+}
 
 
 QString IMGFormatHandler::getFormatName(const File* file) const

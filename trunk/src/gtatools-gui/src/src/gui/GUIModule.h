@@ -34,7 +34,7 @@ class GUIModule : public QObject {
 
 public:
 	GUIModule() : mainWindow(NULL) {};
-	virtual ~GUIModule() {};
+	virtual ~GUIModule();
 	virtual void buildFileTreeMenu(const File& file, QMenu& menu) {}
 	void install(MainWindow* mw) { mainWindow = mw; doInstall(); }
 	void uninstall() { doUninstall(); mainWindow = NULL; }

@@ -20,14 +20,22 @@ ProfileInitializer::ProfileInitializer(Profile* profile)
 
 void ProfileInitializer::run()
 {
-	Profile::ResourceIterator it;
-	ResourceIndex* rm = profile->getResourceManager();
+	try {
+		Profile::ResourceIterator it;
+		ResourceIndex* rm = profile->getResourceManager();
 
-	int numRes = 0;
-	for (it = profile->getResourceBegin() ; it != profile->getResourceEnd() ; it++, numRes++) {
-		File* file = *it;
-		rm->addResource(File(*file));
-		//sys->updateTaskValue(numRes);
+		System* sys = System::getInstance();
+		Task* task = sys->createTask();
+		task->start(tr("Generating resource index..."));
+
+		for (it = profile->getResourceBegin() ; it != profile->getResourceEnd() ; it++) {
+			File* file = *it;
+			rm->addResource(File(*file));
+		}
+
+		delete task;
+	} catch (Exception& ex) {
+		System::getInstance()->unhandeledException(ex);
 	}
 }
 

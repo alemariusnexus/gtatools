@@ -32,7 +32,7 @@
 
 
 FileSearchDialog::FileSearchDialog(QWidget* parent)
-		: QDialog(parent)
+		: QDialog(parent), cancelled(false)
 {
 	ui.setupUi(this);
 
@@ -55,12 +55,15 @@ FileSearchDialog::FileSearchDialog(QWidget* parent)
 
 void FileSearchDialog::onCancel(bool checked)
 {
+	cancelled = true;
 	close();
 }
 
 
 void FileSearchDialog::onSearch(bool checked)
 {
+	ui.searchButton->setEnabled(false);
+
 	StringMatcher::flags flags = 0;
 
 	if (ui.regexBox->isChecked()) {
@@ -103,22 +106,35 @@ void FileSearchDialog::onSearch(bool checked)
 
 	for (rit = profile->getResourceBegin() ; rit != profile->getResourceEnd() ; rit++) {
 		File* resource = *rit;
-		numFiles += resource->getChildCount(true)+1; // The resource file itself, too.
+		numFiles += resource->getChildCount(true, true)+1; // The resource file itself, too.
 	}
 
-	sys->startTask(0, 100, tr("Searching files..."));
+	//sys->startTask(0, 100, tr("Searching files..."));
+	Task* task = sys->createTask();
+	task->start(0, 100, tr("Searching files..."));
 
 	for (rit = profile->getResourceBegin() ; rit != profile->getResourceEnd() ; rit++) {
 		File* resource = *rit;
-		collectResults(*resource, &matcher, dirs, selectedFormats, results, numFiles, filesDone);
+		if (!collectResults(*resource, &matcher, dirs, selectedFormats, results, numFiles, filesDone, task)) {
+			delete task;
+
+			QList<File*>::iterator resIt;
+			for (resIt = results.begin() ; resIt != results.end() ; resIt++) {
+				delete *resIt;
+			}
+
+			return;
+		}
 	}
 
-	sys->endTask();
+	//sys->endTask();
+	delete task;
 
 	bool closeDialog = false;
 
 	if (results.size() == 0) {
 		QMessageBox::information(this, tr("No Match"), tr("No file matching your criteria was found!"));
+		ui.searchButton->setEnabled(true);
 	} else if (results.size() == 1) {
 		System::getInstance()->openFile(*results.at(0));
 		closeDialog = true;
@@ -139,6 +155,8 @@ void FileSearchDialog::onSearch(bool checked)
 			File* file = results.at(userItems.indexOf(sel));
 			System::getInstance()->openFile(*file);
 			closeDialog = true;
+		} else {
+			ui.searchButton->setEnabled(true);
 		}
 	}
 
@@ -153,8 +171,8 @@ void FileSearchDialog::onSearch(bool checked)
 }
 
 
-void FileSearchDialog::collectResults(const File& file, StringMatcher* matcher, bool dirs, QLinkedList<FormatHandler*> handlers,
-		QList<File*>& results, int filesMax, int& filesDone)
+bool FileSearchDialog::collectResults(const File& file, StringMatcher* matcher, bool dirs, QLinkedList<FormatHandler*> handlers,
+		QList<File*>& results, int filesMax, int& filesDone, Task* task)
 {
 	bool matches = false;
 
@@ -186,7 +204,10 @@ void FileSearchDialog::collectResults(const File& file, StringMatcher* matcher, 
 		File* child;
 
 		while ((child = it->next())  !=  NULL) {
-			collectResults(*child, matcher, dirs, handlers, results, filesMax, filesDone);
+			if (!collectResults(*child, matcher, dirs, handlers, results, filesMax, filesDone, task)) {
+				delete child;
+				return false;
+			}
 			delete child;
 		}
 
@@ -195,15 +216,25 @@ void FileSearchDialog::collectResults(const File& file, StringMatcher* matcher, 
 
 	filesDone++;
 
+	qApp->processEvents();
+
+	if (cancelled) {
+		return false;
+	}
+
 	if (filesMax < 100) {
 		System* sys = System::getInstance();
-		sys->updateTaskValue((int) (((float)filesDone / (float) filesMax)*100.0f));
+		//sys->updateTaskValue((int) (((float)filesDone / (float) filesMax)*100.0f));
+		task->update((int) (((float)filesDone / (float) filesMax)*100.0f));
 	} else {
 		if (filesDone%(filesMax / 100) == 0) {
 			System* sys = System::getInstance();
-			sys->updateTaskValue(sys->getTaskValue()+1);
+			//sys->updateTaskValue(sys->getTaskValue()+1);
+			task->update(task->getValue()+1);
 		}
 	}
+
+	return true;
 }
 
 
