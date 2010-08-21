@@ -39,6 +39,7 @@ public:
 private:
 	virtual void doInstall();
 	virtual void doUninstall();
+	void loadProfileSwitchMenu();
 
 private slots:
 	void onOpenSystemProgram(bool checked);
@@ -52,6 +53,8 @@ private slots:
 	void fileOpened(const File& file, const QHash<QString, QVariant>& data);
 	void fileClosed();
 	void onSearchFile(bool checked);
+	void profileAdded(Profile* profile);
+	void profileRemoved(Profile* profile);
 
 private:
 	QActionGroup* profileSwitchGroup;

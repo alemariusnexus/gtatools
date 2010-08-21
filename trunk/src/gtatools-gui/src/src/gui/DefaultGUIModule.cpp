@@ -70,7 +70,6 @@ DefaultGUIModule::DefaultGUIModule()
 	connect(sys, SIGNAL(fileOpened(const File&, const QHash<QString, QVariant>&)), this,
 			SLOT(fileOpened(const File&, const QHash<QString, QVariant>&)));
 	connect(sys, SIGNAL(currentFileClosed()), this, SLOT(fileClosed()));
-
 }
 
 
@@ -126,15 +125,50 @@ void DefaultGUIModule::doInstall()
 	profileSwitchMenu = new QMenu(tr("Switch"), profileMenu);
 	profileMenu->addMenu(profileSwitchMenu);
 
-	ProfileManager* pm = ProfileManager::getInstance();
-	Profile* currentProfile = pm->getCurrentProfile();
-
-	ProfileManager::ProfileIterator it;
-
 	profileSwitchGroup = new QActionGroup(this);
 
-	for (it = pm->getProfileBegin() ; it != pm->getProfileEnd() ; it++) {
-		Profile* profile = *it;
+	loadProfileSwitchMenu();
+
+	ProfileManager* pm = ProfileManager::getInstance();
+
+	connect(profileSwitchGroup, SIGNAL(triggered(QAction*)), this, SLOT(profileSwitchRequested(QAction*)));
+	connect(pm, SIGNAL(profileAdded(Profile*)), this, SLOT(profileAdded(Profile*)));
+	connect(pm, SIGNAL(profileRemoved(Profile*)), this, SLOT(profileRemoved(Profile*)));
+}
+
+
+void DefaultGUIModule::loadProfileSwitchMenu()
+{
+	QList<QAction*> actions = profileSwitchGroup->actions();
+	QList<QAction*>::iterator it;
+
+	for (it = actions.begin() ; it != actions.end() ; it++) {
+		QAction* action = *it;
+		profileSwitchGroup->removeAction(action);
+		profileSwitchMenu->removeAction(action);
+		delete action;
+	}
+
+	ProfileManager* pm = ProfileManager::getInstance();
+	ProfileManager::ProfileIterator pit;
+
+	Profile* currentProfile = pm->getCurrentProfile();
+
+	QAction* noProfileAction = new QAction(tr("No Profile"), this);
+	noProfileAction->setCheckable(true);
+	noProfileAction->setData(-1);
+
+	if (currentProfile == NULL) {
+		noProfileAction->setChecked(true);
+	}
+
+	profileSwitchGroup->addAction(noProfileAction);
+	profileSwitchMenu->addAction(noProfileAction);
+
+	profileSwitchMenu->addSeparator();
+
+	for (pit = pm->getProfileBegin() ; pit != pm->getProfileEnd() ; pit++) {
+		Profile* profile = *pit;
 
 		QAction* action = new QAction(profile->getName(), this);
 		action->setCheckable(true);
@@ -147,8 +181,6 @@ void DefaultGUIModule::doInstall()
 		profileSwitchGroup->addAction(action);
 		profileSwitchMenu->addAction(action);
 	}
-
-	connect(profileSwitchGroup, SIGNAL(triggered(QAction*)), this, SLOT(profileSwitchRequested(QAction*)));
 }
 
 
@@ -176,6 +208,11 @@ void DefaultGUIModule::doUninstall()
 	helpMenu->removeAction(aboutAction);
 	helpMenu->removeAction(versionInfoAction);
 
+	ProfileManager* pm = ProfileManager::getInstance();
+
+	disconnect(pm, SIGNAL(profileAdded(Profile*)), this, SLOT(profileAdded(Profile*)));
+	disconnect(pm, SIGNAL(profileRemoved(Profile*)), this, SLOT(profileRemoved(Profile*)));
+
 	delete profileSwitchMenu;
 }
 
@@ -183,7 +220,14 @@ void DefaultGUIModule::doUninstall()
 void DefaultGUIModule::profileSwitchRequested(QAction* action)
 {
 	ProfileManager* pm = ProfileManager::getInstance();
-	Profile* profile = pm->getProfile(action->data().toInt());
+	int index = action->data().toInt();
+
+	Profile* profile = NULL;
+
+	if (index != -1) {
+		profile = pm->getProfile(action->data().toInt());
+	}
+
 	pm->setCurrentProfile(profile);
 }
 
@@ -265,4 +309,16 @@ void DefaultGUIModule::onSearchFile(bool checked)
 {
 	FileSearchDialog dialog(mainWindow);
 	dialog.exec();
+}
+
+
+void DefaultGUIModule::profileAdded(Profile* profile)
+{
+	loadProfileSwitchMenu();
+}
+
+
+void DefaultGUIModule::profileRemoved(Profile* profile)
+{
+	loadProfileSwitchMenu();
 }

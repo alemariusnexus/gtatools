@@ -26,6 +26,8 @@
 #include <qstring.h>
 
 
+int tabIndex = 0;
+
 
 TXDWidget::TXDWidget(const File& file, const QString& selectedTex, QWidget* parent)
 		: QWidget(parent), compactTab(NULL)
@@ -47,7 +49,7 @@ TXDWidget::TXDWidget(const File& file, const QString& selectedTex, QWidget* pare
 
 	textures = new TXDTexture*[txd->getTextureCount()];
 
-	int currentRow = -1;
+	int currentRow = 0;
 
 	for (int i = 0 ; i < txd->getTextureCount() ; i++) {
 		TXDTexture* texture = txd->nextTexture();
@@ -71,7 +73,7 @@ TXDWidget::TXDWidget(const File& file, const QString& selectedTex, QWidget* pare
 
 	sys->installGUIModule(openGUIModule);
 
-	if (currentRow != -1) {
+	if (txd->getTextureCount() != 0) {
 		ui.textureList->setCurrentRow(currentRow);
 	}
 }
@@ -79,6 +81,10 @@ TXDWidget::TXDWidget(const File& file, const QString& selectedTex, QWidget* pare
 
 TXDWidget::~TXDWidget()
 {
+	if (compactTab) {
+		tabIndex = compactTab->currentIndex();
+	}
+
 	System* sys = System::getInstance();
 	sys->uninstallGUIModule(openGUIModule);
 	delete openGUIModule;
@@ -104,6 +110,7 @@ void TXDWidget::loadConfigUiSettings()
 		QTabWidget* tw = new QTabWidget;
 		tw->addTab(ui.infoWidget, tr("&Information"));
 		tw->addTab(ui.renderArea, tr("&Display"));
+		tw->setCurrentIndex(tabIndex);
 		layout->addWidget(tw);
 
 		compactTab = tw;

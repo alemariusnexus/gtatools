@@ -32,12 +32,14 @@ FileItemModel::FileItemModel(Profile* profile, QWidget* parent)
 	QSettings settings(CONFIG_FILE, QSettings::IniFormat);
 
 	showFileType = settings.value("gui/file_tree_types", true).toBool();
-
 	rootFile = new StaticFile;
-	Profile::ResourceIterator it;
 
-	for (it = profile->getResourceBegin() ; it != profile->getResourceEnd() ; it++) {
-		rootFile->addRootChild(new StaticFile(**it));
+	if (profile) {
+		Profile::ResourceIterator it;
+
+		for (it = profile->getResourceBegin() ; it != profile->getResourceEnd() ; it++) {
+			rootFile->addRootChild(new StaticFile(**it));
+		}
 	}
 }
 

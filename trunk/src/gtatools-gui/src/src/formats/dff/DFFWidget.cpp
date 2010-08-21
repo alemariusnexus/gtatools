@@ -14,11 +14,20 @@
 #include <qtextstream.h>
 
 
+int mainTabberIndex = 0;
+int geometryTabberIndex = 0;
+int geometryPartTabberIndex = 0;
+
+
 
 DFFWidget::DFFWidget(const File& file, QWidget* parent)
 		: QWidget(parent)
 {
 	ui.setupUi(this);
+
+	ui.mainTabber->setCurrentIndex(mainTabberIndex);
+	ui.geometryTabber->setCurrentIndex(geometryTabberIndex);
+	ui.geometryPartTabber->setCurrentIndex(geometryPartTabberIndex);
 
 	geometryRenderWidget = new DFFRenderWidget(ui.geometryRenderContainerWidget);
 	ui.geometryRenderContainerWidget->layout()->addWidget(geometryRenderWidget);
@@ -63,6 +72,10 @@ DFFWidget::DFFWidget(const File& file, QWidget* parent)
 
 DFFWidget::~DFFWidget()
 {
+	mainTabberIndex = ui.mainTabber->currentIndex();
+	geometryTabberIndex = ui.geometryTabber->currentIndex();
+	geometryPartTabberIndex = ui.geometryPartTabber->currentIndex();
+
 	System::getInstance()->uninstallGUIModule(guiModule);
 	delete guiModule;
 

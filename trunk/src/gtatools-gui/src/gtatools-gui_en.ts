@@ -4,7 +4,7 @@
 <context>
     <name>ConfigWidget</name>
     <message>
-        <location filename="src/gui/ConfigWidget.cpp" line="34"/>
+        <location filename="src/gui/ConfigWidget.cpp" line="35"/>
         <source>ProgramBaseName</source>
         <translation>GTATools GUI Tool</translation>
     </message>
@@ -50,33 +50,44 @@
         <translation>Selected Profile</translation>
     </message>
     <message>
-        <location filename="src/gui/ConfigWidget.ui" line="101"/>
+        <location filename="src/gui/ConfigWidget.ui" line="98"/>
+        <location filename="src/gui/ConfigWidget.cpp" line="144"/>
+        <source>New Profile</source>
+        <translation>New Profile</translation>
+    </message>
+    <message>
+        <location filename="src/gui/ConfigWidget.ui" line="105"/>
+        <source>Remove Profile</source>
+        <translation>Remove Profile</translation>
+    </message>
+    <message>
+        <location filename="src/gui/ConfigWidget.ui" line="134"/>
         <source>Profile Settings</source>
         <translation>Profile Settings</translation>
     </message>
     <message>
-        <location filename="src/gui/ConfigWidget.ui" line="120"/>
+        <location filename="src/gui/ConfigWidget.ui" line="153"/>
         <source>&amp;Look And Feel</source>
         <oldsource>Look And Feel</oldsource>
         <translation>&amp;Look And Feel</translation>
     </message>
     <message>
-        <location filename="src/gui/ConfigWidget.ui" line="126"/>
+        <location filename="src/gui/ConfigWidget.ui" line="159"/>
         <source>Compact Look And Feel</source>
         <translation>Compact Look And Feel</translation>
     </message>
     <message>
-        <location filename="src/gui/ConfigWidget.ui" line="133"/>
+        <location filename="src/gui/ConfigWidget.ui" line="166"/>
         <source>Show file types in file tree</source>
         <translation>Show file types in file tree</translation>
     </message>
     <message>
-        <location filename="src/gui/ConfigWidget.ui" line="179"/>
+        <location filename="src/gui/ConfigWidget.ui" line="212"/>
         <source>Cancel</source>
         <translation>Cancel</translation>
     </message>
     <message>
-        <location filename="src/gui/ConfigWidget.ui" line="186"/>
+        <location filename="src/gui/ConfigWidget.ui" line="219"/>
         <source>Apply</source>
         <translation>Apply</translation>
     </message>
@@ -451,7 +462,7 @@
     </message>
     <message>
         <location filename="src/gui/DefaultGUIModule.cpp" line="58"/>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="218"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="262"/>
         <source>About Qt</source>
         <translation>About Qt</translation>
     </message>
@@ -466,7 +477,7 @@
         <translation>Version Information</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="126"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="125"/>
         <source>Switch</source>
         <translation>Switch</translation>
     </message>
@@ -476,12 +487,17 @@
         <translation>Execute System Program</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="225"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="157"/>
+        <source>No Profile</source>
+        <translation>No Profile</translation>
+    </message>
+    <message>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="269"/>
         <source>About GTATools GUI Tool</source>
         <translation>About GTATools GUI Tool</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="224"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="268"/>
         <source>AboutText</source>
         <translation>This is gtatools-gui. This program is part of gtatools and runs with version %1.
 
@@ -492,7 +508,7 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="238"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="282"/>
         <source>Select file</source>
         <translation>Select file</translation>
     </message>
@@ -500,22 +516,22 @@ You should have received a copy of the GNU General Public License along with thi
 <context>
     <name>FileItemModel</name>
     <message>
-        <location filename="src/gui/FileItemModel.cpp" line="109"/>
+        <location filename="src/gui/FileItemModel.cpp" line="111"/>
         <source>Filename</source>
         <translation>Filename</translation>
     </message>
     <message>
-        <location filename="src/gui/FileItemModel.cpp" line="112"/>
+        <location filename="src/gui/FileItemModel.cpp" line="114"/>
         <source>File Type</source>
         <translation>File Type</translation>
     </message>
     <message>
-        <location filename="src/gui/FileItemModel.cpp" line="140"/>
+        <location filename="src/gui/FileItemModel.cpp" line="142"/>
         <source>Directory</source>
         <translation>Directory</translation>
     </message>
     <message>
-        <location filename="src/gui/FileItemModel.cpp" line="147"/>
+        <location filename="src/gui/FileItemModel.cpp" line="149"/>
         <source>Unrecognized File</source>
         <translation>Unrecognized File</translation>
     </message>
@@ -841,15 +857,28 @@ You should have received a copy of the GNU General Public License along with thi
     <name>ProfileConfigWidget</name>
     <message>
         <location filename="src/gui/ProfileConfigWidget.cpp" line="78"/>
-        <location filename="src/gui/ProfileConfigWidget.cpp" line="89"/>
-        <source>Select resource</source>
-        <translation>Select resource</translation>
+        <source>Select one or more resources</source>
+        <oldsource>Select resource</oldsource>
+        <translation>Select one or more resources</translation>
     </message>
     <message>
-        <location filename="src/gui/ProfileConfigWidget.cpp" line="109"/>
-        <location filename="src/gui/ProfileConfigWidget.cpp" line="115"/>
+        <location filename="src/gui/ProfileConfigWidget.cpp" line="91"/>
+        <source>Select a resource directory</source>
+        <translation>Select a resource directory</translation>
+    </message>
+    <message>
+        <location filename="src/gui/ProfileConfigWidget.cpp" line="111"/>
+        <source>Select the new resource directory</source>
+        <translation>Select the new resource directory</translation>
+    </message>
+    <message>
+        <location filename="src/gui/ProfileConfigWidget.cpp" line="118"/>
+        <source>Select the new resource file</source>
+        <translation>Select the new resource file</translation>
+    </message>
+    <message>
         <source>Select new resource</source>
-        <translation>Select new resource</translation>
+        <translation type="obsolete">Select new resource</translation>
     </message>
     <message>
         <location filename="src/gui/ProfileConfigWidget.ui" line="26"/>
