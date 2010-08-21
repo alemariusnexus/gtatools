@@ -82,6 +82,12 @@ void Profile::loadResourceIndex()
 void Profile::currentProfileChanged(Profile* oldProfile, Profile* newProfile)
 {
 	if (oldProfile == this  &&  newProfile != this) {
+		if (currentInitializer) {
+			currentInitializer->interrupt();
+			currentInitializer->wait();
+			// It will be deleted by resourcesInitialized()
+		}
+
 		delete resourceIndex;
 		resourceIndex = NULL;
 	} else if (oldProfile != this  &&  newProfile == this) {
@@ -132,10 +138,14 @@ bool Profile::containsFile(const File& file)
 
 void Profile::resourcesInitialized()
 {
-	resourceIdxInitialized = true;
-	emit resourceIndexInitialized();
+	if (!currentInitializer->isInterrupted()) {
+		resourceIdxInitialized = true;
+		emit resourceIndexInitialized();
+	}
+
 	disconnect(currentInitializer, SIGNAL(finished()), this, SLOT(resourcesInitialized()));
 	delete currentInitializer;
+	currentInitializer = NULL;
 }
 
 

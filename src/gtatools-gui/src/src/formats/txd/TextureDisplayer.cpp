@@ -66,9 +66,12 @@ void TextureDisplayer::mouseMoveEvent(QMouseEvent* evt)
 {
 	// TODO Make this work...
 	const QPoint pos = evt->pos();
-	int offs = (pos.y()*texture->getWidth() + pos.x()) * 4;
 
-	System::getInstance()->showStatusMessage(QString("Pixel: (%1, %2), RGBA: (%3, %4, %5; %6)")
-			.arg(pos.x(), pos.y(), data[offs]).arg(data[offs+1]).arg(data[offs+2]).arg(data[offs+3]), 0);
+	if (pos.x() >= 0  &&  pos.y() >= 0  &&  pos.x() <= texture->getWidth()  &&  pos.y() <= texture->getHeight()) {
+		int offs = (pos.y()*texture->getWidth() + pos.x()) * 4;
+
+		System::getInstance()->showStatusMessage(QString("Pixel: (%1, %2), RGBA: (%3, %4, %5; %6)")
+				.arg(pos.x()).arg(pos.y()).arg(data[offs]).arg(data[offs+1]).arg(data[offs+2]).arg(data[offs+3]), 0);
+	}
 }
 

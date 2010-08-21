@@ -13,7 +13,7 @@
 
 
 ProfileInitializer::ProfileInitializer(Profile* profile)
-		: profile(profile)
+		: profile(profile), interrupted(false)
 {
 }
 
@@ -30,12 +30,44 @@ void ProfileInitializer::run()
 
 		for (it = profile->getResourceBegin() ; it != profile->getResourceEnd() ; it++) {
 			File* file = *it;
-			rm->addResource(File(*file));
+			addResource(*file);
+
+			if (interrupted) {
+				break;
+			}
 		}
 
 		delete task;
 	} catch (Exception& ex) {
 		System::getInstance()->unhandeledException(ex);
+	}
+}
+
+
+void ProfileInitializer::addResource(const File& file)
+{
+	ResourceIndex* rm = profile->getResourceManager();
+
+	if (interrupted) {
+		return;
+	}
+
+	if (file.isDirectory()  ||  file.isArchiveFile()) {
+		FileIterator* it = file.getIterator();
+		File* child;
+
+		while ((child = it->next())  !=  NULL) {
+			addResource(*child);
+			delete child;
+
+			if (interrupted) {
+				return;
+			}
+		}
+
+		delete it;
+	} else {
+		rm->addResource(file);
 	}
 }
 

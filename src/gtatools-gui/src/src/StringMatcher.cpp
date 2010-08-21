@@ -44,6 +44,8 @@ StringMatcher::StringMatcher(const QString& pattern, flags flags)
 				? Qt::CaseInsensitive : Qt::CaseSensitive, syntax);
 	} else {
 		plainPattern = new QString(pattern);
+		plainCaseSensitivity = ((flags & STRING_MATCHER_CASEINSENSITIVE) != 0)
+				? Qt::CaseInsensitive : Qt::CaseSensitive;
 	}
 
 	exactMatch = ((flags & STRING_MATCHER_EXACTMATCH) != 0);

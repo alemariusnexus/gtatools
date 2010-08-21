@@ -35,11 +35,15 @@ public:
 	void loadProfiles();
 	ProfileIterator getProfileBegin();
 	ProfileIterator getProfileEnd();
+	QList<Profile*> getProfiles() { return profiles; }
 	Profile* setCurrentProfile(Profile* profile);
 	Profile* getCurrentProfile() { return currentProfile; }
 	Profile* getProfile(int idx) { return profiles[idx]; }
 	int indexOfProfile(Profile* profile) { return profiles.indexOf(profile); }
 	void saveProfiles();
+	void addProfile(Profile* profile);
+	bool removeProfile(Profile* profile);
+	void setProfiles(const QList<Profile*>& profiles);
 
 private:
 	ProfileManager(QObject* parent = NULL);
@@ -47,6 +51,8 @@ private:
 
 signals:
 	void currentProfileChanged(Profile* oldProfile, Profile* newProfile);
+	void profileAdded(Profile* profile);
+	void profileRemoved(Profile* profile);
 
 private slots:
 	void currentProfileChangedSlot(Profile* oldProfile, Profile* newProfile);

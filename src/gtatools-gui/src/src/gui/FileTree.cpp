@@ -11,6 +11,7 @@
 #include "../formats/FormatHandler.h"
 #include "../formats/FormatManager.h"
 #include <QLinkedList>
+#include <QStandardItemModel>
 
 
 
@@ -104,7 +105,9 @@ void FileTree::currentProfileChanged(Profile* oldProfile, Profile* newProfile)
 
 	showProfile(newProfile);
 
-	connect(newProfile, SIGNAL(changed()), this, SLOT(currentProfileContentChanged()));
+	if (newProfile) {
+		connect(newProfile, SIGNAL(changed()), this, SLOT(currentProfileContentChanged()));
+	}
 }
 
 

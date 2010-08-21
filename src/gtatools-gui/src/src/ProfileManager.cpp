@@ -69,7 +69,13 @@ void ProfileManager::loadProfiles()
 		profiles << profile;
 	}
 
-	setCurrentProfile(getProfile(settings.value("main/current_profile").toInt()));
+	int currentProfileIdx = settings.value("main/current_profile").toInt();
+
+	if (currentProfileIdx != -1) {
+		setCurrentProfile(getProfile(currentProfileIdx));
+	} else {
+		setCurrentProfile(NULL);
+	}
 }
 
 
@@ -103,7 +109,17 @@ void ProfileManager::saveProfiles()
 	QSettings settings(CONFIG_FILE, QSettings::IniFormat);
 
 	ProfileIterator it;
-	int i = 0;
+	int i;
+
+	for (i = 0 ; true ; i++) {
+		if (settings.contains(QString("profile%1/name").arg(i))) {
+			settings.remove(QString("profile%1").arg(i));
+		} else {
+			break;
+		}
+	}
+
+	i = 0;
 
 	for (it = getProfileBegin() ; it != getProfileEnd() ; it++, i++) {
 		Profile* profile = *it;
@@ -133,8 +149,66 @@ void ProfileManager::saveProfiles()
 void ProfileManager::currentProfileChangedSlot(Profile* oldProfile, Profile* newProfile)
 {
 	QSettings settings(CONFIG_FILE, QSettings::IniFormat);
-	settings.setValue("main/current_profile", indexOfProfile(newProfile));
+
+	if (newProfile != NULL) {
+		settings.setValue("main/current_profile", indexOfProfile(newProfile));
+	} else {
+		settings.setValue("main/current_profile", -1);
+	}
+
 	settings.sync();
+}
+
+
+void ProfileManager::addProfile(Profile* profile)
+{
+	profiles << profile;
+	emit profileAdded(profile);
+}
+
+
+bool ProfileManager::removeProfile(Profile* profile)
+{
+	profiles.removeOne(profile);
+
+	if (getCurrentProfile() == profile) {
+		if (profiles.size() == 0) {
+			setCurrentProfile(NULL);
+		} else {
+			setCurrentProfile(profiles[0]);
+		}
+	}
+
+	emit profileRemoved(profile);
+}
+
+
+void ProfileManager::setProfiles(const QList<Profile*>& profiles)
+{
+	QList<Profile*> currentProfiles = this->profiles;
+
+	QList<Profile*>::const_iterator it;
+
+	for (it = currentProfiles.begin() ; it != currentProfiles.end() ; it++) {
+		Profile* profile = *it;
+
+		if (!profiles.contains(profile)) {
+			if (getCurrentProfile() == profile) {
+				setCurrentProfile(NULL);
+			}
+
+			removeProfile(profile);
+			delete profile;
+		}
+	}
+
+	for (it = profiles.begin() ; it != profiles.end() ; it++) {
+		Profile* profile = *it;
+
+		if (!currentProfiles.contains(profile)) {
+			addProfile(profile);
+		}
+	}
 }
 
 

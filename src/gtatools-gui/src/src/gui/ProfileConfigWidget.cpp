@@ -32,6 +32,7 @@ ProfileConfigWidget::ProfileConfigWidget(QWidget* parent)
 	connect(ui.dirAddButton, SIGNAL(clicked(bool)), this, SLOT(dirAddButtonClicked(bool)));
 	connect(ui.fileEditButton, SIGNAL(clicked(bool)), this, SLOT(fileEditButtonClicked(bool)));
 	connect(ui.fileRemoveButton, SIGNAL(clicked(bool)), this, SLOT(fileRemoveButtonClicked(bool)));
+	connect(ui.fileList, SIGNAL(currentRowChanged(int)), this, SLOT(currentResourceChanged(int)));
 }
 
 
@@ -75,18 +76,20 @@ void ProfileConfigWidget::displayProfile(Profile* profile)
 
 void ProfileConfigWidget::fileAddButtonClicked(bool checked)
 {
-	QString fname = QFileDialog::getOpenFileName(this, tr("Select resource"));
+	QStringList files = QFileDialog::getOpenFileNames(this, tr("Select one or more resources"));
+	QStringList filesCpy = files;
+	QStringList::iterator it;
 
-	if (!fname.isNull()) {
-		//ui.fileList->addItem(fname);
-		new QListWidgetItem(fname, ui.fileList);
+	//if (!fname.isNull()) {
+	for (it = filesCpy.begin() ; it != filesCpy.end() ; it++) {
+		new QListWidgetItem(*it, ui.fileList);
 	}
 }
 
 
 void ProfileConfigWidget::dirAddButtonClicked(bool checked)
 {
-	QString fname = QFileDialog::getExistingDirectory(this, tr("Select resource"));
+	QString fname = QFileDialog::getExistingDirectory(this, tr("Select a resource directory"));
 
 	if (!fname.isNull()) {
 		//ui.fileList->addItem(fname);
@@ -106,13 +109,14 @@ void ProfileConfigWidget::fileEditButtonClicked(bool checked)
 	QString fname = item->text();
 
 	if (File(fname.toLocal8Bit().constData()).isDirectory()) {
-		QString newFname = QFileDialog::getExistingDirectory(this, tr("Select new resource"), fname);
+		QString newFname = QFileDialog::getExistingDirectory(this, tr("Select the new resource directory"),
+				fname);
 
 		if (!newFname.isNull()) {
 			item->setText(newFname);
 		}
 	} else {
-		QString newFname = QFileDialog::getOpenFileName(this, tr("Select new resource"), fname);
+		QString newFname = QFileDialog::getOpenFileName(this, tr("Select the new resource file"), fname);
 
 		if (!newFname.isNull()) {
 			item->setText(newFname);
@@ -130,4 +134,11 @@ void ProfileConfigWidget::fileRemoveButtonClicked(bool checked)
 	}
 
 	delete item;
+}
+
+
+void ProfileConfigWidget::currentResourceChanged(int index)
+{
+	ui.fileRemoveButton->setEnabled(index != -1);
+	ui.fileEditButton->setEnabled(index != -1);
 }

@@ -22,6 +22,8 @@
 
 #include <ui_ConfigWidget.h>
 #include <qwidget.h>
+#include <QList>
+#include "../Profile.h"
 
 
 
@@ -30,14 +32,18 @@ class ConfigWidget : public QWidget {
 
 public:
 	ConfigWidget(QWidget* parent = NULL);
+	~ConfigWidget();
 
 public slots:
 	void selectedProfileChanged(int index);
 	void onApply(bool checked);
 	void onCancel(bool checked);
+	void onNewProfile(bool);
+	void onRemoveProfile(bool);
 
 public:
 	Ui_ConfigWidget ui;
+	QList<Profile*> profiles;
 };
 
 #endif /* CONFIGWIDGET_H_ */

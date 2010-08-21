@@ -42,6 +42,7 @@ private slots:
 	void dirAddButtonClicked(bool checked = false);
 	void fileEditButtonClicked(bool checked = false);
 	void fileRemoveButtonClicked(bool checked = false);
+	void currentResourceChanged(int index);
 
 private:
 	void clearFiles();

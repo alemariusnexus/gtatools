@@ -22,11 +22,12 @@
 #include <qsettings.h>
 #include <config.h>
 #include "../System.h"
+#include <QVariant>
 
 
 
 ConfigWidget::ConfigWidget(QWidget* parent)
-		: QWidget(parent)
+		: QWidget(parent), profiles(ProfileManager::getInstance()->getProfiles())
 {
 	setAttribute(Qt::WA_DeleteOnClose);
 	ui.setupUi(this);
@@ -38,10 +39,12 @@ ConfigWidget::ConfigWidget(QWidget* parent)
 
 	for (it = pm->getProfileBegin() ; it != pm->getProfileEnd() ; it++) {
 		Profile* profile = *it;
-		ui.profileBox->addItem(profile->getName());
+		ui.profileBox->addItem(profile->getName(), QVariant::fromValue((void*) profile));
 	}
 
 	connect(ui.profileBox, SIGNAL(currentIndexChanged(int)), this, SLOT(selectedProfileChanged(int)));
+	connect(ui.newProfileButton, SIGNAL(clicked(bool)), this, SLOT(onNewProfile(bool)));
+	connect(ui.removeProfileButton, SIGNAL(clicked(bool)), this, SLOT(onRemoveProfile(bool)));
 	connect(ui.applyButton, SIGNAL(clicked(bool)), this, SLOT(onApply(bool)));
 	connect(ui.cancelButton, SIGNAL(clicked(bool)), this, SLOT(onCancel(bool)));
 
@@ -64,10 +67,23 @@ ConfigWidget::ConfigWidget(QWidget* parent)
 }
 
 
+ConfigWidget::~ConfigWidget()
+{
+	QList<Profile*> oldProfiles = ProfileManager::getInstance()->getProfiles();
+
+	QList<Profile*>::iterator it;
+
+	for (it = profiles.begin() ; it != profiles.end() ; it++) {
+		if (!oldProfiles.contains(*it)) {
+			delete *it;
+		}
+	}
+}
+
+
 void ConfigWidget::selectedProfileChanged(int index)
 {
-
-	Profile* profile = ProfileManager::getInstance()->getProfile(index);
+	Profile* profile = (Profile*) ui.profileBox->itemData(index).value<void*>();
 	ui.profileWidget->displayProfile(profile);
 }
 
@@ -88,7 +104,7 @@ void ConfigWidget::onApply(bool checked)
 	settings.setValue("gui/file_tree_types", ui.fileTypesInTreeBox->isChecked());
 	settings.setValue("gui/compact_mode", ui.compactBox->isChecked());
 
-	Profile* profile = ProfileManager::getInstance()->getProfile(ui.profileBox->currentIndex());
+	Profile* profile = (Profile*) ui.profileBox->itemData(ui.profileBox->currentIndex()).value<void*>();
 	profile->setName(ui.profileWidget->getProfileName());
 	profile->clearResources();
 
@@ -100,8 +116,13 @@ void ConfigWidget::onApply(bool checked)
 		profile->addResource(File(it->toLocal8Bit().constData()));
 	}
 
-	ProfileManager::getInstance()->saveProfiles();
+	ProfileManager* pm = ProfileManager::getInstance();
+
 	profile->synchronize();
+
+	pm->setProfiles(profiles);
+
+	pm->saveProfiles();
 
 	settings.sync();
 
@@ -115,6 +136,23 @@ void ConfigWidget::onApply(bool checked)
 void ConfigWidget::onCancel(bool checked)
 {
 	close();
+}
+
+
+void ConfigWidget::onNewProfile(bool)
+{
+	Profile* profile = new Profile(tr("New Profile"));
+	profiles << profile;
+	ui.profileBox->addItem(profile->getName(), QVariant::fromValue((void*) profile));
+	ui.profileBox->setCurrentIndex(ui.profileBox->count()-1);
+}
+
+
+void ConfigWidget::onRemoveProfile(bool)
+{
+	Profile* profile = (Profile*) ui.profileBox->itemData(ui.profileBox->currentIndex()).value<void*>();
+	profiles.removeOne(profile);
+	ui.profileBox->removeItem(ui.profileBox->currentIndex());
 }
 
 
