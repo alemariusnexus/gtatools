@@ -132,12 +132,13 @@ void DFFWidget::frameSelected(const QModelIndex& index, const QModelIndex& previ
 
 	Vector3 trans = frame->getTranslation();
 	Matrix3 rot = frame->getRotation();
+	const float* arot = rot.toArray();
 
 	ui.frameNameLabel->setText(index.data(Qt::DisplayRole).toString());
 	ui.frameTranslationLabel->setText(tr("(%1, %2, %3)").arg(trans[0]).arg(trans[1]).arg(trans[2]));
 	ui.frameRotationLabel->setText(tr("(%1, %2, %3) (%4, %5, %6) (%7, %8, %9)")
-			.arg(rot[0]).arg(rot[1]).arg(rot[2]).arg(rot[3]).arg(rot[4]).arg(rot[5]).arg(rot[6])
-			.arg(rot[7]).arg(rot[8]));
+			.arg(arot[0]).arg(arot[1]).arg(arot[2]).arg(arot[3]).arg(arot[4]).arg(arot[5]).arg(arot[6])
+			.arg(arot[7]).arg(arot[8]));
 
 	if (frame->getParent() == NULL) {
 		ui.frameParentLabel->setText(tr("None"));
@@ -544,6 +545,7 @@ void DFFWidget::xmlDumpFrame(DFFFrame* frame, QTextStream& xml, int indLevel)
 
 	Vector3 t = frame->getTranslation();
 	Matrix3 r = frame->getRotation();
+	const float* ar = r.toArray();
 
 	xml << ind << "<frame";
 
@@ -552,9 +554,9 @@ void DFFWidget::xmlDumpFrame(DFFFrame* frame, QTextStream& xml, int indLevel)
 	}
 
 	xml << " tx=\"" << t[0] << "\" ty=\"" << t[1] << "\" tz=\"" << t[2] << "\"";
-	xml << " r00=\"" << r[0] << "\" r01=\"" << r[1] << "\" r02=\"" << r[2] << "\""
-			<< " r10=\"" << r[3] << "\" r11=\"" << r[4] << "\" r12=\"" << r[5] << "\""
-			<< " r20=\"" << r[6] << "\" r21=\"" << r[7] << "\" r22=\"" << r[8] << "\"";
+	xml << " r00=\"" << ar[0] << "\" r01=\"" << ar[1] << "\" r02=\"" << ar[2] << "\""
+			<< " r10=\"" << ar[3] << "\" r11=\"" << ar[4] << "\" r12=\"" << ar[5] << "\""
+			<< " r20=\"" << ar[6] << "\" r21=\"" << ar[7] << "\" r22=\"" << ar[8] << "\"";
 
 	if (frame->getChildCount() > 0) {
 		xml << ">" << endl;

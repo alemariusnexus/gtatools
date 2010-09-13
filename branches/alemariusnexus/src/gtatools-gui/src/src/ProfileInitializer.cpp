@@ -52,7 +52,7 @@ void ProfileInitializer::addResource(const File& file)
 		return;
 	}
 
-	if (file.isDirectory()  ||  file.isArchiveFile()) {
+	if (file.isDirectory()) {
 		FileIterator* it = file.getIterator();
 		File* child;
 

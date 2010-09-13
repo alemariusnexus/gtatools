@@ -29,6 +29,7 @@ using std::string;
 IPLReader::IPLReader(InputStream* stream, bool deleteStream)
 		: GTASectionFileReader(stream, deleteStream), currentSection(NONE)
 {
+	init();
 }
 
 
@@ -40,95 +41,161 @@ IPLReader::~IPLReader()
 IPLReader::IPLReader(const File& file)
 		: GTASectionFileReader(file), currentSection(NONE)
 {
+	init();
+}
+
+
+void IPLReader::init()
+{
+	char firstBytes[4];
+	stream->read(firstBytes, 4);
+
+	if (strncmp(firstBytes, "bnry", 4) == 0) {
+		stream->read((char*) &binaryInstanceCount, 4);
+		stream->skip(3*4);
+		stream->read((char*) &binaryCarCount, 4);
+		stream->skip(4);
+		stream->read((char*) &binaryInstanceOffset, 4);
+		stream->skip(7*4);
+		stream->read((char*) &binaryCarOffset, 4);
+		stream->skip(3*4);
+		binaryReadCount = 0;
+		stream->skip(binaryInstanceOffset - 0x4C);
+	} else {
+		binaryReadCount = -1;
+		stream->seek(-4, InputStream::STREAM_SEEK_CURRENT);
+	}
 }
 
 
 IPLStatement* IPLReader::readStatement()
 {
-	while (true) {
-		char line[4096];
+	if (binaryReadCount == -1) {
+		// Plain ASCII IPL file
 
-		if (!readNextLine(line, sizeof(line))) {
+		while (true) {
+			char line[4096];
+
+			if (!readNextLine(line, sizeof(line))) {
+				return NULL;
+			}
+
+			if (strcmp(line, "end") == 0) {
+				currentSection = NONE;
+				continue;
+			} else if (strcmp(line, "inst") == 0) {
+				currentSection = INST;
+				continue;
+			}
+
+			if (currentSection == INST) {
+				int32_t id;
+				char* modelName;
+				float x, y, z;
+				float rotX, rotY, rotZ, rotW;
+				float scaleX = 1.0f, scaleY = 1.0f, scaleZ =  1.0f;
+				int32_t interior = 0;
+				int32_t lod = -1;
+
+				int numParams = 1;
+
+				for (int i = 0 ; line[i] != '\0' ; i++) {
+					if (line[i] == ',') {
+						numParams++;
+					}
+				}
+
+				id = nextInt(line);
+				modelName = nextString();
+
+				if (numParams == 11) {
+					// SA format
+					interior = nextInt();
+					x = nextFloat();
+					y = nextFloat();
+					z = nextFloat();
+					rotX = nextFloat();
+					rotY = nextFloat();
+					rotZ = nextFloat();
+					rotW = nextFloat();
+					lod = nextInt();
+				} else if (numParams == 12) {
+					// III format
+					x = nextFloat();
+					y = nextFloat();
+					z = nextFloat();
+					scaleX = nextFloat();
+					scaleY = nextFloat();
+					scaleZ = nextFloat();
+					rotX = nextFloat();
+					rotY = nextFloat();
+					rotZ = nextFloat();
+					rotW = nextFloat();
+				} else if (numParams == 13) {
+					// VC format
+					interior = nextInt();
+					x = nextFloat();
+					y = nextFloat();
+					z = nextFloat();
+					scaleX = nextFloat();
+					scaleY = nextFloat();
+					scaleZ = nextFloat();
+					rotX = nextFloat();
+					rotY = nextFloat();
+					rotZ = nextFloat();
+					rotW = nextFloat();
+				}
+
+				return new IPLInstance (
+						id, modelName,
+						x, y, z,
+						rotX, rotY, rotZ, rotW,
+						scaleX, scaleY, scaleZ,
+						interior,
+						lod
+				);
+			} else {
+				continue;
+			}
+		}
+	} else {
+		// Binary IPL file
+
+		IPLStatement* stmt;
+
+		if (binaryReadCount >= binaryInstanceCount+binaryCarCount) {
 			return NULL;
 		}
 
-		if (strcmp(line, "end") == 0) {
-			currentSection = NONE;
-			continue;
-		} else if (strcmp(line, "inst") == 0) {
-			currentSection = INST;
-			continue;
+		if (binaryReadCount == binaryInstanceCount) {
+			stream->skip(binaryCarOffset-stream->tell());
 		}
 
-		if (currentSection == INST) {
-			int32_t id;
-			char* modelName;
-			float x, y, z;
-			float rotX, rotY, rotZ, rotW;
-			float scaleX = 1.0f, scaleY = 1.0f, scaleZ =  1.0f;
-			int32_t interior = 0;
-			int32_t lod = -1;
+		if (binaryReadCount < binaryInstanceCount) {
+			float pos[3];
+			float rot[4];
+			int32_t id, interior, lod;
 
-			int numParams = 1;
+			stream->read((char*) pos, 3*4);
+			stream->read((char*) rot, 4*4);
+			stream->read((char*) &id, 4);
+			stream->read((char*) &interior, 4);
+			stream->read((char*) &lod, 4);
 
-			for (int i = 0 ; line[i] != '\0' ; i++) {
-				if (line[i] == ',') {
-					numParams++;
-				}
-			}
-
-			id = nextInt(line);
-			modelName = nextString();
-
-			if (numParams == 11) {
-				// SA format
-				interior = nextInt();
-				x = nextFloat();
-				y = nextFloat();
-				z = nextFloat();
-				rotX = nextFloat();
-				rotY = nextFloat();
-				rotZ = nextFloat();
-				rotW = nextFloat();
-				lod = nextInt();
-			} else if (numParams == 12) {
-				// III format
-				x = nextFloat();
-				y = nextFloat();
-				z = nextFloat();
-				scaleX = nextFloat();
-				scaleY = nextFloat();
-				scaleZ = nextFloat();
-				rotX = nextFloat();
-				rotY = nextFloat();
-				rotZ = nextFloat();
-				rotW = nextFloat();
-			} else if (numParams == 13) {
-				// VC format
-				interior = nextInt();
-				x = nextFloat();
-				y = nextFloat();
-				z = nextFloat();
-				scaleX = nextFloat();
-				scaleY = nextFloat();
-				scaleZ = nextFloat();
-				rotX = nextFloat();
-				rotY = nextFloat();
-				rotZ = nextFloat();
-				rotW = nextFloat();
-			}
-
-			return new IPLInstance (
-					id, modelName,
-					x, y, z,
-					rotX, rotY, rotZ, rotW,
-					scaleX, scaleY, scaleZ,
+			stmt = new IPLInstance (
+					id, NULL,
+					pos[0], pos[1], pos[2],
+					rot[0], rot[1], rot[2], rot[3],
+					1.0f, 1.0f, 1.0f,
 					interior,
 					lod
 			);
 		} else {
-			continue;
+			stmt = NULL;
 		}
+
+		binaryReadCount++;
+		return stmt;
 	}
 }
 

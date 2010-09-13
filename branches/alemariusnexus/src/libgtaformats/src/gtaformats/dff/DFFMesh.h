@@ -41,6 +41,7 @@ public:
 	typedef vector<DFFGeometry*>::const_iterator ConstGeometryIterator;
 
 public:
+	DFFMesh() {};
 	DFFMesh(const DFFMesh& other);
 	~DFFMesh();
 	int32_t getFrameCount() const { return frames.size(); }
@@ -75,9 +76,6 @@ public:
 
 	void mirrorYZ();
 	void scale(float x, float y, float z);
-
-private:
-	DFFMesh() {};
 
 private:
 	vector<DFFFrame*> frames;

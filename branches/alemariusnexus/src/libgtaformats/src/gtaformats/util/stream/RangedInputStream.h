@@ -20,7 +20,7 @@
 #ifndef RANGEDINPUTSTREAM_H_
 #define RANGEDINPUTSTREAM_H_
 
-#include "InputStream.h"
+#include "FilterInputStream.h"
 
 
 /**	\brief A filtering InputStream that only allows access to parts of another InputStream.
@@ -28,7 +28,7 @@
  * 	RangedInputStreams have a start and end point. Reading and seeking are only allowed within the bounds of this range. The end of
  * 	the range is considered the end of this stream and seeking operations going beyond the range will throw an exception.
  */
-class RangedInputStream : public InputStream {
+class RangedInputStream : public FilterInputStream {
 public:
 	/**	\brief Creates a new RangedInputStream.
 	 *
@@ -43,7 +43,7 @@ public:
 
 	/**	\brief Destructor.
 	 */
-	~RangedInputStream();
+	virtual ~RangedInputStream() {};
 
 	/**	\brief Repositions this stream.
 	 *
@@ -90,8 +90,6 @@ private:
 	streamsize getMaxReadUntilEnd();
 
 private:
-	InputStream* backend;
-	bool autoDeleteBackend;
 	streampos readStart;
 	streamsize maxRead;
 	streampos readCount;

@@ -82,13 +82,18 @@ public:
 private:
 	/**	\brief The texture cache map.
 	 */
+	//typedef map<const char*, TextureEntry*, StringComparator> TextureMap;
+
 	typedef map<const char*, TextureEntry*, StringComparator> TextureMap;
+	typedef map<const char*, TextureMap*, StringComparator> TXDMap;
 
 	/**	\brief The mesh cache map.
 	 */
 	typedef map<const char*, MeshEntry*, StringComparator> MeshMap;
 
 public:
+	ResourceIndex() : textureFormat(R8G8B8A8) {}
+
 	/**	\brief Deleted this ResourceIndex.
 	 *
 	 * 	Only the internal index will be deleted. You can still use all dynamically created resource objects which you received
@@ -116,7 +121,7 @@ public:
 	 * 	@return true if the texture was found in the index, false otherwise.
 	 * 	@see getTexture()
 	 */
-	virtual bool getTextureHeader(const char* name, TXDTexture*& texture);
+	virtual bool getTextureHeader(const char* name, const char* txdName, TXDTexture*& texture);
 
 	/**	\brief Finds the texture header and data with the given name in the index.
 	 *
@@ -130,7 +135,7 @@ public:
 	 *	@return true if the texture was found in the index, false otherwise.
 	 *	@see getTextureHeader(), which is quicker if you only need the texture header.
 	 */
-	virtual bool getTexture(const char* name, TXDTexture*& texture, uint8_t*& rawData);
+	virtual bool getTexture(const char* name, const char* txdName, TXDTexture*& texture, uint8_t*& rawData);
 
 	/**	\brief Finds the mesh with the given name in the index.
 	 *
@@ -187,12 +192,13 @@ private:
 	 *	@param texture The texture header.
 	 *	@return true if the texture was found in the index, false otherwise.
 	 */
-	bool gotoTexture(const char* name, TXDArchive*& txd, TXDTexture*& texture);
+	bool gotoTexture(const char* name, const char* txdName, TXDArchive*& txd, TXDTexture*& texture);
 
 protected:
 	RasterFormat textureFormat;
 
 private:
+	TXDMap txdIndex;
 	TextureMap textureIndex;
 	MeshMap meshIndex;
 

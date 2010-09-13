@@ -22,8 +22,8 @@
 
 #include <gf_config.h>
 #include <cstdlib>
-#include "../util/Matrix3.h"
-#include "../util/Vector3.h"
+#include "../util/math/Matrix3.h"
+#include "../util/math/Vector3.h"
 #include <vector>
 
 using std::vector;

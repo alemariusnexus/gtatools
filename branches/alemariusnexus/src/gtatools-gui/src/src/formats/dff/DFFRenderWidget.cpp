@@ -20,10 +20,16 @@ DFFRenderWidget::DFFRenderWidget(QWidget* parent, QGLWidget* shareWidget)
 		: QGLWidget(parent, shareWidget), rx(0.0f), ry(0.0f), renderList(-1), textures(true),
 		  wireframe(false), currentGeometry(NULL), currentPart(NULL)
 {
-	connect(ProfileManager::getInstance(), SIGNAL(currentProfileChanged(Profile*, Profile*)), this,
+	ProfileManager* pm = ProfileManager::getInstance();
+
+	connect(pm, SIGNAL(currentProfileChanged(Profile*, Profile*)), this,
 			SLOT(currentProfileChanged(Profile*, Profile*)));
-	connect(ProfileManager::getInstance()->getCurrentProfile(), SIGNAL(resourceIndexInitialized()), this,
-			SLOT(currentProfileResourceIndexInitialized()));
+
+	Profile* currentProfile = pm->getCurrentProfile();
+	if (currentProfile) {
+		connect(currentProfile, SIGNAL(resourceIndexInitialized()), this,
+				SLOT(currentProfileResourceIndexInitialized()));
+	}
 }
 
 
@@ -42,7 +48,11 @@ void DFFRenderWidget::renderGeometry(DFFGeometry* geometry)
 
 	Profile* profile = ProfileManager::getInstance()->getCurrentProfile();
 
-	OpenGLResourceManager* rm = profile->getResourceManager();
+	OpenGLResourceManager* rm = NULL;
+
+	if (profile) {
+		rm = profile->getResourceManager();
+	}
 
 	DFFOpenGLRenderer renderer(rm);
 
@@ -70,7 +80,11 @@ void DFFRenderWidget::renderGeometryPart(DFFGeometry* geometry, DFFGeometryPart*
 
 	Profile* profile = ProfileManager::getInstance()->getCurrentProfile();
 
-	OpenGLResourceManager* rm = profile->getResourceManager();
+	OpenGLResourceManager* rm = NULL;
+
+	if (profile) {
+		rm = profile->getResourceManager();
+	}
 
 	DFFOpenGLRenderer renderer(rm);
 
@@ -236,10 +250,15 @@ void DFFRenderWidget::setShowWireframe(bool wireframe)
 
 void DFFRenderWidget::currentProfileChanged(Profile* oldProfile, Profile* newProfile)
 {
-	disconnect(oldProfile, SIGNAL(resourceIndexInitialized()), this,
-			SLOT(currentProfileResourceIndexInitialized()));
-	connect(newProfile, SIGNAL(resourceIndexInitialized()), this,
-			SLOT(currentProfileResourceIndexInitialized()));
+	if (oldProfile) {
+		disconnect(oldProfile, SIGNAL(resourceIndexInitialized()), this,
+				SLOT(currentProfileResourceIndexInitialized()));
+	}
+
+	if (newProfile) {
+		connect(newProfile, SIGNAL(resourceIndexInitialized()), this,
+				SLOT(currentProfileResourceIndexInitialized()));
+	}
 }
 
 

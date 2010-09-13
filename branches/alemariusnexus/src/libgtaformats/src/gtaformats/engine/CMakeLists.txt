@@ -1,4 +1,4 @@
-SET(SRC_FILES	DefaultResourceManager DFFOpenGLRenderer EngineException OpenGLResourceManager
+SET(SRC_FILES	DFFOpenGLRenderer EngineException
                 ResourceIndex )
 
 FOREACH(FILE ${SRC_FILES})

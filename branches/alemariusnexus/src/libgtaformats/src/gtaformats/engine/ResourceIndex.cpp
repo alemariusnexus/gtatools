@@ -11,6 +11,7 @@
 #include "../dff/DFFLoader.h"
 #include "EngineException.h"
 #include "../util/util.h"
+#include "../img/IMGArchive.h"
 #include <utility>
 #include <cstring>
 
@@ -19,14 +20,24 @@ using std::pair;
 
 ResourceIndex::~ResourceIndex()
 {
-	TextureMap::iterator it;
+	TXDMap::iterator it;
 
-	for (it = textureIndex.begin() ; it != textureIndex.end() ; it++) {
+	for (it = txdIndex.begin() ; it != txdIndex.end() ; it++) {
 		delete[] it->first;
-		delete it->second->file;
-		delete it->second;
+
+		TextureMap* map = it->second;
+		TextureMap::iterator tit;
+
+		for (tit = map->begin() ; tit != map->end() ; tit++) {
+			delete[] tit->first;
+			delete tit->second->file;
+			delete tit->second;
+		}
+
+		delete map;
 	}
 
+	txdIndex.clear();
 	textureIndex.clear();
 
 
@@ -61,35 +72,44 @@ void ResourceIndex::addResource(const File& file)
 			TXDArchive txd(file);
 			indexTXD(&txd, file);
 		} else if (type == CONTENT_TYPE_IMG  ||  type == CONTENT_TYPE_DIR) {
-			FileIterator* it = file.getIterator();
-			File* entry;
+			IMGArchive img(file);
+			IMGEntry** entries = img.getEntries();
 
-			while ((entry = it->next())  !=  NULL) {
-				FileContentType entryType = entry->guessContentType();
+			for (int32_t i = 0 ; i < img.getEntryCount() ; i++) {
+				IMGEntry* entry = entries[i];
+				char* path = new char[strlen(file.getPath()->toString())+strlen(entry->name)+2];
+				strcpy(path, file.getPath()->toString());
+				strcat(path, "/");
+				strcat(path, entry->name);
 
-				if (entryType == CONTENT_TYPE_TXD  ||  entryType == CONTENT_TYPE_DFF) {
-					addResource(*entry);
+				File f(path);
+
+				FileContentType etype = f.guessContentType();
+
+				if (etype == CONTENT_TYPE_TXD) {
+					InputStream* stream = img.gotoEntry(entry);
+					TXDArchive txd(stream);
+					indexTXD(&txd, f);
+					delete stream;
+				} else if (etype == CONTENT_TYPE_DFF) {
+					indexDFF(f);
 				}
 
-				delete entry;
+				delete[] path;
 			}
-
-			delete it;
 		} else if (type == CONTENT_TYPE_DFF) {
 			indexDFF(file);
-		} /*else {
-			char* errmsg = new char[strlen(file.getPath()->toString()) + 128];
-			sprintf(errmsg, "Unknown resource type for file %s", file.getPath()->toString());
-			EngineException ex(errmsg, __FILE__, __LINE__);
-			delete[] errmsg;
-			throw ex;
-		}*/
+		}
 	}
 }
 
 
 void ResourceIndex::indexTXD(TXDArchive* txd, const File& file)
 {
+	TextureMap* map = new TextureMap;
+
+	textureMutex.lock();
+
 	for (int32_t i = 0 ; i < txd->getTextureCount() ; i++) {
 		TXDTexture* tex = txd->nextTexture();
 		const char* name = tex->getDiffuseName();
@@ -103,10 +123,28 @@ void ResourceIndex::indexTXD(TXDArchive* txd, const File& file)
 		entry->file = new File(file);
 		entry->txdIndex = i;
 
-		textureMutex.lock();
+		/*TextureMap::iterator it = textureIndex.find(lName);
+		if (it != textureIndex.end()) {
+			printf("Texture already defined: %s\n", lName);
+			printf("  Previous definition in %s\n", it->second->file->getPath()->toString());
+			printf("  Now defined in %s\n", file.getPath()->toString());
+		}*/
+
+		map->insert(pair<const char*, TextureEntry*>(lName, entry));
 		textureIndex.insert(pair<const char*, TextureEntry*>(lName, entry));
-		textureMutex.unlock();
 	}
+
+	const char* fullTxdName = file.getPath()->getFileName();
+	char* txdName = new char[strlen(fullTxdName)];
+	strtolower(txdName, fullTxdName);
+	*strchr(txdName, '.') = '\0';
+
+	if (strcmp(txdName, "gta_tree_boak") == 0) {
+		printf("Found!\n");
+	}
+
+	txdIndex.insert(pair<const char*, TextureMap*>(txdName, map));
+	textureMutex.unlock();
 }
 
 
@@ -122,23 +160,46 @@ void ResourceIndex::indexDFF(const File& file)
 	entry->file = new File(file);
 
 	meshMutex.lock();
+
+	MeshMap::iterator it = meshIndex.find(meshName);
+	if (it != meshIndex.end()) {
+		printf("Mesh already defined: %s\n", meshName);
+		printf("  Previous definition in %s\n", it->second->file->getPath()->toString());
+		printf("  Now defined in %s\n", file.getPath()->toString());
+	}
+
 	meshIndex.insert(pair<const char*, MeshEntry*>(meshName, entry));
 	meshMutex.unlock();
 }
 
 
-bool ResourceIndex::gotoTexture(const char* name, TXDArchive*& txd, TXDTexture*& texture)
+bool ResourceIndex::gotoTexture(const char* name, const char* txdName, TXDArchive*& txd, TXDTexture*& texture)
 {
 	textureMutex.lock();
 
-	TextureMap::iterator it = textureIndex.find(name);
+	TextureMap* map;
 
-	if (it == textureIndex.end()) {
+	if (txdName) {
+		TXDMap::iterator it = txdIndex.find(txdName);
+
+		if (it == txdIndex.end()) {
+			textureMutex.unlock();
+			return false;
+		}
+
+		map = it->second;
+	} else {
+		map = &textureIndex;
+	}
+
+	TextureMap::iterator tit = map->find(name);
+
+	if (tit == map->end()) {
 		textureMutex.unlock();
 		return false;
 	}
 
-	TextureEntry* texEntry = it->second;
+	TextureEntry* texEntry = tit->second;
 
 	int txdIndex = texEntry->txdIndex;
 
@@ -153,10 +214,10 @@ bool ResourceIndex::gotoTexture(const char* name, TXDArchive*& txd, TXDTexture*&
 }
 
 
-bool ResourceIndex::getTextureHeader(const char* name, TXDTexture*& texture)
+bool ResourceIndex::getTextureHeader(const char* name, const char* txdName, TXDTexture*& texture)
 {
 	TXDArchive* txd = NULL;
-	bool retval = gotoTexture(name, txd, texture);
+	bool retval = gotoTexture(name, txdName, txd, texture);
 
 	if (txd) {
 		delete txd;
@@ -166,10 +227,10 @@ bool ResourceIndex::getTextureHeader(const char* name, TXDTexture*& texture)
 }
 
 
-bool ResourceIndex::getTexture(const char* name, TXDTexture*& texture, uint8_t*& data)
+bool ResourceIndex::getTexture(const char* name, const char* txdName, TXDTexture*& texture, uint8_t*& data)
 {
 	TXDArchive* txd = NULL;
-	bool retval = gotoTexture(name, txd, texture);
+	bool retval = gotoTexture(name, txdName, txd, texture);
 
 	if (retval) {
 		uint8_t* rawData = txd->readTextureData(texture);

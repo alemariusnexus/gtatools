@@ -43,7 +43,15 @@ public:
 	IPLStatement* readStatement();
 
 private:
+	void init();
+
+private:
 	SectionType currentSection;
+	int32_t binaryInstanceCount;
+	int32_t binaryInstanceOffset;
+	int32_t binaryCarCount;
+	int32_t binaryCarOffset;
+	int32_t binaryReadCount;
 };
 
 #endif /* IPLREADER_H_ */

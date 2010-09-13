@@ -41,6 +41,19 @@ StaticFile::StaticFile(File* file, StaticFile* parent)
 }
 
 
+StaticFile::~StaticFile()
+{
+	ChildList::iterator it;
+
+	for (it = children.begin() ; it != children.end() ; it++) {
+		delete *it;
+	}
+
+	if (file)
+		delete file;
+}
+
+
 void StaticFile::initChildren()
 {
 	if (file->isDirectory()  ||  file->isArchiveFile()) {

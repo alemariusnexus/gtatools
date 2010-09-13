@@ -16,7 +16,9 @@
 # along with gtaformats.  If not, see <http://www.gnu.org/licenses/>.
 
 
-SET(FILES StringComparator util File FileException FilePath Exception FileIterator Vector3 Matrix3)
+SET(FILES
+    StringComparator util File FileException FilePath Exception FileIterator SharedData
+    SharedDataPointer)
 
 FOREACH(FILE ${FILES})
     SET(SRCS ${SRCS} "gtaformats/util/${FILE}")
@@ -24,5 +26,6 @@ ENDFOREACH(FILE)
 
 ADD_SUBDIRECTORY(stream)
 ADD_SUBDIRECTORY(thread)
+ADD_SUBDIRECTORY(math)
 
 SET(SRCS ${SRCS} PARENT_SCOPE)

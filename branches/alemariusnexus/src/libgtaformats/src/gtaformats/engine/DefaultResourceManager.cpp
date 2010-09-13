@@ -35,8 +35,18 @@ DefaultResourceManager::~DefaultResourceManager()
 }
 
 
-bool DefaultResourceManager::getTextureHeader(const char* name, TXDTexture*& texture)
+bool DefaultResourceManager::getTextureHeader(const char* name, const char* txdName, TXDTexture*& texture)
 {
+	TextureCacheMap* map;
+
+	if (txdName) {
+		TXDMap::iterator it = txdCache.find(txdName);
+
+		if (it == txdCache.end()) {
+			return false;
+		}
+	}
+
 	TextureCacheMap::iterator it = textureCache.find(name);
 
 	if (it == textureCache.end()) {
@@ -79,7 +89,7 @@ bool DefaultResourceManager::getMesh(const char* name, DFFMesh*& mesh)
 }
 
 
-void DefaultResourceManager::cacheTexture(TXDTexture* texture, uint8_t* data)
+void DefaultResourceManager::cacheTexture(const char* txdName, TXDTexture* texture, uint8_t* data)
 {
 	TextureCacheEntry* entry = new TextureCacheEntry;
 	entry->texture = texture;

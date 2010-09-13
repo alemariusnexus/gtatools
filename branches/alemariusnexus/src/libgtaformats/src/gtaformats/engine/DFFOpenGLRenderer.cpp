@@ -24,6 +24,7 @@
 #endif
 
 #include "../util/util.h"
+#include "../util/math/Matrix4.h"
 #include <GL/gl.h>
 #include <GL/glu.h>
 
@@ -36,8 +37,9 @@ DFFOpenGLRenderer::DFFOpenGLRenderer(OpenGLResourceManager* resourceManager)
 
 void DFFOpenGLRenderer::applyTexture(const char* name)
 {
-
-	resourceManager->bindTexture(name);
+	if (resourceManager) {
+		resourceManager->bindTexture(name);
+	}
 }
 
 
@@ -46,14 +48,16 @@ void DFFOpenGLRenderer::applyFrameTransformation(DFFFrame* frame)
 	Vector3 trans = frame->getTranslation();
 	Matrix3 rot = frame->getRotation();
 
-	float transMatrix[] = {
+	/*float transMatrix[] = {
 			rot[0], rot[3], rot[6], 0,
 			rot[1], rot[4], rot[7], 0,
 			rot[2], rot[5], rot[8], 0,
 			trans[0], trans[2], trans[1], 1
-	};
+	};*/
 
-	glMultMatrixf(transMatrix);
+	//Matrix3 tm = rot * Matrix4::translation(trans);
+
+	//glMultMatrixf(tm.toArray());
 }
 
 

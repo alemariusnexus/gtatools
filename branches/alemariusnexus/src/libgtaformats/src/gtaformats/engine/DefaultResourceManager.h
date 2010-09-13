@@ -72,6 +72,7 @@ struct MeshCacheEntry
 class DefaultResourceManager : public ResourceIndex {
 private:
 	typedef map<const char*, TextureCacheEntry*, StringComparator> TextureCacheMap;
+	typedef map<const char*, TextureCacheMap*, StringComparator> TXDCacheMap;
 	typedef map<const char*, MeshCacheEntry*, StringComparator> MeshCacheMap;
 
 public:
@@ -99,7 +100,7 @@ public:
 	 *	@param texture A reference to the pointer which will be set to point to the texture header.
 	 *	@return true if the texture was found (inside the cache OR the index), false otherwise.
 	 */
-	virtual bool getTextureHeader(const char* name, TXDTexture*& texture);
+	virtual bool getTextureHeader(const char* name, const char* txdName, TXDTexture*& texture);
 
 	/**	\brief Receives the texture header and data with the given name from the cache.
 	 *
@@ -110,7 +111,7 @@ public:
 	 *	@param texture A reference to the pointer which will be set to point to the texture data block.
 	 *	@return true if the texture was found (inside the cache OR the index), false otherwise.
 	 */
-	virtual bool getTexture(const char* name, TXDTexture*& texture, uint8_t*& rawData);
+	virtual bool getTexture(const char* name, const char* txdName, TXDTexture*& texture, uint8_t*& rawData);
 
 	/**	\brief Receives the mesh with the given name from the cache.
 	 *
@@ -129,7 +130,7 @@ public:
 	 *	@param name The texture name.
 	 *	@return true if the cache entry was successfully created or already existed, false otherwise.
 	 */
-	bool cacheTexture(const char* name);
+	bool cacheTexture(const char* name, const char* txdName);
 
 	/**	\brief Forces removing of the given texture from cache.
 	 *
@@ -138,7 +139,7 @@ public:
 	 *	 @param name The texture name.
 	 *	 @return true if the texture was previously cached and successfully removed, false otherwise.
 	 */
-	bool uncacheTexture(const char* name);
+	bool uncacheTexture(const char* name, const char* txdName);
 
 	/**	\brief Forces caching of the given mesh.
 	 *
@@ -167,7 +168,7 @@ private:
 	 *	@param texture The texture header.
 	 *	@param data The texture data block.
 	 */
-	void cacheTexture(TXDTexture* texture, uint8_t* data = NULL);
+	void cacheTexture(const char* txdName, TXDTexture* texture, uint8_t* data = NULL);
 
 	/**	\brief Creates a cache entry for the given texture from the index and provides the header and data.
 	 *
@@ -178,7 +179,7 @@ private:
 	 *	@param data Reference to a pointer to be set to point at the texture data block.
 	 *	@return true if the cache entry was successfully created, false otherwise.
 	 */
-	bool cacheTexture(const char* name, TXDTexture*& texture, uint8_t*& data);
+	bool cacheTexture(const char* name, const char* txdName, TXDTexture*& texture, uint8_t*& data);
 
 	/**	\brief Creates a cache entry for the given mesh.
 	 *
@@ -227,6 +228,7 @@ private:
 
 private:
 	bool cacheTextureData;
+	TXDCacheMap txdCache;
 	TextureCacheMap textureCache;
 	MeshCacheMap meshCache;
 };

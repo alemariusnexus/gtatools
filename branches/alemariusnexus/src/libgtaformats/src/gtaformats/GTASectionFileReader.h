@@ -41,8 +41,10 @@ protected:
 	float nextFloat(char* str = NULL) { return (float) atof(nextString(str)); }
 	char* trim(char* str);
 
-private:
+protected:
 	InputStream* stream;
+
+private:
 	bool deleteStream;
 };
 

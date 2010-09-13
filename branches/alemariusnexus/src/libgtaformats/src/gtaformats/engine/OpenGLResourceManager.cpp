@@ -59,7 +59,7 @@ GLuint OpenGLResourceManager::generateTexture(TXDTexture* texture, uint8_t* data
 	GLuint texID = 0;
 	glGenTextures(1, &texID);
 
-	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+	//glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
 	glBindTexture(GL_TEXTURE_2D, texID);
 

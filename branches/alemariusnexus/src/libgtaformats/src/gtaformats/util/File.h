@@ -24,6 +24,8 @@
 #include "FileIterator.h"
 #include <cstdlib>
 #include "../stdint.h"
+#include "SharedData.h"
+#include "SharedDataPointer.h"
 
 struct IMGEntry;
 class IMGArchive;
