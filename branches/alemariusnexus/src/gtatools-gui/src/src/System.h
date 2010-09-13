@@ -1,0 +1,76 @@
+/*
+	Copyright 2010 David "Alemarius Nexus" Lerch
+
+	This file is part of gtatools-gui.
+
+	gtatools-gui is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	gtatools-gui is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef SYSTEM_H_
+#define SYSTEM_H_
+
+#include <qobject.h>
+#include <gtaformats/util/File.h>
+#include <gtaformats/util/Exception.h>
+#include "gui/GUIModule.h"
+#include <qlinkedlist.h>
+#include "gui/MainWindow.h"
+#include <qhash.h>
+#include <qvariant.h>
+#include <qstring.h>
+#include "Task.h"
+
+
+class System : public QObject {
+	Q_OBJECT
+
+public:
+	static System* getInstance();
+
+public:
+	void openFile(const File& file, const QHash<QString, QVariant>& data = QHash<QString, QVariant>());
+	void closeCurrentFile();
+	bool hasOpenFile();
+	File* getOpenFile();
+	void unhandeledException(Exception& ex);
+	void emitConfigurationChange();
+	void showStatusMessage(const QString& message, int timeout = 4000);
+	void installGUIModule(GUIModule* module);
+	void uninstallGUIModule(GUIModule* module);
+	QLinkedList<GUIModule*> getInstalledGUIModules() { return installedGUIModules; }
+	bool isGUIModuleInstalled(GUIModule* module) { return installedGUIModules.contains(module); }
+	Task* createTask();
+
+signals:
+	void fileOpened(const File& file, const QHash<QString, QVariant>& data);
+	void currentFileClosed();
+	void configurationChanged();
+	void installedGUIModule(GUIModule* module);
+	void uninstalledGUIModule(GUIModule* module);
+
+private:
+	System() : openedFile(NULL) {}
+	void setMainWindow(MainWindow* mw) { mainWindow = mw; }
+
+private:
+	MainWindow* mainWindow;
+	QLinkedList<GUIModule*> installedGUIModules;
+	File* openedFile;
+	int taskValue;
+
+private:
+	friend class MainWindow;
+};
+
+#endif /* SYSTEM_H_ */

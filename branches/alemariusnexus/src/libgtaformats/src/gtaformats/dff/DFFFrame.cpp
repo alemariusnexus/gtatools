@@ -1,0 +1,115 @@
+/*
+	Copyright 2010 David "Alemarius Nexus" Lerch
+
+	This file is part of gtaformats.
+
+	gtaformats is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	gtaformats is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with gtaformats.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "DFFFrame.h"
+#include <cstring>
+
+
+
+DFFFrame::DFFFrame(const DFFFrame& other)
+		: rotation(new Matrix3(*other.rotation)), translation(new Vector3(*other.translation)),
+		  flags(other.flags), name(new char[strlen(other.name)+1])
+{
+	strcpy(name, other.name);
+}
+
+
+DFFFrame::~DFFFrame()
+{
+	if (name != NULL) {
+		delete[] name;
+	}
+}
+
+
+void DFFFrame::mirrorYZ()
+{
+	translation->mirrorYZ();
+}
+
+
+void DFFFrame::scale(float x, float y, float z)
+{
+	translation->scale(x, y, z);
+}
+
+
+DFFFrame* DFFFrame::getChild(const char* name)
+{
+	ChildIterator it;
+
+	for (it = children.begin() ; it != children.end() ; it++) {
+		if (strcmp((*it)->getName(), name) == 0) {
+			return *it;
+		}
+	}
+}
+
+
+const DFFFrame* DFFFrame::getChild(const char* name) const
+{
+	ConstChildIterator it;
+
+	for (it = children.begin() ; it != children.end() ; it++) {
+		if (strcmp((*it)->getName(), name) == 0) {
+			return *it;
+		}
+	}
+}
+
+
+void DFFFrame::removeChild(DFFFrame* child)
+{
+	ChildIterator it;
+
+	for (it = children.begin() ; it != children.end() ; it++) {
+		if (*it == child) {
+			delete *it;
+			children.erase(it);
+		}
+	}
+}
+
+
+void DFFFrame::removeChildren()
+{
+	ChildIterator it;
+
+	for (it = children.begin() ; it != children.end() ; it++) {
+		delete *it;
+	}
+
+	children.clear();
+}
+
+
+int32_t DFFFrame::indexOf(const DFFFrame* child) const
+{
+	ConstChildIterator it;
+	int i = 0;
+
+	for (it = children.begin() ; it != children.end() ; it++, i++) {
+		if (*it == child) {
+			return i;
+		}
+	}
+
+	return -1;
+}
+
