@@ -48,13 +48,11 @@ void DFFRenderWidget::renderGeometry(DFFGeometry* geometry)
 
 	Profile* profile = ProfileManager::getInstance()->getCurrentProfile();
 
-	OpenGLResourceManager* rm = NULL;
+	ResourceIndex* rm = NULL;
 
 	if (profile) {
 		rm = profile->getResourceManager();
 	}
-
-	DFFOpenGLRenderer renderer(rm);
 
 	GLuint list = glGenLists(1);
 

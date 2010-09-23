@@ -20,7 +20,7 @@
 #ifndef DFFFRAME_H_
 #define DFFFRAME_H_
 
-#include <gf_config.h>
+#include "../gf_config.h"
 #include <cstdlib>
 #include "../util/math/Matrix3.h"
 #include "../util/math/Vector3.h"

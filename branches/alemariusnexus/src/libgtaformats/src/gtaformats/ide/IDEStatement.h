@@ -20,7 +20,7 @@
 #ifndef IDESTATEMENT_H_
 #define IDESTATEMENT_H_
 
-#include <gf_config.h>
+#include "../gf_config.h"
 
 typedef char idetype_t;
 

@@ -20,7 +20,7 @@
 #ifndef RESOURCEINDEX_H_
 #define RESOURCEINDEX_H_
 
-#include <gf_config.h>
+#include "../gf_config.h"
 #include "../util/StringComparator.h"
 #include "../txd/TXDTexture.h"
 #include "../txd/TXDArchive.h"

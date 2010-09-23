@@ -139,10 +139,6 @@ void ResourceIndex::indexTXD(TXDArchive* txd, const File& file)
 	strtolower(txdName, fullTxdName);
 	*strchr(txdName, '.') = '\0';
 
-	if (strcmp(txdName, "gta_tree_boak") == 0) {
-		printf("Found!\n");
-	}
-
 	txdIndex.insert(pair<const char*, TextureMap*>(txdName, map));
 	textureMutex.unlock();
 }

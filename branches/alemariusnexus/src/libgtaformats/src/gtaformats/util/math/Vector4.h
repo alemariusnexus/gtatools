@@ -8,7 +8,7 @@
 #ifndef VECTOR4_H_
 #define VECTOR4_H_
 
-#include <gf_config.h>
+#include "../../gf_config.h"
 #include <cstring>
 
 // TODO Replace 'int' with 'int32_t' (gave strange linker errors)

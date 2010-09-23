@@ -23,9 +23,10 @@
 #include "FilePath.h"
 #include "FileIterator.h"
 #include <cstdlib>
-#include "../stdint.h"
+#include "../gf_config.h"
 #include "SharedData.h"
 #include "SharedDataPointer.h"
+#include "stream/FileInputStream.h"
 
 struct IMGEntry;
 class IMGArchive;

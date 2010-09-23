@@ -24,7 +24,7 @@
 #include <QtCore/qlist.h>
 #include <QtCore/qstring.h>
 #include <QtCore/qfile.h>
-#include <gtaformats/engine/OpenGLResourceManager.h>
+#include <gtaformats/engine/ResourceIndex.h>
 #include <qmetatype.h>
 #include <gtaformats/util/File.h>
 #include "ProfileInitializer.h"
@@ -50,7 +50,7 @@ public:
 	void setName(const QString& name) { this->name = name; }
 	void synchronize();
 	bool containsFile(const File& file);
-	OpenGLResourceManager* getResourceManager() { return resourceIndex; };
+	ResourceIndex* getResourceManager() { return resourceIndex; };
 	bool isResourceIndexInitialized() { return resourceIdxInitialized; }
 
 private:
@@ -70,7 +70,7 @@ signals:
 private:
 	QLinkedList<File*> resources;
 	QString name;
-	OpenGLResourceManager* resourceIndex;
+	ResourceIndex* resourceIndex;
 	ProfileInitializer* currentInitializer;
 	bool resourceIdxInitialized;
 	Task* resourceInitTask;

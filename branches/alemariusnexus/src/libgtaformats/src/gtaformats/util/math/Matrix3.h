@@ -8,7 +8,7 @@
 #ifndef MATRIX3_H_
 #define MATRIX3_H_
 
-#include <gf_config.h>
+#include "../../gf_config.h"
 #include "Vector3.h"
 
 
@@ -34,6 +34,7 @@ public:
 	const Vector3 row(int i) const;
 	const Vector3 column(int i) const;
 	void transpose();
+	void printDebug();
 
 private:
 	float data[9];

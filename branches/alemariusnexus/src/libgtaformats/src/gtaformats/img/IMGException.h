@@ -20,7 +20,7 @@
 #ifndef IMGEXCEPTION_H_
 #define IMGEXCEPTION_H_
 
-#include <gf_config.h>
+#include "../gf_config.h"
 #include "../util/Exception.h"
 
 

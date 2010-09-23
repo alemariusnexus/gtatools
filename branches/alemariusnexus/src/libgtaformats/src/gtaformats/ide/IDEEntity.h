@@ -20,7 +20,7 @@
 #ifndef IDEENTITY_H_
 #define IDEENTITY_H_
 
-#include <gf_config.h>
+#include "../gf_config.h"
 #include "IDEStatement.h"
 
 

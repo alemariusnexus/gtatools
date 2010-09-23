@@ -8,7 +8,7 @@
 #ifndef MATRIX4_H_
 #define MATRIX4_H_
 
-#include <gf_config.h>
+#include "../../gf_config.h"
 #include "Vector3.h"
 #include "Vector4.h"
 
@@ -46,6 +46,8 @@ public:
 	void rotateX(float angle) { *this *= rotationX(angle); }
 	void rotateY(float angle) { *this *= rotationY(angle); }
 	void rotateZ(float angle) { *this *= rotationZ(angle); }
+	void setTranslation(float x, float y, float z);
+	void setTranslation(const Vector3& vec) { setTranslation(vec.getX(), vec.getY(), vec.getZ()); }
 
 public:
 	static Matrix4 translation(float x, float y, float z);
@@ -56,6 +58,7 @@ public:
 	static Matrix4 rotationY(float a);
 	static Matrix4 rotationZ(float a);
 	static Matrix4 lookAt(const Vector3& target, const Vector3& up);
+	static Matrix4 fromQuaternion(float x, float y, float z, float w);
 
 private:
 	float data[16];

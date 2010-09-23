@@ -7,6 +7,7 @@
 
 #include "Matrix3.h"
 #include <cstring>
+#include <cstdio>
 
 
 /*const Matrix3 Matrix3::IDENTITY = Matrix3 (
@@ -146,4 +147,11 @@ void Matrix3::transpose()
 	data[6] = odata[2];
 	data[7] = odata[5];
 	data[8] = odata[8];
+}
+
+
+void Matrix3::printDebug()
+{
+	printf("(\t%f\t%f\t%f\n\t%f\t%f\t%f\n\t%f\t%f\t%f\n)\n", data[0], data[1], data[2],
+			data[3], data[4], data[5], data[6], data[7], data[8]);
 }

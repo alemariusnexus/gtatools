@@ -20,7 +20,7 @@
 #ifndef TXDEXCEPTION_H_
 #define TXDEXCEPTION_H_
 
-#include <gf_config.h>
+#include "../gf_config.h"
 #include "../util/Exception.h"
 
 

@@ -220,6 +220,14 @@ const Vector4 Matrix4::operator*(const Vector4& rhv) const
 }
 
 
+void Matrix4::setTranslation(float x, float y, float z)
+{
+	data[12] = x;
+	data[13] = y;
+	data[14] = z;
+}
+
+
 Matrix4 Matrix4::translation(float x, float y, float z)
 {
 	return Matrix4 (
@@ -304,24 +312,25 @@ Matrix4 Matrix4::lookAt(const Vector3& target, const Vector3& up)
 			s.getZ(), u.getZ(), -f.getZ(), 0,
 			0, 0, 0, 1
 	);
+}
 
-	/*Vector3 cross = up.cross(target);
-	cross.normalize();
 
-	float tx = target.getX();
-	float ty = target.getY();
-	float tz = target.getZ();
-	float ux = up.getX();
-	float uy = up.getY();
-	float uz = up.getZ();
-	float cx = cross.getX();
-	float cy = cross.getY();
-	float cz = cross.getZ();
+Matrix4 Matrix4::fromQuaternion(float x, float y, float z, float w)
+{
+	float x2 = x*x;
+	float y2 = y*y;
+	float z2 = z*z;
+	float xy = x*y;
+	float zw = z*w;
+	float xz = x*z;
+	float yw = y*w;
+	float yz = y*z;
+	float xw = x*w;
 
 	return Matrix4 (
-			cx,	ux, -tx,	0,
-			cy,	uy, -ty, 0,
-			cz, uz, -tz, 0,
-			0,	0,	0,	1
-	);*/
+			1.0f - 2.0f * (y2-z2),	2.0f * (xy-zw),			2.0f * (xz+yw),			0.0f,
+			2.0f * (xy+zw),			1.0f - 2.0f * (x2-z2),	2.0f * (yz-xw),			0.0f,
+			2.0f * (xz-yw),			2.0f * (yz+xw),			1.0f - 2.0f * (x2-y2),	0.0f,
+			0.0f,					0.0f,					0.0f,					1.0f
+	);
 }

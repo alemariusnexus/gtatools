@@ -1,0 +1,287 @@
+/*
+ * GXTLoader.cpp
+ *
+ *  Created on: 18.09.2010
+ *      Author: alemariusnexus
+ */
+
+#include "GXTLoader.h"
+#include "GXTSAIVTable.h"
+#include "GXTVC3Table.h"
+#include "GXTException.h"
+#include "../util/stream/BufferedInputStream.h"
+#include <cstring>
+#include <cstdlib>
+#include <cstdio>
+
+
+struct GXTSAIVEntry
+{
+	int32_t offset;
+	int32_t keyHash;
+};
+
+
+struct GXTVC3Entry
+{
+	int32_t offset;
+	char key[8];
+};
+
+
+int EntrySortComparator(const void* e1, const void* e2)
+{
+	return ((GXTSAIVEntry*) e1)->offset - ((GXTSAIVEntry*) e2)->offset;
+}
+
+
+
+
+GXTLoader::GXTLoader(InputStream* stream, Encoding encoding, bool autoClose)
+		: stream(stream), autoClose(autoClose), encoding(encoding)
+{
+	init();
+}
+
+
+GXTLoader::GXTLoader(const File& file, Encoding encoding)
+		: stream(new BufferedInputStream(file.openStream(STREAM_BINARY))), autoClose(true), encoding(encoding)
+{
+	init();
+}
+
+
+void GXTLoader::init()
+{
+	char tov[4];
+	stream->read(tov, 4);
+	cpos = 4;
+
+	if (strncmp(tov, "TABL", 4) == 0) {
+		version = VC3;
+	} else {
+		version = SAIV;
+		stream->skip(4); // TABL
+		cpos += 4;
+	}
+
+	stream->read((char*) &numTables, 4);
+
+	if (numTables < 0) {
+		char* errmsg = new char[64];
+		sprintf(errmsg, "Invalid table header size: %d", numTables);
+		GXTException ex(errmsg, __FILE__, __LINE__);
+		delete[] errmsg;
+		throw ex;
+	}
+	if (numTables%12 != 0) {
+		char* errmsg = new char[128];
+		sprintf(errmsg, "Invalid table header size (must be multiple of 12): %d", numTables);
+		GXTException ex(errmsg, __FILE__, __LINE__);
+		delete[] errmsg;
+		throw ex;
+	}
+
+	numTables /= 12;
+	cpos += 4;
+
+	currentTable = 0;
+}
+
+
+bool GXTLoader::nextTableHeader(GXTTableHeader& header)
+{
+	if (currentTable >= numTables) {
+		return false;
+	}
+
+	int32_t headerOffset = currentTable*12 + 8; // +8 = TABL and block size
+
+	if (version == SAIV) {
+		headerOffset += 4; // GXT version
+	}
+
+	if (cpos != headerOffset) {
+		stream->seek(headerOffset-cpos, InputStream::STREAM_SEEK_CURRENT);
+	}
+
+	stream->read((char*) &header, 12);
+	cpos += 12;
+	currentTable++;
+
+	if (header.offset < 0) {
+		char* errmsg = new char[64];
+		sprintf(errmsg, "Invalid table offset: %d", header.offset);
+		GXTException ex(errmsg, __FILE__, __LINE__);
+		delete[] errmsg;
+		throw ex;
+	}
+
+	return true;
+}
+
+
+void GXTLoader::readTableHeaders(GXTTableHeader* headers)
+{
+	int32_t readTableCount = numTables-currentTable;
+	for (int32_t i = i = 0 ; i < readTableCount ; i++) {
+		nextTableHeader(headers[i]);
+	}
+}
+
+
+InputStream::streampos GXTLoader::getTableOffset(const GXTTableHeader& header) const
+{
+	InputStream::streampos offset = header.offset;
+
+	if (strncmp(header.name, "MAIN\0", 5) != 0) {
+		offset += 8; // The table name again
+	}
+
+	return offset;
+}
+
+
+GXTTable* GXTLoader::readTableData(const GXTTableHeader& header)
+{
+	InputStream::streampos offset = getTableOffset(header);
+	stream->seek(offset-cpos, InputStream::STREAM_SEEK_CURRENT);
+	cpos = offset;
+
+	stream->skip(4); // TKEY
+	cpos += 4;
+
+	int32_t tkeySize;
+	stream->read((char*) &tkeySize, 4);
+	cpos += 4;
+
+	if (version == SAIV) {
+		int32_t numEntries = tkeySize/8;
+		GXTSAIVTable* table = new GXTSAIVTable(encoding == None ? GXT8 : encoding);
+		GXTSAIVEntry* entries = new GXTSAIVEntry[numEntries];
+
+		for (int32_t i = 0 ; i < numEntries ; i++) {
+			stream->read((char*) &entries[i], 8);
+		}
+
+		cpos += 8*numEntries;
+
+		stream->skip(8); // "TDAT" + TDAT size
+		cpos += 8;
+
+		qsort(entries, numEntries, 8, EntrySortComparator);
+		InputStream::streampos tdatRead = 0;
+
+		for (int32_t i = 0 ; i < numEntries ; i++) {
+			InputStream::streamsize skip = entries[i].offset - tdatRead;
+			stream->skip(skip);
+			tdatRead += skip;
+
+			int step = 64;
+			char* text = NULL;
+			int textLen = 0;
+			bool finished = false;
+			int strLen = 0;
+
+			for (int j = 0 ; !finished ; j++) {
+				char* tmp = new char[(j+1)*step];
+
+				if (text) {
+					memcpy(tmp, text, j*step);
+					delete[] text;
+				}
+
+				text = tmp;
+
+				for (int k = 0 ; k < step ; k++) {
+					int idx = j*step + k;
+					stream->read(text+idx, 1);
+
+					strLen++;
+					if (text[idx] == '\0') {
+						finished = true;
+						break;
+					}
+				}
+			}
+
+			if (encoding != None  &&  encoding != GXT8) {
+				char* old = text;
+				int textSize = GetSufficientTranscodeBufferSize(strLen, GXT8, encoding);
+				text = new char[textSize];
+				Transcode(old, strLen, text, textSize, GXT8, encoding);
+				delete[] old;
+			}
+
+			table->setValue(entries[i].keyHash, text);
+			tdatRead += strLen;
+		}
+
+		cpos += tdatRead;
+
+		delete[] entries;
+
+		return table;
+	} else {
+		int32_t numEntries = tkeySize/12;
+		GXTVC3Table* table = new GXTVC3Table(encoding == None ? GXT16 : encoding, true);
+		GXTVC3Entry* entries = new GXTVC3Entry[numEntries];
+
+		for (int32_t i = 0 ; i < numEntries ; i++) {
+			stream->read((char*) &entries[i], 12);
+		}
+
+		cpos += 12*numEntries;
+
+		qsort(entries, numEntries, 12, EntrySortComparator);
+
+		stream->skip(4); // TDAT
+		cpos += 4;
+
+		int32_t tdatSize;
+		stream->read((char*) &tdatSize, 4);
+		cpos += 4;
+
+		InputStream::streampos tdatRead = 0;
+
+		for (int32_t i = 0 ; i < numEntries ; i++) {
+			InputStream::streamsize skip = entries[i].offset - tdatRead;
+			stream->skip(skip);
+			tdatRead += skip;
+
+			int maxLen;
+
+			if (i < numEntries-1) {
+				maxLen = entries[i+1].offset - entries[i].offset;
+			} else {
+				maxLen = tdatSize - tdatRead;
+			}
+
+			char* text = NULL;
+
+			text = new char[maxLen];
+			stream->read(text, maxLen);
+			tdatRead += maxLen;
+
+			if (encoding != None  &&  encoding != GXT16) {
+				char* old = text;
+				int textSize = GetSufficientTranscodeBufferSize(maxLen, GXT16, encoding);
+				text = new char[textSize];
+				Transcode(old, maxLen, text, textSize, GXT16, encoding);
+				delete[] old;
+			}
+
+			char* key = new char[8];
+			strncpy(key, entries[i].key, 8);
+			table->setValue(key, text);
+		}
+
+		cpos += tdatRead;
+
+		delete[] entries;
+
+		return table;
+	}
+
+	return NULL;
+}

@@ -143,13 +143,13 @@ int DFFLoader::parseStruct(InputStream* stream, RwSectionHeader& structHeader, R
 			float* rotData = new float[9];
 			float* transData = new float[3];
 
-			Matrix3* rot = new Matrix3(rotData);
-			Vector3* trans = new Vector3(transData);
-
 			stream->read((char*) rotData, 36);
 			stream->read((char*) transData, 12);
 			stream->read((char*) &parentIdx, 4);
 			stream->read((char*) &frame->flags, 4);
+
+			Matrix3* rot = new Matrix3(rotData);
+			Vector3* trans = new Vector3(transData);
 
 			frame->setRotation(rot);
 			frame->setTranslation(trans);
