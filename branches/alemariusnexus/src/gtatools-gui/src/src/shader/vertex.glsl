@@ -1,10 +1,10 @@
-#version 130
+#version 120
 
 uniform mat4 MVPMatrix;
-in vec4 Vertex;
-in vec2 TexCoord;
+attribute vec4 Vertex;
+attribute vec2 TexCoord;
 
-out vec2 FragTexCoord;
+varying vec2 FragTexCoord;
 
 void main()
 {
