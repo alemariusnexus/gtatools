@@ -6,18 +6,19 @@
  */
 
 #include "DFFRenderWidget.h"
-#include <GL/gl.h>
-#include <GL/glu.h>
 #include <cstdio>
 #include "../../Profile.h"
 #include "../../ProfileManager.h"
-#include <gtaformats/engine/DFFOpenGLRenderer.h>
+#include <gtaformats/util/File.h>
+#include <gtaformats/util/thread/Mutex.h>
+#include <gta/GLException.h>
+#include <QFile>
 
 
 
 
 DFFRenderWidget::DFFRenderWidget(QWidget* parent, QGLWidget* shareWidget)
-		: QGLWidget(parent, shareWidget), rx(0.0f), ry(0.0f), renderList(-1), textures(true),
+		: QGLWidget(parent, shareWidget), lastX(-1), lastY(-1), object(NULL), textures(true),
 		  wireframe(false), currentGeometry(NULL), currentPart(NULL)
 {
 	ProfileManager* pm = ProfileManager::getInstance();
@@ -35,33 +36,30 @@ DFFRenderWidget::DFFRenderWidget(QWidget* parent, QGLWidget* shareWidget)
 
 DFFRenderWidget::~DFFRenderWidget()
 {
+	if (object) {
+		delete object;
+	}
 }
 
 
 void DFFRenderWidget::renderGeometry(DFFGeometry* geometry)
 {
 	makeCurrent();
+	program->makeCurrent();
 
-	if (renderList != -1) {
-		glDeleteLists(renderList, 1);
+	if (object) {
+		//delete object;
 	}
 
 	Profile* profile = ProfileManager::getInstance()->getCurrentProfile();
 
-	ResourceIndex* rm = NULL;
+	ResourceManager* rm = NULL;
 
 	if (profile) {
 		rm = profile->getResourceManager();
 	}
 
-	GLuint list = glGenLists(1);
-
-	glNewList(list, GL_COMPILE);
-	renderer.renderGeometry(geometry, false);
-	glEndList();
-
-	renderList = list;
-
+	object = new StaticObjectDefinition(geometry, NULL, rm);
 	currentGeometry = geometry;
 
 	updateGL();
@@ -71,29 +69,21 @@ void DFFRenderWidget::renderGeometry(DFFGeometry* geometry)
 void DFFRenderWidget::renderGeometryPart(DFFGeometry* geometry, DFFGeometryPart* part)
 {
 	makeCurrent();
+	program->makeCurrent();
 
-	if (renderList != -1) {
-		glDeleteLists(renderList, 1);
+	if (object) {
+		//delete object;
 	}
 
 	Profile* profile = ProfileManager::getInstance()->getCurrentProfile();
 
-	OpenGLResourceManager* rm = NULL;
+	ResourceManager* rm = NULL;
 
 	if (profile) {
 		rm = profile->getResourceManager();
 	}
 
-	DFFOpenGLRenderer renderer(rm);
-
-	GLuint list = glGenLists(1);
-
-	glNewList(list, GL_COMPILE);
-	renderer.renderGeometryPart(geometry, part);
-	glEndList();
-
-	renderList = list;
-
+	object = new StaticObjectDefinition(geometry, part, NULL, rm);
 	currentGeometry = geometry;
 	currentPart = part;
 
@@ -103,7 +93,39 @@ void DFFRenderWidget::renderGeometryPart(DFFGeometry* geometry, DFFGeometryPart*
 
 void DFFRenderWidget::initializeGL()
 {
-	glColor3f(1.0f, 0.0f, 0.0f);
+	/*if (!glewInited) {
+		glewInit();
+		glewInited = true;
+	}*/
+
+	makeCurrent();
+	glewInit();
+
+	cam.move(-2.0f);
+
+	QFile vfile(":/src/shader/vertex.glsl");
+	vfile.open(QFile::ReadOnly);
+	QByteArray vsrc = vfile.readAll();
+
+	QFile ffile(":/src/shader/fragment.glsl");
+	ffile.open(QFile::ReadOnly);
+	QByteArray fsrc = ffile.readAll();
+
+	vertexShader = new Shader(GL_VERTEX_SHADER);
+	//vertexShader->loadSourceCode(File("/home/alemariusnexus/shader/vertex.glsl"));
+	vertexShader->loadSourceCode(vsrc.constData(), vsrc.length());
+	vertexShader->compile();
+
+	fragmentShader = new Shader(GL_FRAGMENT_SHADER);
+	//fragmentShader->loadSourceCode(File("/home/alemariusnexus/shader/fragment.glsl"));
+	fragmentShader->loadSourceCode(fsrc.constData(), fsrc.length());
+	fragmentShader->compile();
+
+	program = new ShaderProgram;
+	program->attachShader(vertexShader);
+	program->attachShader(fragmentShader);
+	program->link();
+	program->makeCurrent();
 
 	glEnable(GL_DEPTH_TEST);
 
@@ -112,8 +134,6 @@ void DFFRenderWidget::initializeGL()
 
 	GLuint texID;
 	glGenTextures(1, &texID);
-
-	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
 	glBindTexture(GL_TEXTURE_2D, texID);
 
@@ -168,45 +188,106 @@ void DFFRenderWidget::initializeGL()
 	};
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 3, 3, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex2);
+
+
+
+	float vertices[] = {
+		1.0f, -2.0f, 1.0f,
+		-1.0f, -2.0f, 1.0f,
+		-1.0f, -2.0f, -1.0f,
+		1.0f, -2.0f, -1.0f
+	};
+	unsigned int indices[] = {
+		0, 1, 2, 3
+	};
+
+	glGenBuffers(1, &dataBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, dataBuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glGenBuffers(1, &indexBuffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 }
 
 
 void DFFRenderWidget::resizeGL(int w, int h)
 {
+	float aspect = (float) w / (float) h;
 	glViewport(0, 0, w, h);
 
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluPerspective(70, (float) w / (float) h, 1.0, 100.0);
+	float l = aspect*0.7;
+	float r = aspect*-0.7;
+	float b = -0.7;
+	float t = 0.7;
+	float n = 1.0;
+	float f = 3000.0;
 
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	gluLookAt(0.0, 0.0, 5.0, 0.0, 0.0, -1.0, 0.0, 1.0, 0.0);
+	// glFrustum(l, r, b, t, n, f):
+	pMatrix = Matrix4 (
+		2*n/(r-l),	0,		0,			0,
+		0,		2*n/(t-b),	0, 			0,
+		(r+l)/(r-l),	(t+b)/(t-b),	(-(f+n))/(f-n),		-1,
+		0,		0,		(-2*f*n)/(f-n),		0
+	);
 }
 
 
 void DFFRenderWidget::paintGL()
 {
-	glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
+	program->makeCurrent();
 
 	if (textures) {
 		glEnable(GL_TEXTURE_2D);
 	}
 
+	Matrix4 mvpMatrix = pMatrix;
+	mvpMatrix *= Matrix4::lookAt(cam.getTarget(), cam.getUp());
+	mvpMatrix.translate(-cam.getPosition());
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	if (renderList != -1) {
-		glCallList(renderList);
+	GLint mvpMatrixUniform = program->getUniformLocation("MVPMatrix");
+
+	if (object) {
+		glUniformMatrix4fv(mvpMatrixUniform, 1, GL_FALSE, mvpMatrix.toArray());
+		object->draw();
 	}
 
 	glDisable(GL_TEXTURE_2D);
+
+	/*if (textures) {
+		glEnable(GL_TEXTURE_2D);
+	}
+
+	glBindBuffer(GL_ARRAY_BUFFER, dataBuffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+
+	GLint vertexAttrib = program->getAttributeLocation("Vertex");
+	GLint mvpMatrixUniform = program->getUniformLocation("MVPMatrix");
+	GLint texturedUniform = program->getUniformLocation("Textured");
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	Matrix4 mvpMatrix = pMatrix;
+	mvpMatrix *= Matrix4::lookAt(cam.getTarget(), cam.getUp());
+	mvpMatrix.translate(-cam.getPosition());
+
+	glUniformMatrix4fv(mvpMatrixUniform, 1, GL_FALSE, mvpMatrix.toArray());
+	glUniform1i(texturedUniform, 0);
+
+	glEnableVertexAttribArray(vertexAttrib);
+	glVertexAttribPointer(vertexAttrib, 3, GL_FLOAT, GL_FALSE, 0, (char*) 0);
+	glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (char*) 0);
+
+	glDisable(GL_TEXTURE_2D);*/
 }
 
 
 void DFFRenderWidget::mousePressEvent(QMouseEvent* evt)
 {
 	if (evt->button() == Qt::LeftButton) {
-		lastDragPos = evt->pos();
+		lastX = evt->pos().x();
+		lastY = evt->pos().y();
 	}
 }
 
@@ -217,16 +298,16 @@ void DFFRenderWidget::mouseMoveEvent(QMouseEvent* evt)
 
 	QPoint newPos = evt->pos();
 
-	int xo = newPos.x() - lastDragPos.x();
-	int yo = newPos.y() - lastDragPos.y();
+	int xo = newPos.x() - lastX;
+	int yo = newPos.y() - lastY;
 
-	lastDragPos = newPos;
+	lastX = newPos.x();
+	lastY = newPos.y();
 
-	rx = (float)yo*0.5f;
-	ry = (float)xo*0.5f;
-
-	glRotatef(rx, 1.0, 0.0, 0.0);
-	glRotatef(ry, 0.0, 1.0, 0.0);
+	if (lastX != -1  &&  lastY != -1) {
+		cam.rotateHorizontal(xo*0.005f);
+		cam.rotateVertical(yo*0.005f);
+	}
 
 	updateGL();
 }

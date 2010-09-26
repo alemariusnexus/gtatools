@@ -38,6 +38,7 @@ public:
 	bool nextTableHeader(GXTTableHeader& header);
 	void readTableHeaders(GXTTableHeader* headers);
 	GXTTable* readTableData(const GXTTableHeader& header);
+	Version getVersion() { return version; }
 
 private:
 	void init();

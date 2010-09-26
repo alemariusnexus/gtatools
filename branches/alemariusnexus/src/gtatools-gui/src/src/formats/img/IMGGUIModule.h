@@ -32,7 +32,7 @@ private:
 private slots:
 	void onExtract(bool);
 	void onContextExtract(bool);
-	void currentFileChanged(const File& file, const QHash<QString, QVariant>& data);
+	void currentFileChanged(File* file, File* prev);
 
 private:
 	QAction* extractAction;

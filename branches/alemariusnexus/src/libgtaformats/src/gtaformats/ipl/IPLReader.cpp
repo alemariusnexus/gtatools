@@ -21,6 +21,7 @@
 #include <string>
 #include <cstdlib>
 #include "IPLInstance.h"
+#include "IPLCar.h"
 
 using std::string;
 
@@ -85,6 +86,9 @@ IPLStatement* IPLReader::readStatement()
 				continue;
 			} else if (strcmp(line, "inst") == 0) {
 				currentSection = INST;
+				continue;
+			} else if (strcmp(line, "cars") == 0) {
+				currentSection = CARS;
 				continue;
 			}
 
@@ -154,6 +158,32 @@ IPLStatement* IPLReader::readStatement()
 						interior,
 						lod
 				);
+			} else if (currentSection == CARS) {
+				float x, y, z;
+				float angle;
+				int32_t carId;
+				int32_t primaryColor, secondaryColor;
+				bool forceSpawn;
+				int32_t alarmProb, doorLockProb;
+				int32_t unknown1, unknown2;
+
+				x = nextFloat(line);
+				y = nextFloat();
+				z = nextFloat();
+				angle = nextFloat();
+				carId = nextInt();
+				primaryColor = nextInt();
+				secondaryColor = nextInt();
+				forceSpawn = (nextInt() == 1);
+				alarmProb = nextInt();
+				doorLockProb = nextInt();
+				unknown1 = nextInt();
+				unknown2 = nextInt();
+
+				return new IPLCar (
+						x, y, z, angle, carId, primaryColor, secondaryColor, forceSpawn, alarmProb,
+						doorLockProb, unknown1, unknown2
+				);
 			} else {
 				continue;
 			}
@@ -191,7 +221,30 @@ IPLStatement* IPLReader::readStatement()
 					lod
 			);
 		} else {
-			stmt = NULL;
+			float pos[3];
+			float angle;
+			int32_t carId;
+			int32_t primaryColor, secondaryColor;
+			int32_t forceSpawn;
+			int32_t alarmProb, doorLockProb;
+			int32_t unknown1;
+			int32_t unknown2;
+
+			stream->read((char*) pos, 3*4);
+			stream->read((char*) &angle, 4);
+			stream->read((char*) &carId, 4);
+			stream->read((char*) &primaryColor, 4);
+			stream->read((char*) &secondaryColor, 4);
+			stream->read((char*) &forceSpawn, 4);
+			stream->read((char*) &alarmProb, 4);
+			stream->read((char*) &doorLockProb, 4);
+			stream->read((char*) &unknown1, 4);
+			stream->read((char*) &unknown2, 4);
+
+			stmt = new IPLCar (
+					pos[0], pos[1], pos[2], angle, carId, primaryColor, secondaryColor, (forceSpawn == 1),
+					alarmProb, doorLockProb, unknown1, unknown2
+			);
 		}
 
 		binaryReadCount++;

@@ -12,6 +12,7 @@
 #include "DFFXMLDumpDialog.h"
 #include <qfile.h>
 #include <qtextstream.h>
+#include <cstdio>
 
 
 int mainTabberIndex = 0;
@@ -20,19 +21,21 @@ int geometryPartTabberIndex = 0;
 
 
 
-DFFWidget::DFFWidget(const File& file, QWidget* parent)
+DFFWidget::DFFWidget(const File& file, QWidget* parent, QGLWidget* shareWidget)
 		: QWidget(parent)
 {
+	printf("New DFF widget\n");
+
 	ui.setupUi(this);
 
 	ui.mainTabber->setCurrentIndex(mainTabberIndex);
 	ui.geometryTabber->setCurrentIndex(geometryTabberIndex);
 	ui.geometryPartTabber->setCurrentIndex(geometryPartTabberIndex);
 
-	geometryRenderWidget = new DFFRenderWidget(ui.geometryRenderContainerWidget);
+	geometryRenderWidget = new DFFRenderWidget(ui.geometryRenderContainerWidget, shareWidget);
 	ui.geometryRenderContainerWidget->layout()->addWidget(geometryRenderWidget);
 
-	geometryPartRenderWidget = new DFFRenderWidget(ui.geometryPartRenderContainerWidget);
+	geometryPartRenderWidget = new DFFRenderWidget(ui.geometryPartRenderContainerWidget, shareWidget);
 	ui.geometryPartRenderContainerWidget->layout()->addWidget(geometryPartRenderWidget);
 
 	DFFLoader dff;
@@ -91,6 +94,9 @@ DFFWidget::~DFFWidget()
 	delete mesh;
 
 	delete frameModel;
+
+	delete geometryRenderWidget;
+	delete geometryPartRenderWidget;
 }
 
 
@@ -288,7 +294,7 @@ void DFFWidget::geometryPartSelected(int row)
 
 	if (mat) {
 		QListWidgetItem* item = ui.materialList->item(geom->indexOf(mat));
-		ui.geometryPartMaterialLabel->setText(ui.materialList->item(geom->indexOf(mat))->text());
+		//ui.geometryPartMaterialLabel->setText(ui.materialList->item(geom->indexOf(mat))->text());
 	} else {
 		ui.geometryPartMaterialLabel->setText(tr("None"));
 	}

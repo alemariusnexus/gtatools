@@ -50,6 +50,7 @@ private:
 	virtual ~ProfileManager();
 
 signals:
+	void profilesLoaded();
 	void currentProfileChanged(Profile* oldProfile, Profile* newProfile);
 	void profileAdded(Profile* profile);
 	void profileRemoved(Profile* profile);

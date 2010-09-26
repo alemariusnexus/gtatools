@@ -31,6 +31,11 @@
 #include <qprogressbar.h>
 #include <qtabwidget.h>
 #include <QLabel>
+#include <QtCore/qmap.h>
+#include "../FileOpenRequest.h"
+#include "FileViewWidget.h"
+#include "FileTree.h"
+#include <QtGui/qaction.h>
 
 
 class MainWindow : public QMainWindow {
@@ -50,25 +55,29 @@ public:
 	QProgressBar* getProgressBar() { return progressBar; }
 	QStatusBar* getStatusBar() { return ui.statusbar; }
 	QLabel* getTaskLabel() { return taskLabel; }
-
-private:
-	void loadConfigUiSettings();
+	void addDockWidget(Qt::DockWidgetArea area, QDockWidget* widget);
+	void removeDockWidget(QDockWidget* widget);
 
 private slots:
-	void openFile(const File& file, const QHash<QString, QVariant>& data);
-	void closeCurrentFile();
+	void openFile(const FileOpenRequest& request);
+	void currentFileChanged(File* file, File* prev);
+	void closeFile(File* file);
 	void configurationChanged();
+	void currentFileTabChanged(int index);
+	void fileTabClosed(int index);
+	void dockWidgetViewChanged(bool checked);
+	void dockWidgetVisibilityChanged(bool visible);
 
 public slots:
 	void taskLabelShouldAdjust();
 
 private:
-	QTabWidget* contentTabCompact;
+	QList<QDockWidget*> dockWidgets;
+	QList<QAction*> dockViewActions;
+	QMap<File, FileViewWidget*> fileWidgets;
 	Ui_MainWindow ui;
 	QLabel* taskLabel;
 	QProgressBar* progressBar;
-	QWidget* currentDisplayWidget;
-	bool hasOpenFile;
 };
 
 #endif /* MAINWINDOW_H_ */

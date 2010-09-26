@@ -42,6 +42,8 @@ public:
 
 	virtual EntryIterator getLastEntry() { return entries.end(); }
 
+	virtual int getEntryCount() { return entries.size(); }
+
 	/**	\brief Inserts or updates an entry value.
 	 *
 	 * 	@param keyHash The CRC32 checksum of the entry key.

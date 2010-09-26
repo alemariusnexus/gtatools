@@ -32,60 +32,47 @@ System* System::getInstance()
 }
 
 
-void System::openFile(const File& file, const QHash<QString, QVariant>& data)
+bool System::openFile(const FileOpenRequest& request)
 {
-	if (strcmp(file.getPath()->toString(), "/home/alemariusnexus/jizzy.dff") == 0) {
-		printf("Ja!\n");
+	if (isOpenFile(*request.getFile())) {
+		return false;
 	}
 
-	if (hasOpenFile()) {
-		closeCurrentFile();
+	openFiles << new File(*request.getFile());
+	emit fileOpened(request);
+
+	changeCurrentFile(request.getFile());
+}
+
+
+bool System::isOpenFile(const File& file)
+{
+	QLinkedList<File*>::iterator it;
+
+	for (it = openFiles.begin() ; it != openFiles.end() ; it++) {
+		File* ofile = *it;
+
+		if (*ofile == file) {
+			return true;
+		}
 	}
 
-	openedFile = new File(file);
-	emit fileOpened(*openedFile, data);
+	return false;
 }
 
 
 void System::closeCurrentFile()
 {
-	emit currentFileClosed();
-	delete openedFile;
-	openedFile = NULL;
+	if (currentFile != NULL) {
+		closeFile(*currentFile);
+	}
 }
 
 
 bool System::hasOpenFile()
 {
-	return openedFile != NULL;
+	return openFiles.size() != 0;
 }
-
-
-File* System::getOpenFile()
-{
-	return openedFile;
-}
-
-
-/*void System::startTask(int min, int max, const QString& message)
-{
-	emit taskStarted(min, max, message);
-	updateTaskValue(min);
-}
-
-
-void System::updateTaskValue(int value)
-{
-	taskValue = value;
-	emit taskValueUpdated(value);
-}
-
-
-void System::endTask()
-{
-	taskValue = 0;
-	emit taskEnded();
-}*/
 
 
 Task* System::createTask()
@@ -135,6 +122,48 @@ void System::unhandeledException(Exception& ex)
 void System::emitConfigurationChange()
 {
 	emit configurationChanged();
+}
+
+
+void System::changeCurrentFile(const File* file)
+{
+	QLinkedList<File*>::iterator it;
+
+	for (it = openFiles.begin() ; it != openFiles.end() ; it++) {
+		File* ofile = *it;
+
+		if (*ofile == *file) {
+			File* prev = currentFile;
+			currentFile = ofile;
+			emit currentFileChanged(ofile, prev);
+			break;
+		}
+	}
+}
+
+
+void System::closeFile(const File& file)
+{
+	QLinkedList<File*>::iterator it;
+
+	for (it = openFiles.begin() ; it != openFiles.end() ; it++) {
+		File* ofile = *it;
+
+		if (*ofile == file) {
+			openFiles.removeOne(ofile);
+
+			if (currentFile == ofile) {
+				if (openFiles.size() > 0) {
+					changeCurrentFile(openFiles.first());
+				} else {
+					changeCurrentFile(NULL);
+				}
+			}
+
+			emit fileClosed(ofile);
+			break;
+		}
+	}
 }
 
 

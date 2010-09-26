@@ -22,7 +22,7 @@ void ProfileInitializer::run()
 {
 	try {
 		Profile::ResourceIterator it;
-		ResourceIndex* rm = profile->getResourceManager();
+		ResourceManager* rm = profile->getResourceManager();
 
 		System* sys = System::getInstance();
 		Task* task = sys->createTask();
@@ -46,7 +46,7 @@ void ProfileInitializer::run()
 
 void ProfileInitializer::addResource(const File& file)
 {
-	ResourceIndex* rm = profile->getResourceManager();
+	ResourceManager* rm = profile->getResourceManager();
 
 	if (interrupted) {
 		return;

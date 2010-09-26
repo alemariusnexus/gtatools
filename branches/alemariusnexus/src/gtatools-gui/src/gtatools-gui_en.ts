@@ -95,7 +95,7 @@
 <context>
     <name>DFFFormatHandler</name>
     <message>
-        <location filename="src/formats/dff/DFFFormatHandler.h" line="30"/>
+        <location filename="src/formats/dff/DFFFormatHandler.h" line="32"/>
         <source>DFF Mesh</source>
         <translation>DFF Mesh</translation>
     </message>
@@ -316,17 +316,17 @@
         <translation type="obsolete">Unnamed %1</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="41"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="53"/>
         <source>Geometry %1</source>
         <translation>Geometry %1</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="124"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="144"/>
         <source>(%1, %2, %3)</source>
         <translation>(%1, %2, %3)</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="125"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="145"/>
         <source>(%1, %2, %3) (%4, %5, %6) (%7, %8, %9)</source>
         <oldsource>(%1, %2, %3)
 (%4, %5, %6)
@@ -336,61 +336,61 @@
 (%7, %8, %9)</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="130"/>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="184"/>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="279"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="150"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="204"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="299"/>
         <source>None</source>
         <translation>None</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="151"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="171"/>
         <source>Triangle Strips</source>
         <translation>Triangle Strips</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="151"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="171"/>
         <source>Triangle List</source>
         <translation>Triangle List</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="159"/>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="160"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="179"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="180"/>
         <source>no</source>
         <translation>no</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="159"/>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="160"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="179"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="180"/>
         <source>yes</source>
         <translation>yes</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="161"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="181"/>
         <source>(%1, %2, %3 : %4)</source>
         <translation>(%1, %2, %3 : %4)</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="197"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="217"/>
         <source>Material %1</source>
         <translation>Material %1</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="206"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="226"/>
         <source>Part %1</source>
         <translation>Part %1</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="230"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="250"/>
         <source>(%1, %2, %3, %4)</source>
         <translation>(%1, %2, %3, %4)</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="303"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="323"/>
         <source>Choose a destination file</source>
         <translation>Choose a destination file</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="304"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="324"/>
         <source>XML Files (*.xml)</source>
         <translation>XML Files (*.xml)</translation>
     </message>
@@ -441,63 +441,68 @@
 <context>
     <name>DefaultGUIModule</name>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="41"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="46"/>
         <source>Open...</source>
         <translation>Open...</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="45"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="50"/>
         <source>Close</source>
         <translation>Close</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="50"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="55"/>
         <source>Search File...</source>
         <translation>Search File...</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="54"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="59"/>
         <source>Settings...</source>
         <translation>Settings...</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="58"/>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="262"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="63"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="272"/>
         <source>About Qt</source>
         <translation>About Qt</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="61"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="66"/>
         <source>About</source>
         <translation>About</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="64"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="69"/>
         <source>Version Information</source>
         <translation>Version Information</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="125"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="133"/>
         <source>Switch</source>
         <translation>Switch</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="67"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="72"/>
         <source>Execute System Program</source>
         <translation>Execute System Program</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="157"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="41"/>
+        <source>File Tree</source>
+        <translation>File Tree</translation>
+    </message>
+    <message>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="164"/>
         <source>No Profile</source>
         <translation>No Profile</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="269"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="279"/>
         <source>About GTATools GUI Tool</source>
         <translation>About GTATools GUI Tool</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="268"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="278"/>
         <source>AboutText</source>
         <translation>This is gtatools-gui. This program is part of gtatools and runs with version %1.
 
@@ -508,7 +513,7 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="282"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="292"/>
         <source>Select file</source>
         <translation>Select file</translation>
     </message>
@@ -516,22 +521,22 @@ You should have received a copy of the GNU General Public License along with thi
 <context>
     <name>FileItemModel</name>
     <message>
-        <location filename="src/gui/FileItemModel.cpp" line="111"/>
+        <location filename="src/gui/FileItemModel.cpp" line="117"/>
         <source>Filename</source>
         <translation>Filename</translation>
     </message>
     <message>
-        <location filename="src/gui/FileItemModel.cpp" line="114"/>
+        <location filename="src/gui/FileItemModel.cpp" line="120"/>
         <source>File Type</source>
         <translation>File Type</translation>
     </message>
     <message>
-        <location filename="src/gui/FileItemModel.cpp" line="142"/>
+        <location filename="src/gui/FileItemModel.cpp" line="148"/>
         <source>Directory</source>
         <translation>Directory</translation>
     </message>
     <message>
-        <location filename="src/gui/FileItemModel.cpp" line="149"/>
+        <location filename="src/gui/FileItemModel.cpp" line="155"/>
         <source>Unrecognized File</source>
         <translation>Unrecognized File</translation>
     </message>
@@ -620,6 +625,54 @@ You should have received a copy of the GNU General Public License along with thi
     </message>
 </context>
 <context>
+    <name>FileViewWidget</name>
+    <message>
+        <location filename="src/gui/FileViewWidget.ui" line="48"/>
+        <source>(No File Opened)</source>
+        <translation>(No File Opened)</translation>
+    </message>
+    <message>
+        <location filename="src/gui/FileViewWidget.ui" line="76"/>
+        <source>File Type</source>
+        <translation>File Type</translation>
+    </message>
+    <message>
+        <location filename="src/gui/FileViewWidget.ui" line="83"/>
+        <source>File Size</source>
+        <translation>File Size</translation>
+    </message>
+    <message>
+        <location filename="src/gui/FileViewWidget.cpp" line="21"/>
+        <source>Directory</source>
+        <translation>Directory</translation>
+    </message>
+    <message>
+        <location filename="src/gui/FileViewWidget.cpp" line="22"/>
+        <source>%1 files</source>
+        <translation>%1 files</translation>
+    </message>
+    <message>
+        <location filename="src/gui/FileViewWidget.cpp" line="27"/>
+        <source>%1MB</source>
+        <translation>%1MB</translation>
+    </message>
+    <message>
+        <location filename="src/gui/FileViewWidget.cpp" line="29"/>
+        <source>%1kB</source>
+        <translation>%1kB</translation>
+    </message>
+    <message>
+        <location filename="src/gui/FileViewWidget.cpp" line="31"/>
+        <source>%1B</source>
+        <translation>%1B</translation>
+    </message>
+    <message>
+        <location filename="src/gui/FileViewWidget.cpp" line="37"/>
+        <source>Unrecognized File</source>
+        <translation>Unrecognized File</translation>
+    </message>
+</context>
+<context>
     <name>FirstStartWizard</name>
     <message>
         <location filename="src/gui/FirstStartWizard.cpp" line="33"/>
@@ -663,6 +716,14 @@ You should have received a copy of the GNU General Public License along with thi
     </message>
 </context>
 <context>
+    <name>GXTFormatHandler</name>
+    <message>
+        <location filename="src/formats/gxt/GXTFormatHandler.h" line="19"/>
+        <source>GXT Text File</source>
+        <translation>GXT Text File</translation>
+    </message>
+</context>
+<context>
     <name>IDEFormatHandler</name>
     <message>
         <location filename="src/formats/ide/IDEFormatHandler.h" line="29"/>
@@ -702,7 +763,7 @@ You should have received a copy of the GNU General Public License along with thi
         <translation>Extract File</translation>
     </message>
     <message>
-        <location filename="src/formats/img/IMGGUIModule.cpp" line="96"/>
+        <location filename="src/formats/img/IMGGUIModule.cpp" line="95"/>
         <source>Choose a destination file</source>
         <translation>Choose a destination file</translation>
     </message>
@@ -710,9 +771,14 @@ You should have received a copy of the GNU General Public License along with thi
 <context>
     <name>IPLFormatHandler</name>
     <message>
-        <location filename="src/formats/ipl/IPLFormatHandler.h" line="29"/>
+        <location filename="src/formats/ipl/IPLFormatHandler.cpp" line="30"/>
         <source>Item Placement File (IPL)</source>
         <translation>Item Placement File (IPL)</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ipl/IPLFormatHandler.cpp" line="32"/>
+        <source>Binary Item Placement File (IPL)</source>
+        <translation>Binary Item Placement File (IPL)</translation>
     </message>
 </context>
 <context>
@@ -723,103 +789,96 @@ You should have received a copy of the GNU General Public License along with thi
         <translation>GTATools GUI Tool</translation>
     </message>
     <message>
-        <location filename="src/gui/MainWindow.cpp" line="102"/>
         <source>&amp;General Information</source>
         <oldsource>General Information</oldsource>
-        <translation>&amp;General Information</translation>
+        <translation type="obsolete">&amp;General Information</translation>
     </message>
     <message>
-        <location filename="src/gui/MainWindow.cpp" line="103"/>
         <source>&amp;Content</source>
         <oldsource>Content</oldsource>
-        <translation>&amp;Content</translation>
+        <translation type="obsolete">&amp;Content</translation>
     </message>
     <message>
         <source>Done!</source>
         <translation type="obsolete">Done!</translation>
     </message>
     <message>
-        <location filename="src/gui/MainWindow.cpp" line="158"/>
         <source>Directory</source>
-        <translation>Directory</translation>
+        <translation type="obsolete">Directory</translation>
     </message>
     <message>
-        <location filename="src/gui/MainWindow.cpp" line="159"/>
         <source>%1 files</source>
-        <translation>%1 files</translation>
+        <translation type="obsolete">%1 files</translation>
     </message>
     <message>
-        <location filename="src/gui/MainWindow.cpp" line="164"/>
         <source>%1MB</source>
-        <translation>%1MB</translation>
+        <translation type="obsolete">%1MB</translation>
     </message>
     <message>
-        <location filename="src/gui/MainWindow.cpp" line="166"/>
         <source>%1kB</source>
-        <translation>%1kB</translation>
+        <translation type="obsolete">%1kB</translation>
     </message>
     <message>
-        <location filename="src/gui/MainWindow.cpp" line="168"/>
         <source>%1B</source>
-        <translation>%1B</translation>
+        <translation type="obsolete">%1B</translation>
     </message>
     <message>
-        <location filename="src/gui/MainWindow.cpp" line="174"/>
         <source>Unrecognized File</source>
-        <translation>Unrecognized File</translation>
+        <translation type="obsolete">Unrecognized File</translation>
     </message>
     <message>
         <source>GTATools GUI Tool - %1</source>
         <translation type="obsolete">GTATools GUI Tool - %1</translation>
     </message>
     <message>
-        <location filename="src/gui/MainFrame.ui" line="91"/>
-        <location filename="src/gui/MainWindow.cpp" line="219"/>
         <source>(No File Opened)</source>
-        <translation>(No File Opened)</translation>
+        <translation type="obsolete">(No File Opened)</translation>
     </message>
     <message>
-        <location filename="src/gui/MainFrame.ui" line="119"/>
         <source>File Type</source>
-        <translation>File Type</translation>
+        <translation type="obsolete">File Type</translation>
     </message>
     <message>
-        <location filename="src/gui/MainFrame.ui" line="126"/>
         <source>File Size</source>
-        <translation>File Size</translation>
+        <translation type="obsolete">File Size</translation>
     </message>
     <message>
-        <location filename="src/gui/MainFrame.ui" line="175"/>
+        <location filename="src/gui/MainFrame.ui" line="65"/>
         <source>Profile</source>
         <translation>Profile</translation>
     </message>
     <message>
-        <location filename="src/gui/MainFrame.ui" line="195"/>
+        <location filename="src/gui/MainFrame.ui" line="80"/>
         <source>Settings</source>
         <translation>Settings</translation>
     </message>
     <message>
-        <location filename="src/gui/MainFrame.ui" line="180"/>
+        <location filename="src/gui/MainFrame.ui" line="70"/>
         <source>Edit</source>
         <translation>Edit</translation>
     </message>
     <message>
-        <location filename="src/gui/MainFrame.ui" line="185"/>
+        <location filename="src/gui/MainFrame.ui" line="75"/>
         <source>File</source>
         <translation>File</translation>
     </message>
     <message>
-        <location filename="src/gui/MainFrame.ui" line="190"/>
+        <location filename="src/gui/MainFrame.ui" line="90"/>
         <source>Help</source>
         <translation>Help</translation>
     </message>
     <message>
-        <location filename="src/gui/MainFrame.ui" line="200"/>
+        <location filename="src/gui/MainFrame.ui" line="85"/>
         <source>View</source>
         <translation>View</translation>
     </message>
     <message>
-        <location filename="src/gui/MainFrame.ui" line="217"/>
+        <location filename="src/gui/MainFrame.ui" line="95"/>
+        <source>Windows</source>
+        <translation>Windows</translation>
+    </message>
+    <message>
+        <location filename="src/gui/MainFrame.ui" line="113"/>
         <source>Settings...</source>
         <translation>Settings...</translation>
     </message>
@@ -856,23 +915,23 @@ You should have received a copy of the GNU General Public License along with thi
 <context>
     <name>ProfileConfigWidget</name>
     <message>
-        <location filename="src/gui/ProfileConfigWidget.cpp" line="78"/>
+        <location filename="src/gui/ProfileConfigWidget.cpp" line="79"/>
         <source>Select one or more resources</source>
         <oldsource>Select resource</oldsource>
         <translation>Select one or more resources</translation>
     </message>
     <message>
-        <location filename="src/gui/ProfileConfigWidget.cpp" line="91"/>
+        <location filename="src/gui/ProfileConfigWidget.cpp" line="92"/>
         <source>Select a resource directory</source>
         <translation>Select a resource directory</translation>
     </message>
     <message>
-        <location filename="src/gui/ProfileConfigWidget.cpp" line="111"/>
+        <location filename="src/gui/ProfileConfigWidget.cpp" line="112"/>
         <source>Select the new resource directory</source>
         <translation>Select the new resource directory</translation>
     </message>
     <message>
-        <location filename="src/gui/ProfileConfigWidget.cpp" line="118"/>
+        <location filename="src/gui/ProfileConfigWidget.cpp" line="119"/>
         <source>Select the new resource file</source>
         <translation>Select the new resource file</translation>
     </message>
@@ -929,12 +988,12 @@ You should have received a copy of the GNU General Public License along with thi
         <translation type="obsolete">Closed File!</translation>
     </message>
     <message>
-        <location filename="src/System.cpp" line="127"/>
+        <location filename="src/System.cpp" line="114"/>
         <source>Unhandeled Exception</source>
         <translation>Unhandeled Exception</translation>
     </message>
     <message>
-        <location filename="src/System.cpp" line="124"/>
+        <location filename="src/System.cpp" line="111"/>
         <source>Unhandeled Exception %1%2</source>
         <translation>An unhandeled exception occurred. The program might continue to run, but stability can not be guaranteed. A detailed description of the exception was written to the file %2.
 The exception text:
@@ -968,44 +1027,44 @@ The exception text:
 <context>
     <name>TXDWidget</name>
     <message>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="105"/>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="111"/>
         <source>&amp;Information</source>
         <oldsource>Information</oldsource>
         <translation>&amp;Information</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="106"/>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="112"/>
         <source>&amp;Display</source>
         <oldsource>Display</oldsource>
         <translation>&amp;Display</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="167"/>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="174"/>
         <source>DXT1</source>
         <translation>DXT1</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="170"/>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="177"/>
         <source>DXT3</source>
         <translation>DXT3</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="173"/>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="180"/>
         <source>None</source>
         <translation>None</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="177"/>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="184"/>
         <source>%1x%2</source>
         <translation>%1x%2</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="180"/>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="187"/>
         <source>yes</source>
         <translation>yes</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="180"/>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="187"/>
         <source>no</source>
         <translation>no</translation>
     </message>

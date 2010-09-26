@@ -35,7 +35,7 @@
 
 
 Profile::Profile(const QString& name)
-		: name(QString(name)), resourceIndex(NULL), resourceIdxInitialized(false)
+		: name(QString(name)), resourceManager(NULL), resourceIdxInitialized(false)
 {
 	connect(ProfileManager::getInstance(), SIGNAL(currentProfileChanged(Profile*, Profile*)), this,
 			SLOT(currentProfileChanged(Profile*, Profile*)));
@@ -63,12 +63,11 @@ Profile::ResourceIterator Profile::getResourceEnd()
 
 void Profile::loadResourceIndex()
 {
-	if (resourceIndex) {
-		delete resourceIndex;
+	if (resourceManager) {
+		delete resourceManager;
 	}
 
-	resourceIndex = new OpenGLResourceManager;
-	resourceIndex->setTextureRasterFormat(OpenGLResourceManager::R8G8B8A8);
+	resourceManager = new ResourceManager;
 
 	ProfileInitializer* thread = new ProfileInitializer(this);
 	currentInitializer = thread;
@@ -88,8 +87,8 @@ void Profile::currentProfileChanged(Profile* oldProfile, Profile* newProfile)
 			// It will be deleted by resourcesInitialized()
 		}
 
-		delete resourceIndex;
-		resourceIndex = NULL;
+		delete resourceManager;
+		resourceManager = NULL;
 	} else if (oldProfile != this  &&  newProfile == this) {
 		loadResourceIndex();
 	}

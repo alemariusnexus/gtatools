@@ -8,9 +8,15 @@
 #ifndef DFFRENDERWIDGET_H_
 #define DFFRENDERWIDGET_H_
 
+#include <GL/glew.h>
 #include <QtOpenGL/qgl.h>
 #include <qwidget.h>
 #include <gtaformats/gtadff.h>
+#include <gtaformats/util/math/Matrix4.h>
+#include <gta/StaticObjectDefinition.h>
+#include <gta/Shader.h>
+#include <gta/ShaderProgram.h>
+#include <gta/Camera.h>
 #include <QtGui/QMouseEvent>
 #include <qpoint.h>
 #include "../../Profile.h"
@@ -45,12 +51,17 @@ private:
 	bool wireframe;
 	GLuint testTex;
 	GLuint transTex;
-	GLuint renderList;
-	QPoint lastDragPos;
-	float rx;
-	float ry;
+	int lastX;
+	int lastY;
 	DFFGeometry* currentGeometry;
 	DFFGeometryPart* currentPart;
+	StaticObjectDefinition* object;
+	Shader* vertexShader;
+	Shader* fragmentShader;
+	ShaderProgram* program;
+	Matrix4 pMatrix;
+	Camera cam;
+	GLuint dataBuffer, indexBuffer;
 };
 
 #endif /* DFFRENDERWIDGET_H_ */

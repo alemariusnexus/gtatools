@@ -23,6 +23,7 @@
 #include "ipl/IPLFormatHandler.h"
 #include "ide/IDEFormatHandler.h"
 #include "dff/DFFFormatHandler.h"
+#include "gxt/GXTFormatHandler.h"
 
 
 
@@ -33,6 +34,7 @@ FormatManager::FormatManager()
 	registerFormatHandler(new IPLFormatHandler);
 	registerFormatHandler(new IDEFormatHandler);
 	registerFormatHandler(new DFFFormatHandler);
+	registerFormatHandler(new GXTFormatHandler);
 }
 
 

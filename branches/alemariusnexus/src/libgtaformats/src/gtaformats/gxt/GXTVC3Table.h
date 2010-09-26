@@ -44,6 +44,8 @@ public:
 
 	virtual EntryIterator getLastEntry() { return entries.end(); }
 
+	virtual int getEntryCount() { return entries.size(); }
+
 	/**	\brief Inserts or updates an entry.
 	 *
 	 * 	Note that if you use this version of setValue() with the CRC32 key hash, no key name will be

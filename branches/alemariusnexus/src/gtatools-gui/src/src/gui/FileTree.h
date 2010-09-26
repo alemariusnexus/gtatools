@@ -16,6 +16,8 @@
 #include <QHash>
 #include <QString>
 #include <QVariant>
+#include "../FileOpenRequest.h"
+#include <QSortFilterProxyModel>
 
 
 
@@ -24,19 +26,21 @@ class FileTree : public QTreeView {
 
 public:
 	FileTree(QWidget* parent = NULL);
+	~FileTree();
 
 private:
 	void showProfile(Profile* profile);
 	void reload();
 
 private slots:
-	void fileSelected(const QModelIndex& index, const QModelIndex& prev);
+	void fileSelected(const QModelIndex& index);
 	void contextMenuRequested(const QPoint& pos);
 	void currentProfileChanged(Profile* oldProfile, Profile* newProfile);
 	void currentProfileContentChanged();
-	void fileOpened(const File& file, const QHash<QString, QVariant>& data);
+	void fileOpened(const FileOpenRequest& request);
 
 private:
+	QSortFilterProxyModel* proxyModel;
 	FileItemModel* model;
 };
 

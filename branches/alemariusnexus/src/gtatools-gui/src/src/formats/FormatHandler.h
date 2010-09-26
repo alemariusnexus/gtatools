@@ -28,6 +28,7 @@
 #include <qlinkedlist.h>
 #include <qhash.h>
 #include <qvariant.h>
+#include "../FileOpenRequest.h"
 
 
 
@@ -44,7 +45,7 @@ public:
 	virtual QLinkedList<QString> getFileFormatExtensions() const = 0;
 	virtual bool hasFileFormat(const File& file) const = 0;
 	virtual GUIModule* createGUIModuleForFile(const File& file, MainWindow* mw) { return NULL; }
-	virtual QWidget* createWidgetForFile(const File& file, QWidget* parent, const QHash<QString, QVariant>& data) { return NULL; }
+	virtual QWidget* createWidgetForFile(const FileOpenRequest& request, QWidget* parent) { return NULL; }
 	virtual void buildFileTreeMenu(const File& file, QMenu& menu) {}
 };
 

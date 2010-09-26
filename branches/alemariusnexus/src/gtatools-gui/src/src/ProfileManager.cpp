@@ -76,6 +76,8 @@ void ProfileManager::loadProfiles()
 	} else {
 		setCurrentProfile(NULL);
 	}
+
+	emit profilesLoaded();
 }
 
 

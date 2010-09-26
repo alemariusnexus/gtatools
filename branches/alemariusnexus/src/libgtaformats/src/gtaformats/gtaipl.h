@@ -22,6 +22,7 @@
 
 #include "ipl/IPLStatement.h"
 #include "ipl/IPLInstance.h"
+#include "ipl/IPLCar.h"
 #include "ipl/IPLReader.h"
 
 #endif /* GTAIPL_H_ */

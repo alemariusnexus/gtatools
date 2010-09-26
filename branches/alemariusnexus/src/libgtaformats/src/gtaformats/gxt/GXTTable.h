@@ -68,6 +68,8 @@ public:
 	 */
 	virtual EntryIterator getLastEntry() = 0;
 
+	virtual int getEntryCount() = 0;
+
 	/**	\brief Returns the value of an entry in the internal encoding.
 	 *
 	 * 	@param key The key name of the entry.

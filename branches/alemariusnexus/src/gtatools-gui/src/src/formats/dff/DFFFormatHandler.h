@@ -21,16 +21,21 @@
 #define DFFFORMATHANDLER_H_
 
 #include "../FormatHandler.h"
+#include <QtOpenGL/qgl.h>
 
 
 class DFFFormatHandler: public FormatHandler {
 	Q_OBJECT
 
 public:
+	DFFFormatHandler();
 	virtual QString getFormatName(const File* file = NULL) const { return tr("DFF Mesh"); }
 	virtual QLinkedList<QString> getFileFormatExtensions() const { return QLinkedList<QString>() << "dff"; }
 	virtual bool hasFileFormat(const File& file) const { return file.guessContentType() == CONTENT_TYPE_DFF; }
-	virtual QWidget* createWidgetForFile(const File& file, QWidget* parent, const QHash<QString, QVariant>& data);
+	virtual QWidget* createWidgetForFile(const FileOpenRequest& request, QWidget* parent);
+
+private:
+	QGLWidget* shareWidget;
 };
 
 #endif /* DFFFORMATHANDLER_H_ */

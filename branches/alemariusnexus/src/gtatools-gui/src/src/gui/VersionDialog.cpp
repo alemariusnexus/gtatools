@@ -7,10 +7,11 @@
 
 #include "VersionDialog.h"
 #include <GL/gl.h>
-#include <gf_config.h>
+#include <gtaformats/gf_config.h>
 #include <cstdio>
 #include <QGLContext>
 #include <QGLFormat>
+
 
 
 VersionDialog::VersionDialog(QWidget* parent)

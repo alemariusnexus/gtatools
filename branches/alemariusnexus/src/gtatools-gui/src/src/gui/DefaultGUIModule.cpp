@@ -27,7 +27,7 @@
 #include <qmessagebox.h>
 #include <qfiledialog.h>
 #include "../System.h"
-#include <gf_config.h>
+#include <gtaformats/gf_config.h>
 #include "FileSearchDialog.h"
 #include "VersionDialog.h"
 
@@ -37,6 +37,11 @@ DefaultGUIModule::DefaultGUIModule()
 		: contextFile(NULL)
 {
 	System* sys = System::getInstance();
+
+	fileTreeDock = new QDockWidget(tr("File Tree"));
+	fileTreeDock->setObjectName("fileTreeDock");
+	fileTree = new FileTree(fileTreeDock);
+	fileTreeDock->setWidget(fileTree);
 
 	fileOpenAction = new QAction(tr("Open..."), NULL);
 	fileOpenAction->setShortcut(QKeySequence::Open);
@@ -67,14 +72,15 @@ DefaultGUIModule::DefaultGUIModule()
 	systemOpenAction = new QAction(tr("Execute System Program"), NULL);
 	connect(systemOpenAction, SIGNAL(triggered(bool)), this, SLOT(onOpenSystemProgram(bool)));
 
-	connect(sys, SIGNAL(fileOpened(const File&, const QHash<QString, QVariant>&)), this,
-			SLOT(fileOpened(const File&, const QHash<QString, QVariant>&)));
-	connect(sys, SIGNAL(currentFileClosed()), this, SLOT(fileClosed()));
+	connect(sys, SIGNAL(fileOpened(const FileOpenRequest&)), this, SLOT(fileOpened(const FileOpenRequest&)));
+	connect(sys, SIGNAL(fileClosed(File*)), this, SLOT(fileClosed(File*)));
 }
 
 
 DefaultGUIModule::~DefaultGUIModule()
 {
+	delete fileTreeDock;
+
 	delete fileOpenAction;
 	delete fileCloseAction;
 	delete searchFileAction;
@@ -105,6 +111,8 @@ void DefaultGUIModule::doInstall()
 	QMenu* profileMenu = mainWindow->getProfileMenu();
 	QMenu* helpMenu = mainWindow->getHelpMenu();
 
+	mainWindow->addDockWidget(Qt::LeftDockWidgetArea, fileTreeDock);
+
 	fileOpenAction->setParent(mainWindow);
 	fileCloseAction->setParent(mainWindow);
 	searchFileAction->setParent(mainWindow);
@@ -127,13 +135,12 @@ void DefaultGUIModule::doInstall()
 
 	profileSwitchGroup = new QActionGroup(this);
 
-	loadProfileSwitchMenu();
-
 	ProfileManager* pm = ProfileManager::getInstance();
 
 	connect(profileSwitchGroup, SIGNAL(triggered(QAction*)), this, SLOT(profileSwitchRequested(QAction*)));
 	connect(pm, SIGNAL(profileAdded(Profile*)), this, SLOT(profileAdded(Profile*)));
 	connect(pm, SIGNAL(profileRemoved(Profile*)), this, SLOT(profileRemoved(Profile*)));
+	connect(pm, SIGNAL(profilesLoaded()), this, SLOT(profilesLoaded()));
 }
 
 
@@ -192,6 +199,8 @@ void DefaultGUIModule::doUninstall()
 	QMenu* profileMenu = mainWindow->getProfileMenu();
 	QMenu* helpMenu = mainWindow->getHelpMenu();
 
+	mainWindow->removeDockWidget(fileTreeDock);
+
 	fileOpenAction->setParent(NULL);
 	fileCloseAction->setParent(NULL);
 	searchFileAction->setParent(NULL);
@@ -212,6 +221,7 @@ void DefaultGUIModule::doUninstall()
 
 	disconnect(pm, SIGNAL(profileAdded(Profile*)), this, SLOT(profileAdded(Profile*)));
 	disconnect(pm, SIGNAL(profileRemoved(Profile*)), this, SLOT(profileRemoved(Profile*)));
+	disconnect(pm, SIGNAL(profilesLoaded()), this, SLOT(profilesLoaded()));
 
 	delete profileSwitchMenu;
 }
@@ -293,15 +303,19 @@ void DefaultGUIModule::onFileClose(bool checked)
 }
 
 
-void DefaultGUIModule::fileOpened(const File& file, const QHash<QString, QVariant>& data)
+void DefaultGUIModule::fileOpened(const FileOpenRequest& request)
 {
 	fileCloseAction->setEnabled(true);
 }
 
 
-void DefaultGUIModule::fileClosed()
+void DefaultGUIModule::fileClosed(File* file)
 {
-	fileCloseAction->setEnabled(false);
+	System* sys = System::getInstance();
+
+	if (!sys->hasOpenFile()) {
+		fileCloseAction->setEnabled(false);
+	}
 }
 
 
@@ -319,6 +333,12 @@ void DefaultGUIModule::profileAdded(Profile* profile)
 
 
 void DefaultGUIModule::profileRemoved(Profile* profile)
+{
+	loadProfileSwitchMenu();
+}
+
+
+void DefaultGUIModule::profilesLoaded()
 {
 	loadProfileSwitchMenu();
 }

@@ -25,8 +25,17 @@ FileTree::FileTree(QWidget* parent)
 			SLOT(contextMenuRequested(const QPoint&)));
 	connect(pm, SIGNAL(currentProfileChanged(Profile*, Profile*)), this,
 			SLOT(currentProfileChanged(Profile*, Profile*)));
-	connect(sys, SIGNAL(fileOpened(const File&, const QHash<QString, QVariant>&)), this,
-			SLOT(fileOpened(const File&, const QHash<QString, QVariant>&)));
+	connect(sys, SIGNAL(fileOpened(const FileOpenRequest&)), this,
+			SLOT(fileOpened(const FileOpenRequest&)));
+}
+
+
+FileTree::~FileTree()
+{
+	if (model) {
+		delete model;
+		delete proxyModel;
+	}
 }
 
 
@@ -34,12 +43,23 @@ void FileTree::showProfile(Profile* profile)
 {
 	if (model) {
 		delete model;
+		delete proxyModel;
 	}
 
+	setSortingEnabled(false);
+
+	proxyModel = new QSortFilterProxyModel;
+	proxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
 	model = new FileItemModel(profile, this);
-	setModel(model);
-	connect(selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
-			this, SLOT(fileSelected(const QModelIndex&, const QModelIndex)));
+	proxyModel->setSourceModel(model);
+	setModel(proxyModel);
+	connect(this, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(fileSelected(const QModelIndex&)));
+
+	header()->setStretchLastSection(false);
+	header()->setResizeMode(0, QHeaderView::Stretch);
+	header()->setResizeMode(1, QHeaderView::ResizeToContents);
+
+	setSortingEnabled(true);
 }
 
 
@@ -49,17 +69,18 @@ void FileTree::reload()
 }
 
 
-void FileTree::fileSelected(const QModelIndex& index, const QModelIndex& prev)
+void FileTree::fileSelected(const QModelIndex& index)
 {
 	if (!index.isValid()  ||  index == rootIndex()) {
 		return;
 	}
 
 	System* sys = System::getInstance();
-	File* file = static_cast<StaticFile*>(index.internalPointer())->getFile();
+	File* file = static_cast<StaticFile*>(proxyModel->mapToSource(index).internalPointer())->getFile();
 
-	if (!sys->hasOpenFile()  ||  *sys->getOpenFile() != *file) {
-		sys->openFile(*file);
+	if (!file->isDirectory()) {
+		FileOpenRequest request(*file);
+		sys->openFile(request);
 	}
 }
 
@@ -117,15 +138,16 @@ void FileTree::currentProfileContentChanged()
 }
 
 
-void FileTree::fileOpened(const File& file, const QHash<QString, QVariant>& data)
+void FileTree::fileOpened(const FileOpenRequest& request)
 {
 	QModelIndex cur = currentIndex();
+	cur = proxyModel->mapToSource(cur);
 
-	if (!cur.isValid()  ||  *model->getFileForIndex(cur) != file) {
-		QModelIndex index = model->indexOf(file, rootIndex());
+	if (!cur.isValid()  ||  *model->getFileForIndex(cur) != *request.getFile()) {
+		QModelIndex index = model->indexOf(*request.getFile(), rootIndex());
 
 		if (index.isValid()) {
-			setCurrentIndex(index);
+			setCurrentIndex(proxyModel->mapFromSource(index));
 		}
 	}
 }

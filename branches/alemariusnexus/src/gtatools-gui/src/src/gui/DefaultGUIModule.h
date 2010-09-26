@@ -25,6 +25,9 @@
 #include <qobject.h>
 #include <qaction.h>
 #include <qmenu.h>
+#include "../FileOpenRequest.h"
+#include "FileTree.h"
+#include <QtGui/qdockwidget.h>
 
 
 
@@ -50,11 +53,12 @@ private slots:
 	void onVersionInfo(bool checked);
 	void onFileOpen(bool checked);
 	void onFileClose(bool checked);
-	void fileOpened(const File& file, const QHash<QString, QVariant>& data);
-	void fileClosed();
+	void fileOpened(const FileOpenRequest& request);
+	void fileClosed(File* file);
 	void onSearchFile(bool checked);
 	void profileAdded(Profile* profile);
 	void profileRemoved(Profile* profile);
+	void profilesLoaded();
 
 private:
 	QActionGroup* profileSwitchGroup;
@@ -68,6 +72,9 @@ private:
 	QAction* systemOpenAction;
 	File* contextFile;
 	QMenu* profileSwitchMenu;
+
+	FileTree* fileTree;
+	QDockWidget* fileTreeDock;
 };
 
 #endif /* DEFAULTGUIMODULE_H_ */

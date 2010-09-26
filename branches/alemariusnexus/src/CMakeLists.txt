@@ -27,6 +27,7 @@ SET(GTATOOLS_VERSION_SUFFIX "-devel") # A suffix for the version string, could e
 
 
 SET(LIBGTAFORMATS_BUILD ON CACHE BOOL "Whether you want to build libgtaformats")
+SET(LIBGTA_BUILD ON CACHE BOOL "Whether you want to build libgta")
 SET(GTAIMG_BUILD ON CACHE BOOL "Whether you want to build gtaimg")
 SET(GTATXD_BUILD ON CACHE BOOL "Whether you want to build gtatxd")
 SET(GTADFF_BUILD OFF CACHE BOOL "Whether you want to build gtadff")
@@ -53,6 +54,10 @@ SET(ADDITIONAL_INSTALL_FILES_ENABLED OFF CACHE BOOL "Set true to enable ADDITION
 IF(LIBGTAFORMATS_BUILD)
     ADD_SUBDIRECTORY(libgtaformats/src libgtaformats/build)
 ENDIF(LIBGTAFORMATS_BUILD)
+
+IF(LIBGTA_BUILD)
+    ADD_SUBDIRECTORY(libgta/src libgta/build)
+ENDIF(LIBGTA_BUILD)
 
 IF(GTAIMG_BUILD)
     ADD_SUBDIRECTORY(gtaimg/src gtaimg/build)

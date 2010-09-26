@@ -15,6 +15,7 @@
 #include "DFFRenderWidget.h"
 #include "DFFGUIModule.h"
 #include "DFFFrameItemModel.h"
+#include <QtOpenGL/qgl.h>
 
 
 
@@ -22,7 +23,7 @@ class DFFWidget : public QWidget {
 	Q_OBJECT
 
 public:
-	DFFWidget(const File& file, QWidget* parent);
+	DFFWidget(const File& file, QWidget* parent, QGLWidget* shareWidget);
 	~DFFWidget();
 
 private:
