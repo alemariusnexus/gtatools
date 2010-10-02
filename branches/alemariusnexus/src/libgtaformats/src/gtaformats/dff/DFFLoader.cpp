@@ -165,7 +165,7 @@ int DFFLoader::parseStruct(InputStream* stream, RwSectionHeader& structHeader, R
 			if (pidx != -1) {
 				frames[pidx]->addChild(frames[i]);
 			} else {
-				mesh->addFrame(frames[i]);
+				mesh->getRootFrame()->addChild(frames[i]);
 			}
 		}
 
@@ -368,7 +368,7 @@ int DFFLoader::parseString(InputStream* stream, RwSectionHeader& stringHeader, R
 int DFFLoader::parseFrame(InputStream* stream, RwSectionHeader& frameHeader, RwSectionHeader* parent,
 		DFFLoadContext* context)
 {
-	DFFFrame* frame = context->mesh->getFrame(context->mesh->getFrameCount()-1);
+	DFFFrame* frame = context->frameInternalIndexMap[context->frameCurrentIndex++];
 	char* name = new char[frameHeader.size+1];
 	stream->read(name, frameHeader.size);
 	name[frameHeader.size] = '\0';
@@ -460,6 +460,7 @@ DFFMesh* DFFLoader::loadMesh(InputStream* stream) {
 	DFFLoadContext context;
 	context.mesh = mesh;
 	context.depth = 0;
+	context.frameCurrentIndex = 0;
 
 	RwSectionHeader clump;
 

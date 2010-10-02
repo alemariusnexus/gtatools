@@ -18,6 +18,7 @@
  */
 
 #include "DFFMaterial.h"
+#include "../util/OutOfBoundsException.h"
 #include <cstring>
 
 
@@ -60,4 +61,24 @@ void DFFMaterial::removeTextures()
 	}
 
 	textures.clear();
+}
+
+
+DFFTexture* DFFMaterial::getTexture(int index)
+{
+	if (index < 0  ||  index >= textures.size()) {
+		throw OutOfBoundsException(index, __FILE__, __LINE__);
+	}
+
+	return textures[index];
+}
+
+
+const DFFTexture* DFFMaterial::getTexture(int index) const
+{
+	if (index < 0  ||  index >= textures.size()) {
+		throw OutOfBoundsException(index, __FILE__, __LINE__);
+	}
+
+	return textures[index];
 }

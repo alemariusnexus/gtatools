@@ -56,8 +56,8 @@ public:
 	ConstChildIterator getChildBegin() const { return children.begin(); }
 	ChildIterator getChildEnd() { return children.end(); }
 	ConstChildIterator getChildEnd() const { return children.end(); }
-	DFFFrame* getChild(int32_t index) { return children[index]; }
-	const DFFFrame* getChild(int32_t index) const { return children[index]; }
+	DFFFrame* getChild(int32_t index);
+	const DFFFrame* getChild(int32_t index) const;
 	DFFFrame* getChild(const char* name);
 	const DFFFrame* getChild(const char* name) const;
 	int32_t indexOf(const DFFFrame* child) const;
@@ -70,9 +70,10 @@ public:
 	void setName(char* name) { this->name = name; }
 	void addChild(DFFFrame* child) { children.push_back(child); child->parent = this; }
 	void removeChild(DFFFrame* child);
-	void removeChild(int32_t index) { removeChild(children[index]); }
+	void removeChild(int32_t index) { removeChild(getChild(index)); }
 	void removeChild(const char* name) { removeChild(getChild(name)); }
 	void removeChildren();
+	bool isRoot() const { return parent == NULL; }
 
 	void mirrorYZ();
 	void scale(float x, float y, float z);

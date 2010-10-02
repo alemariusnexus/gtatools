@@ -19,8 +19,10 @@
 
 DFFRenderWidget::DFFRenderWidget(QWidget* parent, QGLWidget* shareWidget)
 		: QGLWidget(parent, shareWidget), lastX(-1), lastY(-1), object(NULL), textures(true),
-		  wireframe(false), currentGeometry(NULL), currentPart(NULL)
+		  wireframe(false), currentGeometry(NULL), currentPart(NULL), moveFactor(1.0f)
 {
+	setFocusPolicy(Qt::ClickFocus);
+
 	ProfileManager* pm = ProfileManager::getInstance();
 
 	connect(pm, SIGNAL(currentProfileChanged(Profile*, Profile*)), this,
@@ -310,6 +312,46 @@ void DFFRenderWidget::mouseMoveEvent(QMouseEvent* evt)
 	}
 
 	updateGL();
+}
+
+
+void DFFRenderWidget::keyPressEvent(QKeyEvent* evt)
+{
+	bool glKey = true;
+
+	switch (evt->key()) {
+	case Qt::Key_W:
+		cam.move(0.05f*moveFactor);
+		break;
+	case Qt::Key_S:
+		cam.move(-0.05f*moveFactor);
+		break;
+	case Qt::Key_A:
+		cam.moveSideways(-0.05f*moveFactor);
+		break;
+	case Qt::Key_D:
+		cam.moveSideways(0.05f*moveFactor);
+		break;
+	case Qt::Key_Q:
+		cam.moveUp(0.05f*moveFactor);
+		break;
+	case Qt::Key_Y:
+		cam.moveUp(-0.05f*moveFactor);
+		break;
+	case Qt::Key_Plus:
+		moveFactor *= 2.0f;
+		break;
+	case Qt::Key_Minus:
+		moveFactor /= 2.0f;
+		break;
+	default:
+		glKey = false;
+		break;
+	}
+
+	if (glKey) {
+		updateGL();
+	}
 }
 
 

@@ -30,7 +30,8 @@ QVariant DFFFrameItemModel::data(const QModelIndex& index, int role) const
 
 	if (role == Qt::DisplayRole) {
 		if (frame->getName() == NULL) {
-			int row = frame->getParent() == NULL ? frame->getParent()->indexOf(frame) : mesh->indexOf(frame);
+			//int row = frame->getParent() == NULL ? frame->getParent()->indexOf(frame) : mesh->indexOf(frame);
+			int row = frame->getParent()->indexOf(frame);
 			return tr("Unnamed %1").arg(row+1);
 		} else {
 			return frame->getName();
@@ -62,7 +63,7 @@ int DFFFrameItemModel::rowCount(const QModelIndex& index) const
 	}
 
 	if (!index.isValid()) {
-		return mesh->getFrameCount();
+		return mesh->getRootFrame()->getChildCount();
 	} else {
 		DFFFrame* frame = (DFFFrame*) index.internalPointer();
 		return frame->getChildCount();
@@ -82,12 +83,15 @@ QModelIndex DFFFrameItemModel::index(int row, int column, const QModelIndex& par
 		return QModelIndex();
 	}
 
+	DFFFrame* parentFrame;
+
 	if (parent.isValid()) {
-		DFFFrame* frame = (DFFFrame*) parent.internalPointer();
-		return createIndex(row, column, frame->getChild(row));
+		parentFrame = (DFFFrame*) parent.internalPointer();
 	} else {
-		return createIndex(row, column, mesh->getFrame(row));
+		parentFrame = mesh->getRootFrame();
 	}
+
+	return createIndex(row, column, parentFrame->getChild(row));
 }
 
 
@@ -100,11 +104,11 @@ QModelIndex DFFFrameItemModel::parent(const QModelIndex& index) const
 	DFFFrame* frame = (DFFFrame*) index.internalPointer();
 	DFFFrame* parent = frame->getParent();
 
-	if (parent == NULL) {
+	if (parent == NULL  ||  parent->isRoot()) {
 		return QModelIndex();
 	}
 
-	int row = parent->getParent() == NULL ? mesh->indexOf(parent) : parent->getParent()->indexOf(parent);
+	int row = parent->getParent()->indexOf(parent);
 	return createIndex(row, 0, parent);
 }
 

@@ -41,6 +41,9 @@ public:
 	const char* getMessage() const throw() { return message; }
 	char* getBacktrace() const throw();
 
+protected:
+	void setMessage(const char* message);
+
 private:
 	char* buildFullMessage() const throw();
 

@@ -19,6 +19,7 @@
 
 #include "DFFGeometry.h"
 #include "DFFException.h"
+#include "../util/OutOfBoundsException.h"
 #include <cstring>
 
 
@@ -179,7 +180,6 @@ void DFFGeometry::removeMaterial(DFFMaterial* material)
 
 	for (it = materials.begin() ; it != materials.end() ; it++) {
 		if (*it == material) {
-			delete *it;
 			materials.erase(it);
 			return;
 		}
@@ -189,12 +189,6 @@ void DFFGeometry::removeMaterial(DFFMaterial* material)
 
 void DFFGeometry::removeMaterials()
 {
-	MaterialIterator it;
-
-	for (it = materials.begin() ; it != materials.end() ; it++) {
-		delete *it;
-	}
-
 	materials.clear();
 }
 
@@ -205,8 +199,8 @@ void DFFGeometry::removePart(DFFGeometryPart* part)
 
 	for (it = parts.begin() ; it != parts.end() ; it++) {
 		if (*it == part) {
-			delete *it;
 			parts.erase(it);
+			part->changeGeometry(NULL);
 			return;
 		}
 	}
@@ -215,23 +209,65 @@ void DFFGeometry::removePart(DFFGeometryPart* part)
 
 void DFFGeometry::removeParts()
 {
-	PartIterator it;
-
-	for (it = parts.begin() ; it != parts.end() ; it++) {
-		delete *it;
-	}
-
 	parts.clear();
 }
 
 
-/*int32_t DFFGeometry::indexOf(DFFFrame* frame)
+float* DFFGeometry::getUVCoordSet(uint8_t idx)
 {
-	for (int32_t i = 0 ; i < frameCount ; i++) {
-		if (frames[i] == frame) {
-			return i;
-		}
+	if (idx < 0  ||  idx >= uvSetCount) {
+		throw OutOfBoundsException(idx, __FILE__, __LINE__);
 	}
 
-	return -1;
-}*/
+	return uvCoordSets+idx*vertexCount;
+}
+
+
+const float* DFFGeometry::getUVCoordSet(uint8_t idx) const
+{
+	if (idx < 0  ||  idx >= uvSetCount) {
+		throw OutOfBoundsException(idx, __FILE__, __LINE__);
+	}
+
+	return uvCoordSets+idx*vertexCount;
+}
+
+
+DFFMaterial* DFFGeometry::getMaterial(int index)
+{
+	if (index < 0  ||  index >= materials.size()) {
+		throw OutOfBoundsException(index, __FILE__, __LINE__);
+	}
+
+	return materials[index];
+}
+
+
+const DFFMaterial* DFFGeometry::getMaterial(int index) const
+{
+	if (index < 0  ||  index >= materials.size()) {
+		throw OutOfBoundsException(index, __FILE__, __LINE__);
+	}
+
+	return materials[index];
+}
+
+
+DFFGeometryPart* DFFGeometry::getPart(int index)
+{
+	if (index < 0  ||  index >= parts.size()) {
+		throw OutOfBoundsException(index, __FILE__, __LINE__);
+	}
+
+	return parts[index];
+}
+
+
+const DFFGeometryPart* DFFGeometry::getPart(int index) const
+{
+	if (index < 0  ||  index >= parts.size()) {
+		throw OutOfBoundsException(index, __FILE__, __LINE__);
+	}
+
+	return parts[index];
+}

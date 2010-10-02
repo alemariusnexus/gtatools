@@ -20,12 +20,32 @@ int geometryTabberIndex = 0;
 int geometryPartTabberIndex = 0;
 
 
+void frameRecurse(DFFFrame* parent, int numInd)
+{
+	DFFFrame::ChildIterator it;
+
+	for (it = parent->getChildBegin() ; it != parent->getChildEnd() ; it++) {
+		DFFFrame* frame = *it;
+
+		for (int i = 0 ; i < numInd ; i++) {
+			printf("  ");
+		}
+
+		if (frame->getName()) {
+			printf("%s\n", frame->getName());
+		} else {
+			printf("(Unnamed)\n");
+		}
+
+		frameRecurse(frame, numInd+1);
+	}
+}
+
+
 
 DFFWidget::DFFWidget(const File& file, QWidget* parent, QGLWidget* shareWidget)
 		: QWidget(parent)
 {
-	printf("New DFF widget\n");
-
 	ui.setupUi(this);
 
 	ui.mainTabber->setCurrentIndex(mainTabberIndex);
@@ -149,7 +169,7 @@ void DFFWidget::frameSelected(const QModelIndex& index, const QModelIndex& previ
 	if (frame->getParent() == NULL) {
 		ui.frameParentLabel->setText(tr("None"));
 	} else {
-		int pidx = mesh->indexOf(frame->getParent());
+		//int pidx = mesh->indexOf(frame->getParent());
 		ui.frameParentLabel->setText(index.parent().data(Qt::DisplayRole).toString());
 	}
 
@@ -192,12 +212,12 @@ void DFFWidget::geometrySelected(int row)
 			if (frame->getName()) {
 				framePath.insert(0, frame->getName());
 			} else {
-				if (frame->getParent()) {
+				if (!frame->isRoot()) {
 					framePath.insert(0, QString("%1")
 							.arg(frame->getParent()->indexOf(frame)));
-				} else {
+				}/* else {
 					framePath.insert(0, QString("%1").arg(mesh->indexOf(frame)));
-				}
+				}*/
 			}
 		} while ((frame = frame->getParent())  !=  NULL);
 	} else {
@@ -288,13 +308,14 @@ void DFFWidget::geometryPartSelected(int row)
 	DFFGeometry* geom = mesh->getGeometry(ui.geometryList->currentRow());
 	DFFGeometryPart* part = geom->getPart(row);
 	DFFMaterial* mat = part->getMaterial();
+	printf("Talking about material %p on part %p\n", mat, part);
 
 	ui.geometryPartNameLabel->setText(ui.geometryPartList->item(row)->text());
 	ui.geometryPartIndexCountLabel->setText(QString("%1").arg(part->getIndexCount()));
 
 	if (mat) {
 		QListWidgetItem* item = ui.materialList->item(geom->indexOf(mat));
-		//ui.geometryPartMaterialLabel->setText(ui.materialList->item(geom->indexOf(mat))->text());
+		ui.geometryPartMaterialLabel->setText(ui.materialList->item(geom->indexOf(mat))->text());
 	} else {
 		ui.geometryPartMaterialLabel->setText(tr("None"));
 	}
@@ -343,7 +364,7 @@ void DFFWidget::xmlDumpRequested(bool)
 				xml << "<mesh>" << endl;
 
 				if (frames) {
-					xml << "  <frames count=\"" << mesh->getFrameCount() << "\">" << endl;
+					/*xml << "  <frames count=\"" << mesh->getFrameCount() << "\">" << endl;
 
 					DFFMesh::FrameIterator it;
 
@@ -352,7 +373,9 @@ void DFFWidget::xmlDumpRequested(bool)
 						xmlDumpFrame(frame, xml, 2);
 					}
 
-					xml << "  </frames>" << endl;
+					xml << "  </frames>" << endl;*/
+
+					xmlDumpFrame(mesh->getRootFrame(), xml, 1);
 				}
 
 				if (geoms) {
@@ -376,12 +399,12 @@ void DFFWidget::xmlDumpRequested(bool)
 								if (frame->getName()) {
 									framePath.insert(0, frame->getName());
 								} else {
-									if (frame->getParent()) {
+									if (!frame->isRoot()) {
 										framePath.insert(0, QString("%1")
 												.arg(frame->getParent()->indexOf(frame)));
-									} else {
+									}/* else {
 										framePath.insert(0, QString("%1").arg(mesh->indexOf(frame)));
-									}
+									}*/
 								}
 							} while ((frame = frame->getParent())  !=  NULL);
 

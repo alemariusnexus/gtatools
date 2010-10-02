@@ -18,6 +18,7 @@
  */
 
 #include "DFFFrame.h"
+#include "../util/OutOfBoundsException.h"
 #include <cstring>
 
 
@@ -111,5 +112,25 @@ int32_t DFFFrame::indexOf(const DFFFrame* child) const
 	}
 
 	return -1;
+}
+
+
+DFFFrame* DFFFrame::getChild(int32_t index)
+{
+	if (index < 0  ||  index >= children.size()) {
+		throw OutOfBoundsException(index, __FILE__, __LINE__);
+	}
+
+	return children[index];
+}
+
+
+const DFFFrame* DFFFrame::getChild(int32_t index) const
+{
+	if (index < 0  ||  index >= children.size()) {
+		throw OutOfBoundsException(index, __FILE__, __LINE__);
+	}
+
+	return children[index];
 }
 

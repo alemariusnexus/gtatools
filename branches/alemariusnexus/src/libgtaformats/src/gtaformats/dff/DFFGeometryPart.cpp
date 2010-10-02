@@ -18,6 +18,8 @@
  */
 
 #include "DFFGeometryPart.h"
+#include "DFFGeometry.h"
+#include "DFFException.h"
 #include <cstring>
 
 
@@ -34,4 +36,21 @@ DFFGeometryPart::~DFFGeometryPart()
 	delete[] indices;
 	// We don't delete the material because it's part of the whole geometry. Possibly more geometry parts can
 	// share one material.
+}
+
+
+void DFFGeometryPart::setMaterial(DFFMaterial* mat)
+{
+	if (geometry->indexOf(mat) == -1) {
+		throw DFFException("Attempt to assign a material to a DFFGeometryPart which is not owned by it's "
+				"DFFGeometry.", __FILE__, __LINE__);
+	}
+
+	material = mat;
+}
+
+
+void DFFGeometryPart::changeGeometry(DFFGeometry* geom)
+{
+	geometry = geom;
 }

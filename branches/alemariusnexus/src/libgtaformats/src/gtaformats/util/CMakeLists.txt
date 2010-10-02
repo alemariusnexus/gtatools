@@ -18,7 +18,7 @@
 
 SET(FILES
     StringComparator util File FileException FilePath Exception FileIterator SharedData
-    SharedDataPointer encoding)
+    SharedDataPointer encoding OutOfBoundsException)
 
 FOREACH(FILE ${FILES})
     SET(SRCS ${SRCS} "gtaformats/util/${FILE}")

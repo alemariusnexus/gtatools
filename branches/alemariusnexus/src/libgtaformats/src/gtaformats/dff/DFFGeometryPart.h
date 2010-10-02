@@ -23,14 +23,17 @@
 #include "../gf_config.h"
 #include "DFFMaterial.h"
 
+class DFFGeometry;
+
 
 class DFFGeometryPart {
 private:
 	friend class DFFLoader;
+	friend class DFFGeometry;
 
 public:
-	DFFGeometryPart(int32_t ic, int32_t* indices) : indexCount(ic), indices(indices) {}
-	DFFGeometryPart() : indexCount(0), indices(new int32_t[0]) {}
+	DFFGeometryPart(int32_t ic, int32_t* indices) : indexCount(ic), indices(indices), material(NULL) {}
+	DFFGeometryPart() : indexCount(0), indices(new int32_t[0]), material(NULL) {}
 	DFFGeometryPart(const DFFGeometryPart& other);
 	~DFFGeometryPart();
 	int32_t getIndexCount() const { return indexCount; }
@@ -38,12 +41,17 @@ public:
 	DFFMaterial* getMaterial() const { return material; }
 	void setIndices(int32_t count, int32_t* indices)
 			{ delete[] indices; this->indices = indices; indexCount = count; }
-	void setMaterial(DFFMaterial* mat) { material = mat; }
+	void setMaterial(DFFMaterial* mat);
+	DFFGeometry* getGeometry() const { return geometry; }
+
+private:
+	void changeGeometry(DFFGeometry* geom);
 
 private:
 	int32_t indexCount;
 	int32_t* indices;
 	DFFMaterial* material;
+	DFFGeometry* geometry;
 };
 
 #endif /* DFFGEOMETRYPART_H_ */

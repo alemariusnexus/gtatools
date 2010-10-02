@@ -18,6 +18,7 @@
 #include <gta/ShaderProgram.h>
 #include <gta/Camera.h>
 #include <QtGui/QMouseEvent>
+#include <QtGui/QKeyEvent>
 #include <qpoint.h>
 #include "../../Profile.h"
 #include "../../ProfileManager.h"
@@ -41,6 +42,7 @@ protected:
 	virtual void paintGL();
 	void mousePressEvent(QMouseEvent* evt);
 	void mouseMoveEvent(QMouseEvent* evt);
+	void keyPressEvent(QKeyEvent* evt);
 
 private slots:
 	void currentProfileChanged(Profile* oldProfile, Profile* newProfile);
@@ -62,6 +64,7 @@ private:
 	Matrix4 pMatrix;
 	Camera cam;
 	GLuint dataBuffer, indexBuffer;
+	float moveFactor;
 };
 
 #endif /* DFFRENDERWIDGET_H_ */

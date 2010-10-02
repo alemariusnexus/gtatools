@@ -56,6 +56,7 @@ struct DFFLoadContext {
 	int32_t version;
 	int depth;
 	map<int32_t, DFFFrame*> frameInternalIndexMap;
+	int32_t frameCurrentIndex;
 };
 
 

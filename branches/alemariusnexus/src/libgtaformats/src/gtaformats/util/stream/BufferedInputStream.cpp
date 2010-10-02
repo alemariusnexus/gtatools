@@ -7,6 +7,7 @@
 
 #include "BufferedInputStream.h"
 #include <cstring>
+#include <cstdio>
 
 
 
@@ -45,12 +46,25 @@ void BufferedInputStream::seek(streampos pos, SeekPosition startPos)
 		backend->seek(pos, STREAM_SEEK_END);
 		fillBuffer();
 	} else {
-		int bufferLeft = lastBufferReadCount-(bufferPos-buffer);
-		int skipFromBuffer = pos > bufferLeft ? bufferLeft : pos;
-		bufferPos += skipFromBuffer;
+		if (pos >= 0) {
+			int bufferLeft = lastBufferReadCount-(bufferPos-buffer);
+			int skipFromBuffer = pos > bufferLeft ? bufferLeft : pos;
 
-		if (skipFromBuffer != pos) {
-			backend->seek(pos-skipFromBuffer, STREAM_SEEK_CURRENT);
+			bufferPos += skipFromBuffer;
+
+			if (skipFromBuffer != pos) {
+				backend->seek(pos-skipFromBuffer, STREAM_SEEK_CURRENT);
+			}
+		} else {
+			// Seek backwards
+			int bufferRead = bufferPos-buffer;
+			int skipFromBuffer = -pos > bufferRead ? -bufferRead : pos;
+			bufferPos += skipFromBuffer;
+
+			if (skipFromBuffer != pos) {
+				backend->seek(pos-skipFromBuffer-lastBufferReadCount, STREAM_SEEK_CURRENT);
+				fillBuffer();
+			}
 		}
 	}
 }
