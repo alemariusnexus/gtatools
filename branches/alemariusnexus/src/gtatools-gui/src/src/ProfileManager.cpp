@@ -22,6 +22,7 @@
 #include <qsettings.h>
 #include <qstring.h>
 #include <gtaformats/util/File.h>
+#include <gtaformats/util/OutOfBoundsException.h>
 #include "System.h"
 
 
@@ -213,5 +214,14 @@ void ProfileManager::setProfiles(const QList<Profile*>& profiles)
 	}
 }
 
+
+Profile* ProfileManager::getProfile(int idx)
+{
+	if (idx < 0  ||  idx >= profiles.size()) {
+		throw OutOfBoundsException(idx, __FILE__, __LINE__);
+	}
+
+	return profiles[idx];
+}
 
 

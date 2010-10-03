@@ -18,7 +18,7 @@
  */
 
 #include "Exception.h"
-#include <gf_config.h>
+#include "../gf_config.h"
 #include <cstring>
 #include <cstdio>
 
@@ -76,14 +76,12 @@ Exception::~Exception() throw()
 }
 
 
-char* Exception::getBacktrace() const throw()
+const char* Exception::getBacktrace() const throw()
 {
 #ifdef linux
 	return backTrace;
 #else
-	char* btMsg = new char[64];
-	sprintf(btMsg, "[Backtrace can not be received on this platform]");
-	return btMsg;
+	return NULL;
 #endif
 }
 

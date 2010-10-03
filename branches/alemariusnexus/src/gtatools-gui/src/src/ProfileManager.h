@@ -38,7 +38,7 @@ public:
 	QList<Profile*> getProfiles() { return profiles; }
 	Profile* setCurrentProfile(Profile* profile);
 	Profile* getCurrentProfile() { return currentProfile; }
-	Profile* getProfile(int idx) { return profiles[idx]; }
+	Profile* getProfile(int idx);
 	int indexOfProfile(Profile* profile) { return profiles.indexOf(profile); }
 	void saveProfiles();
 	void addProfile(Profile* profile);

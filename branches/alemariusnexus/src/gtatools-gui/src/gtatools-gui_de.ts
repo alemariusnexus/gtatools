@@ -103,12 +103,12 @@
 <context>
     <name>DFFFrameItemModel</name>
     <message>
-        <location filename="src/formats/dff/DFFFrameItemModel.cpp" line="34"/>
+        <location filename="src/formats/dff/DFFFrameItemModel.cpp" line="35"/>
         <source>Unnamed %1</source>
         <translation>Unbenannt %1</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFFrameItemModel.cpp" line="51"/>
+        <location filename="src/formats/dff/DFFFrameItemModel.cpp" line="52"/>
         <source>Frame</source>
         <translation>Frame</translation>
     </message>
@@ -316,17 +316,17 @@
         <translation type="obsolete">Unbenannt %1</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="53"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="73"/>
         <source>Geometry %1</source>
         <translation>Geometrie %1</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="144"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="164"/>
         <source>(%1, %2, %3)</source>
         <translation>(%1, %2, %3)</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="145"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="165"/>
         <source>(%1, %2, %3) (%4, %5, %6) (%7, %8, %9)</source>
         <oldsource>(%1, %2, %3)
 (%4, %5, %6)
@@ -336,61 +336,61 @@
 (%7, %8, %9)</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="150"/>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="204"/>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="299"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="170"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="224"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="320"/>
         <source>None</source>
         <translation>Keine</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="171"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="191"/>
         <source>Triangle Strips</source>
         <translation>Triangle Strips</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="171"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="191"/>
         <source>Triangle List</source>
         <translation>Triangle List</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="179"/>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="180"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="199"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="200"/>
         <source>no</source>
         <translation>nein</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="179"/>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="180"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="199"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="200"/>
         <source>yes</source>
         <translation>ja</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="181"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="201"/>
         <source>(%1, %2, %3 : %4)</source>
         <translation>(%1, %2, %3 : %4)</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="217"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="237"/>
         <source>Material %1</source>
         <translation>Material %1</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="226"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="246"/>
         <source>Part %1</source>
         <translation>Teil %1</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="250"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="270"/>
         <source>(%1, %2, %3, %4)</source>
         <translation>(%1, %2, %3, %4)</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="323"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="344"/>
         <source>Choose a destination file</source>
         <translation>Wähle eine Zieldatei</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="324"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="345"/>
         <source>XML Files (*.xml)</source>
         <translation>XML-Dateien (*.xml)</translation>
     </message>
@@ -771,12 +771,12 @@ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem Prog
 <context>
     <name>IPLFormatHandler</name>
     <message>
-        <location filename="src/formats/ipl/IPLFormatHandler.cpp" line="30"/>
+        <location filename="src/formats/ipl/IPLFormatHandler.cpp" line="35"/>
         <source>Item Placement File (IPL)</source>
         <translation>Item Placement-Datei (IPL)</translation>
     </message>
     <message>
-        <location filename="src/formats/ipl/IPLFormatHandler.cpp" line="32"/>
+        <location filename="src/formats/ipl/IPLFormatHandler.cpp" line="31"/>
         <source>Binary Item Placement File (IPL)</source>
         <translation>Binäre Item Placement-Datei (IPL)</translation>
     </message>
