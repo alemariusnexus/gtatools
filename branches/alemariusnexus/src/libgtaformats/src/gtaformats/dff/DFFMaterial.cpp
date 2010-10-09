@@ -18,11 +18,13 @@
  */
 
 #include "DFFMaterial.h"
+#include "DFFException.h"
 #include "../util/OutOfBoundsException.h"
 #include <cstring>
 
 
 DFFMaterial::DFFMaterial(const DFFMaterial& other)
+		: geometry(NULL)
 {
 	memcpy(color, other.color, sizeof(color));
 
@@ -81,4 +83,13 @@ const DFFTexture* DFFMaterial::getTexture(int index) const
 	}
 
 	return textures[index];
+}
+
+
+void DFFMaterial::reparent(DFFGeometry* geom)
+{
+	if (geometry  &&  geom) {
+		throw DFFException("Attempt to reparent a DFFMaterial which still has a parent! Remove it from "
+				"it's old DFFGeometry parent first.", __FILE__, __LINE__);
+	}
 }

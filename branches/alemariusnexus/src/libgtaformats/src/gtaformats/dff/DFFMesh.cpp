@@ -92,7 +92,7 @@ void DFFMesh::removeGeometry(DFFGeometry* geom)
 
 	for (it = geometries.begin() ; it != geometries.end() ; it++) {
 		if (*it == geom) {
-			delete *it;
+			(*it)->reparent(NULL);
 			geometries.erase(it);
 		}
 	}
@@ -104,7 +104,8 @@ void DFFMesh::removeGeometries()
 	GeometryIterator it;
 
 	for (it = geometries.begin() ; it != geometries.end() ; it++) {
-		delete *it;
+		(*it)->reparent(NULL);
+		//delete *it;
 	}
 
 	geometries.clear();

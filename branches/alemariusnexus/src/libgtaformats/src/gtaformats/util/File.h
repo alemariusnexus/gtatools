@@ -24,8 +24,6 @@
 #include "FileIterator.h"
 #include <cstdlib>
 #include "../gf_config.h"
-#include "SharedData.h"
-#include "SharedDataPointer.h"
 #include "stream/FileInputStream.h"
 
 struct IMGEntry;

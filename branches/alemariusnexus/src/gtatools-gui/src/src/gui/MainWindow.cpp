@@ -40,7 +40,6 @@
 #include <QtGui/qdockwidget.h>
 
 
-
 MainWindow::MainWindow()
 {
 	ui.setupUi(this);
@@ -98,6 +97,12 @@ void MainWindow::initialize()
 
 MainWindow::~MainWindow()
 {
+	QMap<File, FileViewWidget*>::iterator fit;
+
+	for (fit = fileWidgets.begin() ; fit != fileWidgets.end() ; fit++) {
+		delete fit.value();
+	}
+
 	QSettings settings(CONFIG_FILE, QSettings::IniFormat);
 	settings.setValue("gui/mainwindow_size", size());
 	settings.setValue("gui/mainwindow_state", saveState());

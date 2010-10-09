@@ -67,7 +67,7 @@ IMGArchive::IMGArchive(const File& file, bool deleteStream)
 		if (!stream) {
 			char errmsg[2048];
 			sprintf(errmsg, "Unable to open corresponding IMG file %s for the given DIR file",
-					imgFile.getPath());
+					imgFile.getPath()->toString());
 			throw IMGException(errmsg, __FILE__, __LINE__);
 		}
 
@@ -104,7 +104,7 @@ IMGArchive::IMGArchive(const File& file, bool deleteStream)
 			if (!ubDirStream) {
 				char errmsg[2048];
 				sprintf(errmsg, "Unable to open corresponding DIR file %s for the given IMG file",
-						dirFile.getPath());
+						dirFile.getPath()->toString());
 				throw IMGException(errmsg, __FILE__, __LINE__);
 			}
 

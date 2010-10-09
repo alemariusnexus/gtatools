@@ -19,6 +19,7 @@
 
 #include "DFFGeometry.h"
 #include "DFFException.h"
+#include "DFFMesh.h"
 #include "../util/OutOfBoundsException.h"
 #include <cstring>
 
@@ -27,7 +28,7 @@
 DFFGeometry::DFFGeometry(int32_t numVertices, float* vertices, float* normals, float* uvCoords,
 			int8_t uvSetCount, uint8_t* vertexColors)
 		: flags(0), uvSetCount(0), vertexCount(numVertices), frameCount(0), ambientLight(0.0f),
-		  diffuseLight(0.0f), specularLight(0.0f), associatedFrame(NULL), bounds(NULL)
+		  diffuseLight(0.0f), specularLight(0.0f), associatedFrame(NULL), bounds(NULL), mesh(NULL)
 {
 	setVertices(numVertices, vertices, normals, uvCoords, uvSetCount, vertexColors);
 }
@@ -43,7 +44,7 @@ DFFGeometry::DFFGeometry(const DFFGeometry& other)
 		  vertices(new float[vertexCount*3]),
 		  normals(other.normals == NULL ? NULL : new float[vertexCount*3]),
 		  associatedFrame(other.associatedFrame),
-		  bounds(new DFFBoundingSphere)
+		  bounds(new DFFBoundingSphere), mesh(NULL)
 {
 	if (vertexColors) {
 		memcpy(vertexColors, other.vertexColors, vertexCount*4);
@@ -180,6 +181,7 @@ void DFFGeometry::removeMaterial(DFFMaterial* material)
 
 	for (it = materials.begin() ; it != materials.end() ; it++) {
 		if (*it == material) {
+			material->reparent(NULL);
 			materials.erase(it);
 			return;
 		}
@@ -189,6 +191,12 @@ void DFFGeometry::removeMaterial(DFFMaterial* material)
 
 void DFFGeometry::removeMaterials()
 {
+	MaterialIterator it;
+
+	for (it = materials.begin() ; it != materials.end() ; it++) {
+		(*it)->reparent(NULL);
+	}
+
 	materials.clear();
 }
 
@@ -200,7 +208,7 @@ void DFFGeometry::removePart(DFFGeometryPart* part)
 	for (it = parts.begin() ; it != parts.end() ; it++) {
 		if (*it == part) {
 			parts.erase(it);
-			part->changeGeometry(NULL);
+			part->reparent(NULL);
 			return;
 		}
 	}
@@ -209,6 +217,12 @@ void DFFGeometry::removePart(DFFGeometryPart* part)
 
 void DFFGeometry::removeParts()
 {
+	PartIterator it;
+
+	for (it = parts.begin() ; it != parts.end() ; it++) {
+		(*it)->reparent(NULL);
+	}
+
 	parts.clear();
 }
 
@@ -270,4 +284,15 @@ const DFFGeometryPart* DFFGeometry::getPart(int index) const
 	}
 
 	return parts[index];
+}
+
+
+void DFFGeometry::reparent(DFFMesh* mesh)
+{
+	if (this->mesh  &&  mesh) {
+		throw DFFException("Attempt to reparent a DFFGeometry which still has a parent! Remove it from "
+				"it's old DFFMesh parent first.", __FILE__, __LINE__);
+	}
+
+	this->mesh = mesh;
 }

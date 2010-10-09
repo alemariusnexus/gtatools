@@ -27,6 +27,9 @@
 using std::vector;
 
 
+class DFFGeometry;
+
+
 class DFFMaterial {
 public:
 	typedef vector<DFFTexture*>::iterator TextureIterator;
@@ -34,9 +37,10 @@ public:
 
 private:
 	friend class DFFLoader;
+	friend class DFFGeometry;
 
 public:
-	DFFMaterial() {};
+	DFFMaterial() : geometry(NULL) {}
 	DFFMaterial(const DFFMaterial& other);
 	~DFFMaterial();
 	void getColor(uint8_t& r, uint8_t& g, uint8_t& b, uint8_t& a) const
@@ -57,7 +61,11 @@ public:
 	void removeTextures();
 
 private:
+	void reparent(DFFGeometry* geom);
+
+private:
 	uint8_t color[4];
+	DFFGeometry* geometry;
 	vector<DFFTexture*> textures;
 };
 

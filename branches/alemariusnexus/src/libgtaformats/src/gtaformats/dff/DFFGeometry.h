@@ -39,6 +39,8 @@ using std::vector;
 #define GEOMETRY_FLAG_MULTIPLEUVSETS (1<<7)
 
 
+class DFFMesh;
+
 struct DFFBoundingSphere {
 	float x;
 	float y;
@@ -56,6 +58,7 @@ public:
 
 private:
 	friend class DFFLoader;
+	friend class DFFMesh;
 
 public:
 	DFFGeometry(int32_t numVertices, float* vertices, float* normals = NULL, float* uvCoords = NULL,
@@ -102,7 +105,7 @@ public:
 	ConstMaterialIterator getMaterialEnd() const { return materials.end(); }
 	DFFMaterial* getMaterial(int index);
 	const DFFMaterial* getMaterial(int index) const;
-	void addMaterial(DFFMaterial* material) { materials.push_back(material); }
+	void addMaterial(DFFMaterial* material) { materials.push_back(material); material->reparent(this); }
 	void removeMaterial(int index) { removeMaterial(getMaterial(index)); }
 	void removeMaterial(DFFMaterial* material);
 	void removeMaterials();
@@ -112,7 +115,7 @@ public:
 	ConstPartIterator getPartEnd() const { return parts.end(); }
 	DFFGeometryPart* getPart(int index);
 	const DFFGeometryPart* getPart(int index) const;
-	void addPart(DFFGeometryPart* part) { parts.push_back(part); part->changeGeometry(this); }
+	void addPart(DFFGeometryPart* part) { parts.push_back(part); part->reparent(this); }
 	void removePart(int index) { removePart(getPart(index)); }
 	void removePart(DFFGeometryPart* part);
 	void removeParts();
@@ -120,6 +123,9 @@ public:
 
 	void mirrorYZ();
 	void scale(float x, float y, float z);
+
+private:
+	void reparent(DFFMesh* mesh);
 
 private:
 	int16_t flags;
@@ -140,6 +146,7 @@ private:
 	vector<DFFGeometryPart*> parts;
 
 	DFFFrame* associatedFrame;
+	DFFMesh* mesh;
 };
 
 #endif /* DFFGEOMETRY_H_ */

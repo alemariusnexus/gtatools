@@ -70,7 +70,7 @@ void ProfileManager::loadProfiles()
 		profiles << profile;
 	}
 
-	int currentProfileIdx = settings.value("main/current_profile").toInt();
+	int currentProfileIdx = settings.value("main/current_profile", -1).toInt();
 
 	if (currentProfileIdx != -1) {
 		setCurrentProfile(getProfile(currentProfileIdx));

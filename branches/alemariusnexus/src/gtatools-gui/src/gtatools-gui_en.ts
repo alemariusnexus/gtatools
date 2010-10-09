@@ -51,43 +51,43 @@
     </message>
     <message>
         <location filename="src/gui/ConfigWidget.ui" line="98"/>
-        <location filename="src/gui/ConfigWidget.cpp" line="144"/>
+        <location filename="src/gui/ConfigWidget.cpp" line="151"/>
         <source>New Profile</source>
         <translation>New Profile</translation>
     </message>
     <message>
-        <location filename="src/gui/ConfigWidget.ui" line="105"/>
+        <location filename="src/gui/ConfigWidget.ui" line="108"/>
         <source>Remove Profile</source>
         <translation>Remove Profile</translation>
     </message>
     <message>
-        <location filename="src/gui/ConfigWidget.ui" line="134"/>
+        <location filename="src/gui/ConfigWidget.ui" line="137"/>
         <source>Profile Settings</source>
         <translation>Profile Settings</translation>
     </message>
     <message>
-        <location filename="src/gui/ConfigWidget.ui" line="153"/>
+        <location filename="src/gui/ConfigWidget.ui" line="156"/>
         <source>&amp;Look And Feel</source>
         <oldsource>Look And Feel</oldsource>
         <translation>&amp;Look And Feel</translation>
     </message>
     <message>
-        <location filename="src/gui/ConfigWidget.ui" line="159"/>
+        <location filename="src/gui/ConfigWidget.ui" line="162"/>
         <source>Compact Look And Feel</source>
         <translation>Compact Look And Feel</translation>
     </message>
     <message>
-        <location filename="src/gui/ConfigWidget.ui" line="166"/>
+        <location filename="src/gui/ConfigWidget.ui" line="169"/>
         <source>Show file types in file tree</source>
         <translation>Show file types in file tree</translation>
     </message>
     <message>
-        <location filename="src/gui/ConfigWidget.ui" line="212"/>
+        <location filename="src/gui/ConfigWidget.ui" line="215"/>
         <source>Cancel</source>
         <translation>Cancel</translation>
     </message>
     <message>
-        <location filename="src/gui/ConfigWidget.ui" line="219"/>
+        <location filename="src/gui/ConfigWidget.ui" line="222"/>
         <source>Apply</source>
         <translation>Apply</translation>
     </message>
@@ -321,12 +321,12 @@
         <translation>Geometry %1</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="164"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="179"/>
         <source>(%1, %2, %3)</source>
         <translation>(%1, %2, %3)</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="165"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="180"/>
         <source>(%1, %2, %3) (%4, %5, %6) (%7, %8, %9)</source>
         <oldsource>(%1, %2, %3)
 (%4, %5, %6)
@@ -336,61 +336,61 @@
 (%7, %8, %9)</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="170"/>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="224"/>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="320"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="185"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="239"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="334"/>
         <source>None</source>
         <translation>None</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="191"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="206"/>
         <source>Triangle Strips</source>
         <translation>Triangle Strips</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="191"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="206"/>
         <source>Triangle List</source>
         <translation>Triangle List</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="199"/>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="200"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="214"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="215"/>
         <source>no</source>
         <translation>no</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="199"/>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="200"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="214"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="215"/>
         <source>yes</source>
         <translation>yes</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="201"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="216"/>
         <source>(%1, %2, %3 : %4)</source>
         <translation>(%1, %2, %3 : %4)</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="237"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="252"/>
         <source>Material %1</source>
         <translation>Material %1</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="246"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="261"/>
         <source>Part %1</source>
         <translation>Part %1</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="270"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="285"/>
         <source>(%1, %2, %3, %4)</source>
         <translation>(%1, %2, %3, %4)</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="344"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="358"/>
         <source>Choose a destination file</source>
         <translation>Choose a destination file</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="345"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="359"/>
         <source>XML Files (*.xml)</source>
         <translation>XML Files (*.xml)</translation>
     </message>
@@ -757,15 +757,36 @@ You should have received a copy of the GNU General Public License along with thi
 <context>
     <name>IMGGUIModule</name>
     <message>
-        <location filename="src/formats/img/IMGGUIModule.cpp" line="19"/>
-        <location filename="src/formats/img/IMGGUIModule.cpp" line="22"/>
         <source>Extract File</source>
-        <translation>Extract File</translation>
+        <translation type="obsolete">Extract File</translation>
     </message>
     <message>
-        <location filename="src/formats/img/IMGGUIModule.cpp" line="95"/>
+        <location filename="src/formats/img/IMGGUIModule.cpp" line="20"/>
+        <location filename="src/formats/img/IMGGUIModule.cpp" line="23"/>
+        <source>Extract File(s)</source>
+        <translation>Extract File(s)</translation>
+    </message>
+    <message>
+        <location filename="src/formats/img/IMGGUIModule.cpp" line="107"/>
         <source>Choose a destination file</source>
         <translation>Choose a destination file</translation>
+    </message>
+    <message>
+        <location filename="src/formats/img/IMGGUIModule.cpp" line="126"/>
+        <location filename="src/formats/img/IMGGUIModule.cpp" line="156"/>
+        <source>Unable to open file</source>
+        <translation>Unable to open file</translation>
+    </message>
+    <message>
+        <location filename="src/formats/img/IMGGUIModule.cpp" line="127"/>
+        <location filename="src/formats/img/IMGGUIModule.cpp" line="157"/>
+        <source>Unable to open file %1 for writing!</source>
+        <translation>Unable to open file %1 for writing!</translation>
+    </message>
+    <message>
+        <location filename="src/formats/img/IMGGUIModule.cpp" line="131"/>
+        <source>Choose a destination directory</source>
+        <translation>Choose a destination directory</translation>
     </message>
 </context>
 <context>
@@ -915,23 +936,23 @@ You should have received a copy of the GNU General Public License along with thi
 <context>
     <name>ProfileConfigWidget</name>
     <message>
-        <location filename="src/gui/ProfileConfigWidget.cpp" line="79"/>
+        <location filename="src/gui/ProfileConfigWidget.cpp" line="90"/>
         <source>Select one or more resources</source>
         <oldsource>Select resource</oldsource>
         <translation>Select one or more resources</translation>
     </message>
     <message>
-        <location filename="src/gui/ProfileConfigWidget.cpp" line="92"/>
+        <location filename="src/gui/ProfileConfigWidget.cpp" line="103"/>
         <source>Select a resource directory</source>
         <translation>Select a resource directory</translation>
     </message>
     <message>
-        <location filename="src/gui/ProfileConfigWidget.cpp" line="112"/>
+        <location filename="src/gui/ProfileConfigWidget.cpp" line="123"/>
         <source>Select the new resource directory</source>
         <translation>Select the new resource directory</translation>
     </message>
     <message>
-        <location filename="src/gui/ProfileConfigWidget.cpp" line="119"/>
+        <location filename="src/gui/ProfileConfigWidget.cpp" line="130"/>
         <source>Select the new resource file</source>
         <translation>Select the new resource file</translation>
     </message>
@@ -988,12 +1009,12 @@ You should have received a copy of the GNU General Public License along with thi
         <translation type="obsolete">Closed File!</translation>
     </message>
     <message>
-        <location filename="src/System.cpp" line="114"/>
+        <location filename="src/System.cpp" line="120"/>
         <source>Unhandeled Exception</source>
         <translation>Unhandeled Exception</translation>
     </message>
     <message>
-        <location filename="src/System.cpp" line="111"/>
+        <location filename="src/System.cpp" line="117"/>
         <source>Unhandeled Exception %1%2</source>
         <translation>An unhandeled exception occurred. The program might continue to run, but stability can not be guaranteed. A detailed description of the exception was written to the file %2.
 The exception text:

@@ -1,8 +1,20 @@
 /*
- * DFFRenderWidget.cpp
- *
- *  Created on: 20.07.2010
- *      Author: alemariusnexus
+	Copyright 2010 David "Alemarius Nexus" Lerch
+
+	This file is part of gtatools-gui.
+
+	gtatools-gui is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	gtatools-gui is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "DFFRenderWidget.h"
@@ -50,7 +62,7 @@ void DFFRenderWidget::renderGeometry(DFFGeometry* geometry)
 	program->makeCurrent();
 
 	if (object) {
-		//delete object;
+		delete object;
 	}
 
 	Profile* profile = ProfileManager::getInstance()->getCurrentProfile();
@@ -74,7 +86,7 @@ void DFFRenderWidget::renderGeometryPart(DFFGeometry* geometry, DFFGeometryPart*
 	program->makeCurrent();
 
 	if (object) {
-		//delete object;
+		delete object;
 	}
 
 	Profile* profile = ProfileManager::getInstance()->getCurrentProfile();
@@ -240,7 +252,11 @@ void DFFRenderWidget::paintGL()
 
 	if (textures) {
 		glEnable(GL_TEXTURE_2D);
+	} else {
+		glDisable(GL_TEXTURE_2D);
 	}
+
+	glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
 
 	Matrix4 mvpMatrix = pMatrix;
 	mvpMatrix *= Matrix4::lookAt(cam.getTarget(), cam.getUp());
@@ -357,6 +373,7 @@ void DFFRenderWidget::keyPressEvent(QKeyEvent* evt)
 
 void DFFRenderWidget::setShowTextures(bool textures)
 {
+	printf("Tex update\n");
 	this->textures = textures;
 	updateGL();
 }

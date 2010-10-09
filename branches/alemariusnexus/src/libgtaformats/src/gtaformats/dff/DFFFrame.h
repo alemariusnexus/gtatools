@@ -68,7 +68,7 @@ public:
 	void setFlags(int32_t flags) { this->flags = flags; }
 	void setName(const char* name) { this->name = new char[strlen(name)+1]; strcpy(this->name, name); }
 	void setName(char* name) { this->name = name; }
-	void addChild(DFFFrame* child) { children.push_back(child); child->parent = this; }
+	void addChild(DFFFrame* child) { children.push_back(child); child->reparent(this); }
 	void removeChild(DFFFrame* child);
 	void removeChild(int32_t index) { removeChild(getChild(index)); }
 	void removeChild(const char* name) { removeChild(getChild(name)); }
@@ -77,6 +77,9 @@ public:
 
 	void mirrorYZ();
 	void scale(float x, float y, float z);
+
+private:
+	void reparent(DFFFrame* frame);
 
 private:
 	Matrix3* rotation;

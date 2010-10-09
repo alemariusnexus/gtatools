@@ -1,8 +1,20 @@
 /*
- * DFFWidget.cpp
- *
- *  Created on: 20.07.2010
- *      Author: alemariusnexus
+	Copyright 2010 David "Alemarius Nexus" Lerch
+
+	This file is part of gtatools-gui.
+
+	gtatools-gui is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	gtatools-gui is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "DFFWidget.h"
@@ -122,6 +134,9 @@ DFFWidget::~DFFWidget()
 
 void DFFWidget::clearMaterialList()
 {
+	// Otherwise the slots might be called in an invalid state
+	disconnect(ui.materialList, SIGNAL(currentRowChanged(int)), this, SLOT(materialSelected(int)));
+
 	clearTextureList();
 
 	int count = ui.materialList->count();
@@ -129,26 +144,38 @@ void DFFWidget::clearMaterialList()
 	for (int i = 0 ; i < count ; i++) {
 		delete ui.materialList->takeItem(0);
 	}
+
+	connect(ui.materialList, SIGNAL(currentRowChanged(int)), this, SLOT(materialSelected(int)));
 }
 
 
 void DFFWidget::clearGeometryPartList()
 {
+	// Otherwise the slots might be called in an invalid state
+	disconnect(ui.geometryPartList, SIGNAL(currentRowChanged(int)), this, SLOT(geometryPartSelected(int)));
+
 	int count = ui.geometryPartList->count();
 
 	for (int i = 0 ; i < count ; i++) {
 		delete ui.geometryPartList->takeItem(0);
 	}
+
+	connect(ui.geometryPartList, SIGNAL(currentRowChanged(int)), this, SLOT(geometryPartSelected(int)));
 }
 
 
 void DFFWidget::clearTextureList()
 {
+	// Otherwise the slots might be called in an invalid state
+	disconnect(ui.textureList, SIGNAL(currentRowChanged(int)), this, SLOT(textureSelected(int)));
+
 	int count = ui.textureList->count();
 
 	for (int i = 0 ; i < count ; i++) {
 		delete ui.textureList->takeItem(0);
 	}
+
+	connect(ui.textureList, SIGNAL(currentRowChanged(int)), this, SLOT(textureSelected(int)));
 }
 
 
@@ -169,7 +196,6 @@ void DFFWidget::frameSelected(const QModelIndex& index, const QModelIndex& previ
 	if (frame->getParent() == NULL) {
 		ui.frameParentLabel->setText(tr("None"));
 	} else {
-		//int pidx = mesh->indexOf(frame->getParent());
 		ui.frameParentLabel->setText(index.parent().data(Qt::DisplayRole).toString());
 	}
 
@@ -308,7 +334,6 @@ void DFFWidget::geometryPartSelected(int row)
 	DFFGeometry* geom = mesh->getGeometry(ui.geometryList->currentRow());
 	DFFGeometryPart* part = geom->getPart(row);
 	DFFMaterial* mat = part->getMaterial();
-	printf("Talking about material %p on part %p\n", mat, part);
 
 	ui.geometryPartNameLabel->setText(ui.geometryPartList->item(row)->text());
 	ui.geometryPartIndexCountLabel->setText(QString("%1").arg(part->getIndexCount()));
@@ -341,8 +366,10 @@ void DFFWidget::wireframePropertyChanged(bool wireframe)
 
 void DFFWidget::xmlDumpRequested(bool)
 {
-	QString filePath = QFileDialog::getSaveFileName(this, tr("Choose a destination file"), QString(),
-			tr("XML Files (*.xml)"));
+	System* sys = System::getInstance();
+
+	QString filePath = QFileDialog::getSaveFileName(this, tr("Choose a destination file"),
+			QString(sys->getCurrentFile()->getPath()->getFileName()).append(".xml"), tr("XML Files (*.xml)"));
 
 	if (!filePath.isEmpty()) {
 		DFFXMLDumpDialog optDialog(this);
@@ -364,17 +391,6 @@ void DFFWidget::xmlDumpRequested(bool)
 				xml << "<mesh>" << endl;
 
 				if (frames) {
-					/*xml << "  <frames count=\"" << mesh->getFrameCount() << "\">" << endl;
-
-					DFFMesh::FrameIterator it;
-
-					for (it = mesh->getFrameBegin() ; it != mesh->getFrameEnd() ; it++) {
-						DFFFrame* frame = *it;
-						xmlDumpFrame(frame, xml, 2);
-					}
-
-					xml << "  </frames>" << endl;*/
-
 					xmlDumpFrame(mesh->getRootFrame(), xml, 1);
 				}
 

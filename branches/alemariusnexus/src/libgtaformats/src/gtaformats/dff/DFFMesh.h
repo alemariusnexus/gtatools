@@ -51,7 +51,7 @@ public:
 	const DFFGeometry* getGeometry(int32_t idx) const;
 	DFFGeometry* getGeometry(const char* name);
 	const DFFGeometry* getGeometry(const char* name) const;
-	void addGeometry(DFFGeometry* geom) { geometries.push_back(geom); }
+	void addGeometry(DFFGeometry* geom) { geometries.push_back(geom); geom->reparent(this); }
 	void removeGeometry(DFFGeometry* geom);
 	void removeGeometry(int32_t index) { removeGeometry(geometries[index]); }
 	void removeGeometry(const char* name) { removeGeometry(getGeometry(name)); }

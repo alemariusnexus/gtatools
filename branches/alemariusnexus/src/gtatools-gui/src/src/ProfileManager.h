@@ -39,6 +39,7 @@ public:
 	Profile* setCurrentProfile(Profile* profile);
 	Profile* getCurrentProfile() { return currentProfile; }
 	Profile* getProfile(int idx);
+	int getProfileCount() { return profiles.size(); }
 	int indexOfProfile(Profile* profile) { return profiles.indexOf(profile); }
 	void saveProfiles();
 	void addProfile(Profile* profile);

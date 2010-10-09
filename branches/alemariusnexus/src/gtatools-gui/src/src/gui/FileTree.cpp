@@ -1,8 +1,20 @@
 /*
- * FileTree.cpp
- *
- *  Created on: 14.08.2010
- *      Author: alemariusnexus
+	Copyright 2010 David "Alemarius Nexus" Lerch
+
+	This file is part of gtatools-gui.
+
+	gtatools-gui is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	gtatools-gui is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "FileTree.h"
@@ -20,6 +32,9 @@ FileTree::FileTree(QWidget* parent)
 {
 	ProfileManager* pm = ProfileManager::getInstance();
 	System* sys = System::getInstance();
+
+	setContextMenuPolicy(Qt::CustomContextMenu);
+	setSelectionMode(ExtendedSelection);
 
 	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this,
 			SLOT(contextMenuRequested(const QPoint&)));
@@ -89,32 +104,31 @@ void FileTree::contextMenuRequested(const QPoint& pos)
 {
 	System* sys = System::getInstance();
 
-	QModelIndex index = indexAt(pos);
+	QLinkedList<File*> selectedFiles;
+	QModelIndexList sel = selectionModel()->selectedIndexes();
+	QModelIndexList::iterator iit;
 
-	if (index.isValid()) {
-		File* file = model->getFileForIndex(index);
-
-		QMenu* menu = new QMenu(this);
-		menu->setAttribute(Qt::WA_DeleteOnClose);
-
-		QLinkedList<GUIModule*> modules = sys->getInstalledGUIModules();
-		QLinkedList<GUIModule*>::iterator it;
-		for (it = modules.begin() ; it != modules.end() ; it++) {
-			GUIModule* module = *it;
-			module->buildFileTreeMenu(*file, *menu);
+	for (iit = sel.begin() ; iit != sel.end() ; iit++) {
+		if (iit->column() != 0) {
+			continue;
 		}
 
-		if (!file->isDirectory()) {
-			QLinkedList<FormatHandler*> handlers = FormatManager::getInstance()->getHandlers(*file);
-			QLinkedList<FormatHandler*>::iterator it;
-			for (it = handlers.begin() ; it != handlers.end() ; it++) {
-				FormatHandler* handler = *it;
-				handler->buildFileTreeMenu(*file, *menu);
-			}
-		}
-
-		menu->popup(mapToGlobal(pos));
+		QModelIndex idx = proxyModel->mapToSource(*iit);
+		File* file = model->getFileForIndex(idx);
+		selectedFiles << file;
 	}
+
+	QMenu* menu = new QMenu(this);
+	menu->setAttribute(Qt::WA_DeleteOnClose);
+
+	QLinkedList<GUIModule*> modules = sys->getInstalledGUIModules();
+	QLinkedList<GUIModule*>::iterator it;
+	for (it = modules.begin() ; it != modules.end() ; it++) {
+		GUIModule* module = *it;
+		module->buildFileTreeMenu(selectedFiles, *menu);
+	}
+
+	menu->popup(mapToGlobal(pos));
 }
 
 

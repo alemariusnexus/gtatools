@@ -32,8 +32,8 @@ private:
 	friend class DFFGeometry;
 
 public:
-	DFFGeometryPart(int32_t ic, int32_t* indices) : indexCount(ic), indices(indices), material(NULL) {}
-	DFFGeometryPart() : indexCount(0), indices(new int32_t[0]), material(NULL) {}
+	DFFGeometryPart(int32_t ic, int32_t* indices);
+	DFFGeometryPart() : indexCount(0), indices(new int32_t[0]), material(NULL), geometry(NULL) {}
 	DFFGeometryPart(const DFFGeometryPart& other);
 	~DFFGeometryPart();
 	int32_t getIndexCount() const { return indexCount; }
@@ -45,7 +45,7 @@ public:
 	DFFGeometry* getGeometry() const { return geometry; }
 
 private:
-	void changeGeometry(DFFGeometry* geom);
+	void reparent(DFFGeometry* geom);
 
 private:
 	int32_t indexCount;

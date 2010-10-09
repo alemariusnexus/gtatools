@@ -423,9 +423,9 @@ int DFFLoader::parseMaterialSplit(InputStream* stream, RwSectionHeader& matsplit
 		readCount += size;
 
 		DFFGeometryPart* part = new DFFGeometryPart(faceIdx, indices);
-		part->setMaterial(geom->getMaterial(matIdx));
-
 		geom->addPart(part);
+
+		part->setMaterial(geom->getMaterial(matIdx));
 	}
 
 	return readCount;

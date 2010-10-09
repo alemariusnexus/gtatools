@@ -97,6 +97,8 @@ void System::unhandeledException(Exception& ex)
 	QFile logfile(logfileName);
 	logfile.open(QFile::WriteOnly);
 
+	printf("%s\n%s\n", ex.what(), ex.getBacktrace());
+
 	logfile.write("UNHANDELED EXCEPTION REPORT ");
 	logfile.write(dt.toString(Qt::ISODate).toAscii().constData());
 	logfile.write("\n\n");

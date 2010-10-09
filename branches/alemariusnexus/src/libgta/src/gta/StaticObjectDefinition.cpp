@@ -1,12 +1,23 @@
 /*
- * StaticObjectDefinition.cpp
- *
- *  Created on: 29.08.2010
- *      Author: alemariusnexus
+	Copyright 2010 David "Alemarius Nexus" Lerch
+
+	This file is part of libgta.
+
+	libgta is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	libgta is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with libgta.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "StaticObjectDefinition.h"
-#include <gtaformats/engine/ResourceIndex.h>
 #include <gtaformats/util/util.h>
 #include <gtaformats/util/math/Matrix4.h>
 #include "ShaderProgram.h"
@@ -162,7 +173,7 @@ void StaticObjectDefinition::init(DFFGeometry* geom, DFFGeometryPart* renderPart
 					partTextures[i] = texName;
 					partHasTextures[i] = true;
 				} else {
-					printf("WARNING: Texture not found: %s (in %s)\n", dffTex->getDiffuseName(), txdName);
+					printf("WARNING: Texture not found: %s (in %d)\n", dffTex->getDiffuseName(), (int) txdName);
 				}
 			}
 		}
@@ -198,7 +209,7 @@ void StaticObjectDefinition::draw()
 	}
 
 	bool normals = (flags & GEOMETRY_FLAG_NORMALS) != 0;
-	bool texCoords = (flags & GEOMETRY_FLAG_TEXCOORDS) != 0;
+	bool texCoords = (flags & (GEOMETRY_FLAG_TEXCOORDS | GEOMETRY_FLAG_MULTIPLEUVSETS)) != 0;
 	//bool colors = (flags & GEOMETRY_FLAG_COLORS) != 0;
 	bool tristrips = (flags & GEOMETRY_FLAG_TRISTRIP) != 0;
 
@@ -226,11 +237,13 @@ void StaticObjectDefinition::draw()
 
 	unsigned int indexOffs = 0;
 	for (int i = 0 ; i < partCount ; i++) {
-		if (textureUniform != -1  &&  partHasTextures[i]) {
+		if (textureUniform != -1  &&  partHasTextures[i]  &&  glIsEnabled(GL_TEXTURE_2D)) {
+			//printf("But it's true\n");
 			glBindTexture(GL_TEXTURE_2D, partTextures[i]);
 			glUniform1i(textureUniform, 0);
 			glUniform1i(texturedUniform, 1);
 		} else {
+			//printf("Nee: %d, %s\n", textureUniform, partHasTextures[i] ? "true" : "false");
 			glUniform1i(texturedUniform, 0);
 		}
 
