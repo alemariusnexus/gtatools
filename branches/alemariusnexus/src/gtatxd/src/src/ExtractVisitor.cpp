@@ -137,7 +137,7 @@ void ExtractVisitor::handleTexture(TXDArchive* archive, TXDTexture* header)
 {
 	for (int i = 0 ; i < numPatterns ; i++) {
 		bool match = useRegex ? WildcardMatch(regexes[i], header->getDiffuseName())
-				: strcmp(regexes[i], header->getDiffuseName());
+				: strcmp(regexes[i], header->getDiffuseName()) == 0;
 
 		if (match) {
 			const char* destfile = destfiles[i];
