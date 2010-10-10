@@ -257,7 +257,7 @@ int Transcode(char* src, int srcBytes, char* dest, int destBytes, Encoding srcEn
 			break;
 		}
 
-		int len = WideCharToMultiByte(cp, 0, (LPWSTR) src, srcBytes/2, dest, 0, NULL, NULL);
+		int len = WideCharToMultiByte(cp, 0, (LPWSTR) src, srcBytes/2, dest, destBytes, NULL, NULL);
 
 		if (len == 0) {
 			switch (GetLastError()) {
@@ -316,6 +316,8 @@ int Transcode(char* src, int srcBytes, char* dest, int destBytes, Encoding srcEn
 				// Actually, this should never happen because we choose tmpBuf as twice the size of srcBytes,
 				// which should always fit perfect when converting a single-byte-encoding to UTF-16.
 				len = srcBytes*2;
+			} else if (len < 0) {
+				return len;
 			}
 
 			len = Transcode(tmpBuf, srcBytes*2, dest, destBytes, UTF16, destEnc);

@@ -51,6 +51,8 @@ public:
 	void readTableHeaders(GXTTableHeader* headers);
 	GXTTable* readTableData(const GXTTableHeader& header);
 	Version getVersion() { return version; }
+	bool getKeepKeyNames() { return keepKeyNames; }
+	void setKeepKeyNames(bool kkn) { keepKeyNames = kkn; }
 
 private:
 	void init();
@@ -64,6 +66,7 @@ private:
 	int32_t currentTable;
 	InputStream::streampos cpos;
 	Encoding encoding;
+	bool keepKeyNames;
 };
 
 #endif /* GXTLOADER_H_ */

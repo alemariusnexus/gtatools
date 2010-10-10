@@ -23,9 +23,27 @@
 
 
 
-GXTTable::GXTTable(Encoding internalEncoding)
-		: internalEncoding(internalEncoding)
+GXTTable::GXTTable(Encoding internalEncoding, bool keepKeyNames)
+		: internalEncoding(internalEncoding), keyNames(keepKeyNames ? new KeyNameMap : NULL)
 {
+}
+
+
+GXTTable::~GXTTable()
+{
+	if (keyNames) {
+		KeyNameMap::iterator it;
+
+		for (it = keyNames->begin() ; it != keyNames->end() ; it++) {
+			delete[] it->second;
+		}
+	}
+
+	EntryIterator it;
+
+	for (it = entries.begin() ; it != entries.end() ; it++) {
+		delete[] it->second;
+	}
 }
 
 
@@ -47,7 +65,7 @@ char* GXTTable::getValueUTF16(const char* key)
 }
 
 
-char* GXTTable::getValueUTF8(int32_t keyHash)
+char* GXTTable::getValueUTF8(crc32_t keyHash)
 {
 	char* val = getValue(keyHash);
 	int srcBytes;
@@ -72,7 +90,7 @@ char* GXTTable::getValueUTF8(int32_t keyHash)
 }
 
 
-char* GXTTable::getValueUTF16(int32_t keyHash)
+char* GXTTable::getValueUTF16(crc32_t keyHash)
 {
 	char* val = getValue(keyHash);
 	int srcBytes;
@@ -95,4 +113,43 @@ char* GXTTable::getValueUTF16(int32_t keyHash)
 	}
 
 	return dest;
+}
+
+
+void GXTTable::setValue(crc32_t keyHash, char* value)
+{
+	entries[keyHash] = value;
+}
+
+
+void GXTTable::setValue(const char* key, char* value)
+{
+	crc32_t keyHash = Crc32(key);
+	setValue(keyHash, value);
+
+	if (keyNames) {
+		char* keyCpy = new char[strlen(key)];
+		strcpy(keyCpy, key);
+		(*keyNames)[keyHash] = keyCpy;
+	}
+}
+
+
+const char* GXTTable::getKeyName(crc32_t keyHash)
+{
+	if (keyNames) {
+		return (*keyNames)[keyHash];
+	}
+
+	return NULL;
+}
+
+
+void GXTTable::setKeyName(crc32_t keyHash, const char* name)
+{
+	if (keyNames) {
+		char* nameCpy = new char[strlen(name)];
+		strcpy(nameCpy, name);
+		(*keyNames)[keyHash] = nameCpy;
+	}
 }

@@ -18,8 +18,6 @@
  */
 
 #include "GXTLoader.h"
-#include "GXTSAIVTable.h"
-#include "GXTVC3Table.h"
 #include "GXTException.h"
 #include "../util/stream/BufferedInputStream.h"
 #include <cstring>
@@ -30,7 +28,7 @@
 struct GXTSAIVEntry
 {
 	int32_t offset;
-	int32_t keyHash;
+	crc32_t keyHash;
 };
 
 
@@ -169,7 +167,7 @@ GXTTable* GXTLoader::readTableData(const GXTTableHeader& header)
 
 	if (version == SAIV) {
 		int32_t numEntries = tkeySize/8;
-		GXTSAIVTable* table = new GXTSAIVTable(encoding == None ? GXT8 : encoding);
+		GXTTable* table = new GXTTable(encoding == None ? GXT8 : encoding, keepKeyNames);
 		GXTSAIVEntry* entries = new GXTSAIVEntry[numEntries];
 
 		for (int32_t i = 0 ; i < numEntries ; i++) {
@@ -221,7 +219,16 @@ GXTTable* GXTLoader::readTableData(const GXTTableHeader& header)
 				char* old = text;
 				int textSize = GetSufficientTranscodeBufferSize(strLen, GXT8, encoding);
 				text = new char[textSize];
-				Transcode(old, strLen, text, textSize, GXT8, encoding);
+				int res = Transcode(old, strLen, text, textSize, GXT8, encoding);
+
+				if (res < 0) {
+					char* errmsg = new char[128];
+					sprintf(errmsg, "Error transcoding GXT string %d: %d\n", entries[i].keyHash, res);
+					GXTException ex(errmsg, __FILE__, __LINE__);
+					delete[] errmsg;
+					throw ex;
+				}
+
 				delete[] old;
 			}
 
@@ -236,7 +243,7 @@ GXTTable* GXTLoader::readTableData(const GXTTableHeader& header)
 		return table;
 	} else {
 		int32_t numEntries = tkeySize/12;
-		GXTVC3Table* table = new GXTVC3Table(encoding == None ? GXT16 : encoding, true);
+		GXTTable* table = new GXTTable(encoding == None ? GXT16 : encoding, keepKeyNames);
 		GXTVC3Entry* entries = new GXTVC3Entry[numEntries];
 
 		for (int32_t i = 0 ; i < numEntries ; i++) {
@@ -283,9 +290,7 @@ GXTTable* GXTLoader::readTableData(const GXTTableHeader& header)
 				delete[] old;
 			}
 
-			char* key = new char[8];
-			strncpy(key, entries[i].key, 8);
-			table->setValue(key, text);
+			table->setValue(entries[i].key, text);
 		}
 
 		cpos += tdatRead;
