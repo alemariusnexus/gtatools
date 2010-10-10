@@ -24,7 +24,7 @@
 #include "cliarg.h"
 #include "ListVisitor.h"
 #include "ExtractVisitor.h"
-#include <boost/regex.hpp>
+#include <gtaformats/util/File.h>
 #include <gtaformats/util/stream/InputStream.h>
 #include <gtaformats/util/stream/FileInputStream.h>
 #include <gtaformats/util/stream/STLInputStream.h>

@@ -18,6 +18,7 @@
  */
 
 #include "DFFMesh.h"
+#include "../util/OutOfBoundsException.h"
 #include <cstring>
 
 
@@ -27,16 +28,10 @@ DFFMesh::DFFMesh(const DFFMesh& other)
 	for (git = other.getGeometryBegin() ; git != other.getGeometryEnd() ; git++) {
 		geometries.push_back(new DFFGeometry(**git));
 	}
-
-	ConstFrameIterator fit;
-	for (fit = other.getFrameBegin() ; fit != other.getFrameEnd() ; fit++) {
-		frames.push_back(new DFFFrame(**fit));
-	}
 }
 
 
 DFFMesh::~DFFMesh() {
-	removeFrames();
 	removeGeometries();
 }
 
@@ -48,10 +43,7 @@ void DFFMesh::mirrorYZ()
 		(*git)->mirrorYZ();
 	}
 
-	FrameIterator fit;
-	for (fit = frames.begin() ; fit != frames.end() ; fit++) {
-		(*fit)->mirrorYZ();
-	}
+	rootFrame.mirrorYZ();
 }
 
 
@@ -62,25 +54,7 @@ void DFFMesh::scale(float x, float y, float z)
 		(*git)->scale(x, y, z);
 	}
 
-	FrameIterator fit;
-	for (fit = frames.begin() ; fit != frames.end() ; fit++) {
-		(*fit)->scale(x, y, z);
-	}
-}
-
-
-int32_t DFFMesh::indexOf(const DFFFrame* frame) const
-{
-	ConstFrameIterator it;
-	int i = 0;
-
-	for (it = frames.begin() ; it != frames.end() ; it++, i++) {
-		if (*it == frame) {
-			return i;
-		}
-	}
-
-	return -1;
+	rootFrame.scale(x, y, z);
 }
 
 
@@ -112,69 +86,16 @@ DFFGeometry* DFFMesh::getGeometry(const char* name)
 }
 
 
-const DFFFrame* DFFMesh::getFrame(const char* name) const
-{
-	ConstFrameIterator it;
-
-	for (it = frames.begin() ; it != frames.end() ; it++) {
-		if (strcmp((*it)->getName(), name) == 0) {
-			return *it;
-		}
-	}
-
-	return NULL;
-}
-
-
-DFFFrame* DFFMesh::getFrame(const char* name)
-{
-	FrameIterator it;
-
-	for (it = frames.begin() ; it != frames.end() ; it++) {
-		if (strcmp((*it)->getName(), name) == 0) {
-			return *it;
-		}
-	}
-
-	return NULL;
-}
-
-
-void DFFMesh::removeFrame(DFFFrame* frame)
-{
-	FrameIterator it;
-
-	for (it = frames.begin() ; it != frames.end() ; it++) {
-		if (*it == frame) {
-			delete *it;
-			frames.erase(it);
-		}
-	}
-}
-
-
 void DFFMesh::removeGeometry(DFFGeometry* geom)
 {
 	GeometryIterator it;
 
 	for (it = geometries.begin() ; it != geometries.end() ; it++) {
 		if (*it == geom) {
-			delete *it;
+			(*it)->reparent(NULL);
 			geometries.erase(it);
 		}
 	}
-}
-
-
-void DFFMesh::removeFrames()
-{
-	FrameIterator it;
-
-	for (it = frames.begin() ; it != frames.end() ; it++) {
-		delete *it;
-	}
-
-	frames.clear();
 }
 
 
@@ -183,8 +104,29 @@ void DFFMesh::removeGeometries()
 	GeometryIterator it;
 
 	for (it = geometries.begin() ; it != geometries.end() ; it++) {
-		delete *it;
+		(*it)->reparent(NULL);
+		//delete *it;
 	}
 
 	geometries.clear();
+}
+
+
+DFFGeometry* DFFMesh::getGeometry(int32_t idx)
+{
+	if (idx < 0  ||  idx >= geometries.size()) {
+		throw OutOfBoundsException(idx, __FILE__, __LINE__);
+	}
+
+	return geometries[idx];
+}
+
+
+const DFFGeometry* DFFMesh::getGeometry(int32_t idx) const
+{
+	if (idx < 0  ||  idx >= geometries.size()) {
+		throw OutOfBoundsException(idx, __FILE__, __LINE__);
+	}
+
+	return geometries[idx];
 }

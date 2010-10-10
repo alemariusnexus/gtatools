@@ -24,10 +24,8 @@
 //#include <ImgVisitor.h>
 #include <gtaformats/img/IMGVisitor.h>
 #include <vector>
-#include <boost/regex.hpp>
 
 using std::vector;
-using boost::regex;
 
 class ExtractVisitor : public IMGVisitor {
 public:
@@ -39,7 +37,8 @@ public:
 private:
 	int numPatterns;
 	vector<char*> temporaryStrings;
-	regex** regexes;
+	//regex** regexes;
+	const char** regexes;
 	const char** destfiles;
 	bool useRegex;
 	bool sourcesOnly;

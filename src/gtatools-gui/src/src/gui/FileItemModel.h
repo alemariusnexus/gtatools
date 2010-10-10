@@ -35,7 +35,7 @@ class FileItemModel : public QAbstractItemModel
 
 public:
 	FileItemModel(Profile* profile, QWidget* parent = NULL);
-	virtual ~FileItemModel() {};
+	virtual ~FileItemModel();
 
 	QModelIndex indexOf(const File& file, const QModelIndex& start);
 	File* getFileForIndex(const QModelIndex& index);

@@ -20,7 +20,7 @@
 #ifndef _GTA_H
 #define	_GTA_H
 
-#include <gf_config.h>
+#include "gf_config.h"
 #include "util/stream/InputStream.h"
 
 
@@ -81,8 +81,6 @@ inline int RwReadSectionHeader(InputStream* stream, RwSectionHeader& header) {
 }
 
 inline int RwSkipSectionBody(InputStream* stream, RwSectionHeader& header) {
-	//char* skipBuffer = new char[header.size];
-	//stream->read(skipBuffer, header.size);
 	stream->skip(header.size);
 	return header.size;
 }
@@ -90,10 +88,13 @@ inline int RwSkipSectionBody(InputStream* stream, RwSectionHeader& header) {
 
 void RwGetSectionName(uint32_t id, char* dest);
 void RwGetVersionName(uint32_t version, char* dest);
-//int RwReadSectionHeaderWithID(istream* stream, RwSectionHeader& header, uint32_t id);
-//int RwSkipSectionHeaderWithID(istream* stream, uint32_t id);
-//int RwSkipSectionWithID(istream* stream, uint32_t id);
 
+
+/**	\brief This computes a CRC32 hash of a string the same way as GTA would do.
+ *
+ * 	@param value The string to hash.
+ * 	@return The CRC32 hash.
+ */
 int Crc32(const char value[]);
 
 #endif	/* _GTA_H */

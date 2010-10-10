@@ -86,8 +86,8 @@ int main(int argc, char** argv)
 		if (!File(CONFIG_FILE).exists()) {
 			if (!File(CONFIG_DIR).exists()) {
 				if (!File(CONFIG_DIR).mkdir()) {
-					QMessageBox::critical(NULL, "Configuration Error",
-							"Configuration directory could not be created. Program will terminate.");
+					QMessageBox::critical(NULL, win.tr("Configuration Error"),
+							win.tr("Configuration directory %1 could not be created. Program will terminate.").arg(CONFIG_DIR));
 					return 1;
 				}
 			}
@@ -106,7 +106,11 @@ int main(int argc, char** argv)
 			sys->unhandeledException(ex);
 		}
 	} catch (Exception& ex) {
-		fprintf(stderr, "### Caught unhandeled exception ###\n%s", ex.what());
+		fprintf(stderr, "### Caught unhandeled exception ###\n%s\n", ex.what());
+
+		if (ex.getBacktrace()) {
+			fprintf(stderr, "### Backtrace ###\n%s\n", ex.getBacktrace());
+		}
 	}
 }
 

@@ -17,8 +17,8 @@
 	along with gtaformats.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CONFIG_H_
-#define CONFIG_H_
+#ifndef GF_CONFIG_H_
+#define GF_CONFIG_H_
 
 #ifdef _MSC_VER
 #	pragma warning(disable : 4996)
@@ -27,20 +27,8 @@
 #include "stdint.h"
 
 
-typedef float v4sf __attribute__((vector_size(16)));
-typedef int32_t v4i32 __attribute__((vector_size(16)));
+#define PI 3.141593f
 
-union Vec4SF
-{
-	v4sf v;
-	float f[4];
-};
-
-union Vec4I32
-{
-	v4i32 v;
-	int32_t i[4];
-};
 
 
 #cmakedefine GF_USE_SQUISH
@@ -53,4 +41,4 @@ union Vec4I32
 #define GTATOOLS_VERSION_PATCH ${GTATOOLS_VERSION_PATCH}
 #define GTATOOLS_VERSION_SUFFIX "${GTATOOLS_VERSION_SUFFIX}"
 
-#endif /* CONFIG_H_ */
+#endif /* GF_CONFIG_H_ */

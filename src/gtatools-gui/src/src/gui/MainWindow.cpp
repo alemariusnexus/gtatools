@@ -37,15 +37,13 @@
 #include <qtablewidget.h>
 #include <QTimer>
 #include <QHBoxLayout>
-
+#include <QtGui/qdockwidget.h>
 
 
 MainWindow::MainWindow()
-		: currentDisplayWidget(NULL), hasOpenFile(false)
 {
 	ui.setupUi(this);
 	setWindowTitle(tr("ProgramBaseName"));
-	ui.mainSplitter->setSizes(QList<int>() << width()/3 << width()/3*2);
 
 	taskLabel = new QLabel(ui.statusbar);
 	//taskLabel->setAlignment(Qt::AlignRight);
@@ -58,85 +56,56 @@ MainWindow::MainWindow()
 
 	System* sys = System::getInstance();
 	sys->setMainWindow(this);
+
+	setTabPosition(Qt::LeftDockWidgetArea, QTabWidget::North);
+	setTabPosition(Qt::RightDockWidgetArea, QTabWidget::North);
+	setTabPosition(Qt::BottomDockWidgetArea, QTabWidget::North);
+	setTabPosition(Qt::TopDockWidgetArea, QTabWidget::North);
+
+	sys->installGUIModule(new DefaultGUIModule);
+	sys->installGUIModule(new TXDGUIModule);
+
+	/*addDockWidget(Qt::LeftDockWidgetArea, new QDockWidget("Dock Widget 0"));
+	addDockWidget(Qt::RightDockWidgetArea, new QDockWidget("Dock Widget 1"));
+	addDockWidget(Qt::TopDockWidgetArea, new QDockWidget("Dock Widget 2"));
+	addDockWidget(Qt::BottomDockWidgetArea, new QDockWidget("Dock Widget 3"));*/
 }
 
 
 void MainWindow::initialize()
 {
-	ProfileManager* pm = ProfileManager::getInstance();
 	System* sys = System::getInstance();
+
+	ProfileManager* pm = ProfileManager::getInstance();
 
 	Profile* currentProfile = pm->getCurrentProfile();
 
-	connect(sys, SIGNAL(fileOpened(const File&, const QHash<QString, QVariant>&)), this,
-			SLOT(openFile(const File&, const QHash<QString, QVariant>&)));
-	connect(sys, SIGNAL(currentFileClosed()), this, SLOT(closeCurrentFile()));
+	connect(sys, SIGNAL(fileOpened(const FileOpenRequest&)), this,
+			SLOT(openFile(const FileOpenRequest&)));
+	connect(sys, SIGNAL(fileClosed(File*)), this, SLOT(closeFile(File*)));
+	connect(sys, SIGNAL(currentFileChanged(File*, File*)), this, SLOT(currentFileChanged(File*, File*)));
 	connect(sys, SIGNAL(configurationChanged()), this, SLOT(configurationChanged()));
-
-	sys->installGUIModule(new DefaultGUIModule);
-	sys->installGUIModule(new TXDGUIModule);
+	connect(ui.contentTabber, SIGNAL(currentChanged(int)), this, SLOT(currentFileTabChanged(int)));
+	connect(ui.contentTabber, SIGNAL(tabCloseRequested(int)), this, SLOT(fileTabClosed(int)));
 
 	QSettings settings(CONFIG_FILE, QSettings::IniFormat);
 
 	resize(settings.value("gui/mainwindow_size", size()).toSize());
-
-	contentTabCompact = NULL;
-
-	loadConfigUiSettings();
-
-	//sys->showStatusMessage("Ein Test!");
-}
-
-
-void MainWindow::loadConfigUiSettings()
-{
-	QSettings settings(CONFIG_FILE, QSettings::IniFormat);
-
-	if (settings.value("gui/compact_mode", false).toBool()) {
-		if (!contentTabCompact) {
-			QLayout* layout = ui.contentWidget->layout();
-			layout->removeWidget(ui.fileInfoWidget);
-			layout->removeWidget(ui.contentPluginWidget);
-
-			QTabWidget* tw = new QTabWidget(ui.contentWidget);
-			tw->addTab(ui.fileInfoWidget, tr("&General Information"));
-			tw->addTab(ui.contentPluginWidget, tr("&Content"));
-			tw->setTabEnabled(1, hasOpenFile);
-			layout->addWidget(tw);
-
-			contentTabCompact = tw;
-		}
-	} else {
-		if (contentTabCompact) {
-			QVBoxLayout* layout = (QVBoxLayout*) ui.contentWidget->layout();
-			layout->removeWidget(contentTabCompact);
-			contentTabCompact->removeTab(0);
-			contentTabCompact->removeTab(1);
-			ui.fileInfoWidget->setParent(ui.contentWidget);
-			ui.contentPluginWidget->setParent(ui.contentWidget);
-			ui.fileInfoWidget->show();
-			ui.contentPluginWidget->show();
-			delete contentTabCompact;
-			layout->addWidget(ui.fileInfoWidget);
-			layout->addWidget(ui.contentPluginWidget);
-		}
-
-		contentTabCompact = NULL;
-	}
-
-	ui.fileTree->header()->setResizeMode(0, QHeaderView::Stretch);
-	ui.fileTree->header()->setResizeMode(1, QHeaderView::ResizeToContents);
+	restoreState(settings.value("gui/mainwindow_state").toByteArray());
 }
 
 
 MainWindow::~MainWindow()
 {
+	QMap<File, FileViewWidget*>::iterator fit;
+
+	for (fit = fileWidgets.begin() ; fit != fileWidgets.end() ; fit++) {
+		delete fit.value();
+	}
+
 	QSettings settings(CONFIG_FILE, QSettings::IniFormat);
 	settings.setValue("gui/mainwindow_size", size());
-
-	if (currentDisplayWidget) {
-		delete currentDisplayWidget;
-	}
+	settings.setValue("gui/mainwindow_state", saveState());
 
 	System* sys = System::getInstance();
 	QLinkedList<GUIModule*> modules = sys->getInstalledGUIModules();
@@ -147,91 +116,140 @@ MainWindow::~MainWindow()
 		sys->uninstallGUIModule(module);
 		delete module;
 	}
+
+	while (dockWidgets.size() != 0) {
+		QDockWidget* widget = dockWidgets[0];
+		removeDockWidget(widget);
+		delete widget;
+	}
+
+	delete taskLabel;
+	delete progressBar;
 }
 
 
-void MainWindow::openFile(const File& file, const QHash<QString, QVariant>& data)
+void MainWindow::addDockWidget(Qt::DockWidgetArea area, QDockWidget* widget)
 {
-	ui.fileNameLabel->setText(QString(file.getPath()->getFileName()));
+	QMainWindow::addDockWidget(area, widget);
+	QAction* action = new QAction(widget->windowTitle(), this);
 
-	if (file.isDirectory()) {
-		ui.fileTypeLabel->setText(QString(tr("Directory")));
-		ui.fileSizeLabel->setText(QString(tr("%1 files")).arg(file.getChildCount()));
+	dockWidgets << widget;
+	dockViewActions << action;
+
+	action->setData(dockWidgets.size()-1);
+	action->setCheckable(true);
+	action->setChecked(widget->isVisible());
+	ui.menuWindows->addAction(action);
+	connect(action, SIGNAL(triggered(bool)), this, SLOT(dockWidgetViewChanged(bool)));
+	connect(widget, SIGNAL(visibilityChanged(bool)), this, SLOT(dockWidgetVisibilityChanged(bool)));
+}
+
+
+void MainWindow::removeDockWidget(QDockWidget* widget)
+{
+	disconnect(widget, SIGNAL(visibilityChanged(bool)), this, SLOT(dockWidgetVisibilityChanged(bool)));
+
+	QLinkedList<QAction*>::iterator it;
+	int index = dockWidgets.indexOf(widget);
+	QAction* action = dockViewActions[index];
+	disconnect(action, SIGNAL(triggered(bool)), this, SLOT(dockWidgetViewChanged(bool)));
+	delete action;
+
+	dockWidgets.removeAt(index);
+	dockViewActions.removeAt(index);
+
+	QMainWindow::removeDockWidget(widget);
+}
+
+
+void MainWindow::dockWidgetViewChanged(bool checked)
+{
+	QAction* action = (QAction*) sender();
+	QDockWidget* widget = dockWidgets[action->data().toInt()];
+
+	if (checked) {
+		if (!widget->isVisible()) {
+			widget->show();
+		}
 	} else {
-		File::filesize size = file.getSize();
-
-		if (size > 1000000) {
-			ui.fileSizeLabel->setText(QString(tr("%1MB")).arg(size/1000000.0f));
-		} else if (size > 1000) {
-			ui.fileSizeLabel->setText(QString(tr("%1kB")).arg(size/1000.0f));
-		} else {
-			ui.fileSizeLabel->setText(QString(tr("%1B")).arg(size));
-		}
-
-		QLinkedList<FormatHandler*> handlers = FormatManager::getInstance()->getHandlers(file);
-
-		if (handlers.size() == 0) {
-			ui.fileTypeLabel->setText(QString(tr("Unrecognized File")));
-		} else {
-			ui.fileTypeLabel->setText((*handlers.begin())->getFormatName(&file));
-		}
-
-		QLinkedList<FormatHandler*>::iterator it;
-
-		/*for (it = handlers.begin() ; it != handlers.end() ; it++) {
-			FormatHandler* handler = *it;
-			GUIModule* mod = handler->createGUIModuleForFile(file, this);
-
-			if (mod) {
-				currentFileModules << mod;
-			}
-		}*/
-
-		for (it = handlers.begin() ; it != handlers.end() ; it++) {
-			FormatHandler* handler = *it;
-			currentDisplayWidget = handler->createWidgetForFile(file, ui.contentPluginWidget, data);
-
-			if (currentDisplayWidget) {
-				ui.contentPluginWidget->layout()->addWidget(currentDisplayWidget);
-				break;
-			}
-		}
-
-		if (contentTabCompact) {
-			contentTabCompact->setTabEnabled(1, currentDisplayWidget != NULL);
+		if (widget->isVisible()) {
+			widget->close();
 		}
 	}
-
-	hasOpenFile = true;
-
-
 }
 
 
-void MainWindow::closeCurrentFile()
+void MainWindow::dockWidgetVisibilityChanged(bool visible)
 {
-	if (hasOpenFile) {
-		if (currentDisplayWidget) {
-			delete currentDisplayWidget;
-			currentDisplayWidget = NULL;
-		}
+	QDockWidget* widget = (QDockWidget*) sender();
+	QLinkedList<QAction*>::iterator it;
+	int index = dockWidgets.indexOf(widget);
+	QAction* action = dockViewActions[index];
+	action->setChecked(visible);
+}
 
-		ui.fileNameLabel->setText(tr("(No File Opened)"));
-		ui.fileTypeLabel->setText("-");
-		ui.fileSizeLabel->setText("-");
 
-		hasOpenFile = false;
-	}
+void MainWindow::openFile(const FileOpenRequest& request)
+{
+	FileViewWidget* widget = new FileViewWidget(request);
+	fileWidgets[*request.getFile()] = widget;
+	ui.contentTabber->addTab(widget, QString(request.getFile()->getPath()->getFileName()));
+}
+
+
+void MainWindow::currentFileChanged(File* file, File* prev)
+{
+	ui.contentTabber->setCurrentWidget(fileWidgets[*file]);
+}
+
+
+void MainWindow::closeFile(File* file)
+{
+	FileViewWidget* widget = fileWidgets[*file];
+	fileWidgets.remove(*file);
+	ui.contentTabber->removeTab(ui.contentTabber->indexOf(widget));
+	delete widget;
 }
 
 
 void MainWindow::configurationChanged()
 {
-	loadConfigUiSettings();
+	//loadConfigUiSettings();
 }
 
 
 void MainWindow::taskLabelShouldAdjust()
 {
+}
+
+
+void MainWindow::currentFileTabChanged(int index)
+{
+	QMap<File, FileViewWidget*>::iterator it;
+	QWidget* widget = ui.contentTabber->widget(index);
+
+	for (it = fileWidgets.begin() ; it != fileWidgets.end() ; it++) {
+		if (widget == it.value()) {
+			System* sys = System::getInstance();
+			const File& file = it.key();
+			sys->changeCurrentFile(&file);
+			break;
+		}
+	}
+}
+
+
+void MainWindow::fileTabClosed(int index)
+{
+	QMap<File, FileViewWidget*>::iterator it;
+	QWidget* widget = ui.contentTabber->widget(index);
+
+	for (it = fileWidgets.begin() ; it != fileWidgets.end() ; it++) {
+		if (widget == it.value()) {
+			System* sys = System::getInstance();
+			sys->closeFile(it.key());
+			break;
+		}
+	}
 }
 

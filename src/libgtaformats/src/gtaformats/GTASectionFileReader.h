@@ -20,7 +20,7 @@
 #ifndef GTASECTIONFILEREADER_H_
 #define GTASECTIONFILEREADER_H_
 
-#include <gf_config.h>
+#include "gf_config.h"
 #include <cstring>
 #include <cstdlib>
 #include "util/stream/InputStream.h"
@@ -41,8 +41,10 @@ protected:
 	float nextFloat(char* str = NULL) { return (float) atof(nextString(str)); }
 	char* trim(char* str);
 
-private:
+protected:
 	InputStream* stream;
+
+private:
 	bool deleteStream;
 };
 

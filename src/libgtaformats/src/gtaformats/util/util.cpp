@@ -39,3 +39,44 @@ void rtrim(char* str, char chr)
 }
 
 
+bool WildcardMatch(const char* pattern, const char* text)
+{
+	bool escaped = false;
+	while (*text != '\0') {
+		if (escaped) {
+			if (*text != *pattern) {
+				return false;
+			}
+			escaped = false;
+		} else {
+			switch (*pattern) {
+			case '?':
+				break;
+			case '*':
+				do {
+					pattern++;
+				} while(*pattern == '*');
+				while (*text != '\0') {
+					if (WildcardMatch(pattern, text)) {
+						return true;
+					}
+					text++;
+				}
+				return false;
+			case '\\':
+				escaped = true;
+				text--;
+				break;
+			default:
+				if (*pattern != *text) {
+					return false;
+				}
+				break;
+			}
+		}
+		text++;
+		pattern++;
+	}
+	while (*pattern == '*') pattern++;
+	return *pattern == '\0';
+}

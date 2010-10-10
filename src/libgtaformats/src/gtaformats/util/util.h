@@ -29,11 +29,15 @@
  */
 void strtolower(char* dest, const char* src);
 
+
 /**	\brief Trims chr from the right end of str.
  *
  * 	@param str The string to trim.
  * 	@param chr The cahracter to remove from the end of str.
  */
 void rtrim(char* str, char chr);
+
+
+bool WildcardMatch(const char* pattern, const char* text);
 
 #endif /* UTIL_H_ */

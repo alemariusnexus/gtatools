@@ -19,6 +19,7 @@
 
 #include "ExtractVisitor.h"
 #include "cliarg.h"
+#include <gtaformats/util/util.h>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -42,59 +43,6 @@ void _PngWarningCallback(png_struct* png, const char* err)
 }
 
 
-/*ILenum GetFileFormat(const char* name)
-{
-	if (strcmp(name, "bmp") == 0) {
-		return IL_BMP;
-	} else if (strcmp(name, "png") == 0) {
-		return IL_PNG;
-	} else if (strcmp(name, "jpg") == 0) {
-		return IL_JPG;
-	} else if (strcmp(name, "pnm") == 0) {
-		return IL_PNM;
-	} else if (strcmp(name, "psd") == 0) {
-		return IL_PSD;
-	} else if (strcmp(name, "tga") == 0) {
-		return IL_TGA;
-	} else if (strcmp(name, "sgi") == 0) {
-		return IL_SGI;
-	} else if (strcmp(name, "tif") == 0) {
-		return IL_TIF;
-	}
-
-	return IL_TYPE_UNKNOWN;
-}
-
-void GetFileFormatExtension(char* dest, ILenum format)
-{
-	switch (format) {
-	case IL_BMP:
-		strcpy(dest, "bmp");
-		break;
-	case IL_PNG:
-		strcpy(dest, "png");
-		break;
-	case IL_JPG:
-		strcpy(dest, "jpg");
-		break;
-	case IL_PNM:
-		strcpy(dest, "pnm");
-		break;
-	case IL_PSD:
-		strcpy(dest, "psd");
-		break;
-	case IL_TGA:
-		strcpy(dest, "tga");
-		break;
-	case IL_SGI:
-		strcpy(dest, "sgi");
-		break;
-	case IL_TIF:
-		strcpy(dest, "tif");
-		break;
-	}
-}*/
-
 
 const char flagOptions[][PARAM_MAXLEN] = {
 		"s", "r", "\0"
@@ -106,8 +54,6 @@ const char switchOptions[][PARAM_MAXLEN] = {
 
 
 ExtractVisitor::ExtractVisitor(int argc, char** argv) {
-	//ilInit();
-
 	SetFlagOptions(flagOptions);
 	SetSwitchOptions(switchOptions);
 
@@ -137,7 +83,7 @@ ExtractVisitor::ExtractVisitor(int argc, char** argv) {
 
 	useRegex = IsFlagSet("r");
 
-	regexes = new regex*[numPatterns];
+	regexes = new const char*[numPatterns];
 	destfiles = new const char*[numPatterns];
 	mipmapIndices = new int8_t[numPatterns];
 
@@ -172,24 +118,7 @@ ExtractVisitor::ExtractVisitor(int argc, char** argv) {
 			destfile = *++it;
 		}
 
-		regex* reg;
-
-		if (!useRegex) {
-			char* quotedSrcfile = new char[strlen(srcfile)+5];
-			sprintf(quotedSrcfile, "\\Q%s\\E", srcfile);
-			srcfile = quotedSrcfile;
-			temporaryStrings.push_back(quotedSrcfile);
-		}
-
-		try {
-			reg = new regex(srcfile);
-		} catch (boost::regex_error& err) {
-			cerr << "Error compiling source pattern " << i+1 << " at offset " << err.position()
-					<< ": " << err.what() << endl;
-			exit(1);
-		}
-
-		regexes[i] = reg;
+		regexes[i] = srcfile;
 		destfiles[i] = destfile;
 	}
 }
@@ -207,10 +136,10 @@ ExtractVisitor::~ExtractVisitor() {
 void ExtractVisitor::handleTexture(TXDArchive* archive, TXDTexture* header)
 {
 	for (int i = 0 ; i < numPatterns ; i++) {
-		boost::regex* reg = regexes[i];
-		boost::cmatch* match = new boost::cmatch;
+		bool match = useRegex ? WildcardMatch(regexes[i], header->getDiffuseName())
+				: strcmp(regexes[i], header->getDiffuseName()) == 0;
 
-		if (boost::regex_match(header->getDiffuseName(), *match, *reg)) {
+		if (match) {
 			const char* destfile = destfiles[i];
 
 			TXDTexture* texture = header;
@@ -231,14 +160,10 @@ void ExtractVisitor::handleTexture(TXDArchive* archive, TXDTexture* header)
 				}
 
 				if (destfile) {
-					std::string destStr = match->format(std::string(destfile), boost::format_perl);
-					const char* dest = destStr.c_str();
-					//texture->writePNG(dest, rawData);
-					doExtract(texture, rawData, dest);
+					doExtract(texture, rawData, destfile);
 				} else {
 					char* autogenDestFile = new char[strlen(texture->getDiffuseName()) + strlen("png") + 2];
 					sprintf(autogenDestFile, "%s.%s", texture->getDiffuseName(), "png");
-					//texture->writePNG(autogenDestFile, rawData);
 					doExtract(texture, rawData, autogenDestFile);
 					delete[] autogenDestFile;
 				}

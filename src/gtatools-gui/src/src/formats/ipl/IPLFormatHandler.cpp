@@ -18,4 +18,19 @@
  */
 
 #include "IPLFormatHandler.h"
+#include <gtaformats/ipl/IPLReader.h>
 
+
+
+QString IPLFormatHandler::getFormatName(const File* file) const
+{
+	if (file) {
+		IPLReader ipl(*file);
+
+		if (ipl.isBinary()) {
+			return tr("Binary Item Placement File (IPL)");
+		}
+	}
+
+	return tr("Item Placement File (IPL)");
+}

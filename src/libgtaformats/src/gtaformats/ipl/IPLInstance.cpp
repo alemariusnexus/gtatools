@@ -29,14 +29,17 @@ IPLInstance::IPLInstance (
 		float scaleX, float scaleY, float scaleZ,
 		int32_t interior,
 		int32_t lod
-) : id(id), modelName(new char[strlen(modelName)+1]),
+) : id(id), modelName(NULL),
 	posX(posX), posY(posY), posZ(posZ),
 	rotX(rotX), rotY(rotY), rotZ(rotZ), rotW(rotW),
 	scaleX(scaleX), scaleY(scaleY), scaleZ(scaleZ),
 	interior(interior),
 	lod(lod)
 {
-	strcpy(this->modelName, modelName);
+	if (modelName) {
+		this->modelName = new char[strlen(modelName)+1];
+		strcpy(this->modelName, modelName);
+	}
 }
 
 

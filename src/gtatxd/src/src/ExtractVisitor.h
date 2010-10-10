@@ -22,12 +22,9 @@
 
 #include <gtaformats/txd/TXDVisitor.h>
 #include "cliarg.h"
-#include <boost/regex.hpp>
 #include <vector>
-//#include <IL/il.h>
 
 using std::vector;
-using boost::regex;
 
 class ExtractVisitor : public TXDVisitor {
 public:
@@ -40,7 +37,7 @@ private:
 
 private:
 	vector<const char*> temporaryStrings;
-	regex** regexes;
+	const char** regexes;
 	const char** destfiles;
 	int8_t* mipmapIndices;
 	int numPatterns;

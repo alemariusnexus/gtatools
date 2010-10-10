@@ -17,13 +17,21 @@
 	along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <GL/glew.h>
 #include "DFFFormatHandler.h"
 #include <qapplication.h>
 #include "DFFWidget.h"
 
 
 
-QWidget* DFFFormatHandler::createWidgetForFile(const File& file, QWidget* parent, const QHash<QString, QVariant>& data)
+DFFFormatHandler::DFFFormatHandler()
 {
-	return new DFFWidget(file, parent);
+	// Just a dummy widget to get a shared OpenGL context
+	shareWidget = new QGLWidget;
+}
+
+
+QWidget* DFFFormatHandler::createWidgetForFile(const FileOpenRequest& request, QWidget* parent)
+{
+	return new DFFWidget(*request.getFile(), parent, shareWidget);
 }

@@ -23,7 +23,7 @@
 #include "../../gui/MainWindow.h"
 #include <gtaformats/txd/TXDArchive.h>
 #include <gtaformats/txd/TXDTexture.h>
-#include <gf_config.h>
+#include <gtaformats/gf_config.h>
 #include <qlinkedlist.h>
 #include <qfiledialog.h>
 #include <qimagewriter.h>
@@ -72,8 +72,8 @@ void OpenTXDGUIModule::onExtract(bool checked)
 	if (textures.count() == 1) {
 		TXDTexture* tex = *textures.begin();
 
-		QString fname = QFileDialog::getSaveFileName(txdWidget, tr("Select the file to save to"), QString(),
-				"Portable Network Graphics (*.png)");
+		QString fname = QFileDialog::getSaveFileName(txdWidget, tr("Select the file to save to"),
+				QString(tex->getDiffuseName()).append(".png"), "Portable Network Graphics (*.png)");
 
 		if (!fname.isNull()) {
 			txd->gotoTexture(tex);

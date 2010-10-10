@@ -20,7 +20,7 @@
 #ifndef DFFLOADER_H_
 #define DFFLOADER_H_
 
-#include <gf_config.h>
+#include "../gf_config.h"
 #include "../gta.h"
 #include "DFFMesh.h"
 #include "DFFException.h"
@@ -56,6 +56,7 @@ struct DFFLoadContext {
 	int32_t version;
 	int depth;
 	map<int32_t, DFFFrame*> frameInternalIndexMap;
+	int32_t frameCurrentIndex;
 };
 
 

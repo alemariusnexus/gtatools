@@ -44,6 +44,12 @@ FileItemModel::FileItemModel(Profile* profile, QWidget* parent)
 }
 
 
+FileItemModel::~FileItemModel()
+{
+	delete rootFile;
+}
+
+
 QModelIndex FileItemModel::indexOf(const File& file, const QModelIndex& start)
 {
 	int rc = rowCount(start);

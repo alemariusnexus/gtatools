@@ -53,8 +53,8 @@ void STLInputStream::seek(streampos pos, SeekPosition startPos)
 {
 	if (pos > std::numeric_limits<std::streamoff>::max()) {
 		char* errmsg = new char[256];
-		sprintf(errmsg, "Stream position too high! Maximum value allowed by the STL streams on this platform is %d",
-				std::numeric_limits<std::streamoff>::max());
+		sprintf(errmsg, "Stream position too high! Maximum value allowed by the STL streams on this"
+				"platform is %ld", std::numeric_limits<std::streamoff>::max());
 		IOException ex(errmsg);
 		delete[] errmsg;
 		throw ex;

@@ -144,10 +144,6 @@ void TXDArchive::readTextureData(uint8_t* dest, TXDTexture* texture)
 		stream->read((char*) dest, rasterSize);
 		bytesRead += rasterSize+4;
 	}
-
-	/*if (stream->fail()) {
-		throw TXDException(TXDException::SyntaxError, "Premature end of file");
-	}*/
 }
 
 uint8_t* TXDArchive::readTextureData(TXDTexture* texture)
@@ -167,17 +163,11 @@ uint8_t* TXDArchive::readTextureData(TXDTexture* texture)
 
 void TXDArchive::gotoTexture(TXDTexture* texture)
 {
-	for (int i = 0 ; i < textureCount ; i++) {
+	for (int32_t i = 0 ; i < textureCount ; i++) {
 		if (indexedTextures[i] == texture) {
 			long long start = textureNativeStarts[i];
 			stream->seek((start+112) - bytesRead);
-
-			/*if (stream->fail()) {
-				throw TXDException(TXDException::IOError, "Unable to go to indexed texture");
-			}*/
-
 			bytesRead = start+112;
-
 			return;
 		}
 	}

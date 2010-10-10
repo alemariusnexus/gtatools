@@ -31,6 +31,7 @@ private:
 public:
 	StaticFile();
 	StaticFile(const File& file);
+	~StaticFile();
 	File* getFile() const { return file; }
 	StaticFile* getParent() const { return parent; }
 	int getChildCount() const { return children.size(); }

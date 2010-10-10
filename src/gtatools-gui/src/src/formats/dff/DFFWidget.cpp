@@ -1,8 +1,20 @@
 /*
- * DFFWidget.cpp
- *
- *  Created on: 20.07.2010
- *      Author: alemariusnexus
+	Copyright 2010 David "Alemarius Nexus" Lerch
+
+	This file is part of gtatools-gui.
+
+	gtatools-gui is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	gtatools-gui is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "DFFWidget.h"
@@ -12,6 +24,7 @@
 #include "DFFXMLDumpDialog.h"
 #include <qfile.h>
 #include <qtextstream.h>
+#include <cstdio>
 
 
 int mainTabberIndex = 0;
@@ -19,8 +32,30 @@ int geometryTabberIndex = 0;
 int geometryPartTabberIndex = 0;
 
 
+void frameRecurse(DFFFrame* parent, int numInd)
+{
+	DFFFrame::ChildIterator it;
 
-DFFWidget::DFFWidget(const File& file, QWidget* parent)
+	for (it = parent->getChildBegin() ; it != parent->getChildEnd() ; it++) {
+		DFFFrame* frame = *it;
+
+		for (int i = 0 ; i < numInd ; i++) {
+			printf("  ");
+		}
+
+		if (frame->getName()) {
+			printf("%s\n", frame->getName());
+		} else {
+			printf("(Unnamed)\n");
+		}
+
+		frameRecurse(frame, numInd+1);
+	}
+}
+
+
+
+DFFWidget::DFFWidget(const File& file, QWidget* parent, QGLWidget* shareWidget)
 		: QWidget(parent)
 {
 	ui.setupUi(this);
@@ -29,10 +64,10 @@ DFFWidget::DFFWidget(const File& file, QWidget* parent)
 	ui.geometryTabber->setCurrentIndex(geometryTabberIndex);
 	ui.geometryPartTabber->setCurrentIndex(geometryPartTabberIndex);
 
-	geometryRenderWidget = new DFFRenderWidget(ui.geometryRenderContainerWidget);
+	geometryRenderWidget = new DFFRenderWidget(ui.geometryRenderContainerWidget, shareWidget);
 	ui.geometryRenderContainerWidget->layout()->addWidget(geometryRenderWidget);
 
-	geometryPartRenderWidget = new DFFRenderWidget(ui.geometryPartRenderContainerWidget);
+	geometryPartRenderWidget = new DFFRenderWidget(ui.geometryPartRenderContainerWidget, shareWidget);
 	ui.geometryPartRenderContainerWidget->layout()->addWidget(geometryPartRenderWidget);
 
 	DFFLoader dff;
@@ -91,11 +126,17 @@ DFFWidget::~DFFWidget()
 	delete mesh;
 
 	delete frameModel;
+
+	delete geometryRenderWidget;
+	delete geometryPartRenderWidget;
 }
 
 
 void DFFWidget::clearMaterialList()
 {
+	// Otherwise the slots might be called in an invalid state
+	disconnect(ui.materialList, SIGNAL(currentRowChanged(int)), this, SLOT(materialSelected(int)));
+
 	clearTextureList();
 
 	int count = ui.materialList->count();
@@ -103,26 +144,38 @@ void DFFWidget::clearMaterialList()
 	for (int i = 0 ; i < count ; i++) {
 		delete ui.materialList->takeItem(0);
 	}
+
+	connect(ui.materialList, SIGNAL(currentRowChanged(int)), this, SLOT(materialSelected(int)));
 }
 
 
 void DFFWidget::clearGeometryPartList()
 {
+	// Otherwise the slots might be called in an invalid state
+	disconnect(ui.geometryPartList, SIGNAL(currentRowChanged(int)), this, SLOT(geometryPartSelected(int)));
+
 	int count = ui.geometryPartList->count();
 
 	for (int i = 0 ; i < count ; i++) {
 		delete ui.geometryPartList->takeItem(0);
 	}
+
+	connect(ui.geometryPartList, SIGNAL(currentRowChanged(int)), this, SLOT(geometryPartSelected(int)));
 }
 
 
 void DFFWidget::clearTextureList()
 {
+	// Otherwise the slots might be called in an invalid state
+	disconnect(ui.textureList, SIGNAL(currentRowChanged(int)), this, SLOT(textureSelected(int)));
+
 	int count = ui.textureList->count();
 
 	for (int i = 0 ; i < count ; i++) {
 		delete ui.textureList->takeItem(0);
 	}
+
+	connect(ui.textureList, SIGNAL(currentRowChanged(int)), this, SLOT(textureSelected(int)));
 }
 
 
@@ -132,17 +185,17 @@ void DFFWidget::frameSelected(const QModelIndex& index, const QModelIndex& previ
 
 	Vector3 trans = frame->getTranslation();
 	Matrix3 rot = frame->getRotation();
+	const float* arot = rot.toArray();
 
 	ui.frameNameLabel->setText(index.data(Qt::DisplayRole).toString());
 	ui.frameTranslationLabel->setText(tr("(%1, %2, %3)").arg(trans[0]).arg(trans[1]).arg(trans[2]));
 	ui.frameRotationLabel->setText(tr("(%1, %2, %3) (%4, %5, %6) (%7, %8, %9)")
-			.arg(rot[0]).arg(rot[1]).arg(rot[2]).arg(rot[3]).arg(rot[4]).arg(rot[5]).arg(rot[6])
-			.arg(rot[7]).arg(rot[8]));
+			.arg(arot[0]).arg(arot[1]).arg(arot[2]).arg(arot[3]).arg(arot[4]).arg(arot[5]).arg(arot[6])
+			.arg(arot[7]).arg(arot[8]));
 
 	if (frame->getParent() == NULL) {
 		ui.frameParentLabel->setText(tr("None"));
 	} else {
-		int pidx = mesh->indexOf(frame->getParent());
 		ui.frameParentLabel->setText(index.parent().data(Qt::DisplayRole).toString());
 	}
 
@@ -185,12 +238,12 @@ void DFFWidget::geometrySelected(int row)
 			if (frame->getName()) {
 				framePath.insert(0, frame->getName());
 			} else {
-				if (frame->getParent()) {
+				if (!frame->isRoot()) {
 					framePath.insert(0, QString("%1")
 							.arg(frame->getParent()->indexOf(frame)));
-				} else {
+				}/* else {
 					framePath.insert(0, QString("%1").arg(mesh->indexOf(frame)));
-				}
+				}*/
 			}
 		} while ((frame = frame->getParent())  !=  NULL);
 	} else {
@@ -313,8 +366,10 @@ void DFFWidget::wireframePropertyChanged(bool wireframe)
 
 void DFFWidget::xmlDumpRequested(bool)
 {
-	QString filePath = QFileDialog::getSaveFileName(this, tr("Choose a destination file"), QString(),
-			tr("XML Files (*.xml)"));
+	System* sys = System::getInstance();
+
+	QString filePath = QFileDialog::getSaveFileName(this, tr("Choose a destination file"),
+			QString(sys->getCurrentFile()->getPath()->getFileName()).append(".xml"), tr("XML Files (*.xml)"));
 
 	if (!filePath.isEmpty()) {
 		DFFXMLDumpDialog optDialog(this);
@@ -336,16 +391,7 @@ void DFFWidget::xmlDumpRequested(bool)
 				xml << "<mesh>" << endl;
 
 				if (frames) {
-					xml << "  <frames count=\"" << mesh->getFrameCount() << "\">" << endl;
-
-					DFFMesh::FrameIterator it;
-
-					for (it = mesh->getFrameBegin() ; it != mesh->getFrameEnd() ; it++) {
-						DFFFrame* frame = *it;
-						xmlDumpFrame(frame, xml, 2);
-					}
-
-					xml << "  </frames>" << endl;
+					xmlDumpFrame(mesh->getRootFrame(), xml, 1);
 				}
 
 				if (geoms) {
@@ -369,12 +415,12 @@ void DFFWidget::xmlDumpRequested(bool)
 								if (frame->getName()) {
 									framePath.insert(0, frame->getName());
 								} else {
-									if (frame->getParent()) {
+									if (!frame->isRoot()) {
 										framePath.insert(0, QString("%1")
 												.arg(frame->getParent()->indexOf(frame)));
-									} else {
+									}/* else {
 										framePath.insert(0, QString("%1").arg(mesh->indexOf(frame)));
-									}
+									}*/
 								}
 							} while ((frame = frame->getParent())  !=  NULL);
 
@@ -544,6 +590,7 @@ void DFFWidget::xmlDumpFrame(DFFFrame* frame, QTextStream& xml, int indLevel)
 
 	Vector3 t = frame->getTranslation();
 	Matrix3 r = frame->getRotation();
+	const float* ar = r.toArray();
 
 	xml << ind << "<frame";
 
@@ -552,9 +599,9 @@ void DFFWidget::xmlDumpFrame(DFFFrame* frame, QTextStream& xml, int indLevel)
 	}
 
 	xml << " tx=\"" << t[0] << "\" ty=\"" << t[1] << "\" tz=\"" << t[2] << "\"";
-	xml << " r00=\"" << r[0] << "\" r01=\"" << r[1] << "\" r02=\"" << r[2] << "\""
-			<< " r10=\"" << r[3] << "\" r11=\"" << r[4] << "\" r12=\"" << r[5] << "\""
-			<< " r20=\"" << r[6] << "\" r21=\"" << r[7] << "\" r22=\"" << r[8] << "\"";
+	xml << " r00=\"" << ar[0] << "\" r01=\"" << ar[1] << "\" r02=\"" << ar[2] << "\""
+			<< " r10=\"" << ar[3] << "\" r11=\"" << ar[4] << "\" r12=\"" << ar[5] << "\""
+			<< " r20=\"" << ar[6] << "\" r21=\"" << ar[7] << "\" r22=\"" << ar[8] << "\"";
 
 	if (frame->getChildCount() > 0) {
 		xml << ">" << endl;

@@ -146,7 +146,6 @@ FileType File::getType() const
 		return TYPE_OTHER;
 	}
 #else
-	//#error "File::getType() not supported on this platform!"
 	DWORD attribs = GetFileAttributes(path->toString());
 
 	if (attribs == INVALID_FILE_ATTRIBUTES) {
@@ -189,7 +188,15 @@ FileContentType File::guessContentType() const
 InputStream* File::openStream(int flags) const
 {
 	if (physicallyExists()) {
-		return new FileInputStream(*this, flags);
+		if (isRegularFile()) {
+			return new FileInputStream(*this, flags);
+		} else {
+			char* errMsg = new char[strlen(path->toString()) + 64];
+			sprintf(errMsg, "Attempt to open stream on non-regular file %s.", path->toString());
+			FileException fex(errMsg, __FILE__, __LINE__);
+			delete[] errMsg;
+			throw fex;
+		}
 	} else {
 		if (path->isIMGPath()) {
 			try {
@@ -212,7 +219,11 @@ InputStream* File::openStream(int flags) const
 				throw fex;
 			}
 		} else {
-			return NULL;
+			char* errMsg = new char[strlen(path->toString()) + 64];
+			sprintf(errMsg, "Attempt to open stream on non-existant file %s.", path->toString());
+			FileException fex(errMsg, __FILE__, __LINE__);
+			delete[] errMsg;
+			throw fex;
 		}
 	}
 }

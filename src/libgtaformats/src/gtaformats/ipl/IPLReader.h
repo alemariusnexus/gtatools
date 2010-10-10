@@ -33,7 +33,8 @@ class IPLReader : public GTASectionFileReader
 private:
 	enum SectionType {
 		NONE,
-		INST
+		INST,
+		CARS
 	};
 
 public:
@@ -41,9 +42,18 @@ public:
 	IPLReader(const File& file);
 	~IPLReader();
 	IPLStatement* readStatement();
+	bool isBinary() { return binaryReadCount != -1; }
+
+private:
+	void init();
 
 private:
 	SectionType currentSection;
+	int32_t binaryInstanceCount;
+	int32_t binaryInstanceOffset;
+	int32_t binaryCarCount;
+	int32_t binaryCarOffset;
+	int32_t binaryReadCount;
 };
 
 #endif /* IPLREADER_H_ */

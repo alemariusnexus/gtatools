@@ -4,5 +4,7 @@
 	<qresource>
 		<file>gtatools-gui_de.qm</file>
 		<file>gtatools-gui_en.qm</file>
+        <file>src/shader/vertex.glsl</file>
+        <file>src/shader/fragment.glsl</file>
 	</qresource>
 </RCC>
