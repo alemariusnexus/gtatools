@@ -30,58 +30,84 @@ GXTTableModel::GXTTableModel()
 
 void GXTTableModel::addGXTArchive(const QString& name, GXTTable* table)
 {
-	NamedGXTTable* ntable = new NamedGXTTable;
-	ntable->table = table;
-	ntable->name = name;
-	tables << ntable;
-}
+	langTables[name] = table;
+	GXTTable::EntryIterator it;
 
-
-int GXTTableModel::rowCount(const QModelIndex& parent)
-{
-	if (parent.isValid()) {
-		return 0;
-	} else {
-		QLinkedList<NamedGXTTable*>::iterator it;
-		int count = 0;
-
-		for (it = tables.begin() ; it != tables.end() ; it++) {
-			NamedGXTTable* table = *it;
-
-			if (table->table->getEntryCount() > count) {
-				count = table->table->getEntryCount();
-			}
+	for (it = table->getFirstEntry() ; it != table->getLastEntry() ; it++) {
+		if (!keyHashes.contains(it->first)) {
+			keyHashes << it->first;
 		}
-
-		return count;
 	}
 }
 
 
-int GXTTableModel::columnCount(const QModelIndex& parent)
+int GXTTableModel::rowCount(const QModelIndex& parent) const
 {
 	if (parent.isValid()) {
 		return 0;
 	} else {
-		return tables.size()+1;
+		return keyHashes.size();
 	}
 }
 
 
-QVariant GXTTableModel::data(const QModelIndex& index, int role)
+int GXTTableModel::columnCount(const QModelIndex& parent) const
 {
-	if (!index.isValid()) {
+	if (parent.isValid()) {
+		return 0;
+	} else {
+		return langTables.size()+1;
+	}
+}
+
+
+QVariant GXTTableModel::data(const QModelIndex& index, int role) const
+{
+	if (!index.isValid()  ||  role != Qt::DisplayRole) {
 		return QVariant();
 	}
 
 	int row = index.row();
 	int col = index.column();
 
-	NamedGXTTable* ntable = tables.first();
-	GXTTable* table = ntable->table;
+	crc32_t hash = keyHashes[row];
 
 	if (col == 0) {
-		GXTTable::EntryIterator it = table->getFirstEntry() + row;
+		QMap<QString, GXTTable*>::const_iterator it;
 
+		for (it = langTables.begin() ; it != langTables.end() ; it++) {
+			GXTTable* table = it.value();
+			const char* keyName = table->getKeyName(hash);
+
+			if (keyName) {
+				return QVariant(QString("%1 [0x%2]").arg(keyName).arg((uint32_t) hash, 0, 16));
+			}
+		}
+
+		return QVariant(QString("[0x%1]").arg((uint32_t) hash, 0, 16));
+	} else {
+		GXTTable* table = (langTables.begin() + (col-1)).value();
+
+		char* value = table->getValue(hash);
+
+		if (value) {
+			return QVariant(QString::fromUtf8(value));
+		} else {
+			return QVariant(tr("[Not assigned]"));
+		}
 	}
+}
+
+
+QVariant GXTTableModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+	if (role != Qt::DisplayRole  ||  orientation != Qt::Horizontal) {
+		return QVariant();
+	}
+
+	if (section == 0) {
+		return tr("Key");
+	}
+
+	return (langTables.begin()+section-1).key();
 }

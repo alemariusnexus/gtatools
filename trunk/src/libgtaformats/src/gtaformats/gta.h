@@ -24,6 +24,7 @@
 #include "util/stream/InputStream.h"
 
 
+typedef int32_t crc32_t;
 
 
 #define RW_VERSION_GTA3_1 0x0800FFFF
@@ -95,7 +96,7 @@ void RwGetVersionName(uint32_t version, char* dest);
  * 	@param value The string to hash.
  * 	@return The CRC32 hash.
  */
-int Crc32(const char value[]);
+crc32_t Crc32(const char value[]);
 
 #endif	/* _GTA_H */
 

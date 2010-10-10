@@ -22,6 +22,7 @@
 
 #include "../gf_config.h"
 #include "../util/encoding.h"
+#include "../gta.h"
 #include <map>
 
 using std::map;
@@ -42,18 +43,20 @@ class GXTTable {
 public:
 	/**	\brief An entry iterator.
 	 */
-	typedef map<int32_t, char*>::iterator EntryIterator;
+	typedef map<crc32_t, char*>::iterator EntryIterator;
+	typedef map<crc32_t, char*> EntryMap;
+	typedef map<crc32_t, char*> KeyNameMap;
 
 public:
 	/**	\brief Creates an empty new GXTTable with the given internal encoding.
 	 *
 	 * 	@param internalEncoding The encoding in which the entry values are stored.
 	 */
-	GXTTable(Encoding internalEncoding);
+	GXTTable(Encoding internalEncoding, bool keepKeyNames = false);
 
 	/**	\brief Destructor.
 	 */
-	virtual ~GXTTable() {}
+	~GXTTable();
 
 	/**	\brief Returns the encoding in which the entries are stored.
 	 *
@@ -66,21 +69,21 @@ public:
 	 * 	@param keyHash The CRC32 hash of the entry key.
 	 * 	@return The entry value in the internal encoding.
 	 */
-	virtual char* getValue(int32_t keyHash) = 0;
+	char* getValue(int32_t keyHash) { return entries[keyHash]; }
 
 	/**	\brief Returns the beginning of the entry map.
 	 *
 	 * 	@return The beginning of the entry map.
 	 */
-	virtual EntryIterator getFirstEntry() = 0;
+	EntryIterator getFirstEntry() { return entries.begin(); }
 
 	/**	\brief Returns the end of the entry map.
 	 *
 	 * 	@return The end of the entry map.
 	 */
-	virtual EntryIterator getLastEntry() = 0;
+	EntryIterator getLastEntry() { return entries.end(); }
 
-	virtual int getEntryCount() = 0;
+	int getEntryCount() { return entries.size(); }
 
 	/**	\brief Returns the value of an entry in the internal encoding.
 	 *
@@ -96,7 +99,7 @@ public:
 	 * 	@param keyHash The CRC32 hash of the entry key.
 	 * 	@return The entry value transcoded to UTF-8. You have to delete it when finished.
 	 */
-	char* getValueUTF8(int32_t keyHash);
+	char* getValueUTF8(crc32_t keyHash);
 
 	/**	\brief Returns the value of an entry transcoded to UTF-8.
 	 *
@@ -112,7 +115,7 @@ public:
 	 * 	@param keyHash The CRC32 hash of the entry key.
 	 * 	@return The entry value transcoded to UTF-16. You have to delete it when finished.
 	 */
-	char* getValueUTF16(int32_t keyHash);
+	char* getValueUTF16(crc32_t keyHash);
 
 	/**	\brief Returns the value of an entry transcoded to UTF-16.
 	 *
@@ -125,7 +128,7 @@ public:
 	 *
 	 * 	@see getValue(int32_t)
 	 */
-	char* operator[](int32_t keyHash) { return getValue(keyHash); }
+	char* operator[](crc32_t keyHash) { return getValue(keyHash); }
 
 	/**	\brief Returns the value of an entry in the internal encoding.
 	 *
@@ -133,8 +136,18 @@ public:
 	 */
 	char* operator[](const char* key) { return getValue(key); }
 
+	void setValue(crc32_t keyHash, char* value);
+
+	void setValue(const char* key, char* value);
+
+	void setKeyName(crc32_t keyHash, const char* name);
+
+	const char* getKeyName(crc32_t keyHash);
+
 private:
 	Encoding internalEncoding;
+	EntryMap entries;
+	KeyNameMap* keyNames;
 };
 
 #endif /* GXTTABLE_H_ */

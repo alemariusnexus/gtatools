@@ -15,5 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
 
-SET(SRCS ${SRCS} src/formats/gxt/GXTFormatHandler.cpp PARENT_SCOPE)
-SET(MOC_SRCS ${MOC_SRCS} src/formats/gxt/GXTFormatHandler.h PARENT_SCOPE)
+SET(SRCS ${SRCS}
+    src/formats/gxt/GXTFormatHandler.cpp src/formats/gxt/GXTWidget.cpp src/formats/gxt/GXTTableModel.cpp
+    src/formats/gxt/GXTGUIModule.cpp
+    PARENT_SCOPE)
+SET(MOC_SRCS ${MOC_SRCS}
+    src/formats/gxt/GXTFormatHandler.h src/formats/gxt/GXTWidget.h src/formats/gxt/GXTTableModel.h
+    src/formats/gxt/GXTGUIModule.h
+    PARENT_SCOPE)
+SET(UIC_SRCS ${UIC_SRCS} src/formats/gxt/GXTWidget.ui PARENT_SCOPE)

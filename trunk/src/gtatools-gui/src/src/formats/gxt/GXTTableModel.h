@@ -20,8 +20,10 @@
 #ifndef GXTTABLEMODEL_H_
 #define GXTTABLEMODEL_H_
 
+#include <gtaformats/gf_config.h>
 #include <QAbstractTableModel>
-#include <QLinkedList>
+#include <QVector>
+#include <QMap>
 #include <gtaformats/gxt/GXTTable.h>
 
 
@@ -29,22 +31,17 @@
 class GXTTableModel : public QAbstractTableModel {
 	Q_OBJECT
 
-private:
-	struct NamedGXTTable
-	{
-		GXTTable* table;
-		QString name;
-	};
-
 public:
 	GXTTableModel();
 	void addGXTArchive(const QString& name, GXTTable* table);
-	virtual int rowCount(const QModelIndex& parent = QModelIndex());
-	virtual int columnCount(const QModelIndex& parent = QModelIndex());
-	virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole);
+	virtual int rowCount(const QModelIndex& parent = QModelIndex()) const;
+	virtual int columnCount(const QModelIndex& parent = QModelIndex()) const;
+	virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
+	virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 
 private:
-	QLinkedList<NamedGXTTable*> tables;
+	QVector<crc32_t> keyHashes;
+	QMap<QString, GXTTable*> langTables;
 };
 
 #endif /* GXTTABLEMODEL_H_ */

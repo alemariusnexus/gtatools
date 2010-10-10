@@ -103,12 +103,12 @@
 <context>
     <name>DFFFrameItemModel</name>
     <message>
-        <location filename="src/formats/dff/DFFFrameItemModel.cpp" line="35"/>
+        <location filename="src/formats/dff/DFFFrameItemModel.cpp" line="47"/>
         <source>Unnamed %1</source>
         <translation>Unbenannt %1</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFFrameItemModel.cpp" line="52"/>
+        <location filename="src/formats/dff/DFFFrameItemModel.cpp" line="64"/>
         <source>Frame</source>
         <translation>Frame</translation>
     </message>
@@ -116,17 +116,17 @@
 <context>
     <name>DFFGUIModule</name>
     <message>
-        <location filename="src/formats/dff/DFFGUIModule.cpp" line="17"/>
+        <location filename="src/formats/dff/DFFGUIModule.cpp" line="29"/>
         <source>Show textured</source>
         <translation>Texturiert anzeigen</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFGUIModule.cpp" line="21"/>
+        <location filename="src/formats/dff/DFFGUIModule.cpp" line="33"/>
         <source>Show wireframe</source>
         <translation>Wireframe anzeigen</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFGUIModule.cpp" line="25"/>
+        <location filename="src/formats/dff/DFFGUIModule.cpp" line="37"/>
         <source>Dump XML</source>
         <translation>Nach XML dumpen</translation>
     </message>
@@ -316,17 +316,17 @@
         <translation type="obsolete">Unbenannt %1</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="73"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="85"/>
         <source>Geometry %1</source>
         <translation>Geometrie %1</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="179"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="191"/>
         <source>(%1, %2, %3)</source>
         <translation>(%1, %2, %3)</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="180"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="192"/>
         <source>(%1, %2, %3) (%4, %5, %6) (%7, %8, %9)</source>
         <oldsource>(%1, %2, %3)
 (%4, %5, %6)
@@ -336,61 +336,61 @@
 (%7, %8, %9)</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="185"/>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="239"/>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="334"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="197"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="250"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="345"/>
         <source>None</source>
         <translation>Keine</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="206"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="217"/>
         <source>Triangle Strips</source>
         <translation>Triangle Strips</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="206"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="217"/>
         <source>Triangle List</source>
         <translation>Triangle List</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="214"/>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="215"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="225"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="226"/>
         <source>no</source>
         <translation>nein</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="214"/>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="215"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="225"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="226"/>
         <source>yes</source>
         <translation>ja</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="216"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="227"/>
         <source>(%1, %2, %3 : %4)</source>
         <translation>(%1, %2, %3 : %4)</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="252"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="263"/>
         <source>Material %1</source>
         <translation>Material %1</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="261"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="272"/>
         <source>Part %1</source>
         <translation>Teil %1</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="285"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="296"/>
         <source>(%1, %2, %3, %4)</source>
         <translation>(%1, %2, %3, %4)</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="358"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="371"/>
         <source>Choose a destination file</source>
         <translation>Wähle eine Zieldatei</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="359"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="372"/>
         <source>XML Files (*.xml)</source>
         <translation>XML-Dateien (*.xml)</translation>
     </message>
@@ -642,32 +642,32 @@ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem Prog
         <translation>Dateigröße</translation>
     </message>
     <message>
-        <location filename="src/gui/FileViewWidget.cpp" line="21"/>
+        <location filename="src/gui/FileViewWidget.cpp" line="34"/>
         <source>Directory</source>
         <translation>Verzeichnis</translation>
     </message>
     <message>
-        <location filename="src/gui/FileViewWidget.cpp" line="22"/>
+        <location filename="src/gui/FileViewWidget.cpp" line="35"/>
         <source>%1 files</source>
         <translation>%1 Dateien</translation>
     </message>
     <message>
-        <location filename="src/gui/FileViewWidget.cpp" line="27"/>
+        <location filename="src/gui/FileViewWidget.cpp" line="40"/>
         <source>%1MB</source>
         <translation>%1MB</translation>
     </message>
     <message>
-        <location filename="src/gui/FileViewWidget.cpp" line="29"/>
+        <location filename="src/gui/FileViewWidget.cpp" line="42"/>
         <source>%1kB</source>
         <translation>%1kB</translation>
     </message>
     <message>
-        <location filename="src/gui/FileViewWidget.cpp" line="31"/>
+        <location filename="src/gui/FileViewWidget.cpp" line="44"/>
         <source>%1B</source>
         <translation>%1B</translation>
     </message>
     <message>
-        <location filename="src/gui/FileViewWidget.cpp" line="37"/>
+        <location filename="src/gui/FileViewWidget.cpp" line="50"/>
         <source>Unrecognized File</source>
         <translation>Nicht erkannte Datei</translation>
     </message>
@@ -718,9 +718,68 @@ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem Prog
 <context>
     <name>GXTFormatHandler</name>
     <message>
-        <location filename="src/formats/gxt/GXTFormatHandler.h" line="19"/>
+        <location filename="src/formats/gxt/GXTFormatHandler.h" line="31"/>
         <source>GXT Text File</source>
         <translation>GXT Textdatei</translation>
+    </message>
+</context>
+<context>
+    <name>GXTGUIModule</name>
+    <message>
+        <location filename="src/formats/gxt/GXTGUIModule.cpp" line="20"/>
+        <source>String List Match</source>
+        <translation>Stringlisten-Abgleich</translation>
+    </message>
+    <message>
+        <location filename="src/formats/gxt/GXTGUIModule.cpp" line="45"/>
+        <source>Choose a string list file</source>
+        <translation>Wähle eine Stringlisten-Datei</translation>
+    </message>
+</context>
+<context>
+    <name>GXTTableModel</name>
+    <message>
+        <location filename="src/formats/gxt/GXTTableModel.cpp" line="96"/>
+        <source>[Not assigned]</source>
+        <translation>[Nicht zugewiesen]</translation>
+    </message>
+    <message>
+        <location filename="src/formats/gxt/GXTTableModel.cpp" line="109"/>
+        <source>Key</source>
+        <translation>Schlüssel</translation>
+    </message>
+</context>
+<context>
+    <name>GXTWidget</name>
+    <message>
+        <location filename="src/formats/gxt/GXTWidget.ui" line="108"/>
+        <source>Filter</source>
+        <translation>Filter</translation>
+    </message>
+    <message>
+        <location filename="src/formats/gxt/GXTWidget.ui" line="114"/>
+        <source>&amp;Filter</source>
+        <translation>&amp;Filter</translation>
+    </message>
+    <message>
+        <location filename="src/formats/gxt/GXTWidget.ui" line="127"/>
+        <source>&amp;Hash</source>
+        <translation>&amp;Hashen</translation>
+    </message>
+    <message>
+        <location filename="src/formats/gxt/GXTWidget.ui" line="134"/>
+        <source>&amp;Regular Expression</source>
+        <translation>&amp;Regulärer Ausdruck</translation>
+    </message>
+    <message>
+        <location filename="src/formats/gxt/GXTWidget.cpp" line="116"/>
+        <source>Syntax Error</source>
+        <translation>Syntaxfehler</translation>
+    </message>
+    <message>
+        <location filename="src/formats/gxt/GXTWidget.cpp" line="117"/>
+        <source>Syntax Error: Key name definition is not in a table!</source>
+        <translation>Syntaxfehler: Schlüsselnamensdefinition außerhalb eines Tables!</translation>
     </message>
 </context>
 <context>
@@ -761,30 +820,30 @@ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem Prog
         <translation type="obsolete">Datei Extrahieren</translation>
     </message>
     <message>
-        <location filename="src/formats/img/IMGGUIModule.cpp" line="20"/>
-        <location filename="src/formats/img/IMGGUIModule.cpp" line="23"/>
+        <location filename="src/formats/img/IMGGUIModule.cpp" line="32"/>
+        <location filename="src/formats/img/IMGGUIModule.cpp" line="35"/>
         <source>Extract File(s)</source>
         <translation>Datei(en) Extrahieren</translation>
     </message>
     <message>
-        <location filename="src/formats/img/IMGGUIModule.cpp" line="107"/>
+        <location filename="src/formats/img/IMGGUIModule.cpp" line="110"/>
         <source>Choose a destination file</source>
         <translation>Wähle eine Zieldatei</translation>
     </message>
     <message>
-        <location filename="src/formats/img/IMGGUIModule.cpp" line="126"/>
-        <location filename="src/formats/img/IMGGUIModule.cpp" line="156"/>
+        <location filename="src/formats/img/IMGGUIModule.cpp" line="130"/>
+        <location filename="src/formats/img/IMGGUIModule.cpp" line="160"/>
         <source>Unable to open file</source>
         <translation>Datei konnte nicht geöffnet werden</translation>
     </message>
     <message>
-        <location filename="src/formats/img/IMGGUIModule.cpp" line="127"/>
-        <location filename="src/formats/img/IMGGUIModule.cpp" line="157"/>
+        <location filename="src/formats/img/IMGGUIModule.cpp" line="131"/>
+        <location filename="src/formats/img/IMGGUIModule.cpp" line="161"/>
         <source>Unable to open file %1 for writing!</source>
         <translation>Die Datei %1 konnte nicht zum Schreiben geöffnet werden!</translation>
     </message>
     <message>
-        <location filename="src/formats/img/IMGGUIModule.cpp" line="131"/>
+        <location filename="src/formats/img/IMGGUIModule.cpp" line="135"/>
         <source>Choose a destination directory</source>
         <translation>Wähle ein Zielverzeichnis</translation>
     </message>
@@ -805,7 +864,7 @@ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem Prog
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="src/gui/MainWindow.cpp" line="47"/>
+        <location filename="src/gui/MainWindow.cpp" line="46"/>
         <source>ProgramBaseName</source>
         <translation>GTATools GUI Tool</translation>
     </message>
@@ -993,7 +1052,7 @@ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem Prog
         <translation type="obsolete">Erstelle Ressourcenindex...</translation>
     </message>
     <message>
-        <location filename="src/ProfileInitializer.cpp" line="29"/>
+        <location filename="src/ProfileInitializer.cpp" line="42"/>
         <source>Generating resource index...</source>
         <translation>Erstelle Ressourcenindex...</translation>
     </message>

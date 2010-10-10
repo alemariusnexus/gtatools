@@ -17,20 +17,33 @@
 	along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "GXTFormatHandler.h"
-#include "GXTWidget.h"
+#ifndef GXTGUIMODULE_H_
+#define GXTGUIMODULE_H_
+
+#include "../../gui/GUIModule.h"
+#include <QtGui/QAction>
+
+
+class GXTWidget;
 
 
 
-bool GXTFormatHandler::hasFileFormat(const File& file) const
-{
-	return QString(file.getPath()->getExtension()).toLower().compare("gxt") == 0;
-}
+class GXTGUIModule : public GUIModule {
+	Q_OBJECT
 
+public:
+	GXTGUIModule(GXTWidget* creator);
 
-QWidget* GXTFormatHandler::createWidgetForFile(const FileOpenRequest& request, QWidget* parent)
-{
-	GXTWidget* widget = new GXTWidget;
-	widget->addFile(*request.getFile());
-	return widget;
-}
+private:
+	virtual void doInstall();
+	virtual void doUninstall();
+
+private slots:
+	void onStringListMatch(bool checked);
+
+private:
+	QAction* stringListMatchAction;
+	GXTWidget* gxtWidget;
+};
+
+#endif /* GXTGUIMODULE_H_ */

@@ -90,8 +90,8 @@ int __crc_table[] = {
 };
 
 
-int32_t Crc32(const char value[]) {
-    int32_t checksum = 0xFFFFFFFF;
+crc32_t Crc32(const char value[]) {
+    crc32_t checksum = 0xFFFFFFFF;
 
     for (size_t i = 0 ; i < strlen(value) ; i++) {
         char chr = value[i];

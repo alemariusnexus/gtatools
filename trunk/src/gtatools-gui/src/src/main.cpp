@@ -81,8 +81,6 @@ int main(int argc, char** argv)
 		MainWindow win;
 		win.show();
 
-		FirstStartWizard wiz;
-
 		if (!File(CONFIG_FILE).exists()) {
 			if (!File(CONFIG_DIR).exists()) {
 				if (!File(CONFIG_DIR).mkdir()) {
@@ -92,7 +90,8 @@ int main(int argc, char** argv)
 				}
 			}
 
-			wiz.exec();
+			QSettings settings(CONFIG_FILE, QSettings::IniFormat);
+			settings.sync();
 		}
 
 		ProfileManager::getInstance()->loadProfiles();
