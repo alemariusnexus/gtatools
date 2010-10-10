@@ -32,15 +32,16 @@ TXDFormatHandler* TXDFormatHandler::getInstance()
 }
 
 
-QWidget* TXDFormatHandler::createWidgetForFile(const File& file, QWidget* parent, const QHash<QString, QVariant>& data)
+QWidget* TXDFormatHandler::createWidgetForFile(const FileOpenRequest& request, QWidget* parent)
 {
 	QString texName;
 
-	if (data.contains("texture"))  {
-		texName = data["texture"].toString();
+	QVariant tn = request.getAttribute("texture");
+	if (!tn.isNull()) {
+		texName = tn.toString();
 	}
 
-	return new TXDWidget(file, texName, parent);
+	return new TXDWidget(*request.getFile(), texName, parent);
 }
 
 

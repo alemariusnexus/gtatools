@@ -25,6 +25,11 @@ IF(prj-gtaformats_SOURCE_DIR)
 ELSE(prj-gtaformats_SOURCE_DIR)
     SET(GTAFORMATS_INCLUDE_PATH "" CACHE PATH "Path to the gtaformats include dir (EXCLUDING the 'gtaformats' part)")
 ENDIF(prj-gtaformats_SOURCE_DIR)
+IF(prj-gta_SOURCE_DIR)
+    SET(GTA_INCLUDE_PATH "${prj-gta_SOURCE_DIR}" CACHE PATH "Path to the libgta include dir (ECLUDING the 'gta' part)")
+ELSE(prj-gta_SOURCE_DIR)
+    SET(GTA_INCLUDE_PATH "" CACHE PATH "Path to the libgta include dir (ECLUDING the 'gta' part)")
+ENDIF(prj-gta_SOURCE_DIR)
 
 IF(UNIX)
 	SET(GL_DEFAULT_LIB GL)
@@ -35,10 +40,15 @@ ELSE(UNIX) # Windows...
 ENDIF(UNIX)
 
 SET(GTAFORMATS_LIB_PATH "gtaformats" CACHE PATH "Path to (or name of) the libgtaformats library file")
+SET(GTA_LIB_PATH "gta" CACHE PATH "Path to (or name of) the libgta library file")
 SET(GL_INCLUDE_PATH "" CACHE PATH "Directory containing the OpenGL header file(s)")
 SET(GL_LIB_PATH "${GL_DEFAULT_LIB}" CACHE PATH "Path to (or name of) the OpenGL library file")
 SET(GLU_INCLUDE_PATH "" CACHE PATH "Directory containing the OpenGL Utility (GLU) header file(s)")
 SET(GLU_LIB_PATH "${GLU_DEFAULT_LIB}" CACHE PATH "Path to (or name of) the OpenGL Utility (GLU) library file")
+SET(GLEW_INCLUDE_PATH "" CACHE PATH "Directory containing the OpenGL Extension Wrangler (GLEW) header files")
+SET(GLEW_LIB_PATH "GLEW" CACHE PATH "Path to (or name of) the OpenGL Extension Wrangler (GLEW) library file")
+SET(SQUISH_INCLUDE_PATH "" CACHE PATH "Directory containing libsquish header files.")
+SET(SQUISH_LIB_PATH "squish" CACHE PATH "Path to (or name of) libsquish library file")
 
 FIND_PACKAGE(Qt4 4.6.0 COMPONENTS QtCore QtGui QtXml QtOpenGL REQUIRED)
 
@@ -71,11 +81,19 @@ QT4_ADD_TRANSLATION(QM_FILES gtatools-gui_en.ts gtatools-gui_de.ts)
 
 QT4_ADD_RESOURCES(QT_RESOURCE_FILES "${CMAKE_SOURCE_DIR}/gtatools-gui/src/resources.qrc")
 
-INCLUDE_DIRECTORIES(${GL_INCLUDE_PATH} ${GLU_INCLUDE_PATH} ${GTAFORMATS_INCLUDE_PATH} ${CMAKE_BINARY_DIR}/gtatools-gui/build/src
-         ${CMAKE_BINARY_DIR} ${CMAKE_BINARY_DIR}/gtatools-gui/build ${INCS})
+SET(EXECUTABLE_PROPERTIES "")
+IF(WIN32)
+    SET(EXECUTABLE_PROPERTIES "WIN32")
+ENDIF(WIN32)
 
-ADD_EXECUTABLE(gtatools-gui ${SRCS} ${MOC_COMPILED_SRCS} ${UIC_COMPILED_SRCS} ${QM_FILES} ${QT_RESOURCE_FILES})
-TARGET_LINK_LIBRARIES(gtatools-gui ${GTAFORMATS_LIB_PATH} ${QT_LIBRARIES} ${GL_LIB_PATH} ${GLU_LIB_PATH} ${THREAD_LIB})
+INCLUDE_DIRECTORIES(${GL_INCLUDE_PATH} ${GLU_INCLUDE_PATH} ${GTAFORMATS_INCLUDE_PATH} ${GTA_INCLUDE_PATH}
+        ${CMAKE_BINARY_DIR}/gtatools-gui/build/src ${CMAKE_BINARY_DIR} ${CMAKE_BINARY_DIR}/gtatools-gui/build
+        ${INCS} ${GLEW_INCLUDE_PATH} ${SQUISH_INCLUDE_PATH})
+
+ADD_EXECUTABLE(gtatools-gui ${EXECUTABLE_PROPERTIES} ${SRCS} ${MOC_COMPILED_SRCS} ${UIC_COMPILED_SRCS} ${QM_FILES}
+        ${QT_RESOURCE_FILES})
+TARGET_LINK_LIBRARIES(gtatools-gui ${GTA_LIB_PATH} ${GTAFORMATS_LIB_PATH} ${QT_LIBRARIES} ${GL_LIB_PATH}
+        ${GLU_LIB_PATH} ${GLEW_LIB_PATH} ${THREAD_LIB} ${SQUISH_LIB_PATH})
 
 INSTALL(TARGETS gtatools-gui DESTINATION bin)
 INSTALL(FILES ${QM_FILES} DESTINATION bin)

@@ -20,6 +20,7 @@ ADD_SUBDIRECTORY(ide)
 ADD_SUBDIRECTORY(img)
 ADD_SUBDIRECTORY(ipl)
 ADD_SUBDIRECTORY(txd)
+ADD_SUBDIRECTORY(gxt)
 
 SET(SRCS ${SRCS} src/formats/FormatHandler.cpp src/formats/FormatManager.cpp PARENT_SCOPE)
 SET(MOC_SRCS ${MOC_SRCS} src/formats/FormatHandler.h PARENT_SCOPE)

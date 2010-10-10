@@ -22,18 +22,11 @@
 
 
 RangedInputStream::RangedInputStream(InputStream* backend, streamsize maxRead, bool autoDeleteBackend)
-		: backend(backend), autoDeleteBackend(autoDeleteBackend), maxRead(maxRead), readCount(0), readStart(backend->tell())
+		: FilterInputStream(backend, autoDeleteBackend), maxRead(maxRead), readCount(0),
+		  readStart(backend->tell())
 {
 	if (readStart == -1) {
 		readStart = 0;
-	}
-}
-
-
-RangedInputStream::~RangedInputStream()
-{
-	if (autoDeleteBackend) {
-		delete backend;
 	}
 }
 

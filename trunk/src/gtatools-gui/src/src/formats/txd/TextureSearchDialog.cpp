@@ -139,9 +139,9 @@ void TextureSearchDialog::onSearch(bool checked)
 		ui.searchButton->setEnabled(true);
 	} else if (results.size() == 1) {
 		TextureMatch* match = results.at(0);
-		QHash<QString, QVariant> data;
-		data["texture"] = match->textureName;
-		System::getInstance()->openFile(*match->txdFile, data);
+		FileOpenRequest request(*match->txdFile);
+		request.setAttribute("texture", match->textureName);
+		System::getInstance()->openFile(request);
 		closeDialog = true;
 	} else {
 		QStringList userItems;
@@ -158,9 +158,9 @@ void TextureSearchDialog::onSearch(bool checked)
 
 		if (okSelected) {
 			TextureMatch* match = results.at(userItems.indexOf(sel));
-			QHash<QString, QVariant> data;
-			data["texture"] = match->textureName;
-			System::getInstance()->openFile(*match->txdFile, data);
+			FileOpenRequest request(*match->txdFile);
+			request.setAttribute("texture", match->textureName);
+			System::getInstance()->openFile(request);
 			closeDialog = true;
 		} else {
 			ui.searchButton->setEnabled(true);

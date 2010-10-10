@@ -20,10 +20,10 @@
 #ifndef DFFFRAME_H_
 #define DFFFRAME_H_
 
-#include <gf_config.h>
+#include "../gf_config.h"
 #include <cstdlib>
-#include "../util/Matrix3.h"
-#include "../util/Vector3.h"
+#include "../util/math/Matrix3.h"
+#include "../util/math/Vector3.h"
 #include <vector>
 
 using std::vector;
@@ -56,8 +56,8 @@ public:
 	ConstChildIterator getChildBegin() const { return children.begin(); }
 	ChildIterator getChildEnd() { return children.end(); }
 	ConstChildIterator getChildEnd() const { return children.end(); }
-	DFFFrame* getChild(int32_t index) { return children[index]; }
-	const DFFFrame* getChild(int32_t index) const { return children[index]; }
+	DFFFrame* getChild(int32_t index);
+	const DFFFrame* getChild(int32_t index) const;
 	DFFFrame* getChild(const char* name);
 	const DFFFrame* getChild(const char* name) const;
 	int32_t indexOf(const DFFFrame* child) const;
@@ -68,14 +68,18 @@ public:
 	void setFlags(int32_t flags) { this->flags = flags; }
 	void setName(const char* name) { this->name = new char[strlen(name)+1]; strcpy(this->name, name); }
 	void setName(char* name) { this->name = name; }
-	void addChild(DFFFrame* child) { children.push_back(child); child->parent = this; }
+	void addChild(DFFFrame* child) { children.push_back(child); child->reparent(this); }
 	void removeChild(DFFFrame* child);
-	void removeChild(int32_t index) { removeChild(children[index]); }
+	void removeChild(int32_t index) { removeChild(getChild(index)); }
 	void removeChild(const char* name) { removeChild(getChild(name)); }
 	void removeChildren();
+	bool isRoot() const { return parent == NULL; }
 
 	void mirrorYZ();
 	void scale(float x, float y, float z);
+
+private:
+	void reparent(DFFFrame* frame);
 
 private:
 	Matrix3* rotation;

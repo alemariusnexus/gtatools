@@ -23,7 +23,7 @@
 #include "../FormatHandler.h"
 #include <qimage.h>
 #include <gtaformats/txd/TXDTexture.h>
-#include <gf_config.h>
+#include <gtaformats/gf_config.h>
 
 
 
@@ -37,7 +37,7 @@ public:
 	virtual QString getFormatName(const File* file = NULL) const { return tr("Texture Dictionary (TXD)"); };
 	virtual QLinkedList<QString> getFileFormatExtensions() const { return QLinkedList<QString>() << "txd"; }
 	virtual bool hasFileFormat(const File& file) const { return file.guessContentType() == CONTENT_TYPE_TXD; }
-	virtual QWidget* createWidgetForFile(const File& file, QWidget* parent, const QHash<QString, QVariant>& data);
+	virtual QWidget* createWidgetForFile(const FileOpenRequest& request, QWidget* parent);
 	QImage createImageFromTexture(TXDTexture* tex, uint8_t* data, uint8_t*& resultData);
 };
 

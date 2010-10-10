@@ -18,7 +18,7 @@
  */
 
 #include "Exception.h"
-#include <gf_config.h>
+#include "../gf_config.h"
 #include <cstring>
 #include <cstdio>
 
@@ -26,11 +26,10 @@
 
 Exception::Exception(const char* message, const char* srcFile, int srcLine, Exception* nestedException,
 		const char* exceptionName)
-		: message(new char[strlen(message)+1]), srcFile(srcFile), srcLine(srcLine), nestedException(nestedException),
+		: message(NULL), srcFile(srcFile), srcLine(srcLine), nestedException(nestedException),
 		  exceptionName(exceptionName)
 {
-	strcpy(this->message, message);
-	fullMessage = buildFullMessage();
+	setMessage(message);
 
 #ifdef linux
 	void* buf[50];
@@ -54,11 +53,10 @@ Exception::Exception(const char* message, const char* srcFile, int srcLine, Exce
 
 
 Exception::Exception(const Exception& ex)
-		: message(new char[strlen(ex.message)+1]), srcFile(ex.srcFile), srcLine(ex.srcLine), nestedException(ex.nestedException),
+		: message(NULL), srcFile(ex.srcFile), srcLine(ex.srcLine), nestedException(ex.nestedException),
 		  exceptionName(ex.exceptionName)
 {
-	strcpy(message, ex.message);
-	fullMessage = buildFullMessage();
+	setMessage(ex.message);
 
 #ifdef linux
 	backTrace = new char[strlen(ex.backTrace)+1];
@@ -78,21 +76,37 @@ Exception::~Exception() throw()
 }
 
 
-char* Exception::getBacktrace() const throw()
+const char* Exception::getBacktrace() const throw()
 {
 #ifdef linux
 	return backTrace;
 #else
-	char* btMsg = new char[64];
-	sprintf(btMsg, "[Backtrace can not be received on this platform]");
-	return btMsg;
+	return NULL;
 #endif
+}
+
+
+void Exception::setMessage(const char* message)
+{
+	if (this->message) {
+		delete[] this->message;
+		delete[] this->fullMessage;
+	}
+
+	if (message) {
+		this->message = new char[strlen(message)+1];
+		strcpy(this->message, message);
+		fullMessage = buildFullMessage();
+	} else {
+		message = NULL;
+	}
 }
 
 
 char* Exception::buildFullMessage() const throw()
 {
-	int len = strlen(message) + strlen(exceptionName) + 2;
+	int messageLen = (message ? strlen(message) : 10);
+	int len = messageLen + strlen(exceptionName) + 2;
 
 #ifdef EXCEPTION_POSITION_INFO
 	if (srcFile != NULL) {
@@ -122,7 +136,11 @@ char* Exception::buildFullMessage() const throw()
 	}
 #endif
 
-	strcat(formMsg, message);
+	if (message) {
+		strcat(formMsg, message);
+	} else {
+		strcat(formMsg, "No message");
+	}
 
 	if (nestedException) {
 		const char* nestedMsg = nestedException->what();

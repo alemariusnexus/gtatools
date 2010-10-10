@@ -39,7 +39,10 @@ public:
 	virtual ~Exception() throw();
 	virtual const char* what() const throw() { return fullMessage; };
 	const char* getMessage() const throw() { return message; }
-	char* getBacktrace() const throw();
+	const char* getBacktrace() const throw();
+
+protected:
+	void setMessage(const char* message);
 
 private:
 	char* buildFullMessage() const throw();

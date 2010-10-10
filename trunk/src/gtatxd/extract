@@ -60,6 +60,10 @@ echo '      <tr bgcolor="#4682B4">' >> $ovw
 echo '        <th>TXD File</th>' >> $ovw
 echo '      </tr>' >> $ovw
 
+txdfiles="`gtaimg ls "$1" | grep '\.txd'`"
+numtxds="`echo "$txdfiles" | wc -l`"
+txdcount="0"
+
 for txdfile in `gtaimg ls "$1" | grep '\.txd'`
 #for txdfile in `gtaimg ls "$1" | grep 'camera.*'`
 do
@@ -86,6 +90,8 @@ do
 		exit $?
 	fi
 
+    txdcount="$(($txdcount + 1))"
+
 
 	if [ -n "`tr -d ' \r\n\t' < "$texdataFile"`" ]
 	then
@@ -97,7 +103,7 @@ do
 			destdir="$destdir%$(( ++i ))"
 		done
 
-		echo "Extracting textures in '$txdfile'..."
+		echo "Extracting textures in '$txdfile' ($txdcount/$numtxds)..."
 		mkdir "$2/$destdir"
 		
 		txdOvw="$2/$destdir/status.html"
@@ -140,20 +146,22 @@ do
 			formatCounts[$format]=$(( ${formatCounts[$format]} + 1 ))
 			compressionCounts[$compression]=$(( ${compressionCounts[$compression]} + 1 ))
 
-			echo '      <tr bgcolor="#00BFFF" align="center">' >> "$txdOvw"
-			echo $texture | awk -F, 'BEGIN {RS=","} {gsub("\n", ""); gsub("&", "&amp;"); print "        <td>" $0 "</td>"}' >> "$txdOvw"
-			#echo "        <td><a href=\"$escapedTexname.png\">Click</a></td>" >> "$txdOvw"
-			echo "        <td><a href=\"$escapedTexname.png\"><img src=\"$escapedTexname.$fileFormat\" width=\"128\" height=\"128\" /></a></td>" >> "$txdOvw"
-			echo "      </tr>" >> "$txdOvw"
+			#echo '      <tr bgcolor="#00BFFF" align="center">' >> "$txdOvw"
+			#echo $texture | awk -F, 'BEGIN {RS=","} {gsub("\n", ""); gsub("&", "&amp;"); print "        <td>" $0 "</td>"}' >> "$txdOvw"
+			#echo "        <td><a href=\"$escapedTexname.png\"><img src=\"$escapedTexname.$fileFormat\" width=\"128\" height=\"128\" /></a></td>" >> "$txdOvw"
+			#echo "      </tr>" >> "$txdOvw"
 
-			echo "  Extracting texture '$texname'"
-			gtatxd x "$tmpTxdfile" "$texname" "$2/$destdir/$texname.png" > /dev/null
-			
-			if [ $? -ne 0 ]
-				then
-				echo "*** Error 3, aborting."
-				exit $?
-			fi
+            if [ "$3" != "false" ]
+            then
+			    echo "  Extracting texture '$texname'"
+			    gtatxd x "$tmpTxdfile" "$texname" "$2/$destdir/$texname.png" > /dev/null
+
+                if [ $? -ne 0 ]
+                then
+                    echo "*** Error 3, aborting."
+                    exit $?
+                fi
+            fi
 		done
 
 		echo "    </table>" >> "$txdOvw"

@@ -20,7 +20,7 @@
 #ifndef IMGARCHIVE_H_
 #define IMGARCHIVE_H_
 
-#include <gf_config.h>
+#include "../gf_config.h"
 #include "IMGVisitor.h"
 #include <string>
 #include <algorithm>

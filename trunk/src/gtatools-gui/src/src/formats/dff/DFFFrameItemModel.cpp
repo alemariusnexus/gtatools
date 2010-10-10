@@ -1,8 +1,20 @@
 /*
- * DFFFrameItemModel.cpp
- *
- *  Created on: 06.08.2010
- *      Author: alemariusnexus
+	Copyright 2010 David "Alemarius Nexus" Lerch
+
+	This file is part of gtatools-gui.
+
+	gtatools-gui is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	gtatools-gui is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "DFFFrameItemModel.h"
@@ -30,7 +42,8 @@ QVariant DFFFrameItemModel::data(const QModelIndex& index, int role) const
 
 	if (role == Qt::DisplayRole) {
 		if (frame->getName() == NULL) {
-			int row = frame->getParent() == NULL ? frame->getParent()->indexOf(frame) : mesh->indexOf(frame);
+			//int row = frame->getParent() == NULL ? frame->getParent()->indexOf(frame) : mesh->indexOf(frame);
+			int row = frame->getParent()->indexOf(frame);
 			return tr("Unnamed %1").arg(row+1);
 		} else {
 			return frame->getName();
@@ -62,7 +75,7 @@ int DFFFrameItemModel::rowCount(const QModelIndex& index) const
 	}
 
 	if (!index.isValid()) {
-		return mesh->getFrameCount();
+		return mesh->getRootFrame()->getChildCount();
 	} else {
 		DFFFrame* frame = (DFFFrame*) index.internalPointer();
 		return frame->getChildCount();
@@ -82,12 +95,15 @@ QModelIndex DFFFrameItemModel::index(int row, int column, const QModelIndex& par
 		return QModelIndex();
 	}
 
+	DFFFrame* parentFrame;
+
 	if (parent.isValid()) {
-		DFFFrame* frame = (DFFFrame*) parent.internalPointer();
-		return createIndex(row, column, frame->getChild(row));
+		parentFrame = (DFFFrame*) parent.internalPointer();
 	} else {
-		return createIndex(row, column, mesh->getFrame(row));
+		parentFrame = mesh->getRootFrame();
 	}
+
+	return createIndex(row, column, parentFrame->getChild(row));
 }
 
 
@@ -100,11 +116,11 @@ QModelIndex DFFFrameItemModel::parent(const QModelIndex& index) const
 	DFFFrame* frame = (DFFFrame*) index.internalPointer();
 	DFFFrame* parent = frame->getParent();
 
-	if (parent == NULL) {
+	if (parent == NULL  ||  parent->isRoot()) {
 		return QModelIndex();
 	}
 
-	int row = parent->getParent() == NULL ? mesh->indexOf(parent) : parent->getParent()->indexOf(parent);
+	int row = parent->getParent()->indexOf(parent);
 	return createIndex(row, 0, parent);
 }
 

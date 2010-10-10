@@ -39,11 +39,18 @@ enum FileContentType {
  */
 class FilePath {
 public:
+	enum Options
+	{
+		CorrectCase = 1,
+		BackslashAsSeparator = 2
+	};
+
+public:
 	/** \brief Constructs a new FilePath object from a path string.
 	 *
 	 *	@param path The path string.
 	 */
-	FilePath(const char* path);
+	FilePath(const char* path, int flags = 0);
 
 	/**	\brief Copy constructor.
 	 *
@@ -58,7 +65,9 @@ public:
 	 * 	@param parent The parent FilePath.
 	 *	@param child The child file name.
 	 */
-	FilePath(const FilePath& parent, const char* child);
+	FilePath(const FilePath& parent, const char* child, int flags = 0);
+
+	~FilePath();
 
 	/**	\brief Returns the file name extension of this path.
 	 *
@@ -126,7 +135,7 @@ private:
 	 * 	@param src The input path.
 	 * 	@return The normalized path.
 	 */
-	static char* normalize(const char* src);
+	static char* normalize(const char* src, int flags);
 
 private:
 	char* path;

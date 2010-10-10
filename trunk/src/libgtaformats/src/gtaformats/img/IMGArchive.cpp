@@ -23,9 +23,12 @@
 #include <cstring>
 #include <vector>
 #include "../util/stream/RangedInputStream.h"
+#include "../util/stream/BufferedInputStream.h"
 
 using std::string;
 using std::vector;
+
+#define IMG_BUFFER_SIZE 4096
 
 
 
@@ -49,59 +52,65 @@ IMGArchive::IMGArchive(const File& file, bool deleteStream)
 		strncpy(imgFilePath, path->toString(), basePathLen);
 		strcpy(imgFilePath+basePathLen, "img");
 		File imgFile(imgFilePath);
+		delete[] imgFilePath;
 
-		InputStream* dirStream = openStream(file);
+		InputStream* ubDirStream = openStream(file);
 
-		if (!dirStream) {
+		if (!ubDirStream) {
 			throw IMGException("Unable to open DIR file", __FILE__, __LINE__);
 		}
+
+		BufferedInputStream dirStream(ubDirStream, IMG_BUFFER_SIZE);
 
 		stream = openStream(imgFile);
 
 		if (!stream) {
 			char errmsg[2048];
 			sprintf(errmsg, "Unable to open corresponding IMG file %s for the given DIR file",
-					imgFile.getPath());
+					imgFile.getPath()->toString());
 			throw IMGException(errmsg, __FILE__, __LINE__);
 		}
 
-		readHeader(dirStream);
+		stream = new BufferedInputStream(stream, IMG_BUFFER_SIZE);
 
-		delete dirStream;
+		readHeader(&dirStream);
 	} else if (type == CONTENT_TYPE_IMG) {
-		if (guessIMGVersion(file) == VER2) {
-			stream = openStream(file);
+		stream = openStream(file);
 
+		if (guessIMGVersion(stream, true) == VER2) {
 			if (!stream) {
 				throw IMGException("Unable to open VER2 IMG file", __FILE__, __LINE__);
 			}
 
+			stream = new BufferedInputStream(stream, IMG_BUFFER_SIZE);
+
 			readHeader(stream);
 		} else {
-			stream = openStream(file);
-
 			if (!stream) {
 				throw IMGException("Unable to open VER1 IMG file", __FILE__, __LINE__);
 			}
+
+			stream = new BufferedInputStream(stream, IMG_BUFFER_SIZE);
 
 			char* dirFilePath = new char[strlen(path->toString())+1];
 			int basePathLen = path->getExtension() - path->toString();
 			strncpy(dirFilePath, path->toString(), basePathLen);
 			strcpy(dirFilePath+basePathLen, "dir");
 			File dirFile(dirFilePath);
+			delete[] dirFilePath;
 
-			InputStream* dirStream = openStream(dirFile);
+			InputStream* ubDirStream = openStream(dirFile);
 
-			if (!dirStream) {
+			if (!ubDirStream) {
 				char errmsg[2048];
 				sprintf(errmsg, "Unable to open corresponding DIR file %s for the given IMG file",
-						dirFile.getPath());
+						dirFile.getPath()->toString());
 				throw IMGException(errmsg, __FILE__, __LINE__);
 			}
 
-			readHeader(dirStream);
+			BufferedInputStream dirStream(ubDirStream, IMG_BLOCK_SIZE);
 
-			delete dirStream;
+			readHeader(&dirStream);
 		}
 	} else {
 		throw IMGException("File name is neither an IMG nor a DIR file", __FILE__, __LINE__);
@@ -113,7 +122,8 @@ IMGArchive::IMGArchive(InputStream* dirStream, InputStream* imgStream, bool rand
 		bool deleteIMGStream)
 		: stream(imgStream), randomAccess(randomAccess), deleteStream(deleteIMGStream)
 {
-	readHeader(dirStream);
+	BufferedInputStream bDirStream(dirStream, IMG_BUFFER_SIZE, false);
+	readHeader(&bDirStream);
 }
 
 
@@ -121,11 +131,12 @@ IMGArchive::IMGArchive(const File& dirFile, const File& imgFile, bool deleteStre
 		: stream(NULL), randomAccess(true), deleteStream(deleteStream)
 {
 	stream = openStream(imgFile);
+	stream = new BufferedInputStream(stream, IMG_BUFFER_SIZE);
+
 	InputStream* dirStream = openStream(dirFile);
+	BufferedInputStream bDirStream(dirStream, IMG_BUFFER_SIZE);
 
-	readHeader(dirStream);
-
-	delete dirStream;
+	readHeader(&bDirStream);
 }
 
 
@@ -137,9 +148,8 @@ IMGArchive::~IMGArchive()
 
 	delete[] entries;
 
-	if (deleteStream  &&  stream) {
+	if (deleteStream)
 		delete stream;
-	}
 }
 
 

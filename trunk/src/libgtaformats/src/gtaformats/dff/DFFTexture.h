@@ -20,7 +20,7 @@
 #ifndef DFFTEXTURE_H_
 #define DFFTEXTURE_H_
 
-#include <gf_config.h>
+#include "../gf_config.h"
 #include <cstdlib>
 
 class DFFTexture {

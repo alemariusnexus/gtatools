@@ -48,7 +48,9 @@ ConfigWidget::ConfigWidget(QWidget* parent)
 	connect(ui.applyButton, SIGNAL(clicked(bool)), this, SLOT(onApply(bool)));
 	connect(ui.cancelButton, SIGNAL(clicked(bool)), this, SLOT(onCancel(bool)));
 
-	selectedProfileChanged(0);
+	if (pm->getProfileCount() > 0) {
+		selectedProfileChanged(0);
+	}
 
 	QSettings settings(CONFIG_FILE, QSettings::IniFormat);
 
@@ -85,6 +87,7 @@ void ConfigWidget::selectedProfileChanged(int index)
 {
 	Profile* profile = (Profile*) ui.profileBox->itemData(index).value<void*>();
 	ui.profileWidget->displayProfile(profile);
+	ui.removeProfileButton->setEnabled(true);
 }
 
 
@@ -104,21 +107,25 @@ void ConfigWidget::onApply(bool checked)
 	settings.setValue("gui/file_tree_types", ui.fileTypesInTreeBox->isChecked());
 	settings.setValue("gui/compact_mode", ui.compactBox->isChecked());
 
-	Profile* profile = (Profile*) ui.profileBox->itemData(ui.profileBox->currentIndex()).value<void*>();
-	profile->setName(ui.profileWidget->getProfileName());
-	profile->clearResources();
-
-	QLinkedList<QString> resources;
-	ui.profileWidget->getFiles(resources);
-	QLinkedList<QString>::iterator it;
-
-	for (it = resources.begin() ; it != resources.end() ; it++) {
-		profile->addResource(File(it->toLocal8Bit().constData()));
-	}
+	int pidx = ui.profileBox->currentIndex();
 
 	ProfileManager* pm = ProfileManager::getInstance();
 
-	profile->synchronize();
+	if (pidx != -1) {
+		Profile* profile = (Profile*) ui.profileBox->itemData(ui.profileBox->currentIndex()).value<void*>();
+		profile->setName(ui.profileWidget->getProfileName());
+		profile->clearResources();
+
+		QLinkedList<QString> resources;
+		ui.profileWidget->getFiles(resources);
+		QLinkedList<QString>::iterator it;
+
+		for (it = resources.begin() ; it != resources.end() ; it++) {
+			profile->addResource(File(it->toLocal8Bit().constData()));
+		}
+
+		profile->synchronize();
+	}
 
 	pm->setProfiles(profiles);
 

@@ -143,13 +143,13 @@ int DFFLoader::parseStruct(InputStream* stream, RwSectionHeader& structHeader, R
 			float* rotData = new float[9];
 			float* transData = new float[3];
 
-			Matrix3* rot = new Matrix3(rotData);
-			Vector3* trans = new Vector3(transData);
-
 			stream->read((char*) rotData, 36);
 			stream->read((char*) transData, 12);
 			stream->read((char*) &parentIdx, 4);
 			stream->read((char*) &frame->flags, 4);
+
+			Matrix3* rot = new Matrix3(rotData);
+			Vector3* trans = new Vector3(transData);
 
 			frame->setRotation(rot);
 			frame->setTranslation(trans);
@@ -165,7 +165,7 @@ int DFFLoader::parseStruct(InputStream* stream, RwSectionHeader& structHeader, R
 			if (pidx != -1) {
 				frames[pidx]->addChild(frames[i]);
 			} else {
-				mesh->addFrame(frames[i]);
+				mesh->getRootFrame()->addChild(frames[i]);
 			}
 		}
 
@@ -368,7 +368,7 @@ int DFFLoader::parseString(InputStream* stream, RwSectionHeader& stringHeader, R
 int DFFLoader::parseFrame(InputStream* stream, RwSectionHeader& frameHeader, RwSectionHeader* parent,
 		DFFLoadContext* context)
 {
-	DFFFrame* frame = context->mesh->getFrame(context->mesh->getFrameCount()-1);
+	DFFFrame* frame = context->frameInternalIndexMap[context->frameCurrentIndex++];
 	char* name = new char[frameHeader.size+1];
 	stream->read(name, frameHeader.size);
 	name[frameHeader.size] = '\0';
@@ -423,9 +423,9 @@ int DFFLoader::parseMaterialSplit(InputStream* stream, RwSectionHeader& matsplit
 		readCount += size;
 
 		DFFGeometryPart* part = new DFFGeometryPart(faceIdx, indices);
-		part->setMaterial(geom->getMaterial(matIdx));
-
 		geom->addPart(part);
+
+		part->setMaterial(geom->getMaterial(matIdx));
 	}
 
 	return readCount;
@@ -460,6 +460,7 @@ DFFMesh* DFFLoader::loadMesh(InputStream* stream) {
 	DFFLoadContext context;
 	context.mesh = mesh;
 	context.depth = 0;
+	context.frameCurrentIndex = 0;
 
 	RwSectionHeader clump;
 

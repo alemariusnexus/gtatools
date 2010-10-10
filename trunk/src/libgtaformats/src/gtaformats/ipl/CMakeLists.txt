@@ -16,7 +16,7 @@
 # along with gtaformats.  If not, see <http://www.gnu.org/licenses/>.
 
 
-SET(FILES IPLReader IPLStatement IPLInstance)
+SET(FILES IPLReader IPLStatement IPLInstance IPLCar)
 
 FOREACH(FILE ${FILES})
     SET(SRCS ${SRCS} "gtaformats/ipl/${FILE}")

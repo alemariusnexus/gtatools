@@ -20,11 +20,14 @@
 #ifndef DFFMATERIAL_H_
 #define DFFMATERIAL_H_
 
-#include <gf_config.h>
+#include "../gf_config.h"
 #include "DFFTexture.h"
 #include <vector>
 
 using std::vector;
+
+
+class DFFGeometry;
 
 
 class DFFMaterial {
@@ -34,9 +37,10 @@ public:
 
 private:
 	friend class DFFLoader;
+	friend class DFFGeometry;
 
 public:
-	DFFMaterial() {};
+	DFFMaterial() : geometry(NULL) {}
 	DFFMaterial(const DFFMaterial& other);
 	~DFFMaterial();
 	void getColor(uint8_t& r, uint8_t& g, uint8_t& b, uint8_t& a) const
@@ -47,8 +51,8 @@ public:
 	TextureIterator getTextureEnd() { return textures.end(); }
 	ConstTextureIterator getTextureBegin() const { return textures.begin(); }
 	ConstTextureIterator getTextureEnd() const { return textures.end(); }
-	DFFTexture* getTexture(int index) { return textures[index]; }
-	const DFFTexture* getTexture(int index) const { return textures[index]; }
+	DFFTexture* getTexture(int index);
+	const DFFTexture* getTexture(int index) const;
 	void setColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 			{ color[0] = r; color[1] = g; color[2] = b; color[3] = a; }
 	void addTexture(DFFTexture* texture) { textures.push_back(texture); }
@@ -57,7 +61,11 @@ public:
 	void removeTextures();
 
 private:
+	void reparent(DFFGeometry* geom);
+
+private:
 	uint8_t color[4];
+	DFFGeometry* geometry;
 	vector<DFFTexture*> textures;
 };
 

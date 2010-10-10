@@ -20,7 +20,7 @@
 #ifndef DFFGEOMETRY_H_
 #define DFFGEOMETRY_H_
 
-#include <gf_config.h>
+#include "../gf_config.h"
 #include "DFFGeometryPart.h"
 #include "DFFMaterial.h"
 #include "DFFFrame.h"
@@ -39,6 +39,8 @@ using std::vector;
 #define GEOMETRY_FLAG_MULTIPLEUVSETS (1<<7)
 
 
+class DFFMesh;
+
 struct DFFBoundingSphere {
 	float x;
 	float y;
@@ -56,6 +58,7 @@ public:
 
 private:
 	friend class DFFLoader;
+	friend class DFFMesh;
 
 public:
 	DFFGeometry(int32_t numVertices, float* vertices, float* normals = NULL, float* uvCoords = NULL,
@@ -75,8 +78,8 @@ public:
 	const uint8_t* getVertexColors() const { return vertexColors; }
 	float* getUVCoordSets() { return uvCoordSets; }
 	const float* getUVCoordSets() const { return uvCoordSets; }
-	float* getUVCoordSet(uint8_t idx = 0) { return uvCoordSets+idx*vertexCount; } // TODO
-	const float* getUVCoordSet(uint8_t idx = 0) const { return uvCoordSets+idx*vertexCount; } // TODO
+	float* getUVCoordSet(uint8_t idx = 0);
+	const float* getUVCoordSet(uint8_t idx = 0) const;
 	const DFFBoundingSphere* getBounds() const { return bounds; }
 	DFFBoundingSphere* getBounds() { return bounds; }
 	float* getVertices() { return vertices; }
@@ -100,26 +103,29 @@ public:
 	MaterialIterator getMaterialEnd() { return materials.end(); }
 	ConstMaterialIterator getMaterialBegin() const { return materials.begin(); }
 	ConstMaterialIterator getMaterialEnd() const { return materials.end(); }
-	DFFMaterial* getMaterial(int index) { return materials[index]; }
-	const DFFMaterial* getMaterial(int index) const { return materials[index]; }
-	void addMaterial(DFFMaterial* material) { materials.push_back(material); }
-	void removeMaterial(int index) { removeMaterial(materials[index]); }
+	DFFMaterial* getMaterial(int index);
+	const DFFMaterial* getMaterial(int index) const;
+	void addMaterial(DFFMaterial* material) { materials.push_back(material); material->reparent(this); }
+	void removeMaterial(int index) { removeMaterial(getMaterial(index)); }
 	void removeMaterial(DFFMaterial* material);
 	void removeMaterials();
 	PartIterator getPartBegin() { return parts.begin(); }
 	PartIterator getPartEnd() { return parts.end(); }
 	ConstPartIterator getPartBegin() const { return parts.begin(); }
 	ConstPartIterator getPartEnd() const { return parts.end(); }
-	DFFGeometryPart* getPart(int index) { return parts[index]; }
-	const DFFGeometryPart* getPart(int index) const { return parts[index]; }
-	void addPart(DFFGeometryPart* part) { parts.push_back(part); }
-	void removePart(int index) { removePart(parts[index]); }
+	DFFGeometryPart* getPart(int index);
+	const DFFGeometryPart* getPart(int index) const;
+	void addPart(DFFGeometryPart* part) { parts.push_back(part); part->reparent(this); }
+	void removePart(int index) { removePart(getPart(index)); }
 	void removePart(DFFGeometryPart* part);
 	void removeParts();
 	void setAssociatedFrame(DFFFrame* frame) { associatedFrame = frame; }
 
 	void mirrorYZ();
 	void scale(float x, float y, float z);
+
+private:
+	void reparent(DFFMesh* mesh);
 
 private:
 	int16_t flags;
@@ -140,6 +146,7 @@ private:
 	vector<DFFGeometryPart*> parts;
 
 	DFFFrame* associatedFrame;
+	DFFMesh* mesh;
 };
 
 #endif /* DFFGEOMETRY_H_ */

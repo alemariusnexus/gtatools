@@ -18,6 +18,7 @@
  */
 
 #include "ExtractVisitor.h"
+#include <gtaformats/util/util.h>
 //#include <cstdio>
 #include <cstdlib>
 #include <iostream>
@@ -31,7 +32,6 @@ using std::endl;
 
 struct MatchInfo {
 	int matchedPatternIndex;
-	boost::cmatch* match;
 };
 
 const char flags[][PARAM_MAXLEN] = {
@@ -79,7 +79,7 @@ ExtractVisitor::ExtractVisitor(int argc, char** argv) {
 	}
 
 	destfiles = new const char*[numPatterns];
-	regexes = new regex*[numPatterns];
+	regexes = new const char*[numPatterns];
 
 	int i = 0;
 	for (it = GetStandaloneParamBegin()+1 ; it != GetStandaloneParamEnd() ; it++) {
@@ -90,24 +90,7 @@ ExtractVisitor::ExtractVisitor(int argc, char** argv) {
 			destfile = *++it;
 		}
 
-		regex* reg;
-
-		if (!useRegex) {
-			char* escapedPattern = new char[strlen(pattern)+5];
-			sprintf(escapedPattern, "\\Q%s\\E", pattern);
-			temporaryStrings.push_back(escapedPattern);
-			pattern = escapedPattern;
-		}
-
-		try {
-			reg = new regex(pattern);
-		} catch (boost::regex_error& err) {
-			cout << "Error compiling source pattern " << i+1 << " at offset " << err.position()
-					<< ": " << err.what() << endl;
-			exit(1);
-		}
-
-		regexes[i] = reg;
+		regexes[i] = pattern;
 		destfiles[i] = destfile;
 		i++;
 	}
@@ -124,15 +107,15 @@ ExtractVisitor::~ExtractVisitor() {
 
 bool ExtractVisitor::readHeader(IMGEntry* header, void*& udata) {
 	for (int i = 0 ; i < numPatterns ; i++) {
-		boost::cmatch* match = new boost::cmatch;
-		if (boost::regex_match(header->name, *match, *regexes[i])) {
+		bool match = useRegex ? WildcardMatch(regexes[i], header->name)
+				: strcmp(regexes[i], header->name) == 0;
+
+		if (match) {
 			MatchInfo* info = new MatchInfo;
 			info->matchedPatternIndex = i;
-			info->match = match;
 			udata = info;
 			return true;
 		}
-		delete match;
 	}
 
 	return false;
@@ -148,11 +131,7 @@ void ExtractVisitor::readEntry(IMGEntry* header, InputStream* stream, void*& uda
 
 	if (!writeToStdout) {
 		if (rawDestfile) {
-			if (useRegex) {
-				destfile = info->match->format(std::string(rawDestfile), boost::format_perl).c_str();
-			} else {
-				destfile = rawDestfile;
-			}
+			destfile = rawDestfile;
 		} else {
 			destfile = header->name;
 		}
@@ -177,6 +156,5 @@ void ExtractVisitor::readEntry(IMGEntry* header, InputStream* stream, void*& uda
 		delete out;
 	}
 
-	delete info->match;
 	delete info;
 }

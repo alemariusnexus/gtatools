@@ -38,7 +38,8 @@ public:
 	QList<Profile*> getProfiles() { return profiles; }
 	Profile* setCurrentProfile(Profile* profile);
 	Profile* getCurrentProfile() { return currentProfile; }
-	Profile* getProfile(int idx) { return profiles[idx]; }
+	Profile* getProfile(int idx);
+	int getProfileCount() { return profiles.size(); }
 	int indexOfProfile(Profile* profile) { return profiles.indexOf(profile); }
 	void saveProfiles();
 	void addProfile(Profile* profile);
@@ -50,6 +51,7 @@ private:
 	virtual ~ProfileManager();
 
 signals:
+	void profilesLoaded();
 	void currentProfileChanged(Profile* oldProfile, Profile* newProfile);
 	void profileAdded(Profile* profile);
 	void profileRemoved(Profile* profile);

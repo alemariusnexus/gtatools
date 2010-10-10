@@ -20,7 +20,7 @@
 #ifndef IPLINSTANCE_H_
 #define IPLINSTANCE_H_
 
-#include <gf_config.h>
+#include "../gf_config.h"
 #include "IPLStatement.h"
 
 #define IPL_TYPE_INSTANCE 0

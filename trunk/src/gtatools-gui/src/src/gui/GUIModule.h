@@ -23,6 +23,7 @@
 #include <qobject.h>
 #include <qmenu.h>
 #include <gtaformats/util/File.h>
+#include <QtCore/QLinkedList>
 
 
 class MainWindow;
@@ -35,7 +36,7 @@ class GUIModule : public QObject {
 public:
 	GUIModule() : mainWindow(NULL) {};
 	virtual ~GUIModule();
-	virtual void buildFileTreeMenu(const File& file, QMenu& menu) {}
+	virtual void buildFileTreeMenu(const QLinkedList<File*>& files, QMenu& menu) {}
 	void install(MainWindow* mw) { mainWindow = mw; doInstall(); }
 	void uninstall() { doUninstall(); mainWindow = NULL; }
 

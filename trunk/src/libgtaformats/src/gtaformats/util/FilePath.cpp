@@ -23,9 +23,14 @@
 #include <cstring>
 #include <cstdio>
 
+#ifdef _POSIX_VERSION
+#include <sys/types.h>
+#include <dirent.h>
+#endif
 
-FilePath::FilePath(const char* path)
-		: path(normalize(path))
+
+FilePath::FilePath(const char* path, int flags)
+		: path(normalize(path, flags))
 {
 }
 
@@ -37,14 +42,26 @@ FilePath::FilePath(const FilePath& other)
 }
 
 
-FilePath::FilePath(const FilePath& parent, const char* child)
+FilePath::FilePath(const FilePath& parent, const char* child, int flags)
 		: path(new char[strlen(parent.path) + strlen(child) + 2])
 {
-	char* normChild = normalize(child);
+	/*char* normChild = normalize(child, flags);
 	strcpy(path, parent.path);
 	strcat(path, "/");
 	strcat(path, normChild);
-	delete[] normChild;
+	delete[] normChild;*/
+	char* tmpPath = new char[strlen(parent.path) + strlen(child) + 2];
+	strcpy(tmpPath, parent.path);
+	strcat(tmpPath, "/");
+	strcat(tmpPath, child);
+	path = normalize(tmpPath, flags);
+	delete[] tmpPath;
+}
+
+
+FilePath::~FilePath()
+{
+	delete[] path;
 }
 
 
@@ -126,21 +143,27 @@ FileContentType FilePath::guessContentType() const
 	char* ext = new char[strlen(tmpExt)+1];
 	strtolower(ext, tmpExt);
 
+	FileContentType retval;
+
 	if (strcmp(ext, "img") == 0) {
-		return CONTENT_TYPE_IMG;
+		retval = CONTENT_TYPE_IMG;
 	} else if (strcmp(ext, "dir") == 0) {
-		return CONTENT_TYPE_DIR;
+		retval = CONTENT_TYPE_DIR;
 	} else if (strcmp(ext, "ide") == 0) {
-		return CONTENT_TYPE_IDE;
+		retval = CONTENT_TYPE_IDE;
 	} else if (strcmp(ext, "dff") == 0) {
-		return CONTENT_TYPE_DFF;
+		retval = CONTENT_TYPE_DFF;
 	} else if (strcmp(ext, "ipl") == 0) {
-		return CONTENT_TYPE_IPL;
+		retval = CONTENT_TYPE_IPL;
 	} else if (strcmp(ext, "txd") == 0) {
-		return CONTENT_TYPE_TXD;
+		retval = CONTENT_TYPE_TXD;
 	} else {
-		return CONTENT_TYPE_UNKNOWN;
+		retval = CONTENT_TYPE_UNKNOWN;
 	}
+
+	delete[] ext;
+
+	return retval;
 }
 
 
@@ -188,19 +211,74 @@ bool FilePath::operator==(const FilePath& other) const
 }
 
 
-char* FilePath::normalize(const char* src)
+char* FilePath::normalize(const char* src, int flags)
 {
 	int srcLen = strlen(src);
 	char* dest = new char[srcLen+1];
+	char* lastComponentStart = dest;
 
-	for (int i = 0 ; i < srcLen ; i++) {
+	for (int i = 0 ; i <= srcLen ; i++) {
 		char chr = src[i];
 
-		if (chr == '\\') {
+		if (chr == '\\'  &&  (flags & BackslashAsSeparator) != 0) {
 			chr = '/';
 		}
 
 		dest[i] = chr;
+
+		if ((chr == '/'  ||  chr == '\0')  &&  i != 0  &&  (flags & CorrectCase) != 0) {
+			dest[i] = '\0';
+			char* component = new char[i - (lastComponentStart-dest) + 2];
+			strtolower(component, lastComponentStart+1);
+			*(lastComponentStart+1) = '\0';
+			dest[i] = '/';
+
+			File compParent(dest);
+			FileIterator* it = compParent.getIterator();
+			File* child;
+
+			while ((child = it->next())  !=  NULL) {
+				const char* fname = child->getPath()->getFileName();
+				char* lfname = new char[strlen(fname)+1];
+				strtolower(lfname, fname);
+				if (strcmp(lfname, component) == 0) {
+					memcpy(lastComponentStart+1, fname, strlen(fname));
+					delete child;
+					delete[] lfname;
+					break;
+				}
+				delete child;
+				delete[] lfname;
+			}
+
+			delete it;
+
+/*#ifdef linux
+			DIR* dir = opendir(dest);
+			if (dir) {
+				struct dirent* entry;
+				while ((entry = readdir(dir))  !=  NULL) {
+					char* lowerName = new char[strlen(entry->d_name)];
+					strtolower(lowerName, entry->d_name);
+					if (strcmp(lowerName, component) == 0) {
+						memcpy(lastComponentStart+1, entry->d_name, strlen(entry->d_name));
+						delete[] lowerName;
+						delete entry;
+						break;
+					}
+					delete entry;
+					delete[] lowerName;
+				}
+			}
+			closedir(dir);
+#else
+
+#endif*/
+
+			delete[] component;
+
+			lastComponentStart = dest+i;
+		}
 	}
 
 	dest[srcLen] = '\0';

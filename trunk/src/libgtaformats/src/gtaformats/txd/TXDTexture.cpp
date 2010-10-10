@@ -251,15 +251,31 @@ void TXDTexture::convert(uint8_t* dest, const uint8_t* src, TXDMirrorFlags mirro
 		data = src;
 	} else {
 #		ifdef GF_USE_SQUISH
-			uint8_t* tmp = new uint8_t[width * height * 4];
+			uint8_t* squishDest;
 
-			if (getCompression() == DXT1) {
-				DecompressImage(tmp, width, height, src, kDxt1);
+			if (	bpp == 4
+					&&  redOffset == 0
+					&&  greenOffset == 1
+					&&  blueOffset == 2
+					&&  alphaOffset == 3
+					&&  mirror == MIRROR_NONE
+			) {
+				squishDest = dest;
 			} else {
-				DecompressImage(tmp, width, height, src, kDxt3);
+				squishDest = new uint8_t[width * height * 4];
 			}
 
-			data = tmp;
+			if (getCompression() == DXT1) {
+				DecompressImage(squishDest, width, height, src, kDxt1);
+			} else {
+				DecompressImage(squishDest, width, height, src, kDxt3);
+			}
+
+			if (squishDest == dest) {
+				return;
+			}
+
+			data = squishDest;
 
 			// After decompression with Squish, data is stored as R8G8B8A8
 			redMask = 0xFF;

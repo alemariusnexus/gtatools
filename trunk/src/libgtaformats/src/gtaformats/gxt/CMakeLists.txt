@@ -16,7 +16,7 @@
 # along with gtaformats.  If not, see <http://www.gnu.org/licenses/>.
 
 
-SET(FILES "")
+SET(FILES GXTTable GXTSAIVTable GXTVC3Table GXTLoader)
 
 FOREACH(FILE ${FILES})
     SET(SRCS ${SRCS} "gtaformats/gxt/${FILE}")

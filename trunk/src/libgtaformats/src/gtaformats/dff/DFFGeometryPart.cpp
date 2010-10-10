@@ -18,12 +18,21 @@
  */
 
 #include "DFFGeometryPart.h"
+#include "DFFGeometry.h"
+#include "DFFException.h"
 #include <cstring>
+
+
+DFFGeometryPart::DFFGeometryPart(int32_t ic, int32_t* indices)
+		: indexCount(ic), indices(indices), material(NULL), geometry(NULL)
+{
+
+}
 
 
 DFFGeometryPart::DFFGeometryPart(const DFFGeometryPart& other)
 		: indexCount(other.indexCount), indices(new int32_t[indexCount]),
-		  material(new DFFMaterial(*other.material))
+		  material(new DFFMaterial(*other.material)), geometry(NULL)
 {
 	memcpy(indices, other.indices, 4*indexCount);
 }
@@ -34,4 +43,30 @@ DFFGeometryPart::~DFFGeometryPart()
 	delete[] indices;
 	// We don't delete the material because it's part of the whole geometry. Possibly more geometry parts can
 	// share one material.
+}
+
+
+void DFFGeometryPart::setMaterial(DFFMaterial* mat)
+{
+	if (!geometry) {
+		throw DFFException("DFFGeometryPart needs to have a DFFGeometry parent for setMaterial().",
+				__FILE__, __LINE__);
+	}
+	if (geometry->indexOf(mat) == -1) {
+		throw DFFException("Attempt to assign a material to a DFFGeometryPart which is not owned by it's "
+				"DFFGeometry.", __FILE__, __LINE__);
+	}
+
+	material = mat;
+}
+
+
+void DFFGeometryPart::reparent(DFFGeometry* geom)
+{
+	if (geom  &&  geometry) {
+		throw DFFException("Attempt to reparent a DFFGeometryPart which still has a parent! Remove it from "
+				"it's old DFFGeometry parent first.", __FILE__, __LINE__);
+	}
+
+	geometry = geom;
 }

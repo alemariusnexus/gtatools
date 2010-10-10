@@ -66,17 +66,15 @@ Commands & Parameters:\n\
         and the destination file to extract it to. Using the -s flag, you only\n\
         give the names of the entries. They will then be written to files with\n\
         the same name as inside the archive, into the current directory. Using\n\
-        the -oflag will write the contents of all files to stdout. Note that\n\
+        the -o flag will write the contents of all files to stdout. Note that\n\
         when multiple files must be extracted, they are all written to stdout\n\
         one after the other, without a separator between them.\n\
         IMGFILE may either be a GTA SA IMG file, or a GTA VC/III IMG or DIR\n\
         file. In the latter case, the other file will automatically be guessed\n\
         by replacing the extension .img with .dir and vice-versa, unless -f is\n\
         used. Other flags are:\n\
-            -r  Interpret the ENTRYNAME as regular expression (PCRE). All files\n\
-                matching the pattern will be extracted from the archive. You\n\
-                can access subpatterns in DESTFILE using perl-style format\n\
-                specifiers. See the Boost::Regex documentation.\n\
+            -r  Interpret the ENTRYNAME as regular expression. All files\n\
+                matching the pattern will be extracted from the archive.\n\
             -f  Assuming that IMGFILE is a GTA VC/III file, you can use this\n\
                 option to explicitly set the .dir file to use with the IMGFILE.\n\
 \n\
@@ -90,9 +88,8 @@ Examples:\n\
     Extract the file 'bistro.txd' from gta3.img and save it to ./bistro.txd:\n\
         gtaimg x -s gta3.img bistro.txd\n\
     \n\
-    Extract all TXD files starting with 'a51_', and replace the beginning of\n\
-    their names with 'a69_':\n\
-        gtaimg x -r gta3.img 'a51_(.*?)\\.txd' 'a69_$1.txd'\n\
+    Extract all TXD files starting with 'a51_':\n\
+        gtaimg x -r -s gta3.img 'a51_(.*?)\\.txd'\n\
 \n"
 
 int main(int argc, char** argv) {

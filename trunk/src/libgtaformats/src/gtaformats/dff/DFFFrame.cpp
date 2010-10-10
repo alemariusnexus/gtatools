@@ -18,6 +18,8 @@
  */
 
 #include "DFFFrame.h"
+#include "DFFException.h"
+#include "../util/OutOfBoundsException.h"
 #include <cstring>
 
 
@@ -34,6 +36,13 @@ DFFFrame::~DFFFrame()
 {
 	if (name != NULL) {
 		delete[] name;
+	}
+
+	ChildIterator it;
+
+	for (it = getChildBegin() ; it != getChildEnd() ; it++) {
+		(*it)->reparent(NULL);
+		delete *it;
 	}
 }
 
@@ -80,7 +89,7 @@ void DFFFrame::removeChild(DFFFrame* child)
 
 	for (it = children.begin() ; it != children.end() ; it++) {
 		if (*it == child) {
-			delete *it;
+			(*it)->reparent(NULL);
 			children.erase(it);
 		}
 	}
@@ -92,7 +101,7 @@ void DFFFrame::removeChildren()
 	ChildIterator it;
 
 	for (it = children.begin() ; it != children.end() ; it++) {
-		delete *it;
+		(*it)->reparent(NULL);
 	}
 
 	children.clear();
@@ -111,5 +120,36 @@ int32_t DFFFrame::indexOf(const DFFFrame* child) const
 	}
 
 	return -1;
+}
+
+
+DFFFrame* DFFFrame::getChild(int32_t index)
+{
+	if (index < 0  ||  index >= children.size()) {
+		throw OutOfBoundsException(index, __FILE__, __LINE__);
+	}
+
+	return children[index];
+}
+
+
+const DFFFrame* DFFFrame::getChild(int32_t index) const
+{
+	if (index < 0  ||  index >= children.size()) {
+		throw OutOfBoundsException(index, __FILE__, __LINE__);
+	}
+
+	return children[index];
+}
+
+
+void DFFFrame::reparent(DFFFrame* frame)
+{
+	if (frame && parent) {
+		throw DFFException("Attempt to reparent a DFFFrame which still has a parent! Remove it from "
+						"it's old parent first.", __FILE__, __LINE__);
+	}
+
+	parent = frame;
 }
 

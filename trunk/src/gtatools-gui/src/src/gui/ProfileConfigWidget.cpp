@@ -33,6 +33,8 @@ ProfileConfigWidget::ProfileConfigWidget(QWidget* parent)
 	connect(ui.fileEditButton, SIGNAL(clicked(bool)), this, SLOT(fileEditButtonClicked(bool)));
 	connect(ui.fileRemoveButton, SIGNAL(clicked(bool)), this, SLOT(fileRemoveButtonClicked(bool)));
 	connect(ui.fileList, SIGNAL(currentRowChanged(int)), this, SLOT(currentResourceChanged(int)));
+
+	displayProfile(NULL);
 }
 
 
@@ -63,14 +65,23 @@ void ProfileConfigWidget::clearFiles()
 
 void ProfileConfigWidget::displayProfile(Profile* profile)
 {
+	displayedProfile = profile;
 	clearFiles();
-	ui.nameField->setText(profile->getName());
 
-	Profile::ResourceIterator it;
+	if (displayedProfile) {
+		ui.nameField->setText(profile->getName());
 
-	for (it = profile->getResourceBegin() ; it != profile->getResourceEnd() ; it++) {
-		new QListWidgetItem((*it)->getPath()->toString(), ui.fileList);
+		Profile::ResourceIterator it;
+
+		for (it = profile->getResourceBegin() ; it != profile->getResourceEnd() ; it++) {
+			new QListWidgetItem((*it)->getPath()->toString(), ui.fileList);
+		}
 	}
+
+	ui.fileAddButton->setEnabled(profile != NULL);
+	ui.dirAddButton->setEnabled(profile != NULL);
+	ui.fileEditButton->setEnabled(profile != NULL);
+	ui.fileRemoveButton->setEnabled(profile != NULL);
 }
 
 

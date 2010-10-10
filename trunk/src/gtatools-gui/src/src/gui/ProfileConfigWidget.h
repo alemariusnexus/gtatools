@@ -49,6 +49,7 @@ private:
 
 private:
 	Ui_ProfileConfigWidget ui;
+	Profile* displayedProfile;
 };
 
 #endif /* PROFILECONFIGWIDGET_H_ */

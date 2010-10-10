@@ -30,6 +30,7 @@
 #include <qvariant.h>
 #include <qstring.h>
 #include "Task.h"
+#include "FileOpenRequest.h"
 
 
 class System : public QObject {
@@ -39,10 +40,14 @@ public:
 	static System* getInstance();
 
 public:
-	void openFile(const File& file, const QHash<QString, QVariant>& data = QHash<QString, QVariant>());
+	bool openFile(const FileOpenRequest& request);
+	void closeFile(const File& file);
 	void closeCurrentFile();
+	void changeCurrentFile(const File* file);
+	File* getCurrentFile() { return currentFile; }
+	QLinkedList<File*> getOpenFiles() { return openFiles; }
+	bool isOpenFile(const File& file);
 	bool hasOpenFile();
-	File* getOpenFile();
 	void unhandeledException(Exception& ex);
 	void emitConfigurationChange();
 	void showStatusMessage(const QString& message, int timeout = 4000);
@@ -53,21 +58,23 @@ public:
 	Task* createTask();
 
 signals:
-	void fileOpened(const File& file, const QHash<QString, QVariant>& data);
+	void fileOpened(const FileOpenRequest& request);
+	void fileClosed(File* file);
+	void currentFileChanged(File* current, File* prev);
 	void currentFileClosed();
 	void configurationChanged();
 	void installedGUIModule(GUIModule* module);
 	void uninstalledGUIModule(GUIModule* module);
 
 private:
-	System() : openedFile(NULL) {}
+	System() : currentFile(NULL) {}
 	void setMainWindow(MainWindow* mw) { mainWindow = mw; }
 
 private:
 	MainWindow* mainWindow;
 	QLinkedList<GUIModule*> installedGUIModules;
-	File* openedFile;
-	int taskValue;
+	QLinkedList<File*> openFiles;
+	File* currentFile;
 
 private:
 	friend class MainWindow;
