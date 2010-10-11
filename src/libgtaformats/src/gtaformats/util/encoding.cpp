@@ -337,7 +337,7 @@ int GetSufficientTranscodeBufferSize(int length, Encoding srcEnc, Encoding destE
 		if (destEnc == UTF16  ||  destEnc == GXT16) {
 			return length;
 		} else if (destEnc == UTF8) {
-			return length/2*3; // TODO Could length be enough?
+			return length/2*3; // Yes, for some characters it needs 3 bytes
 		} else {
 			return length/2;
 		}
@@ -345,7 +345,7 @@ int GetSufficientTranscodeBufferSize(int length, Encoding srcEnc, Encoding destE
 		if (destEnc == UTF16  ||  destEnc == GXT16) {
 			return length*2;
 		} else if (destEnc == UTF8) {
-			return length*2; // TODO Is this really sufficient?
+			return length*2;
 		} else {
 			return length;
 		}

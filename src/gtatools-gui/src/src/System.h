@@ -56,6 +56,7 @@ public:
 	QLinkedList<GUIModule*> getInstalledGUIModules() { return installedGUIModules; }
 	bool isGUIModuleInstalled(GUIModule* module) { return installedGUIModules.contains(module); }
 	Task* createTask();
+	void logError(const QString& errmsg);
 
 signals:
 	void fileOpened(const FileOpenRequest& request);
@@ -65,6 +66,7 @@ signals:
 	void configurationChanged();
 	void installedGUIModule(GUIModule* module);
 	void uninstalledGUIModule(GUIModule* module);
+	void errorLogged(const QString& errmsg);
 
 private:
 	System() : currentFile(NULL) {}

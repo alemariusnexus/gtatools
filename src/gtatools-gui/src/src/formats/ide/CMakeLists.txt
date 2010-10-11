@@ -15,5 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
 
-SET(SRCS ${SRCS} src/formats/ide/IDEFormatHandler.cpp PARENT_SCOPE)
-SET(MOC_SRCS ${MOC_SRCS} src/formats/ide/IDEFormatHandler.h PARENT_SCOPE)
+SET(SRCS ${SRCS}
+    src/formats/ide/IDEFormatHandler.cpp
+    src/formats/ide/IDEWidget.cpp
+    PARENT_SCOPE)
+SET(MOC_SRCS ${MOC_SRCS}
+    src/formats/ide/IDEFormatHandler.h
+    src/formats/ide/IDEWidget.h
+    PARENT_SCOPE)
+SET(UIC_SRCS ${UIC_SRCS}
+    src/formats/ide/IDEWidget.ui
+    PARENT_SCOPE)

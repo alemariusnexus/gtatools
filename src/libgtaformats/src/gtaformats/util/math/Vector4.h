@@ -23,12 +23,10 @@
 #include "../../gf_config.h"
 #include <cstring>
 
-// TODO Replace 'int' with 'int32_t' (gave strange linker errors)
-
 class Vector3;
 
 typedef float v4sf __attribute__((vector_size(16)));
-typedef int v4i32 __attribute__((vector_size(16)));
+typedef int32_t v4i32 __attribute__((vector_size(16)));
 
 union Vec4SF
 {
@@ -39,7 +37,7 @@ union Vec4SF
 union Vec4I32
 {
 	v4i32 v;
-	int i[4];
+	int32_t i[4];
 };
 
 

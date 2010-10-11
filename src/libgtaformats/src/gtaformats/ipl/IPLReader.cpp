@@ -92,6 +92,16 @@ IPLStatement* IPLReader::readStatement()
 				continue;
 			}
 
+			int numParams = 1;
+
+			for (int i = 0 ; line[i] != '\0' ; i++) {
+				if (line[i] == ',') {
+					numParams++;
+				}
+			}
+
+			bool ok = true;
+
 			if (currentSection == INST) {
 				int32_t id;
 				char* modelName;
@@ -101,53 +111,49 @@ IPLStatement* IPLReader::readStatement()
 				int32_t interior = 0;
 				int32_t lod = -1;
 
-				int numParams = 1;
-
-				for (int i = 0 ; line[i] != '\0' ; i++) {
-					if (line[i] == ',') {
-						numParams++;
-					}
-				}
-
-				id = nextInt(line);
-				modelName = nextString();
+				id = nextInt(&ok, line);
+				modelName = nextString(&ok);
 
 				if (numParams == 11) {
 					// SA format
-					interior = nextInt();
-					x = nextFloat();
-					y = nextFloat();
-					z = nextFloat();
-					rotX = nextFloat();
-					rotY = nextFloat();
-					rotZ = nextFloat();
-					rotW = nextFloat();
-					lod = nextInt();
+					interior = nextInt(&ok);
+					x = nextFloat(&ok);
+					y = nextFloat(&ok);
+					z = nextFloat(&ok);
+					rotX = nextFloat(&ok);
+					rotY = nextFloat(&ok);
+					rotZ = nextFloat(&ok);
+					rotW = nextFloat(&ok);
+					lod = nextInt(&ok);
 				} else if (numParams == 12) {
 					// III format
-					x = nextFloat();
-					y = nextFloat();
-					z = nextFloat();
-					scaleX = nextFloat();
-					scaleY = nextFloat();
-					scaleZ = nextFloat();
-					rotX = nextFloat();
-					rotY = nextFloat();
-					rotZ = nextFloat();
-					rotW = nextFloat();
+					x = nextFloat(&ok);
+					y = nextFloat(&ok);
+					z = nextFloat(&ok);
+					scaleX = nextFloat(&ok);
+					scaleY = nextFloat(&ok);
+					scaleZ = nextFloat(&ok);
+					rotX = nextFloat(&ok);
+					rotY = nextFloat(&ok);
+					rotZ = nextFloat(&ok);
+					rotW = nextFloat(&ok);
 				} else if (numParams == 13) {
 					// VC format
-					interior = nextInt();
-					x = nextFloat();
-					y = nextFloat();
-					z = nextFloat();
-					scaleX = nextFloat();
-					scaleY = nextFloat();
-					scaleZ = nextFloat();
-					rotX = nextFloat();
-					rotY = nextFloat();
-					rotZ = nextFloat();
-					rotW = nextFloat();
+					interior = nextInt(&ok);
+					x = nextFloat(&ok);
+					y = nextFloat(&ok);
+					z = nextFloat(&ok);
+					scaleX = nextFloat(&ok);
+					scaleY = nextFloat(&ok);
+					scaleZ = nextFloat(&ok);
+					rotX = nextFloat(&ok);
+					rotY = nextFloat(&ok);
+					rotZ = nextFloat(&ok);
+					rotW = nextFloat(&ok);
+				}
+
+				if (!ok) {
+					continue;
 				}
 
 				return new IPLInstance (
@@ -167,18 +173,22 @@ IPLStatement* IPLReader::readStatement()
 				int32_t alarmProb, doorLockProb;
 				int32_t unknown1, unknown2;
 
-				x = nextFloat(line);
-				y = nextFloat();
-				z = nextFloat();
-				angle = nextFloat();
-				carId = nextInt();
-				primaryColor = nextInt();
-				secondaryColor = nextInt();
-				forceSpawn = (nextInt() == 1);
-				alarmProb = nextInt();
-				doorLockProb = nextInt();
-				unknown1 = nextInt();
-				unknown2 = nextInt();
+				x = nextFloat(&ok, line);
+				y = nextFloat(&ok);
+				z = nextFloat(&ok);
+				angle = nextFloat(&ok);
+				carId = nextInt(&ok);
+				primaryColor = nextInt(&ok);
+				secondaryColor = nextInt(&ok);
+				forceSpawn = (nextInt(&ok) == 1);
+				alarmProb = nextInt(&ok);
+				doorLockProb = nextInt(&ok);
+				unknown1 = nextInt(&ok);
+				unknown2 = nextInt(&ok);
+
+				if (!ok) {
+					continue;
+				}
 
 				return new IPLCar (
 						x, y, z, angle, carId, primaryColor, secondaryColor, forceSpawn, alarmProb,
