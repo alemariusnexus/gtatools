@@ -72,6 +72,9 @@ DefaultGUIModule::DefaultGUIModule()
 	systemOpenAction = new QAction(tr("Execute System Program"), NULL);
 	connect(systemOpenAction, SIGNAL(triggered(bool)), this, SLOT(onOpenSystemProgram(bool)));
 
+	logConsoleAction = new QAction(tr("Error Log Console"), NULL);
+	connect(logConsoleAction, SIGNAL(triggered(bool)), this, SLOT(onErrorLogConsole(bool)));
+
 	connect(sys, SIGNAL(fileOpened(const FileOpenRequest&)), this, SLOT(fileOpened(const FileOpenRequest&)));
 	connect(sys, SIGNAL(fileClosed(File*)), this, SLOT(fileClosed(File*)));
 }
@@ -121,6 +124,7 @@ void DefaultGUIModule::doInstall()
 	aboutAction->setParent(mainWindow);
 	versionInfoAction->setParent(mainWindow);
 	systemOpenAction->setParent(mainWindow);
+	logConsoleAction->setParent(mainWindow);
 
 	fileMenu->addAction(fileOpenAction);
 	fileMenu->addAction(fileCloseAction);
@@ -129,6 +133,7 @@ void DefaultGUIModule::doInstall()
 	helpMenu->addAction(aboutQtAction);
 	helpMenu->addAction(aboutAction);
 	helpMenu->addAction(versionInfoAction);
+	helpMenu->addAction(logConsoleAction);
 
 	profileSwitchMenu = new QMenu(tr("Switch"), profileMenu);
 	profileMenu->addMenu(profileSwitchMenu);
@@ -208,6 +213,7 @@ void DefaultGUIModule::doUninstall()
 	aboutQtAction->setParent(NULL);
 	aboutAction->setParent(NULL);
 	versionInfoAction->setParent(NULL);
+	logConsoleAction->setParent(NULL);
 
 	fileMenu->removeAction(fileOpenAction);
 	fileMenu->removeAction(fileCloseAction);
@@ -216,6 +222,7 @@ void DefaultGUIModule::doUninstall()
 	helpMenu->removeAction(aboutQtAction);
 	helpMenu->removeAction(aboutAction);
 	helpMenu->removeAction(versionInfoAction);
+	helpMenu->removeAction(logConsoleAction);
 
 	ProfileManager* pm = ProfileManager::getInstance();
 
@@ -341,4 +348,10 @@ void DefaultGUIModule::profileRemoved(Profile* profile)
 void DefaultGUIModule::profilesLoaded()
 {
 	loadProfileSwitchMenu();
+}
+
+
+void DefaultGUIModule::onErrorLogConsole(bool checked)
+{
+	logConsole.show();
 }

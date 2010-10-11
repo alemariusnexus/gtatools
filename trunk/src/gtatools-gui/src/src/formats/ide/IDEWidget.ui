@@ -1,0 +1,374 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>IDEWidget</class>
+ <widget class="QWidget" name="IDEWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>813</width>
+    <height>568</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string notr="true"/>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="tab_5">
+      <attribute name="title">
+       <string>Plain Text</string>
+      </attribute>
+      <layout class="QHBoxLayout" name="horizontalLayout" stretch="1">
+       <property name="sizeConstraint">
+        <enum>QLayout::SetDefaultConstraint</enum>
+       </property>
+       <item>
+        <widget class="QTextEdit" name="textEdit">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>1</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="lineWrapMode">
+          <enum>QTextEdit::NoWrap</enum>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
+       <string>Static Objects</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QTableWidget" name="staticObjectTable">
+         <attribute name="horizontalHeaderVisible">
+          <bool>false</bool>
+         </attribute>
+         <attribute name="horizontalHeaderDefaultSectionSize">
+          <number>100</number>
+         </attribute>
+         <attribute name="horizontalHeaderStretchLastSection">
+          <bool>false</bool>
+         </attribute>
+         <attribute name="verticalHeaderVisible">
+          <bool>false</bool>
+         </attribute>
+         <column>
+          <property name="text">
+           <string>ID</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Model Name</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>TXD Name</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Subobjects</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Draw Distances</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Flags</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_2">
+      <attribute name="title">
+       <string>Timed Objects</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="QTableWidget" name="timedObjectTable">
+         <attribute name="horizontalHeaderVisible">
+          <bool>false</bool>
+         </attribute>
+         <attribute name="horizontalHeaderDefaultSectionSize">
+          <number>100</number>
+         </attribute>
+         <attribute name="horizontalHeaderStretchLastSection">
+          <bool>false</bool>
+         </attribute>
+         <attribute name="verticalHeaderVisible">
+          <bool>false</bool>
+         </attribute>
+         <column>
+          <property name="text">
+           <string>ID</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Model Name</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>TXD Name</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Subobjects</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Draw Distances</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Flags</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Time On</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Time Off</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_3">
+      <attribute name="title">
+       <string>Animations</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <item>
+        <widget class="QTableWidget" name="animationTable">
+         <attribute name="horizontalHeaderVisible">
+          <bool>false</bool>
+         </attribute>
+         <attribute name="horizontalHeaderDefaultSectionSize">
+          <number>100</number>
+         </attribute>
+         <attribute name="horizontalHeaderStretchLastSection">
+          <bool>false</bool>
+         </attribute>
+         <attribute name="verticalHeaderVisible">
+          <bool>false</bool>
+         </attribute>
+         <column>
+          <property name="text">
+           <string>ID</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Model Name</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>TXD Name</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Animation Name</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Draw Distance</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Flags</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_4">
+      <attribute name="title">
+       <string>Pedestrians</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_5">
+       <item>
+        <widget class="QTableWidget" name="pedTable">
+         <attribute name="horizontalHeaderVisible">
+          <bool>false</bool>
+         </attribute>
+         <attribute name="horizontalHeaderDefaultSectionSize">
+          <number>100</number>
+         </attribute>
+         <attribute name="horizontalHeaderStretchLastSection">
+          <bool>false</bool>
+         </attribute>
+         <attribute name="verticalHeaderVisible">
+          <bool>false</bool>
+         </attribute>
+         <column>
+          <property name="text">
+           <string>ID</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Model Name</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>TXD Name</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Default Ped Type</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Behavior</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Animation Group</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Drivable Car Classes</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Flags</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Secondary Animation File</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Preferred Radio 1</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Preferred Radio 2</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Voice File</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Voice 1</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Voice 2</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_6">
+      <attribute name="title">
+       <string>Weapons</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_7">
+       <item>
+        <widget class="QTableWidget" name="weaponTable">
+         <attribute name="horizontalHeaderVisible">
+          <bool>false</bool>
+         </attribute>
+         <attribute name="horizontalHeaderDefaultSectionSize">
+          <number>100</number>
+         </attribute>
+         <attribute name="horizontalHeaderStretchLastSection">
+          <bool>false</bool>
+         </attribute>
+         <attribute name="verticalHeaderVisible">
+          <bool>false</bool>
+         </attribute>
+         <column>
+          <property name="text">
+           <string>ID</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Model Name</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>TXD Name</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Animation Name</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Subobjects</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Draw Distances</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Flags</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

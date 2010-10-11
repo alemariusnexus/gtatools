@@ -18,5 +18,12 @@
  */
 
 #include "IDEFormatHandler.h"
+#include "IDEWidget.h"
 
 
+
+QWidget* IDEFormatHandler::createWidgetForFile(const FileOpenRequest& request, QWidget* parent)
+{
+	IDEWidget* widget = new IDEWidget(parent, *request.getFile());
+	return widget;
+}

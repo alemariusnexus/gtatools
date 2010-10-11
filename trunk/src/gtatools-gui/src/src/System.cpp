@@ -192,3 +192,9 @@ void System::uninstallGUIModule(GUIModule* module)
 	}
 }
 
+
+void System::logError(const QString& errmsg)
+{
+	emit errorLogged(errmsg);
+}
+

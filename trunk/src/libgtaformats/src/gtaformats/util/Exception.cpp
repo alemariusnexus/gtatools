@@ -43,6 +43,7 @@ Exception::Exception(const char* message, const char* srcFile, int srcLine, Exce
 	}
 
 	backTrace = new char[len];
+	backTrace[0] = '\0';
 
 	for (int i = 0 ; i < backTraceSize ; i++) {
 		strcat(backTrace, btArr[i]);

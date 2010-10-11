@@ -25,10 +25,22 @@
 #include <cstdlib>
 #include "util/stream/InputStream.h"
 #include "util/File.h"
+#include "util/ErrorLog.h"
 
 
 
 class GTASectionFileReader {
+public:
+	enum ErrorBehavior {
+		Continue,
+		Exception
+	};
+
+public:
+	void setErrorBehavior(ErrorBehavior eb) { errorBehavior = eb; }
+	ErrorBehavior getErrorBehavior() const { return errorBehavior; }
+	ErrorLog* getErrorLog() { return &log; }
+
 protected:
 	GTASectionFileReader(InputStream* stream, bool deleteStream = true);
 	GTASectionFileReader(const File& file);
@@ -36,16 +48,21 @@ protected:
 
 	bool readNextLine(char* buf, int len);
 
-	char* nextString(char* str = NULL) { return trim(strtok(str, ",")); }
-	int32_t nextInt(char* str = NULL) { return atoi(nextString(str)); }
-	float nextFloat(char* str = NULL) { return (float) atof(nextString(str)); }
+	char* nextString(bool* ok, char* str = NULL);
+	int32_t nextInt(bool* ok, char* str = NULL);
+	int32_t nextHexInt(bool* ok, char* str = NULL);
+	float nextFloat(bool* ok, char* str = NULL);
 	char* trim(char* str);
 
 protected:
 	InputStream* stream;
+	ErrorLog log;
+	ErrorBehavior errorBehavior;
 
 private:
 	bool deleteStream;
+	int lastReadLine;
+	int paramNo;
 };
 
 #endif /* GTASECTIONFILEREADER_H_ */

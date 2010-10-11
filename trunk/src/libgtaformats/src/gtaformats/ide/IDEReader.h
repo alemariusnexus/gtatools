@@ -36,7 +36,9 @@ private:
 		NONE,
 		OBJS,
 		TOBJ,
-		ANIM
+		ANIM,
+		PEDS,
+		WEAP
 	};
 
 public:

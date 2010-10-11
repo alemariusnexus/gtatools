@@ -16,7 +16,8 @@
 # along with gtaformats.  If not, see <http://www.gnu.org/licenses/>.
 
 
-SET(FILES IDEAnimation IDEEntity IDEReader IDEStatement IDEStaticObject IDETimedObject)
+SET(FILES
+    IDEAnimation IDEEntity IDEReader IDEStatement IDEStaticObject IDETimedObject IDEPedestrian IDEWeapon)
 
 FOREACH(FILE ${FILES})
     SET(SRCS ${SRCS} "gtaformats/ide/${FILE}")

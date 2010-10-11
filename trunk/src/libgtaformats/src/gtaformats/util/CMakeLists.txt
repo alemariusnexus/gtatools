@@ -17,7 +17,8 @@
 
 
 SET(FILES
-    StringComparator util File FileException FilePath Exception FileIterator encoding OutOfBoundsException)
+    StringComparator util File FileException FilePath Exception FileIterator encoding OutOfBoundsException
+    ErrorLog)
 
 FOREACH(FILE ${FILES})
     SET(SRCS ${SRCS} "gtaformats/util/${FILE}")

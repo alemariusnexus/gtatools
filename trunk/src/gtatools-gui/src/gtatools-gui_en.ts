@@ -462,7 +462,7 @@
     </message>
     <message>
         <location filename="src/gui/DefaultGUIModule.cpp" line="63"/>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="272"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="279"/>
         <source>About Qt</source>
         <translation>About Qt</translation>
     </message>
@@ -477,7 +477,12 @@
         <translation>Version Information</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="133"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="75"/>
+        <source>Error Log Console</source>
+        <translation>Error Log Console</translation>
+    </message>
+    <message>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="138"/>
         <source>Switch</source>
         <translation>Switch</translation>
     </message>
@@ -492,17 +497,17 @@
         <translation>File Tree</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="164"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="169"/>
         <source>No Profile</source>
         <translation>No Profile</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="279"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="286"/>
         <source>About GTATools GUI Tool</source>
         <translation>About GTATools GUI Tool</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="278"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="285"/>
         <source>AboutText</source>
         <translation>This is gtatools-gui. This program is part of gtatools and runs with version %1.
 
@@ -513,7 +518,7 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="292"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="299"/>
         <source>Select file</source>
         <translation>Select file</translation>
     </message>
@@ -726,12 +731,12 @@ You should have received a copy of the GNU General Public License along with thi
 <context>
     <name>GXTGUIModule</name>
     <message>
-        <location filename="src/formats/gxt/GXTGUIModule.cpp" line="20"/>
+        <location filename="src/formats/gxt/GXTGUIModule.cpp" line="32"/>
         <source>String List Match</source>
         <translation>String List Match</translation>
     </message>
     <message>
-        <location filename="src/formats/gxt/GXTGUIModule.cpp" line="45"/>
+        <location filename="src/formats/gxt/GXTGUIModule.cpp" line="57"/>
         <source>Choose a string list file</source>
         <translation>Choose a string list file</translation>
     </message>
@@ -772,12 +777,12 @@ You should have received a copy of the GNU General Public License along with thi
         <translation>&amp;Regular Expression</translation>
     </message>
     <message>
-        <location filename="src/formats/gxt/GXTWidget.cpp" line="116"/>
+        <location filename="src/formats/gxt/GXTWidget.cpp" line="128"/>
         <source>Syntax Error</source>
         <translation>Syntax Error</translation>
     </message>
     <message>
-        <location filename="src/formats/gxt/GXTWidget.cpp" line="117"/>
+        <location filename="src/formats/gxt/GXTWidget.cpp" line="129"/>
         <source>Syntax Error: Key name definition is not in a table!</source>
         <translation>Syntax Error: Key name definition outside of a table!</translation>
     </message>
@@ -788,6 +793,165 @@ You should have received a copy of the GNU General Public License along with thi
         <location filename="src/formats/ide/IDEFormatHandler.h" line="29"/>
         <source>Item Definition File (IDE)</source>
         <translation>Item Definition File (IDE)</translation>
+    </message>
+</context>
+<context>
+    <name>IDEWidget</name>
+    <message>
+        <location filename="src/formats/ide/IDEWidget.ui" line="24"/>
+        <source>Plain Text</source>
+        <translation>Text</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDEWidget.ui" line="50"/>
+        <source>Static Objects</source>
+        <translation>Static Objects</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDEWidget.ui" line="69"/>
+        <location filename="src/formats/ide/IDEWidget.ui" line="122"/>
+        <location filename="src/formats/ide/IDEWidget.ui" line="185"/>
+        <location filename="src/formats/ide/IDEWidget.ui" line="238"/>
+        <location filename="src/formats/ide/IDEWidget.ui" line="331"/>
+        <source>ID</source>
+        <translation>ID</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDEWidget.ui" line="74"/>
+        <location filename="src/formats/ide/IDEWidget.ui" line="127"/>
+        <location filename="src/formats/ide/IDEWidget.ui" line="190"/>
+        <location filename="src/formats/ide/IDEWidget.ui" line="243"/>
+        <location filename="src/formats/ide/IDEWidget.ui" line="336"/>
+        <source>Model Name</source>
+        <translation>Model Name</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDEWidget.ui" line="79"/>
+        <location filename="src/formats/ide/IDEWidget.ui" line="132"/>
+        <location filename="src/formats/ide/IDEWidget.ui" line="195"/>
+        <location filename="src/formats/ide/IDEWidget.ui" line="248"/>
+        <location filename="src/formats/ide/IDEWidget.ui" line="341"/>
+        <source>TXD Name</source>
+        <translation>TXD Name</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDEWidget.ui" line="84"/>
+        <location filename="src/formats/ide/IDEWidget.ui" line="137"/>
+        <location filename="src/formats/ide/IDEWidget.ui" line="351"/>
+        <source>Subobjects</source>
+        <translation>Subobjects</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDEWidget.ui" line="89"/>
+        <location filename="src/formats/ide/IDEWidget.ui" line="142"/>
+        <location filename="src/formats/ide/IDEWidget.ui" line="356"/>
+        <source>Draw Distances</source>
+        <translation>Draw Distances</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDEWidget.ui" line="94"/>
+        <location filename="src/formats/ide/IDEWidget.ui" line="147"/>
+        <location filename="src/formats/ide/IDEWidget.ui" line="210"/>
+        <location filename="src/formats/ide/IDEWidget.ui" line="273"/>
+        <location filename="src/formats/ide/IDEWidget.ui" line="361"/>
+        <source>Flags</source>
+        <translation>Flags</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDEWidget.ui" line="103"/>
+        <source>Timed Objects</source>
+        <translation>Timed Objects</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDEWidget.ui" line="152"/>
+        <source>Time On</source>
+        <translation>Time On</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDEWidget.ui" line="157"/>
+        <source>Time Off</source>
+        <translation>Time Off</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDEWidget.ui" line="166"/>
+        <source>Animations</source>
+        <translation>Animations</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDEWidget.ui" line="200"/>
+        <location filename="src/formats/ide/IDEWidget.ui" line="346"/>
+        <source>Animation Name</source>
+        <translation>Animation Name</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDEWidget.ui" line="205"/>
+        <source>Draw Distance</source>
+        <translation>Draw Distance</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDEWidget.ui" line="219"/>
+        <source>Pedestrians</source>
+        <translation>Pedestrians</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDEWidget.ui" line="253"/>
+        <source>Default Ped Type</source>
+        <translation>Default Ped Type</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDEWidget.ui" line="258"/>
+        <source>Behavior</source>
+        <translation>Behavior</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDEWidget.ui" line="263"/>
+        <source>Animation Group</source>
+        <translation>Animation Group</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDEWidget.ui" line="268"/>
+        <source>Drivable Car Classes</source>
+        <translation>Drivable Car Classes</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDEWidget.ui" line="278"/>
+        <source>Secondary Animation File</source>
+        <translation>Secondary Animation File</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDEWidget.ui" line="283"/>
+        <source>Preferred Radio 1</source>
+        <translation>Preferred Radio 1</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDEWidget.ui" line="288"/>
+        <source>Preferred Radio 2</source>
+        <translation>Preferred Radio 2</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDEWidget.ui" line="293"/>
+        <source>Voice File</source>
+        <translation>Voice File</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDEWidget.ui" line="298"/>
+        <source>Voice 1</source>
+        <translation>Voice 1</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDEWidget.ui" line="303"/>
+        <source>Voice 2</source>
+        <translation>Voice 2</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDEWidget.ui" line="312"/>
+        <source>Weapons</source>
+        <translation>Weapons</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDEWidget.cpp" line="203"/>
+        <source>Parsing errors in IDE file %1:</source>
+        <translation>Parsing errors in IDE file %1:</translation>
     </message>
 </context>
 <context>
@@ -859,6 +1023,24 @@ You should have received a copy of the GNU General Public License along with thi
         <location filename="src/formats/ipl/IPLFormatHandler.cpp" line="31"/>
         <source>Binary Item Placement File (IPL)</source>
         <translation>Binary Item Placement File (IPL)</translation>
+    </message>
+</context>
+<context>
+    <name>LogConsole</name>
+    <message>
+        <location filename="src/gui/LogConsole.cpp" line="36"/>
+        <source>ERROR</source>
+        <translation>ERROR</translation>
+    </message>
+    <message>
+        <location filename="src/gui/LogConsole.ui" line="14"/>
+        <source>Error Log Console</source>
+        <translation>Error Log Console</translation>
+    </message>
+    <message>
+        <location filename="src/gui/LogConsole.ui" line="37"/>
+        <source>Show automatically</source>
+        <translation>Show automatically</translation>
     </message>
 </context>
 <context>

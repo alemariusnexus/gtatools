@@ -27,7 +27,8 @@
 #include <qmenu.h>
 #include "../FileOpenRequest.h"
 #include "FileTree.h"
-#include <QtGui/qdockwidget.h>
+#include <QtGui/QDockWidget>
+#include "LogConsole.h"
 
 
 
@@ -56,11 +57,13 @@ private slots:
 	void fileOpened(const FileOpenRequest& request);
 	void fileClosed(File* file);
 	void onSearchFile(bool checked);
+	void onErrorLogConsole(bool checked);
 	void profileAdded(Profile* profile);
 	void profileRemoved(Profile* profile);
 	void profilesLoaded();
 
 private:
+	LogConsole logConsole;
 	QActionGroup* profileSwitchGroup;
 	QAction* fileOpenAction;
 	QAction* fileCloseAction;
@@ -70,6 +73,7 @@ private:
 	QAction* versionInfoAction;
 	QAction* searchFileAction;
 	QAction* systemOpenAction;
+	QAction* logConsoleAction;
 	File* contextFile;
 	QMenu* profileSwitchMenu;
 
