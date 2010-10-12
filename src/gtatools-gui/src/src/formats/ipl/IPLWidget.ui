@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>IPLWidget</class>
+ <widget class="QWidget" name="IPLWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>766</width>
+    <height>576</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string notr="true"/>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>2</number>
+     </property>
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
+       <string>Text</string>
+      </attribute>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QTextEdit" name="textEdit">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_2">
+      <attribute name="title">
+       <string>Instances</string>
+      </attribute>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QTableWidget" name="instTable">
+         <attribute name="verticalHeaderVisible">
+          <bool>false</bool>
+         </attribute>
+         <column>
+          <property name="text">
+           <string>ID</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Model Name</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Interior</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>X</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Y</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Z</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Scale X</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Scale Y</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Scale Z</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Rotation X</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Rotation Y</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Rotation Z</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Rotation W</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>LOD</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_3">
+      <attribute name="title">
+       <string>Cars</string>
+      </attribute>
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <item>
+        <widget class="QTableWidget" name="carTable">
+         <attribute name="verticalHeaderVisible">
+          <bool>false</bool>
+         </attribute>
+         <column>
+          <property name="text">
+           <string>Position X</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Position Y</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Position Z</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Angle</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Car ID</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Primary Color</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Secondary Color</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Force Spawn</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Alarm Probability</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Door Lock Probability</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Unknown 1</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Unknown 2</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

@@ -13,6 +13,9 @@
   <property name="windowTitle">
    <string notr="true">GTATools GUI Tool</string>
   </property>
+  <property name="dockNestingEnabled">
+   <bool>true</bool>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>

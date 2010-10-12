@@ -24,14 +24,14 @@ using std::ifstream;
 
 
 FileInputStream::FileInputStream(const File& file, int flags)
-		: STLInputStream(flags)
+		: STLInputStream()
 {
 	init(file, flags);
 }
 
 
 FileInputStream::FileInputStream(const char* file, int flags)
-		: STLInputStream(flags)
+		: STLInputStream()
 {
 	File f(file);
 	init(f, flags);

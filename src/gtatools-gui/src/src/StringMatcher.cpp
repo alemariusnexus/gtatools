@@ -18,8 +18,8 @@
  */
 
 #include "StringMatcher.h"
+#include "config.h"
 #include <qsettings.h>
-#include <config.h>
 
 
 StringMatcher::StringMatcher(const QString& pattern, flags flags)

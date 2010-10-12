@@ -17,7 +17,7 @@
 	along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
+#include "../../config.h"
 #include "GXTWidget.h"
 #include <gtaformats/gxt/GXTLoader.h>
 #include <gtaformats/gxt/GXTTable.h>

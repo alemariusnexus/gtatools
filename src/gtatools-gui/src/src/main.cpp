@@ -17,6 +17,7 @@
 	along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "config.h"
 #include <QtGui/qapplication.h>
 #include <QtGui/qwidget.h>
 #include <QtGui/qtreeview.h>
@@ -28,7 +29,6 @@
 #include <gtaformats/util/File.h>
 #include "gui/MainWindow.h"
 #include <qsettings.h>
-#include <config.h>
 #include "gui/FirstStartWizard.h"
 #include <ui_FirstStartWizard.h>
 #include "Profile.h"

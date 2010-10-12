@@ -26,5 +26,7 @@
 #include "ide/IDEStaticObject.h"
 #include "ide/IDETimedObject.h"
 #include "ide/IDEAnimation.h"
+#include "ide/IDEPedestrian.h"
+#include "ide/IDEWeapon.h"
 
 #endif /* GTAIDE_H_ */

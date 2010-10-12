@@ -38,7 +38,7 @@ class DefaultGUIModule : public GUIModule {
 public:
 	DefaultGUIModule();
 	virtual ~DefaultGUIModule();
-	virtual void buildFileTreeMenu(const File& file, QMenu& menu);
+	virtual void buildFileTreeMenu(const QLinkedList<File*>& files, QMenu& menu);
 
 private:
 	virtual void doInstall();
@@ -57,13 +57,12 @@ private slots:
 	void fileOpened(const FileOpenRequest& request);
 	void fileClosed(File* file);
 	void onSearchFile(bool checked);
-	void onErrorLogConsole(bool checked);
 	void profileAdded(Profile* profile);
 	void profileRemoved(Profile* profile);
 	void profilesLoaded();
 
 private:
-	LogConsole logConsole;
+	LogConsole* logConsole;
 	QActionGroup* profileSwitchGroup;
 	QAction* fileOpenAction;
 	QAction* fileCloseAction;
@@ -73,9 +72,9 @@ private:
 	QAction* versionInfoAction;
 	QAction* searchFileAction;
 	QAction* systemOpenAction;
-	QAction* logConsoleAction;
-	File* contextFile;
 	QMenu* profileSwitchMenu;
+	QLinkedList<File*> contextFiles;
+	QDockWidget* logConsoleDock;
 
 	FileTree* fileTree;
 	QDockWidget* fileTreeDock;

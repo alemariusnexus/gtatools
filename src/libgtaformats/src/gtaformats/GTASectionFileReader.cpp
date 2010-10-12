@@ -21,6 +21,7 @@
 #include "util/stream/FileInputStream.h"
 #include "GTASectionFileException.h"
 #include <cstdio>
+#include <cstdlib>
 
 
 
@@ -33,6 +34,11 @@ GTASectionFileReader::GTASectionFileReader(InputStream* stream, bool deleteStrea
 GTASectionFileReader::GTASectionFileReader(const File& file)
 		: stream(file.openStream()), deleteStream(true), errorBehavior(Continue), lastReadLine(0), paramNo(0)
 {
+	/*char* msg = new char[10];
+	strcpy(msg, "");
+	char* tmsg = trim(msg);
+	printf("%s\n", tmsg);
+	exit(0);*/
 }
 
 
@@ -55,9 +61,9 @@ bool GTASectionFileReader::readNextLine(char* buf, int len)
 			return false;
 		}
 
-		if (buf[strlen(buf)-1] == '\r') {
+		/*if (buf[strlen(buf)-1] == '\r') {
 			buf[strlen(buf)-1] = '\0';
-		}
+		}*/
 
 		char* cmtStart = strchr(buf, '#');
 
@@ -85,7 +91,7 @@ char* GTASectionFileReader::trim(char* str)
 
 	while (newStr != strEnd  &&  (*newStr == ' '  ||  *newStr == '\t')) newStr++;
 
-	while(strEnd != newStr  &&  (*strEnd == ' '  ||  *strEnd == '\t')) *strEnd-- = '\0';
+	while (strEnd != newStr  &&  (*strEnd == ' '  ||  *strEnd == '\t'  ||  *strEnd == '\0')) *strEnd-- = '\0';
 
 	return newStr;
 }
@@ -138,7 +144,7 @@ int32_t GTASectionFileReader::nextInt(bool* ok, char* str)
 		*ok = false;
 		char* errmsg = new char[128];
 		sprintf(errmsg, "Syntax error: Parameter no. %d is not an integer at line %d",
-				paramNo+1, lastReadLine);
+				paramNo, lastReadLine);
 		log.log(errmsg);
 
 		if (errorBehavior == Continue) {
@@ -172,7 +178,7 @@ int32_t GTASectionFileReader::nextHexInt(bool* ok, char* str)
 		*ok = false;
 		char* errmsg = new char[128];
 		sprintf(errmsg, "Syntax error: Parameter no. %d is not a hexadecimal integer at line %d",
-				paramNo+1, lastReadLine);
+				paramNo, lastReadLine);
 		log.log(errmsg);
 
 		if (errorBehavior == Continue) {
@@ -206,7 +212,7 @@ float GTASectionFileReader::nextFloat(bool* ok, char* str)
 		*ok = false;
 		char* errmsg = new char[128];
 		sprintf(errmsg, "Syntax error: Parameter no. %d is not a float at line %d",
-				paramNo+1, lastReadLine);
+				paramNo, lastReadLine);
 		log.log(errmsg);
 
 		if (errorBehavior == Continue) {

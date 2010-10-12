@@ -441,73 +441,73 @@
 <context>
     <name>DefaultGUIModule</name>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="46"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="45"/>
         <source>Open...</source>
         <translation>Open...</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="50"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="49"/>
         <source>Close</source>
         <translation>Close</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="55"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="54"/>
         <source>Search File...</source>
         <translation>Search File...</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="59"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="58"/>
         <source>Settings...</source>
         <translation>Settings...</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="63"/>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="279"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="62"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="273"/>
         <source>About Qt</source>
         <translation>About Qt</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="66"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="65"/>
         <source>About</source>
         <translation>About</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="69"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="68"/>
         <source>Version Information</source>
         <translation>Version Information</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="75"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="74"/>
         <source>Error Log Console</source>
         <translation>Error Log Console</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="138"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="133"/>
         <source>Switch</source>
         <translation>Switch</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="72"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="71"/>
         <source>Execute System Program</source>
         <translation>Execute System Program</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="41"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="40"/>
         <source>File Tree</source>
         <translation>File Tree</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="169"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="164"/>
         <source>No Profile</source>
         <translation>No Profile</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="286"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="280"/>
         <source>About GTATools GUI Tool</source>
         <translation>About GTATools GUI Tool</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="285"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="279"/>
         <source>AboutText</source>
         <translation>This is gtatools-gui. This program is part of gtatools and runs with version %1.
 
@@ -518,7 +518,7 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="299"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="293"/>
         <source>Select file</source>
         <translation>Select file</translation>
     </message>
@@ -1015,14 +1015,167 @@ You should have received a copy of the GNU General Public License along with thi
 <context>
     <name>IPLFormatHandler</name>
     <message>
-        <location filename="src/formats/ipl/IPLFormatHandler.cpp" line="35"/>
+        <location filename="src/formats/ipl/IPLFormatHandler.cpp" line="36"/>
         <source>Item Placement File (IPL)</source>
         <translation>Item Placement File (IPL)</translation>
     </message>
     <message>
-        <location filename="src/formats/ipl/IPLFormatHandler.cpp" line="31"/>
+        <location filename="src/formats/ipl/IPLFormatHandler.cpp" line="32"/>
         <source>Binary Item Placement File (IPL)</source>
         <translation>Binary Item Placement File (IPL)</translation>
+    </message>
+</context>
+<context>
+    <name>IPLWidget</name>
+    <message>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="24"/>
+        <source>Text</source>
+        <translation>Text</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="38"/>
+        <source>Instances</source>
+        <translation>Instances</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="45"/>
+        <source>ID</source>
+        <translation>ID</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="50"/>
+        <source>Model Name</source>
+        <translation>Model Name</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="55"/>
+        <source>Interior</source>
+        <translation>Interior</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="60"/>
+        <source>X</source>
+        <translation>X</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="65"/>
+        <source>Y</source>
+        <translation>Y</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="70"/>
+        <source>Z</source>
+        <translation>Z</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="75"/>
+        <source>Scale X</source>
+        <translation>Scale X</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="80"/>
+        <source>Scale Y</source>
+        <translation>Scale Y</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="85"/>
+        <source>Scale Z</source>
+        <translation>Scale Z</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="90"/>
+        <source>Rotation X</source>
+        <translation>Rotation X</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="95"/>
+        <source>Rotation Y</source>
+        <translation>Rotation Y</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="100"/>
+        <source>Rotation Z</source>
+        <translation>Rotation Z</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="105"/>
+        <source>Rotation W</source>
+        <translation>Rotation W</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="110"/>
+        <source>LOD</source>
+        <translation>LOD</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="119"/>
+        <source>Cars</source>
+        <translation>Cars</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="126"/>
+        <source>Position X</source>
+        <translation>Position X</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="131"/>
+        <source>Position Y</source>
+        <translation>Position Y</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="136"/>
+        <source>Position Z</source>
+        <translation>Position Z</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="141"/>
+        <source>Angle</source>
+        <translation>Angle</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="146"/>
+        <source>Car ID</source>
+        <translation>Car ID</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="151"/>
+        <source>Primary Color</source>
+        <translation>Primary Color</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="156"/>
+        <source>Secondary Color</source>
+        <translation>Secondary Color</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="161"/>
+        <source>Force Spawn</source>
+        <translation>Force Spawn</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="166"/>
+        <source>Alarm Probability</source>
+        <translation>Alarm Probability</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="171"/>
+        <source>Door Lock Probability</source>
+        <translation>Door Lock Probability</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="176"/>
+        <source>Unknown 1</source>
+        <translation>Unknown 1</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="181"/>
+        <source>Unknown 2</source>
+        <translation>Unknown 2</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ipl/IPLWidget.cpp" line="184"/>
+        <source>Parsing errors in IPL file %1:</source>
+        <translation>Parsing errors in IDE file %1:</translation>
     </message>
 </context>
 <context>

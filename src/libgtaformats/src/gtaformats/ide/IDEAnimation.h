@@ -31,7 +31,7 @@ class IDEAnimation : public IDEEntity {
 public:
 	IDEAnimation(int32_t id, const char* modelName, const char* texName, const char* animName,
 			float drawDist, int32_t flags);
-	~IDEAnimation();
+	virtual ~IDEAnimation();
 
 	const char* getModelName() { return modelName; }
 	const char* getTextureName() { return texName; }

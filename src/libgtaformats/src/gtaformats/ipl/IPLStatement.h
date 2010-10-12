@@ -27,6 +27,7 @@ typedef char ipltype_t;
 
 class IPLStatement {
 public:
+	virtual ~IPLStatement() {}
 	virtual ipltype_t getType() const = 0;
 };
 

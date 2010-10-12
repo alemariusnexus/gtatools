@@ -17,27 +17,23 @@
 	along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LOGCONSOLE_H_
-#define LOGCONSOLE_H_
+#ifndef IPLWIDGET_H_
+#define IPLWIDGET_H_
 
 #include <QtGui/QWidget>
-#include <ui_LogConsole.h>
-#include <QtCore/QString>
+#include <ui_IPLWidget.h>
+#include <gtaformats/util/File.h>
 
 
 
-class LogConsole : public QWidget {
+class IPLWidget : public QWidget {
 	Q_OBJECT
 
 public:
-	LogConsole(QWidget* parent = NULL);
-
-private slots:
-	void errorLogged(const QString& errmsg);
-	void buttonBoxClicked(QAbstractButton* button);
+	IPLWidget(QWidget* parent, const File& file);
 
 private:
-	Ui_LogConsole ui;
+	Ui_IPLWidget ui;
 };
 
-#endif /* LOGCONSOLE_H_ */
+#endif /* IPLWIDGET_H_ */

@@ -43,7 +43,6 @@ FilePath::FilePath(const FilePath& other)
 
 
 FilePath::FilePath(const FilePath& parent, const char* child, int flags)
-		: path(new char[strlen(parent.path) + strlen(child) + 2])
 {
 	/*char* normChild = normalize(child, flags);
 	strcpy(path, parent.path);

@@ -18,11 +18,11 @@
  */
 
 #include "FileItemModel.h"
+#include "../config.h"
 #include "../formats/FormatManager.h"
 #include <cstring>
 #include <qprogressdialog.h>
 #include <qsettings.h>
-#include <config.h>
 
 
 

@@ -18,9 +18,9 @@
  */
 
 #include "ConfigWidget.h"
+#include "../config.h"
 #include "../ProfileManager.h"
 #include <qsettings.h>
-#include <config.h>
 #include "../System.h"
 #include <QVariant>
 

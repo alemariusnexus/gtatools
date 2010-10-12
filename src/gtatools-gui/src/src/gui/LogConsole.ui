@@ -31,13 +31,6 @@
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QCheckBox" name="autoShowBox">
-        <property name="text">
-         <string>Show automatically</string>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
    </item>

@@ -18,7 +18,7 @@
  */
 
 #include "FirstStartWizard.h"
-#include <config.h>
+#include "../config.h"
 #include <qsettings.h>
 #include <cstdio>
 #include <qfiledialog.h>

@@ -37,7 +37,7 @@ public:
 			int32_t interior = 0,
 			int32_t lod = 0
 	);
-	~IPLInstance();
+	virtual ~IPLInstance();
 
 	virtual ipltype_t getType() const { return IPL_TYPE_INSTANCE; }
 	int32_t getID() const { return id; }
