@@ -20,7 +20,7 @@ SET(CONFIG_DIR "/etc/gtatools-gui" CACHE PATH "The configuration directory of gt
 ADD_SUBDIRECTORY(gui)
 ADD_SUBDIRECTORY(formats)
 
-CONFIGURE_FILE(config.cmake.h config.h)
+CONFIGURE_FILE(config.cmake.h "${CMAKE_CURRENT_SOURCE_DIR}/config.h")
 
 SET(SRCS ${SRCS}
     src/main.cpp src/Profile.cpp src/ProfileManager.cpp src/System.cpp src/StringMatcher.cpp

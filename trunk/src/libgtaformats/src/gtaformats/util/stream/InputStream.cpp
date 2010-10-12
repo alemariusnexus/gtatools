@@ -18,14 +18,20 @@
  */
 
 #include "InputStream.h"
+#include <cstdio>
 
 
 int InputStream::readLine(char* dest, streamsize len)
 {
-	streamsize i;
+	streamsize i = 0;
 
-	for (i = 0 ; i < len  &&  !hasReachedEnd() ; i++) {
+	while (i < len-1  &&  !hasReachedEnd()) {
 		read(dest+i, 1);
+
+		if (getLastReadCount() == 0) {
+			dest[i] = '\0';
+			return i;
+		}
 
 		if (dest[i] == '\n') {
 			dest[i] = '\0';
@@ -35,7 +41,11 @@ int InputStream::readLine(char* dest, streamsize len)
 			seek(1);
 			return i+2;
 		}
+
+		i++;
 	}
+
+	dest[i] = '\0';
 
 	return i;
 }

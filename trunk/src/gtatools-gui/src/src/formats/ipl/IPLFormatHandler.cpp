@@ -19,6 +19,7 @@
 
 #include "IPLFormatHandler.h"
 #include <gtaformats/ipl/IPLReader.h>
+#include "IPLWidget.h"
 
 
 
@@ -33,4 +34,11 @@ QString IPLFormatHandler::getFormatName(const File* file) const
 	}
 
 	return tr("Item Placement File (IPL)");
+}
+
+
+QWidget* IPLFormatHandler::createWidgetForFile(const FileOpenRequest& request, QWidget* parent)
+{
+	IPLWidget* widget = new IPLWidget(parent, *request.getFile());
+	return widget;
 }

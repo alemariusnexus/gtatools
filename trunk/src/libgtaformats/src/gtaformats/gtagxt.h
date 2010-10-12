@@ -17,18 +17,11 @@
 	along with gtaformats.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IDESTATEMENT_H_
-#define IDESTATEMENT_H_
+#ifndef GTAGXT_H_
+#define GTAGXT_H_
 
-#include "../gf_config.h"
+#include "gxt/GXTException.h"
+#include "gxt/GXTLoader.h"
+#include "gxt/GXTTable.h"
 
-typedef char idetype_t;
-
-
-class IDEStatement {
-public:
-	virtual ~IDEStatement() {}
-	virtual idetype_t getType() const = 0;
-};
-
-#endif /* IDESTATEMENT_H_ */
+#endif /* GTAGXT_H_ */

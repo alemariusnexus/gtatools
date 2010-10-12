@@ -18,6 +18,7 @@
  */
 
 #include "MainWindow.h"
+#include "../config.h"
 #include "FileItemModel.h"
 #include "../ProfileManager.h"
 #include "../formats/FormatManager.h"
@@ -27,7 +28,6 @@
 #include <qsettings.h>
 #include "ConfigWidget.h"
 #include <qmenu.h>
-#include <config.h>
 #include "../formats/txd/TXDGUIModule.h"
 #include "../System.h"
 #include "DefaultGUIModule.h"
@@ -46,7 +46,6 @@ MainWindow::MainWindow()
 	setWindowTitle(tr("ProgramBaseName"));
 
 	taskLabel = new QLabel(ui.statusbar);
-	//taskLabel->setAlignment(Qt::AlignRight);
 	ui.statusbar->addPermanentWidget(taskLabel);
 
 	progressBar = new QProgressBar(ui.statusbar);
@@ -64,11 +63,6 @@ MainWindow::MainWindow()
 
 	sys->installGUIModule(new DefaultGUIModule);
 	sys->installGUIModule(new TXDGUIModule);
-
-	/*addDockWidget(Qt::LeftDockWidgetArea, new QDockWidget("Dock Widget 0"));
-	addDockWidget(Qt::RightDockWidgetArea, new QDockWidget("Dock Widget 1"));
-	addDockWidget(Qt::TopDockWidgetArea, new QDockWidget("Dock Widget 2"));
-	addDockWidget(Qt::BottomDockWidgetArea, new QDockWidget("Dock Widget 3"));*/
 }
 
 
@@ -92,6 +86,8 @@ void MainWindow::initialize()
 
 	resize(settings.value("gui/mainwindow_size", size()).toSize());
 	restoreState(settings.value("gui/mainwindow_state").toByteArray());
+
+	setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
 }
 
 

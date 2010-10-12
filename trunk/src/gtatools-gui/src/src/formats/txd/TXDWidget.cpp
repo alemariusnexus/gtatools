@@ -18,8 +18,8 @@
  */
 
 #include "TXDWidget.h"
+#include "../../config.h"
 #include <qsettings.h>
-#include <config.h>
 #include <qlayout.h>
 #include <qtabwidget.h>
 #include "../../System.h"

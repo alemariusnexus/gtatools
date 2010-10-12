@@ -29,6 +29,7 @@ public:
 	virtual QString getFormatName(const File* file = NULL) const;
 	virtual QLinkedList<QString> getFileFormatExtensions() const { return QLinkedList<QString>() << "ipl"; }
 	virtual bool hasFileFormat(const File& file) const { return file.guessContentType() == CONTENT_TYPE_IPL; }
+	virtual QWidget* createWidgetForFile(const FileOpenRequest& request, QWidget* parent);
 };
 
 #endif /* IPLFORMATHANDLER_H_ */

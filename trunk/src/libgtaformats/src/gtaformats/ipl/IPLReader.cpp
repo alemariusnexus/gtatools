@@ -22,6 +22,7 @@
 #include <cstdlib>
 #include "IPLInstance.h"
 #include "IPLCar.h"
+#include <cstdio>
 
 using std::string;
 

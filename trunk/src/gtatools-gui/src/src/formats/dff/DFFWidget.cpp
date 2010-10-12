@@ -67,8 +67,8 @@ DFFWidget::DFFWidget(const File& file, QWidget* parent, QGLWidget* shareWidget)
 	geometryRenderWidget = new DFFRenderWidget(ui.geometryRenderContainerWidget, shareWidget);
 	ui.geometryRenderContainerWidget->layout()->addWidget(geometryRenderWidget);
 
-	geometryPartRenderWidget = new DFFRenderWidget(ui.geometryPartRenderContainerWidget, shareWidget);
-	ui.geometryPartRenderContainerWidget->layout()->addWidget(geometryPartRenderWidget);
+	//geometryPartRenderWidget = new DFFRenderWidget(ui.geometryPartRenderContainerWidget, shareWidget);
+	//ui.geometryPartRenderContainerWidget->layout()->addWidget(geometryPartRenderWidget);
 
 	DFFLoader dff;
 	mesh = dff.loadMesh(file);
@@ -99,7 +99,7 @@ DFFWidget::DFFWidget(const File& file, QWidget* parent, QGLWidget* shareWidget)
 	connect(ui.geometryPartList, SIGNAL(currentRowChanged(int)), this, SLOT(geometryPartSelected(int)));
 
 	geometryRenderWidget->updateGL();
-	geometryPartRenderWidget->updateGL();
+	//geometryPartRenderWidget->updateGL();
 
 	ui.geometryList->setCurrentRow(0);
 }
@@ -128,7 +128,7 @@ DFFWidget::~DFFWidget()
 	delete frameModel;
 
 	delete geometryRenderWidget;
-	delete geometryPartRenderWidget;
+	//delete geometryPartRenderWidget;
 }
 
 
