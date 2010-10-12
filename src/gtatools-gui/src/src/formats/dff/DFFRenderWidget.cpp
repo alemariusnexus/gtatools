@@ -59,50 +59,54 @@ DFFRenderWidget::~DFFRenderWidget()
 
 void DFFRenderWidget::renderGeometry(DFFGeometry* geometry)
 {
-	makeCurrent();
-	program->makeCurrent();
+	if (renderingEnabled) {
+		makeCurrent();
+		program->makeCurrent();
 
-	if (object) {
-		delete object;
+		if (object) {
+			delete object;
+		}
+
+		Profile* profile = ProfileManager::getInstance()->getCurrentProfile();
+
+		ResourceManager* rm = NULL;
+
+		if (profile) {
+			rm = profile->getResourceManager();
+		}
+
+		object = new StaticObjectDefinition(geometry, NULL, rm);
+		currentGeometry = geometry;
+
+		updateGL();
 	}
-
-	Profile* profile = ProfileManager::getInstance()->getCurrentProfile();
-
-	ResourceManager* rm = NULL;
-
-	if (profile) {
-		rm = profile->getResourceManager();
-	}
-
-	object = new StaticObjectDefinition(geometry, NULL, rm);
-	currentGeometry = geometry;
-
-	updateGL();
 }
 
 
 void DFFRenderWidget::renderGeometryPart(DFFGeometry* geometry, DFFGeometryPart* part)
 {
-	makeCurrent();
-	program->makeCurrent();
+	if (renderingEnabled) {
+		makeCurrent();
+		program->makeCurrent();
 
-	if (object) {
-		delete object;
+		if (object) {
+			delete object;
+		}
+
+		Profile* profile = ProfileManager::getInstance()->getCurrentProfile();
+
+		ResourceManager* rm = NULL;
+
+		if (profile) {
+			rm = profile->getResourceManager();
+		}
+
+		object = new StaticObjectDefinition(geometry, part, NULL, rm);
+		currentGeometry = geometry;
+		currentPart = part;
+
+		updateGL();
 	}
-
-	Profile* profile = ProfileManager::getInstance()->getCurrentProfile();
-
-	ResourceManager* rm = NULL;
-
-	if (profile) {
-		rm = profile->getResourceManager();
-	}
-
-	object = new StaticObjectDefinition(geometry, part, NULL, rm);
-	currentGeometry = geometry;
-	currentPart = part;
-
-	updateGL();
 }
 
 
