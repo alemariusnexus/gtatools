@@ -77,6 +77,7 @@ private:
 	Camera cam;
 	GLuint dataBuffer, indexBuffer;
 	float moveFactor;
+	bool renderingEnabled;
 };
 
 #endif /* DFFRENDERWIDGET_H_ */
