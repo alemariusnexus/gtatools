@@ -32,13 +32,12 @@ FileItemModel::FileItemModel(Profile* profile, QWidget* parent)
 	QSettings settings(CONFIG_FILE, QSettings::IniFormat);
 
 	showFileType = settings.value("gui/file_tree_types", true).toBool();
-	rootFile = new StaticFile;
 
 	if (profile) {
 		Profile::ResourceIterator it;
 
 		for (it = profile->getResourceBegin() ; it != profile->getResourceEnd() ; it++) {
-			rootFile->addRootChild(new StaticFile(**it));
+			rootFiles << new StaticFile(**it);
 		}
 	}
 }
@@ -46,7 +45,11 @@ FileItemModel::FileItemModel(Profile* profile, QWidget* parent)
 
 FileItemModel::~FileItemModel()
 {
-	delete rootFile;
+	QList<StaticFile*>::iterator it;
+
+	for (it = rootFiles.begin() ; it != rootFiles.end() ; it++) {
+		delete *it;
+	}
 }
 
 
@@ -54,16 +57,19 @@ QModelIndex FileItemModel::indexOf(const File& file, const QModelIndex& start)
 {
 	int rc = rowCount(start);
 
+	QString ipath(file.getPath()->toString());
+
 	for (int i = 0 ; i < rc ; i++) {
-		//QModelIndex child = start.child(i, 0);
 		QModelIndex child = index(i, 0, start);
 
 		StaticFile* sf = static_cast<StaticFile*>(child.internalPointer());
 
 		if (*sf->getFile() == file) {
 			return child;
-		} else if (file.isChildOf(*sf->getFile())) {
-			return indexOf(file, child);
+		} else {
+			if (file.isChildOf(*sf->getFile())) {
+				return indexOf(file, child);
+			}
 		}
 	}
 
@@ -83,15 +89,12 @@ int FileItemModel::rowCount(const QModelIndex& parent) const
 		return 0;
 	}
 
-	StaticFile* parentFile;
-
 	if (parent.isValid()) {
-		parentFile = static_cast<StaticFile*>(parent.internalPointer());
+		StaticFile* parentFile = static_cast<StaticFile*>(parent.internalPointer());
+		return parentFile->getChildCount();
 	} else {
-		parentFile = rootFile;
+		return rootFiles.size();
 	}
-
-	return parentFile->getChildCount();
 }
 
 
@@ -165,7 +168,15 @@ QModelIndex FileItemModel::index(int row, int column, const QModelIndex& parent)
 		return QModelIndex();
 	}
 
-	StaticFile* parentFile;
+	if (parent.isValid()) {
+		StaticFile* parentFile = static_cast<StaticFile*>(parent.internalPointer());
+		return createIndex(row, column, parentFile->getChild(row));
+	} else {
+		StaticFile* rootFile = rootFiles[row];
+		return createIndex(row, column, rootFile);
+	}
+
+	/*StaticFile* parentFile;
 
 	if (parent.isValid()) {
 		parentFile = static_cast<StaticFile*>(parent.internalPointer());
@@ -173,7 +184,7 @@ QModelIndex FileItemModel::index(int row, int column, const QModelIndex& parent)
 		parentFile = rootFile;
 	}
 
-	return createIndex(row, column, parentFile->getChild(row));
+	return createIndex(row, column, parentFile->getChild(row));*/
 }
 
 
@@ -186,10 +197,16 @@ QModelIndex FileItemModel::parent(const QModelIndex& index) const
 	StaticFile* file = static_cast<StaticFile*>(index.internalPointer());
 	StaticFile* parent = file->getParent();
 
-	if (parent == rootFile) {
+	if (!parent) {
 		return QModelIndex();
 	}
 
-	return createIndex(parent->getParent()->indexOf(parent), 0, parent);
+	StaticFile* parentParent = parent->getParent();
+
+	if (parentParent) {
+		return createIndex(parentParent->indexOf(parent), 0, parent);
+	} else {
+		return createIndex(rootFiles.indexOf(parent), 0, parent);
+	}
 }
 

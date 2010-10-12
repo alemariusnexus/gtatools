@@ -22,7 +22,7 @@
 
 #include <QtCore/qabstractitemmodel.h>
 #include <QtCore/qmap.h>
-#include <QtCore/qlist.h>
+#include <QtCore/QList>
 #include "../Profile.h"
 #include <gtaformats/util/File.h>
 #include "StaticFile.h"
@@ -50,7 +50,7 @@ public:
 
 private:
 	Profile* profile;
-	StaticFile* rootFile;
+	QList<StaticFile*> rootFiles;
 	bool showFileType;
 };
 

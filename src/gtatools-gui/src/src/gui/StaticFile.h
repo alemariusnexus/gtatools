@@ -28,26 +28,34 @@ class StaticFile {
 private:
 	typedef QList<StaticFile*> ChildList;
 
+	enum Type {
+		Unknown,
+		Node,
+		Directory,
+		Archive
+	};
+
 public:
-	StaticFile();
 	StaticFile(const File& file);
 	~StaticFile();
 	File* getFile() const { return file; }
 	StaticFile* getParent() const { return parent; }
-	int getChildCount() const { return children.size(); }
-	StaticFile* getChild(int idx) const { return children[idx]; }
-	int indexOf(StaticFile* child) const { return children.indexOf(child); }
+	int getChildCount() { ensureChildrenAvailable(); return children.size(); }
+	StaticFile* getChild(int idx) { ensureChildrenAvailable(); return children[idx]; }
+	int indexOf(StaticFile* child) { ensureChildrenAvailable(); return children.indexOf(child); }
 	const char* toString() const { return file->getPath()->getFileName(); }
-	void addRootChild(StaticFile* child);
 
 private:
-	StaticFile(File* file, StaticFile* parent);
-	void initChildren();
+	StaticFile(File* file, StaticFile* parent, Type type = Unknown);
+	void loadChildren();
+	void ensureChildrenAvailable();
 
 private:
 	File* file;
 	StaticFile* parent;
 	ChildList children;
+	bool childrenInited;
+	Type type;
 };
 
 

@@ -137,7 +137,11 @@ File* FileIterator::next()
 			return NULL;
 		}
 
-		File* nextFile = new File(*iteratedDir, entry->d_name);
+		// Way faster than File(const File&, const char*) because it skips the parent-is-directory
+		// check
+		FilePath* path = new FilePath(*iteratedDir->getPath(), entry->d_name);
+		File* nextFile = new File(path, true);
+
 		return nextFile;
 #else
 		File* retFile = nextFile;
@@ -148,9 +152,6 @@ File* FileIterator::next()
 			if (FindNextFile(dirHandle, &fdata) == 0) {
 				nextFile = NULL;
 			} else {
-				/*if (strcmp(fdata.cFileName, ".") == 0  ||  strcmp(fdata.cFileName, "..") == 0) {
-					continue;
-				}*/
 				int len = strlen(fdata.cFileName);
 
 				if (len == 1  &&  fdata.cFileName[0] == '.') {
@@ -160,7 +161,10 @@ File* FileIterator::next()
 					continue;
 				}
 
-				nextFile = new File(*iteratedDir, fdata.cFileName);
+				// Way faster than File(const File&, const char*) because it skips the parent-is-directory
+				// check
+				FilePath* path = new FilePath(*iteratedDir->getPath(), fdata.cFileName);
+				nextFile = new File(path, true);
 			}
 
 			break;
@@ -178,11 +182,15 @@ File* FileIterator::next()
 
 			IMGEntry* entry = entries[archiveIdx++];
 
-			File* nextFile = new File(*iteratedDir, entry->name);
+			// Way faster than File(const File&, const char*) because it skips the parent-is-directory check
+			FilePath* path = new FilePath(*iteratedDir->getPath(), entry->name);
+			File* nextFile = new File(path, true);
+
 			return nextFile;
 		} catch (Exception& ex) {
 			char* errMsg = new char[strlen(iteratedDir->getPath()->toString()) + 128];
-			sprintf(errMsg, "Exception thrown during iteration over IMG archive", iteratedDir->getPath()->toString());
+			sprintf(errMsg, "Exception thrown during iteration over IMG archive",
+					iteratedDir->getPath()->toString());
 			FileException fex(errMsg, __FILE__, __LINE__, &ex);
 			delete[] errMsg;
 			throw fex;

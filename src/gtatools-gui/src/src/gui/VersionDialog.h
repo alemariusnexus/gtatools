@@ -31,6 +31,9 @@ class VersionDialog : public QDialog {
 public:
 	VersionDialog(QWidget* parent = NULL);
 
+private slots:
+	void okClicked(QAbstractButton* button);
+
 private:
 	Ui_VersionDialog ui;
 };

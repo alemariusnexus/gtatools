@@ -318,8 +318,7 @@ void IMGArchive::readHeader(InputStream* stream)
 
 InputStream* IMGArchive::openStream(const File& file)
 {
-	FileInputStream* stream = new FileInputStream(file, STREAM_BINARY);
-	return stream;
+	return file.openStream(STREAM_BINARY);
 }
 
 

@@ -18,26 +18,38 @@
  */
 
 #include "StaticFile.h"
+#include <cstdio>
+#include <cstring>
 
-
-
-StaticFile::StaticFile()
-		: file(NULL), parent(NULL)
-{
-}
 
 
 StaticFile::StaticFile(const File& file)
-		: file(new File(file)), parent(NULL)
+		: file(new File(file)), parent(NULL), childrenInited(false)
 {
-	initChildren();
+	if (file.isDirectory()) {
+		type = Directory;
+	} else if (file.isArchiveFile()) {
+		type = Archive;
+	} else {
+		type = Node;
+	}
 }
 
 
-StaticFile::StaticFile(File* file, StaticFile* parent)
-		: file(file), parent(parent)
+StaticFile::StaticFile(File* file, StaticFile* parent, Type type)
+		: file(file), parent(parent), childrenInited(false)
 {
-	initChildren();
+	if (type != Unknown) {
+		this->type = type;
+	} else {
+		if (file->isDirectory()) {
+			this->type = Directory;
+		} else if (file->isArchiveFile()) {
+			this->type = Archive;
+		} else {
+			this->type = Node;
+		}
+	}
 }
 
 
@@ -54,25 +66,34 @@ StaticFile::~StaticFile()
 }
 
 
-void StaticFile::initChildren()
+void StaticFile::loadChildren()
 {
-	if (file->isDirectory()  ||  file->isArchiveFile()) {
+	if (type != Node) {
 		FileIterator* it = file->getIterator();
 		File* child;
 
-		while ((child = it->next())  !=  NULL) {
-			children << new StaticFile(child, this);
+		if (type != Archive) {
+			while ((child = it->next())  !=  NULL) {
+				children << new StaticFile(child, this);
+			}
+		} else {
+			while ((child = it->next())  !=  NULL) {
+				children << new StaticFile(child, this, Node);
+			}
 		}
 
 		delete it;
 	}
+
+	childrenInited = true;
 }
 
 
-void StaticFile::addRootChild(StaticFile* child)
+void StaticFile::ensureChildrenAvailable()
 {
-	children << child;
-	child->parent = this;
+	if (!childrenInited) {
+		loadChildren();
+	}
 }
 
 

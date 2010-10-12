@@ -53,12 +53,6 @@ TXDArchive::~TXDArchive()
 {
 	delete[] textureNativeStarts;
 
-	/*for (int16_t i = 0 ; i < textureCount ; i++) {
-		if (indexedTextures[i] != NULL) {
-			delete indexedTextures[i];
-		}
-	}*/
-
 	delete[] indexedTextures;
 
 	if (deleteStream) {

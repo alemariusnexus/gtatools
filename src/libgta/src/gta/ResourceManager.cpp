@@ -20,6 +20,7 @@
 #include "ResourceManager.h"
 #include <gtaformats/txd/TXDArchive.h>
 #include <gtaformats/txd/TXDTexture.h>
+#include <gtaformats/img/IMGArchive.h>
 #include <gtaformats/util/util.h>
 #include <gtaformats/dff/DFFLoader.h>
 #include <utility>
@@ -73,7 +74,7 @@ ResourceManager::~ResourceManager()
 
 void ResourceManager::addResource(const File& file)
 {
-	if (file.isDirectory()  ||  file.isArchiveFile()) {
+	if (file.isDirectory()) {
 		FileIterator* it = file.getIterator();
 		File* child;
 
@@ -83,48 +84,75 @@ void ResourceManager::addResource(const File& file)
 		}
 
 		delete it;
-	} else {
-		FileContentType type = file.guessContentType();
+	} else if (file.isArchiveFile()) {
+		IMGArchive img(file);
+		IMGEntry** entries = img.getEntries();
 
-		if (type == CONTENT_TYPE_TXD) {
-			TXDArchive txd(file);
-			char* lTxdName = new char[strlen(file.getPath()->getFileName())+1];
-			strtolower(lTxdName, file.getPath()->getFileName());
-			*strchr(lTxdName, '.') = '\0';
+		for (int32_t i = 0 ; i < img.getEntryCount() ; i++) {
+			IMGEntry* entry = entries[i];
 
-			hash_t txdHash = hash(lTxdName);
+			FilePath* path = new FilePath(*file.getPath(), entry->name);
+			File child(path, true);
 
-			delete[] lTxdName;
-
-			TXDEntry* txdEntry = new TXDEntry;
-			txdEntry->parent = NULL;
-			txdEntry->file = new File(file);
-
-			for (int16_t i = 0 ; i < txd.getTextureCount() ; i++) {
-				TXDTexture* tex = txd.nextTexture();
-
-				char* lName = new char[strlen(tex->getDiffuseName())+1];
-				strtolower(lName, tex->getDiffuseName());
-
-				hash_t texHash = hash(lName);
-
-				delete[] lName;
-
-				TextureEntry* entry = new TextureEntry;
-				entry->textureIndex = i;
-				txdEntry->textures.insert(pair<hash_t, TextureEntry*>(texHash, entry));
-				delete tex;
-			}
-
-			textures.insert(pair<hash_t, TXDEntry*>(txdHash, txdEntry));
-		} else if (type == CONTENT_TYPE_DFF) {
-			char* lMeshName = new char[strlen(file.getPath()->getFileName())+1];
-			strtolower(lMeshName, file.getPath()->getFileName());
-			*strchr(lMeshName, '.') = '\0';
-			MeshEntry* entry = new MeshEntry;
-			entry->file = new File(file);
-			meshes.insert(pair<hash_t, MeshEntry*>(hash(lMeshName), entry));
+			InputStream* stream = img.gotoEntry(entry);
+			addResource(child, stream);
+			delete stream;
 		}
+	} else {
+		InputStream* stream = NULL;
+
+		if (file.guessContentType() == CONTENT_TYPE_TXD) {
+			stream = file.openStream(STREAM_BINARY);
+		}
+
+		addResource(file, stream);
+		delete stream;
+	}
+}
+
+
+void ResourceManager::addResource(const File& file, InputStream* stream)
+{
+	FileContentType type = file.guessContentType();
+
+	if (type == CONTENT_TYPE_TXD) {
+		TXDArchive txd(stream);
+		char* lTxdName = new char[strlen(file.getPath()->getFileName())+1];
+		strtolower(lTxdName, file.getPath()->getFileName());
+		*strchr(lTxdName, '.') = '\0';
+
+		hash_t txdHash = hash(lTxdName);
+
+		delete[] lTxdName;
+
+		TXDEntry* txdEntry = new TXDEntry;
+		txdEntry->parent = NULL;
+		txdEntry->file = new File(file);
+
+		for (int16_t i = 0 ; i < txd.getTextureCount() ; i++) {
+			TXDTexture* tex = txd.nextTexture();
+
+			char* lName = new char[strlen(tex->getDiffuseName())+1];
+			strtolower(lName, tex->getDiffuseName());
+
+			hash_t texHash = hash(lName);
+
+			delete[] lName;
+
+			TextureEntry* entry = new TextureEntry;
+			entry->textureIndex = i;
+			txdEntry->textures.insert(pair<hash_t, TextureEntry*>(texHash, entry));
+			delete tex;
+		}
+
+		textures.insert(pair<hash_t, TXDEntry*>(txdHash, txdEntry));
+	} else if (type == CONTENT_TYPE_DFF) {
+		char* lMeshName = new char[strlen(file.getPath()->getFileName())+1];
+		strtolower(lMeshName, file.getPath()->getFileName());
+		*strchr(lMeshName, '.') = '\0';
+		MeshEntry* entry = new MeshEntry;
+		entry->file = new File(file);
+		meshes.insert(pair<hash_t, MeshEntry*>(hash(lMeshName), entry));
 	}
 }
 

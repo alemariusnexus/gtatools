@@ -27,6 +27,7 @@
 #include <map>
 #include <locale>
 #include <GL/glew.h>
+#include <cstdio>
 
 using std::map;
 using std::collate;
@@ -88,6 +89,7 @@ public:
 	bool findTextureArchive(hash_t texName, hash_t* txdName);
 
 private:
+	void addResource(const File& file, InputStream* stream);
 	TextureEntry* findTexture(hash_t texName, hash_t txdName, TXDEntry*& txdEntry);
 	void readTexture(TextureEntry* texEntry, TXDEntry* txdEntry, TXDTexture*& tex, uint8_t*& data,
 			bool readData = true);

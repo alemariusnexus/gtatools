@@ -43,5 +43,12 @@ VersionDialog::VersionDialog(QWidget* parent)
 	ui.glVendorLabel->setText((const char*) glGetString(GL_VENDOR));
 	ui.glRendererLabel->setText((const char*) glGetString(GL_RENDERER));
 	ui.glVersionLabel->setText((const char*) glGetString(GL_VERSION));
+
+	connect(ui.buttonBox, SIGNAL(clicked(QAbstractButton*)), this, SLOT(okClicked(QAbstractButton*)));
 }
 
+
+void VersionDialog::okClicked(QAbstractButton* button)
+{
+	accept();
+}
