@@ -44,11 +44,6 @@ FilePath::FilePath(const FilePath& other)
 
 FilePath::FilePath(const FilePath& parent, const char* child, int flags)
 {
-	/*char* normChild = normalize(child, flags);
-	strcpy(path, parent.path);
-	strcat(path, "/");
-	strcat(path, normChild);
-	delete[] normChild;*/
 	char* tmpPath = new char[strlen(parent.path) + strlen(child) + 2];
 	strcpy(tmpPath, parent.path);
 	strcat(tmpPath, "/");
@@ -251,28 +246,6 @@ char* FilePath::normalize(const char* src, int flags)
 			}
 
 			delete it;
-
-/*#ifdef linux
-			DIR* dir = opendir(dest);
-			if (dir) {
-				struct dirent* entry;
-				while ((entry = readdir(dir))  !=  NULL) {
-					char* lowerName = new char[strlen(entry->d_name)];
-					strtolower(lowerName, entry->d_name);
-					if (strcmp(lowerName, component) == 0) {
-						memcpy(lastComponentStart+1, entry->d_name, strlen(entry->d_name));
-						delete[] lowerName;
-						delete entry;
-						break;
-					}
-					delete entry;
-					delete[] lowerName;
-				}
-			}
-			closedir(dir);
-#else
-
-#endif*/
 
 			delete[] component;
 

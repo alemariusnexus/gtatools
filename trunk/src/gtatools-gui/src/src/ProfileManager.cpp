@@ -101,6 +101,7 @@ Profile* ProfileManager::setCurrentProfile(Profile* profile)
 
 	Profile* oldProfile = currentProfile;
 	currentProfile = profile;
+
 	emit currentProfileChanged(oldProfile, profile);
 
 	return oldProfile;

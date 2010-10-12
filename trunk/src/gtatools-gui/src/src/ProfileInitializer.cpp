@@ -25,6 +25,7 @@
 
 
 
+
 ProfileInitializer::ProfileInitializer(Profile* profile)
 		: profile(profile), interrupted(false)
 {
@@ -65,22 +66,6 @@ void ProfileInitializer::addResource(const File& file)
 		return;
 	}
 
-	if (file.isDirectory()  ||  file.isDirectory()) {
-		FileIterator* it = file.getIterator();
-		File* child;
-
-		while ((child = it->next())  !=  NULL) {
-			addResource(*child);
-			delete child;
-
-			if (interrupted) {
-				return;
-			}
-		}
-
-		delete it;
-	} else {
-		rm->addResource(file);
-	}
+	rm->addResource(file);
 }
 

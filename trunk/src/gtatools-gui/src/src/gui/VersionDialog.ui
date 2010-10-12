@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>225</width>
-    <height>147</height>
+    <width>246</width>
+    <height>175</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -37,6 +37,9 @@
       </sizepolicy>
      </property>
      <layout class="QFormLayout" name="formLayout">
+      <property name="fieldGrowthPolicy">
+       <enum>QFormLayout::ExpandingFieldsGrow</enum>
+      </property>
       <property name="horizontalSpacing">
        <number>15</number>
       </property>
@@ -68,17 +71,17 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
-       <widget class="QLabel" name="qtLinkVersionLabel">
-        <property name="text">
-         <string notr="true">-</string>
-        </property>
-       </widget>
-      </item>
       <item row="2" column="0">
        <widget class="QLabel" name="label_7">
         <property name="text">
          <string>Linked Against Qt</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLabel" name="qtLinkVersionLabel">
+        <property name="text">
+         <string notr="true">-</string>
         </property>
        </widget>
       </item>
@@ -125,6 +128,16 @@
        </widget>
       </item>
      </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Ok</set>
+     </property>
+     <property name="centerButtons">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
   </layout>
