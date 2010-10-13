@@ -174,13 +174,13 @@ File* FileIterator::next()
 #endif
 	} else {
 		try {
-			IMGEntry** entries = archive->getEntries();
+			const IMGEntry** entries = archive->getEntries();
 
 			if (archiveIdx >= archive->getEntryCount()) {
 				return NULL;
 			}
 
-			IMGEntry* entry = entries[archiveIdx++];
+			const IMGEntry* entry = entries[archiveIdx++];
 
 			// Way faster than File(const File&, const char*) because it skips the parent-is-directory check
 			FilePath* path = new FilePath(*iteratedDir->getPath(), entry->name);

@@ -169,7 +169,7 @@ public:
 	 * 	@return A new RangedInputStream that reads from the IMG stream. It's range is defined as the bounds of the IMG entry, so
 	 * 		you can't read beyond it.
 	 */
-	InputStream* gotoEntry(IMGEntry* entry, bool autoCloseStream = false);
+	InputStream* gotoEntry(const IMGEntry* entry, bool autoCloseStream = false);
 
 	/**	\brief Goes to the first entry with the given name.
 	 *
@@ -202,21 +202,21 @@ public:
 	 *	@param name The name.
 	 *	@return The entry or NULL, if it's not found.
 	 */
-	IMGEntry* getEntryByName(const char* name);
+	const IMGEntry* getEntryByName(const char* name) const;
 
 	/**	\brief Returns the list of entries.
 	 *
 	 *	@return The entries.
 	 */
-	IMGEntry** getEntries() {
-		return entries;;
+	const IMGEntry** getEntries() const {
+		return const_cast<const IMGEntry**>(entries);
 	}
 
 	/**	\brief Returns the number of entries.
 	 *
 	 *	@return The number of entries.
 	 */
-	int32_t getEntryCount() {
+	int32_t getEntryCount() const {
 		return numEntries;
 	}
 
@@ -224,7 +224,7 @@ public:
 	 *
 	 *	@return The IMG stream.
 	 */
-	const InputStream* getStream() {
+	const InputStream* getStream() const {
 		return stream;
 	}
 
@@ -232,7 +232,7 @@ public:
 	 *
 	 *	@return The format version.
 	 */
-	IMGVersion getVersion()
+	IMGVersion getVersion() const
 	{
 		return version;
 	}

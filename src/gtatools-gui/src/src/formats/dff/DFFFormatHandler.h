@@ -22,17 +22,29 @@
 
 #include "../FormatHandler.h"
 #include <QtOpenGL/qgl.h>
+#include <gtaformats/dff/DFFMesh.h>
+#include <gtaformats/dff/DFFFrame.h>
+#include <QtCore/QTextStream>
+#include <QtGui/QWidget>
 
 
 class DFFFormatHandler: public FormatHandler {
 	Q_OBJECT
 
 public:
-	DFFFormatHandler();
+	static DFFFormatHandler* getInstance();
+
+public:
 	virtual QString getFormatName(const File* file = NULL) const { return tr("DFF Mesh"); }
 	virtual QLinkedList<QString> getFileFormatExtensions() const { return QLinkedList<QString>() << "dff"; }
 	virtual bool hasFileFormat(const File& file) const { return file.guessContentType() == CONTENT_TYPE_DFF; }
 	virtual QWidget* createWidgetForFile(const FileOpenRequest& request, QWidget* parent);
+
+	void xmlDumpDialog(const DFFMesh& mesh, QWidget* parent);
+
+private:
+	DFFFormatHandler();
+	void xmlDumpFrame(const DFFFrame* frame, QTextStream& xml, int indLevel);
 
 private:
 	QGLWidget* shareWidget;

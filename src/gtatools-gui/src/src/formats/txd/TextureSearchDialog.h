@@ -41,7 +41,7 @@ private:
 	};
 
 public:
-	TextureSearchDialog(QWidget* parent, const File* root = NULL);
+	TextureSearchDialog(QWidget* parent, const QLinkedList<File*>& rootFiles);
 
 private:
 	bool collectSearchResults(const File& resource, StringMatcher* texMatcher, StringMatcher* txdMatcher,
@@ -53,7 +53,7 @@ private slots:
 
 private:
 	Ui_TextureSearchDialog ui;
-	const File* rootFile;
+	QLinkedList<File*> rootFiles;
 	bool cancelled;
 };
 

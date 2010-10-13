@@ -33,7 +33,7 @@ FormatManager::FormatManager()
 	registerFormatHandler(new IMGFormatHandler);
 	registerFormatHandler(new IPLFormatHandler);
 	registerFormatHandler(new IDEFormatHandler);
-	registerFormatHandler(new DFFFormatHandler);
+	registerFormatHandler(DFFFormatHandler::getInstance());
 	registerFormatHandler(new GXTFormatHandler);
 }
 

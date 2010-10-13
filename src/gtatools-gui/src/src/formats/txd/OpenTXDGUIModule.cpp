@@ -66,48 +66,6 @@ void OpenTXDGUIModule::onExtract(bool checked)
 {
 	TXDArchive* txd = txdWidget->getArchive();
 	QLinkedList<TXDTexture*> textures = txdWidget->getSelectedTextures();
-
-	System* sys = System::getInstance();
-
-	if (textures.count() == 1) {
-		TXDTexture* tex = *textures.begin();
-
-		QString fname = QFileDialog::getSaveFileName(txdWidget, tr("Select the file to save to"),
-				QString(tex->getDiffuseName()).append(".png"), "Portable Network Graphics (*.png)");
-
-		if (!fname.isNull()) {
-			txd->gotoTexture(tex);
-			uint8_t* rawData = txd->readTextureData(tex);
-			uint8_t* data;
-			QImage image = TXDFormatHandler::getInstance()->createImageFromTexture(tex, rawData, data);
-			image.setText("Description", "Converted from GTA TXD by gtatools " GTATOOLS_VERSION);
-			delete[] rawData;
-
-			QImageWriter writer(fname);
-			writer.write(image);
-
-			delete[] data;
-		}
-	} else if (textures.count() > 1) {
-		QString dname = QFileDialog::getExistingDirectory(txdWidget, tr("Select the destination directory"));
-
-		if (!dname.isNull()) {
-			QLinkedList<TXDTexture*>::iterator it;
-
-			for (it = textures.begin() ; it != textures.end() ; it++) {
-				TXDTexture* tex = *it;
-				txd->gotoTexture(tex);
-				uint8_t* rawData = txd->readTextureData(tex);
-				uint8_t* data;
-				QImage image = TXDFormatHandler::getInstance()->createImageFromTexture(tex, rawData, data);
-				delete[] rawData;
-
-				QImageWriter writer(QString("%1/%2.png").arg(dname).arg(tex->getDiffuseName()));
-				writer.write(image);
-
-				delete[] data;
-			}
-		}
-	}
+	TXDFormatHandler::getInstance()->extractTexturesDialog(txd, textures, mainWindow);
 }
 

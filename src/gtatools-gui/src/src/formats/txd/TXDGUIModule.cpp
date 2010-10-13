@@ -21,11 +21,13 @@
 #include <qaction.h>
 #include "../../gui/MainWindow.h"
 #include "TextureSearchDialog.h"
+#include "TXDFormatHandler.h"
+#include "../../ProfileManager.h"
+#include "../../Profile.h"
 
 
 
 TXDGUIModule::TXDGUIModule()
-		: contextFile(NULL)
 {
 	findTextureAction = new QAction(tr("Search Texture..."), NULL);
 	findTextureAction->setShortcut(QKeySequence("Ctrl+T"));
@@ -40,10 +42,6 @@ TXDGUIModule::TXDGUIModule()
 
 TXDGUIModule::~TXDGUIModule()
 {
-	if (contextFile) {
-		delete contextFile;
-	}
-
 	delete findTextureAction;
 	delete findTextureInFileAction;
 }
@@ -69,30 +67,31 @@ void TXDGUIModule::doUninstall()
 }
 
 
-void TXDGUIModule::buildFileTreeMenu(const File& file, QMenu& menu)
+void TXDGUIModule::buildFileTreeMenu(const QLinkedList<File*>& files, QMenu& menu)
 {
-	if (contextFile) {
-		delete contextFile;
-		contextFile = NULL;
-	}
-
-	if (file.isDirectory()  ||  file.isArchiveFile()) {
-		menu.addAction(findTextureInFileAction);
-		contextFile = new File(file);
-	}
+	contextFiles = files;
+	menu.addAction(findTextureInFileAction);
 }
 
 
 void TXDGUIModule::onFindTexture(bool checked)
 {
-	TextureSearchDialog dialog(mainWindow);
-	dialog.exec();
+	QLinkedList<File*> files;
+
+	Profile* profile = ProfileManager::getInstance()->getCurrentProfile();
+	Profile::ResourceIterator it;
+
+	for (it = profile->getResourceBegin() ; it != profile->getResourceEnd() ; it++) {
+		File* resfile = *it;
+		files << resfile;
+	}
+
+	TXDFormatHandler::getInstance()->findTextureDialog(files, mainWindow);
 }
 
 
 void TXDGUIModule::onFindTextureInFile(bool checked)
 {
-	TextureSearchDialog dialog(mainWindow, contextFile);
-	dialog.exec();
+	TXDFormatHandler::getInstance()->findTextureDialog(contextFiles, mainWindow);
 }
 

@@ -45,13 +45,13 @@ public:
 	GXTLoader(InputStream* stream, Encoding encoding = None, bool autoClose = false);
 	GXTLoader(const File& file, Encoding encoding = None);
 	void setEncoding(Encoding encoding) { this->encoding = encoding; }
-	Encoding getEncoding() { return encoding; }
+	Encoding getEncoding() const { return encoding; }
 	int32_t getTableCount() const { return numTables; }
 	bool nextTableHeader(GXTTableHeader& header);
 	void readTableHeaders(GXTTableHeader* headers);
 	GXTTable* readTableData(const GXTTableHeader& header);
-	Version getVersion() { return version; }
-	bool getKeepKeyNames() { return keepKeyNames; }
+	Version getVersion() const { return version; }
+	bool getKeepKeyNames() const { return keepKeyNames; }
 	void setKeepKeyNames(bool kkn) { keepKeyNames = kkn; }
 
 private:

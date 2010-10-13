@@ -33,11 +33,11 @@ public:
 			float drawDist, int32_t flags);
 	virtual ~IDEAnimation();
 
-	const char* getModelName() { return modelName; }
-	const char* getTextureName() { return texName; }
-	const char* getAnimationName() { return animName; }
-	float getDrawDist() { return drawDist; }
-	int32_t getFlags() { return flags; }
+	const char* getModelName() const { return modelName; }
+	const char* getTextureName() const { return texName; }
+	const char* getAnimationName() const { return animName; }
+	float getDrawDist() const { return drawDist; }
+	int32_t getFlags() const { return flags; }
 
 	virtual idetype_t getType() const { return IDE_TYPE_ANIMATION; }
 

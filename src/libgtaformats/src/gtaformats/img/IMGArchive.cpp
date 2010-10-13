@@ -181,7 +181,7 @@ IMGArchive::IMGVersion IMGArchive::guessIMGVersion(const File& file)
 }
 
 
-InputStream* IMGArchive::gotoEntry(IMGEntry* entry, bool autoCloseStream) {
+InputStream* IMGArchive::gotoEntry(const IMGEntry* entry, bool autoCloseStream) {
 	long long start = entry->offset*IMG_BLOCK_SIZE;
 	stream->seek(start - stream->tell());
 	RangedInputStream* rstream = new RangedInputStream(stream, entry->size*IMG_BLOCK_SIZE, autoCloseStream);
@@ -189,7 +189,7 @@ InputStream* IMGArchive::gotoEntry(IMGEntry* entry, bool autoCloseStream) {
 }
 
 InputStream* IMGArchive::gotoEntry(const char* name, bool autoCloseStream) {
-	IMGEntry* entry = getEntryByName(name);
+	const IMGEntry* entry = getEntryByName(name);
 
 	if (!entry) {
 		return NULL;
@@ -213,7 +213,7 @@ void IMGArchive::visitAll(IMGVisitor* visitor) {
 	}
 }
 
-IMGEntry* IMGArchive::getEntryByName(const char* name) {
+const IMGEntry* IMGArchive::getEntryByName(const char* name) const {
 	for (int32_t i = 0 ; i < numEntries ; i++) {
 		if (strcmp(entries[i]->name, name) == 0) {
 			return entries[i];

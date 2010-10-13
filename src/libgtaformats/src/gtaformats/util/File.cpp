@@ -416,7 +416,7 @@ File::filesize File::getSize() const
 
 			try {
 				IMGArchive* img = new IMGArchive(*imgFile);
-				IMGEntry* entry = img->getEntryByName(path->getFileName());
+				const IMGEntry* entry = img->getEntryByName(path->getFileName());
 				filesize size = entry->size * IMG_BLOCK_SIZE;
 				delete img;
 				delete imgFile;

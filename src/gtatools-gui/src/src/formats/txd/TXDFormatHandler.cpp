@@ -21,6 +21,12 @@
 #include "TXDGUIModule.h"
 #include "TXDWidget.h"
 #include <cstdio>
+#include <QtCore/QString>
+#include <QtGui/QFileDialog>
+#include <QtGui/QImage>
+#include <QtGui/QImageWriter>
+#include "../../System.h"
+#include "TextureSearchDialog.h"
 
 
 
@@ -45,6 +51,69 @@ QWidget* TXDFormatHandler::createWidgetForFile(const FileOpenRequest& request, Q
 }
 
 
+bool TXDFormatHandler::extractTexturesDialog(TXDArchive* txd, const QLinkedList<TXDTexture*>& texes,
+		QWidget* parent)
+{
+	System* sys = System::getInstance();
+
+	if (texes.count() == 1) {
+		TXDTexture* tex = *texes.begin();
+
+		QString fname = QFileDialog::getSaveFileName(parent, tr("Select the file to save to"),
+				QString(tex->getDiffuseName()).append(".png"), "Portable Network Graphics (*.png)");
+
+		if (!fname.isNull()) {
+			txd->gotoTexture(tex);
+			uint8_t* rawData = txd->readTextureData(tex);
+			uint8_t* data;
+			QImage image = createImageFromTexture(tex, rawData, data);
+			image.setText("Description", "Converted from GTA TXD by gtatools " GTATOOLS_VERSION);
+			delete[] rawData;
+
+			QImageWriter writer(fname);
+			writer.write(image);
+
+			delete[] data;
+			return true;
+		}
+
+		return false;
+	} else {
+		QString dname = QFileDialog::getExistingDirectory(parent, tr("Select the destination directory"));
+
+		if (!dname.isNull()) {
+			QLinkedList<TXDTexture*>::const_iterator it;
+
+			for (it = texes.begin() ; it != texes.end() ; it++) {
+				TXDTexture* tex = *it;
+				txd->gotoTexture(tex);
+				uint8_t* rawData = txd->readTextureData(tex);
+				uint8_t* data;
+				QImage image = createImageFromTexture(tex, rawData, data);
+				image.setText("Description", "Converted from GTA TXD by gtatools " GTATOOLS_VERSION);
+				delete[] rawData;
+
+				QImageWriter writer(QString("%1/%2.png").arg(dname).arg(tex->getDiffuseName()));
+				writer.write(image);
+
+				delete[] data;
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+}
+
+
+bool TXDFormatHandler::findTextureDialog(const QLinkedList<File*>& files, QWidget* parent)
+{
+	TextureSearchDialog dlg(parent, files);
+	return dlg.exec() == QDialog::Accepted;
+}
+
+
 QImage TXDFormatHandler::createImageFromTexture(TXDTexture* tex, uint8_t* data, uint8_t*& resultData)
 {
 	int16_t w = tex->getWidth();
@@ -57,4 +126,3 @@ QImage TXDFormatHandler::createImageFromTexture(TXDTexture* tex, uint8_t* data, 
 
 	return image;
 }
-

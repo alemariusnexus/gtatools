@@ -51,7 +51,7 @@ public:
 	const DFFFrame* getParent() const { return parent; }
 	int32_t getFlags() const { return flags; }
 	const char* getName() const { return name; }
-	int32_t getChildCount() { return children.size(); }
+	int32_t getChildCount() const { return children.size(); }
 	ChildIterator getChildBegin() { return children.begin(); }
 	ConstChildIterator getChildBegin() const { return children.begin(); }
 	ChildIterator getChildEnd() { return children.end(); }

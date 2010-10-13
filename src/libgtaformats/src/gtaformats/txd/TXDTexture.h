@@ -203,7 +203,7 @@ public:
 	 *
 	 *	@return Whether this texture can be converted using convert().
 	 */
-	bool canConvert();
+	bool canConvert() const;
 
 	/**	\brief This converts the raw data of this texture to a more suitable form.
 	 *

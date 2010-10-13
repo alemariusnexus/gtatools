@@ -24,6 +24,7 @@
 #include <qtabwidget.h>
 #include "../../System.h"
 #include <qstring.h>
+#include "TXDFormatHandler.h"
 
 
 int tabIndex = 0;
@@ -63,11 +64,16 @@ TXDWidget::TXDWidget(const File& file, const QString& selectedTex, QWidget* pare
 
 	ui.textureCountLabel->setText(QString("%1").arg(txd->getTextureCount()));
 
+	extractAction = new QAction(tr("Extract textures..."), NULL);
+	connect(extractAction, SIGNAL(triggered(bool)), this, SLOT(textureExtractionRequested(bool)));
+
 	System* sys = System::getInstance();
 
 	connect(sys, SIGNAL(configurationChanged()), this, SLOT(configurationChanged()));
 	connect(ui.textureList, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)), this,
 			SLOT(textureActivated(QListWidgetItem*, QListWidgetItem*)));
+	connect(ui.textureList, SIGNAL(customContextMenuRequested(const QPoint&)), this,
+			SLOT(textureListContextMenuRequested(const QPoint&)));
 
 	openGUIModule = new OpenTXDGUIModule(this);
 
@@ -192,5 +198,25 @@ void TXDWidget::textureActivated(QListWidgetItem* item, QListWidgetItem* previou
 void TXDWidget::configurationChanged()
 {
 	loadConfigUiSettings();
+}
+
+
+void TXDWidget::textureListContextMenuRequested(const QPoint& pos)
+{
+	QLinkedList<TXDTexture*> texes = getSelectedTextures();
+
+	if (texes.size() > 0) {
+		QMenu* menu = new QMenu(ui.textureList);
+		menu->setAttribute(Qt::WA_DeleteOnClose);
+		menu->addAction(extractAction);
+		menu->popup(ui.textureList->mapToGlobal(pos));
+	}
+}
+
+
+void TXDWidget::textureExtractionRequested(bool checked)
+{
+	QLinkedList<TXDTexture*> texes = getSelectedTextures();
+	TXDFormatHandler::getInstance()->extractTexturesDialog(txd, texes, this);
 }
 
