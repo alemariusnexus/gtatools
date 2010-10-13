@@ -40,6 +40,7 @@ private:
 	virtual void doInstall();
 	virtual void doUninstall();
 	void extract(const QLinkedList<File*>& files);
+	void deleteCurrentContextFiles();
 
 private slots:
 	void onExtract(bool);

@@ -31,6 +31,7 @@
 
 
 
+
 FileSearchDialog::FileSearchDialog(QWidget* parent)
 		: QDialog(parent), cancelled(false)
 {
@@ -187,6 +188,8 @@ bool FileSearchDialog::collectResults(const File& file, StringMatcher* matcher, 
 				break;
 			}
 		}
+
+		matches = true;
 	} else if (dirs) {
 		matches = true;
 	}

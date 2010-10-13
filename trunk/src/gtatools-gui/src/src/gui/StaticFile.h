@@ -25,9 +25,11 @@
 
 
 class StaticFile {
-private:
+public:
 	typedef QList<StaticFile*> ChildList;
+	typedef ChildList::iterator ChildIterator;
 
+private:
 	enum Type {
 		Unknown,
 		Node,
@@ -42,6 +44,8 @@ public:
 	StaticFile* getParent() const { return parent; }
 	int getChildCount() { ensureChildrenAvailable(); return children.size(); }
 	StaticFile* getChild(int idx) { ensureChildrenAvailable(); return children[idx]; }
+	ChildIterator getChildBegin() { return children.begin(); }
+	ChildIterator getChildEnd() { return children.end(); }
 	int indexOf(StaticFile* child) { ensureChildrenAvailable(); return children.indexOf(child); }
 	const char* toString() const { return file->getPath()->getFileName(); }
 

@@ -80,6 +80,7 @@ void OpenTXDGUIModule::onExtract(bool checked)
 			uint8_t* rawData = txd->readTextureData(tex);
 			uint8_t* data;
 			QImage image = TXDFormatHandler::getInstance()->createImageFromTexture(tex, rawData, data);
+			image.setText("Description", "Converted from GTA TXD by gtatools " GTATOOLS_VERSION);
 			delete[] rawData;
 
 			QImageWriter writer(fname);
