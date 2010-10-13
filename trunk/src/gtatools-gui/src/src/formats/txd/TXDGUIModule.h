@@ -31,7 +31,7 @@ class TXDGUIModule : public GUIModule {
 public:
 	TXDGUIModule();
 	virtual ~TXDGUIModule();
-	virtual void buildFileTreeMenu(const File& file, QMenu& menu);
+	virtual void buildFileTreeMenu(const QLinkedList<File*>& files, QMenu& menu);
 
 private:
 	virtual void doInstall();
@@ -42,7 +42,7 @@ private slots:
 	void onFindTextureInFile(bool checked);
 
 private:
-	File* contextFile;
+	QLinkedList<File*> contextFiles;
 	QAction* findTextureAction;
 	QAction* findTextureInFileAction;
 };

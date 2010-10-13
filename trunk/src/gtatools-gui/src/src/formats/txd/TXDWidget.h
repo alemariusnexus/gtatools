@@ -45,9 +45,12 @@ private:
 
 private slots:
 	void textureActivated(QListWidgetItem* item, QListWidgetItem* previous);
+	void textureListContextMenuRequested(const QPoint& pos);
 	void configurationChanged();
+	void textureExtractionRequested(bool checked);
 
 private:
+	QAction* extractAction;
 	OpenTXDGUIModule* openGUIModule;
 	QTabWidget* compactTab;
 	Ui_TXDWidget ui;

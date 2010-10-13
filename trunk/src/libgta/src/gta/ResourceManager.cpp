@@ -86,10 +86,10 @@ void ResourceManager::addResource(const File& file)
 		delete it;
 	} else if (file.isArchiveFile()) {
 		IMGArchive img(file);
-		IMGEntry** entries = img.getEntries();
+		const IMGEntry** entries = img.getEntries();
 
 		for (int32_t i = 0 ; i < img.getEntryCount() ; i++) {
-			IMGEntry* entry = entries[i];
+			const IMGEntry* entry = entries[i];
 
 			FilePath* path = new FilePath(*file.getPath(), entry->name);
 			File child(path, true);

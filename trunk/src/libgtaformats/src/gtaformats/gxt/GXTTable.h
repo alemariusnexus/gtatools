@@ -44,6 +44,7 @@ public:
 	/**	\brief An entry iterator.
 	 */
 	typedef map<crc32_t, char*>::iterator EntryIterator;
+	typedef map<crc32_t, char*>::const_iterator ConstEntryIterator;
 	typedef map<crc32_t, char*> EntryMap;
 	typedef map<crc32_t, char*> KeyNameMap;
 
@@ -62,14 +63,21 @@ public:
 	 *
 	 * 	@return The internal encoding.
 	 */
-	Encoding getInternalEncoding() { return internalEncoding; }
+	Encoding getInternalEncoding() const { return internalEncoding; }
 
 	/**	\brief Returns the value of an entry in the internal encoding.
 	 *
 	 * 	@param keyHash The CRC32 hash of the entry key.
 	 * 	@return The entry value in the internal encoding.
 	 */
-	char* getValue(int32_t keyHash) { return entries[keyHash]; }
+	char* getValue(int32_t keyHash);
+
+	/**	\brief Returns the value of an entry in the internal encoding.
+	 *
+	 * 	@param keyHash The CRC32 hash of the entry key.
+	 * 	@return The entry value in the internal encoding.
+	 */
+	const char* getValue(int32_t keyHash) const;
 
 	/**	\brief Returns the beginning of the entry map.
 	 *
@@ -77,11 +85,23 @@ public:
 	 */
 	EntryIterator getFirstEntry() { return entries.begin(); }
 
+	/**	\brief Returns the constant beginning of the entry map.
+	 *
+	 * 	@return The constant beginning of the entry map.
+	 */
+	ConstEntryIterator getFirstEntry() const { return entries.begin(); }
+
 	/**	\brief Returns the end of the entry map.
 	 *
 	 * 	@return The end of the entry map.
 	 */
 	EntryIterator getLastEntry() { return entries.end(); }
+
+	/**	\brief Returns the constant end of the entry map.
+	 *
+	 * 	@return The constant end of the entry map.
+	 */
+	ConstEntryIterator getLastEntry() const { return entries.end(); }
 
 	int getEntryCount() { return entries.size(); }
 
@@ -90,7 +110,14 @@ public:
 	 * 	@param key The key name of the entry.
 	 * 	@return The entry value in the internal encoding.
 	 */
-	char* getValue(const char* key);
+	char* getValue(const char* key) { return getValue(Crc32(key)); }
+
+	/**	\brief Returns the value of an entry in the internal encoding.
+	 *
+	 * 	@param key The key name of the entry.
+	 * 	@return The entry value in the internal encoding.
+	 */
+	const char* getValue(const char* key) const { return getValue(Crc32(key)); }
 
 	/**	\brief Returns the value of an entry transcoded to UTF-8.
 	 *
@@ -99,14 +126,14 @@ public:
 	 * 	@param keyHash The CRC32 hash of the entry key.
 	 * 	@return The entry value transcoded to UTF-8. You have to delete it when finished.
 	 */
-	char* getValueUTF8(crc32_t keyHash);
+	char* getValueUTF8(crc32_t keyHash) const;
 
 	/**	\brief Returns the value of an entry transcoded to UTF-8.
 	 *
 	 * 	@param key The key name of the entry.
 	 * 	@see getValueUTF8(int32_t)
 	 */
-	char* getValueUTF8(const char* key);
+	char* getValueUTF8(const char* key) const;
 
 	/**	\brief Returns the value of an entry transcoded to UTF-16.
 	 *
@@ -115,14 +142,14 @@ public:
 	 * 	@param keyHash The CRC32 hash of the entry key.
 	 * 	@return The entry value transcoded to UTF-16. You have to delete it when finished.
 	 */
-	char* getValueUTF16(crc32_t keyHash);
+	char* getValueUTF16(crc32_t keyHash) const;
 
 	/**	\brief Returns the value of an entry transcoded to UTF-16.
 	 *
 	 * 	@param key The key name of the entry.
 	 * 	@see getValueUTF16(int32_t)
 	 */
-	char* getValueUTF16(const char* key);
+	char* getValueUTF16(const char* key) const;
 
 	/**	\brief Returns the value of an entry in the internal encoding.
 	 *
@@ -132,9 +159,21 @@ public:
 
 	/**	\brief Returns the value of an entry in the internal encoding.
 	 *
+	 * 	@see getValue(int32_t)
+	 */
+	const char* operator[](crc32_t keyHash) const { return getValue(keyHash); }
+
+	/**	\brief Returns the value of an entry in the internal encoding.
+	 *
 	 * 	@see getValue(const char*)
 	 */
 	char* operator[](const char* key) { return getValue(key); }
+
+	/**	\brief Returns the value of an entry in the internal encoding.
+	 *
+	 * 	@see getValue(const char*)
+	 */
+	const char* operator[](const char* key) const { return getValue(key); }
 
 	void setValue(crc32_t keyHash, char* value);
 
@@ -142,7 +181,7 @@ public:
 
 	void setKeyName(crc32_t keyHash, const char* name);
 
-	const char* getKeyName(crc32_t keyHash);
+	const char* getKeyName(crc32_t keyHash) const;
 
 private:
 	Encoding internalEncoding;

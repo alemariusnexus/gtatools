@@ -79,6 +79,7 @@ const unsigned char ISO88591ToGXT8Table[] = {
 
 
 
+// Unfortunately, first parameter needs to be non-const because iconv() takes the inbuf as non-const char**
 int Transcode(char* src, int srcBytes, char* dest, int destBytes, Encoding srcEnc, Encoding destEnc)
 {
 	if (srcEnc == None) {

@@ -30,8 +30,8 @@
 
 
 
-TextureSearchDialog::TextureSearchDialog(QWidget* parent, const File* root)
-		: QDialog(parent), rootFile(root), cancelled(false)
+TextureSearchDialog::TextureSearchDialog(QWidget* parent, const QLinkedList<File*>& rootFiles)
+		: QDialog(parent), rootFiles(rootFiles), cancelled(false)
 {
 	ui.setupUi(this);
 	connect(ui.searchButton, SIGNAL(clicked(bool)), this, SLOT(onSearch(bool)));
@@ -85,13 +85,18 @@ void TextureSearchDialog::onSearch(bool checked)
 	int numFiles = 0;
 	int filesDone = 0;
 
-	if (rootFile) {
+	/*if (rootFile) {
 		numFiles = rootFile->getChildCount(true, true);
 	} else {
 		for (it = profile->getResourceBegin() ; it != profile->getResourceEnd() ; it++) {
 			File* resource = *it;
 			numFiles += resource->getChildCount(true, true);
 		}
+	}*/
+
+	for (it = rootFiles.begin() ; it != rootFiles.end() ; it++) {
+		File* file = *it;
+		numFiles += file->getChildCount(true, true);
 	}
 
 	System* sys = System::getInstance();
@@ -99,7 +104,24 @@ void TextureSearchDialog::onSearch(bool checked)
 	Task* task = sys->createTask();
 	task->start(0, 100, tr("Searching texture..."));
 
-	if (rootFile) {
+	for (it = rootFiles.begin() ; it != rootFiles.end() ; it++) {
+		File* rootFile = *it;
+
+		if (!collectSearchResults(*rootFile, &texMatcher, txdMatcher, results, numFiles, filesDone, task)) {
+			delete task;
+
+			QList<TextureMatch*>::iterator rit;
+			for (rit = results.begin() ; rit != results.end() ; rit++) {
+				TextureMatch* match = *rit;
+				delete match->txdFile;
+				delete match;
+			}
+
+			return;
+		}
+	}
+
+	/*if (rootFile) {
 		if (!collectSearchResults(*rootFile, &texMatcher, txdMatcher, results, numFiles, filesDone, task)) {
 			delete task;
 
@@ -128,7 +150,7 @@ void TextureSearchDialog::onSearch(bool checked)
 				return;
 			}
 		}
-	}
+	}*/
 
 	delete task;
 

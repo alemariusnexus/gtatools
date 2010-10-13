@@ -95,9 +95,19 @@
 <context>
     <name>DFFFormatHandler</name>
     <message>
-        <location filename="src/formats/dff/DFFFormatHandler.h" line="32"/>
+        <location filename="src/formats/dff/DFFFormatHandler.h" line="38"/>
         <source>DFF Mesh</source>
         <translation>DFF-Mesh</translation>
+    </message>
+    <message>
+        <location filename="src/formats/dff/DFFFormatHandler.cpp" line="54"/>
+        <source>Choose a destination file</source>
+        <translation>Wähle eine Zieldatei</translation>
+    </message>
+    <message>
+        <location filename="src/formats/dff/DFFFormatHandler.cpp" line="55"/>
+        <source>XML Files (*.xml)</source>
+        <translation>XML-Dateien (*.xml)</translation>
     </message>
 </context>
 <context>
@@ -129,6 +139,19 @@
         <location filename="src/formats/dff/DFFGUIModule.cpp" line="37"/>
         <source>Dump XML</source>
         <translation>Nach XML dumpen</translation>
+    </message>
+</context>
+<context>
+    <name>DFFRenderWidget</name>
+    <message>
+        <location filename="src/formats/dff/DFFRenderWidget.cpp" line="125"/>
+        <source>OpenGL Too Old</source>
+        <translation>OpenGL Zu Alt</translation>
+    </message>
+    <message>
+        <location filename="src/formats/dff/DFFRenderWidget.cpp" line="126"/>
+        <source>This program needs at least OpenGL version 2.1! Rendering will be disabled.</source>
+        <translation>Dieses Programm benötigt mindestens OpenGL Version 2.1! Rendering wird deaktiviert.</translation>
     </message>
 </context>
 <context>
@@ -385,14 +408,12 @@
         <translation>(%1, %2, %3, %4)</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="371"/>
         <source>Choose a destination file</source>
-        <translation>Wähle eine Zieldatei</translation>
+        <translation type="obsolete">Wähle eine Zieldatei</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="372"/>
         <source>XML Files (*.xml)</source>
-        <translation>XML-Dateien (*.xml)</translation>
+        <translation type="obsolete">XML-Dateien (*.xml)</translation>
     </message>
 </context>
 <context>
@@ -441,73 +462,73 @@
 <context>
     <name>DefaultGUIModule</name>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="45"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="50"/>
         <source>Open...</source>
         <translation>Öffnen...</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="49"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="54"/>
         <source>Close</source>
         <translation>Schließen</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="54"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="59"/>
         <source>Search File...</source>
         <translation>Datei Suchen...</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="58"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="63"/>
         <source>Settings...</source>
         <translation>Einstellungen...</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="62"/>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="273"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="67"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="274"/>
         <source>About Qt</source>
         <translation>Über Qt</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="65"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="70"/>
         <source>About</source>
         <translation>Über</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="68"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="73"/>
         <source>Version Information</source>
         <translation>Versionsinformationen</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="74"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="40"/>
         <source>Error Log Console</source>
         <translation>Fehlerkonsole</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="133"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="135"/>
         <source>Switch</source>
         <translation>Wechseln</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="71"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="76"/>
         <source>Execute System Program</source>
         <translation>Systemprogramm ausführen</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="40"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="45"/>
         <source>File Tree</source>
         <translation>Dateibaum</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="164"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="166"/>
         <source>No Profile</source>
         <translation>Kein Profil</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="280"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="281"/>
         <source>About GTATools GUI Tool</source>
         <translation>Über GTATools GUI Tool</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="279"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="280"/>
         <source>AboutText</source>
         <translation>Dies ist gtatools-gui. Dieses Programm ist Teil der gtatools und läuft mit Version %1.
 
@@ -518,7 +539,7 @@ Die Veröffentlichung dieses Programms erfolgt in der Hoffnung, daß es Ihnen vo
 Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem Programm erhalten haben. Falls nicht, siehe &lt;http://www.gnu.org/licenses/&gt;.</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="293"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="294"/>
         <source>Select file</source>
         <translation>Datei auswählen</translation>
     </message>
@@ -526,22 +547,22 @@ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem Prog
 <context>
     <name>FileItemModel</name>
     <message>
-        <location filename="src/gui/FileItemModel.cpp" line="117"/>
+        <location filename="src/gui/FileItemModel.cpp" line="121"/>
         <source>Filename</source>
         <translation>Dateiname</translation>
     </message>
     <message>
-        <location filename="src/gui/FileItemModel.cpp" line="120"/>
+        <location filename="src/gui/FileItemModel.cpp" line="124"/>
         <source>File Type</source>
         <translation>Dateityp</translation>
     </message>
     <message>
-        <location filename="src/gui/FileItemModel.cpp" line="148"/>
+        <location filename="src/gui/FileItemModel.cpp" line="152"/>
         <source>Directory</source>
         <translation>Verzeichnis</translation>
     </message>
     <message>
-        <location filename="src/gui/FileItemModel.cpp" line="155"/>
+        <location filename="src/gui/FileItemModel.cpp" line="159"/>
         <source>Unrecognized File</source>
         <translation>Nicht erkannte Datei</translation>
     </message>
@@ -599,32 +620,32 @@ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem Prog
         <translation>&amp;Suchen</translation>
     </message>
     <message>
-        <location filename="src/gui/FileSearchDialog.cpp" line="41"/>
+        <location filename="src/gui/FileSearchDialog.cpp" line="42"/>
         <source>Directory</source>
         <translation>Verzeichnis</translation>
     </message>
     <message>
-        <location filename="src/gui/FileSearchDialog.cpp" line="114"/>
+        <location filename="src/gui/FileSearchDialog.cpp" line="115"/>
         <source>Searching files...</source>
         <translation>Suche Dateien...</translation>
     </message>
     <message>
-        <location filename="src/gui/FileSearchDialog.cpp" line="136"/>
+        <location filename="src/gui/FileSearchDialog.cpp" line="137"/>
         <source>No Match</source>
         <translation>Keine Übereinstimmung</translation>
     </message>
     <message>
-        <location filename="src/gui/FileSearchDialog.cpp" line="136"/>
+        <location filename="src/gui/FileSearchDialog.cpp" line="137"/>
         <source>No file matching your criteria was found!</source>
         <translation>Keine Datei wurde gefunden, die auf die Kriterien passt!</translation>
     </message>
     <message>
-        <location filename="src/gui/FileSearchDialog.cpp" line="151"/>
+        <location filename="src/gui/FileSearchDialog.cpp" line="152"/>
         <source>Multiple Matches</source>
         <translation>Mehrere Übereinstimmungen</translation>
     </message>
     <message>
-        <location filename="src/gui/FileSearchDialog.cpp" line="151"/>
+        <location filename="src/gui/FileSearchDialog.cpp" line="152"/>
         <source>Please select the file you want to open:</source>
         <translation>Bitte wähle die zu öffnende Datei aus:</translation>
     </message>
@@ -949,7 +970,7 @@ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem Prog
         <translation>Waffen</translation>
     </message>
     <message>
-        <location filename="src/formats/ide/IDEWidget.cpp" line="203"/>
+        <location filename="src/formats/ide/IDEWidget.cpp" line="215"/>
         <source>Parsing errors in IDE file %1:</source>
         <translation>Parserfehler in IDE-Datei %1:</translation>
     </message>
@@ -990,26 +1011,31 @@ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem Prog
         <translation>Datei(en) Extrahieren</translation>
     </message>
     <message>
-        <location filename="src/formats/img/IMGGUIModule.cpp" line="110"/>
+        <location filename="src/formats/img/IMGGUIModule.cpp" line="140"/>
         <source>Choose a destination file</source>
         <translation>Wähle eine Zieldatei</translation>
     </message>
     <message>
-        <location filename="src/formats/img/IMGGUIModule.cpp" line="130"/>
         <location filename="src/formats/img/IMGGUIModule.cpp" line="160"/>
+        <location filename="src/formats/img/IMGGUIModule.cpp" line="195"/>
         <source>Unable to open file</source>
         <translation>Datei konnte nicht geöffnet werden</translation>
     </message>
     <message>
-        <location filename="src/formats/img/IMGGUIModule.cpp" line="131"/>
         <location filename="src/formats/img/IMGGUIModule.cpp" line="161"/>
+        <location filename="src/formats/img/IMGGUIModule.cpp" line="196"/>
         <source>Unable to open file %1 for writing!</source>
         <translation>Die Datei %1 konnte nicht zum Schreiben geöffnet werden!</translation>
     </message>
     <message>
-        <location filename="src/formats/img/IMGGUIModule.cpp" line="135"/>
+        <location filename="src/formats/img/IMGGUIModule.cpp" line="165"/>
         <source>Choose a destination directory</source>
         <translation>Wähle ein Zielverzeichnis</translation>
+    </message>
+    <message>
+        <location filename="src/formats/img/IMGGUIModule.cpp" line="172"/>
+        <source>Extracting Files...</source>
+        <translation>Extrahiere Dateien...</translation>
     </message>
 </context>
 <context>
@@ -1038,142 +1064,142 @@ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem Prog
         <translation>Instanzen</translation>
     </message>
     <message>
-        <location filename="src/formats/ipl/IPLWidget.ui" line="45"/>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="48"/>
         <source>ID</source>
         <translation>ID</translation>
     </message>
     <message>
-        <location filename="src/formats/ipl/IPLWidget.ui" line="50"/>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="53"/>
         <source>Model Name</source>
         <translation>Modellname</translation>
     </message>
     <message>
-        <location filename="src/formats/ipl/IPLWidget.ui" line="55"/>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="58"/>
         <source>Interior</source>
         <translation>Interior</translation>
     </message>
     <message>
-        <location filename="src/formats/ipl/IPLWidget.ui" line="60"/>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="63"/>
         <source>X</source>
         <translation>X</translation>
     </message>
     <message>
-        <location filename="src/formats/ipl/IPLWidget.ui" line="65"/>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="68"/>
         <source>Y</source>
         <translation>Y</translation>
     </message>
     <message>
-        <location filename="src/formats/ipl/IPLWidget.ui" line="70"/>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="73"/>
         <source>Z</source>
         <translation>Z</translation>
     </message>
     <message>
-        <location filename="src/formats/ipl/IPLWidget.ui" line="75"/>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="78"/>
         <source>Scale X</source>
         <translation>Skalierung X</translation>
     </message>
     <message>
-        <location filename="src/formats/ipl/IPLWidget.ui" line="80"/>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="83"/>
         <source>Scale Y</source>
         <translation>Skalierung Y</translation>
     </message>
     <message>
-        <location filename="src/formats/ipl/IPLWidget.ui" line="85"/>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="88"/>
         <source>Scale Z</source>
         <translation>Skalierung Z</translation>
     </message>
     <message>
-        <location filename="src/formats/ipl/IPLWidget.ui" line="90"/>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="93"/>
         <source>Rotation X</source>
         <translation>Rotation X</translation>
     </message>
     <message>
-        <location filename="src/formats/ipl/IPLWidget.ui" line="95"/>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="98"/>
         <source>Rotation Y</source>
         <translation>Rotation Y</translation>
     </message>
     <message>
-        <location filename="src/formats/ipl/IPLWidget.ui" line="100"/>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="103"/>
         <source>Rotation Z</source>
         <translation>Rotation Z</translation>
     </message>
     <message>
-        <location filename="src/formats/ipl/IPLWidget.ui" line="105"/>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="108"/>
         <source>Rotation W</source>
         <translation>Rotation W</translation>
     </message>
     <message>
-        <location filename="src/formats/ipl/IPLWidget.ui" line="110"/>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="113"/>
         <source>LOD</source>
         <translation>LOD</translation>
     </message>
     <message>
-        <location filename="src/formats/ipl/IPLWidget.ui" line="119"/>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="122"/>
         <source>Cars</source>
         <translation>Autos</translation>
     </message>
     <message>
-        <location filename="src/formats/ipl/IPLWidget.ui" line="126"/>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="132"/>
         <source>Position X</source>
         <translation>Position X</translation>
     </message>
     <message>
-        <location filename="src/formats/ipl/IPLWidget.ui" line="131"/>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="137"/>
         <source>Position Y</source>
         <translation>Position Y</translation>
     </message>
     <message>
-        <location filename="src/formats/ipl/IPLWidget.ui" line="136"/>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="142"/>
         <source>Position Z</source>
         <translation>Position Z</translation>
     </message>
     <message>
-        <location filename="src/formats/ipl/IPLWidget.ui" line="141"/>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="147"/>
         <source>Angle</source>
         <translation>Winkel</translation>
     </message>
     <message>
-        <location filename="src/formats/ipl/IPLWidget.ui" line="146"/>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="152"/>
         <source>Car ID</source>
         <translation>Auto-ID</translation>
     </message>
     <message>
-        <location filename="src/formats/ipl/IPLWidget.ui" line="151"/>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="157"/>
         <source>Primary Color</source>
         <translation>Primäre Farbe</translation>
     </message>
     <message>
-        <location filename="src/formats/ipl/IPLWidget.ui" line="156"/>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="162"/>
         <source>Secondary Color</source>
         <translation>Sekundäre Farbe</translation>
     </message>
     <message>
-        <location filename="src/formats/ipl/IPLWidget.ui" line="161"/>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="167"/>
         <source>Force Spawn</source>
         <translation>Spawn Erzwingen</translation>
     </message>
     <message>
-        <location filename="src/formats/ipl/IPLWidget.ui" line="166"/>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="172"/>
         <source>Alarm Probability</source>
         <translation>Alarmwahrscheinlichkeit</translation>
     </message>
     <message>
-        <location filename="src/formats/ipl/IPLWidget.ui" line="171"/>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="177"/>
         <source>Door Lock Probability</source>
         <translation>Verschlossen-Wahrscheinlichkeit</translation>
     </message>
     <message>
-        <location filename="src/formats/ipl/IPLWidget.ui" line="176"/>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="182"/>
         <source>Unknown 1</source>
         <translation>Unbekannt 1</translation>
     </message>
     <message>
-        <location filename="src/formats/ipl/IPLWidget.ui" line="181"/>
+        <location filename="src/formats/ipl/IPLWidget.ui" line="187"/>
         <source>Unknown 2</source>
         <translation>Unbekannt 2</translation>
     </message>
     <message>
-        <location filename="src/formats/ipl/IPLWidget.cpp" line="184"/>
+        <location filename="src/formats/ipl/IPLWidget.cpp" line="203"/>
         <source>Parsing errors in IPL file %1:</source>
         <translation>Parsersehler in  IPL-Datei %1:</translation>
     </message>
@@ -1181,7 +1207,7 @@ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem Prog
 <context>
     <name>LogConsole</name>
     <message>
-        <location filename="src/gui/LogConsole.cpp" line="36"/>
+        <location filename="src/gui/LogConsole.cpp" line="44"/>
         <source>ERROR</source>
         <translation>FEHLER</translation>
     </message>
@@ -1191,9 +1217,8 @@ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem Prog
         <translation>Fehlerkonsole</translation>
     </message>
     <message>
-        <location filename="src/gui/LogConsole.ui" line="37"/>
         <source>Show automatically</source>
-        <translation>Automatisch anzeigen</translation>
+        <translation type="obsolete">Automatisch anzeigen</translation>
     </message>
 </context>
 <context>
@@ -1258,42 +1283,42 @@ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem Prog
         <translation type="obsolete">Dateigröße</translation>
     </message>
     <message>
-        <location filename="src/gui/MainFrame.ui" line="65"/>
+        <location filename="src/gui/MainFrame.ui" line="68"/>
         <source>Profile</source>
         <translation>Profil</translation>
     </message>
     <message>
-        <location filename="src/gui/MainFrame.ui" line="80"/>
+        <location filename="src/gui/MainFrame.ui" line="83"/>
         <source>Settings</source>
         <translation>Einstellungen</translation>
     </message>
     <message>
-        <location filename="src/gui/MainFrame.ui" line="70"/>
+        <location filename="src/gui/MainFrame.ui" line="73"/>
         <source>Edit</source>
         <translation>Bearbeiten</translation>
     </message>
     <message>
-        <location filename="src/gui/MainFrame.ui" line="75"/>
+        <location filename="src/gui/MainFrame.ui" line="78"/>
         <source>File</source>
         <translation>Datei</translation>
     </message>
     <message>
-        <location filename="src/gui/MainFrame.ui" line="90"/>
+        <location filename="src/gui/MainFrame.ui" line="93"/>
         <source>Help</source>
         <translation>Hilfe</translation>
     </message>
     <message>
-        <location filename="src/gui/MainFrame.ui" line="85"/>
+        <location filename="src/gui/MainFrame.ui" line="88"/>
         <source>View</source>
         <translation>Anzeige</translation>
     </message>
     <message>
-        <location filename="src/gui/MainFrame.ui" line="95"/>
+        <location filename="src/gui/MainFrame.ui" line="98"/>
         <source>Windows</source>
         <translation>Fenster</translation>
     </message>
     <message>
-        <location filename="src/gui/MainFrame.ui" line="113"/>
+        <location filename="src/gui/MainFrame.ui" line="116"/>
         <source>Settings...</source>
         <translation>Einstellungen...</translation>
     </message>
@@ -1306,18 +1331,16 @@ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem Prog
         <translation>Texturen extrahieren...</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/OpenTXDGUIModule.cpp" line="75"/>
         <source>Select the file to save to</source>
-        <translation>Wähle die zu speichernde Datei aus</translation>
+        <translation type="obsolete">Wähle die zu speichernde Datei aus</translation>
     </message>
     <message>
         <source>Extraction successful!</source>
         <translation type="obsolete">Extraktion erfolgreich!</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/OpenTXDGUIModule.cpp" line="91"/>
         <source>Select the destination directory</source>
-        <translation>Wähle das Zielverzeichnis aus</translation>
+        <translation type="obsolete">Wähle das Zielverzeichnis aus</translation>
     </message>
 </context>
 <context>
@@ -1387,7 +1410,7 @@ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem Prog
         <translation type="obsolete">Erstelle Ressourcenindex...</translation>
     </message>
     <message>
-        <location filename="src/ProfileInitializer.cpp" line="42"/>
+        <location filename="src/ProfileInitializer.cpp" line="43"/>
         <source>Generating resource index...</source>
         <translation>Erstelle Ressourcenindex...</translation>
     </message>
@@ -1403,12 +1426,12 @@ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem Prog
         <translation type="obsolete">Datei geschlossen!</translation>
     </message>
     <message>
-        <location filename="src/System.cpp" line="120"/>
+        <location filename="src/System.cpp" line="122"/>
         <source>Unhandeled Exception</source>
         <translation>Unbehandelte Ausnahme</translation>
     </message>
     <message>
-        <location filename="src/System.cpp" line="117"/>
+        <location filename="src/System.cpp" line="119"/>
         <source>Unhandeled Exception %1%2</source>
         <translation>Eine unbehandelte Ausnahme ist aufgetreten. Das Programm könnte weiter laufen, aber Stabilität kann nicht garantiert werden. Eine genaue Beschreibung der Ausnahme wurde in die Datei %2 geschrieben.
 Der Ausnahmetext:
@@ -1425,16 +1448,26 @@ Der Ausnahmetext:
 <context>
     <name>TXDFormatHandler</name>
     <message>
-        <location filename="src/formats/txd/TXDFormatHandler.h" line="37"/>
+        <location filename="src/formats/txd/TXDFormatHandler.h" line="41"/>
         <source>Texture Dictionary (TXD)</source>
         <translation>Texture Dictionary (TXD)</translation>
+    </message>
+    <message>
+        <location filename="src/formats/txd/TXDFormatHandler.cpp" line="62"/>
+        <source>Select the file to save to</source>
+        <translation>Wähle die zu speichernde Datei aus</translation>
+    </message>
+    <message>
+        <location filename="src/formats/txd/TXDFormatHandler.cpp" line="82"/>
+        <source>Select the destination directory</source>
+        <translation>Wähle das Zielverzeichnis aus</translation>
     </message>
 </context>
 <context>
     <name>TXDGUIModule</name>
     <message>
-        <location filename="src/formats/txd/TXDGUIModule.cpp" line="30"/>
-        <location filename="src/formats/txd/TXDGUIModule.cpp" line="33"/>
+        <location filename="src/formats/txd/TXDGUIModule.cpp" line="32"/>
+        <location filename="src/formats/txd/TXDGUIModule.cpp" line="35"/>
         <source>Search Texture...</source>
         <translation>Textur Suchen...</translation>
     </message>
@@ -1442,46 +1475,51 @@ Der Ausnahmetext:
 <context>
     <name>TXDWidget</name>
     <message>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="111"/>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="67"/>
+        <source>Extract textures...</source>
+        <translation>Texturen extrahieren...</translation>
+    </message>
+    <message>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="117"/>
         <source>&amp;Information</source>
         <oldsource>Information</oldsource>
         <translatorcomment>Das &apos;I&apos; als Accelerator wird schon für &quot;Inhalt&quot; verwendet</translatorcomment>
         <translation>Infor&amp;mationen</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="112"/>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="118"/>
         <source>&amp;Display</source>
         <oldsource>Display</oldsource>
         <translatorcomment>Das &apos;A&apos; als Accelerator wird schon für &quot;Allgemeine Informationen&quot; verwendet</translatorcomment>
         <translation>An&amp;zeige</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="174"/>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="180"/>
         <source>DXT1</source>
         <translation>DXT1</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="177"/>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="183"/>
         <source>DXT3</source>
         <translation>DXT3</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="180"/>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="186"/>
         <source>None</source>
         <translation>Keine</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="184"/>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="190"/>
         <source>%1x%2</source>
         <translation>%1x%2</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="187"/>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="193"/>
         <source>yes</source>
         <translation>ja</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="187"/>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="193"/>
         <source>no</source>
         <translation>nein</translation>
     </message>
@@ -1491,42 +1529,42 @@ Der Ausnahmetext:
         <translation>Anzahl Texturen</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.ui" line="73"/>
+        <location filename="src/formats/txd/TXDWidget.ui" line="76"/>
         <source>Raster Format</source>
         <translation>Rasterformat</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.ui" line="87"/>
+        <location filename="src/formats/txd/TXDWidget.ui" line="90"/>
         <source>Diffuse Name</source>
         <translation>Diffuse Name</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.ui" line="101"/>
+        <location filename="src/formats/txd/TXDWidget.ui" line="104"/>
         <source>Alpha Name</source>
         <translation>Alpha Name</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.ui" line="115"/>
+        <location filename="src/formats/txd/TXDWidget.ui" line="118"/>
         <source>Compression</source>
         <translation>Kompression</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.ui" line="129"/>
+        <location filename="src/formats/txd/TXDWidget.ui" line="132"/>
         <source>Dimensions</source>
         <translation>Dimensionen</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.ui" line="143"/>
+        <location filename="src/formats/txd/TXDWidget.ui" line="146"/>
         <source>Bits Per Pixel</source>
         <translation>Bits Pro Pixel</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.ui" line="157"/>
+        <location filename="src/formats/txd/TXDWidget.ui" line="160"/>
         <source>MipMap Count</source>
         <translation>Anzahl MipMaps</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.ui" line="171"/>
+        <location filename="src/formats/txd/TXDWidget.ui" line="174"/>
         <source>Alpha Channel</source>
         <translation>Alphakanal</translation>
     </message>
@@ -1534,32 +1572,32 @@ Der Ausnahmetext:
 <context>
     <name>TextureSearchDialog</name>
     <message>
-        <location filename="src/formats/txd/TextureSearchDialog.cpp" line="100"/>
+        <location filename="src/formats/txd/TextureSearchDialog.cpp" line="105"/>
         <source>Searching texture...</source>
         <translation>Suche Textur...</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TextureSearchDialog.cpp" line="138"/>
+        <location filename="src/formats/txd/TextureSearchDialog.cpp" line="160"/>
         <source>No Match</source>
         <translation>Keine Übereinstimmung</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TextureSearchDialog.cpp" line="138"/>
+        <location filename="src/formats/txd/TextureSearchDialog.cpp" line="160"/>
         <source>No texture matching your criteria was found!</source>
         <translation>Keine Textur wurde gefunden, die den Kriterien entspricht!</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TextureSearchDialog.cpp" line="152"/>
+        <location filename="src/formats/txd/TextureSearchDialog.cpp" line="174"/>
         <source>%1 in %2</source>
         <translation>%1 in %2</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TextureSearchDialog.cpp" line="156"/>
+        <location filename="src/formats/txd/TextureSearchDialog.cpp" line="178"/>
         <source>Multiple Matches</source>
         <translation>Mehrere Übereinstimmungen</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TextureSearchDialog.cpp" line="156"/>
+        <location filename="src/formats/txd/TextureSearchDialog.cpp" line="178"/>
         <source>Please select the texture you want to open:</source>
         <translation>Bitte wähle die zu öffnende Textur auf:</translation>
     </message>
@@ -1623,32 +1661,32 @@ Der Ausnahmetext:
         <translation>Versionsinformationen</translation>
     </message>
     <message>
-        <location filename="src/gui/VersionDialog.ui" line="46"/>
+        <location filename="src/gui/VersionDialog.ui" line="49"/>
         <source>GTATools Version</source>
         <translation>GTATools Version</translation>
     </message>
     <message>
-        <location filename="src/gui/VersionDialog.ui" line="60"/>
+        <location filename="src/gui/VersionDialog.ui" line="63"/>
         <source>Qt Version</source>
         <translation>Qt Version</translation>
     </message>
     <message>
-        <location filename="src/gui/VersionDialog.ui" line="81"/>
+        <location filename="src/gui/VersionDialog.ui" line="77"/>
         <source>Linked Against Qt</source>
         <translation>Gelinkt gegen Qt</translation>
     </message>
     <message>
-        <location filename="src/gui/VersionDialog.ui" line="88"/>
+        <location filename="src/gui/VersionDialog.ui" line="91"/>
         <source>OpenGL Vendor</source>
         <translation>OpenGL Anbieter</translation>
     </message>
     <message>
-        <location filename="src/gui/VersionDialog.ui" line="102"/>
+        <location filename="src/gui/VersionDialog.ui" line="105"/>
         <source>OpenGL Renderer</source>
         <translation>OpenGL Renderer</translation>
     </message>
     <message>
-        <location filename="src/gui/VersionDialog.ui" line="116"/>
+        <location filename="src/gui/VersionDialog.ui" line="119"/>
         <source>OpenGL Version</source>
         <translation>OpenGL Version</translation>
     </message>

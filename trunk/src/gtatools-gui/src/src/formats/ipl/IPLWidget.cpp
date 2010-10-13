@@ -133,6 +133,7 @@ IPLWidget::IPLWidget(QWidget* parent, const File& file)
 	// Some kind of bug in QtDesigner incorrectly sets the visibility property of the headers to a rather
 	// random value.
 	ui.instTable->horizontalHeader()->setVisible(true);
+	ui.instTable->verticalHeader()->setVisible(true);
 	ui.carTable->horizontalHeader()->setVisible(true);
 
 	IPLReader ipl2(file);
@@ -153,6 +154,7 @@ IPLWidget::IPLWidget(QWidget* parent, const File& file)
 			int rc = ui.instTable->rowCount();
 			ui.instTable->setRowCount(rc+1);
 
+			ui.instTable->setVerticalHeaderItem(rc, new QTableWidgetItem(QString("%1").arg(rc)));
 			ui.instTable->setItem(rc, 0, new QTableWidgetItem(QString("%1").arg(inst->getID())));
 			ui.instTable->setItem(rc, 1, new QTableWidgetItem(inst->getModelName()));
 			ui.instTable->setItem(rc, 2, new QTableWidgetItem(QString("%1").arg(inst->getInterior())));

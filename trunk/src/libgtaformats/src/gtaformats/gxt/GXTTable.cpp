@@ -47,27 +47,35 @@ GXTTable::~GXTTable()
 }
 
 
-char* GXTTable::getValue(const char* key)
+char* GXTTable::getValue(int32_t keyHash)
 {
-	return getValue(Crc32(key));
+	EntryIterator it = entries.find(keyHash);
+	return it == entries.end() ? NULL : it->second;
 }
 
 
-char* GXTTable::getValueUTF8(const char* key)
+const char* GXTTable::getValue(int32_t keyHash) const
+{
+	ConstEntryIterator it = entries.find(keyHash);
+	return it == entries.end() ? NULL : it->second;
+}
+
+
+char* GXTTable::getValueUTF8(const char* key) const
 {
 	return getValueUTF8(Crc32(key));
 }
 
 
-char* GXTTable::getValueUTF16(const char* key)
+char* GXTTable::getValueUTF16(const char* key) const
 {
 	return getValueUTF16(Crc32(key));
 }
 
 
-char* GXTTable::getValueUTF8(crc32_t keyHash)
+char* GXTTable::getValueUTF8(crc32_t keyHash) const
 {
-	char* val = getValue(keyHash);
+	const char* val = getValue(keyHash);
 	int srcBytes;
 	int destBytes;
 
@@ -77,22 +85,27 @@ char* GXTTable::getValueUTF8(crc32_t keyHash)
 		srcBytes = strlen(val)+1;
 	}
 
+	char* valCpy = new char[srcBytes];
+	memcpy(valCpy, val, srcBytes);
+
 	destBytes = GetSufficientTranscodeBufferSize(srcBytes, internalEncoding, UTF8);
 
 	char* dest = new char[destBytes];
 
-	if (Transcode(val, srcBytes, dest, destBytes, internalEncoding, UTF8) < 0) {
+	if (Transcode(valCpy, srcBytes, dest, destBytes, internalEncoding, UTF8) < 0) {
 		delete[] dest;
+		delete[] valCpy;
 		return NULL;
 	}
 
+	delete[] valCpy;
 	return dest;
 }
 
 
-char* GXTTable::getValueUTF16(crc32_t keyHash)
+char* GXTTable::getValueUTF16(crc32_t keyHash) const
 {
-	char* val = getValue(keyHash);
+	const char* val = getValue(keyHash);
 	int srcBytes;
 	int destBytes;
 
@@ -103,15 +116,20 @@ char* GXTTable::getValueUTF16(crc32_t keyHash)
 		srcBytes = strlen(val)+1;
 	}
 
+	char* valCpy = new char[srcBytes];
+	memcpy(valCpy, val, srcBytes);
+
 	destBytes = GetSufficientTranscodeBufferSize(srcBytes, internalEncoding, UTF16);
 
 	char* dest = new char[destBytes];
 
-	if (Transcode(val, srcBytes, dest, destBytes, internalEncoding, UTF16) < 0) {
+	if (Transcode(valCpy, srcBytes, dest, destBytes, internalEncoding, UTF16) < 0) {
 		delete[] dest;
+		delete[] valCpy;
 		return NULL;
 	}
 
+	delete[] valCpy;
 	return dest;
 }
 
@@ -135,7 +153,7 @@ void GXTTable::setValue(const char* key, char* value)
 }
 
 
-const char* GXTTable::getKeyName(crc32_t keyHash)
+const char* GXTTable::getKeyName(crc32_t keyHash) const
 {
 	if (keyNames) {
 		return (*keyNames)[keyHash];

@@ -52,6 +52,9 @@
          <enum>Qt::Horizontal</enum>
         </property>
         <widget class="QListWidget" name="textureList">
+         <property name="contextMenuPolicy">
+          <enum>Qt::CustomContextMenu</enum>
+         </property>
          <property name="selectionMode">
           <enum>QAbstractItemView::ExtendedSelection</enum>
          </property>
@@ -204,7 +207,7 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>219</width>
+               <width>231</width>
                <height>379</height>
               </rect>
              </property>

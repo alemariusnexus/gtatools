@@ -222,7 +222,7 @@ void TXDTexture::getFormat(char* dest) const
 }
 
 
-bool TXDTexture::canConvert()
+bool TXDTexture::canConvert() const
 {
 	if (	getRasterFormatExtension() & TXD_FORMAT_EXT_PAL4
 			||  getRasterFormatExtension() & TXD_FORMAT_EXT_PAL8
