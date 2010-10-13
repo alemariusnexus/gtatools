@@ -101,6 +101,8 @@ void System::unhandeledException(Exception& ex)
 
 	logfile.write("UNHANDELED EXCEPTION REPORT ");
 	logfile.write(dt.toString(Qt::ISODate).toAscii().constData());
+	logfile.write(" gtatools version ");
+	logfile.write(GTATOOLS_VERSION);
 	logfile.write("\n\n");
 	logfile.write("Unhandeled exception caught:\n\n");
 	logfile.write(ex.what());

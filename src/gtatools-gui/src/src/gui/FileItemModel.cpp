@@ -26,6 +26,7 @@
 
 
 
+
 FileItemModel::FileItemModel(Profile* profile, QWidget* parent)
 		: QAbstractItemModel(parent), profile(profile)
 {

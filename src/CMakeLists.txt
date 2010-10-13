@@ -21,17 +21,8 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 PROJECT(gtatools CXX)
 
 SET(GTATOOLS_VERSION_MAJOR "0") # Major version, must be numeric
-SET(GTATOOLS_VERSION_MINOR "1") # Minor version, must be numeric
-SET(GTATOOLS_VERSION_PATCH "0") # Patch version, must be numeric
-SET(GTATOOLS_VERSION_SUFFIX "-devel") # A suffix for the version string, could e.g. be 'b' for beta versions, or empty
-
-
-SET(LIBGTAFORMATS_BUILD ON CACHE BOOL "Whether you want to build libgtaformats")
-SET(LIBGTA_BUILD ON CACHE BOOL "Whether you want to build libgta")
-SET(GTAIMG_BUILD ON CACHE BOOL "Whether you want to build gtaimg")
-SET(GTATXD_BUILD ON CACHE BOOL "Whether you want to build gtatxd")
-SET(GTADFF_BUILD OFF CACHE BOOL "Whether you want to build gtadff")
-SET(GTATOOLS_GUI_BUILD ON CACHE BOOL "Whether you want to build gtatools-gui")
+SET(GTATOOLS_VERSION_MINOR "2") # Minor version, must be numeric
+SET(GTATOOLS_VERSION_SUFFIX "a") # A suffix for the version string, could e.g. be 'b' for beta versions, or empty
 
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "gtatools - A collection of tools and libraries for loading formats of the GTA game series.")
 SET(CPACK_PACKAGE_VENDOR "David 'Alemarius Nexus' Lerch")
@@ -40,6 +31,32 @@ SET(CPACK_PACKAGE_VERSION_MAJOR ${GTATOOLS_VERSION_MAJOR})
 SET(CPACK_PACKAGE_VERSION_MINOR ${GTATOOLS_VERSION_MINOR})
 SET(CPACK_PACKAGE_VERSION_PATCH ${GTATOOLS_VERSION_PATCH}${GTATOOLS_VERSION_SUFFIX})
 SET(CPACK_SOURCE_IGNORE_FILES "\\\\.svn;.*~")
+
+
+FIND_PACKAGE(Subversion)
+
+SET(_CMAKE_HAVE_SVNREV OFF)
+IF(IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.svn")
+    IF(Subversion_FOUND)
+        Subversion_WC_INFO(${CMAKE_SOURCE_DIR} Project)
+        SET(GTATOOLS_VERSION_SVNREV "${Project_WC_REVISION}")
+        SET(_CMAKE_HAVE_SVNREV ON)
+    ENDIF(Subversion_FOUND)
+ENDIF(IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.svn")
+
+IF(GTATOOLS_VERSION_SVNREV)
+    SET(GTATOOLS_VERSION "${GTATOOLS_VERSION_MAJOR}.${GTATOOLS_VERSION_MINOR}${GTATOOLS_VERSION_SUFFIX}-r${GTATOOLS_VERSION_SVNREV}")
+ELSE(GTATOOLS_VERSION_SVNREV)
+    SET(GTATOOLS_VERSION "${GTATOOLS_VERSION_MAJOR}.${GTATOOLS_VERSION_MINOR}${GTATOOLS_VERSION_SUFFIX}")
+ENDIF(GTATOOLS_VERSION_SVNREV)
+
+
+SET(LIBGTAFORMATS_BUILD ON CACHE BOOL "Whether you want to build libgtaformats")
+SET(LIBGTA_BUILD ON CACHE BOOL "Whether you want to build libgta")
+SET(GTAIMG_BUILD ON CACHE BOOL "Whether you want to build gtaimg")
+SET(GTATXD_BUILD ON CACHE BOOL "Whether you want to build gtatxd")
+SET(GTADFF_BUILD OFF CACHE BOOL "Whether you want to build gtadff")
+SET(GTATOOLS_GUI_BUILD ON CACHE BOOL "Whether you want to build gtatools-gui")
 
 IF(GTATOOLS_GUI_BUILD)
 	SET(CPACK_PACKAGE_EXECUTABLES "gtatools-gui;GTATools GUI Viewer")

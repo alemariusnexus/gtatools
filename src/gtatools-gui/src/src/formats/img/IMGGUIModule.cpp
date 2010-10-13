@@ -43,6 +43,7 @@ IMGGUIModule::~IMGGUIModule()
 {
 	delete extractAction;
 	delete contextExtractAction;
+	deleteCurrentContextFiles();
 }
 
 
@@ -70,17 +71,36 @@ void IMGGUIModule::doUninstall()
 void IMGGUIModule::buildFileTreeMenu(const QLinkedList<File*>& files, QMenu& menu)
 {
 	QLinkedList<File*>::const_iterator it;
+	QLinkedList<File*> toBeExtracted;
+	bool allExtractable = true;
 
 	for (it = files.begin() ; it != files.end() ; it++) {
 		File* file = *it;
 
-		if (!file->getPath()->isIMGPath()) {
-			return;
+		if (file->isArchiveFile()) {
+			FileIterator* it = file->getIterator();
+			File* child;
+
+			while ((child = it->next())  !=  NULL) {
+				toBeExtracted << child;
+			}
+
+			delete it;
+		} else if (file->getPath()->isIMGPath()) {
+			toBeExtracted << new File(*file);
+		} else {
+			allExtractable = false;
+			break;
 		}
 	}
 
-	menu.addAction(contextExtractAction);
-	currentContextFiles = files;
+	currentContextFiles = toBeExtracted;
+
+	if (allExtractable) {
+		menu.addAction(contextExtractAction);
+	} else {
+		deleteCurrentContextFiles();
+	}
 }
 
 
@@ -88,7 +108,7 @@ void IMGGUIModule::currentFileChanged(File* file, File* prev)
 {
 	QMenu* fileMenu = mainWindow->getFileMenu();
 
-	if (file->getPath()->isIMGPath()) {
+	if (file->getPath()->isIMGPath()  ||  file->isArchiveFile()) {
 		if (!menuExists) {
 			fileMenu->addAction(extractAction);
 			menuExists = true;
@@ -98,6 +118,16 @@ void IMGGUIModule::currentFileChanged(File* file, File* prev)
 			fileMenu->removeAction(extractAction);
 			menuExists = false;
 		}
+	}
+}
+
+
+void IMGGUIModule::deleteCurrentContextFiles()
+{
+	QLinkedList<File*>::iterator it;
+
+	for (it = currentContextFiles.begin() ; it != currentContextFiles.end() ; it++) {
+		delete *it;
 	}
 }
 
@@ -137,6 +167,11 @@ void IMGGUIModule::extract(const QLinkedList<File*>& files)
 			if (!dname.isEmpty()) {
 				QLinkedList<File*>::const_iterator it;
 
+				System* sys = System::getInstance();
+				Task* task = sys->createTask();
+				task->start(0, files.size(), tr("Extracting Files..."));
+				int i = 0;
+
 				for (it = files.begin() ; it != files.end() ; it++) {
 					File* file = *it;
 					QString fname = dname;
@@ -160,7 +195,13 @@ void IMGGUIModule::extract(const QLinkedList<File*>& files)
 						QMessageBox::critical(mainWindow, tr("Unable to open file"),
 								tr("Unable to open file %1 for writing!").arg(fname));
 					}
+
+					i++;
+					task->update(i);
+					qApp->processEvents();
 				}
+
+				delete task;
 			}
 		}
 	}
@@ -175,8 +216,29 @@ void IMGGUIModule::onExtract(bool)
 
 	if (file) {
 		QLinkedList<File*> files;
-		files << file;
+
+		if (file->isArchiveFile()) {
+			FileIterator* it = file->getIterator();
+			File* child;
+
+			while ((child = it->next())  !=  NULL) {
+				files << child;
+			}
+
+			delete it;
+		} else {
+			files << file;
+		}
+
 		extract(files);
+
+		if (file->isArchiveFile()) {
+			QLinkedList<File*>::iterator it;
+
+			for (it = files.begin() ; it != files.end() ; it++) {
+				delete *it;
+			}
+		}
 	}
 }
 
@@ -184,4 +246,5 @@ void IMGGUIModule::onExtract(bool)
 void IMGGUIModule::onContextExtract(bool)
 {
 	extract(currentContextFiles);
+	deleteCurrentContextFiles();
 }

@@ -27,6 +27,7 @@
 
 
 
+
 FileTree::FileTree(QWidget* parent)
 		: QTreeView(parent), model(NULL)
 {
