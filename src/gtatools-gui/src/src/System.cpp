@@ -22,6 +22,9 @@
 #include <qfile.h>
 #include <qdatetime.h>
 #include <QThread>
+#include <QtGui/QInputDialog>
+#include <QtGui/QMessageBox>
+
 
 
 
@@ -72,19 +75,6 @@ void System::closeCurrentFile()
 bool System::hasOpenFile()
 {
 	return openFiles.size() != 0;
-}
-
-
-Task* System::createTask()
-{
-	Task* task = new Task(mainWindow);
-	return task;
-}
-
-
-void System::showStatusMessage(const QString& message, int timeout)
-{
-	mainWindow->getStatusBar()->showMessage(message, timeout);
 }
 
 
@@ -175,6 +165,25 @@ void System::closeFile(const File& file)
 }
 
 
+void System::logError(const QString& errmsg)
+{
+	emit errorLogged(errmsg);
+}
+
+
+void System::showStatusMessage(const QString& message, int timeout)
+{
+	mainWindow->getStatusBar()->showMessage(message, timeout);
+}
+
+
+Task* System::createTask()
+{
+	Task* task = new Task(mainWindow);
+	return task;
+}
+
+
 void System::installGUIModule(GUIModule* module)
 {
 	if (!isGUIModuleInstalled(module)) {
@@ -195,8 +204,4 @@ void System::uninstallGUIModule(GUIModule* module)
 }
 
 
-void System::logError(const QString& errmsg)
-{
-	emit errorLogged(errmsg);
-}
 

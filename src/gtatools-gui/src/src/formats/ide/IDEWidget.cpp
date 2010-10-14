@@ -25,14 +25,20 @@
 #include <gtaformats/ide/IDEAnimation.h>
 #include <gtaformats/ide/IDEPedestrian.h>
 #include <gtaformats/ide/IDEWeapon.h>
+#include <gtaformats/util/DefaultFileFinder.h>
 #include <QtCore/QRegExp>
 #include <QtGui/QMessageBox>
+#include <QtGui/QInputDialog>
+#include <QtGui/QColor>
 #include "../../System.h"
+#include "../../ProfileManager.h"
+#include "../../Profile.h"
+#include "../../gui/GUI.h"
 
 
 
 IDEWidget::IDEWidget(QWidget* parent, const File& file)
-		: QWidget(parent)
+		: QWidget(parent), linkBrush(QColor(Qt::blue))
 {
 	ui.setupUi(this);
 
@@ -112,12 +118,12 @@ IDEWidget::IDEWidget(QWidget* parent, const File& file)
 			IDEStaticObject* sobj = (IDEStaticObject*) stmt;
 			int rc = ui.staticObjectTable->rowCount();
 			ui.staticObjectTable->setRowCount(rc+1);
-			ui.staticObjectTable->setItem(rc, 0, new QTableWidgetItem(QString("%1").arg(sobj->getId())));
-			ui.staticObjectTable->setItem(rc, 1, new QTableWidgetItem(sobj->getModelName()));
-			ui.staticObjectTable->setItem(rc, 2, new QTableWidgetItem(sobj->getTextureName()));
-			ui.staticObjectTable->setItem(rc, 3, new QTableWidgetItem(QString("%1")
+			ui.staticObjectTable->setItem(rc, 0, createItem(QString("%1").arg(sobj->getId())));
+			ui.staticObjectTable->setItem(rc, 1, createItem(sobj->getModelName(), true));
+			ui.staticObjectTable->setItem(rc, 2, createItem(sobj->getTextureName(), true));
+			ui.staticObjectTable->setItem(rc, 3, createItem(QString("%1")
 					.arg(sobj->getNumSubObjects())));
-			ui.staticObjectTable->setItem(rc, 5, new QTableWidgetItem(QString("%1")
+			ui.staticObjectTable->setItem(rc, 5, createItem(QString("%1")
 					.arg(sobj->getFlags())));
 
 			QStringList ddists;
@@ -126,21 +132,21 @@ IDEWidget::IDEWidget(QWidget* parent, const File& file)
 				ddists << QString("%1").arg(sobj->getDrawDistances()[i]);
 			}
 
-			ui.staticObjectTable->setItem(rc, 4, new QTableWidgetItem(ddists.join(", ")));
+			ui.staticObjectTable->setItem(rc, 4, createItem(ddists.join(", ")));
 		} else if (type == IDE_TYPE_TIMED_OBJECT) {
 			IDETimedObject* tobj = (IDETimedObject*) stmt;
 			int rc = ui.timedObjectTable->rowCount();
 			ui.timedObjectTable->setRowCount(rc+1);
-			ui.timedObjectTable->setItem(rc, 0, new QTableWidgetItem(QString("%1").arg(tobj->getId())));
-			ui.timedObjectTable->setItem(rc, 1, new QTableWidgetItem(tobj->getModelName()));
-			ui.timedObjectTable->setItem(rc, 2, new QTableWidgetItem(tobj->getTextureName()));
-			ui.timedObjectTable->setItem(rc, 3, new QTableWidgetItem(QString("%1")
+			ui.timedObjectTable->setItem(rc, 0, createItem(QString("%1").arg(tobj->getId())));
+			ui.timedObjectTable->setItem(rc, 1, createItem(tobj->getModelName(), true));
+			ui.timedObjectTable->setItem(rc, 2, createItem(tobj->getTextureName(), true));
+			ui.timedObjectTable->setItem(rc, 3, createItem(QString("%1")
 					.arg(tobj->getNumSubObjects())));
-			ui.timedObjectTable->setItem(rc, 5, new QTableWidgetItem(QString("%1")
+			ui.timedObjectTable->setItem(rc, 5, createItem(QString("%1")
 					.arg(tobj->getFlags())));
-			ui.timedObjectTable->setItem(rc, 6, new QTableWidgetItem(QString("%1")
+			ui.timedObjectTable->setItem(rc, 6, createItem(QString("%1")
 					.arg(tobj->getTimeOn())));
-			ui.timedObjectTable->setItem(rc, 7, new QTableWidgetItem(QString("%1")
+			ui.timedObjectTable->setItem(rc, 7, createItem(QString("%1")
 					.arg(tobj->getTimeOff())));
 
 			QStringList ddists;
@@ -149,50 +155,50 @@ IDEWidget::IDEWidget(QWidget* parent, const File& file)
 				ddists << QString("%1").arg(tobj->getDrawDistances()[i]);
 			}
 
-			ui.timedObjectTable->setItem(rc, 4, new QTableWidgetItem(ddists.join(", ")));
+			ui.timedObjectTable->setItem(rc, 4, createItem(ddists.join(", ")));
 		} else if (type == IDE_TYPE_ANIMATION) {
 			IDEAnimation* anim = (IDEAnimation*) stmt;
 			int rc = ui.animationTable->rowCount();
 			ui.animationTable->setRowCount(rc+1);
-			ui.animationTable->setItem(rc, 0, new QTableWidgetItem(QString("%1").arg(anim->getId())));
-			ui.animationTable->setItem(rc, 1, new QTableWidgetItem(anim->getModelName()));
-			ui.animationTable->setItem(rc, 2, new QTableWidgetItem(anim->getTextureName()));
-			ui.animationTable->setItem(rc, 3, new QTableWidgetItem(anim->getAnimationName()));
-			ui.animationTable->setItem(rc, 4, new QTableWidgetItem(QString("%1")
+			ui.animationTable->setItem(rc, 0, createItem(QString("%1").arg(anim->getId())));
+			ui.animationTable->setItem(rc, 1, createItem(anim->getModelName(), true));
+			ui.animationTable->setItem(rc, 2, createItem(anim->getTextureName(), true));
+			ui.animationTable->setItem(rc, 3, createItem(anim->getAnimationName()));
+			ui.animationTable->setItem(rc, 4, createItem(QString("%1")
 					.arg(anim->getDrawDist())));
-			ui.animationTable->setItem(rc, 5, new QTableWidgetItem(QString("%1").arg(anim->getFlags())));
+			ui.animationTable->setItem(rc, 5, createItem(QString("%1").arg(anim->getFlags())));
 		} else if (type == IDE_TYPE_PEDESTRIAN) {
 			IDEPedestrian* ped = (IDEPedestrian*) stmt;
 			int rc = ui.pedTable->rowCount();
 			ui.pedTable->setRowCount(rc+1);
-			ui.pedTable->setItem(rc, 0, new QTableWidgetItem(QString("%1").arg(ped->getId())));
-			ui.pedTable->setItem(rc, 1, new QTableWidgetItem(ped->getModelName()));
-			ui.pedTable->setItem(rc, 2, new QTableWidgetItem(ped->getTXDName()));
-			ui.pedTable->setItem(rc, 3, new QTableWidgetItem(ped->getDefaultPedType()));
-			ui.pedTable->setItem(rc, 4, new QTableWidgetItem(ped->getBehavior()));
-			ui.pedTable->setItem(rc, 5, new QTableWidgetItem(ped->getAnimationGroup()));
-			ui.pedTable->setItem(rc, 6, new QTableWidgetItem(QString("%1")
+			ui.pedTable->setItem(rc, 0, createItem(QString("%1").arg(ped->getId())));
+			ui.pedTable->setItem(rc, 1, createItem(ped->getModelName(), true));
+			ui.pedTable->setItem(rc, 2, createItem(ped->getTXDName(), true));
+			ui.pedTable->setItem(rc, 3, createItem(ped->getDefaultPedType()));
+			ui.pedTable->setItem(rc, 4, createItem(ped->getBehavior()));
+			ui.pedTable->setItem(rc, 5, createItem(ped->getAnimationGroup()));
+			ui.pedTable->setItem(rc, 6, createItem(QString("%1")
 					.arg(ped->getDrivableCarClasses(), 0, 16)));
-			ui.pedTable->setItem(rc, 7, new QTableWidgetItem(QString("%1").arg(ped->getFlags())));
-			ui.pedTable->setItem(rc, 8, new QTableWidgetItem(ped->getSecondaryAnimationFile()));
-			ui.pedTable->setItem(rc, 9, new QTableWidgetItem(QString("%1")
+			ui.pedTable->setItem(rc, 7, createItem(QString("%1").arg(ped->getFlags())));
+			ui.pedTable->setItem(rc, 8, createItem(ped->getSecondaryAnimationFile()));
+			ui.pedTable->setItem(rc, 9, createItem(QString("%1")
 					.arg(ped->getPreferredRadio1())));
-			ui.pedTable->setItem(rc, 10, new QTableWidgetItem(QString("%1")
+			ui.pedTable->setItem(rc, 10, createItem(QString("%1")
 					.arg(ped->getPreferredRadio2())));
-			ui.pedTable->setItem(rc, 11, new QTableWidgetItem(ped->getVoiceFile()));
-			ui.pedTable->setItem(rc, 12, new QTableWidgetItem(ped->getVoice1()));
-			ui.pedTable->setItem(rc, 13, new QTableWidgetItem(ped->getVoice2()));
+			ui.pedTable->setItem(rc, 11, createItem(ped->getVoiceFile()));
+			ui.pedTable->setItem(rc, 12, createItem(ped->getVoice1()));
+			ui.pedTable->setItem(rc, 13, createItem(ped->getVoice2()));
 		} else if (type == IDE_TYPE_WEAPON) {
 			IDEWeapon* weap = (IDEWeapon*) stmt;
 			int rc = ui.weaponTable->rowCount();
 			ui.weaponTable->setRowCount(rc+1);
-			ui.weaponTable->setItem(rc, 0, new QTableWidgetItem(QString("%1").arg(weap->getId())));
-			ui.weaponTable->setItem(rc, 1, new QTableWidgetItem(weap->getModelName()));
-			ui.weaponTable->setItem(rc, 2, new QTableWidgetItem(weap->getTXDName()));
-			ui.weaponTable->setItem(rc, 3, new QTableWidgetItem(weap->getAnimationName()));
-			ui.weaponTable->setItem(rc, 4, new QTableWidgetItem(QString("%1")
+			ui.weaponTable->setItem(rc, 0, createItem(QString("%1").arg(weap->getId())));
+			ui.weaponTable->setItem(rc, 1, createItem(weap->getModelName(), true));
+			ui.weaponTable->setItem(rc, 2, createItem(weap->getTXDName(), true));
+			ui.weaponTable->setItem(rc, 3, createItem(weap->getAnimationName()));
+			ui.weaponTable->setItem(rc, 4, createItem(QString("%1")
 					.arg(weap->getObjectCount())));
-			ui.weaponTable->setItem(rc, 6, new QTableWidgetItem(QString("%1").arg(weap->getFlags())));
+			ui.weaponTable->setItem(rc, 6, createItem(QString("%1").arg(weap->getFlags())));
 
 			QStringList ddists;
 
@@ -200,7 +206,7 @@ IDEWidget::IDEWidget(QWidget* parent, const File& file)
 				ddists << QString("%1").arg(weap->getDrawDistances()[i]);
 			}
 
-			ui.weaponTable->setItem(rc, 5, new QTableWidgetItem(ddists.join(", ")));
+			ui.weaponTable->setItem(rc, 5, createItem(ddists.join(", ")));
 		}
 
 		delete stmt;
@@ -225,4 +231,129 @@ IDEWidget::IDEWidget(QWidget* parent, const File& file)
 	ui.animationTable->horizontalHeader()->resizeSections(QHeaderView::ResizeToContents);
 	ui.pedTable->horizontalHeader()->resizeSections(QHeaderView::ResizeToContents);
 	ui.weaponTable->horizontalHeader()->resizeSections(QHeaderView::ResizeToContents);
+
+	connect(ui.staticObjectTable, SIGNAL(cellDoubleClicked(int, int)), this,
+			SLOT(staticObjectTableCellDoubleClicked(int, int)));
+	connect(ui.timedObjectTable, SIGNAL(cellDoubleClicked(int, int)), this,
+			SLOT(timedObjectTableCellDoubleClicked(int, int)));
+	connect(ui.animationTable, SIGNAL(cellDoubleClicked(int, int)), this,
+			SLOT(animationTableCellDoubleClicked(int, int)));
+	connect(ui.pedTable, SIGNAL(cellDoubleClicked(int, int)), this,
+			SLOT(pedTableCellDoubleClicked(int, int)));
+	connect(ui.weaponTable, SIGNAL(cellDoubleClicked(int, int)), this,
+			SLOT(weaponTableCellDoubleClicked(int, int)));
+}
+
+
+QTableWidgetItem* IDEWidget::createItem(const QString& text, bool link)
+{
+	QTableWidgetItem* item = new QTableWidgetItem(text);
+	item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+
+	if (link) {
+		item->setForeground(linkBrush);
+		item->setToolTip(tr("Double click to open file"));
+	}
+
+	return item;
+}
+
+
+void IDEWidget::staticObjectTableCellDoubleClicked(int row, int col)
+{
+	QTableWidgetItem* item = ui.staticObjectTable->item(row, col);
+
+	if (col == 1) {
+		// Model Name
+		QString fname = item->text();
+		fname.append(".dff");
+		DefaultFileFinder finder(fname.toLocal8Bit().constData(), false);
+		GUI::getInstance()->findAndOpenFile(&finder, this);
+	} else if (col == 2) {
+		// TXD Name
+		QString fname = item->text();
+		fname.append(".txd");
+		DefaultFileFinder finder(fname.toLocal8Bit().constData(), false);
+		GUI::getInstance()->findAndOpenFile(&finder, this);
+	}
+}
+
+
+void IDEWidget::timedObjectTableCellDoubleClicked(int row, int col)
+{
+	QTableWidgetItem* item = ui.timedObjectTable->item(row, col);
+
+	if (col == 1) {
+		// Model Name
+		QString fname = item->text();
+		fname.append(".dff");
+		DefaultFileFinder finder(fname.toLocal8Bit().constData(), false);
+		GUI::getInstance()->findAndOpenFile(&finder, this);
+	} else if (col == 2) {
+		// TXD Name
+		QString fname = item->text();
+		fname.append(".txd");
+		DefaultFileFinder finder(fname.toLocal8Bit().constData(), false);
+		GUI::getInstance()->findAndOpenFile(&finder, this);
+	}
+}
+
+
+void IDEWidget::animationTableCellDoubleClicked(int row, int col)
+{
+	QTableWidgetItem* item = ui.animationTable->item(row, col);
+
+	if (col == 1) {
+		// Model Name
+		QString fname = item->text();
+		fname.append(".dff");
+		DefaultFileFinder finder(fname.toLocal8Bit().constData(), false);
+		GUI::getInstance()->findAndOpenFile(&finder, this);
+	} else if (col == 2) {
+		// TXD Name
+		QString fname = item->text();
+		fname.append(".txd");
+		DefaultFileFinder finder(fname.toLocal8Bit().constData(), false);
+		GUI::getInstance()->findAndOpenFile(&finder, this);
+	}
+}
+
+
+void IDEWidget::pedTableCellDoubleClicked(int row, int col)
+{
+	QTableWidgetItem* item = ui.pedTable->item(row, col);
+
+	if (col == 1) {
+		// Model Name
+		QString fname = item->text();
+		fname.append(".dff");
+		DefaultFileFinder finder(fname.toLocal8Bit().constData(), false);
+		GUI::getInstance()->findAndOpenFile(&finder, this);
+	} else if (col == 2) {
+		// TXD Name
+		QString fname = item->text();
+		fname.append(".txd");
+		DefaultFileFinder finder(fname.toLocal8Bit().constData(), false);
+		GUI::getInstance()->findAndOpenFile(&finder, this);
+	}
+}
+
+
+void IDEWidget::weaponTableCellDoubleClicked(int row, int col)
+{
+	QTableWidgetItem* item = ui.weaponTable->item(row, col);
+
+	if (col == 1) {
+		// Model Name
+		QString fname = item->text();
+		fname.append(".dff");
+		DefaultFileFinder finder(fname.toLocal8Bit().constData(), false);
+		GUI::getInstance()->findAndOpenFile(&finder, this);
+	} else if (col == 2) {
+		// TXD Name
+		QString fname = item->text();
+		fname.append(".txd");
+		DefaultFileFinder finder(fname.toLocal8Bit().constData(), false);
+		GUI::getInstance()->findAndOpenFile(&finder, this);
+	}
 }

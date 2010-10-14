@@ -18,7 +18,7 @@
 SET(SRCS ${SRCS}
     src/formats/txd/TXDFormatHandler.cpp src/formats/txd/TXDGUIModule.cpp src/formats/txd/TXDWidget.cpp
     src/formats/txd/TextureDisplayer.cpp src/formats/txd/TextureSearchDialog.cpp
-    src/formats/txd/OpenTXDGUIModule.cpp
+    src/formats/txd/OpenTXDGUIModule.cpp src/formats/txd/TextureFileFinder.cpp
     PARENT_SCOPE)
 SET(MOC_SRCS ${MOC_SRCS}
     src/formats/txd/TXDFormatHandler.h src/formats/txd/TXDGUIModule.h src/formats/txd/TXDWidget.h

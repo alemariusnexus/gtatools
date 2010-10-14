@@ -23,6 +23,8 @@
 #include <QtGui/QWidget>
 #include <ui_IDEWidget.h>
 #include <gtaformats/util/File.h>
+#include <QtCore/QLinkedList>
+#include <QtGui/QBrush>
 
 
 
@@ -33,7 +35,18 @@ public:
 	IDEWidget(QWidget* parent, const File& file);
 
 private:
+	QTableWidgetItem* createItem(const QString& text, bool link = false);
+
+private slots:
+	void staticObjectTableCellDoubleClicked(int row, int col);
+	void timedObjectTableCellDoubleClicked(int row, int col);
+	void animationTableCellDoubleClicked(int row, int col);
+	void pedTableCellDoubleClicked(int row, int col);
+	void weaponTableCellDoubleClicked(int row, int col);
+
+private:
 	Ui_IDEWidget ui;
+	QBrush linkBrush;
 };
 
 #endif /* IDEWIDGET_H_ */

@@ -44,6 +44,7 @@ public:
 	ResourceIterator getResourceBegin();
 	ResourceIterator getResourceEnd();
 	int getResourceCount() { return resources.size(); }
+	QLinkedList<File*> getResources() const { return resources; }
 	QString getName() const { return name; }
 	ResourceIterator removeResource(ResourceIterator it);
 	void clearResources();

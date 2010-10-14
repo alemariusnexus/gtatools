@@ -23,8 +23,8 @@ ADD_SUBDIRECTORY(formats)
 CONFIGURE_FILE(config.cmake.h "${CMAKE_CURRENT_SOURCE_DIR}/config.h")
 
 SET(SRCS ${SRCS}
-    src/main.cpp src/Profile.cpp src/ProfileManager.cpp src/System.cpp src/StringMatcher.cpp
-    src/ProfileInitializer.cpp src/Task.cpp src/FileOpenRequest.cpp
+    src/main.cpp src/Profile.cpp src/ProfileManager.cpp src/System.cpp src/ProfileInitializer.cpp
+    src/Task.cpp src/FileOpenRequest.cpp src/RegexFileFinder.cpp src/TaskFileFinder.cpp
     PARENT_SCOPE)
 SET(MOC_SRCS ${MOC_SRCS}
     src/ProfileManager.h src/Profile.h src/System.h src/ProfileInitializer.h src/Task.h

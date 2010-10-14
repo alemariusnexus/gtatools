@@ -24,6 +24,7 @@
 #include "FileException.h"
 #include "stream/FileInputStream.h"
 #include "../img/IMGArchive.h"
+#include "FileFinder.h"
 
 #ifdef linux
 #include <errno.h>
@@ -495,5 +496,75 @@ bool File::mkdirs() const
 bool File::isChildOf(const File& other) const
 {
 	return path->isChildOf(*other.path);
+}
+
+
+File* File::findChild(FileFinder& finder, bool recursive, bool archiveEntries) const
+{
+	FileIterator* it = getIterator();
+	File* child;
+
+	while ((child = it->next())  !=  NULL) {
+		if (finder.matches(*child)) {
+			delete it;
+			return child;
+		}
+
+		if (finder.isInterrupted()) {
+			delete child;
+			return NULL;
+		}
+
+		if (recursive  &&  (child->isDirectory()  ||  (archiveEntries  &&  child->isArchiveFile()))) {
+			File* match = child->findChild(finder, true, archiveEntries);
+
+			if (match) {
+				delete child;
+				delete it;
+				return match;
+			}
+		}
+
+		delete child;
+	}
+
+	delete it;
+	return NULL;
+}
+
+
+int File::findChildren(FileFinder& finder, vector<File*>& results, bool recursive,
+		bool archiveEntries) const
+{
+	int matchCount = 0;
+
+	FileIterator* it = getIterator();
+	File* child;
+
+	while ((child = it->next())  !=  NULL) {
+		bool matches = finder.matches(*child);
+		if (matches) {
+			results.push_back(child);
+			matchCount++;
+		}
+
+		if (finder.isInterrupted()) {
+			if (!matches) {
+				delete child;
+			}
+			return matchCount;
+		}
+
+		if (recursive  &&  (child->isDirectory()  ||  (archiveEntries  &&  child->isArchiveFile()))) {
+			matchCount += child->findChildren(finder, results, true, archiveEntries);
+		}
+
+		if (!matches) {
+			delete child;
+		}
+	}
+
+	delete it;
+	return matchCount;
 }
 

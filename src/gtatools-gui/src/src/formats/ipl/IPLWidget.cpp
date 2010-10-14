@@ -21,12 +21,14 @@
 #include <gtaformats/ipl/IPLReader.h>
 #include <gtaformats/ipl/IPLInstance.h>
 #include <gtaformats/ipl/IPLCar.h>
+#include <gtaformats/util/DefaultFileFinder.h>
 #include "../../System.h"
+#include "../../gui/GUI.h"
 
 
 
 IPLWidget::IPLWidget(QWidget* parent, const File& file)
-		: QWidget(parent)
+		: QWidget(parent), linkBrush(Qt::blue)
 {
 	ui.setupUi(this);
 
@@ -154,21 +156,21 @@ IPLWidget::IPLWidget(QWidget* parent, const File& file)
 			int rc = ui.instTable->rowCount();
 			ui.instTable->setRowCount(rc+1);
 
-			ui.instTable->setVerticalHeaderItem(rc, new QTableWidgetItem(QString("%1").arg(rc)));
-			ui.instTable->setItem(rc, 0, new QTableWidgetItem(QString("%1").arg(inst->getID())));
-			ui.instTable->setItem(rc, 1, new QTableWidgetItem(inst->getModelName()));
-			ui.instTable->setItem(rc, 2, new QTableWidgetItem(QString("%1").arg(inst->getInterior())));
-			ui.instTable->setItem(rc, 3, new QTableWidgetItem(QString("%1").arg(x)));
-			ui.instTable->setItem(rc, 4, new QTableWidgetItem(QString("%1").arg(y)));
-			ui.instTable->setItem(rc, 5, new QTableWidgetItem(QString("%1").arg(z)));
-			ui.instTable->setItem(rc, 6, new QTableWidgetItem(QString("%1").arg(sx)));
-			ui.instTable->setItem(rc, 7, new QTableWidgetItem(QString("%1").arg(sy)));
-			ui.instTable->setItem(rc, 8, new QTableWidgetItem(QString("%1").arg(sz)));
-			ui.instTable->setItem(rc, 9, new QTableWidgetItem(QString("%1").arg(rx)));
-			ui.instTable->setItem(rc, 10, new QTableWidgetItem(QString("%1").arg(ry)));
-			ui.instTable->setItem(rc, 11, new QTableWidgetItem(QString("%1").arg(rz)));
-			ui.instTable->setItem(rc, 12, new QTableWidgetItem(QString("%1").arg(rw)));
-			ui.instTable->setItem(rc, 13, new QTableWidgetItem(QString("%1").arg(inst->getLOD())));
+			ui.instTable->setVerticalHeaderItem(rc, createItem(QString("%1").arg(rc)));
+			ui.instTable->setItem(rc, 0, createItem(QString("%1").arg(inst->getID())));
+			ui.instTable->setItem(rc, 1, createItem(inst->getModelName(), true));
+			ui.instTable->setItem(rc, 2, createItem(QString("%1").arg(inst->getInterior())));
+			ui.instTable->setItem(rc, 3, createItem(QString("%1").arg(x)));
+			ui.instTable->setItem(rc, 4, createItem(QString("%1").arg(y)));
+			ui.instTable->setItem(rc, 5, createItem(QString("%1").arg(z)));
+			ui.instTable->setItem(rc, 6, createItem(QString("%1").arg(sx)));
+			ui.instTable->setItem(rc, 7, createItem(QString("%1").arg(sy)));
+			ui.instTable->setItem(rc, 8, createItem(QString("%1").arg(sz)));
+			ui.instTable->setItem(rc, 9, createItem(QString("%1").arg(rx)));
+			ui.instTable->setItem(rc, 10, createItem(QString("%1").arg(ry)));
+			ui.instTable->setItem(rc, 11, createItem(QString("%1").arg(rz)));
+			ui.instTable->setItem(rc, 12, createItem(QString("%1").arg(rw)));
+			ui.instTable->setItem(rc, 13, createItem(QString("%1").arg(inst->getLOD())));
 		} else if (type == IPL_TYPE_CAR) {
 			IPLCar* car = (IPLCar*) stmt;
 			float x, y, z;
@@ -177,18 +179,18 @@ IPLWidget::IPLWidget(QWidget* parent, const File& file)
 			int rc = ui.carTable->rowCount();
 			ui.carTable->setRowCount(rc+1);
 
-			ui.carTable->setItem(rc, 0, new QTableWidgetItem(QString("%1").arg(x)));
-			ui.carTable->setItem(rc, 1, new QTableWidgetItem(QString("%1").arg(y)));
-			ui.carTable->setItem(rc, 2, new QTableWidgetItem(QString("%1").arg(z)));
-			ui.carTable->setItem(rc, 3, new QTableWidgetItem(QString("%1").arg(car->getAngle())));
-			ui.carTable->setItem(rc, 4, new QTableWidgetItem(QString("%1").arg(car->getCarID())));
-			ui.carTable->setItem(rc, 5, new QTableWidgetItem(QString("%1").arg(car->getPrimaryColor())));
-			ui.carTable->setItem(rc, 6, new QTableWidgetItem(QString("%1").arg(car->getSecondaryColor())));
-			ui.carTable->setItem(rc, 7, new QTableWidgetItem(car->isForceSpawn() ? "true" : "false"));
-			ui.carTable->setItem(rc, 8, new QTableWidgetItem(QString("%1").arg(car->getAlarmProbability())));
-			ui.carTable->setItem(rc, 9, new QTableWidgetItem(QString("%1").arg(car->getDoorLockProbability())));
-			ui.carTable->setItem(rc, 10, new QTableWidgetItem(QString("%1").arg(car->getUnknown1())));
-			ui.carTable->setItem(rc, 11, new QTableWidgetItem(QString("%1").arg(car->getUnknown2())));
+			ui.carTable->setItem(rc, 0, createItem(QString("%1").arg(x)));
+			ui.carTable->setItem(rc, 1, createItem(QString("%1").arg(y)));
+			ui.carTable->setItem(rc, 2, createItem(QString("%1").arg(z)));
+			ui.carTable->setItem(rc, 3, createItem(QString("%1").arg(car->getAngle())));
+			ui.carTable->setItem(rc, 4, createItem(QString("%1").arg(car->getCarID())));
+			ui.carTable->setItem(rc, 5, createItem(QString("%1").arg(car->getPrimaryColor())));
+			ui.carTable->setItem(rc, 6, createItem(QString("%1").arg(car->getSecondaryColor())));
+			ui.carTable->setItem(rc, 7, createItem(car->isForceSpawn() ? "true" : "false"));
+			ui.carTable->setItem(rc, 8, createItem(QString("%1").arg(car->getAlarmProbability())));
+			ui.carTable->setItem(rc, 9, createItem(QString("%1").arg(car->getDoorLockProbability())));
+			ui.carTable->setItem(rc, 10, createItem(QString("%1").arg(car->getUnknown1())));
+			ui.carTable->setItem(rc, 11, createItem(QString("%1").arg(car->getUnknown2())));
 		}
 
 		delete stmt;
@@ -210,4 +212,34 @@ IPLWidget::IPLWidget(QWidget* parent, const File& file)
 
 	ui.instTable->horizontalHeader()->resizeSections(QHeaderView::ResizeToContents);
 	ui.carTable->horizontalHeader()->resizeSections(QHeaderView::ResizeToContents);
+
+	connect(ui.instTable, SIGNAL(cellDoubleClicked(int, int)), this,
+			SLOT(instanceTableCellDoubleClicked(int, int)));
+}
+
+
+QTableWidgetItem* IPLWidget::createItem(const QString& text, bool link)
+{
+	QTableWidgetItem* item = new QTableWidgetItem(text);
+	item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+
+	if (link) {
+		item->setForeground(linkBrush);
+		item->setToolTip(tr("Double click to open file"));
+	}
+
+	return item;
+}
+
+
+void IPLWidget::instanceTableCellDoubleClicked(int row, int col)
+{
+	QTableWidgetItem* item = ui.instTable->item(row, col);
+
+	if (col == 1) {
+		QString fname(item->text());
+		fname.append(".dff");
+		DefaultFileFinder finder(fname.toLocal8Bit().constData(), false);
+		GUI::getInstance()->findAndOpenFile(&finder, this);
+	}
 }

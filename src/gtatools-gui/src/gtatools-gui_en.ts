@@ -483,7 +483,7 @@
     </message>
     <message>
         <location filename="src/gui/DefaultGUIModule.cpp" line="67"/>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="274"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="276"/>
         <source>About Qt</source>
         <translation>About Qt</translation>
     </message>
@@ -518,17 +518,17 @@
         <translation>File Tree</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="166"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="168"/>
         <source>No Profile</source>
         <translation>No Profile</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="281"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="283"/>
         <source>About GTATools GUI Tool</source>
         <translation>About GTATools GUI Tool</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="280"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="282"/>
         <source>AboutText</source>
         <translation>This is gtatools-gui. This program is part of gtatools and runs with version %1.
 
@@ -539,7 +539,7 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="294"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="296"/>
         <source>Select file</source>
         <translation>Select file</translation>
     </message>
@@ -580,74 +580,67 @@ You should have received a copy of the GNU General Public License along with thi
         <translation>Criteria</translation>
     </message>
     <message>
-        <location filename="src/gui/FileSearchDialog.ui" line="35"/>
+        <location filename="src/gui/FileSearchDialog.ui" line="38"/>
         <source>&amp;Filename</source>
         <translation>&amp;Filename</translation>
     </message>
     <message>
-        <location filename="src/gui/FileSearchDialog.ui" line="48"/>
         <source>File &amp;Type</source>
-        <translation>File &amp;Type</translation>
+        <translation type="obsolete">File &amp;Type</translation>
     </message>
     <message>
-        <location filename="src/gui/FileSearchDialog.ui" line="74"/>
+        <location filename="src/gui/FileSearchDialog.ui" line="60"/>
         <source>Options</source>
         <translation>Options</translation>
     </message>
     <message>
-        <location filename="src/gui/FileSearchDialog.ui" line="80"/>
+        <location filename="src/gui/FileSearchDialog.ui" line="66"/>
         <source>&amp;Exact Match</source>
         <translation>&amp;Exact Match</translation>
     </message>
     <message>
-        <location filename="src/gui/FileSearchDialog.ui" line="87"/>
+        <location filename="src/gui/FileSearchDialog.ui" line="73"/>
         <source>&amp;Regular Expression</source>
         <translation>&amp;Regular Expression</translation>
     </message>
     <message>
-        <location filename="src/gui/FileSearchDialog.ui" line="94"/>
+        <location filename="src/gui/FileSearchDialog.ui" line="80"/>
         <source>Case-&amp;Sensitive</source>
         <translation>Case-&amp;Sensitive</translation>
     </message>
     <message>
-        <location filename="src/gui/FileSearchDialog.ui" line="126"/>
+        <location filename="src/gui/FileSearchDialog.ui" line="112"/>
         <source>&amp;Cancel</source>
         <translation>&amp;Cancel</translation>
     </message>
     <message>
-        <location filename="src/gui/FileSearchDialog.ui" line="133"/>
+        <location filename="src/gui/FileSearchDialog.ui" line="119"/>
         <source>&amp;Search</source>
         <translation>&amp;Search</translation>
     </message>
     <message>
-        <location filename="src/gui/FileSearchDialog.cpp" line="42"/>
         <source>Directory</source>
-        <translation>Directory</translation>
+        <translation type="obsolete">Directory</translation>
     </message>
     <message>
-        <location filename="src/gui/FileSearchDialog.cpp" line="115"/>
         <source>Searching files...</source>
-        <translation>Searching files...</translation>
+        <translation type="obsolete">Searching files...</translation>
     </message>
     <message>
-        <location filename="src/gui/FileSearchDialog.cpp" line="137"/>
         <source>No Match</source>
-        <translation>No Match</translation>
+        <translation type="obsolete">No Match</translation>
     </message>
     <message>
-        <location filename="src/gui/FileSearchDialog.cpp" line="137"/>
         <source>No file matching your criteria was found!</source>
-        <translation>No file matching your criteria was found!</translation>
+        <translation type="obsolete">No file matching your criteria was found!</translation>
     </message>
     <message>
-        <location filename="src/gui/FileSearchDialog.cpp" line="152"/>
         <source>Multiple Matches</source>
-        <translation>Multiple Matches</translation>
+        <translation type="obsolete">Multiple Matches</translation>
     </message>
     <message>
-        <location filename="src/gui/FileSearchDialog.cpp" line="152"/>
         <source>Please select the file you want to open:</source>
-        <translation>Please select the file you want to open:</translation>
+        <translation type="obsolete">Please select the file you want to open:</translation>
     </message>
 </context>
 <context>
@@ -739,6 +732,34 @@ You should have received a copy of the GNU General Public License along with thi
         <location filename="src/gui/FirstStartWizard.ui" line="48"/>
         <source>The initial configuration is done! Click finish to save it to disk and use the program.</source>
         <translation>The initial configuration is done! Click finish to save it to disk and use the program.</translation>
+    </message>
+</context>
+<context>
+    <name>GUI</name>
+    <message>
+        <location filename="src/gui/GUI.cpp" line="36"/>
+        <source>Searching files...</source>
+        <translation>Searching files...</translation>
+    </message>
+    <message>
+        <location filename="src/gui/GUI.cpp" line="67"/>
+        <source>Multiple Matches</source>
+        <translation>Multiple Matches</translation>
+    </message>
+    <message>
+        <location filename="src/gui/GUI.cpp" line="68"/>
+        <source>Please select the file you want to open:</source>
+        <translation>Please select the file you want to open:</translation>
+    </message>
+    <message>
+        <location filename="src/gui/GUI.cpp" line="83"/>
+        <source>File Not Found</source>
+        <translation>File Not Found</translation>
+    </message>
+    <message>
+        <location filename="src/gui/GUI.cpp" line="83"/>
+        <source>The requested file was not found!</source>
+        <translation>The requested file was not found!</translation>
     </message>
 </context>
 <context>
@@ -970,9 +991,15 @@ You should have received a copy of the GNU General Public License along with thi
         <translation>Weapons</translation>
     </message>
     <message>
-        <location filename="src/formats/ide/IDEWidget.cpp" line="215"/>
+        <location filename="src/formats/ide/IDEWidget.cpp" line="221"/>
         <source>Parsing errors in IDE file %1:</source>
         <translation>Parsing errors in IDE file %1:</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDEWidget.cpp" line="255"/>
+        <source>Double click to open file</source>
+        <oldsource>Click to open file</oldsource>
+        <translation>Double click to open file</translation>
     </message>
 </context>
 <context>
@@ -1199,9 +1226,14 @@ You should have received a copy of the GNU General Public License along with thi
         <translation>Unknown 2</translation>
     </message>
     <message>
-        <location filename="src/formats/ipl/IPLWidget.cpp" line="203"/>
+        <location filename="src/formats/ipl/IPLWidget.cpp" line="205"/>
         <source>Parsing errors in IPL file %1:</source>
         <translation>Parsing errors in IDE file %1:</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ipl/IPLWidget.cpp" line="228"/>
+        <source>Double click to open file</source>
+        <translation>Double click to open file</translation>
     </message>
 </context>
 <context>
@@ -1426,12 +1458,12 @@ You should have received a copy of the GNU General Public License along with thi
         <translation type="obsolete">Closed File!</translation>
     </message>
     <message>
-        <location filename="src/System.cpp" line="122"/>
+        <location filename="src/System.cpp" line="112"/>
         <source>Unhandeled Exception</source>
         <translation>Unhandeled Exception</translation>
     </message>
     <message>
-        <location filename="src/System.cpp" line="119"/>
+        <location filename="src/System.cpp" line="109"/>
         <source>Unhandeled Exception %1%2</source>
         <translation>An unhandeled exception occurred. The program might continue to run, but stability can not be guaranteed. A detailed description of the exception was written to the file %2.
 The exception text:

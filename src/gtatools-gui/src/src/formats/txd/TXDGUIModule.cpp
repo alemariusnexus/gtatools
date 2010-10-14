@@ -35,8 +35,12 @@ TXDGUIModule::TXDGUIModule()
 	findTextureInFileAction = new QAction(tr("Search Texture..."), NULL);
 	findTextureInFileAction->setShortcut(QKeySequence("Ctrl+T"));
 
+	ProfileManager* pm = ProfileManager::getInstance();
+
 	connect(findTextureAction, SIGNAL(triggered(bool)), this, SLOT(onFindTexture(bool)));
 	connect(findTextureInFileAction, SIGNAL(triggered(bool)), this, SLOT(onFindTextureInFile(bool)));
+	connect(pm, SIGNAL(currentProfileChanged(Profile*, Profile*)), this,
+			SLOT(currentProfileChanged(Profile*, Profile*)));
 }
 
 
@@ -95,3 +99,8 @@ void TXDGUIModule::onFindTextureInFile(bool checked)
 	TXDFormatHandler::getInstance()->findTextureDialog(contextFiles, mainWindow);
 }
 
+
+void TXDGUIModule::currentProfileChanged(Profile* oldProfile, Profile* newProfile)
+{
+	findTextureAction->setEnabled(newProfile != NULL);
+}
