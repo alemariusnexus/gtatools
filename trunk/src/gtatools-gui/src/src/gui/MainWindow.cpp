@@ -29,6 +29,7 @@
 #include "ConfigWidget.h"
 #include <qmenu.h>
 #include "../formats/txd/TXDGUIModule.h"
+#include "../formats/ide/IDEGUIModule.h"
 #include "../System.h"
 #include "DefaultGUIModule.h"
 #include <qprogressbar.h>
@@ -63,6 +64,7 @@ MainWindow::MainWindow()
 
 	sys->installGUIModule(new DefaultGUIModule);
 	sys->installGUIModule(new TXDGUIModule);
+	sys->installGUIModule(new IDEGUIModule);
 }
 
 

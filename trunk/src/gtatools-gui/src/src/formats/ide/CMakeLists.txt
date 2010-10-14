@@ -16,13 +16,13 @@
 # along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
 
 SET(SRCS ${SRCS}
-    src/formats/ide/IDEFormatHandler.cpp
-    src/formats/ide/IDEWidget.cpp
+    src/formats/ide/IDEFormatHandler.cpp src/formats/ide/IDEWidget.cpp src/formats/ide/IDEGUIModule.cpp
+    src/formats/ide/IDESearchWidget.cpp src/formats/ide/IDEFileFinder.cpp
     PARENT_SCOPE)
 SET(MOC_SRCS ${MOC_SRCS}
-    src/formats/ide/IDEFormatHandler.h
-    src/formats/ide/IDEWidget.h
+    src/formats/ide/IDEFormatHandler.h src/formats/ide/IDEWidget.h src/formats/ide/IDEGUIModule.h
+    src/formats/ide/IDESearchWidget.h
     PARENT_SCOPE)
 SET(UIC_SRCS ${UIC_SRCS}
-    src/formats/ide/IDEWidget.ui
+    src/formats/ide/IDEWidget.ui src/formats/ide/IDESearchWidget.ui
     PARENT_SCOPE)

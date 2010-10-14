@@ -40,6 +40,7 @@ public:
 	void setErrorBehavior(ErrorBehavior eb) { errorBehavior = eb; }
 	ErrorBehavior getErrorBehavior() const { return errorBehavior; }
 	ErrorLog* getErrorLog() { return &log; }
+	int getLastReadLine() { return lastReadLine; }
 
 protected:
 	GTASectionFileReader(InputStream* stream, bool deleteStream = true);
