@@ -37,14 +37,18 @@
 
 
 
-IDEWidget::IDEWidget(QWidget* parent, const File& file)
+IDEWidget::IDEWidget(QWidget* parent, const FileOpenRequest& request)
 		: QWidget(parent), linkBrush(QColor(Qt::blue))
 {
 	ui.setupUi(this);
 
+	File* file = request.getFile();
+	QVariant lineVariant = request.getAttribute("line");
+	int selectedLine = lineVariant.isNull() ? -1 : lineVariant.toInt();
+
 	QString content;
 
-	InputStream* stream = file.openStream();
+	InputStream* stream = file->openStream();
 
 	char buffer[4096];
 	while (!stream->hasReachedEnd()) {
@@ -107,12 +111,14 @@ IDEWidget::IDEWidget(QWidget* parent, const File& file)
 	ui.pedTable->horizontalHeader()->setVisible(true);
 	ui.weaponTable->horizontalHeader()->setVisible(true);
 
-	IDEReader ide(file);
+	IDEReader ide(*file);
 
 	IDEStatement* stmt;
 
 	while ((stmt = ide.readStatement())  !=  NULL) {
 		idetype_t type = stmt->getType();
+
+		int line = ide.getLastReadLine();
 
 		if (type == IDE_TYPE_STATIC_OBJECT) {
 			IDEStaticObject* sobj = (IDEStaticObject*) stmt;
@@ -133,6 +139,11 @@ IDEWidget::IDEWidget(QWidget* parent, const File& file)
 			}
 
 			ui.staticObjectTable->setItem(rc, 4, createItem(ddists.join(", ")));
+
+			if (line == selectedLine) {
+				ui.staticObjectTable->setCurrentCell(rc, 0);
+				ui.tabWidget->setCurrentWidget(ui.staticObjectWidget);
+			}
 		} else if (type == IDE_TYPE_TIMED_OBJECT) {
 			IDETimedObject* tobj = (IDETimedObject*) stmt;
 			int rc = ui.timedObjectTable->rowCount();
@@ -156,6 +167,11 @@ IDEWidget::IDEWidget(QWidget* parent, const File& file)
 			}
 
 			ui.timedObjectTable->setItem(rc, 4, createItem(ddists.join(", ")));
+
+			if (line == selectedLine) {
+				ui.timedObjectTable->setCurrentCell(rc, 0);
+				ui.tabWidget->setCurrentWidget(ui.timedObjectWidget);
+			}
 		} else if (type == IDE_TYPE_ANIMATION) {
 			IDEAnimation* anim = (IDEAnimation*) stmt;
 			int rc = ui.animationTable->rowCount();
@@ -167,6 +183,11 @@ IDEWidget::IDEWidget(QWidget* parent, const File& file)
 			ui.animationTable->setItem(rc, 4, createItem(QString("%1")
 					.arg(anim->getDrawDist())));
 			ui.animationTable->setItem(rc, 5, createItem(QString("%1").arg(anim->getFlags())));
+
+			if (line == selectedLine) {
+				ui.animationTable->setCurrentCell(rc, 0);
+				ui.tabWidget->setCurrentWidget(ui.animationWidget);
+			}
 		} else if (type == IDE_TYPE_PEDESTRIAN) {
 			IDEPedestrian* ped = (IDEPedestrian*) stmt;
 			int rc = ui.pedTable->rowCount();
@@ -188,6 +209,11 @@ IDEWidget::IDEWidget(QWidget* parent, const File& file)
 			ui.pedTable->setItem(rc, 11, createItem(ped->getVoiceFile()));
 			ui.pedTable->setItem(rc, 12, createItem(ped->getVoice1()));
 			ui.pedTable->setItem(rc, 13, createItem(ped->getVoice2()));
+
+			if (line == selectedLine) {
+				ui.pedTable->setCurrentCell(rc, 0);
+				ui.tabWidget->setCurrentWidget(ui.pedWidget);
+			}
 		} else if (type == IDE_TYPE_WEAPON) {
 			IDEWeapon* weap = (IDEWeapon*) stmt;
 			int rc = ui.weaponTable->rowCount();
@@ -207,6 +233,11 @@ IDEWidget::IDEWidget(QWidget* parent, const File& file)
 			}
 
 			ui.weaponTable->setItem(rc, 5, createItem(ddists.join(", ")));
+
+			if (line == selectedLine) {
+				ui.weaponTable->setCurrentCell(rc, 0);
+				ui.tabWidget->setCurrentWidget(ui.weaponWidget);
+			}
 		}
 
 		delete stmt;
@@ -218,7 +249,7 @@ IDEWidget::IDEWidget(QWidget* parent, const File& file)
 		System* sys = System::getInstance();
 		char* elem;
 
-		sys->logError(tr("Parsing errors in IDE file %1:").arg(file.getPath()->getFileName()));
+		sys->logError(tr("Parsing errors in IDE file %1:").arg(file->getPath()->getFileName()));
 
 		while ((elem = log->nextMessage())  !=  NULL) {
 			sys->logError(QString("\t%1").arg(elem));

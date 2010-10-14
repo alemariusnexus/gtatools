@@ -752,12 +752,12 @@ You should have received a copy of the GNU General Public License along with thi
         <translation>Please select the file you want to open:</translation>
     </message>
     <message>
-        <location filename="src/gui/GUI.cpp" line="83"/>
+        <location filename="src/gui/GUI.cpp" line="78"/>
         <source>File Not Found</source>
         <translation>File Not Found</translation>
     </message>
     <message>
-        <location filename="src/gui/GUI.cpp" line="83"/>
+        <location filename="src/gui/GUI.cpp" line="78"/>
         <source>The requested file was not found!</source>
         <translation>The requested file was not found!</translation>
     </message>
@@ -835,6 +835,46 @@ You should have received a copy of the GNU General Public License along with thi
         <location filename="src/formats/ide/IDEFormatHandler.h" line="29"/>
         <source>Item Definition File (IDE)</source>
         <translation>Item Definition File (IDE)</translation>
+    </message>
+</context>
+<context>
+    <name>IDEGUIModule</name>
+    <message>
+        <location filename="src/formats/ide/IDEGUIModule.cpp" line="17"/>
+        <source>Search Item Definition</source>
+        <translation>Search Item Definition</translation>
+    </message>
+</context>
+<context>
+    <name>IDESearchWidget</name>
+    <message>
+        <location filename="src/formats/ide/IDESearchWidget.ui" line="14"/>
+        <source>Search Item Definition</source>
+        <translation>Search Item Definition</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDESearchWidget.ui" line="23"/>
+        <source>Item &amp;ID</source>
+        <oldsource>Item ID</oldsource>
+        <translation>Item &amp;ID</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDESearchWidget.ui" line="71"/>
+        <source>&amp;Cancel</source>
+        <translation>&amp;Cancel</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDESearchWidget.ui" line="78"/>
+        <source>&amp;Search</source>
+        <translation>&amp;Search</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="obsolete">Cancel</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation type="obsolete">Search</translation>
     </message>
 </context>
 <context>
@@ -1256,7 +1296,7 @@ You should have received a copy of the GNU General Public License along with thi
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="src/gui/MainWindow.cpp" line="46"/>
+        <location filename="src/gui/MainWindow.cpp" line="47"/>
         <source>ProgramBaseName</source>
         <translation>GTATools GUI Tool</translation>
     </message>
@@ -1602,34 +1642,28 @@ The exception text:
 <context>
     <name>TextureSearchDialog</name>
     <message>
-        <location filename="src/formats/txd/TextureSearchDialog.cpp" line="105"/>
         <source>Searching texture...</source>
-        <translation>Searching texture...</translation>
+        <translation type="obsolete">Searching texture...</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TextureSearchDialog.cpp" line="160"/>
         <source>No Match</source>
-        <translation>No Match</translation>
+        <translation type="obsolete">No Match</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TextureSearchDialog.cpp" line="160"/>
         <source>No texture matching your criteria was found!</source>
-        <translation>No texture matching your criteria was found!</translation>
+        <translation type="obsolete">No texture matching your criteria was found!</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TextureSearchDialog.cpp" line="174"/>
         <source>%1 in %2</source>
-        <translation>%1 in %2</translation>
+        <translation type="obsolete">%1 in %2</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TextureSearchDialog.cpp" line="178"/>
         <source>Multiple Matches</source>
-        <translation>Multiple Matches</translation>
+        <translation type="obsolete">Multiple Matches</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TextureSearchDialog.cpp" line="178"/>
         <source>Please select the texture you want to open:</source>
-        <translation>Please select the texture you want to open:</translation>
+        <translation type="obsolete">Please select the texture you want to open:</translation>
     </message>
     <message>
         <location filename="src/formats/txd/TextureSearchDialog.ui" line="20"/>

@@ -24,6 +24,6 @@
 
 QWidget* IDEFormatHandler::createWidgetForFile(const FileOpenRequest& request, QWidget* parent)
 {
-	IDEWidget* widget = new IDEWidget(parent, *request.getFile());
+	IDEWidget* widget = new IDEWidget(parent, request);
 	return widget;
 }
