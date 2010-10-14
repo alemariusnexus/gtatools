@@ -18,20 +18,23 @@
  */
 
 #include "TextureSearchDialog.h"
+#include "../../config.h"
 #include "../../ProfileManager.h"
 #include "../../Profile.h"
 #include <qstring.h>
-#include <gtaformats/txd/TXDArchive.h>
-#include <gtaformats/txd/TXDTexture.h>
 #include <qstringlist.h>
 #include <qinputdialog.h>
 #include <qmessagebox.h>
 #include "../../System.h"
+#include <gtaformats/util/DefaultFileFinder.h>
+#include "../../RegexFileFinder.h"
+#include "../../gui/GUI.h"
+#include <QtCore/QSettings>
 
 
 
 TextureSearchDialog::TextureSearchDialog(QWidget* parent, const QLinkedList<File*>& rootFiles)
-		: QDialog(parent), rootFiles(rootFiles), cancelled(false)
+		: QDialog(parent), rootFiles(rootFiles), finder(NULL)
 {
 	ui.setupUi(this);
 	connect(ui.searchButton, SIGNAL(clicked(bool)), this, SLOT(onSearch(bool)));
@@ -41,7 +44,10 @@ TextureSearchDialog::TextureSearchDialog(QWidget* parent, const QLinkedList<File
 
 void TextureSearchDialog::onCancel(bool checked)
 {
-	cancelled = true;
+	if (finder) {
+		finder->interrupt();
+	}
+
 	close();
 }
 
@@ -50,220 +56,64 @@ void TextureSearchDialog::onSearch(bool checked)
 {
 	ui.searchButton->setEnabled(false);
 
+	FileFinder* texFinder = NULL;
+	FileFinder* txdFinder = NULL;
+
 	QString texName = ui.nameField->text();
 	QString txdName = ui.txdField->text();
-	bool regex = ui.regexBox->isChecked();
-	bool caseSensitive = ui.caseBox->isChecked();
-	bool exact = ui.exactBox->isChecked();
 
-	StringMatcher::flags flags = 0;
+	if (ui.regexBox->isChecked()) {
+		QRegExp::PatternSyntax syntax;
 
-	if (!caseSensitive) {
-		flags |= STRING_MATCHER_CASEINSENSITIVE;
-	}
-	if (regex) {
-		flags |= STRING_MATCHER_REGEX;
-	}
-	if (exact) {
-		flags |= STRING_MATCHER_EXACTMATCH;
-	}
+		QSettings settings(CONFIG_FILE, QSettings::IniFormat);
 
-	StringMatcher texMatcher(texName, flags);
-	StringMatcher* txdMatcher;
+		QString cfgSyntax = settings.value("main/regex_syntax", "wildcard").toString();
 
-	if (txdName.isEmpty()) {
-		txdMatcher = NULL;
-	} else {
-		txdMatcher = new StringMatcher(txdName, flags);
-	}
-
-	Profile* profile = ProfileManager::getInstance()->getCurrentProfile();
-	Profile::ResourceIterator it;
-
-	QList<TextureMatch*> results;
-
-	int numFiles = 0;
-	int filesDone = 0;
-
-	/*if (rootFile) {
-		numFiles = rootFile->getChildCount(true, true);
-	} else {
-		for (it = profile->getResourceBegin() ; it != profile->getResourceEnd() ; it++) {
-			File* resource = *it;
-			numFiles += resource->getChildCount(true, true);
+		if (cfgSyntax == "wildcard") {
+			syntax = QRegExp::WildcardUnix;
+		} else if (cfgSyntax == "full") {
+			syntax = QRegExp::RegExp;
+		} else {
+			syntax = QRegExp::WildcardUnix;
 		}
-	}*/
 
-	for (it = rootFiles.begin() ; it != rootFiles.end() ; it++) {
-		File* file = *it;
-		numFiles += file->getChildCount(true, true);
-	}
+		QRegExp texRegex(texName, ui.caseBox->isChecked() ? Qt::CaseSensitive
+				: Qt::CaseInsensitive, syntax);
+		texFinder = new RegexFileFinder(texRegex, ui.exactBox->isChecked());
 
-	System* sys = System::getInstance();
-
-	Task* task = sys->createTask();
-	task->start(0, 100, tr("Searching texture..."));
-
-	for (it = rootFiles.begin() ; it != rootFiles.end() ; it++) {
-		File* rootFile = *it;
-
-		if (!collectSearchResults(*rootFile, &texMatcher, txdMatcher, results, numFiles, filesDone, task)) {
-			delete task;
-
-			QList<TextureMatch*>::iterator rit;
-			for (rit = results.begin() ; rit != results.end() ; rit++) {
-				TextureMatch* match = *rit;
-				delete match->txdFile;
-				delete match;
-			}
-
-			return;
-		}
-	}
-
-	/*if (rootFile) {
-		if (!collectSearchResults(*rootFile, &texMatcher, txdMatcher, results, numFiles, filesDone, task)) {
-			delete task;
-
-			QList<TextureMatch*>::iterator rit;
-			for (rit = results.begin() ; rit != results.end() ; rit++) {
-				TextureMatch* match = *rit;
-				delete match->txdFile;
-				delete match;
-			}
-
-			return;
+		if (!txdName.isEmpty()) {
+			QRegExp txdRegex(txdName, ui.caseBox->isChecked() ? Qt::CaseSensitive
+					: Qt::CaseInsensitive, syntax);
+			txdFinder = new RegexFileFinder(txdRegex, ui.exactBox->isChecked());
 		}
 	} else {
-		for (it = profile->getResourceBegin() ; it != profile->getResourceEnd() ; it++) {
-			File* resource = *it;
-			if (!collectSearchResults(*resource, &texMatcher, txdMatcher, results, numFiles, filesDone, task)) {
-				delete task;
+		texFinder = new DefaultFileFinder(texName.toLocal8Bit().constData(),
+				ui.caseBox->isChecked(), ui.exactBox->isChecked());
 
-				QList<TextureMatch*>::iterator rit;
-				for (rit = results.begin() ; rit != results.end() ; rit++) {
-					TextureMatch* match = *rit;
-					delete match->txdFile;
-					delete match;
-				}
-
-				return;
-			}
+		if (!txdName.isEmpty()) {
+			txdFinder = new DefaultFileFinder(txdName.toLocal8Bit().constData(),
+					ui.caseBox->isChecked(), ui.exactBox->isChecked());
 		}
-	}*/
+	}
 
-	delete task;
+	finder = new TextureFileFinder(texFinder, txdFinder);
 
+	File* toBeOpened = GUI::getInstance()->findFile(finder, this);
 	bool closeDialog = false;
 
-	if (results.size() == 0) {
-		QMessageBox::information(this, tr("No Match"), tr("No texture matching your criteria was found!"));
-		ui.searchButton->setEnabled(true);
-	} else if (results.size() == 1) {
-		TextureMatch* match = results.at(0);
-		FileOpenRequest request(*match->txdFile);
-		request.setAttribute("texture", match->textureName);
-		System::getInstance()->openFile(request);
+	if (toBeOpened) {
+		FileOpenRequest req(*toBeOpened);
+		const char* matchedTex = finder->getMatchedTexture(*toBeOpened);
+		req.setAttribute("texture", matchedTex);
+		System::getInstance()->openFile(req);
+		delete toBeOpened;
 		closeDialog = true;
-	} else {
-		QStringList userItems;
-
-		QList<TextureMatch*>::iterator rit;
-		for (rit = results.begin() ; rit != results.end() ; rit++) {
-			TextureMatch* match = *rit;
-			userItems << tr("%1 in %2").arg(match->textureName).arg(match->txdFile->getPath()->toString());
-		}
-
-		bool okSelected;
-		QString sel = QInputDialog::getItem(this, tr("Multiple Matches"), tr("Please select the texture you want to open:"),
-				userItems, 0, false, &okSelected);
-
-		if (okSelected) {
-			TextureMatch* match = results.at(userItems.indexOf(sel));
-			FileOpenRequest request(*match->txdFile);
-			request.setAttribute("texture", match->textureName);
-			System::getInstance()->openFile(request);
-			closeDialog = true;
-		} else {
-			ui.searchButton->setEnabled(true);
-		}
-	}
-
-	QList<TextureMatch*>::iterator rit;
-	for (rit = results.begin() ; rit != results.end() ; rit++) {
-		TextureMatch* match = *rit;
-		delete match->txdFile;
-		delete match;
 	}
 
 	if (closeDialog) {
 		close();
-	}
-}
-
-
-bool TextureSearchDialog::collectSearchResults(const File& resource, StringMatcher* texMatcher, StringMatcher* txdMatcher,
-			QList<TextureMatch*>& results, int filesMax, int& filesDone, Task* task)
-{
-	if (resource.isDirectory()  ||  resource.isArchiveFile()) {
-		FileIterator* it = resource.getIterator();
-		File* child;
-
-		while ((child = it->next())  !=  NULL) {
-			if (!collectSearchResults(*child, texMatcher, txdMatcher, results, filesMax, filesDone, task)) {
-				delete child;
-				return false;
-			}
-
-			delete child;
-		}
-
-		delete it;
 	} else {
-		if (resource.guessContentType() == CONTENT_TYPE_TXD) {
-			QString fname = resource.getPath()->getFileName();
-
-			if (!txdMatcher  ||  txdMatcher->matches(fname)) {
-				TXDArchive txd(resource);
-				TXDTexture* tex;
-
-				for (int i = 0 ; i < txd.getTextureCount() ; i++) {
-					tex = txd.nextTexture();
-
-					if (texMatcher->matches(tex->getDiffuseName())) {
-						TextureMatch* match = new TextureMatch;
-						match->txdFile = new File(resource);
-						match->textureName = tex->getDiffuseName();
-
-						results << match;
-						delete tex;
-						break;
-					}
-
-					delete tex;
-				}
-			}
-		}
+		ui.searchButton->setEnabled(true);
 	}
-
-	qApp->processEvents();
-
-	if (cancelled) {
-		return false;
-	}
-
-	filesDone++;
-
-	if (filesMax < 100) {
-		System* sys = System::getInstance();
-		task->update((int) (((float)filesDone / (float) filesMax)*100.0f));
-	} else {
-		if (filesDone%(filesMax / 100) == 0) {
-			System* sys = System::getInstance();
-			task->update();
-		}
-	}
-
-	return true;
 }
 

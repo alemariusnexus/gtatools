@@ -143,6 +143,8 @@ void DefaultGUIModule::doInstall()
 	connect(pm, SIGNAL(profileAdded(Profile*)), this, SLOT(profileAdded(Profile*)));
 	connect(pm, SIGNAL(profileRemoved(Profile*)), this, SLOT(profileRemoved(Profile*)));
 	connect(pm, SIGNAL(profilesLoaded()), this, SLOT(profilesLoaded()));
+	connect(pm, SIGNAL(currentProfileChanged(Profile*, Profile*)), this,
+			SLOT(currentProfileChanged(Profile*, Profile*)));
 }
 
 
@@ -343,4 +345,33 @@ void DefaultGUIModule::profileRemoved(Profile* profile)
 void DefaultGUIModule::profilesLoaded()
 {
 	loadProfileSwitchMenu();
+}
+
+
+void DefaultGUIModule::currentProfileChanged(Profile* oldProfile, Profile* newProfile)
+{
+	QAction* checkedAction = profileSwitchGroup->checkedAction();
+
+	if (checkedAction) {
+		checkedAction->setChecked(false);
+	}
+
+	QList<QAction*> actions = profileSwitchGroup->actions();
+
+	if (newProfile) {
+		ProfileManager* pm = ProfileManager::getInstance();
+		int idx = pm->indexOfProfile(newProfile);
+
+		if (actions.size() > idx+1) {
+			actions[idx+1]->setChecked(true);
+		}
+
+		searchFileAction->setEnabled(true);
+	} else {
+		if (actions.size() > 0) {
+			actions[0]->setChecked(true);
+		}
+
+		searchFileAction->setEnabled(false);
+	}
 }

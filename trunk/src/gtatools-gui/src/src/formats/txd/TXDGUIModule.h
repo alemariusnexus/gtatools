@@ -21,6 +21,7 @@
 #define TXDGUIMODULE_H_
 
 #include "../../gui/GUIModule.h"
+#include "../../Profile.h"
 #include <qaction.h>
 
 
@@ -40,6 +41,7 @@ private:
 private slots:
 	void onFindTexture(bool checked);
 	void onFindTextureInFile(bool checked);
+	void currentProfileChanged(Profile* oldProfile, Profile* newProfile);
 
 private:
 	QLinkedList<File*> contextFiles;

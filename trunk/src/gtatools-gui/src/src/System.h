@@ -31,6 +31,7 @@
 #include <qstring.h>
 #include "Task.h"
 #include "FileOpenRequest.h"
+#include <gtaformats/util/FileFinder.h>
 
 
 class System : public QObject {
@@ -50,13 +51,14 @@ public:
 	bool hasOpenFile();
 	void unhandeledException(Exception& ex);
 	void emitConfigurationChange();
-	void showStatusMessage(const QString& message, int timeout = 4000);
-	void installGUIModule(GUIModule* module);
-	void uninstallGUIModule(GUIModule* module);
 	QLinkedList<GUIModule*> getInstalledGUIModules() { return installedGUIModules; }
 	bool isGUIModuleInstalled(GUIModule* module) { return installedGUIModules.contains(module); }
-	Task* createTask();
 	void logError(const QString& errmsg);
+	void showStatusMessage(const QString& message, int timeout = 4000);
+	Task* createTask();
+	void installGUIModule(GUIModule* module);
+	void uninstallGUIModule(GUIModule* module);
+
 
 signals:
 	void fileOpened(const FileOpenRequest& request);
@@ -69,7 +71,7 @@ signals:
 	void errorLogged(const QString& errmsg);
 
 private:
-	System() : currentFile(NULL) {}
+	System() : mainWindow(NULL), currentFile(NULL) {}
 	void setMainWindow(MainWindow* mw) { mainWindow = mw; }
 
 private:

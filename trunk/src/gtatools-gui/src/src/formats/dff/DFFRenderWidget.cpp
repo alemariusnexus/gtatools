@@ -245,11 +245,11 @@ void DFFRenderWidget::resizeGL(int w, int h)
 		float aspect = (float) w / (float) h;
 		glViewport(0, 0, w, h);
 
-		float l = aspect*0.7;
-		float r = aspect*-0.7;
-		float b = -0.7;
-		float t = 0.7;
-		float n = 1.0;
+		float l = aspect*0.035;
+		float r = aspect*-0.035;
+		float b = -0.035;
+		float t = 0.035;
+		float n = 0.05;
 		float f = 3000.0;
 
 		// glFrustum(l, r, b, t, n, f):

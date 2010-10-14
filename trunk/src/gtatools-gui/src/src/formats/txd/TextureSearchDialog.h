@@ -22,11 +22,11 @@
 
 #include <ui_TextureSearchDialog.h>
 #include <qdialog.h>
-#include "../../StringMatcher.h"
 #include <qlinkedlist.h>
 #include <gtaformats/util/File.h>
 #include <qprogressdialog.h>
 #include "../../Task.h"
+#include "TextureFileFinder.h"
 
 
 
@@ -43,10 +43,6 @@ private:
 public:
 	TextureSearchDialog(QWidget* parent, const QLinkedList<File*>& rootFiles);
 
-private:
-	bool collectSearchResults(const File& resource, StringMatcher* texMatcher, StringMatcher* txdMatcher,
-			QList<TextureMatch*>& results, int maxFiles, int& filesDone, Task* task);
-
 private slots:
 	void onCancel(bool checked);
 	void onSearch(bool checked);
@@ -54,7 +50,7 @@ private slots:
 private:
 	Ui_TextureSearchDialog ui;
 	QLinkedList<File*> rootFiles;
-	bool cancelled;
+	TextureFileFinder* finder;
 };
 
 #endif /* TEXTURESEARCHDIALOG_H_ */

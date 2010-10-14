@@ -25,10 +25,15 @@
 #include <cstdlib>
 #include "../gf_config.h"
 #include "stream/FileInputStream.h"
+#include <vector>
+
+using std::vector;
+
 
 struct IMGEntry;
 class IMGArchive;
 class InputStream;
+class FileFinder;
 
 
 #ifdef linux
@@ -198,6 +203,11 @@ public:
 	bool mkdirs() const;
 
 	bool isChildOf(const File& other) const;
+
+	File* findChild(FileFinder& finder, bool recursive = false, bool archiveEntries = true) const;
+
+	int findChildren(FileFinder& finder, vector<File*>& results, bool recursive = false,
+			bool archiveEntries = true) const;
 
 	bool operator==(const File& other) const;
 	bool operator!=(const File& other) const { return !(*this == other); }

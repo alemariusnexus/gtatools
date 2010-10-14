@@ -23,6 +23,7 @@
 #include <QtGui/QWidget>
 #include <ui_IPLWidget.h>
 #include <gtaformats/util/File.h>
+#include <QtGui/QBrush>
 
 
 
@@ -33,7 +34,14 @@ public:
 	IPLWidget(QWidget* parent, const File& file);
 
 private:
+	QTableWidgetItem* createItem(const QString& text, bool link = false);
+
+private slots:
+	void instanceTableCellDoubleClicked(int row, int col);
+
+private:
 	Ui_IPLWidget ui;
+	QBrush linkBrush;
 };
 
 #endif /* IPLWIDGET_H_ */
