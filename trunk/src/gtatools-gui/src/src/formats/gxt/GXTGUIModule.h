@@ -33,6 +33,7 @@ class GXTGUIModule : public GUIModule {
 
 public:
 	GXTGUIModule(GXTWidget* creator);
+	~GXTGUIModule();
 
 private:
 	virtual void doInstall();
@@ -40,9 +41,11 @@ private:
 
 private slots:
 	void onStringListMatch(bool checked);
+	void onIniExport(bool checked);
 
 private:
 	QAction* stringListMatchAction;
+	QAction* iniExportAction;
 	GXTWidget* gxtWidget;
 };
 

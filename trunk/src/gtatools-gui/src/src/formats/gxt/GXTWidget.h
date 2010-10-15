@@ -30,16 +30,19 @@
 #include "GXTTableModel.h"
 #include "GXTGUIModule.h"
 #include <QtCore/QSettings>
+#include "../../FileOpenRequest.h"
 
 
 class GXTWidget : public QWidget {
 	Q_OBJECT
 
 public:
-	GXTWidget(QWidget* parent = NULL);
+	GXTWidget(const FileOpenRequest& request, QWidget* parent = NULL);
 	~GXTWidget();
-	void addFile(const File& file);
-	void stringListMatch(const File& file);
+	QMap<QString, GXTTable*> getTables() { return tables; }
+	QLinkedList<GXTTable*> getSelectedTables();
+	File* getOpenFile() { return gxtFile; }
+	void reloadCurrentTable();
 
 private:
 	void rebuildTableList();
@@ -57,8 +60,8 @@ private:
 	GXTGUIModule guiModule;
 	GXTTableModel* model;
 	QSortFilterProxyModel* proxyModel;
-	QLinkedList<File*> gxtFiles;
-	QMap<QString, QVector<GXTTable*> > tables;
+	File* gxtFile;
+	QMap<QString, GXTTable*> tables;
 };
 
 #endif /* GXTWIDGET_H_ */

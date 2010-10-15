@@ -4,7 +4,7 @@
 <context>
     <name>ConfigWidget</name>
     <message>
-        <location filename="src/gui/ConfigWidget.cpp" line="35"/>
+        <location filename="src/gui/ConfigWidget.cpp" line="36"/>
         <source>ProgramBaseName</source>
         <translation>GTATools GUI Tool</translation>
     </message>
@@ -51,7 +51,7 @@
     </message>
     <message>
         <location filename="src/gui/ConfigWidget.ui" line="98"/>
-        <location filename="src/gui/ConfigWidget.cpp" line="151"/>
+        <location filename="src/gui/ConfigWidget.cpp" line="157"/>
         <source>New Profile</source>
         <translation>New Profile</translation>
     </message>
@@ -483,7 +483,7 @@
     </message>
     <message>
         <location filename="src/gui/DefaultGUIModule.cpp" line="67"/>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="276"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="277"/>
         <source>About Qt</source>
         <translation>About Qt</translation>
     </message>
@@ -518,17 +518,17 @@
         <translation>File Tree</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="168"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="169"/>
         <source>No Profile</source>
         <translation>No Profile</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="283"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="284"/>
         <source>About GTATools GUI Tool</source>
         <translation>About GTATools GUI Tool</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="282"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="283"/>
         <source>AboutText</source>
         <translation>This is gtatools-gui. This program is part of gtatools and runs with version %1.
 
@@ -539,7 +539,7 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="296"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="297"/>
         <source>Select file</source>
         <translation>Select file</translation>
     </message>
@@ -651,42 +651,42 @@ You should have received a copy of the GNU General Public License along with thi
         <translation>(No File Opened)</translation>
     </message>
     <message>
-        <location filename="src/gui/FileViewWidget.ui" line="76"/>
+        <location filename="src/gui/FileViewWidget.ui" line="79"/>
         <source>File Type</source>
         <translation>File Type</translation>
     </message>
     <message>
-        <location filename="src/gui/FileViewWidget.ui" line="83"/>
+        <location filename="src/gui/FileViewWidget.ui" line="86"/>
         <source>File Size</source>
         <translation>File Size</translation>
     </message>
     <message>
-        <location filename="src/gui/FileViewWidget.cpp" line="34"/>
+        <location filename="src/gui/FileViewWidget.cpp" line="37"/>
         <source>Directory</source>
         <translation>Directory</translation>
     </message>
     <message>
-        <location filename="src/gui/FileViewWidget.cpp" line="35"/>
+        <location filename="src/gui/FileViewWidget.cpp" line="38"/>
         <source>%1 files</source>
         <translation>%1 files</translation>
     </message>
     <message>
-        <location filename="src/gui/FileViewWidget.cpp" line="40"/>
+        <location filename="src/gui/FileViewWidget.cpp" line="43"/>
         <source>%1MB</source>
         <translation>%1MB</translation>
     </message>
     <message>
-        <location filename="src/gui/FileViewWidget.cpp" line="42"/>
+        <location filename="src/gui/FileViewWidget.cpp" line="45"/>
         <source>%1kB</source>
         <translation>%1kB</translation>
     </message>
     <message>
-        <location filename="src/gui/FileViewWidget.cpp" line="44"/>
+        <location filename="src/gui/FileViewWidget.cpp" line="47"/>
         <source>%1B</source>
         <translation>%1B</translation>
     </message>
     <message>
-        <location filename="src/gui/FileViewWidget.cpp" line="50"/>
+        <location filename="src/gui/FileViewWidget.cpp" line="53"/>
         <source>Unrecognized File</source>
         <translation>Unrecognized File</translation>
     </message>
@@ -694,44 +694,36 @@ You should have received a copy of the GNU General Public License along with thi
 <context>
     <name>FirstStartWizard</name>
     <message>
-        <location filename="src/gui/FirstStartWizard.cpp" line="33"/>
         <source>ProgramBaseName</source>
-        <translation>GTATools GUI Tool</translation>
+        <translation type="obsolete">GTATools GUI Tool</translation>
     </message>
     <message>
-        <location filename="src/gui/FirstStartWizard.ui" line="14"/>
         <source>Initial Setup</source>
-        <translation>Initial Setup</translation>
+        <translation type="obsolete">Initial Setup</translation>
     </message>
     <message>
-        <location filename="src/gui/FirstStartWizard.ui" line="24"/>
         <source>Introduction</source>
-        <translation>Introduction</translation>
+        <translation type="obsolete">Introduction</translation>
     </message>
     <message>
-        <location filename="src/gui/FirstStartWizard.ui" line="27"/>
         <source>This seems to be the first time you start GTATools GUI Tool. Please take some time to configure the basic options.</source>
-        <translation>This seems to be the first time you start GTATools GUI Tool. Please take some time to configure the basic options.</translation>
+        <translation type="obsolete">This seems to be the first time you start GTATools GUI Tool. Please take some time to configure the basic options.</translation>
     </message>
     <message>
-        <location filename="src/gui/FirstStartWizard.ui" line="32"/>
         <source>Default Profile</source>
-        <translation>Default Profile</translation>
+        <translation type="obsolete">Default Profile</translation>
     </message>
     <message>
-        <location filename="src/gui/FirstStartWizard.ui" line="35"/>
         <source>To allow multiple configurations, this program uses a concept of profiles. At any time, you can easily switch between and edit the profiles. Please provide some information for the default profile.</source>
-        <translation>[[ Waaay too long text ]].</translation>
+        <translation type="obsolete">[[ Waaay too long text ]].</translation>
     </message>
     <message>
-        <location filename="src/gui/FirstStartWizard.ui" line="45"/>
         <source>Initialization Complete</source>
-        <translation>Initialization Complete</translation>
+        <translation type="obsolete">Initialization Complete</translation>
     </message>
     <message>
-        <location filename="src/gui/FirstStartWizard.ui" line="48"/>
         <source>The initial configuration is done! Click finish to save it to disk and use the program.</source>
-        <translation>The initial configuration is done! Click finish to save it to disk and use the program.</translation>
+        <translation type="obsolete">The initial configuration is done! Click finish to save it to disk and use the program.</translation>
     </message>
 </context>
 <context>
@@ -765,33 +757,58 @@ You should have received a copy of the GNU General Public License along with thi
 <context>
     <name>GXTFormatHandler</name>
     <message>
-        <location filename="src/formats/gxt/GXTFormatHandler.h" line="31"/>
+        <location filename="src/formats/gxt/GXTFormatHandler.h" line="38"/>
         <source>GXT Text File</source>
         <translation>GXT Text File</translation>
+    </message>
+    <message>
+        <location filename="src/formats/gxt/GXTFormatHandler.cpp" line="116"/>
+        <source>Syntax Error</source>
+        <translation>Syntax Error</translation>
+    </message>
+    <message>
+        <location filename="src/formats/gxt/GXTFormatHandler.cpp" line="117"/>
+        <source>Syntax Error: Key name definition is not in a table!</source>
+        <translation>Syntax Error: Key name definition outside of a table!</translation>
     </message>
 </context>
 <context>
     <name>GXTGUIModule</name>
     <message>
-        <location filename="src/formats/gxt/GXTGUIModule.cpp" line="32"/>
+        <location filename="src/formats/gxt/GXTGUIModule.cpp" line="33"/>
         <source>String List Match</source>
         <translation>String List Match</translation>
     </message>
     <message>
-        <location filename="src/formats/gxt/GXTGUIModule.cpp" line="57"/>
+        <location filename="src/formats/gxt/GXTGUIModule.cpp" line="36"/>
+        <source>Export as INI file</source>
+        <translation>Export as INI file</translation>
+    </message>
+    <message>
+        <location filename="src/formats/gxt/GXTGUIModule.cpp" line="74"/>
         <source>Choose a string list file</source>
         <translation>Choose a string list file</translation>
+    </message>
+    <message>
+        <location filename="src/formats/gxt/GXTGUIModule.cpp" line="88"/>
+        <source>Select a destination file</source>
+        <translation>Select a destination file</translation>
+    </message>
+    <message>
+        <location filename="src/formats/gxt/GXTGUIModule.cpp" line="89"/>
+        <source>INI Files (*.ini)</source>
+        <translation>INI Files (*.ini)</translation>
     </message>
 </context>
 <context>
     <name>GXTTableModel</name>
     <message>
-        <location filename="src/formats/gxt/GXTTableModel.cpp" line="96"/>
+        <location filename="src/formats/gxt/GXTTableModel.cpp" line="99"/>
         <source>[Not assigned]</source>
         <translation>[Not assigned]</translation>
     </message>
     <message>
-        <location filename="src/formats/gxt/GXTTableModel.cpp" line="109"/>
+        <location filename="src/formats/gxt/GXTTableModel.cpp" line="112"/>
         <source>Key</source>
         <translation>Key</translation>
     </message>
@@ -799,34 +816,32 @@ You should have received a copy of the GNU General Public License along with thi
 <context>
     <name>GXTWidget</name>
     <message>
-        <location filename="src/formats/gxt/GXTWidget.ui" line="108"/>
+        <location filename="src/formats/gxt/GXTWidget.ui" line="99"/>
         <source>Filter</source>
         <translation>Filter</translation>
     </message>
     <message>
-        <location filename="src/formats/gxt/GXTWidget.ui" line="114"/>
+        <location filename="src/formats/gxt/GXTWidget.ui" line="105"/>
         <source>&amp;Filter</source>
         <translation>&amp;Filter</translation>
     </message>
     <message>
-        <location filename="src/formats/gxt/GXTWidget.ui" line="127"/>
+        <location filename="src/formats/gxt/GXTWidget.ui" line="118"/>
         <source>&amp;Hash</source>
         <translation>&amp;Hash</translation>
     </message>
     <message>
-        <location filename="src/formats/gxt/GXTWidget.ui" line="134"/>
+        <location filename="src/formats/gxt/GXTWidget.ui" line="125"/>
         <source>&amp;Regular Expression</source>
         <translation>&amp;Regular Expression</translation>
     </message>
     <message>
-        <location filename="src/formats/gxt/GXTWidget.cpp" line="128"/>
         <source>Syntax Error</source>
-        <translation>Syntax Error</translation>
+        <translation type="obsolete">Syntax Error</translation>
     </message>
     <message>
-        <location filename="src/formats/gxt/GXTWidget.cpp" line="129"/>
         <source>Syntax Error: Key name definition is not in a table!</source>
-        <translation>Syntax Error: Key name definition outside of a table!</translation>
+        <translation type="obsolete">Syntax Error: Key name definition outside of a table!</translation>
     </message>
 </context>
 <context>
@@ -859,12 +874,12 @@ You should have received a copy of the GNU General Public License along with thi
         <translation>Item &amp;ID</translation>
     </message>
     <message>
-        <location filename="src/formats/ide/IDESearchWidget.ui" line="71"/>
+        <location filename="src/formats/ide/IDESearchWidget.ui" line="80"/>
         <source>&amp;Cancel</source>
         <translation>&amp;Cancel</translation>
     </message>
     <message>
-        <location filename="src/formats/ide/IDESearchWidget.ui" line="78"/>
+        <location filename="src/formats/ide/IDESearchWidget.ui" line="87"/>
         <source>&amp;Search</source>
         <translation>&amp;Search</translation>
     </message>
@@ -1031,12 +1046,12 @@ You should have received a copy of the GNU General Public License along with thi
         <translation>Weapons</translation>
     </message>
     <message>
-        <location filename="src/formats/ide/IDEWidget.cpp" line="221"/>
+        <location filename="src/formats/ide/IDEWidget.cpp" line="252"/>
         <source>Parsing errors in IDE file %1:</source>
         <translation>Parsing errors in IDE file %1:</translation>
     </message>
     <message>
-        <location filename="src/formats/ide/IDEWidget.cpp" line="255"/>
+        <location filename="src/formats/ide/IDEWidget.cpp" line="286"/>
         <source>Double click to open file</source>
         <oldsource>Click to open file</oldsource>
         <translation>Double click to open file</translation>
@@ -1425,23 +1440,23 @@ You should have received a copy of the GNU General Public License along with thi
 <context>
     <name>ProfileConfigWidget</name>
     <message>
-        <location filename="src/gui/ProfileConfigWidget.cpp" line="90"/>
+        <location filename="src/gui/ProfileConfigWidget.cpp" line="82"/>
         <source>Select one or more resources</source>
         <oldsource>Select resource</oldsource>
         <translation>Select one or more resources</translation>
     </message>
     <message>
-        <location filename="src/gui/ProfileConfigWidget.cpp" line="103"/>
+        <location filename="src/gui/ProfileConfigWidget.cpp" line="95"/>
         <source>Select a resource directory</source>
         <translation>Select a resource directory</translation>
     </message>
     <message>
-        <location filename="src/gui/ProfileConfigWidget.cpp" line="123"/>
+        <location filename="src/gui/ProfileConfigWidget.cpp" line="114"/>
         <source>Select the new resource directory</source>
         <translation>Select the new resource directory</translation>
     </message>
     <message>
-        <location filename="src/gui/ProfileConfigWidget.cpp" line="130"/>
+        <location filename="src/gui/ProfileConfigWidget.cpp" line="121"/>
         <source>Select the new resource file</source>
         <translation>Select the new resource file</translation>
     </message>
@@ -1455,22 +1470,22 @@ You should have received a copy of the GNU General Public License along with thi
         <translation>Profile Name</translation>
     </message>
     <message>
-        <location filename="src/gui/ProfileConfigWidget.ui" line="64"/>
+        <location filename="src/gui/ProfileConfigWidget.ui" line="68"/>
         <source>Add File</source>
         <translation>Add File</translation>
     </message>
     <message>
-        <location filename="src/gui/ProfileConfigWidget.ui" line="71"/>
+        <location filename="src/gui/ProfileConfigWidget.ui" line="75"/>
         <source>Add Directory</source>
         <translation>Add Directory</translation>
     </message>
     <message>
-        <location filename="src/gui/ProfileConfigWidget.ui" line="78"/>
+        <location filename="src/gui/ProfileConfigWidget.ui" line="82"/>
         <source>Edit</source>
         <translation>Edit</translation>
     </message>
     <message>
-        <location filename="src/gui/ProfileConfigWidget.ui" line="85"/>
+        <location filename="src/gui/ProfileConfigWidget.ui" line="89"/>
         <source>Remove</source>
         <translation>Remove</translation>
     </message>
