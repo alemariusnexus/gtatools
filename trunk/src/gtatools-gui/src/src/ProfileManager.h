@@ -55,9 +55,11 @@ signals:
 	void currentProfileChanged(Profile* oldProfile, Profile* newProfile);
 	void profileAdded(Profile* profile);
 	void profileRemoved(Profile* profile);
+	void profileChanged(Profile* profile);
 
 private slots:
 	void currentProfileChangedSlot(Profile* oldProfile, Profile* newProfile);
+	void profileChangedSlot();
 
 private:
 	QList<Profile*> profiles;

@@ -29,8 +29,6 @@
 #include <gtaformats/util/File.h>
 #include "gui/MainWindow.h"
 #include <qsettings.h>
-#include "gui/FirstStartWizard.h"
-#include <ui_FirstStartWizard.h>
 #include "Profile.h"
 #include <qmetatype.h>
 #include "gui/ConfigWidget.h"

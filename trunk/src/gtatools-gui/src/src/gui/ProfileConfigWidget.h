@@ -31,18 +31,18 @@ class ProfileConfigWidget : public QWidget {
 	Q_OBJECT
 
 public:
-	ProfileConfigWidget(QWidget* parent = NULL);
+	ProfileConfigWidget(Profile* profile, QWidget* parent = NULL);
 	~ProfileConfigWidget();
 	QString getProfileName() { return ui.nameField->text(); }
 	void getFiles(QLinkedList<QString>& dest);
-	void displayProfile(Profile* profile);
 
 private slots:
 	void fileAddButtonClicked(bool checked = false);
 	void dirAddButtonClicked(bool checked = false);
 	void fileEditButtonClicked(bool checked = false);
 	void fileRemoveButtonClicked(bool checked = false);
-	void currentResourceChanged(int index);
+	//void currentResourceChanged(int index);
+	void resourceSelectionChanged();
 
 private:
 	void clearFiles();

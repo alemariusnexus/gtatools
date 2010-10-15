@@ -145,6 +145,7 @@ void DefaultGUIModule::doInstall()
 	connect(pm, SIGNAL(profilesLoaded()), this, SLOT(profilesLoaded()));
 	connect(pm, SIGNAL(currentProfileChanged(Profile*, Profile*)), this,
 			SLOT(currentProfileChanged(Profile*, Profile*)));
+	connect(pm, SIGNAL(profileChanged(Profile*)), this, SLOT(profileChanged(Profile*)));
 }
 
 
@@ -343,6 +344,12 @@ void DefaultGUIModule::profileRemoved(Profile* profile)
 
 
 void DefaultGUIModule::profilesLoaded()
+{
+	loadProfileSwitchMenu();
+}
+
+
+void DefaultGUIModule::profileChanged(Profile* profile)
 {
 	loadProfileSwitchMenu();
 }

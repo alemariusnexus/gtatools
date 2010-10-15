@@ -18,6 +18,7 @@
  */
 
 #include "ConfigWidget.h"
+#include "ProfileConfigWidget.h"
 #include "../config.h"
 #include "../ProfileManager.h"
 #include <qsettings.h>
@@ -40,6 +41,7 @@ ConfigWidget::ConfigWidget(QWidget* parent)
 	for (it = pm->getProfileBegin() ; it != pm->getProfileEnd() ; it++) {
 		Profile* profile = *it;
 		ui.profileBox->addItem(profile->getName(), QVariant::fromValue((void*) profile));
+		ui.profileStackedWidget->addWidget(new ProfileConfigWidget(profile, ui.profileStackedWidget));
 	}
 
 	connect(ui.profileBox, SIGNAL(currentIndexChanged(int)), this, SLOT(selectedProfileChanged(int)));
@@ -47,10 +49,6 @@ ConfigWidget::ConfigWidget(QWidget* parent)
 	connect(ui.removeProfileButton, SIGNAL(clicked(bool)), this, SLOT(onRemoveProfile(bool)));
 	connect(ui.applyButton, SIGNAL(clicked(bool)), this, SLOT(onApply(bool)));
 	connect(ui.cancelButton, SIGNAL(clicked(bool)), this, SLOT(onCancel(bool)));
-
-	if (pm->getProfileCount() > 0) {
-		selectedProfileChanged(0);
-	}
 
 	QSettings settings(CONFIG_FILE, QSettings::IniFormat);
 
@@ -66,6 +64,8 @@ ConfigWidget::ConfigWidget(QWidget* parent)
 
 	ui.fileTypesInTreeBox->setChecked(settings.value("gui/file_tree_types", true).toBool());
 	ui.compactBox->setChecked(settings.value("gui/compact_mode", false).toBool());
+
+	ui.profileBox->setCurrentIndex(profiles.indexOf(pm->getCurrentProfile()));
 }
 
 
@@ -80,13 +80,20 @@ ConfigWidget::~ConfigWidget()
 			delete *it;
 		}
 	}
+
+	int numProfileWidgets = ui.profileStackedWidget->count();
+
+	for (int i = 0 ; i < numProfileWidgets ; i++) {
+		ProfileConfigWidget* widget = (ProfileConfigWidget*) ui.profileStackedWidget->widget(0);
+		ui.profileStackedWidget->removeWidget(widget);
+		delete widget;
+	}
 }
 
 
 void ConfigWidget::selectedProfileChanged(int index)
 {
-	Profile* profile = (Profile*) ui.profileBox->itemData(index).value<void*>();
-	ui.profileWidget->displayProfile(profile);
+	ui.profileStackedWidget->setCurrentIndex(index);
 	ui.removeProfileButton->setEnabled(true);
 }
 
@@ -107,17 +114,15 @@ void ConfigWidget::onApply(bool checked)
 	settings.setValue("gui/file_tree_types", ui.fileTypesInTreeBox->isChecked());
 	settings.setValue("gui/compact_mode", ui.compactBox->isChecked());
 
-	int pidx = ui.profileBox->currentIndex();
+	for (int i = 0 ; i < profiles.size() ; i++) {
+		Profile* profile = profiles[i];
+		ProfileConfigWidget* profileWidget = (ProfileConfigWidget*) ui.profileStackedWidget->widget(i);
 
-	ProfileManager* pm = ProfileManager::getInstance();
-
-	if (pidx != -1) {
-		Profile* profile = (Profile*) ui.profileBox->itemData(ui.profileBox->currentIndex()).value<void*>();
-		profile->setName(ui.profileWidget->getProfileName());
+		profile->setName(profileWidget->getProfileName());
 		profile->clearResources();
 
 		QLinkedList<QString> resources;
-		ui.profileWidget->getFiles(resources);
+		profileWidget->getFiles(resources);
 		QLinkedList<QString>::iterator it;
 
 		for (it = resources.begin() ; it != resources.end() ; it++) {
@@ -127,8 +132,9 @@ void ConfigWidget::onApply(bool checked)
 		profile->synchronize();
 	}
 
+	ProfileManager* pm = ProfileManager::getInstance();
 	pm->setProfiles(profiles);
-
+	pm->setCurrentProfile(profiles[ui.profileBox->currentIndex()]);
 	pm->saveProfiles();
 
 	settings.sync();
@@ -151,15 +157,20 @@ void ConfigWidget::onNewProfile(bool)
 	Profile* profile = new Profile(tr("New Profile"));
 	profiles << profile;
 	ui.profileBox->addItem(profile->getName(), QVariant::fromValue((void*) profile));
+	ui.profileStackedWidget->addWidget(new ProfileConfigWidget(profile, ui.profileStackedWidget));
 	ui.profileBox->setCurrentIndex(ui.profileBox->count()-1);
 }
 
 
 void ConfigWidget::onRemoveProfile(bool)
 {
-	Profile* profile = (Profile*) ui.profileBox->itemData(ui.profileBox->currentIndex()).value<void*>();
+	int idx = ui.profileBox->currentIndex();
+	Profile* profile = (Profile*) ui.profileBox->itemData(idx).value<void*>();
 	profiles.removeOne(profile);
-	ui.profileBox->removeItem(ui.profileBox->currentIndex());
+	ui.profileBox->removeItem(idx);
+	ProfileConfigWidget* widget = (ProfileConfigWidget*) ui.profileStackedWidget->widget(idx);
+	ui.profileStackedWidget->removeWidget(widget);
+	delete widget;
 }
 
 
