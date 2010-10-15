@@ -23,7 +23,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
@@ -144,7 +144,7 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
-           <widget class="ProfileConfigWidget" name="profileWidget" native="true"/>
+           <widget class="QStackedWidget" name="profileStackedWidget"/>
           </item>
          </layout>
         </widget>
@@ -228,14 +228,6 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>ProfileConfigWidget</class>
-   <extends>QWidget</extends>
-   <header location="global">ProfileConfigWidget.h</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

@@ -61,6 +61,7 @@ private slots:
 	void profileRemoved(Profile* profile);
 	void profilesLoaded();
 	void currentProfileChanged(Profile* oldProfile, Profile* newProfile);
+	void profileChanged(Profile* profile);
 
 private:
 	LogConsole* logConsole;

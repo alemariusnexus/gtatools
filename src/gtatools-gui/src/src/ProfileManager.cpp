@@ -67,7 +67,8 @@ void ProfileManager::loadProfiles()
 			profile->addResource(File(resource.toLocal8Bit().constData()));
 		}
 
-		profiles << profile;
+		//profiles << profile;
+		addProfile(profile);
 	}
 
 	int currentProfileIdx = settings.value("main/current_profile", -1).toInt();
@@ -167,6 +168,7 @@ void ProfileManager::currentProfileChangedSlot(Profile* oldProfile, Profile* new
 void ProfileManager::addProfile(Profile* profile)
 {
 	profiles << profile;
+	connect(profile, SIGNAL(changed()), this, SLOT(profileChangedSlot()));
 	emit profileAdded(profile);
 }
 
@@ -183,6 +185,7 @@ bool ProfileManager::removeProfile(Profile* profile)
 		}
 	}
 
+	disconnect(profile, SIGNAL(changed()), this, SLOT(profileChangedSlot()));
 	emit profileRemoved(profile);
 }
 
@@ -223,6 +226,13 @@ Profile* ProfileManager::getProfile(int idx)
 	}
 
 	return profiles[idx];
+}
+
+
+void ProfileManager::profileChangedSlot()
+{
+	Profile* profile = (Profile*) sender();
+	emit profileChanged(profile);
 }
 
 

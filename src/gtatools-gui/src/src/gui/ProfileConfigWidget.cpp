@@ -23,7 +23,7 @@
 
 
 
-ProfileConfigWidget::ProfileConfigWidget(QWidget* parent)
+ProfileConfigWidget::ProfileConfigWidget(Profile* profile, QWidget* parent)
 		: QWidget(parent)
 {
 	ui.setupUi(this);
@@ -32,9 +32,23 @@ ProfileConfigWidget::ProfileConfigWidget(QWidget* parent)
 	connect(ui.dirAddButton, SIGNAL(clicked(bool)), this, SLOT(dirAddButtonClicked(bool)));
 	connect(ui.fileEditButton, SIGNAL(clicked(bool)), this, SLOT(fileEditButtonClicked(bool)));
 	connect(ui.fileRemoveButton, SIGNAL(clicked(bool)), this, SLOT(fileRemoveButtonClicked(bool)));
-	connect(ui.fileList, SIGNAL(currentRowChanged(int)), this, SLOT(currentResourceChanged(int)));
+	connect(ui.fileList, SIGNAL(itemSelectionChanged()), this, SLOT(resourceSelectionChanged()));
 
-	displayProfile(NULL);
+	displayedProfile = profile;
+	clearFiles();
+
+	ui.nameField->setText(profile->getName());
+
+	Profile::ResourceIterator it;
+
+	for (it = profile->getResourceBegin() ; it != profile->getResourceEnd() ; it++) {
+		new QListWidgetItem((*it)->getPath()->toString(), ui.fileList);
+	}
+
+	ui.fileAddButton->setEnabled(profile != NULL);
+	ui.dirAddButton->setEnabled(profile != NULL);
+	ui.fileEditButton->setEnabled(profile != NULL);
+	ui.fileRemoveButton->setEnabled(profile != NULL);
 }
 
 
@@ -63,28 +77,6 @@ void ProfileConfigWidget::clearFiles()
 }
 
 
-void ProfileConfigWidget::displayProfile(Profile* profile)
-{
-	displayedProfile = profile;
-	clearFiles();
-
-	if (displayedProfile) {
-		ui.nameField->setText(profile->getName());
-
-		Profile::ResourceIterator it;
-
-		for (it = profile->getResourceBegin() ; it != profile->getResourceEnd() ; it++) {
-			new QListWidgetItem((*it)->getPath()->toString(), ui.fileList);
-		}
-	}
-
-	ui.fileAddButton->setEnabled(profile != NULL);
-	ui.dirAddButton->setEnabled(profile != NULL);
-	ui.fileEditButton->setEnabled(profile != NULL);
-	ui.fileRemoveButton->setEnabled(profile != NULL);
-}
-
-
 void ProfileConfigWidget::fileAddButtonClicked(bool checked)
 {
 	QStringList files = QFileDialog::getOpenFileNames(this, tr("Select one or more resources"));
@@ -103,7 +95,6 @@ void ProfileConfigWidget::dirAddButtonClicked(bool checked)
 	QString fname = QFileDialog::getExistingDirectory(this, tr("Select a resource directory"));
 
 	if (!fname.isNull()) {
-		//ui.fileList->addItem(fname);
 		new QListWidgetItem(fname, ui.fileList);
 	}
 }
@@ -138,18 +129,19 @@ void ProfileConfigWidget::fileEditButtonClicked(bool checked)
 
 void ProfileConfigWidget::fileRemoveButtonClicked(bool checked)
 {
-	QListWidgetItem* item = ui.fileList->takeItem(ui.fileList->currentRow());
+	QList<QListWidgetItem*> items = ui.fileList->selectedItems();
 
-	if (!item) {
-		return;
+	for (int i = 0 ; i < items.count() ; i++) {
+		QListWidgetItem* item = items[i];
+		delete item;
 	}
-
-	delete item;
 }
 
 
-void ProfileConfigWidget::currentResourceChanged(int index)
+void ProfileConfigWidget::resourceSelectionChanged()
 {
-	ui.fileRemoveButton->setEnabled(index != -1);
-	ui.fileEditButton->setEnabled(index != -1);
+	int numSel = ui.fileList->selectedItems().count();
+
+	ui.fileRemoveButton->setEnabled(numSel > 0);
+	ui.fileEditButton->setEnabled(numSel == 1);
 }
