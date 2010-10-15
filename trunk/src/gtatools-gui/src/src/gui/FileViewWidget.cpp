@@ -18,7 +18,9 @@
  */
 
 #include "FileViewWidget.h"
+#include "../config.h"
 #include "../FormatManager.h"
+#include <QtCore/QSettings>
 
 
 
@@ -27,7 +29,10 @@ FileViewWidget::FileViewWidget(const FileOpenRequest& request)
 {
 	ui.setupUi(this);
 
-	ui.fileInfoWidget->hide();
+	QSettings settings(CONFIG_FILE, QSettings::IniFormat);
+	bool compact = settings.value("gui/compact_mode", false).toBool();
+	ui.fileNameLabel->setVisible(!compact);
+	ui.fileInfoWidget->setVisible(!compact);
 
 	File* file = request.getFile();
 

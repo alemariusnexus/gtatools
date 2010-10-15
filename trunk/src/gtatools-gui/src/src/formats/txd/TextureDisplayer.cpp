@@ -74,4 +74,3 @@ void TextureDisplayer::mouseMoveEvent(QMouseEvent* evt)
 				.arg(pos.x()).arg(pos.y()).arg(data[offs]).arg(data[offs+1]).arg(data[offs+2]).arg(data[offs+3]), 0);
 	}
 }
-

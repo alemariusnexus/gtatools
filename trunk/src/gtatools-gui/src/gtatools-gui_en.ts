@@ -51,7 +51,7 @@
     </message>
     <message>
         <location filename="src/gui/ConfigWidget.ui" line="98"/>
-        <location filename="src/gui/ConfigWidget.cpp" line="157"/>
+        <location filename="src/gui/ConfigWidget.cpp" line="168"/>
         <source>New Profile</source>
         <translation>New Profile</translation>
     </message>
@@ -72,24 +72,21 @@
         <translation>&amp;Look And Feel</translation>
     </message>
     <message>
-        <location filename="src/gui/ConfigWidget.ui" line="162"/>
         <source>Compact Look And Feel</source>
-        <translation>Compact Look And Feel</translation>
+        <translation type="obsolete">Compact Look And Feel</translation>
     </message>
     <message>
-        <location filename="src/gui/ConfigWidget.ui" line="169"/>
+        <location filename="src/gui/ConfigWidget.ui" line="162"/>
         <source>Show file types in file tree</source>
         <translation>Show file types in file tree</translation>
     </message>
     <message>
-        <location filename="src/gui/ConfigWidget.ui" line="215"/>
         <source>Cancel</source>
-        <translation>Cancel</translation>
+        <translation type="obsolete">Cancel</translation>
     </message>
     <message>
-        <location filename="src/gui/ConfigWidget.ui" line="222"/>
         <source>Apply</source>
-        <translation>Apply</translation>
+        <translation type="obsolete">Apply</translation>
     </message>
 </context>
 <context>
@@ -430,33 +427,39 @@
     </message>
     <message>
         <location filename="src/formats/dff/DFFXMLDumpDialog.ui" line="29"/>
-        <source>Dump Frames</source>
-        <translation>Dump Frames</translation>
+        <source>Dump &amp;Frames</source>
+        <oldsource>Dump Frames</oldsource>
+        <translation>Dump &amp;Frames</translation>
     </message>
     <message>
         <location filename="src/formats/dff/DFFXMLDumpDialog.ui" line="42"/>
-        <source>Geometries</source>
-        <translation>Geometries</translation>
+        <source>&amp;Geometries</source>
+        <oldsource>Geometries</oldsource>
+        <translation>&amp;Geometries</translation>
     </message>
     <message>
         <location filename="src/formats/dff/DFFXMLDumpDialog.ui" line="54"/>
-        <source>Dump Vertex Data</source>
-        <translation>Dump Vertex Data</translation>
+        <source>Dump &amp;Vertex Data</source>
+        <oldsource>Dump Vertex Data</oldsource>
+        <translation>Dump &amp;Vertex Data</translation>
     </message>
     <message>
         <location filename="src/formats/dff/DFFXMLDumpDialog.ui" line="61"/>
-        <source>Dump Materials</source>
-        <translation>Dump Materials</translation>
+        <source>Dump &amp;Materials</source>
+        <oldsource>Dump Materials</oldsource>
+        <translation>Dump &amp;Materials</translation>
     </message>
     <message>
         <location filename="src/formats/dff/DFFXMLDumpDialog.ui" line="74"/>
-        <source>Parts</source>
-        <translation>Parts</translation>
+        <source>&amp;Parts</source>
+        <oldsource>Parts</oldsource>
+        <translation>&amp;Parts</translation>
     </message>
     <message>
         <location filename="src/formats/dff/DFFXMLDumpDialog.ui" line="86"/>
-        <source>Dump Vertex Indices</source>
-        <translation>Dump Vertex Indices</translation>
+        <source>Dump Vertex &amp;Indices</source>
+        <oldsource>Dump Vertex Indices</oldsource>
+        <translation>Dump Vertex &amp;Indices</translation>
     </message>
 </context>
 <context>
@@ -785,17 +788,17 @@ You should have received a copy of the GNU General Public License along with thi
         <translation>Export as INI file</translation>
     </message>
     <message>
-        <location filename="src/formats/gxt/GXTGUIModule.cpp" line="74"/>
+        <location filename="src/formats/gxt/GXTGUIModule.cpp" line="76"/>
         <source>Choose a string list file</source>
         <translation>Choose a string list file</translation>
     </message>
     <message>
-        <location filename="src/formats/gxt/GXTGUIModule.cpp" line="88"/>
+        <location filename="src/formats/gxt/GXTGUIModule.cpp" line="90"/>
         <source>Select a destination file</source>
         <translation>Select a destination file</translation>
     </message>
     <message>
-        <location filename="src/formats/gxt/GXTGUIModule.cpp" line="89"/>
+        <location filename="src/formats/gxt/GXTGUIModule.cpp" line="91"/>
         <source>INI Files (*.ini)</source>
         <translation>INI Files (*.ini)</translation>
     </message>
@@ -1562,94 +1565,91 @@ The exception text:
 <context>
     <name>TXDWidget</name>
     <message>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="67"/>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="63"/>
         <source>Extract textures...</source>
         <translation>Extract textures...</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="117"/>
         <source>&amp;Information</source>
         <oldsource>Information</oldsource>
-        <translation>&amp;Information</translation>
+        <translation type="obsolete">&amp;Information</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="118"/>
         <source>&amp;Display</source>
         <oldsource>Display</oldsource>
-        <translation>&amp;Display</translation>
+        <translation type="obsolete">&amp;Display</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="180"/>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="175"/>
         <source>DXT1</source>
         <translation>DXT1</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="183"/>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="178"/>
         <source>DXT3</source>
         <translation>DXT3</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="186"/>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="181"/>
         <source>None</source>
         <translation>None</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="190"/>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="185"/>
         <source>%1x%2</source>
         <translation>%1x%2</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="193"/>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="188"/>
         <source>yes</source>
         <translation>yes</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="193"/>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="188"/>
         <source>no</source>
         <translation>no</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.ui" line="26"/>
         <source>Texture Count</source>
-        <translation>Texture Count</translation>
+        <translation type="obsolete">Texture Count</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.ui" line="76"/>
+        <location filename="src/formats/txd/TXDWidget.ui" line="53"/>
         <source>Raster Format</source>
         <translation>Raster Format</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.ui" line="90"/>
+        <location filename="src/formats/txd/TXDWidget.ui" line="67"/>
         <source>Diffuse Name</source>
         <translation>Diffuse Name</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.ui" line="104"/>
+        <location filename="src/formats/txd/TXDWidget.ui" line="81"/>
         <source>Alpha Name</source>
         <translation>Alpha Name</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.ui" line="118"/>
+        <location filename="src/formats/txd/TXDWidget.ui" line="95"/>
         <source>Compression</source>
         <translation>Compression</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.ui" line="132"/>
+        <location filename="src/formats/txd/TXDWidget.ui" line="109"/>
         <source>Dimensions</source>
         <translation>Dimensions</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.ui" line="146"/>
+        <location filename="src/formats/txd/TXDWidget.ui" line="123"/>
         <source>Bits Per Pixel</source>
         <translation>Bits Per Pixel</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.ui" line="160"/>
+        <location filename="src/formats/txd/TXDWidget.ui" line="137"/>
         <source>MipMap Count</source>
         <translation>MipMap Count</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.ui" line="174"/>
+        <location filename="src/formats/txd/TXDWidget.ui" line="151"/>
         <source>Alpha Channel</source>
         <translation>Alpha Channel</translation>
     </message>

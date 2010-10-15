@@ -18,6 +18,7 @@
  */
 
 #include "DFFWidget.h"
+#include "../../config.h"
 #include <qlistwidget.h>
 #include "../../System.h"
 #include <qfiledialog.h>
@@ -25,6 +26,7 @@
 #include <qfile.h>
 #include <qtextstream.h>
 #include "DFFFormatHandler.h"
+#include <QtCore/QSettings>
 
 
 int mainTabberIndex = 0;
@@ -59,6 +61,14 @@ DFFWidget::DFFWidget(const File& file, QWidget* parent, QGLWidget* shareWidget)
 		: QWidget(parent)
 {
 	ui.setupUi(this);
+
+	QSettings settings(CONFIG_FILE, QSettings::IniFormat);
+	bool compact = settings.value("gui/compact_mode", false).toBool();
+
+	ui.geometryNameLabel->setVisible(!compact);
+	ui.materialNameLabel->setVisible(!compact);
+	//ui.textureNameLabel->setVisible(!compact);
+	ui.geometryPartNameLabel->setVisible(!compact);
 
 	ui.mainTabber->setCurrentIndex(mainTabberIndex);
 	ui.geometryTabber->setCurrentIndex(geometryTabberIndex);
@@ -226,8 +236,8 @@ void DFFWidget::geometrySelected(int row)
 	ui.geometryNormalsLabel->setText(geom->getNormals() == NULL ? tr("no") : tr("yes"));
 	ui.geometryBoundsLabel->setText(tr("(%1, %2, %3 : %4)")
 			.arg(bounds->x).arg(bounds->y).arg(bounds->z).arg(bounds->radius));
-	ui.geometryMaterialCountLabel->setText(QString("%1").arg(geom->getMaterialCount()));
-	ui.geometryPartCountLabel->setText(QString("%1").arg(geom->getPartCount()));
+	//ui.geometryMaterialCountLabel->setText(QString("%1").arg(geom->getMaterialCount()));
+	//ui.geometryPartCountLabel->setText(QString("%1").arg(geom->getPartCount()));
 
 	DFFFrame* frame = geom->getAssociatedFrame();
 
@@ -294,7 +304,6 @@ void DFFWidget::materialSelected(int row)
 
 	ui.materialNameLabel->setText(ui.materialList->item(row)->text());
 	ui.materialColorLabel->setText(tr("(%1, %2, %3, %4)").arg(r).arg(g).arg(b).arg(a));
-	ui.materialTextureCountLabel->setText(QString("%1").arg(mat->getTextureCount()));
 
 	clearTextureList();
 

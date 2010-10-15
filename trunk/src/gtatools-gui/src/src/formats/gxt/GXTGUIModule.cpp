@@ -47,25 +47,27 @@ GXTGUIModule::~GXTGUIModule()
 
 void GXTGUIModule::doInstall()
 {
+	QMenu* fileMenu = mainWindow->getFileMenu();
 	QMenu* editMenu = mainWindow->getEditMenu();
 
 	stringListMatchAction->setParent(mainWindow);
 	editMenu->addAction(stringListMatchAction);
 
 	iniExportAction->setParent(mainWindow);
-	editMenu->addAction(iniExportAction);
+	fileMenu->addAction(iniExportAction);
 }
 
 
 void GXTGUIModule::doUninstall()
 {
+	QMenu* fileMenu = mainWindow->getFileMenu();
 	QMenu* editMenu = mainWindow->getEditMenu();
 
 	stringListMatchAction->setParent(NULL);
 	editMenu->removeAction(stringListMatchAction);
 
 	iniExportAction->setParent(NULL);
-	editMenu->removeAction(iniExportAction);
+	fileMenu->removeAction(iniExportAction);
 }
 
 

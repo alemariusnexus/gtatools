@@ -26,7 +26,7 @@
       <item>
        <widget class="QCheckBox" name="frameBox">
         <property name="text">
-         <string>Dump Frames</string>
+         <string>Dump &amp;Frames</string>
         </property>
         <property name="checked">
          <bool>true</bool>
@@ -39,7 +39,7 @@
    <item>
     <widget class="QGroupBox" name="geometryBox">
      <property name="title">
-      <string>Geometries</string>
+      <string>&amp;Geometries</string>
      </property>
      <property name="checkable">
       <bool>true</bool>
@@ -51,14 +51,14 @@
       <item>
        <widget class="QCheckBox" name="vertexDataBox">
         <property name="text">
-         <string>Dump Vertex Data</string>
+         <string>Dump &amp;Vertex Data</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QCheckBox" name="materialBox">
         <property name="text">
-         <string>Dump Materials</string>
+         <string>Dump &amp;Materials</string>
         </property>
         <property name="checked">
          <bool>true</bool>
@@ -71,7 +71,7 @@
          <bool>true</bool>
         </property>
         <property name="title">
-         <string>Parts</string>
+         <string>&amp;Parts</string>
         </property>
         <property name="flat">
          <bool>false</bool>
@@ -83,7 +83,7 @@
          <item>
           <widget class="QCheckBox" name="indexBox">
            <property name="text">
-            <string>Dump Vertex Indices</string>
+            <string>Dump Vertex &amp;Indices</string>
            </property>
           </widget>
          </item>
