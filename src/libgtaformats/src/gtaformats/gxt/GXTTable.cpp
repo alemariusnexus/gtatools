@@ -23,9 +23,10 @@
 
 
 
-GXTTable::GXTTable(Encoding internalEncoding, bool keepKeyNames)
+GXTTable::GXTTable(const char* name, Encoding internalEncoding, bool keepKeyNames)
 		: internalEncoding(internalEncoding), keyNames(keepKeyNames ? new KeyNameMap : NULL)
 {
+	strncpy(this->name, name, 8);
 }
 
 

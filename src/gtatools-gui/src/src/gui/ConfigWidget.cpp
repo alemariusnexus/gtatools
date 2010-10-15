@@ -65,7 +65,7 @@ ConfigWidget::ConfigWidget(QWidget* parent)
 	ui.fileTypesInTreeBox->setChecked(settings.value("gui/file_tree_types", true).toBool());
 	ui.compactBox->setChecked(settings.value("gui/compact_mode", false).toBool());
 
-	ui.profileBox->setCurrentIndex(profiles.indexOf(pm->getCurrentProfile()));
+	selectedProfileChanged(profiles.indexOf(pm->getCurrentProfile()));
 }
 
 

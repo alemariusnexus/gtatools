@@ -28,7 +28,7 @@ GXTTableModel::GXTTableModel()
 }
 
 
-void GXTTableModel::addGXTArchive(const QString& name, GXTTable* table)
+void GXTTableModel::addLanguageTable(const QString& name, GXTTable* table)
 {
 	langTables[name] = table;
 	GXTTable::EntryIterator it;
@@ -75,16 +75,19 @@ QVariant GXTTableModel::data(const QModelIndex& index, int role) const
 	if (col == 0) {
 		QMap<QString, GXTTable*>::const_iterator it;
 
+		QString hashStr = QString("%1").arg((uint32_t) hash, 8, 16, QLatin1Char('0'));
+		hashStr = hashStr.toUpper();
+
 		for (it = langTables.begin() ; it != langTables.end() ; it++) {
 			GXTTable* table = it.value();
 			const char* keyName = table->getKeyName(hash);
 
 			if (keyName) {
-				return QVariant(QString("%1 [0x%2]").arg(keyName).arg((uint32_t) hash, 0, 16));
+				return QVariant(QString("%1 [0x%2]").arg(keyName).arg(hashStr));
 			}
 		}
 
-		return QVariant(QString("[0x%1]").arg((uint32_t) hash, 0, 16));
+		return QVariant(QString("[0x%1]").arg(hashStr));
 	} else {
 		GXTTable* table = (langTables.begin() + (col-1)).value();
 

@@ -167,7 +167,7 @@ GXTTable* GXTLoader::readTableData(const GXTTableHeader& header)
 
 	if (version == SAIV) {
 		int32_t numEntries = tkeySize/8;
-		GXTTable* table = new GXTTable(encoding == None ? GXT8 : encoding, keepKeyNames);
+		GXTTable* table = new GXTTable(header.name, encoding == None ? GXT8 : encoding, keepKeyNames);
 		GXTSAIVEntry* entries = new GXTSAIVEntry[numEntries];
 
 		for (int32_t i = 0 ; i < numEntries ; i++) {
@@ -243,7 +243,7 @@ GXTTable* GXTLoader::readTableData(const GXTTableHeader& header)
 		return table;
 	} else {
 		int32_t numEntries = tkeySize/12;
-		GXTTable* table = new GXTTable(encoding == None ? GXT16 : encoding, keepKeyNames);
+		GXTTable* table = new GXTTable(header.name, encoding == None ? GXT16 : encoding, keepKeyNames);
 		GXTVC3Entry* entries = new GXTVC3Entry[numEntries];
 
 		for (int32_t i = 0 ; i < numEntries ; i++) {

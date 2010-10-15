@@ -34,7 +34,7 @@ FormatManager::FormatManager()
 	registerFormatHandler(new IPLFormatHandler);
 	registerFormatHandler(new IDEFormatHandler);
 	registerFormatHandler(DFFFormatHandler::getInstance());
-	registerFormatHandler(new GXTFormatHandler);
+	registerFormatHandler(GXTFormatHandler::getInstance());
 }
 
 

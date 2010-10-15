@@ -21,6 +21,10 @@
 #define GXTFORMATHANDLER_H_
 
 #include "../FormatHandler.h"
+#include <gtaformats/gxt/GXTTable.h>
+#include <QtCore/QLinkedList>
+#include <QtCore/QMap>
+#include <QtGui/QWidget>
 
 
 
@@ -28,10 +32,18 @@ class GXTFormatHandler : public FormatHandler {
 	Q_OBJECT
 
 public:
+	static GXTFormatHandler* getInstance();
+
+public:
 	virtual QString getFormatName(const File* file = NULL) const { return tr("GXT Text File"); }
 	virtual QLinkedList<QString> getFileFormatExtensions() const { return QLinkedList<QString>() << "gxt"; }
 	virtual bool hasFileFormat(const File& file) const;
 	virtual QWidget* createWidgetForFile(const FileOpenRequest& request, QWidget* parent);
+	void iniExport(const File& file, const QLinkedList<GXTTable*>& tables);
+	void stringListMatch(const File& matchFile, const QMap<QString, GXTTable*>& tables, QWidget* parent);
+
+private:
+	GXTFormatHandler() {}
 };
 
 #endif /* GXTFORMATHANDLER_H_ */

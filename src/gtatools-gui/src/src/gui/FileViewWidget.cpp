@@ -26,6 +26,9 @@ FileViewWidget::FileViewWidget(const FileOpenRequest& request)
 		: displayWidget(NULL)
 {
 	ui.setupUi(this);
+
+	ui.fileInfoWidget->hide();
+
 	File* file = request.getFile();
 
 	ui.fileNameLabel->setText(QString(file->getPath()->getFileName()));

@@ -22,6 +22,7 @@
 #include <gtaformats/util/File.h>
 #include <QtCore/QSettings>
 #include "../../gui/MainWindow.h"
+#include "GXTFormatHandler.h"
 #include "GXTWidget.h"
 
 
@@ -31,6 +32,16 @@ GXTGUIModule::GXTGUIModule(GXTWidget* creator)
 {
 	stringListMatchAction = new QAction(tr("String List Match"), NULL);
 	connect(stringListMatchAction, SIGNAL(triggered(bool)), this, SLOT(onStringListMatch(bool)));
+
+	iniExportAction = new QAction(tr("Export as INI file"), NULL);
+	connect(iniExportAction, SIGNAL(triggered(bool)), this, SLOT(onIniExport(bool)));
+}
+
+
+GXTGUIModule::~GXTGUIModule()
+{
+	delete stringListMatchAction;
+	delete iniExportAction;
 }
 
 
@@ -40,6 +51,9 @@ void GXTGUIModule::doInstall()
 
 	stringListMatchAction->setParent(mainWindow);
 	editMenu->addAction(stringListMatchAction);
+
+	iniExportAction->setParent(mainWindow);
+	editMenu->addAction(iniExportAction);
 }
 
 
@@ -49,6 +63,9 @@ void GXTGUIModule::doUninstall()
 
 	stringListMatchAction->setParent(NULL);
 	editMenu->removeAction(stringListMatchAction);
+
+	iniExportAction->setParent(NULL);
+	editMenu->removeAction(iniExportAction);
 }
 
 
@@ -58,6 +75,22 @@ void GXTGUIModule::onStringListMatch(bool checked)
 
 	if (!fname.isNull()) {
 		File file(fname.toAscii().constData());
-		gxtWidget->stringListMatch(file);
+		QMap<QString, GXTTable*> tables = gxtWidget->getTables();
+		GXTFormatHandler::getInstance()->stringListMatch(file, tables, mainWindow);
+		gxtWidget->reloadCurrentTable();
+	}
+}
+
+
+void GXTGUIModule::onIniExport(bool checked)
+{
+	File* gxtFile = gxtWidget->getOpenFile();
+	QString fpath = QFileDialog::getSaveFileName(mainWindow, tr("Select a destination file"),
+			QString("%1.ini").arg(gxtFile->getPath()->getFileName()), tr("INI Files (*.ini)"));
+
+	if (!fpath.isNull()) {
+		File file(fpath.toLocal8Bit().constData());
+		QLinkedList<GXTTable*> tableList = gxtWidget->getSelectedTables();
+		GXTFormatHandler::getInstance()->iniExport(file, tableList);
 	}
 }

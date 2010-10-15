@@ -53,11 +53,13 @@ public:
 	 *
 	 * 	@param internalEncoding The encoding in which the entry values are stored.
 	 */
-	GXTTable(Encoding internalEncoding, bool keepKeyNames = false);
+	GXTTable(const char* name, Encoding internalEncoding, bool keepKeyNames = false);
 
 	/**	\brief Destructor.
 	 */
 	~GXTTable();
+
+	const char* getName() const { return name; }
 
 	/**	\brief Returns the encoding in which the entries are stored.
 	 *
@@ -184,6 +186,7 @@ public:
 	const char* getKeyName(crc32_t keyHash) const;
 
 private:
+	char name[8];
 	Encoding internalEncoding;
 	EntryMap entries;
 	KeyNameMap* keyNames;

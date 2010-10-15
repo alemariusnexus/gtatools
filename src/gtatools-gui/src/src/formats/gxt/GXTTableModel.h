@@ -33,7 +33,7 @@ class GXTTableModel : public QAbstractTableModel {
 
 public:
 	GXTTableModel();
-	void addGXTArchive(const QString& name, GXTTable* table);
+	void addLanguageTable(const QString& name, GXTTable* table);
 	virtual int rowCount(const QModelIndex& parent = QModelIndex()) const;
 	virtual int columnCount(const QModelIndex& parent = QModelIndex()) const;
 	virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
