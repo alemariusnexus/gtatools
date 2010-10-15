@@ -34,12 +34,15 @@ public:
 	ConfigWidget(QWidget* parent = NULL);
 	~ConfigWidget();
 
-public slots:
+private slots:
 	void selectedProfileChanged(int index);
-	void onApply(bool checked);
-	void onCancel(bool checked);
+	void buttonClicked(QAbstractButton* button);
 	void onNewProfile(bool);
 	void onRemoveProfile(bool);
+
+private:
+	void apply();
+	void cancel();
 
 public:
 	Ui_ConfigWidget ui;

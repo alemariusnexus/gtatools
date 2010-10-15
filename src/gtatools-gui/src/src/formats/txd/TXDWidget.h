@@ -40,14 +40,13 @@ public:
 	TXDArchive* getArchive() { return txd; }
 	QLinkedList<TXDTexture*> getSelectedTextures();
 
-private:
-	void loadConfigUiSettings();
-
 private slots:
 	void textureActivated(QListWidgetItem* item, QListWidgetItem* previous);
 	void textureListContextMenuRequested(const QPoint& pos);
-	void configurationChanged();
 	void textureExtractionRequested(bool checked);
+
+private:
+	void loadConfigUiSettings();
 
 private:
 	QAction* extractAction;

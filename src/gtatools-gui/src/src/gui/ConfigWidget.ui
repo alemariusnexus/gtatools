@@ -23,7 +23,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
@@ -210,16 +210,9 @@
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="cancelButton">
-        <property name="text">
-         <string>Cancel</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="applyButton">
-        <property name="text">
-         <string>Apply</string>
+       <widget class="QDialogButtonBox" name="buttonBox">
+        <property name="standardButtons">
+         <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel</set>
         </property>
        </widget>
       </item>

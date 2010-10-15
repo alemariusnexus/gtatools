@@ -25,5 +25,6 @@ DFFXMLDumpDialog::DFFXMLDumpDialog(QWidget* parent)
 {
 	ui.setupUi(this);
 	connect(ui.buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+	connect(ui.buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 }
 

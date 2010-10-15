@@ -47,8 +47,7 @@ ConfigWidget::ConfigWidget(QWidget* parent)
 	connect(ui.profileBox, SIGNAL(currentIndexChanged(int)), this, SLOT(selectedProfileChanged(int)));
 	connect(ui.newProfileButton, SIGNAL(clicked(bool)), this, SLOT(onNewProfile(bool)));
 	connect(ui.removeProfileButton, SIGNAL(clicked(bool)), this, SLOT(onRemoveProfile(bool)));
-	connect(ui.applyButton, SIGNAL(clicked(bool)), this, SLOT(onApply(bool)));
-	connect(ui.cancelButton, SIGNAL(clicked(bool)), this, SLOT(onCancel(bool)));
+	connect(ui.buttonBox, SIGNAL(clicked(QAbstractButton*)), this, SLOT(buttonClicked(QAbstractButton*)));
 
 	QSettings settings(CONFIG_FILE, QSettings::IniFormat);
 
@@ -98,7 +97,19 @@ void ConfigWidget::selectedProfileChanged(int index)
 }
 
 
-void ConfigWidget::onApply(bool checked)
+void ConfigWidget::buttonClicked(QAbstractButton* button)
+{
+	QDialogButtonBox::StandardButton sbutton = ui.buttonBox->standardButton(button);
+
+	if (sbutton == QDialogButtonBox::Cancel) {
+		cancel();
+	} else if (sbutton == QDialogButtonBox::Apply) {
+		apply();
+	}
+}
+
+
+void ConfigWidget::apply()
 {
 	QSettings settings(CONFIG_FILE, QSettings::IniFormat);
 
@@ -146,7 +157,7 @@ void ConfigWidget::onApply(bool checked)
 }
 
 
-void ConfigWidget::onCancel(bool checked)
+void ConfigWidget::cancel()
 {
 	close();
 }

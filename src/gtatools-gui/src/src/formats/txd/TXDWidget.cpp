@@ -62,14 +62,11 @@ TXDWidget::TXDWidget(const File& file, const QString& selectedTex, QWidget* pare
 		}
 	}
 
-	ui.textureCountLabel->setText(QString("%1").arg(txd->getTextureCount()));
-
 	extractAction = new QAction(tr("Extract textures..."), NULL);
 	connect(extractAction, SIGNAL(triggered(bool)), this, SLOT(textureExtractionRequested(bool)));
 
 	System* sys = System::getInstance();
 
-	connect(sys, SIGNAL(configurationChanged()), this, SLOT(configurationChanged()));
 	connect(ui.textureList, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)), this,
 			SLOT(textureActivated(QListWidgetItem*, QListWidgetItem*)));
 	connect(ui.textureList, SIGNAL(customContextMenuRequested(const QPoint&)), this,
@@ -89,6 +86,7 @@ TXDWidget::~TXDWidget()
 {
 	if (compactTab) {
 		tabIndex = compactTab->currentIndex();
+		delete compactTab;
 	}
 
 	System* sys = System::getInstance();
@@ -192,12 +190,6 @@ void TXDWidget::textureActivated(QListWidgetItem* item, QListWidgetItem* previou
 		ui.mipmapCountField->setText(QString("%1").arg(texture->getMipmapCount()));
 		ui.alphaField->setText(texture->hasAlphaChannel() ? tr("yes") : tr("no"));
 	}
-}
-
-
-void TXDWidget::configurationChanged()
-{
-	loadConfigUiSettings();
 }
 
 
