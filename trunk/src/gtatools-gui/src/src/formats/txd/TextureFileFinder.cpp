@@ -17,6 +17,16 @@ TextureFileFinder::TextureFileFinder(FileFinder* textureBackend, FileFinder* txd
 }
 
 
+TextureFileFinder::~TextureFileFinder()
+{
+	QMap<File, char*>::iterator it;
+
+	for (it = textureMap.begin() ; it != textureMap.end() ; it++) {
+		delete[] it.value();
+	}
+}
+
+
 bool TextureFileFinder::matches(const File& file)
 {
 	if (file.guessContentType() != CONTENT_TYPE_TXD) {
@@ -36,12 +46,12 @@ bool TextureFileFinder::matches(const File& file)
 		FilePath pseudoPath(*file.getPath(), tex->getDiffuseName());
 		File pseudoFile(&pseudoPath, false);
 		bool matches = textureBackend->matches(pseudoFile);
-		char* texNameCpy = new char[strlen(tex->getDiffuseName())+1];
-		strcpy(texNameCpy, tex->getDiffuseName());
-		textureMap[file] = texNameCpy;
-		delete tex;
 
 		if (matches) {
+			char* texNameCpy = new char[strlen(tex->getDiffuseName())+1];
+			strcpy(texNameCpy, tex->getDiffuseName());
+			textureMap[file] = texNameCpy;
+			delete tex;
 			return true;
 		}
 	}

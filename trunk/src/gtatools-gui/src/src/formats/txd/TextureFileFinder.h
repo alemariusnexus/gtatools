@@ -16,6 +16,7 @@
 class TextureFileFinder : public FileFinder {
 public:
 	TextureFileFinder(FileFinder* textureBackend, FileFinder* txdBackend = NULL);
+	~TextureFileFinder();
 	virtual bool matches(const File& file);
 	virtual void interrupt() { textureBackend->interrupt(); if (txdBackend) txdBackend->interrupt(); }
 	virtual bool isInterrupted();
