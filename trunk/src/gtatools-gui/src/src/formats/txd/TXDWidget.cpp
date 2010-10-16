@@ -27,8 +27,6 @@
 #include "TXDFormatHandler.h"
 
 
-int tabIndex = 0;
-
 
 TXDWidget::TXDWidget(const File& file, const QString& selectedTex, QWidget* parent)
 		: QWidget(parent), compactTab(NULL)
@@ -85,7 +83,6 @@ TXDWidget::TXDWidget(const File& file, const QString& selectedTex, QWidget* pare
 TXDWidget::~TXDWidget()
 {
 	if (compactTab) {
-		tabIndex = compactTab->currentIndex();
 		delete compactTab;
 	}
 
@@ -114,7 +111,6 @@ void TXDWidget::loadConfigUiSettings()
 		QTabWidget* tw = new QTabWidget;
 		tw->addTab(ui.infoWidget, tr("&Information"));
 		tw->addTab(ui.renderArea, tr("&Display"));
-		tw->setCurrentIndex(tabIndex);
 		layout->addWidget(tw);
 
 		compactTab = tw;
