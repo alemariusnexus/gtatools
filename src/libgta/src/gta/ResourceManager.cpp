@@ -145,14 +145,18 @@ void ResourceManager::addResource(const File& file, InputStream* stream)
 			delete tex;
 		}
 
+		textureMutex.lock();
 		textures.insert(pair<hash_t, TXDEntry*>(txdHash, txdEntry));
+		textureMutex.unlock();
 	} else if (type == CONTENT_TYPE_DFF) {
 		char* lMeshName = new char[strlen(file.getPath()->getFileName())+1];
 		strtolower(lMeshName, file.getPath()->getFileName());
 		*strchr(lMeshName, '.') = '\0';
 		MeshEntry* entry = new MeshEntry;
 		entry->file = new File(file);
+		meshMutex.lock();
 		meshes.insert(pair<hash_t, MeshEntry*>(hash(lMeshName), entry));
+		meshMutex.unlock();
 	}
 }
 
@@ -204,13 +208,16 @@ bool ResourceManager::cacheTexture(hash_t texName, hash_t txdName)
 
 bool ResourceManager::cacheTextures(hash_t txdName)
 {
+	textureMutex.lock();
 	TextureMap::iterator it = textures.find(txdName);
 
 	if (it == textures.end()) {
+		textureMutex.unlock();
 		return false;
 	}
 
 	TXDEntry* entry = it->second;
+	textureMutex.unlock();
 	cacheTexture(entry, NULL);
 	return true;
 }
@@ -229,23 +236,30 @@ void ResourceManager::uncacheTexture(hash_t texName, hash_t txdName)
 
 void ResourceManager::uncacheTextures(hash_t txdName)
 {
+	textureMutex.lock();
 	TextureMap::iterator it = textures.find(txdName);
 
 	if (it != textures.end()) {
+		textureMutex.unlock();
 		uncacheTextures(it->second);
+	} else {
+		textureMutex.unlock();
 	}
 }
 
 
 DFFMesh* ResourceManager::getMesh(hash_t name)
 {
+	meshMutex.lock();
 	MeshMap::iterator it = meshes.find(name);
 
 	if (it == meshes.end()) {
+		meshMutex.unlock();
 		return NULL;
 	}
 
 	MeshEntry* entry = it->second;
+	meshMutex.unlock();
 	DFFLoader dff;
 	DFFMesh* mesh = dff.loadMesh(*entry->file);
 	return mesh;
@@ -261,9 +275,11 @@ GLuint ResourceManager::bindTexture(hash_t texName, hash_t txdName)
 		return 0;
 	}
 
+	textureCacheMutex.lock();
 	TextureCacheMap::iterator it = textureCache.find(texEntry);
 
 	if (it == textureCache.end()) {
+		textureCacheMutex.unlock();
 		if (cacheTexture(texName, txdName)) {
 			return bindTexture(texName, txdName);
 		}
@@ -272,6 +288,7 @@ GLuint ResourceManager::bindTexture(hash_t texName, hash_t txdName)
 	}
 
 	TextureCacheEntry* entry = it->second;
+	textureCacheMutex.unlock();
 	glBindTexture(GL_TEXTURE_2D, entry->texture);
 	return entry->texture;
 }
@@ -280,22 +297,27 @@ GLuint ResourceManager::bindTexture(hash_t texName, hash_t txdName)
 ResourceManager::TextureEntry* ResourceManager::findTexture(hash_t texName, hash_t txdName,
 		TXDEntry*& txdEntry)
 {
+	textureMutex.lock();
 	TextureMap::iterator it = textures.find(txdName);
 
 	if (it == textures.end()) {
+		textureMutex.unlock();
 		return NULL;
 	}
 
 	txdEntry = it->second;
-
 	TXDEntry* txd = it->second;
 	TextureEntryMap::iterator eit = txd->textures.find(texName);
 
 	if (eit == txd->textures.end()) {
+		textureMutex.unlock();
 		return NULL;
 	}
 
-	return eit->second;
+	TextureEntry* entry = eit->second;
+	textureMutex.unlock();
+
+	return entry;
 }
 
 
@@ -303,16 +325,19 @@ bool ResourceManager::findTextureArchive(hash_t texName, hash_t* txdName)
 {
 	TextureMap::iterator it;
 
+	textureMutex.lock();
 	for (it = textures.begin() ; it != textures.end() ; it++) {
 		TXDEntry* txd = it->second;
 		TextureEntryMap::iterator tit = txd->textures.find(texName);
 
 		if (tit != txd->textures.end()) {
 			*txdName = it->first;
+			textureMutex.unlock();
 			return true;
 		}
 	}
 
+	textureMutex.unlock();
 	return false;
 }
 
@@ -397,7 +422,9 @@ void ResourceManager::cacheTexture(TXDEntry* txdEntry, TextureEntry* texEntry)
 
 		TextureCacheEntry* entry = new TextureCacheEntry;
 		entry->texture = glTex;
+		textureCacheMutex.lock();
 		textureCache.insert(pair<TextureEntry*, TextureCacheEntry*>(texEntry, entry));
+		textureCacheMutex.unlock();
 	} else {
 		TextureEntryMap::iterator it;
 
@@ -410,9 +437,11 @@ void ResourceManager::cacheTexture(TXDEntry* txdEntry, TextureEntry* texEntry)
 
 void ResourceManager::uncacheTexture(TextureEntry* texEntry)
 {
+	textureCacheMutex.lock();
 	TextureCacheMap::iterator it = textureCache.find(texEntry);
 
 	if (it == textureCache.end()) {
+		textureCacheMutex.unlock();
 		return;
 	}
 
@@ -420,6 +449,7 @@ void ResourceManager::uncacheTexture(TextureEntry* texEntry)
 	glDeleteTextures(1, &entry->texture);
 	delete entry;
 	textureCache.erase(it);
+	textureCacheMutex.unlock();
 }
 
 
@@ -436,5 +466,8 @@ void ResourceManager::uncacheTextures(TXDEntry* txdEntry)
 
 bool ResourceManager::isTextureCached(TextureEntry* texEntry)
 {
-	return textureCache.find(texEntry) != textureCache.end();
+	textureCacheMutex.lock();
+	bool res = textureCache.find(texEntry) != textureCache.end();
+	textureCacheMutex.unlock();
+	return res;
 }

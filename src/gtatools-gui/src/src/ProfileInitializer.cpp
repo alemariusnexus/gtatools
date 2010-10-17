@@ -29,20 +29,33 @@
 ProfileInitializer::ProfileInitializer(Profile* profile)
 		: profile(profile), interrupted(false)
 {
+	Profile::ResourceIterator it;
+	for (it = profile->getResourceBegin() ; it != profile->getResourceEnd() ; it++) {
+		resourceFiles << new File(**it);
+	}
+}
+
+
+ProfileInitializer::~ProfileInitializer()
+{
+	Profile::ResourceIterator it;
+	for (it = profile->getResourceBegin() ; it != profile->getResourceEnd() ; it++) {
+		delete *it;
+	}
 }
 
 
 void ProfileInitializer::run()
 {
 	try {
-		Profile::ResourceIterator it;
+		QLinkedList<File*>::iterator it;
 		ResourceManager* rm = profile->getResourceManager();
 
 		System* sys = System::getInstance();
 		Task* task = sys->createTask();
 		task->start(tr("Generating resource index..."));
 
-		for (it = profile->getResourceBegin() ; it != profile->getResourceEnd() ; it++) {
+		for (it = resourceFiles.begin() ; it != resourceFiles.end() ; it++) {
 			File* file = *it;
 			addResource(*file);
 

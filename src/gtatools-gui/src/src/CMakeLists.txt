@@ -27,7 +27,7 @@ SET(SRCS ${SRCS}
     src/Task.cpp src/FileOpenRequest.cpp src/RegexFileFinder.cpp src/TaskFileFinder.cpp
     PARENT_SCOPE)
 SET(MOC_SRCS ${MOC_SRCS}
-    src/ProfileManager.h src/Profile.h src/System.h src/ProfileInitializer.h src/Task.h
+    src/ProfileManager.h src/Profile.h src/System.h src/Task.h src/ProfileInitializer.h
     PARENT_SCOPE)
 SET(UIC_SRCS ${UIC_SRCS} PARENT_SCOPE)
 SET(INCS ${INCS} PARENT_SCOPE)

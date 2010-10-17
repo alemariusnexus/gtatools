@@ -21,7 +21,6 @@
 #include <cstdio>
 #include <cstdlib>
 #include "ProfileManager.h"
-#include "ProfileInitializer.h"
 #include "System.h"
 
 
@@ -67,14 +66,12 @@ void Profile::loadResourceIndex()
 		delete resourceManager;
 	}
 
+	resourceIdxInitialized = false;
 	resourceManager = new ResourceManager;
 
-	ProfileInitializer* thread = new ProfileInitializer(this);
-	currentInitializer = thread;
-
-	connect(thread, SIGNAL(finished()), this, SLOT(resourcesInitialized()));
-
-	thread->start();
+	currentInitializer = new ProfileInitializer(this);
+	connect(currentInitializer, SIGNAL(finished()), this, SLOT(resourcesInitialized()));
+	currentInitializer->start();
 }
 
 
@@ -84,11 +81,10 @@ void Profile::currentProfileChanged(Profile* oldProfile, Profile* newProfile)
 		if (currentInitializer) {
 			currentInitializer->interrupt();
 			currentInitializer->wait();
-			// It will be deleted by resourcesInitialized()
+			delete currentInitializer;
 		}
 
-		delete resourceManager;
-		resourceManager = NULL;
+		resourceIdxInitialized = false;
 	} else if (oldProfile != this  &&  newProfile == this) {
 		loadResourceIndex();
 	}
@@ -135,19 +131,6 @@ bool Profile::containsFile(const File& file)
 }
 
 
-void Profile::resourcesInitialized()
-{
-	if (!currentInitializer->isInterrupted()) {
-		resourceIdxInitialized = true;
-		emit resourceIndexInitialized();
-	}
-
-	disconnect(currentInitializer, SIGNAL(finished()), this, SLOT(resourcesInitialized()));
-	delete currentInitializer;
-	currentInitializer = NULL;
-}
-
-
 void Profile::selfChanged()
 {
 	if (ProfileManager::getInstance()->getCurrentProfile() == this) {
@@ -155,6 +138,17 @@ void Profile::selfChanged()
 	}
 }
 
+
+void Profile::resourcesInitialized()
+{
+	resourceIdxInitialized = true;
+}
+
+
+ResourceManager* Profile::getResourceManager()
+{
+	return resourceManager;
+}
 
 
 

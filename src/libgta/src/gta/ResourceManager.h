@@ -24,6 +24,7 @@
 #include <gtaformats/util/StringComparator.h>
 #include <gtaformats/txd/TXDTexture.h>
 #include <gtaformats/dff/DFFMesh.h>
+#include <gtaformats/util/thread/Mutex.h>
 #include <map>
 #include <locale>
 #include <GL/glew.h>
@@ -102,6 +103,10 @@ private:
 	TextureMap textures;
 	TextureCacheMap textureCache;
 	MeshMap meshes;
+
+	Mutex textureMutex;
+	Mutex textureCacheMutex;
+	Mutex meshMutex;
 };
 
 #endif /* RESOURCEMANAGER_H_ */

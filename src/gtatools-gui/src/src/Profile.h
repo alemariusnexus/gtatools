@@ -27,8 +27,9 @@
 #include <gta/ResourceManager.h>
 #include <qmetatype.h>
 #include <gtaformats/util/File.h>
-#include "ProfileInitializer.h"
 #include "Task.h"
+#include "ProfileInitializer.h"
+
 
 
 class Profile : public QObject {
@@ -51,7 +52,7 @@ public:
 	void setName(const QString& name) { this->name = name; }
 	void synchronize();
 	bool containsFile(const File& file);
-	ResourceManager* getResourceManager() { return resourceManager; };
+	ResourceManager* getResourceManager();
 	bool isResourceIndexInitialized() { return resourceIdxInitialized; }
 
 private:
@@ -59,9 +60,9 @@ private:
 
 public slots:
 	void currentProfileChanged(Profile* oldProfile, Profile* newProfile);
+	void resourcesInitialized();
 
 private slots:
-	void resourcesInitialized();
 	void selfChanged();
 
 signals:
@@ -72,9 +73,9 @@ private:
 	QLinkedList<File*> resources;
 	QString name;
 	ResourceManager* resourceManager;
-	ProfileInitializer* currentInitializer;
 	bool resourceIdxInitialized;
 	Task* resourceInitTask;
+	ProfileInitializer* currentInitializer;
 
 
 
