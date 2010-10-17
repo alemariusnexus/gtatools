@@ -1,0 +1,5 @@
+Library dependencies for the subprojects:
+	- libsquish (For support of DXT compressed TXD textures. Used by libgtaformats [optional], gtatxd and gtatools-gui)
+	- Boost::RegEx (For gtaimg and gtatxd)
+	- libpng (For gtatxd) which in turn depends on zlib
+	- Qt4 (For gtatools-gui; Required components are QtCore, QtGui, QtXml)
