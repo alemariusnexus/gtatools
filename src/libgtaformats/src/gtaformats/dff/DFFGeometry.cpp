@@ -78,11 +78,7 @@ DFFGeometry::~DFFGeometry()
 		delete[] vertexColors;
 	}
 	if (uvCoordSets != NULL) {
-		/*for (uint8_t i = 0 ; i < uvSetCount ; i++) {
-			delete[] uvCoordSets[i];
-		}
-
-		delete[] uvCoordSets;*/ // TODO
+		delete[] uvCoordSets;
 	}
 	if (vertices != NULL) {
 		delete[] vertices;
@@ -91,8 +87,17 @@ DFFGeometry::~DFFGeometry()
 		delete[] normals;
 	}
 
-	removeMaterials();
-	removeParts();
+	MaterialIterator it;
+	for (it = materials.begin() ; it != materials.end() ; it++) {
+		(*it)->reparent(NULL);
+		delete *it;
+	}
+
+	PartIterator pit;
+	for (pit = parts.begin() ; pit != parts.end() ; pit++) {
+		(*pit)->reparent(NULL);
+		delete *pit;
+	}
 
 	/*for (int32_t i = 0 ; i < materialCount ; i++) {
 		delete materials[i];

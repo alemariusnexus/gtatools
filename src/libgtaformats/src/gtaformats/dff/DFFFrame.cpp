@@ -44,6 +44,9 @@ DFFFrame::~DFFFrame()
 		(*it)->reparent(NULL);
 		delete *it;
 	}
+
+	delete rotation;
+	delete translation;
 }
 
 

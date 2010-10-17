@@ -32,7 +32,13 @@ DFFMesh::DFFMesh(const DFFMesh& other)
 
 
 DFFMesh::~DFFMesh() {
-	removeGeometries();
+	GeometryIterator it;
+	for (it = geometries.begin() ; it != geometries.end() ; it++) {
+		(*it)->reparent(NULL);
+		delete *it;
+	}
+
+
 }
 
 
@@ -105,7 +111,6 @@ void DFFMesh::removeGeometries()
 
 	for (it = geometries.begin() ; it != geometries.end() ; it++) {
 		(*it)->reparent(NULL);
-		//delete *it;
 	}
 
 	geometries.clear();

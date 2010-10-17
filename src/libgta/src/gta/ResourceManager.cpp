@@ -68,6 +68,7 @@ ResourceManager::~ResourceManager()
 	for (mit = meshes.begin() ; mit != meshes.end() ; mit++) {
 		MeshEntry* entry = mit->second;
 		delete entry->file;
+		delete entry;
 	}
 }
 
@@ -157,6 +158,7 @@ void ResourceManager::addResource(const File& file, InputStream* stream)
 		meshMutex.lock();
 		meshes.insert(pair<hash_t, MeshEntry*>(hash(lMeshName), entry));
 		meshMutex.unlock();
+		delete[] lMeshName;
 	}
 }
 
