@@ -140,8 +140,8 @@ int DFFLoader::parseStruct(InputStream* stream, RwSectionHeader& structHeader, R
 
 			context->frameInternalIndexMap.insert(pair<int32_t, DFFFrame*>(i, frame));
 
-			float* rotData = new float[9];
-			float* transData = new float[3];
+			float rotData[9];
+			float transData[3];
 
 			stream->read((char*) rotData, 36);
 			stream->read((char*) transData, 12);

@@ -188,13 +188,17 @@ bool FilePath::isChildOf(const FilePath& other) const
 	FilePath* parent = getParentPath();
 
 	if (parent == NULL) {
+		delete parent;
 		return false;
 	}
 
 	if (*parent == other) {
+		delete parent;
 		return true;
 	} else {
-		return parent->isChildOf(other);
+		bool ret = parent->isChildOf(other);
+		delete parent;
+		return ret;
 	}
 }
 

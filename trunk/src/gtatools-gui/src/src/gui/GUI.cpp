@@ -37,7 +37,14 @@ File* GUI::findFile(const QLinkedList<File*>& rootFiles, FileFinder* finder, QWi
 
 	for (it = rootFiles.begin() ; it != rootFiles.end() ; it++) {
 		File* file = *it;
-		file->findChildren(*proxyFinder, files, true, true);
+
+		if (file->isDirectory()) {
+			file->findChildren(*proxyFinder, files, true, true);
+		} else {
+			if (proxyFinder->matches(*file)) {
+				files.push_back(new File(*file));
+			}
+		}
 
 		if (finder->isInterrupted()) {
 			vector<File*>::iterator it;
