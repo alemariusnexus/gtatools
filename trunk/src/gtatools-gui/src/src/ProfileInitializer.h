@@ -22,6 +22,7 @@
 
 #include <qthread.h>
 #include <gtaformats/util/File.h>
+#include <QtCore/QLinkedList>
 
 class Profile;
 
@@ -31,6 +32,7 @@ class ProfileInitializer : public QThread {
 
 public:
 	ProfileInitializer(Profile* profile);
+	~ProfileInitializer();
 	void interrupt() { interrupted = true; }
 	bool isInterrupted() { return interrupted; }
 
@@ -43,6 +45,7 @@ private:
 private:
 	Profile* profile;
 	bool interrupted;
+	QLinkedList<File*> resourceFiles;
 };
 
 #endif /* PROFILEINITIALIZER_H_ */

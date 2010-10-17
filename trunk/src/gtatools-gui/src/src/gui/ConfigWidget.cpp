@@ -63,6 +63,7 @@ ConfigWidget::ConfigWidget(QWidget* parent)
 
 	ui.fileTypesInTreeBox->setChecked(settings.value("gui/file_tree_types", true).toBool());
 	ui.compactBox->setChecked(settings.value("gui/compact_mode", false).toBool());
+	ui.fileTreeAutoSelectBox->setChecked(settings.value("gui/file_tree_auto_select", true).toBool());
 
 	selectedProfileChanged(profiles.indexOf(pm->getCurrentProfile()));
 }
@@ -93,7 +94,7 @@ ConfigWidget::~ConfigWidget()
 void ConfigWidget::selectedProfileChanged(int index)
 {
 	ui.profileStackedWidget->setCurrentIndex(index);
-	ui.removeProfileButton->setEnabled(true);
+	ui.removeProfileButton->setEnabled(ui.profileBox->count() > 0);
 }
 
 
@@ -124,6 +125,7 @@ void ConfigWidget::apply()
 
 	settings.setValue("gui/file_tree_types", ui.fileTypesInTreeBox->isChecked());
 	settings.setValue("gui/compact_mode", ui.compactBox->isChecked());
+	settings.setValue("gui/file_tree_auto_select", ui.fileTreeAutoSelectBox->isChecked());
 
 	for (int i = 0 ; i < profiles.size() ; i++) {
 		Profile* profile = profiles[i];

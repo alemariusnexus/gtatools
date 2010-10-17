@@ -18,12 +18,15 @@
  */
 
 #include "FileTree.h"
+#include "../config.h"
 #include "../System.h"
 #include "../ProfileManager.h"
 #include "../formats/FormatHandler.h"
 #include "../formats/FormatManager.h"
 #include <QLinkedList>
 #include <QStandardItemModel>
+#include <QtCore/QTime>
+#include <QtCore/QSettings>
 
 
 
@@ -156,14 +159,19 @@ void FileTree::currentProfileContentChanged()
 
 void FileTree::fileOpened(const FileOpenRequest& request)
 {
-	QModelIndex cur = currentIndex();
-	cur = proxyModel->mapToSource(cur);
+	QSettings settings(CONFIG_FILE, QSettings::IniFormat);
 
-	if (!cur.isValid()  ||  *model->getFileForIndex(cur) != *request.getFile()) {
-		QModelIndex index = model->indexOf(*request.getFile(), rootIndex());
+	if (settings.value("gui/file_tree_auto_select", true).toBool()) {
+		QModelIndex cur = currentIndex();
+		cur = proxyModel->mapToSource(cur);
 
-		if (index.isValid()) {
-			setCurrentIndex(proxyModel->mapFromSource(index));
+		if (!cur.isValid()  ||  *model->getFileForIndex(cur) != *request.getFile()) {
+			QModelIndex index = model->indexOf(*request.getFile(), rootIndex());
+
+			if (index.isValid()) {
+				QModelIndex idx = proxyModel->mapFromSource(index);
+				setCurrentIndex(idx);
+			}
 		}
 	}
 }
