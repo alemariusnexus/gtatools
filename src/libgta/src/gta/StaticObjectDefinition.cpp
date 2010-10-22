@@ -22,6 +22,8 @@
 #include <gtaformats/util/math/Matrix4.h>
 #include "ShaderProgram.h"
 #include "GLException.h"
+#include <cstdio>
+
 
 
 StaticObjectDefinition::StaticObjectDefinition(DFFMesh* mesh, const char* txdName, ResourceManager* res)
@@ -78,7 +80,16 @@ void StaticObjectDefinition::init(DFFGeometry* geom, DFFGeometryPart* renderPart
 	vertexCount = vc;
 	float* vertices = geom->getVertices();
 	float* normals = geom->getNormals();
-	float* texCoords = geom->getUVCoordSet(0);
+	float* texCoords = NULL;
+
+	if (geom->getUVSetCount() > 0) {
+		texCoords = geom->getUVCoordSet(0);
+	}
+
+	if (geom->getUVSetCount() > 1) {
+		printf("> 1\n");
+	}
+
 	//uint8_t* colors = geom->getVertexColors();
 
 	normals = NULL;
@@ -190,7 +201,7 @@ void StaticObjectDefinition::init(DFFGeometry* geom, DFFGeometryPart* renderPart
 
 void StaticObjectDefinition::draw()
 {
-	glBindBuffer(GL_ARRAY_BUFFER, dataBuffer);
+	/*glBindBuffer(GL_ARRAY_BUFFER, dataBuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
 
 	//glUniformMatrix4fv(modelMatrixUniform, 1, GL_FALSE, modelMatrix.toArray());
@@ -229,11 +240,6 @@ void StaticObjectDefinition::draw()
 		}
 		dataOffs += vertexCount*2*4;
 	}
-	/*if (colors) {
-		glEnableVertexAttribArray(colorAttrib);
-		glVertexAttribPointer(colorAttrib, 4, GL_UNSIGNED_BYTE, false, 0, (char*) dataOffs);
-		dataOffs += vertexCount*4;
-	}*/
 
 	unsigned int indexOffs = 0;
 	for (int i = 0 ; i < partCount ; i++) {
@@ -252,5 +258,5 @@ void StaticObjectDefinition::draw()
 		indexOffs += indexCounts[i]*4;
 	}
 
-	GLException::checkError("Error drawing static object");
+	GLException::checkError("Error drawing static object");*/
 }

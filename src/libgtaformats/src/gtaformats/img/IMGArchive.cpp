@@ -142,9 +142,9 @@ IMGArchive::IMGArchive(const File& dirFile, const File& imgFile, bool deleteStre
 
 IMGArchive::~IMGArchive()
 {
-	for (int32_t i = 0 ; i < numEntries ; i++) {
+	/*for (int32_t i = 0 ; i < numEntries ; i++) {
 		delete entries[i];
-	}
+	}*/
 
 	delete[] entries;
 
@@ -209,14 +209,14 @@ void IMGArchive::visit(IMGVisitor* visitor, IMGEntry* entry) {
 
 void IMGArchive::visitAll(IMGVisitor* visitor) {
 	for (int i = 0 ; i < numEntries ; i++) {
-		visit(visitor, entries[i]);
+		visit(visitor, &entries[i]);
 	}
 }
 
 const IMGEntry* IMGArchive::getEntryByName(const char* name) const {
 	for (int32_t i = 0 ; i < numEntries ; i++) {
-		if (strcmp(entries[i]->name, name) == 0) {
-			return entries[i];
+		if (strcmp(entries[i].name, name) == 0) {
+			return &entries[i];
 		}
 	}
 
@@ -238,7 +238,7 @@ void IMGArchive::readHeader(InputStream* stream)
 
 			version = VER1;
 			numEntries = 0;
-			entries = new IMGEntry*[0];
+			entries = new IMGEntry[0];
 			return;
 		} else {
 			throw IMGException("Premature end of file", __FILE__, __LINE__);
@@ -251,16 +251,19 @@ void IMGArchive::readHeader(InputStream* stream)
 		version = VER2;
 		stream->read((char*) &numEntries, 4);
 
-		entries = new IMGEntry*[numEntries];
+		/*entries = new IMGEntry*[numEntries];
 
 		for (int32_t i = 0 ; i < numEntries ; i++) {
 			entries[i] = new IMGEntry;
 			stream->read((char*) entries[i], sizeof(IMGEntry));
-		}
+		}*/
+
+		entries = new IMGEntry[numEntries];
+		stream->read((char*) entries, numEntries*sizeof(IMGEntry));
 
 		bytesRead = 8 + numEntries*sizeof(IMGEntry);
 	} else {
-		version = VER1;
+		/*version = VER1;
 
 		vector<IMGEntry*> entryVector;
 
@@ -292,10 +295,10 @@ void IMGArchive::readHeader(InputStream* stream)
 			entries[i++] = *it;
 		}
 
-		bytesRead = 0;
+		bytesRead = 0;*/
 	}
 
-	for (int32_t i = 0 ; i < numEntries ; i++) {
+	/*for (int32_t i = 0 ; i < numEntries ; i++) {
 		IMGEntry* entry = entries[i];
 
 		if (entry->offset < 0) {
@@ -313,7 +316,7 @@ void IMGArchive::readHeader(InputStream* stream)
 			delete[] errmsg;
 			throw ex;
 		}
-	}
+	}*/
 }
 
 InputStream* IMGArchive::openStream(const File& file)

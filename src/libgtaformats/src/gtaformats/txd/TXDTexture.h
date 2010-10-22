@@ -50,6 +50,11 @@
 #define TXD_WRAP_CLAMP 0x3
 
 
+#define INDEX_MIRROR_HORIZONTAL(i,w,h) (2*(w)*((i)/(w)) + (w) - (i) - 1)
+#define INDEX_MIRROR_VERTICAL(i,w,h) ((w)*(h) - 2*(w)*((i)/(w)) - (w) + (i))
+#define INDEX_MIRROR_BOTH(i,w,h) ((w)*(h) - (i))
+
+
 void TxdGetRasterFormatName(char* dest, int32_t rasterFormat);
 
 

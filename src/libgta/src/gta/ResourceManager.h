@@ -26,21 +26,20 @@
 #include <gtaformats/dff/DFFMesh.h>
 #include <gtaformats/util/thread/Mutex.h>
 #include <map>
-#include <locale>
 #include <GL/glew.h>
 #include <cstdio>
+#include "TextureIndex.h"
+#include "Engine.h"
+#include "Mesh.h"
+#include "ItemDefinition.h"
+#include <set>
 
 using std::map;
-using std::collate;
-using std::locale;
-using std::use_facet;
+using std::set;
 
 
 
 class ResourceManager {
-public:
-	typedef long hash_t;
-
 private:
 	struct MeshEntry
 	{
@@ -57,9 +56,12 @@ private:
 
 	struct TextureCacheEntry
 	{
-		//TXDTexture* texture;
-		//uint8_t* data;
 		GLuint texture;
+	};
+
+	struct MeshCacheEntry
+	{
+		Mesh* mesh;
 	};
 
 
@@ -73,36 +75,46 @@ private:
 	typedef map<hash_t, TXDEntry*> TextureMap;
 	typedef map<TextureEntry*, TextureCacheEntry*> TextureCacheMap;
 	typedef map<hash_t, MeshEntry*> MeshMap;
+	typedef map<hash_t, MeshCacheEntry*> MeshCacheMap;
+	typedef map<int32_t, ItemDefinition*> ItemDefinitionMap;
 
 public:
 	ResourceManager();
 	~ResourceManager();
 	void addResource(const File& file);
-	hash_t hash(const char* name) { return use_facet< collate<char> >(locale()).hash(name, name+strlen(name)); }
-	GLuint bindTexture(hash_t texName, hash_t txdName);
-	bool getTexture(hash_t texName, hash_t txdName, TXDTexture*& tex);
-	bool getTexture(hash_t texName, hash_t txdName, TXDTexture*& tex, uint8_t*& data);
-	bool cacheTexture(hash_t texName, hash_t txdName);
-	bool cacheTextures(hash_t txdName);
-	void uncacheTexture(hash_t texName, hash_t txdName);
-	void uncacheTextures(hash_t txdName);
-	DFFMesh* getMesh(hash_t name);
+	GLuint bindTexture(const TextureIndex& index);
+	bool getTexture(const TextureIndex& index, TXDTexture*& tex);
+	bool getTexture(const TextureIndex& index, TXDTexture*& tex, uint8_t*& data);
+	bool cacheTexture(const TextureIndex& index);
+	bool cacheTextures(hash_t txdHash);
+	void uncacheTexture(const TextureIndex& index);
+	void uncacheTextures(hash_t txdHash);
 	bool findTextureArchive(hash_t texName, hash_t* txdName);
+	bool getMesh(hash_t name, Mesh*& mesh);
+	bool cacheMesh(hash_t name);
+	void uncacheMesh(hash_t name);
+	void uncacheAllMeshesBut(const set<hash_t>& keep);
+	void defineItem(int32_t id, ItemDefinition* item);
+	ItemDefinition* getItemDefinition(int32_t id);
 
 private:
 	void addResource(const File& file, InputStream* stream);
-	TextureEntry* findTexture(hash_t texName, hash_t txdName, TXDEntry*& txdEntry);
+	TextureEntry* findTexture(const TextureIndex& index, TXDEntry*& txdEntry);
 	void readTexture(TextureEntry* texEntry, TXDEntry* txdEntry, TXDTexture*& tex, uint8_t*& data,
 			bool readData = true);
 	void cacheTexture(TXDEntry* txdEntry, TextureEntry* texEntry);
 	void uncacheTexture(TextureEntry* texEntry);
 	void uncacheTextures(TXDEntry* txdEntry);
 	bool isTextureCached(TextureEntry* texEntry);
+	bool readMesh(hash_t name, Mesh*& mesh);
+	bool cacheMesh(hash_t name, Mesh* mesh);
 
 private:
 	TextureMap textures;
 	TextureCacheMap textureCache;
 	MeshMap meshes;
+	MeshCacheMap meshCache;
+	ItemDefinitionMap items;
 
 	Mutex textureMutex;
 	Mutex textureCacheMutex;

@@ -24,12 +24,17 @@
 
 
 
-ShaderProgram* currentProgram = NULL;
-
 
 ShaderProgram::ShaderProgram()
 		: program(glCreateProgram())
 {
+}
+
+
+ShaderProgram::~ShaderProgram()
+{
+	glUseProgram(0);
+	glDeleteProgram(program);
 }
 
 
@@ -70,25 +75,18 @@ void ShaderProgram::detachShader(Shader* shader)
 
 void ShaderProgram::makeCurrent()
 {
-	currentProgram = this;
 	glUseProgram(program);
 }
 
 
-ShaderProgram* ShaderProgram::getCurrent()
-{
-	return currentProgram;
-}
-
-
-GLint ShaderProgram::getAttributeLocation(const char* name)
+GLint ShaderProgram::getAttributeLocation(const char* name) const
 {
 	GLint attrib = glGetAttribLocation(program, name);
 	return attrib;
 }
 
 
-GLint ShaderProgram::getUniformLocation(const char* name)
+GLint ShaderProgram::getUniformLocation(const char* name) const
 {
 	GLint uniform = glGetUniformLocation(program, name);
 	return uniform;

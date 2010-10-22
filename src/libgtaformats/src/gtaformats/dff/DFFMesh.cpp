@@ -64,6 +64,15 @@ void DFFMesh::scale(float x, float y, float z)
 }
 
 
+void DFFMesh::mirrorUVHorizontal()
+{
+	GeometryIterator git;
+	for (git = geometries.begin() ; git != geometries.end() ; git++) {
+		(*git)->mirrorUVHorizontal();
+	}
+}
+
+
 const DFFGeometry* DFFMesh::getGeometry(const char* name) const
 {
 	ConstGeometryIterator it;

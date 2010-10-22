@@ -151,6 +151,8 @@ FileContentType FilePath::guessContentType() const
 		retval = CONTENT_TYPE_IPL;
 	} else if (strcmp(ext, "txd") == 0) {
 		retval = CONTENT_TYPE_TXD;
+	} else if (strcmp(ext, "dat") == 0) {
+		retval = CONTENT_TYPE_DAT;
 	} else {
 		retval = CONTENT_TYPE_UNKNOWN;
 	}

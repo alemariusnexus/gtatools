@@ -42,7 +42,8 @@ public:
 	void setIndices(int32_t count, int32_t* indices)
 			{ delete[] indices; this->indices = indices; indexCount = count; }
 	void setMaterial(DFFMaterial* mat);
-	DFFGeometry* getGeometry() const { return geometry; }
+	DFFGeometry* getGeometry() { return geometry; }
+	const DFFGeometry* getGeometry() const { return geometry; }
 
 private:
 	void reparent(DFFGeometry* geom);

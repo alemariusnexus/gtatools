@@ -165,6 +165,35 @@ void DFFGeometry::scale(float x, float y, float z)
 }
 
 
+void DFFGeometry::mirrorUVHorizontal()
+{
+	int numCoords = uvSetCount*vertexCount;
+
+	for (int i = 0 ; i < numCoords ; i++) {
+		uvCoordSets[i*2] = 1.0f - uvCoordSets[i*2];
+	}
+
+	/*int singleFloats = numFloats%4;
+	Vec4SF vec1;
+	vec1.f[0] = 1.0f;
+	vec1.f[1] = 1.0f;
+	vec1.f[2] = 1.0f;
+	vec1.f[3] = 1.0f;
+
+	for (int i = 0 ; i < numFloats; i += 4) {
+		v4sf val;
+		memcpy(&val, uvCoordSets+i, 16);
+		v4sf* dest = (v4sf*) (uvCoordSets+i);
+		*dest = vec1.v - val;
+	}
+
+	for (int i = 0 ; i < singleFloats ; i++) {
+		float* ptr = uvCoordSets+(numFloats-(singleFloats-i));
+		*ptr = 1.0f-*ptr;
+	}*/
+}
+
+
 int32_t DFFGeometry::indexOf(DFFMaterial* mat) const
 {
 	ConstMaterialIterator it;

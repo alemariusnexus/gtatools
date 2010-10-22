@@ -23,12 +23,16 @@
 #include <gtaformats/img/IMGArchive.h>
 #include <gtaformats/util/util.h>
 #include <gtaformats/dff/DFFLoader.h>
+#include <gtaformats/ide/IDEReader.h>
+#include <gtaformats/ide/IDEStatement.h>
+#include <gtaformats/ide/IDEStaticObject.h>
 #include <utility>
 #include <squish.h>
 
 using std::pair;
 using std::locale;
 using namespace squish;
+
 
 
 
@@ -63,6 +67,14 @@ ResourceManager::~ResourceManager()
 		delete entry;
 	}
 
+	MeshCacheMap::iterator mcit;
+
+	for (mcit = meshCache.begin() ; mcit != meshCache.end() ; mcit++) {
+		MeshCacheEntry* entry = mcit->second;
+		delete entry->mesh;
+		delete entry;
+	}
+
 	MeshMap::iterator mit;
 
 	for (mit = meshes.begin() ; mit != meshes.end() ; mit++) {
@@ -87,10 +99,10 @@ void ResourceManager::addResource(const File& file)
 		delete it;
 	} else if (file.isArchiveFile()) {
 		IMGArchive img(file);
-		const IMGEntry** entries = img.getEntries();
+		const IMGEntry* entries = img.getEntries();
 
 		for (int32_t i = 0 ; i < img.getEntryCount() ; i++) {
-			const IMGEntry* entry = entries[i];
+			const IMGEntry* entry = &entries[i];
 
 			FilePath* path = new FilePath(*file.getPath(), entry->name);
 			File child(path, true);
@@ -102,12 +114,19 @@ void ResourceManager::addResource(const File& file)
 	} else {
 		InputStream* stream = NULL;
 
-		if (file.guessContentType() == CONTENT_TYPE_TXD) {
+		FileContentType type = file.guessContentType();
+
+		if (type == CONTENT_TYPE_TXD) {
 			stream = file.openStream(STREAM_BINARY);
+		} else if (type == CONTENT_TYPE_IDE) {
+			stream = file.openStream();
 		}
 
 		addResource(file, stream);
-		delete stream;
+
+		if (stream) {
+			delete stream;
+		}
 	}
 }
 
@@ -122,7 +141,7 @@ void ResourceManager::addResource(const File& file, InputStream* stream)
 		strtolower(lTxdName, file.getPath()->getFileName());
 		*strchr(lTxdName, '.') = '\0';
 
-		hash_t txdHash = hash(lTxdName);
+		hash_t txdHash = Hash(lTxdName);
 
 		delete[] lTxdName;
 
@@ -136,7 +155,7 @@ void ResourceManager::addResource(const File& file, InputStream* stream)
 			char* lName = new char[strlen(tex->getDiffuseName())+1];
 			strtolower(lName, tex->getDiffuseName());
 
-			hash_t texHash = hash(lName);
+			hash_t texHash = Hash(lName);
 
 			delete[] lName;
 
@@ -156,17 +175,32 @@ void ResourceManager::addResource(const File& file, InputStream* stream)
 		MeshEntry* entry = new MeshEntry;
 		entry->file = new File(file);
 		meshMutex.lock();
-		meshes.insert(pair<hash_t, MeshEntry*>(hash(lMeshName), entry));
+		meshes.insert(pair<hash_t, MeshEntry*>(Hash(lMeshName), entry));
 		meshMutex.unlock();
 		delete[] lMeshName;
+	} else if (type == CONTENT_TYPE_IDE) {
+		IDEReader ide(stream, false);
+		IDEStatement* stmt;
+
+		while ((stmt = ide.readStatement())  !=  NULL) {
+			switch (stmt->getType()) {
+			case IDE_TYPE_STATIC_OBJECT:
+				IDEStaticObject* sobj = (IDEStaticObject*) stmt;
+				ItemDefinition* def = new ItemDefinition(*sobj);
+				defineItem(sobj->getId(), def);
+				break;
+			}
+
+			delete stmt;
+		}
 	}
 }
 
 
-bool ResourceManager::getTexture(hash_t texName, hash_t txdName, TXDTexture*& tex)
+bool ResourceManager::getTexture(const TextureIndex& index, TXDTexture*& tex)
 {
 	TXDEntry* txdEntry;
-	TextureEntry* texEntry = findTexture(texName, txdName, txdEntry);
+	TextureEntry* texEntry = findTexture(index, txdEntry);
 
 	if (!tex) {
 		return false;
@@ -179,10 +213,10 @@ bool ResourceManager::getTexture(hash_t texName, hash_t txdName, TXDTexture*& te
 }
 
 
-bool ResourceManager::getTexture(hash_t texName, hash_t txdName, TXDTexture*& tex, uint8_t*& data)
+bool ResourceManager::getTexture(const TextureIndex& index, TXDTexture*& tex, uint8_t*& data)
 {
 	TXDEntry* txdEntry;
-	TextureEntry* texEntry = findTexture(texName, txdName, txdEntry);
+	TextureEntry* texEntry = findTexture(index, txdEntry);
 
 	if (!texEntry) {
 		return false;
@@ -194,10 +228,10 @@ bool ResourceManager::getTexture(hash_t texName, hash_t txdName, TXDTexture*& te
 }
 
 
-bool ResourceManager::cacheTexture(hash_t texName, hash_t txdName)
+bool ResourceManager::cacheTexture(const TextureIndex& index)
 {
 	TXDEntry* txdEntry;
-	TextureEntry* texEntry = findTexture(texName, txdName, txdEntry);
+	TextureEntry* texEntry = findTexture(index, txdEntry);
 
 	if (!texEntry) {
 		return false;
@@ -225,10 +259,10 @@ bool ResourceManager::cacheTextures(hash_t txdName)
 }
 
 
-void ResourceManager::uncacheTexture(hash_t texName, hash_t txdName)
+void ResourceManager::uncacheTexture(const TextureIndex& index)
 {
 	TXDEntry* txdEntry;
-	TextureEntry* texEntry = findTexture(texName, txdName, txdEntry);
+	TextureEntry* texEntry = findTexture(index, txdEntry);
 
 	if (texEntry) {
 		uncacheTexture(texEntry);
@@ -250,28 +284,10 @@ void ResourceManager::uncacheTextures(hash_t txdName)
 }
 
 
-DFFMesh* ResourceManager::getMesh(hash_t name)
-{
-	meshMutex.lock();
-	MeshMap::iterator it = meshes.find(name);
-
-	if (it == meshes.end()) {
-		meshMutex.unlock();
-		return NULL;
-	}
-
-	MeshEntry* entry = it->second;
-	meshMutex.unlock();
-	DFFLoader dff;
-	DFFMesh* mesh = dff.loadMesh(*entry->file);
-	return mesh;
-}
-
-
-GLuint ResourceManager::bindTexture(hash_t texName, hash_t txdName)
+GLuint ResourceManager::bindTexture(const TextureIndex& index)
 {
 	TXDEntry* txdEntry;
-	TextureEntry* texEntry = findTexture(texName, txdName, txdEntry);
+	TextureEntry* texEntry = findTexture(index, txdEntry);
 
 	if (!texEntry) {
 		return 0;
@@ -282,8 +298,8 @@ GLuint ResourceManager::bindTexture(hash_t texName, hash_t txdName)
 
 	if (it == textureCache.end()) {
 		textureCacheMutex.unlock();
-		if (cacheTexture(texName, txdName)) {
-			return bindTexture(texName, txdName);
+		if (cacheTexture(index)) {
+			return bindTexture(index);
 		}
 
 		return 0;
@@ -296,11 +312,10 @@ GLuint ResourceManager::bindTexture(hash_t texName, hash_t txdName)
 }
 
 
-ResourceManager::TextureEntry* ResourceManager::findTexture(hash_t texName, hash_t txdName,
-		TXDEntry*& txdEntry)
+ResourceManager::TextureEntry* ResourceManager::findTexture(const TextureIndex& index, TXDEntry*& txdEntry)
 {
 	textureMutex.lock();
-	TextureMap::iterator it = textures.find(txdName);
+	TextureMap::iterator it = textures.find(index.getTXDHash());
 
 	if (it == textures.end()) {
 		textureMutex.unlock();
@@ -309,7 +324,7 @@ ResourceManager::TextureEntry* ResourceManager::findTexture(hash_t texName, hash
 
 	txdEntry = it->second;
 	TXDEntry* txd = it->second;
-	TextureEntryMap::iterator eit = txd->textures.find(texName);
+	TextureEntryMap::iterator eit = txd->textures.find(index.getTextureHash());
 
 	if (eit == txd->textures.end()) {
 		textureMutex.unlock();
@@ -412,13 +427,19 @@ void ResourceManager::cacheTexture(TXDEntry* txdEntry, TextureEntry* texEntry)
 
 		TXDCompression compr = tex->getCompression();
 
-		uint8_t* pixels = new uint8_t[w*h*4];
-		tex->convert(pixels, data, MIRROR_NONE, 4, 0, 1, 2, 3);
-		delete[] data;
+		if (compr == DXT1) {
+			glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, w, h, 0, (w*h)/2, data);
+		} else if (compr == DXT3) {
+			glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_S3TC_DXT3_EXT, w, h, 0, w*h, data);
+		} else {
+			uint8_t* pixels = new uint8_t[w*h*4];
+			tex->convert(pixels, data, MIRROR_NONE, 4, 0, 1, 2, 3);
+			delete[] data;
 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
-		delete[] pixels;
+			delete[] pixels;
+		}
 
 		delete tex;
 
@@ -472,4 +493,95 @@ bool ResourceManager::isTextureCached(TextureEntry* texEntry)
 	bool res = textureCache.find(texEntry) != textureCache.end();
 	textureCacheMutex.unlock();
 	return res;
+}
+
+
+bool ResourceManager::getMesh(hash_t name, Mesh*& mesh)
+{
+	MeshCacheMap::iterator it = meshCache.find(name);
+
+	if (it != meshCache.end()) {
+		mesh = it->second->mesh;
+		return true;
+	}
+
+	if (!readMesh(name, mesh)) {
+		return false;
+	}
+
+	cacheMesh(name, mesh);
+
+	return true;
+}
+
+
+bool ResourceManager::cacheMesh(hash_t name)
+{
+	Mesh* mesh;
+	readMesh(name, mesh);
+	cacheMesh(name, mesh);
+}
+
+
+bool ResourceManager::cacheMesh(hash_t name, Mesh* mesh)
+{
+	MeshCacheEntry* entry = new MeshCacheEntry;
+	entry->mesh = mesh;
+	meshCache[name] = entry;
+}
+
+
+void ResourceManager::uncacheMesh(hash_t name)
+{
+	MeshCacheMap::iterator it = meshCache.find(name);
+
+	if (it == meshCache.end()) {
+		return;
+	}
+
+	MeshCacheEntry* entry = it->second;
+	delete entry->mesh;
+	delete entry;
+	meshCache.erase(it);
+}
+
+
+bool ResourceManager::readMesh(hash_t name, Mesh*& mesh)
+{
+	MeshMap::iterator it = meshes.find(name);
+
+	if (it == meshes.end()) {
+		return false;
+	}
+
+	File* file = it->second->file;
+	DFFLoader dff;
+	DFFMesh* dffMesh = dff.loadMesh(*file);
+	if (dffMesh->getGeometryCount() <= 0) {
+		printf("Geometry count <= 0!\n");
+		exit(1337);
+	}
+	DFFGeometry* geom = dffMesh->getGeometry(0);
+
+	mesh = new Mesh(*geom);
+
+	return true;
+}
+
+
+void ResourceManager::defineItem(int32_t id, ItemDefinition* item)
+{
+	items[id] = item;
+}
+
+
+ItemDefinition* ResourceManager::getItemDefinition(int32_t id)
+{
+	ItemDefinitionMap::iterator it = items.find(id);
+
+	if (it == items.end()) {
+		return NULL;
+	}
+
+	return it->second;
 }

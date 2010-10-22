@@ -345,11 +345,14 @@ void TXDTexture::convert(uint8_t* dest, const uint8_t* src, TXDMirrorFlags mirro
 
 			// To mirror each pixel, we choose another index in the data array.
 			if (mirror == MIRROR_BOTH) {
-				srcIdx = (width*height) - srcIdx;
+				//srcIdx = (width*height) - srcIdx;
+				srcIdx = INDEX_MIRROR_BOTH(srcIdx, width, height);
 			} else if (mirror == MIRROR_HORIZONTAL) {
-				srcIdx = (height - (int) floor((float) (srcIdx/width)) - 1) * width + srcIdx%width;
+				//srcIdx = 2*width*(srcIdx/width) + width - srcIdx - 1;
+				srcIdx = INDEX_MIRROR_HORIZONTAL(srcIdx, width, height);
 			} else if (mirror == MIRROR_VERTICAL) {
-				srcIdx = ((int) floor((float) (srcIdx/width)) * width + (height - srcIdx%width) - 1);
+				//srcIdx = width*height - 2*width*(srcIdx/width) - width + srcIdx;
+				srcIdx = INDEX_MIRROR_VERTICAL(srcIdx, width, height);
 			}
 
 			// So far, srcIdx is the pixel index inside 'data', but each pixel consists of more than

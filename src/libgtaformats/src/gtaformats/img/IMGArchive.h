@@ -50,7 +50,7 @@ struct IMGEntry {
 	 */
 	int32_t size;
 
-	/**	\brief The name of the entry (kind of like a file name).
+	/**	\brief The name of the entry (kind of a file name).
 	 */
 	char name[24];
 };
@@ -208,8 +208,8 @@ public:
 	 *
 	 *	@return The entries.
 	 */
-	const IMGEntry** getEntries() const {
-		return const_cast<const IMGEntry**>(entries);
+	const IMGEntry* getEntries() const {
+		return entries;
 	}
 
 	/**	\brief Returns the number of entries.
@@ -268,7 +268,7 @@ private:
 
 private:
 	InputStream* stream;
-	IMGEntry** entries;
+	IMGEntry* entries;
 	int32_t numEntries;
 	IMGVersion version;
 
