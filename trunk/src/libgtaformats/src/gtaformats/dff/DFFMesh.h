@@ -61,6 +61,7 @@ public:
 
 	void mirrorYZ();
 	void scale(float x, float y, float z);
+	void mirrorUVHorizontal();
 
 private:
 	DFFFrame rootFrame;

@@ -122,6 +122,7 @@ public:
 	void setAssociatedFrame(DFFFrame* frame) { associatedFrame = frame; }
 
 	void mirrorYZ();
+	void mirrorUVHorizontal();
 	void scale(float x, float y, float z);
 
 private:

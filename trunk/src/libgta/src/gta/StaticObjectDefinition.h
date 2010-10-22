@@ -27,6 +27,7 @@
 #include "ResourceManager.h"
 
 
+
 class StaticObjectDefinition : public ObjectDefinition {
 public:
 	StaticObjectDefinition(DFFMesh* mesh, const char* txdName, ResourceManager* res);
@@ -49,7 +50,7 @@ private:
 	int16_t flags;
 	GLuint dataBuffer;
 	GLuint indexBuffer;
-	ResourceManager::hash_t txdName;
+	hash_t txdName;
 	Matrix4 modelMatrix;
 	ResourceManager* res;
 	bool txdKnown;

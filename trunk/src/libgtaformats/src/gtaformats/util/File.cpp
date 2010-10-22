@@ -244,7 +244,7 @@ File* File::getChild(int childIdx) const
 						return NULL;
 					}
 
-					return new File(*this, archive.getEntries()[childIdx]->name);
+					return new File(*this, archive.getEntries()[childIdx].name);
 				} catch (Exception& ex) {
 					char* errMsg = new char[strlen(path->toString()) + 64];
 					sprintf(errMsg, "Exception thrown during child count of IMG archive %s.", path->toString());

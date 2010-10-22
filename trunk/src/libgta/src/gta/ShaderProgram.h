@@ -26,16 +26,14 @@
 
 class ShaderProgram {
 public:
-	static ShaderProgram* getCurrent();
-
-public:
 	ShaderProgram();
+	~ShaderProgram();
 	void link();
 	void attachShader(Shader* shader);
 	void detachShader(Shader* shader);
 	void makeCurrent();
-	GLint getAttributeLocation(const char* name);
-	GLint getUniformLocation(const char* name);
+	GLint getAttributeLocation(const char* name) const;
+	GLint getUniformLocation(const char* name) const;
 
 private:
 	GLuint program;
