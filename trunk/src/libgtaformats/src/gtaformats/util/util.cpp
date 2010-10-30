@@ -17,8 +17,17 @@
 	along with gtaformats.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "util.h"
 #include <cctype>
 #include <cstring>
+
+#ifdef linux
+#include <sys/time.h>
+#else
+#include <windows.h>
+#endif
+
+
 
 
 void strtolower(char* dest, const char* src)
@@ -79,4 +88,16 @@ bool WildcardMatch(const char* pattern, const char* text)
 	}
 	while (*pattern == '*') pattern++;
 	return *pattern == '\0';
+}
+
+
+uint64_t GetTickcount()
+{
+#ifdef linux
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	return tv.tv_sec*1000 + tv.tv_usec/1000;
+#else
+	return GetTickCount();
+#endif
 }

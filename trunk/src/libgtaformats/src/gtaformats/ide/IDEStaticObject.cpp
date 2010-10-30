@@ -36,5 +36,6 @@ IDEStaticObject::~IDEStaticObject()
 {
 	delete[] modelName;
 	delete[] textureName;
+	delete[] drawDistances;
 }
 

@@ -39,6 +39,7 @@ public:
 	Mesh(int vertexCount, int flags, const float* vertices, const float* normals = NULL,
 			const float* texCoords = NULL, const uint8_t* vertexColors = NULL);
 	Mesh(const DFFGeometry& geometry);
+	~Mesh();
 
 	int getFlags() const { return flags; }
 
@@ -75,6 +76,8 @@ public:
 	float* getBounds() { return bounds; }
 
 	void setBounds(float x, float y, float z, float r) { bounds[0]=x; bounds[1]=y; bounds[2]=z; bounds[3]=r; }
+
+	int guessSize() const;
 
 private:
 	void init(int flags, const float* vertices, const float* normals, const float* texCoords,

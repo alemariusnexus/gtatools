@@ -33,6 +33,7 @@
 #include "Mesh.h"
 #include "ItemDefinition.h"
 #include <set>
+#include <gtaformats/util/Cache.h>
 
 using std::map;
 using std::set;
@@ -56,11 +57,13 @@ private:
 
 	struct TextureCacheEntry
 	{
+		~TextureCacheEntry() { glDeleteTextures(1, &texture); }
 		GLuint texture;
 	};
 
 	struct MeshCacheEntry
 	{
+		~MeshCacheEntry() { delete mesh; }
 		Mesh* mesh;
 	};
 
@@ -73,9 +76,11 @@ private:
 	};
 
 	typedef map<hash_t, TXDEntry*> TextureMap;
-	typedef map<TextureEntry*, TextureCacheEntry*> TextureCacheMap;
+	//typedef map<TextureEntry*, TextureCacheEntry*> TextureCacheMap;
+	typedef Cache<TextureEntry*, TextureCacheEntry> TextureCache;
 	typedef map<hash_t, MeshEntry*> MeshMap;
-	typedef map<hash_t, MeshCacheEntry*> MeshCacheMap;
+	typedef Cache<hash_t, MeshCacheEntry> MeshCache;
+	//typedef map<hash_t, MeshCacheEntry*> MeshCacheMap;
 	typedef map<int32_t, ItemDefinition*> ItemDefinitionMap;
 
 public:
@@ -96,6 +101,12 @@ public:
 	void uncacheAllMeshesBut(const set<hash_t>& keep);
 	void defineItem(int32_t id, ItemDefinition* item);
 	ItemDefinition* getItemDefinition(int32_t id);
+	int getTextureCacheCapacity() const { return textureCache.getCapacity(); }
+	int getTextureCacheOccupiedSize() const { return textureCache.getOccupiedSize(); }
+	int getMeshCacheCapacity() const { return meshCache.getCapacity(); }
+	int getMeshCacheOccupiedSize() const { return meshCache.getOccupiedSize(); }
+	void resizeTextureCache(int capacity) { textureCache.resize(capacity); }
+	void resizeMeshCache(int capacity) { meshCache.resize(capacity); }
 
 private:
 	void addResource(const File& file, InputStream* stream);
@@ -111,9 +122,11 @@ private:
 
 private:
 	TextureMap textures;
-	TextureCacheMap textureCache;
+	//TextureCacheMap textureCache;
+	TextureCache textureCache;
 	MeshMap meshes;
-	MeshCacheMap meshCache;
+	//MeshCacheMap meshCache;
+	MeshCache meshCache;
 	ItemDefinitionMap items;
 
 	Mutex textureMutex;

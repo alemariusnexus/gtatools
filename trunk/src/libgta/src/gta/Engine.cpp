@@ -21,3 +21,15 @@ Engine::Engine()
 		: resMgr(new ResourceManager)
 {
 }
+
+
+void Engine::setCurrentShaderProgram(ShaderProgram* program)
+{
+	currentShader = program;
+
+	if (program) {
+		program->makeCurrent();
+	} else {
+		ShaderProgram::disableShaders();
+	}
+}

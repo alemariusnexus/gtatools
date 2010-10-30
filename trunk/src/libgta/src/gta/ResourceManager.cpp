@@ -27,11 +27,10 @@
 #include <gtaformats/ide/IDEStatement.h>
 #include <gtaformats/ide/IDEStaticObject.h>
 #include <utility>
-#include <squish.h>
+#include "EngineException.h"
 
 using std::pair;
 using std::locale;
-using namespace squish;
 
 
 
@@ -43,13 +42,15 @@ ResourceManager::ResourceManager()
 
 ResourceManager::~ResourceManager()
 {
-	TextureCacheMap::iterator cit;
+	/*TextureCacheMap::iterator cit;
 
 	for (cit = textureCache.begin() ; cit != textureCache.end() ; cit++) {
 		TextureCacheEntry* entry = cit->second;
 		glDeleteTextures(1, &entry->texture);
 		delete entry;
-	}
+	}*/
+
+	textureCache.clear();
 
 	TextureMap::iterator it;
 
@@ -67,13 +68,15 @@ ResourceManager::~ResourceManager()
 		delete entry;
 	}
 
-	MeshCacheMap::iterator mcit;
+	/*MeshCacheMap::iterator mcit;
 
 	for (mcit = meshCache.begin() ; mcit != meshCache.end() ; mcit++) {
 		MeshCacheEntry* entry = mcit->second;
 		delete entry->mesh;
 		delete entry;
-	}
+	}*/
+
+	meshCache.clear();
 
 	MeshMap::iterator mit;
 
@@ -294,9 +297,9 @@ GLuint ResourceManager::bindTexture(const TextureIndex& index)
 	}
 
 	textureCacheMutex.lock();
-	TextureCacheMap::iterator it = textureCache.find(texEntry);
+	TextureCacheEntry* entry = textureCache[texEntry];
 
-	if (it == textureCache.end()) {
+	if (!entry) {
 		textureCacheMutex.unlock();
 		if (cacheTexture(index)) {
 			return bindTexture(index);
@@ -305,7 +308,6 @@ GLuint ResourceManager::bindTexture(const TextureIndex& index)
 		return 0;
 	}
 
-	TextureCacheEntry* entry = it->second;
 	textureCacheMutex.unlock();
 	glBindTexture(GL_TEXTURE_2D, entry->texture);
 	return entry->texture;
@@ -426,17 +428,23 @@ void ResourceManager::cacheTexture(TXDEntry* txdEntry, TextureEntry* texEntry)
 		int16_t h = tex->getHeight();
 
 		TXDCompression compr = tex->getCompression();
+		int size = 0;
 
 		if (compr == DXT1) {
 			glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, w, h, 0, (w*h)/2, data);
+			delete[] data;
+			size = (w*h)/2;
 		} else if (compr == DXT3) {
 			glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_S3TC_DXT3_EXT, w, h, 0, w*h, data);
+			delete[] data;
+			size = w*h;
 		} else {
 			uint8_t* pixels = new uint8_t[w*h*4];
 			tex->convert(pixels, data, MIRROR_NONE, 4, 0, 1, 2, 3);
 			delete[] data;
 
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+			size = w*h*4;
 
 			delete[] pixels;
 		}
@@ -446,7 +454,17 @@ void ResourceManager::cacheTexture(TXDEntry* txdEntry, TextureEntry* texEntry)
 		TextureCacheEntry* entry = new TextureCacheEntry;
 		entry->texture = glTex;
 		textureCacheMutex.lock();
-		textureCache.insert(pair<TextureEntry*, TextureCacheEntry*>(texEntry, entry));
+		//textureCache.insert(pair<TextureEntry*, TextureCacheEntry*>(texEntry, entry));
+
+		if (!textureCache.insert(texEntry, entry, size)) {
+			char* errmsg = new char[128];
+			sprintf(errmsg, "Unable to cache texture of size %d: Too big for the cache (capacity: %d)!",
+					size, textureCache.getCapacity());
+			EngineException ex(errmsg, __FILE__, __LINE__);
+			delete[] errmsg;
+			throw ex;
+		}
+
 		textureCacheMutex.unlock();
 	} else {
 		TextureEntryMap::iterator it;
@@ -461,7 +479,10 @@ void ResourceManager::cacheTexture(TXDEntry* txdEntry, TextureEntry* texEntry)
 void ResourceManager::uncacheTexture(TextureEntry* texEntry)
 {
 	textureCacheMutex.lock();
-	TextureCacheMap::iterator it = textureCache.find(texEntry);
+
+	textureCache.remove(texEntry);
+
+	/*TextureCacheMap::iterator it = textureCache.find(texEntry);
 
 	if (it == textureCache.end()) {
 		textureCacheMutex.unlock();
@@ -471,7 +492,7 @@ void ResourceManager::uncacheTexture(TextureEntry* texEntry)
 	TextureCacheEntry* entry = it->second;
 	glDeleteTextures(1, &entry->texture);
 	delete entry;
-	textureCache.erase(it);
+	textureCache.erase(it);*/
 	textureCacheMutex.unlock();
 }
 
@@ -490,7 +511,8 @@ void ResourceManager::uncacheTextures(TXDEntry* txdEntry)
 bool ResourceManager::isTextureCached(TextureEntry* texEntry)
 {
 	textureCacheMutex.lock();
-	bool res = textureCache.find(texEntry) != textureCache.end();
+	//bool res = textureCache.find(texEntry) != textureCache.end();
+	bool res = textureCache[texEntry] != NULL;
 	textureCacheMutex.unlock();
 	return res;
 }
@@ -498,10 +520,17 @@ bool ResourceManager::isTextureCached(TextureEntry* texEntry)
 
 bool ResourceManager::getMesh(hash_t name, Mesh*& mesh)
 {
-	MeshCacheMap::iterator it = meshCache.find(name);
+	/*MeshCacheMap::iterator it = meshCache.find(name);
 
 	if (it != meshCache.end()) {
 		mesh = it->second->mesh;
+		return true;
+	}*/
+
+	MeshCacheEntry* entry = meshCache[name];
+
+	if (entry) {
+		mesh = entry->mesh;
 		return true;
 	}
 
@@ -527,13 +556,24 @@ bool ResourceManager::cacheMesh(hash_t name, Mesh* mesh)
 {
 	MeshCacheEntry* entry = new MeshCacheEntry;
 	entry->mesh = mesh;
-	meshCache[name] = entry;
+
+	int size = mesh->guessSize();
+	if (!meshCache.insert(name, entry, size)) {
+		char* errmsg = new char[128];
+		sprintf(errmsg, "Unable to cache mesh of size %d: Too big for the cache (capacity: %d)!",
+				size, meshCache.getCapacity());
+		EngineException ex(errmsg, __FILE__, __LINE__);
+		delete[] errmsg;
+		throw ex;
+	}
+	//meshCache[name] = entry;
 }
 
 
 void ResourceManager::uncacheMesh(hash_t name)
 {
-	MeshCacheMap::iterator it = meshCache.find(name);
+	meshCache.remove(name);
+	/*MeshCacheMap::iterator it = meshCache.find(name);
 
 	if (it == meshCache.end()) {
 		return;
@@ -542,7 +582,7 @@ void ResourceManager::uncacheMesh(hash_t name)
 	MeshCacheEntry* entry = it->second;
 	delete entry->mesh;
 	delete entry;
-	meshCache.erase(it);
+	meshCache.erase(it);*/
 }
 
 
@@ -564,6 +604,8 @@ bool ResourceManager::readMesh(hash_t name, Mesh*& mesh)
 	DFFGeometry* geom = dffMesh->getGeometry(0);
 
 	mesh = new Mesh(*geom);
+
+	delete dffMesh;
 
 	return true;
 }

@@ -32,6 +32,8 @@ public:
 		color[0] = r; color[1] = g; color[2] = b; color[3] = a;
 	}
 
+	int guessSize() const { return sizeof(Material); }
+
 private:
 	bool textured;
 	hash_t texture;

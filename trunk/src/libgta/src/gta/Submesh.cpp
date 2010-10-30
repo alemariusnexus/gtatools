@@ -30,6 +30,12 @@ Submesh::Submesh(Mesh* mesh, const DFFGeometryPart& part)
 }
 
 
+Submesh::~Submesh()
+{
+	glDeleteBuffers(1, &indexBuffer);
+}
+
+
 void Submesh::init(int32_t* indices)
 {
 	glGenBuffers(1, &indexBuffer);
