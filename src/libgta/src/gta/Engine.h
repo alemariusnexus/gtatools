@@ -35,7 +35,7 @@ public:
 public:
 	ResourceManager* getResourceManager() { return resMgr; }
 	ShaderProgram* getCurrentShaderProgram() { return currentShader; }
-	void setCurrentShaderProgram(ShaderProgram* program) { currentShader = program; }
+	void setCurrentShaderProgram(ShaderProgram* program);
 
 private:
 	Engine();

@@ -91,3 +91,9 @@ GLint ShaderProgram::getUniformLocation(const char* name) const
 	GLint uniform = glGetUniformLocation(program, name);
 	return uniform;
 }
+
+
+void ShaderProgram::disableShaders()
+{
+	glUseProgram(0);
+}

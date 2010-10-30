@@ -20,6 +20,9 @@
 #ifndef UTIL_H_
 #define UTIL_H_
 
+#include "../gf_config.h"
+
+
 /**	\brief Converts src to lower case.
  *
  * 	src is assumed to be ASCII.
@@ -39,5 +42,7 @@ void rtrim(char* str, char chr);
 
 
 bool WildcardMatch(const char* pattern, const char* text);
+
+uint64_t GetTickcount();
 
 #endif /* UTIL_H_ */

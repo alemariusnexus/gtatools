@@ -26,6 +26,9 @@
 
 class ShaderProgram {
 public:
+	static void disableShaders();
+
+public:
 	ShaderProgram();
 	~ShaderProgram();
 	void link();

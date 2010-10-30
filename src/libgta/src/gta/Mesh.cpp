@@ -64,6 +64,22 @@ Mesh::Mesh(const DFFGeometry& geometry)
 }
 
 
+Mesh::~Mesh()
+{
+	vector<Submesh*>::iterator sit;
+	for (sit = submeshes.begin() ; sit != submeshes.end() ; sit++) {
+		delete *sit;
+	}
+
+	vector<Material*>::iterator mit;
+	for (mit = materials.begin() ; mit != materials.end() ; mit++) {
+		delete *mit;
+	}
+
+	glDeleteBuffers(1, &dataBuffer);
+}
+
+
 void Mesh::init(int flags, const float* vertices, const float* normals, const float* texCoords,
 		const uint8_t* vertexColors)
 {
@@ -85,6 +101,10 @@ void Mesh::init(int flags, const float* vertices, const float* normals, const fl
 	glGenBuffers(1, &dataBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, dataBuffer);
 	glBufferData(GL_ARRAY_BUFFER, bufferSize, NULL, GL_STATIC_DRAW);
+
+	normalOffs = -1;
+	texCoordOffs = -1;
+	vertexColorOffs = -1;
 
 	int offset = 0;
 
@@ -125,4 +145,32 @@ void Mesh::addSubmesh(Submesh* submesh)
 void Mesh::addMaterial(Material* material)
 {
 	materials.push_back(material);
+}
+
+
+int Mesh::guessSize() const
+{
+	int size = sizeof(Mesh) + vertexCount*3*4;
+
+	if ((flags & MeshNormals) != 0) {
+		size += vertexCount*3*4;
+	}
+	if ((flags & MeshTexCoords) != 0) {
+		size += vertexCount*2*4;
+	}
+	if ((flags & MeshVertexColors) != 0) {
+		size += vertexCount*4;
+	}
+
+	vector<Material*>::const_iterator mit;
+	for (mit = materials.begin() ; mit != materials.end() ; mit++) {
+		size += (*mit)->guessSize();
+	}
+
+	vector<Submesh*>::const_iterator sit;
+	for (sit = submeshes.begin() ; sit != submeshes.end() ; sit++) {
+		size += (*sit)->guessSize();
+	}
+
+	return size;
 }
