@@ -228,13 +228,16 @@ char* FilePath::normalize(const char* src, int flags)
 
 		if ((chr == '/'  ||  chr == '\0')  &&  i != 0  &&  (flags & CorrectCase) != 0) {
 			dest[i] = '\0';
-			char* component = new char[i - (lastComponentStart-dest) + 2];
-			strtolower(component, lastComponentStart+1);
-			*(lastComponentStart+1) = '\0';
-			dest[i] = '/';
 
-			File compParent(dest);
-			FileIterator* it = compParent.getIterator();
+			char* component = new char[i - (lastComponentStart-dest) + 1];
+			strtolower(component, lastComponentStart+1);
+			if (chr == '/') {
+				dest[i] = '/';
+				dest[i+1] = '\0';
+			}
+
+			File* compParent = File(dest).getParent();
+			FileIterator* it = compParent->getIterator();
 			File* child;
 
 			while ((child = it->next())  !=  NULL) {
@@ -252,6 +255,7 @@ char* FilePath::normalize(const char* src, int flags)
 			}
 
 			delete it;
+			delete compParent;
 
 			delete[] component;
 

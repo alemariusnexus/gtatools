@@ -52,7 +52,12 @@ FileIterator::FileIterator(const File* file)
 					throw fex;
 				}
 			} else {
-				throw FileException("Attempt to iterate over regular non-archive file!", __FILE__, __LINE__);
+				char* errmsg = new char[strlen(file->getPath()->toString()+64)];
+				sprintf(errmsg, "Attempt to iterate over regular non-archive file: %s!",
+						file->getPath()->toString());
+				FileException ex(errmsg, __FILE__, __LINE__);
+				delete[] errmsg;
+				throw ex;
 			}
 		} else {
 #ifdef linux
