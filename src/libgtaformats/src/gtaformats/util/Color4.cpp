@@ -5,5 +5,5 @@
  *      Author: alemariusnexus
  */
 
-#include <gtaformats/util/Color4.h>
+#include "Color4.h"
 
