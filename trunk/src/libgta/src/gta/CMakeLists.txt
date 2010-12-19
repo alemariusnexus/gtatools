@@ -17,8 +17,9 @@
 
 
 SET(FILES
-    Camera ResourceManager SceneManager Shader ShaderProgram ItemDefinition
-    GLException Engine Material Mesh Submesh TextureIndex)
+    Camera ResourceManager SceneManager Shader ShaderProgram ItemDefinition MeshPointer StaticMeshPointer
+    GLException Engine Material Mesh Submesh TextureIndex ManagedMeshPointer TextureSource
+    ManagedTextureSource COLMeshConverter MeshGenerator)
 
 FOREACH(FILE ${FILES})
     SET(SRCS ${SRCS} "gta/${FILE}")

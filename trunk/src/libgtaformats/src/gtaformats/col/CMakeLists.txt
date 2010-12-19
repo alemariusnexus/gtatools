@@ -1,4 +1,4 @@
-# Copyright 2010 David "Alemarius Nexus"
+# Copyright 2010 David "Alemarius Nexus" Lerch
 # 
 # This file is part of gtaformats.
 #
@@ -16,24 +16,10 @@
 # along with gtaformats.  If not, see <http://www.gnu.org/licenses/>.
 
 
-SET(FILES gta GTASectionFileReader)
+SET(FILES COLBounds COLBox COLFace COLFaceGroup COLLoader COLModel COLShadowMesh COLSphere COLSurface)
 
 FOREACH(FILE ${FILES})
-    SET(SRCS ${SRCS} "gtaformats/${FILE}")
+    SET(SRCS ${SRCS} "gtaformats/col/${FILE}")
 ENDFOREACH(FILE)
 
-CONFIGURE_FILE(gf_config.h.cmake "${CMAKE_CURRENT_SOURCE_DIR}/gf_config.h")
-
-ADD_SUBDIRECTORY(col)
-ADD_SUBDIRECTORY(dff)
-ADD_SUBDIRECTORY(gxt)
-ADD_SUBDIRECTORY(ide)
-ADD_SUBDIRECTORY(ipl)
-ADD_SUBDIRECTORY(img)
-ADD_SUBDIRECTORY(txd)
-ADD_SUBDIRECTORY(util)
-
 SET(SRCS ${SRCS} PARENT_SCOPE)
-
-
-#INSTALL(FILES gf_config.h DESTINATION include/gtaformats)

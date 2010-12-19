@@ -42,6 +42,8 @@ using std::map;
 
 
 
+/**	\brief Internal structure used for the header of the DFF geometry struct section.
+ */
 struct DFFGeometryStructHeader {
 	int16_t flags;
 	uint8_t uvSetCount;
@@ -51,6 +53,9 @@ struct DFFGeometryStructHeader {
 	int32_t frameCount;
 };
 
+
+/**	\brief Internal structure which stores the current loading state of a DFFLoader.
+ */
 struct DFFLoadContext {
 	DFFMesh* mesh;
 	int32_t version;
@@ -60,13 +65,63 @@ struct DFFLoadContext {
 };
 
 
+
+/**	\brief A loader class for GTA DFF files.
+ *
+ * 	DFF is the mesh file format of the GTAIII trilogy, with origins in the RenderWare engine.
+ * 	This class supports loading these binary files. DFF is a quite complex and still not fully documented
+ * 	file format and this class does not attempt to load all data available in DFF files. DFF is a streaming
+ * 	file based on <i>sections</i>, which themselves can contain data or child sections. Every section has an
+ * 	ID stating it's type, and only some of the known structures are parsed by this class, all other sections
+ * 	are skipped and ignored.
+ * 	Basically, if loading succeeds, this class wil return a DFFMesh object, an abstract data structure
+ * 	containing the important mesh data.
+ *
+ * 	@see DFFMesh
+ */
 class DFFLoader {
 public:
+	/**	\brief Creates a new DFFLoader.
+	 */
 	DFFLoader();
+
+	/**	\brief Destructor.
+	 *
+	 * 	This does not affect any DFFMeshes loaded by this object.
+	 */
 	virtual ~DFFLoader();
+
+	/**	\brief Loads a DFF mesh from the given stream.
+	 *
+	 *	If errors are found during loading, exceptions may be thrown to report them.
+	 *
+	 *	@param stream The stream to read the DFF mesh data from.
+	 *	@return The loaded DFFMesh.
+	 */
 	DFFMesh* loadMesh(InputStream* stream);
+
+	/**	\brief Loads a DFF mesh from the given file.
+	 *
+	 * 	@param file The file to load.
+	 * 	@return The loaded DFFMesh.
+	 * 	@see loadMesh(InputStream*)
+	 */
 	DFFMesh* loadMesh(const File& file);
+
+	/**	\brief Sets the option for verbose mode.
+	 *
+	 * 	In verbose mode, while loading the mesh, the loader will write some debug information about key
+	 * 	data it has loaded to standard out.
+	 *
+	 *	@param Whether the loader should be verbose.
+	 */
 	void setVerbose(bool verbose) { verboseMutex.lock(); this->verbose = verbose; verboseMutex.unlock(); }
+
+	/**	\brief Returns whether this loader is in verbose mode.
+	 *
+	 * 	@return True if it's verbose.
+	 * 	@see setVerbose()
+	 */
 	bool isVerbose() { return verbose; }
 
 public:
@@ -88,7 +143,7 @@ private:
 
 	void printHeaderInfo(DFFGeometryStructHeader& header, DFFLoadContext* context);
 
-	inline int readSectionHeaderWithID(InputStream* stream, RwSectionHeader& header, uint32_t id)
+	/*inline int readSectionHeaderWithID(InputStream* stream, RwSectionHeader& header, uint32_t id)
 	{
 		RwReadSectionHeader(stream, header);
 
@@ -115,7 +170,7 @@ private:
 		RwSectionHeader header;
 		readSectionHeaderWithID(stream, header, id);
 		return RwSkipSectionBody(stream, header) + sizeof(header);
-	}
+	}*/
 
 private:
 	bool verbose;

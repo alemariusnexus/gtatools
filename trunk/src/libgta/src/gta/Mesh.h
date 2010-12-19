@@ -11,6 +11,7 @@
 #include <GL/glew.h>
 #include <vector>
 #include <gtaformats/dff/DFFGeometry.h>
+#include <gtaformats/col/COLModel.h>
 #include "Engine.h"
 #include "Material.h"
 
@@ -39,6 +40,8 @@ public:
 	Mesh(int vertexCount, int flags, const float* vertices, const float* normals = NULL,
 			const float* texCoords = NULL, const uint8_t* vertexColors = NULL);
 	Mesh(const DFFGeometry& geometry);
+	Mesh(int vertexCount, int flags, GLuint dataBuffer, int normalOffset = -1, int texCoordOffset = -1,
+			int vertexColorOffset = -1);
 	~Mesh();
 
 	int getFlags() const { return flags; }

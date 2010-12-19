@@ -11,22 +11,23 @@
 #include "Engine.h"
 #include "Mesh.h"
 #include <gtaformats/ide/IDEStaticObject.h>
+#include "MeshPointer.h"
+#include "TextureSource.h"
 
 
 
 class ItemDefinition {
 public:
-	ItemDefinition(hash_t meshHash, hash_t txdHash, float drawDistance);
+	ItemDefinition(MeshPointer* meshPtr, TextureSource* texSrc, float drawDistance);
 	ItemDefinition(const IDEStaticObject& object);
-	hash_t getMeshHash() const { return meshHash; }
-	hash_t getTXDHash() const { return txdHash; }
+	~ItemDefinition();
 	float getDrawDistance() const { return drawDistance; }
-	Mesh* getMesh();
 	virtual void render();
 
 private:
-	hash_t meshHash;
-	hash_t txdHash;
+	MeshPointer* meshPtr;
+	TextureSource* texSrc;
+	//hash_t txdHash;
 	float drawDistance;
 };
 

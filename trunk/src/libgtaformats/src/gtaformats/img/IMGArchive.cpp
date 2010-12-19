@@ -263,7 +263,7 @@ void IMGArchive::readHeader(InputStream* stream)
 
 		bytesRead = 8 + numEntries*sizeof(IMGEntry);
 	} else {
-		/*version = VER1;
+		version = VER1;
 
 		vector<IMGEntry*> entryVector;
 
@@ -287,17 +287,19 @@ void IMGArchive::readHeader(InputStream* stream)
 			numEntries++;
 		}
 
-		entries = new IMGEntry*[numEntries];
+		entries = new IMGEntry[numEntries];
 
 		vector<IMGEntry*>::iterator it;
 		int i = 0;
 		for (it = entryVector.begin() ; it != entryVector.end() ; it++) {
-			entries[i++] = *it;
+			entries[i++] = **it;
+			delete *it;
 		}
 
-		bytesRead = 0;*/
+		bytesRead = 0;
 	}
 
+	// This is very slow, so we'll skip it
 	/*for (int32_t i = 0 ; i < numEntries ; i++) {
 		IMGEntry* entry = entries[i];
 
