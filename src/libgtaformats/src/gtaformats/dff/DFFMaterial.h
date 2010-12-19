@@ -30,6 +30,13 @@ using std::vector;
 class DFFGeometry;
 
 
+/**	\brief A class which defines material properties for a DFFGeometryPart.
+ *
+ * 	This includes textures and a generic color.
+ *
+ * 	@see DFFGeometryPart
+ * 	@see DFFTexture
+ */
 class DFFMaterial {
 public:
 	typedef vector<DFFTexture*>::iterator TextureIterator;

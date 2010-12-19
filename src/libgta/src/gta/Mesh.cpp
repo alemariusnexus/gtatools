@@ -8,12 +8,14 @@
 #include "Mesh.h"
 #include "Engine.h"
 #include "Submesh.h"
+#include <gtaformats/col/COLLoader.h>
+#include <cmath>
 
 
 
 Mesh::Mesh(int vertexCount, int flags, const float* vertices, const float* normals, const float* texCoords,
 		const uint8_t* vertexColors)
-		: vertexCount(vertexCount)
+		: vertexCount(vertexCount), flags(flags)
 {
 	init(flags, vertices, normals, texCoords, vertexColors);
 }
@@ -61,6 +63,14 @@ Mesh::Mesh(const DFFGeometry& geometry)
 	setBounds(b->x, b->y, b->z, b->radius);
 
 	init(flags, vertices, normals, texCoords, colors);
+}
+
+
+Mesh::Mesh(int vertexCount, int flags, GLuint dataBuffer, int normalOffset, int texCoordOffset,
+		int vertexColorOffset)
+		: flags(flags), vertexCount(vertexCount), dataBuffer(dataBuffer),
+		  normalOffs(normalOffset), texCoordOffs(texCoordOffset), vertexColorOffs(vertexColorOffset)
+{
 }
 
 

@@ -26,8 +26,10 @@
 #include <gtaformats/ide/IDEReader.h>
 #include <gtaformats/ide/IDEStatement.h>
 #include <gtaformats/ide/IDEStaticObject.h>
+#include <gtaformats/col/COLLoader.h>
 #include <utility>
 #include "EngineException.h"
+#include "COLMeshConverter.h"
 
 using std::pair;
 using std::locale;
@@ -42,14 +44,6 @@ ResourceManager::ResourceManager()
 
 ResourceManager::~ResourceManager()
 {
-	/*TextureCacheMap::iterator cit;
-
-	for (cit = textureCache.begin() ; cit != textureCache.end() ; cit++) {
-		TextureCacheEntry* entry = cit->second;
-		glDeleteTextures(1, &entry->texture);
-		delete entry;
-	}*/
-
 	textureCache.clear();
 
 	TextureMap::iterator it;
@@ -67,14 +61,6 @@ ResourceManager::~ResourceManager()
 
 		delete entry;
 	}
-
-	/*MeshCacheMap::iterator mcit;
-
-	for (mcit = meshCache.begin() ; mcit != meshCache.end() ; mcit++) {
-		MeshCacheEntry* entry = mcit->second;
-		delete entry->mesh;
-		delete entry;
-	}*/
 
 	meshCache.clear();
 
@@ -119,7 +105,7 @@ void ResourceManager::addResource(const File& file)
 
 		FileContentType type = file.guessContentType();
 
-		if (type == CONTENT_TYPE_TXD) {
+		if (type == CONTENT_TYPE_TXD  ||  type == CONTENT_TYPE_COL) {
 			stream = file.openStream(STREAM_BINARY);
 		} else if (type == CONTENT_TYPE_IDE) {
 			stream = file.openStream();
@@ -171,8 +157,25 @@ void ResourceManager::addResource(const File& file, InputStream* stream)
 		textureMutex.lock();
 		textures.insert(pair<hash_t, TXDEntry*>(txdHash, txdEntry));
 		textureMutex.unlock();
-	} else if (type == CONTENT_TYPE_DFF) {
-		char* lMeshName = new char[strlen(file.getPath()->getFileName())+1];
+	} else if (type == CONTENT_TYPE_COL) {
+		char name[20];
+		char lname[20];
+
+		InputStream::streampos colStart = stream->tell();
+
+		COLLoader col;
+		while (col.loadModelName(stream, name)) {
+			strtolower(lname, name);
+			MeshEntry* entry = new MeshEntry;
+			entry->file = new File(file);
+			entry->colStart = colStart;
+			colStart = stream->tell();
+			meshMutex.lock();
+			meshes.insert(pair<hash_t, MeshEntry*>(Hash(lname), entry));
+			meshMutex.unlock();
+		}
+
+		/*char* lMeshName = new char[strlen(file.getPath()->getFileName())+1];
 		strtolower(lMeshName, file.getPath()->getFileName());
 		*strchr(lMeshName, '.') = '\0';
 		MeshEntry* entry = new MeshEntry;
@@ -180,7 +183,7 @@ void ResourceManager::addResource(const File& file, InputStream* stream)
 		meshMutex.lock();
 		meshes.insert(pair<hash_t, MeshEntry*>(Hash(lMeshName), entry));
 		meshMutex.unlock();
-		delete[] lMeshName;
+		delete[] lMeshName;*/
 	} else if (type == CONTENT_TYPE_IDE) {
 		IDEReader ide(stream, false);
 		IDEStatement* stmt;
@@ -196,7 +199,25 @@ void ResourceManager::addResource(const File& file, InputStream* stream)
 
 			delete stmt;
 		}
-	}
+	} /*else if (type == CONTENT_TYPE_COL) {
+		COLLoader col;
+		COLModel* model;
+
+		//while ((model = col.loadModel(stream))  !=  NULL) {
+		while (true) {
+			InputStream::streampos offset = stream->tell();
+			model = col.loadModel(stream);
+			if (!model) {
+				break;
+			}
+			hash_t colHash = Hash(model->getName());
+			delete model;
+			COLEntry* entry = new COLEntry;
+			entry->file = new File(file);
+			entry->offset = offset;
+			cols[colHash] = entry;
+		}
+	}*/
 }
 
 
@@ -287,7 +308,7 @@ void ResourceManager::uncacheTextures(hash_t txdName)
 }
 
 
-GLuint ResourceManager::bindTexture(const TextureIndex& index)
+GLuint ResourceManager::getTexture(const TextureIndex& index)
 {
 	TXDEntry* txdEntry;
 	TextureEntry* texEntry = findTexture(index, txdEntry);
@@ -309,8 +330,19 @@ GLuint ResourceManager::bindTexture(const TextureIndex& index)
 	}
 
 	textureCacheMutex.unlock();
-	glBindTexture(GL_TEXTURE_2D, entry->texture);
 	return entry->texture;
+}
+
+
+GLuint ResourceManager::bindTexture(const TextureIndex& index)
+{
+	GLuint tex = getTexture(index);
+
+	if (tex != 0) {
+		glBindTexture(GL_TEXTURE_2D, tex);
+	}
+
+	return tex;
 }
 
 
@@ -454,7 +486,6 @@ void ResourceManager::cacheTexture(TXDEntry* txdEntry, TextureEntry* texEntry)
 		TextureCacheEntry* entry = new TextureCacheEntry;
 		entry->texture = glTex;
 		textureCacheMutex.lock();
-		//textureCache.insert(pair<TextureEntry*, TextureCacheEntry*>(texEntry, entry));
 
 		if (!textureCache.insert(texEntry, entry, size)) {
 			char* errmsg = new char[128];
@@ -479,20 +510,7 @@ void ResourceManager::cacheTexture(TXDEntry* txdEntry, TextureEntry* texEntry)
 void ResourceManager::uncacheTexture(TextureEntry* texEntry)
 {
 	textureCacheMutex.lock();
-
 	textureCache.remove(texEntry);
-
-	/*TextureCacheMap::iterator it = textureCache.find(texEntry);
-
-	if (it == textureCache.end()) {
-		textureCacheMutex.unlock();
-		return;
-	}
-
-	TextureCacheEntry* entry = it->second;
-	glDeleteTextures(1, &entry->texture);
-	delete entry;
-	textureCache.erase(it);*/
 	textureCacheMutex.unlock();
 }
 
@@ -511,7 +529,6 @@ void ResourceManager::uncacheTextures(TXDEntry* txdEntry)
 bool ResourceManager::isTextureCached(TextureEntry* texEntry)
 {
 	textureCacheMutex.lock();
-	//bool res = textureCache.find(texEntry) != textureCache.end();
 	bool res = textureCache[texEntry] != NULL;
 	textureCacheMutex.unlock();
 	return res;
@@ -520,13 +537,6 @@ bool ResourceManager::isTextureCached(TextureEntry* texEntry)
 
 bool ResourceManager::getMesh(hash_t name, Mesh*& mesh)
 {
-	/*MeshCacheMap::iterator it = meshCache.find(name);
-
-	if (it != meshCache.end()) {
-		mesh = it->second->mesh;
-		return true;
-	}*/
-
 	MeshCacheEntry* entry = meshCache[name];
 
 	if (entry) {
@@ -590,12 +600,15 @@ bool ResourceManager::readMesh(hash_t name, Mesh*& mesh)
 {
 	MeshMap::iterator it = meshes.find(name);
 
+	//printf("Reading in %d\n", meshes.size());
+
 	if (it == meshes.end()) {
 		return false;
 	}
 
 	File* file = it->second->file;
-	DFFLoader dff;
+
+	/*DFFLoader dff;
 	DFFMesh* dffMesh = dff.loadMesh(*file);
 	if (dffMesh->getGeometryCount() <= 0) {
 		printf("Geometry count <= 0!\n");
@@ -605,7 +618,16 @@ bool ResourceManager::readMesh(hash_t name, Mesh*& mesh)
 
 	mesh = new Mesh(*geom);
 
-	delete dffMesh;
+	delete dffMesh;*/
+
+	COLLoader col;
+	InputStream* stream = file->openStream(STREAM_BINARY);
+	stream->seek(it->second->colStart, InputStream::STREAM_SEEK_BEGIN);
+    COLModel* model = col.loadModel(stream);
+    delete stream;
+    COLMeshConverter conv;
+    mesh = conv.convert(*model);
+    delete model;
 
 	return true;
 }
@@ -627,3 +649,27 @@ ItemDefinition* ResourceManager::getItemDefinition(int32_t id)
 
 	return it->second;
 }
+
+
+/*bool ResourceManager::getCollisionModel(hash_t colHash, COLModel*& model)
+{
+	COLMap::iterator it = cols.find(colHash);
+
+	if (it == cols.end()) {
+		return false;
+	}
+
+	COLEntry* entry = it->second;
+	COLLoader col;
+	InputStream* stream = entry->file->openStream(STREAM_BINARY);
+	stream->seek(entry->offset, InputStream::STREAM_SEEK_BEGIN);
+	model = col.loadModel(stream);
+	delete stream;
+	return true;
+}
+
+
+bool ResourceManager::getCollisionModel(hash_t colHash, Mesh*& mesh)
+{
+
+}*/

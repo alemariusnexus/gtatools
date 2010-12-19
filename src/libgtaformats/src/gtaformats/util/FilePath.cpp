@@ -153,6 +153,8 @@ FileContentType FilePath::guessContentType() const
 		retval = CONTENT_TYPE_TXD;
 	} else if (strcmp(ext, "dat") == 0) {
 		retval = CONTENT_TYPE_DAT;
+	} else if (strcmp(ext, "col") == 0) {
+		retval = CONTENT_TYPE_COL;
 	} else {
 		retval = CONTENT_TYPE_UNKNOWN;
 	}
@@ -216,51 +218,64 @@ char* FilePath::normalize(const char* src, int flags)
 	int srcLen = strlen(src);
 	char* dest = new char[srcLen+1];
 	char* lastComponentStart = dest;
+	int srcIdx = 0, destIdx = 0;
 
-	for (int i = 0 ; i <= srcLen ; i++) {
-		char chr = src[i];
+	//for (int i = 0 ; i <= srcLen ; i++) {
+	while (srcIdx <= srcLen) {
+		char chr = src[srcIdx];
 
 		if (chr == '\\'  &&  (flags & BackslashAsSeparator) != 0) {
 			chr = '/';
 		}
 
-		dest[i] = chr;
+		if (chr == '/'  &&  destIdx > 0  &&  dest[destIdx-1] == '/') {
+			srcIdx++;
+			continue;
+		}
 
-		if ((chr == '/'  ||  chr == '\0')  &&  i != 0  &&  (flags & CorrectCase) != 0) {
-			dest[i] = '\0';
+		dest[destIdx] = chr;
 
-			char* component = new char[i - (lastComponentStart-dest) + 1];
+		if ((chr == '/'  ||  chr == '\0')  &&  srcIdx != 0  &&  (flags & CorrectCase) != 0) {
+			dest[destIdx] = '\0';
+
+			char* component = new char[destIdx - (lastComponentStart-dest) + 1];
 			strtolower(component, lastComponentStart+1);
 			if (chr == '/') {
-				dest[i] = '/';
-				dest[i+1] = '\0';
+				dest[destIdx] = '/';
+				dest[destIdx+1] = '\0';
 			}
 
 			File* compParent = File(dest).getParent();
-			FileIterator* it = compParent->getIterator();
-			File* child;
 
-			while ((child = it->next())  !=  NULL) {
-				const char* fname = child->getPath()->getFileName();
-				char* lfname = new char[strlen(fname)+1];
-				strtolower(lfname, fname);
-				if (strcmp(lfname, component) == 0) {
-					memcpy(lastComponentStart+1, fname, strlen(fname));
+			if (compParent) {
+				FileIterator* it = compParent->getIterator();
+				File* child;
+
+				while ((child = it->next())  !=  NULL) {
+					const char* fname = child->getPath()->getFileName();
+					char* lfname = new char[strlen(fname)+1];
+					strtolower(lfname, fname);
+					if (strcmp(lfname, component) == 0) {
+						memcpy(lastComponentStart+1, fname, strlen(fname));
+						delete child;
+						delete[] lfname;
+						break;
+					}
 					delete child;
 					delete[] lfname;
-					break;
 				}
-				delete child;
-				delete[] lfname;
-			}
 
-			delete it;
-			delete compParent;
+				delete it;
+				delete compParent;
+			}
 
 			delete[] component;
 
-			lastComponentStart = dest+i;
+			lastComponentStart = dest+destIdx;
 		}
+
+		srcIdx++;
+		destIdx++;
 	}
 
 	dest[srcLen] = '\0';

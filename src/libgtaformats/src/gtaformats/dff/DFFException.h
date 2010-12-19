@@ -23,6 +23,8 @@
 #include "../util/Exception.h"
 
 
+/**	\brief An exception thrown in case of a DFF format error.
+ */
 class DFFException : public Exception {
 public:
 	DFFException(const char* msg, const char* srcFile = NULL, int srcLine = -1, Exception* nestedException = NULL) throw()

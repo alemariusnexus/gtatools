@@ -29,7 +29,24 @@ using std::vector;
 
 
 
-
+/**	\brief A mesh structure as loaded by the DFFLoader class.
+ *
+ * 	\note DFF is still a very unexplored file format, so this class may always be subject to major extensions,
+ * 	changes and even removes in the API, so it's still not a very stable interface. All of the following
+ * 	description therefore is not guaranteed to be correct and may always change, but it's what the DFFLoader
+ * 	class currently tries to extract from DFF:
+ *
+ * 	A DFFMesh by itself represents a complete three-dimensional mesh. It consists of a hierarchy of DFFFrames,
+ * 	which hold 3D translation data, and a list of DFFGeometries. The latter are the actual containers of mesh
+ * 	data. They contain the vertex data, flags and other properties, and each of them may refer to one of the
+ * 	frames defined in it's DFFMesh, which positions the geometry relative to the mesh origin. The DFFGeometry
+ * 	itself consists of multiple aggregated classes which hold the vertex indices, texturing data and so on,
+ * 	which is documented along with the respective classes.
+ *
+ * 	@see DFFGeometry
+ * 	@see DFFFrame
+ * 	@see DFFLoader, the class which loads DFFMeshes from DFF files.
+ */
 class DFFMesh {
 private:
 	friend class DFFLoader;

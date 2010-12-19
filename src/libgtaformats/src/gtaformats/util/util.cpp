@@ -43,7 +43,13 @@ void strtolower(char* dest, const char* src)
 
 void rtrim(char* str, char chr)
 {
-	str += strlen(str);
+	int len = strlen(str);
+
+	if (len == 0) {
+		return;
+	}
+
+	str += len-1;
 	while (*str == chr) *str-- = '\0';
 }
 

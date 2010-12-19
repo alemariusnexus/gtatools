@@ -25,6 +25,7 @@
 #include <gtaformats/txd/TXDTexture.h>
 #include <gtaformats/dff/DFFMesh.h>
 #include <gtaformats/util/thread/Mutex.h>
+#include <gtaformats/col/COLModel.h>
 #include <map>
 #include <GL/glew.h>
 #include <cstdio>
@@ -45,8 +46,14 @@ private:
 	struct MeshEntry
 	{
 		File* file;
+		InputStream::streampos colStart;
 	};
 
+	struct COLEntry
+	{
+		File* file;
+		InputStream::streampos offset;
+	};
 
 	struct TextureEntry
 	{
@@ -76,17 +83,18 @@ private:
 	};
 
 	typedef map<hash_t, TXDEntry*> TextureMap;
-	//typedef map<TextureEntry*, TextureCacheEntry*> TextureCacheMap;
 	typedef Cache<TextureEntry*, TextureCacheEntry> TextureCache;
 	typedef map<hash_t, MeshEntry*> MeshMap;
 	typedef Cache<hash_t, MeshCacheEntry> MeshCache;
-	//typedef map<hash_t, MeshCacheEntry*> MeshCacheMap;
 	typedef map<int32_t, ItemDefinition*> ItemDefinitionMap;
+	/*typedef map<hash_t, COLEntry*> COLMap;
+	typedef Cache<hash_t, MeshCacheEntry> COLCache;*/
 
 public:
 	ResourceManager();
 	~ResourceManager();
 	void addResource(const File& file);
+	GLuint getTexture(const TextureIndex& index);
 	GLuint bindTexture(const TextureIndex& index);
 	bool getTexture(const TextureIndex& index, TXDTexture*& tex);
 	bool getTexture(const TextureIndex& index, TXDTexture*& tex, uint8_t*& data);
@@ -107,6 +115,10 @@ public:
 	int getMeshCacheOccupiedSize() const { return meshCache.getOccupiedSize(); }
 	void resizeTextureCache(int capacity) { textureCache.resize(capacity); }
 	void resizeMeshCache(int capacity) { meshCache.resize(capacity); }
+	/*bool getCollisionModel(hash_t colHash, COLModel*& model);
+	bool getCollisionModel(const char* name, COLModel*& model)
+			{ return getCollisionModel(Hash(name), model); }
+	bool getCollisionModel(hash_t colHash, Mesh*& mesh);*/
 
 private:
 	void addResource(const File& file, InputStream* stream);
@@ -122,12 +134,11 @@ private:
 
 private:
 	TextureMap textures;
-	//TextureCacheMap textureCache;
 	TextureCache textureCache;
 	MeshMap meshes;
-	//MeshCacheMap meshCache;
 	MeshCache meshCache;
 	ItemDefinitionMap items;
+	//COLMap cols;
 
 	Mutex textureMutex;
 	Mutex textureCacheMutex;
