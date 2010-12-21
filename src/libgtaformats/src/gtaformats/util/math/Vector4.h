@@ -25,6 +25,7 @@
 
 class Vector3;
 
+#ifdef __GNUC__
 typedef float v4sf __attribute__((vector_size(16)));
 typedef int32_t v4i32 __attribute__((vector_size(16)));
 
@@ -39,6 +40,17 @@ union Vec4I32
 	v4i32 v;
 	int32_t i[4];
 };
+#else
+struct Vec4SF
+{
+	float f[4];
+};
+
+struct Vec4I32
+{
+	int32_t i[4];
+};
+#endif
 
 
 class Vector4

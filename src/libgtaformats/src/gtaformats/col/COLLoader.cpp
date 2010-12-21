@@ -18,7 +18,7 @@
 
 COLModel* COLLoader::loadModel(InputStream* stream)
 {
-	InputStream::streampos colStart = stream->tell();
+    InputStream::streampos colStart = stream->tell();
 
 	COLVersion version = getVersion(stream);
 
@@ -39,7 +39,7 @@ COLModel* COLLoader::loadModel(InputStream* stream)
 	if (version == COL1) {
 		stream->read((char*) &model->bounds.radius, 4);
 		stream->read((char*) &model->bounds.center, 12);
-		stream->read((char*) &model->bounds.min, 24); // min and max
+		stream->read((char*) &model->bounds.vmin, 24); // min and max
 	} else {
 		stream->read((char*) &model->bounds, 40);
 	}
@@ -124,7 +124,7 @@ COLModel* COLLoader::loadModel(InputStream* stream)
 		stream->seek(colStart+faceOffset+4, InputStream::STREAM_SEEK_BEGIN);
 		COLFace* faces = new COLFace[numFaces];
 
-		int32_t greatestVertexIndex = 0;
+		uint32_t greatestVertexIndex = 0;
 
 		for (uint32_t i = 0 ; i < numFaces ; i++) {
 			COLFace& face = faces[i];
@@ -182,7 +182,7 @@ COLModel* COLLoader::loadModel(InputStream* stream)
 				COLFace* shadowMeshFaces = new COLFace[numShadowMeshFaces];
 				stream->seek(colStart+shadowMeshFaceOffset+4, InputStream::STREAM_SEEK_BEGIN);
 
-				int32_t greatestVertexIndex = -1;
+				uint32_t greatestVertexIndex = -1;
 
 				for (uint32_t i = 0 ; i < numShadowMeshFaces ; i++) {
 					COLFace& face = shadowMeshFaces[i];

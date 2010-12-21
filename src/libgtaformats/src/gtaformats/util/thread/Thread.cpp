@@ -55,6 +55,7 @@ DWORD WINAPI __winThreadStarter(LPVOID param)
 	Thread* thread = (Thread*) param;
 	thread->run();
 	thread->terminated();
+    return 0;
 }
 #endif
 
