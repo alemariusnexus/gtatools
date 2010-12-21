@@ -230,8 +230,8 @@ bool ResourceManager::getTexture(const TextureIndex& index, TXDTexture*& tex)
 		return false;
 	}
 
-	uint8_t* nullptr;
-	readTexture(texEntry, txdEntry, tex, nullptr, false);
+	uint8_t* nptr;
+	readTexture(texEntry, txdEntry, tex, nptr, false);
 
 	return true;
 }
@@ -558,7 +558,7 @@ bool ResourceManager::cacheMesh(hash_t name)
 {
 	Mesh* mesh;
 	readMesh(name, mesh);
-	cacheMesh(name, mesh);
+	return cacheMesh(name, mesh);
 }
 
 
@@ -576,6 +576,8 @@ bool ResourceManager::cacheMesh(hash_t name, Mesh* mesh)
 		delete[] errmsg;
 		throw ex;
 	}
+
+    return true;
 	//meshCache[name] = entry;
 }
 

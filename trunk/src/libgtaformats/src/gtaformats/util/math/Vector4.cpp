@@ -45,22 +45,44 @@ Vector4& Vector4::operator=(const Vector4& rhv)
 
 Vector4& Vector4::operator+=(const Vector4& rhv)
 {
+#ifdef __GNUC__
 	data.v += rhv.data.v;
+#else
+	data.f[0] += rhv.data.f[0];
+	data.f[1] += rhv.data.f[1];
+	data.f[2] += rhv.data.f[2];
+	data.f[3] += rhv.data.f[3];
+#endif
 	return *this;
 }
 
 
 Vector4& Vector4::operator-=(const Vector4& rhv)
 {
-	data.v += rhv.data.v;
+#ifdef __GNUC__
+	data.v -= rhv.data.v;
+#else
+	data.f[0] -= rhv.data.f[0];
+	data.f[1] -= rhv.data.f[1];
+	data.f[2] -= rhv.data.f[2];
+	data.f[3] -= rhv.data.f[3];
+#endif
 	return *this;
 }
 
 
 Vector4& Vector4::operator*=(float rhv)
 {
+#ifdef __GNUC__
 	Vec4SF rhvv = {rhv, rhv, rhv, rhv};
 	data.v *= rhvv.v;
+#else
+	data.f[0] *= rhv;
+	data.f[1] *= rhv;
+	data.f[2] *= rhv;
+	data.f[3] *= rhv;
+#endif
+
 	return *this;
 }
 
@@ -73,8 +95,12 @@ const Vector4 Vector4::operator-() const
 
 float Vector4::dot(const Vector4& rhv) const
 {
+#ifdef __GNUC__
 	Vec4SF res;
 	res.v = data.v*rhv.data.v;
 
 	return res.f[0] + res.f[1] + res.f[2] + res.f[3];
+#else
+	return data.f[0]*rhv.data.f[0] + data.f[1]*rhv.data.f[1] + data.f[2]*rhv.data.f[2] + data.f[3]*rhv.data.f[3];
+#endif
 }
