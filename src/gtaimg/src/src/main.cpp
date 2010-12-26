@@ -1,7 +1,7 @@
 /*
 	Copyright 2010 David "Alemarius Nexus" Lerch
-    
-    This file is part ofrt of his file is part of gtaimg.
+
+	This file is part of gtaimg.
 
 	gtaimg is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -17,153 +17,394 @@
 	along with gtaimg.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#include "cliarg.h"
-#include "ListVisitor.h"
-#include "ExtractVisitor.h"
-#include <gtaformats/img/IMGException.h>
-#include <gtaformats/img/IMGArchive.h>
-#include <gtaformats/util/stream/IOException.h>
+#include <gtaformats/util/CLIParser.h>
+#include <cstdio>
+#include <vector>
+#include <gtaformats/util/strutil.h>
 #include <gtaformats/util/File.h>
-#include <cstring>
-#include <map>
+#include <gtaformats/util/FilePath.h>
+#include <gtaformats/util/stream/STLInputStream.h>
+#include <gtaformats/img/IMGArchive.h>
+#include <gtaformats/img/IMGException.h>
+#include "WildcardFilter.h"
+#include "NullEntryFilter.h"
+#include <ostream>
+#include <fstream>
 #include <iostream>
-#include <string>
+#include <cstring>
 
+using std::vector;
+using std::ostream;
 using std::cout;
-using std::cerr;
-using std::endl;
-using std::string;
+using std::cin;
+using std::ofstream;
 
-#define HELP_MESSAGE \
-"gtaimg - List and extract files from GTA IMG archive files.\n\
-\n\
-Usage:\n\
-    gtaimg (help|-help|--help)    - Prints this message\n\
-    gtaimg COMMAND ...    - Executes the COMMAND (see below)\n\
-    \n\
-Commands & Parameters:\n\
-    (l|ls|list) [-s] [-o] [-b] [-f DIRFILE] IMGFILE\n\
-        Prints every file name inside the IMGFILE, one file per line.\n\
-        IMGFILE may either be a GTA SA IMG file, or a GTA VC/III IMG or DIR\n\
-        file. In the latter case, the other file will automatically be guessed\n\
-        by replacing the extension .img with .dir and vice-versa, unless -f is\n\
-        used. Valid flags are:\n\
-            -s  Print file size\n\
-            -o  Print file offset\n\
-            -b  Print file size and offset in blocks instead of bytes. A block\n\
-                in IMG files is always 2048 bytes.\n\
-            -f  Assuming that IMGFILE is a GTA VC/III file, you can use this\n\
-                option to explicitly set the .dir file to use with the IMGFILE.\n\
-        When both -s and -o are given, they are printed in the order they were\n\
-        written on the command line.\n\
-    \n\
-    (x|ex|extract) [-r] [-f DIRFILE] IMGFILE (ENTRYNAME DESTFILE)...\n\
-    (x|ex|extract) -s [-r] [-f DIRFILE] IMGFILE ENTRYNAME...\n\
-    (x|ex|extract) -o [-r] [-f DIRFILE] IMGFILE ENTRYNAME...\n\
-        Extracts files from the IMGFILE. When used without special flags, the\n\
-        IMGFILE is followed by pairs consisting of the name of the IMG entry\n\
-        and the destination file to extract it to. Using the -s flag, you only\n\
-        give the names of the entries. They will then be written to files with\n\
-        the same name as inside the archive, into the current directory. Using\n\
-        the -o flag will write the contents of all files to stdout. Note that\n\
-        when multiple files must be extracted, they are all written to stdout\n\
-        one after the other, without a separator between them.\n\
-        IMGFILE may either be a GTA SA IMG file, or a GTA VC/III IMG or DIR\n\
-        file. In the latter case, the other file will automatically be guessed\n\
-        by replacing the extension .img with .dir and vice-versa, unless -f is\n\
-        used. Other flags are:\n\
-            -r  Interpret the ENTRYNAME as regular expression. All files\n\
-                matching the pattern will be extracted from the archive.\n\
-            -f  Assuming that IMGFILE is a GTA VC/III file, you can use this\n\
-                option to explicitly set the .dir file to use with the IMGFILE.\n\
-\n\
-Examples:\n\
-    List all files in gta3.img:\n\
-        gtaimg ls gta3.img\n\
-    \n\
-    List all files in gta3.img with size in bytes:\n\
-        gtaimg ls -s gta3.img\n\
-    \n\
-    Extract the file 'bistro.txd' from gta3.img and save it to ./bistro.txd:\n\
-        gtaimg x -s gta3.img bistro.txd\n\
-    \n\
-    Extract all TXD files starting with 'a51_':\n\
-        gtaimg x -r -s gta3.img 'a51_(.*?)\\.txd'\n\
-\n"
 
-int main(int argc, char** argv) {
-	if (argc < 2) {
-		printf("%s", HELP_MESSAGE);
-		return 1;
+
+const int CommandList = 0;
+const int CommandExtract = 1;
+const int CommandShowHeader = 2;
+
+
+struct ExtractPattern
+{
+	EntryFilter* filter;
+	File* destination;
+};
+
+
+const int TEXT_WRAP_LENGTH = 60;
+
+
+
+int main(int argc, char** argv)
+{
+	char* progName = argv[0];
+	argv++;
+	argc--;
+
+	CLIParser cli;
+
+	int helpOpt = cli.addOption(0, "help", "Show usage help and exit.");
+	int versionOpt = cli.addOption(0, "version", "Show version info and exit.");
+	int listOpt = cli.addOption('l', "list", "List entries of an IMG archive.");
+	int extractOpt = cli.addOption('x', "extract", "Extract files from an IMG archive.");
+	int headerOpt = cli.addOption('h', "header", "Show data of the IMG header.");
+	int fileOpt = cli.addOption('f', "file", "Take %a as the IMG archive.", true);
+	int verboseOpt = cli.addOption('v', "verbose", "Make output verbose.");
+
+	// List options
+	int offsetOpt = cli.addOption('p', "offset", "Show entry offsets.");
+	int sizeOpt = cli.addOption('s', "size", "Show entry sizes.");
+	int bytesOpt = cli.addOption('b', "bytes", "Show offsets and sizes in bytes instead of IMG blocks.");
+
+	// Extract options
+	int outOpt = cli.addOption('o', "out", "Output the following FILEs to %a.\n"
+			"If %a is a directory, the files will be saved in it, having the same names as in the IMG "
+			"archive.\n"
+			"If %a is a regular file or does not exist, the contents of all extracted FILEs will be written "
+			"(concatenated) into the file.\n"
+			"If %a is '-' (i.e. just a hyphen), all contents will be written to stdout.\n"
+			"You may use this option multiple times to change the output location of all following FILEs.",
+			true);
+
+	char* arg;
+	int opt;
+
+	int command = -1;
+	vector<File*> inputFiles;
+	vector<ExtractPattern*> exPatterns;
+	File* currentOutput = new File(".");
+	bool verbose = false;
+	bool showSize = false;
+	bool showOffset = false;
+	bool bytesUnit = false;
+
+	while ((opt = cli.parse(argc, argv, arg))  >=  0) {
+		if (opt == helpOpt) {
+			cli.setPrintIndentation("    ");
+			cli.setTextWrapLength(TEXT_WRAP_LENGTH);
+
+			printf("gtaimg - Lists and extracts files from GTA IMG archives.\n\n");
+
+			printf("USAGE:\n");
+			printf("  gtaimg [OPTION...] FILE...\n\n");
+
+			printf("DESCRIPTION:\n");
+			printf("  You can use gtaimg to display information of and extract files from\n");
+			printf("  GTA IMG archives. These are simple general-purpose archives, without\n");
+			printf("  extended features like directories, file attributes etc.\n\n");
+			printf("  You can either list (-l) or extract (-x) files, or show the IMG\n");
+			printf("  header (-h). By default (if no -f option is found) we read the IMG\n");
+			printf("  archive from stdin.\n\n");
+
+			printf("  LIST:\n");
+			printf("    In list mode (-l), the FILEs are interpreted as patterns.\n");
+			printf("    The IMG archives are searched for files matching any of them. Each\n");
+			printf("    matching entry name is printed, possibly along with other data\n");
+			printf("    (see list flags). The output has a table format, with a header\n");
+			printf("    describing the columns.\n\n");
+
+			printf("  EXTRACT:\n");
+			printf("    In extraction mode (-x), the FILEs are interpreted as patterns.\n");
+			printf("    The IMG archives are searched for files matching any of them. Each\n");
+			printf("    matching file is extracted. By default, the output goes to a file\n");
+			printf("    of the same name in the current working directory.\n\n");
+
+			printf("  SHOW HEADER:\n");
+			printf("    If -h is given, the IMG header information will be printed (which\n");
+			printf("    is just the version and number of files).\n\n");
+
+			printf("FLAGS:\n");
+
+			printf("  Command flags:\n");
+			cli.printOption(helpOpt).printOption(versionOpt).printOption(listOpt).printOption(extractOpt)
+					.printOption(headerOpt);
+			printf("\n");
+
+			printf("  General flags:\n");
+			cli.printOption(fileOpt).printOption(verboseOpt);
+			printf("\n");
+
+			printf("  List flags:\n");
+			cli.printOption(offsetOpt).printOption(sizeOpt).printOption(bytesOpt);
+
+			printf("  Extract flags:\n");
+			cli.printOption(outOpt);
+
+			return 0;
+		} else if (opt == versionOpt) {
+			printf("gtaimg - Part of gtatools (version %s)\n\n", GTATOOLS_VERSION);
+			printf("Copyright 2010 David \"Alemarius Nexus\" Lerch\n\n");
+
+			printf("gtaimg is free software: you can redistribute it and/or modify\n");
+			printf("it under the terms of the GNU General Public License as published by\n");
+			printf("the Free Software Foundation, either version 3 of the License, or\n");
+			printf("(at your option) any later version.\n\n");
+			printf("gtaimg is distributed in the hope that it will be useful,\n");
+			printf("but WITHOUT ANY WARRANTY; without even the implied warranty of\n");
+			printf("MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n");
+			printf("GNU General Public License for more details.\n\n");
+			printf("You should have received a copy of the GNU General Public License\n");
+			printf("along with gtaimg.  If not, see <http://www.gnu.org/licenses/>.\n");
+
+			return 0;
+		} else if (opt == listOpt) {
+			if (command >= 0  &&  command != CommandList) {
+				fprintf(stderr, "ERROR: Only one option of -lxh may be given.\n");
+				return 1;
+			}
+
+			command = CommandList;
+		} else if (opt == extractOpt) {
+			if (command >= 0  &&  command != CommandExtract) {
+				fprintf(stderr, "ERROR: Only one option of -lxh may be given.\n");
+				return 1;
+			}
+
+			command = CommandExtract;
+		} else if (opt == headerOpt) {
+			if (command >= 0  &&  command != CommandExtract) {
+				fprintf(stderr, "ERROR: Only one option of -lxh may be given.\n");
+				return 1;
+			}
+
+			command = CommandShowHeader;
+		} else if (opt == fileOpt) {
+			if (strcmp(arg, "-") == 0) {
+				inputFiles.push_back(NULL);
+			} else {
+				File* file = new File(arg);
+
+				if (!file->exists()) {
+					fprintf(stderr, "ERROR: Input file %s does not exist!\n", file->getPath()->toString());
+					return 2;
+				}
+
+				inputFiles.push_back(file);
+			}
+		} else if (opt == outOpt) {
+			if (currentOutput) {
+				delete currentOutput;
+			}
+
+			if (strcmp(arg, "-") == 0) {
+				currentOutput = NULL;
+			} else {
+				currentOutput = new File(arg);
+			}
+		} else if (opt == verboseOpt) {
+			verbose = true;
+		} else if (opt == sizeOpt) {
+			showSize = true;
+		} else if (opt == offsetOpt) {
+			showOffset = true;
+		} else if (opt == bytesOpt) {
+			bytesUnit = true;
+		} else if (opt == 0) {
+			ExtractPattern* pattern = new ExtractPattern;
+			pattern->filter = new WildcardFilter(arg);
+
+			if (currentOutput) {
+				pattern->destination = new File(*currentOutput);
+			} else {
+				pattern->destination = NULL;
+			}
+
+			exPatterns.push_back(pattern);
+		}
 	}
 
-	if (	strcmp(argv[1], "help") == 0
-			||  strcmp(argv[1], "-help") == 0
-			||	strcmp(argv[1], "--help") == 0	)
-	{
-		printf("%s", HELP_MESSAGE);
-		return 0;
+	if (inputFiles.size() == 0) {
+		//fprintf(stderr, "ERROR: No input files!\n");
+		//return 3;
+		inputFiles.push_back(NULL);
 	}
 
-	char* command = argv[1];
+	int numPatterns = exPatterns.size();
+	ExtractPattern** exPatternArr;
 
-	const char* srcfile;
-	IMGVisitor* visitor;
-
-	paramset::iterator param;
-
-	if (	strcmp(command, "l") == 0
-			||  strcmp(command, "ls") == 0
-			||  strcmp(command, "list") == 0	)
-	{
-		visitor = new ListVisitor(argc, argv);
-		param = GetStandaloneParamBegin();
-		srcfile = *param;
-	} else if (	strcmp(command, "x") == 0
-				||  strcmp(command, "ex") == 0
-				||  strcmp(command, "extract") == 0	)
-	{
-		visitor = new ExtractVisitor(argc, argv);
-		param = GetStandaloneParamBegin();
-		srcfile = *param;
+	if (numPatterns > 0) {
+		exPatternArr = new ExtractPattern*[numPatterns];
+		int i = 0;
+		vector<ExtractPattern*>::iterator pit;
+		for (pit = exPatterns.begin() ; pit != exPatterns.end() ; pit++) {
+			exPatternArr[i++] = *pit;
+		}
 	} else {
-		fprintf(stderr, "Error: Invalid command '%s'!\n", command);
-		return 2;
-	}
+		ExtractPattern* nullPattern = new ExtractPattern;
+		nullPattern->filter = new NullEntryFilter;
 
-	if (!File(srcfile).exists()) {
-		fprintf(stderr, "Error: Source file does not exist!\n");
-		return 3;
-	}
-
-	IMGArchive* archive = NULL;
-
-	try {
-		if (GetSwitch("f")) {
-			const char* dirFile = GetSwitch("f");
-			archive = new IMGArchive(dirFile, srcfile);
+		if (currentOutput) {
+			nullPattern->destination = new File(*currentOutput);
 		} else {
-			archive = new IMGArchive(srcfile);
+			nullPattern->destination = NULL;
 		}
 
-		archive->visitAll(visitor);
-
-		delete archive;
-	} catch (IOException ex) {
-		cerr << "I/O error: " << ex.what() << endl;
-		if (archive) {
-			delete archive;
-		}
-	} catch (IMGException ex) {
-		cerr << "IMG error: " << ex.what() << endl;
-		if (archive) {
-			delete archive;
-		}
+		exPatternArr = new ExtractPattern*[1];
+		exPatternArr[0] = nullPattern;
+		numPatterns = 1;
 	}
 
-	delete visitor;
+	if (command == CommandList) {
+		printf("%-24s", "FILE NAME");
 
-	return 0;
+		if (showOffset)
+			printf(" %-10s", "OFFSET");
+		if (showSize)
+			printf(" %-10s", "SIZE");
+
+		printf("\n\n");
+	}
+
+	vector<File*>::iterator it;
+	for (it = inputFiles.begin() ; it != inputFiles.end() ; it++) {
+		File* file = *it;
+
+		IMGArchive* img;
+
+		try {
+			if (file) {
+				img = new IMGArchive(*file);
+			} else {
+				STLInputStream* in = new STLInputStream(&cin, false, false);
+				img = new IMGArchive(in, false, true);
+			}
+		} catch (IMGException ex) {
+			fprintf(stderr, "ERROR opening IMG file %s: %s\n", file ? file->getPath()->toString() : "(stdin)",
+					ex.what());
+			return 5;
+		}
+
+		const IMGEntry* entries = img->getEntries();
+		int32_t entryCount = img->getEntryCount();
+
+		if (command == CommandShowHeader) {
+			if (file) {
+				printf("%s\n", file->getPath()->toString());
+			} else {
+				printf("stdin:\n");
+			}
+
+			printf("  Version ");
+			switch (img->getVersion()) {
+			case IMGArchive::VER1:
+				printf("1 (GTA3, GTA VC)\n");
+				break;
+			case IMGArchive::VER2:
+				printf("2 (GTA SA)\n");
+				break;
+			}
+
+			printf("  %d entries\n", img->getEntryCount());
+		} else {
+			for (int i = 0 ; i < entryCount ; i++) {
+				const IMGEntry& entry = entries[i];
+
+				if (command == CommandExtract) {
+					for (int j = 0 ; j < numPatterns ; j++) {
+						ExtractPattern* pattern = exPatternArr[j];
+
+						if (pattern->filter->process(entry)) {
+							if (verbose)
+								printf("Extracting file %s ", entry.name);
+
+							InputStream* stream = img->gotoEntry(&entry);
+
+							ostream* out = NULL;
+
+							if (pattern->destination) {
+								if (	!pattern->destination->exists()
+										||  !pattern->destination->isDirectory()
+								) {
+									if (verbose)
+										printf("to %s...\n", pattern->destination->getPath()->toString());
+
+									out = new ofstream(pattern->destination->getPath()->toString(),
+											ofstream::out | ofstream::binary | ofstream::app);
+								} else {
+									FilePath outPath(*pattern->destination->getPath(), entry.name);
+
+									if (verbose)
+										printf("to %s...\n", outPath.toString());
+
+									out = new ofstream(outPath.toString(), ofstream::out | ofstream::binary);
+								}
+							} else {
+								// Write to stdout
+								if (verbose)
+									printf("to stdout...\n");
+								out = &cout;
+							}
+
+							char buffer[IMG_BLOCK_SIZE];
+							for (int j = 0 ; j < entry.size ; j++) {
+								stream->read(buffer, IMG_BLOCK_SIZE);
+								out->write(buffer, IMG_BLOCK_SIZE);
+							}
+
+							delete stream;
+
+							// If out is a pointer to cout, we shouldn't close it
+							if (pattern->destination) {
+								delete out;
+							}
+
+							if (verbose)
+								printf("  %d bytes written!\n", entry.size*IMG_BLOCK_SIZE);
+						}
+					}
+				} else if (command == CommandList) {
+					for (int j = 0 ; j < numPatterns ; j++) {
+						ExtractPattern* pattern = exPatternArr[j];
+
+						if (pattern->filter->process(entry)) {
+							printf("%-24s", entry.name);
+
+							int offset = bytesUnit ? entry.offset*IMG_BLOCK_SIZE : entry.offset;
+							int size = bytesUnit ? entry.size*IMG_BLOCK_SIZE : entry.size;
+
+							if (showOffset)
+								printf(" %-10d", offset);
+							if (showSize)
+								printf(" %-10d", size);
+
+							printf("\n");
+						}
+					}
+				}
+			}
+		}
+
+		delete img;
+	}
 }
+
+
+
+
+
+
+
+
 

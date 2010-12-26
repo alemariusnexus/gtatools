@@ -20,7 +20,7 @@
 #ifndef ENCODING_H_
 #define ENCODING_H_
 
-#include "../gf_config.h"
+#include "../config.h"
 #include <cstddef>
 
 #define ERR_INVALID_PARAMETER -1

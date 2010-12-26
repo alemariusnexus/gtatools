@@ -20,7 +20,7 @@
 #ifndef IDEREADER_H_
 #define IDEREADER_H_
 
-#include "../gf_config.h"
+#include "../config.h"
 #include <cstring>
 #include <cstdlib>
 #include <cstdio>

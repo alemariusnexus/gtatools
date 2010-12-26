@@ -8,6 +8,7 @@
 #ifndef MESHPOINTER_H_
 #define MESHPOINTER_H_
 
+#include "config.h"
 #include "Mesh.h"
 
 

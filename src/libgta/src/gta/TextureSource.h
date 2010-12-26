@@ -8,6 +8,7 @@
 #ifndef TEXTURESOURCE_H_
 #define TEXTURESOURCE_H_
 
+#include "config.h"
 #include "Engine.h"
 
 

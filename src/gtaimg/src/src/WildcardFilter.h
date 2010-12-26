@@ -17,32 +17,19 @@
 	along with gtaimg.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EXTRACTCOMMAND_H_
-#define EXTRACTCOMMAND_H_
+#ifndef WILDCARDFILTER_H_
+#define WILDCARDFILTER_H_
 
-#include "cliarg.h"
-//#include <ImgVisitor.h>
-#include <gtaformats/img/IMGVisitor.h>
-#include <vector>
+#include "EntryFilter.h"
 
-using std::vector;
 
-class ExtractVisitor : public IMGVisitor {
+class WildcardFilter : public EntryFilter {
 public:
-	ExtractVisitor(int argc, char** argv);
-	virtual ~ExtractVisitor();
-	bool readHeader(IMGEntry* header, void*& udata);
-	void readEntry(IMGEntry* entry, InputStream* stream, void*& udata);
+	WildcardFilter(const char* pattern);
+	virtual bool process(const IMGEntry& entry);
 
 private:
-	int numPatterns;
-	vector<char*> temporaryStrings;
-	//regex** regexes;
-	const char** regexes;
-	const char** destfiles;
-	bool useRegex;
-	bool sourcesOnly;
-	bool writeToStdout;
+	char* pattern;
 };
 
-#endif /* EXTRACTCOMMAND_H_ */
+#endif /* WILDCARDFILTER_H_ */

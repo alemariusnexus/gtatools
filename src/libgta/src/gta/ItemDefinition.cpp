@@ -11,7 +11,7 @@
 #include "ResourceManager.h"
 #include "Submesh.h"
 #include <cstring>
-#include <gtaformats/util/util.h>
+#include <gtaformats/util/strutil.h>
 #include "GLException.h"
 #include "ManagedMeshPointer.h"
 #include "ManagedTextureSource.h"

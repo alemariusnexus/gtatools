@@ -20,6 +20,7 @@
 #ifndef CAMERA_H_
 #define CAMERA_H_
 
+#include "config.h"
 #include <gtaformats/util/math/Vector3.h>
 
 

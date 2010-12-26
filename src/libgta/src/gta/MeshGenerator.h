@@ -8,6 +8,7 @@
 #ifndef MESHGENERATOR_H_
 #define MESHGENERATOR_H_
 
+#include "config.h"
 #include <gtaformats/util/math/Vector3.h>
 
 

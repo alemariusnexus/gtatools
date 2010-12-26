@@ -31,7 +31,7 @@
 
 
 
-#cmakedefine GF_USE_SQUISH
+#cmakedefine GTAFORMATS_ENABLE_SQUISH
 #cmakedefine EXCEPTION_POSITION_INFO
 #cmakedefine _CMAKE_HAVE_SVNREV
 

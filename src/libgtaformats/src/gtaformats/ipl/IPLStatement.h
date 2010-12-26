@@ -20,7 +20,7 @@
 #ifndef IPLSTATEMENT_H_
 #define IPLSTATEMENT_H_
 
-#include "../gf_config.h"
+#include "../config.h"
 
 typedef char ipltype_t;
 

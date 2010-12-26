@@ -8,6 +8,7 @@
 #ifndef ITEMDEFINITION_H_
 #define ITEMDEFINITION_H_
 
+#include "config.h"
 #include "Engine.h"
 #include "Mesh.h"
 #include <gtaformats/ide/IDEStaticObject.h>

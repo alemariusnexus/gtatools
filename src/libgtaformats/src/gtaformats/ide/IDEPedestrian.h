@@ -20,6 +20,7 @@
 #ifndef IDEPEDESTRIAN_H_
 #define IDEPEDESTRIAN_H_
 
+#include "../config.h"
 #include "IDEEntity.h"
 
 

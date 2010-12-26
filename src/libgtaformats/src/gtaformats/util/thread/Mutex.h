@@ -20,6 +20,8 @@
 #ifndef MUTEX_H_
 #define MUTEX_H_
 
+#include "../../config.h"
+
 #ifdef linux
 #include <pthread.h>
 #else

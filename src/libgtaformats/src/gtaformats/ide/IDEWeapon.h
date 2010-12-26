@@ -20,6 +20,7 @@
 #ifndef IDEWEAPON_H_
 #define IDEWEAPON_H_
 
+#include "../config.h"
 #include "IDEEntity.h"
 
 #define IDE_TYPE_WEAPON 4

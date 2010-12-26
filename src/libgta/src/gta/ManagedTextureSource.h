@@ -8,6 +8,7 @@
 #ifndef MANAGEDTEXTURESOURCE_H_
 #define MANAGEDTEXTURESOURCE_H_
 
+#include "config.h"
 #include "TextureSource.h"
 #include "Engine.h"
 

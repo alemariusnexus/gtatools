@@ -20,7 +20,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 PROJECT(prj-gtaformats CXX)
 
 
-SET(GF_USE_SQUISH ON CACHE BOOL "Whether we use libsquish for DXT-compressed textures. If false, those textures are not supported directly by the library")
+SET(GTAFORMATS_ENABLE_SQUISH ON CACHE BOOL "Whether we use libsquish for DXT-compressed textures. If false, those textures are not supported directly by the library")
 SET(EXCEPTION_POSITION_INFO OFF CACHE BOOL "If true, exception messages will include the full path to the source file and the line in which the exception was thrown.")
 
 
@@ -36,7 +36,10 @@ ENDIF(NOT SQUISH_LIB_PATH)
 INCLUDE_DIRECTORIES(${SQUISH_INCLUDE_PATH} "${CMAKE_BINARY_DIR}/libgtaformats/build/gtaformats")
 
 ADD_LIBRARY(gtaformats STATIC ${SRCS})
-TARGET_LINK_LIBRARIES(gtaformats ${SQUISH_LIB_PATH})
+
+IF(GTAFORMATS_USE_SQUISH)
+    TARGET_LINK_LIBRARIES(gtaformats ${SQUISH_LIB_PATH})
+ENDIF(GTAFORMATS_USE_SQUISH)
 
 INSTALL(TARGETS gtaformats DESTINATION lib)
 INSTALL(	DIRECTORY gtaformats

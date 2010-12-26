@@ -20,7 +20,7 @@
 #ifndef VECTOR4_H_
 #define VECTOR4_H_
 
-#include "../../gf_config.h"
+#include "../../config.h"
 #include <cstring>
 
 class Vector3;

@@ -20,7 +20,7 @@
 #ifndef IDETIMEDOBJECT_H_
 #define IDETIMEDOBJECT_H_
 
-#include "../gf_config.h"
+#include "../config.h"
 #include "IDEStaticObject.h"
 
 #define IDE_TYPE_TIMED_OBJECT 1

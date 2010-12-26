@@ -1,7 +1,7 @@
 /*
 	Copyright 2010 David "Alemarius Nexus" Lerch
-    
-    This file is part ofrt of his file is part of gtaimg.
+
+	This file is part of gtaimg.
 
 	gtaimg is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -17,16 +17,15 @@
 	along with gtaimg.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LISTCOMMAND_H_
-#define LISTCOMMAND_H_
+#ifndef ENTRYFILTER_H_
+#define ENTRYFILTER_H_
 
-#include <gtaformats/img/IMGVisitor.h>
+#include <gtaformats/img/IMGArchive.h>
 
-class ListVisitor: public IMGVisitor {
+
+class EntryFilter {
 public:
-	ListVisitor(int argc, char** argv);
-	bool readHeader(IMGEntry* header, void*& udata);
-	void readEntry(IMGEntry* entry, InputStream* stream, void*& udata);
+	virtual bool process(const IMGEntry& entry) = 0;
 };
 
-#endif /* LISTCOMMAND_H_ */
+#endif /* ENTRYFILTER_H_ */

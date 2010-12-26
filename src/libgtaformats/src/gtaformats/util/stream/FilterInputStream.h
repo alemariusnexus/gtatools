@@ -20,6 +20,7 @@
 #ifndef FILTERINPUTSTREAM_H_
 #define FILTERINPUTSTREAM_H_
 
+#include "../../config.h"
 #include "InputStream.h"
 
 

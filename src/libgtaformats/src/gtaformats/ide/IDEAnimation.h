@@ -20,7 +20,7 @@
 #ifndef IDEANIMATION_H_
 #define IDEANIMATION_H_
 
-#include "../gf_config.h"
+#include "../config.h"
 #include "IDEEntity.h"
 
 #define IDE_TYPE_ANIMATION 2

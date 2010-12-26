@@ -20,6 +20,8 @@
 #ifndef GTAIMG_H_
 #define GTAIMG_H_
 
+#include "config.h"
+
 #include "img/IMGArchive.h"
 #include "img/IMGException.h"
 #include "img/IMGVisitor.h"

@@ -8,6 +8,7 @@
 #ifndef NULLTEXTURESOURCE_H_
 #define NULLTEXTURESOURCE_H_
 
+#include "config.h"
 #include "TextureSource.h"
 
 

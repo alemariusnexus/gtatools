@@ -20,7 +20,7 @@
 #ifndef TXDVISITOR_H_
 #define TXDVISITOR_H_
 
-#include "../gf_config.h"
+#include "../config.h"
 #include "TXDArchive.h"
 
 class TXDTexture;

@@ -20,6 +20,7 @@
 #ifndef THREAD_H_
 #define THREAD_H_
 
+#include "../../config.h"
 
 #ifdef linux
 #include <pthread.h>

@@ -8,13 +8,13 @@
 #ifndef COLMODEL_H_
 #define COLMODEL_H_
 
+#include "../config.h"
 #include "COLBox.h"
 #include "COLSphere.h"
 #include "COLFace.h"
 #include "COLFaceGroup.h"
 #include "COLBounds.h"
 #include "COLShadowMesh.h"
-#include "../gf_config.h"
 
 
 

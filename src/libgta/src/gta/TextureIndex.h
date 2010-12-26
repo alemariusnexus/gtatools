@@ -8,6 +8,7 @@
 #ifndef TEXTUREINDEX_H_
 #define TEXTUREINDEX_H_
 
+#include "config.h"
 #include <locale>
 #include "Engine.h"
 

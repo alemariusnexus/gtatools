@@ -8,6 +8,7 @@
 #ifndef ENGINE_H_
 #define ENGINE_H_
 
+#include "config.h"
 #include "ShaderProgram.h"
 #include <locale>
 #include <cstring>

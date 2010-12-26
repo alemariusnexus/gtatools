@@ -1,37 +1,31 @@
 /*
 	Copyright 2010 David "Alemarius Nexus" Lerch
 
-	This file is part of gtaformats.
+	This file is part of gtaimg.
 
-	gtaformats is free software: you can redistribute it and/or modify
+	gtaimg is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
-	gtaformats is distributed in the hope that it will be useful,
+	gtaimg is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with gtaformats.  If not, see <http://www.gnu.org/licenses/>.
+	along with gtaimg.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IDEENTITY_H_
-#define IDEENTITY_H_
+#ifndef NULLENTRYFILTER_H_
+#define NULLENTRYFILTER_H_
 
-#include "../config.h"
-#include "IDEStatement.h"
+#include "EntryFilter.h"
 
 
-class IDEEntity : public IDEStatement
-{
+class NullEntryFilter : public EntryFilter {
 public:
-	IDEEntity(int32_t id) : id(id) {}
-	int32_t getId() const { return id; }
-
-private:
-	int32_t id;
+	virtual bool process(const IMGEntry& entry) { return true; }
 };
 
-#endif /* IDEENTITY_H_ */
+#endif /* NULLENTRYFILTER_H_ */

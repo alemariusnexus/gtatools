@@ -20,7 +20,7 @@
 #ifndef DFFMATERIAL_H_
 #define DFFMATERIAL_H_
 
-#include "../gf_config.h"
+#include "../config.h"
 #include "DFFTexture.h"
 #include <vector>
 

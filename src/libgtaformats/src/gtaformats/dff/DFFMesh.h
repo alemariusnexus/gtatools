@@ -20,7 +20,7 @@
 #ifndef DFFMODEL_H_
 #define DFFMODEL_H_
 
-#include "../gf_config.h"
+#include "../config.h"
 #include "DFFGeometry.h"
 #include "DFFFrame.h"
 #include <vector>

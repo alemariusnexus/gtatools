@@ -8,7 +8,7 @@
 #ifndef COLSHADOWMESH_H_
 #define COLSHADOWMESH_H_
 
-#include "../gf_config.h"
+#include "../config.h"
 #include "COLFace.h"
 
 
