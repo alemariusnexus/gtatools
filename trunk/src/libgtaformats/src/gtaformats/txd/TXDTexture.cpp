@@ -23,9 +23,9 @@
 #include <cstdio>
 #include <cmath>
 
-#ifdef GF_USE_SQUISH
-#	include <squish.h>
-	using namespace squish;
+#ifdef GTAFORMATS_ENABLE_SQUISH
+#include <squish.h>
+using namespace squish;
 #endif
 
 
@@ -97,21 +97,6 @@ TXDTexture::TXDTexture(InputStream* stream, long long& bytesRead)
 	bytesPerPixel = *((int8_t*) (buf+12));
 	mipmapCount = *((int8_t*) (buf+13));
 	dxtType = *((int8_t*) (buf+15));
-
-	/*stream->read((char*) &platformId, 4);
-	stream->read((char*) &filterFlags, 2);
-	stream->read((char*) &uWrap, 1);
-	stream->read((char*) &vWrap, 1);
-	stream->read(diffuseName, 32);
-	stream->read(alphaName, 32);
-	stream->read((char*) &rasterFormat, 4);
-	stream->read((char*) &alphaFourCC, 4);
-	stream->read((char*) &width, 2);
-	stream->read((char*) &height, 2);
-	stream->read((char*) &bytesPerPixel, 1);
-	stream->read((char*) &mipmapCount, 1);
-	stream->read(skipBuf, 1);
-	stream->read((char*) &dxtType, 1);*/
 
 	bytesPerPixel /= 8;
 
@@ -250,7 +235,7 @@ void TXDTexture::convert(uint8_t* dest, const uint8_t* src, TXDMirrorFlags mirro
 		getColorMasks(redMask, greenMask, blueMask, alphaMask);
 		data = src;
 	} else {
-#		ifdef GF_USE_SQUISH
+#		ifdef GTAFORMATS_ENABLE_SQUISH
 			uint8_t* squishDest;
 
 			if (	bpp == 4
@@ -284,8 +269,8 @@ void TXDTexture::convert(uint8_t* dest, const uint8_t* src, TXDMirrorFlags mirro
 			alphaMask = 0xFF000000;
 			srcBpp = 4;
 #		else
-			throw TXDException("DXT-compressed textures are not supported because GF_USE_SQUISH is turned off!",
-					__FILE__, __LINE__);
+			throw TXDException("Attempt to call TXDTexture::convert() for a DXT-compressed texture, but DXT "
+					"is not supported because GTAFORMATS_ENABLE_SQUISH was turned off during compilation");
 #		endif
 	}
 

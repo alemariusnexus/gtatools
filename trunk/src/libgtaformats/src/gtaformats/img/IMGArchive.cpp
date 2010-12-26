@@ -278,9 +278,18 @@ void IMGArchive::readHeader(InputStream* stream)
 			IMGEntry* entry = new IMGEntry;
 			stream->read((char*) entry, sizeof(IMGEntry));
 
-			if (stream->getLastReadCount() == 0) {
-				delete entry;
-				break;
+			int lrc = stream->getLastReadCount();
+
+			if (lrc != sizeof(IMGEntry)) {
+				if (lrc == 0) {
+					delete entry;
+					break;
+				} else {
+					char errmsg[128];
+					sprintf(errmsg, "ERROR: Input isn't divided into %u-byte blocks. Is this really a "
+							"VER1 DIR file?", sizeof(IMGEntry));
+					throw IMGException(errmsg, __FILE__, __LINE__);
+				}
 			}
 
 			entryVector.push_back(entry);

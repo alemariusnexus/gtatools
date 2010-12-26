@@ -20,6 +20,7 @@
 #ifndef GXTEXCEPTION_H_
 #define GXTEXCEPTION_H_
 
+#include "../config.h"
 #include "../util/Exception.h"
 
 

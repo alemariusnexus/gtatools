@@ -8,6 +8,7 @@
 #ifndef COLLOADER_H_
 #define COLLOADER_H_
 
+#include "../config.h"
 #include "COLModel.h"
 #include "../util/stream/InputStream.h"
 #include "../util/File.h"

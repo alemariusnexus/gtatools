@@ -20,6 +20,7 @@
 #ifndef STATICOBJECTDEFINITION_H_
 #define STATICOBJECTDEFINITION_H_
 
+#include "config.h"
 #include "ObjectDefinition.h"
 #include <GL/glew.h>
 #include <gtaformats/gtadff.h>

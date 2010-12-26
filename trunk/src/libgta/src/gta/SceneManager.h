@@ -20,6 +20,7 @@
 #ifndef SCENEMANAGER_H_
 #define SCENEMANAGER_H_
 
+#include "config.h"
 #include <map>
 #include "ObjectDefinition.h"
 

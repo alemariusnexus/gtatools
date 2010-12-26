@@ -8,6 +8,7 @@
 #ifndef STATICMESHPOINTER_H_
 #define STATICMESHPOINTER_H_
 
+#include "config.h"
 #include "MeshPointer.h"
 #include "Mesh.h"
 

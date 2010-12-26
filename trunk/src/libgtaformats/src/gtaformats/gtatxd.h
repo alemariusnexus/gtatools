@@ -20,6 +20,8 @@
 #ifndef GTATXD_H_
 #define GTATXD_H_
 
+#include "config.h"
+
 #include "txd/TXDArchive.h"
 #include "txd/TXDException.h"
 #include "txd/TXDTexture.h"

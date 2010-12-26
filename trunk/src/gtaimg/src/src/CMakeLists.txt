@@ -16,5 +16,4 @@
 # along with gtaimg.  If not, see <http://www.gnu.org/licenses/>.
 
 
-SET(SRCS ${SRCS} src/cliarg src/ExtractVisitor src/ListVisitor src/main PARENT_SCOPE)
-
+SET(SRCS ${SRCS} src/main src/WildcardFilter PARENT_SCOPE)

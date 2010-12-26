@@ -8,8 +8,9 @@
 #ifndef MANAGEDMESHPOINTER_H_
 #define MANAGEDMESHPOINTER_H_
 
+#include "config.h"
 #include "MeshPointer.h"
-#include <gtaformats/gf_config.h>
+#include <gtaformats/config.h>
 #include "Engine.h"
 
 

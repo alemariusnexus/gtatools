@@ -8,6 +8,7 @@
 #ifndef SUBMESH_H_
 #define SUBMESH_H_
 
+#include "config.h"
 #include <GL/glew.h>
 #include "Submesh.h"
 #include "ResourceManager.h"

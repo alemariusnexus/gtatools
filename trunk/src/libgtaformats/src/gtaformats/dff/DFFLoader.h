@@ -20,7 +20,7 @@
 #ifndef DFFLOADER_H_
 #define DFFLOADER_H_
 
-#include "../gf_config.h"
+#include "../config.h"
 #include "../gta.h"
 #include "DFFMesh.h"
 #include "DFFException.h"

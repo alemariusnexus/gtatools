@@ -19,7 +19,7 @@
 
 #include "ExtractVisitor.h"
 #include "cliarg.h"
-#include <gtaformats/util/util.h>
+#include <gtaformats/util/strutil.h>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>

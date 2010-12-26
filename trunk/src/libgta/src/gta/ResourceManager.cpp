@@ -21,7 +21,7 @@
 #include <gtaformats/txd/TXDArchive.h>
 #include <gtaformats/txd/TXDTexture.h>
 #include <gtaformats/img/IMGArchive.h>
-#include <gtaformats/util/util.h>
+#include <gtaformats/util/strutil.h>
 #include <gtaformats/dff/DFFLoader.h>
 #include <gtaformats/ide/IDEReader.h>
 #include <gtaformats/ide/IDEStatement.h>
@@ -462,14 +462,34 @@ void ResourceManager::cacheTexture(TXDEntry* txdEntry, TextureEntry* texEntry)
 		TXDCompression compr = tex->getCompression();
 		int size = 0;
 
-		if (compr == DXT1) {
-			glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, w, h, 0, (w*h)/2, data);
-			delete[] data;
-			size = (w*h)/2;
-		} else if (compr == DXT3) {
-			glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_S3TC_DXT3_EXT, w, h, 0, w*h, data);
-			delete[] data;
-			size = w*h;
+		if (compr == DXT1  ||  compr == DXT3) {
+			if (glewIsSupported("GL_EXT_texture_compression_s3tc")) {
+				if (compr == DXT1) {
+					glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, w, h, 0, (w*h)/2, data);
+					delete[] data;
+					size = (w*h)/2;
+				} else {
+					glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_S3TC_DXT3_EXT, w, h, 0, w*h, data);
+					delete[] data;
+					size = w*h;
+				}
+			} else {
+#ifdef GTA_ENABLE_SQUISH
+				uint8_t* pixels = new uint8_t[w*h*4];
+				tex->convert(pixels, data, MIRROR_NONE, 4, 0, 1, 2, 3);
+				delete[] data;
+
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+				size = w*h*4;
+
+				delete[] pixels;
+
+#else
+				throw EngineException("Attempt to load DXT-compressed texture failed: Neither is "
+						"GL_EXT_texture_compression_s3tc supported, nor was libsquish enabled in the "
+						"compilation of libgta.");
+#endif
+			}
 		} else {
 			uint8_t* pixels = new uint8_t[w*h*4];
 			tex->convert(pixels, data, MIRROR_NONE, 4, 0, 1, 2, 3);

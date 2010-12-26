@@ -20,7 +20,7 @@
 #ifndef DFFGEOMETRYPART_H_
 #define DFFGEOMETRYPART_H_
 
-#include "../gf_config.h"
+#include "../config.h"
 #include "DFFMaterial.h"
 
 class DFFGeometry;

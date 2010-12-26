@@ -18,7 +18,7 @@
  */
 
 #include "Exception.h"
-#include "../gf_config.h"
+#include "../config.h"
 #include <cstring>
 #include <cstdio>
 

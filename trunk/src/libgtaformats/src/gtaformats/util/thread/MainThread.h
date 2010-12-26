@@ -20,6 +20,7 @@
 #ifndef MAINTHREAD_H_
 #define MAINTHREAD_H_
 
+#include "../../config.h"
 #include "Thread.h"
 
 

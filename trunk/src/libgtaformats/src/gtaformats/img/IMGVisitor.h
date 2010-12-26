@@ -20,7 +20,7 @@
 #ifndef IMGVISITOR_H_
 #define IMGVISITOR_H_
 
-#include "../gf_config.h"
+#include "../config.h"
 #include "IMGArchive.h"
 #include "../util/stream/InputStream.h"
 

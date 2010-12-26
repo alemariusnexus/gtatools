@@ -8,8 +8,8 @@
 #ifndef COLFACE_H_
 #define COLFACE_H_
 
+#include "../config.h"
 #include "COLSurface.h"
-#include "../gf_config.h"
 #include <cstring>
 
 

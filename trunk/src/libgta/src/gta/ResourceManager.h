@@ -20,6 +20,7 @@
 #ifndef RESOURCEMANAGER_H_
 #define RESOURCEMANAGER_H_
 
+#include "config.h"
 #include <gtaformats/util/File.h>
 #include <gtaformats/util/StringComparator.h>
 #include <gtaformats/txd/TXDTexture.h>

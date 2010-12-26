@@ -8,6 +8,7 @@
 #ifndef COLMESHCONVERTER_H_
 #define COLMESHCONVERTER_H_
 
+#include "config.h"
 #include <gtaformats/col/COLModel.h>
 #include "Mesh.h"
 

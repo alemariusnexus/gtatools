@@ -20,28 +20,9 @@
 #ifndef UTIL_H_
 #define UTIL_H_
 
-#include "../gf_config.h"
+#include "../config.h"
 
 
-/**	\brief Converts src to lower case.
- *
- * 	src is assumed to be ASCII.
- *
- * 	@param dest The buffer to write the lower case characters to.
- *	@param src The mixed case characters.
- */
-void strtolower(char* dest, const char* src);
-
-
-/**	\brief Trims chr from the right end of str.
- *
- * 	@param str The string to trim.
- * 	@param chr The cahracter to remove from the end of str.
- */
-void rtrim(char* str, char chr);
-
-
-bool WildcardMatch(const char* pattern, const char* text);
 
 uint64_t GetTickcount();
 

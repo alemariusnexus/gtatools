@@ -20,7 +20,7 @@
 #ifndef IDESTATICOBJECT_H_
 #define IDESTATICOBJECT_H_
 
-#include "../gf_config.h"
+#include "../config.h"
 #include "IDEEntity.h"
 
 #define IDE_TYPE_STATIC_OBJECT 0

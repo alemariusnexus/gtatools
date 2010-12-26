@@ -20,6 +20,7 @@
 #ifndef ERRORLOG_H_
 #define ERRORLOG_H_
 
+#include "../config.h"
 #include <queue>
 
 using std::queue;

@@ -20,6 +20,7 @@
 #ifndef DEFAULTFILEITERATOR_H_
 #define DEFAULTFILEITERATOR_H_
 
+#include "../config.h"
 #include <cstdlib>
 
 #ifdef linux

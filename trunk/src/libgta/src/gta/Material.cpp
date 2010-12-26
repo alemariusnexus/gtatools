@@ -6,7 +6,7 @@
  */
 
 #include "Material.h"
-#include <gtaformats/util/util.h>
+#include <gtaformats/util/strutil.h>
 #include <cstring>
 
 

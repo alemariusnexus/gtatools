@@ -20,7 +20,7 @@
 #ifndef GXTTABLE_H_
 #define GXTTABLE_H_
 
-#include "../gf_config.h"
+#include "../config.h"
 #include "../util/encoding.h"
 #include "../gta.h"
 #include <map>

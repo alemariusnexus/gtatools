@@ -20,6 +20,7 @@
 #ifndef RANGEDINPUTSTREAM_H_
 #define RANGEDINPUTSTREAM_H_
 
+#include "../../config.h"
 #include "FilterInputStream.h"
 
 

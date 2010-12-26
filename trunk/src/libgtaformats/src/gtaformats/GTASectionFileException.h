@@ -20,6 +20,7 @@
 #ifndef GTASECTIONFILEEXCEPTION_H_
 #define GTASECTIONFILEEXCEPTION_H_
 
+#include "config.h"
 #include "util/Exception.h"
 
 

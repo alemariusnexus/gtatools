@@ -20,6 +20,7 @@
 #ifndef SHADER_H_
 #define SHADER_H_
 
+#include "config.h"
 #include <GL/glew.h>
 #include <gtaformats/util/File.h>
 

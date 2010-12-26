@@ -20,7 +20,7 @@
 #ifndef MATRIX3_H_
 #define MATRIX3_H_
 
-#include "../../gf_config.h"
+#include "../../config.h"
 #include "Vector3.h"
 
 

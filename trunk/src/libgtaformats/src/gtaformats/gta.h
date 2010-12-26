@@ -20,7 +20,7 @@
 #ifndef _GTA_H
 #define	_GTA_H
 
-#include "gf_config.h"
+#include "config.h"
 #include "util/stream/InputStream.h"
 
 

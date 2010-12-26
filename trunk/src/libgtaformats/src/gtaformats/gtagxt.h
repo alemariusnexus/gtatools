@@ -20,6 +20,8 @@
 #ifndef GTAGXT_H_
 #define GTAGXT_H_
 
+#include "config.h"
+
 #include "gxt/GXTException.h"
 #include "gxt/GXTLoader.h"
 #include "gxt/GXTTable.h"

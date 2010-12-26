@@ -18,7 +18,7 @@
 
 SET(FILES
     StringComparator util File FileException FilePath Exception FileIterator encoding OutOfBoundsException
-    ErrorLog FileFinder DefaultFileFinder Color4)
+    ErrorLog FileFinder DefaultFileFinder Color4 CLIParser strutil)
 
 FOREACH(FILE ${FILES})
     SET(SRCS ${SRCS} "gtaformats/util/${FILE}")

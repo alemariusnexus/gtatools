@@ -20,6 +20,8 @@ SET(FILES
     Camera ResourceManager SceneManager Shader ShaderProgram ItemDefinition MeshPointer StaticMeshPointer
     GLException Engine Material Mesh Submesh TextureIndex ManagedMeshPointer TextureSource
     ManagedTextureSource COLMeshConverter MeshGenerator)
+    
+CONFIGURE_FILE(config.cmake.h "${CMAKE_CURRENT_SOURCE_DIR}/config.h")
 
 FOREACH(FILE ${FILES})
     SET(SRCS ${SRCS} "gta/${FILE}")

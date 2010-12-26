@@ -22,7 +22,7 @@ FOREACH(FILE ${FILES})
     SET(SRCS ${SRCS} "gtaformats/${FILE}")
 ENDFOREACH(FILE)
 
-CONFIGURE_FILE(gf_config.h.cmake "${CMAKE_CURRENT_SOURCE_DIR}/gf_config.h")
+CONFIGURE_FILE(config.cmake.h "${CMAKE_CURRENT_SOURCE_DIR}/config.h")
 
 ADD_SUBDIRECTORY(col)
 ADD_SUBDIRECTORY(dff)
@@ -36,4 +36,4 @@ ADD_SUBDIRECTORY(util)
 SET(SRCS ${SRCS} PARENT_SCOPE)
 
 
-#INSTALL(FILES gf_config.h DESTINATION include/gtaformats)
+#INSTALL(FILES config.h DESTINATION include/gtaformats)

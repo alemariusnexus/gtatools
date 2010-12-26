@@ -20,6 +20,7 @@
 #ifndef DEFAULTFILEFINDER_H_
 #define DEFAULTFILEFINDER_H_
 
+#include "../config.h"
 #include "FileFinder.h"
 
 

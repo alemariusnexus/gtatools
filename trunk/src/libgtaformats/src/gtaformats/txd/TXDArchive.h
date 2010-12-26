@@ -20,7 +20,7 @@
 #ifndef TXDARCHIVE_H_
 #define TXDARCHIVE_H_
 
-#include "../gf_config.h"
+#include "../config.h"
 #include "../gta.h"
 #include "TXDException.h"
 #include "TXDTexture.h"

@@ -20,6 +20,8 @@
 #ifndef OBJECTDEFINITION_H_
 #define OBJECTDEFINITION_H_
 
+#include "config.h"
+
 class ObjectDefinition {
 public:
 	virtual void draw() = 0;

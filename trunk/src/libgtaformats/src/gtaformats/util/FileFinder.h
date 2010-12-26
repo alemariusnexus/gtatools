@@ -20,6 +20,7 @@
 #ifndef FILEFINDER_H_
 #define FILEFINDER_H_
 
+#include "../config.h"
 #include "File.h"
 
 

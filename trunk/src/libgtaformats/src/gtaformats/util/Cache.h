@@ -8,6 +8,7 @@
 #ifndef CACHE_H_
 #define CACHE_H_
 
+#include "../config.h"
 #include <map>
 #include <utility>
 

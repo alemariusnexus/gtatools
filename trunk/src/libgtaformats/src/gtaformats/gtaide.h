@@ -20,6 +20,8 @@
 #ifndef GTAIDE_H_
 #define GTAIDE_H_
 
+#include "config.h"
+
 #include "ide/IDEStatement.h"
 #include "ide/IDEEntity.h"
 #include "ide/IDEReader.h"

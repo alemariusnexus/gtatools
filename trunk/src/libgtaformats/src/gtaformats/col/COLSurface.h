@@ -8,7 +8,7 @@
 #ifndef COLSURFACE_H_
 #define COLSURFACE_H_
 
-#include "../gf_config.h"
+#include "../config.h"
 
 
 class COLSurface {

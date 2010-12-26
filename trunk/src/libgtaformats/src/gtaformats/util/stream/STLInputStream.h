@@ -20,6 +20,7 @@
 #ifndef STLINPUTSTREAM_H_
 #define STLINPUTSTREAM_H_
 
+#include "../../config.h"
 #include "InputStream.h"
 #include <istream>
 

@@ -20,7 +20,7 @@
 #ifndef INPUTSTREAM_H_
 #define INPUTSTREAM_H_
 
-#include "../../gf_config.h"
+#include "../../config.h"
 
 
 

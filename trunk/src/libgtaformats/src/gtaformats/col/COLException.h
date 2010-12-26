@@ -8,6 +8,7 @@
 #ifndef COLEXCEPTION_H_
 #define COLEXCEPTION_H_
 
+#include "../config.h"
 #include "../util/Exception.h"
 
 

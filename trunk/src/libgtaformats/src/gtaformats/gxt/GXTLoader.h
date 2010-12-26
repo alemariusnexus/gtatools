@@ -20,6 +20,7 @@
 #ifndef GXTLOADER_H_
 #define GXTLOADER_H_
 
+#include "../config.h"
 #include "GXTTable.h"
 #include "../util/stream/InputStream.h"
 #include "../util/File.h"

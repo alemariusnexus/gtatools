@@ -20,6 +20,7 @@
 #ifndef BUFFEREDINPUTSTREAM_H_
 #define BUFFEREDINPUTSTREAM_H_
 
+#include "../../config.h"
 #include "FilterInputStream.h"
 
 

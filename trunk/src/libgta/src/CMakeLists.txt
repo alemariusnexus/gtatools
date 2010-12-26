@@ -47,6 +47,8 @@ SET(GLU_LIB_PATH "${GLU_DEFAULT_LIB}" CACHE PATH "Path to (or name of) the OpenG
 SET(GLEW_INCLUDE_PATH "" CACHE PATH "Directory containing the OpenGL Extension Wrangler (GLEW) header file(s)")
 SET(GLEW_LIB_PATH "${GLEW_DEFAULT_LIB}" CACHE PATH "Path to (or name of) the OpenGL Extension Wrangler (GLEW) library file")
 
+SET(GTA_ENABLE_SQUISH ON CACHE BOOL "If enabled, libsquish will be available to decompress DXT-textures.")
+
 IF(NOT SQUISH_LIB_PATH)
 	SET(SQUISH_LIB_PATH squish)
 ENDIF(NOT SQUISH_LIB_PATH)
