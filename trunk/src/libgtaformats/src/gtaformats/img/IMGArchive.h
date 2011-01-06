@@ -121,11 +121,8 @@ public:
 	 *	Note that the stream will not be automatically closed or deleted!
 	 *
 	 *	@param stream The stream to read from.
-	 *	@param randomAccess When true, you may jump inside the file randomly in any direction. This will
-	 *		be fine for most streams. However, for unbuffered streams where seeking is impossible, this
-	 *		is not possible and you can not jump to entries before the current position. Use false then.
 	 */
-	IMGArchive(InputStream* stream, bool randomAccess = true, bool deleteStream = false);
+	IMGArchive(InputStream* stream, bool deleteStream = false);
 
 	/**	\brief Creates an archive from two VER1 streams.
 	 *
@@ -135,10 +132,8 @@ public:
 	 *
 	 *	@param dirStream The stream from which to read the DIR data. Not needed after constructor.
 	 *	@param imgStream The stream from which to read the IMG data.
-	 *	@param randomAccess Whether to enable random access in imgStream. dirStream doesn't need this.
 	 */
-	IMGArchive(InputStream* dirStream, InputStream* imgStream, bool randomAccess = true,
-			bool deleteIMGStream = false);
+	IMGArchive(InputStream* dirStream, InputStream* imgStream, bool deleteIMGStream = false);
 
 	/**	\brief Creates an archive from a VER1 DIR and IMG file.
 	 *
@@ -182,19 +177,6 @@ public:
 	 */
 	InputStream* gotoEntry(const char* name, bool autoCloseStream = false);
 
-	/**	\brief Visits the IMGEntry with the given visitor.
-	 *
-	 *	@param visitor The visitor.
-	 *	@param entry The entry.
-	 */
-	void visit(IMGVisitor* visitor, IMGEntry* entry);
-
-	/**	\brief Visits all entries with the given visitor.
-	 *
-	 *	@param visitor The visitor.
-	 */
-	void visitAll(IMGVisitor* visitor);
-
 	/**	\brief Returns an entry by it's name.
 	 *
 	 * 	This is done case-sensitive.
@@ -208,7 +190,8 @@ public:
 	 *
 	 *	@return The entries.
 	 */
-	const IMGEntry* getEntries() const {
+	const IMGEntry* getEntries() const
+	{
 		return entries;
 	}
 
@@ -216,7 +199,8 @@ public:
 	 *
 	 *	@return The number of entries.
 	 */
-	int32_t getEntryCount() const {
+	int32_t getEntryCount() const
+	{
 		return numEntries;
 	}
 
@@ -246,7 +230,7 @@ public:
 	 *
 	 *	@param offset The new offset of the stream, relative to the current marker position.
 	 */
-	void reposition(int offset);
+	//void reposition(int offset);
 
 private:
 	/**	\brief Opens a new stream on the file.
@@ -272,8 +256,6 @@ private:
 	int32_t numEntries;
 	IMGVersion version;
 
-	long long bytesRead;
-	bool randomAccess;
 	bool deleteStream;
 };
 

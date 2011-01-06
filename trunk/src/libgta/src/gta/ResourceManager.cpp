@@ -105,7 +105,7 @@ void ResourceManager::addResource(const File& file)
 
 		FileContentType type = file.guessContentType();
 
-		if (type == CONTENT_TYPE_TXD  ||  type == CONTENT_TYPE_COL) {
+		if (type == CONTENT_TYPE_TXD/*  ||  type == CONTENT_TYPE_COL*/) {
 			stream = file.openStream(STREAM_BINARY);
 		} else if (type == CONTENT_TYPE_IDE) {
 			stream = file.openStream();
@@ -157,8 +157,8 @@ void ResourceManager::addResource(const File& file, InputStream* stream)
 		textureMutex.lock();
 		textures.insert(pair<hash_t, TXDEntry*>(txdHash, txdEntry));
 		textureMutex.unlock();
-	} else if (type == CONTENT_TYPE_COL) {
-		char name[20];
+	} else if (type == CONTENT_TYPE_DFF) {
+		/*char name[20];
 		char lname[20];
 
 		InputStream::streampos colStart = stream->tell();
@@ -173,9 +173,9 @@ void ResourceManager::addResource(const File& file, InputStream* stream)
 			meshMutex.lock();
 			meshes.insert(pair<hash_t, MeshEntry*>(Hash(lname), entry));
 			meshMutex.unlock();
-		}
+		}*/
 
-		/*char* lMeshName = new char[strlen(file.getPath()->getFileName())+1];
+		char* lMeshName = new char[strlen(file.getPath()->getFileName())+1];
 		strtolower(lMeshName, file.getPath()->getFileName());
 		*strchr(lMeshName, '.') = '\0';
 		MeshEntry* entry = new MeshEntry;
@@ -183,7 +183,7 @@ void ResourceManager::addResource(const File& file, InputStream* stream)
 		meshMutex.lock();
 		meshes.insert(pair<hash_t, MeshEntry*>(Hash(lMeshName), entry));
 		meshMutex.unlock();
-		delete[] lMeshName;*/
+		delete[] lMeshName;
 	} else if (type == CONTENT_TYPE_IDE) {
 		IDEReader ide(stream, false);
 		IDEStatement* stmt;
@@ -451,10 +451,64 @@ void ResourceManager::cacheTexture(TXDEntry* txdEntry, TextureEntry* texEntry)
 			break;
 		}
 
+		GLint magFilter, minFilter;
+
+		switch (tex->getFilterFlags()) {
+		case TXD_FILTER_LINEAR:
+			magFilter = GL_LINEAR;
+			minFilter = GL_LINEAR;
+			break;
+
+		case TXD_FILTER_NEAREST:
+			magFilter = GL_NEAREST;
+			minFilter = GL_NEAREST;
+			break;
+
+		case TXD_FILTER_MIP_NEAREST:
+			magFilter = GL_NEAREST;
+			minFilter = GL_NEAREST_MIPMAP_NEAREST;
+			break;
+
+		case TXD_FILTER_MIP_LINEAR:
+			magFilter = GL_NEAREST;
+			minFilter = GL_NEAREST_MIPMAP_LINEAR;
+			break;
+
+		case TXD_FILTER_LINEAR_MIP_NEAREST:
+			magFilter = GL_LINEAR;
+			minFilter = GL_LINEAR_MIPMAP_NEAREST;
+			break;
+
+		case TXD_FILTER_LINEAR_MIP_LINEAR:
+			magFilter = GL_LINEAR;
+			minFilter = GL_LINEAR_MIPMAP_LINEAR;
+			break;
+
+		case TXD_FILTER_NONE:
+			// Don't know what it is
+			magFilter = GL_LINEAR;
+			minFilter = GL_LINEAR;
+			break;
+
+		default:
+			// Unknown filter, use linear
+			magFilter = GL_LINEAR;
+			minFilter = GL_LINEAR;
+		}
+
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, uWrap);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, vWrap);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, tex->getMipmapCount()-1);
+
+		bool mipmapsIncluded = (tex->getRasterFormatExtension() & TXD_FORMAT_EXT_MIPMAP) != 0;
+		bool mipmapsAuto = (tex->getRasterFormatExtension() & TXD_FORMAT_EXT_AUTO_MIPMAP) != 0;
+		int numIncludedMipmaps = mipmapsIncluded ? tex->getMipmapCount() : 1;
+
+		if (mipmapsAuto  &&  !glewIsSupported("GL_VERSION_3_0")) {
+			glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+		}
 
 		int16_t w = tex->getWidth();
 		int16_t h = tex->getHeight();
@@ -462,46 +516,90 @@ void ResourceManager::cacheTexture(TXDEntry* txdEntry, TextureEntry* texEntry)
 		TXDCompression compr = tex->getCompression();
 		int size = 0;
 
-		if (compr == DXT1  ||  compr == DXT3) {
-			if (glewIsSupported("GL_EXT_texture_compression_s3tc")) {
-				if (compr == DXT1) {
-					glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, w, h, 0, (w*h)/2, data);
-					delete[] data;
-					size = (w*h)/2;
-				} else {
-					glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_S3TC_DXT3_EXT, w, h, 0, w*h, data);
-					delete[] data;
-					size = w*h;
-				}
-			} else {
-#ifdef GTA_ENABLE_SQUISH
-				uint8_t* pixels = new uint8_t[w*h*4];
-				tex->convert(pixels, data, MIRROR_NONE, 4, 0, 1, 2, 3);
-				delete[] data;
+		if ((compr == DXT1  ||  compr == DXT3)  &&  glewIsSupported("GL_EXT_texture_compression_s3tc")) {
+			if (compr == DXT1) {
+				//glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, w, h, 0, (w*h)/2, data);
+				//size += (w*h)/2;
 
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-				size = w*h*4;
+				uint8_t* dataStart = data;
+
+				int16_t mipW = w;
+				int16_t mipH = h;
+
+				for (int i = 0 ; i < numIncludedMipmaps ; i++) {
+					if (mipW < 4  ||  mipH < 4) {
+						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, i-1);
+						break;
+					}
+
+					glCompressedTexImage2D(GL_TEXTURE_2D, i, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT,
+							mipW, mipH, 0, (mipW*mipH)/2, data);
+					size += (mipW*mipH)/2;
+					data += (mipW*mipH)/2;
+					mipW /= 2;
+					mipH /= 2;
+				}
+
+				delete[] dataStart;
+			} else {
+				//glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_S3TC_DXT3_EXT, w, h, 0, w*h, data);
+
+				uint8_t* dataStart = data;
+
+				int16_t mipW = w;
+				int16_t mipH = h;
+
+				for (int i = 0 ; i < numIncludedMipmaps ; i++) {
+					if (mipW < 4  ||  mipH < 4) {
+						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, i-1);
+						break;
+					}
+
+					glCompressedTexImage2D(GL_TEXTURE_2D, i, GL_COMPRESSED_RGBA_S3TC_DXT3_EXT,
+							mipW, mipH, 0, mipW*mipH, data);
+					size += mipW*mipH;
+					data += mipW*mipH;
+					mipW /= 2;
+					mipH /= 2;
+				}
+
+				delete[] dataStart;
+			}
+		} else {
+			uint8_t* dataStart = data;
+
+			int16_t mipW = w;
+			int16_t mipH = h;
+
+			for (int i = 0 ; i < numIncludedMipmaps ; i++) {
+				if (mipW < 1  ||  mipH < 1) {
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, i-1);
+					break;
+				}
+
+				uint8_t* pixels = new uint8_t[mipW*mipH*4];
+				tex->convert(pixels, data, i, MIRROR_NONE, 4, 0, 1, 2, 3);
+
+				glTexImage2D(GL_TEXTURE_2D, i, GL_RGBA, mipW, mipH, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+				size += mipW*mipH*4;
+				data += mipW*mipH*4;
 
 				delete[] pixels;
 
-#else
-				throw EngineException("Attempt to load DXT-compressed texture failed: Neither is "
-						"GL_EXT_texture_compression_s3tc supported, nor was libsquish enabled in the "
-						"compilation of libgta.");
-#endif
+				mipW /= 2;
+				mipH /= 2;
 			}
-		} else {
-			uint8_t* pixels = new uint8_t[w*h*4];
-			tex->convert(pixels, data, MIRROR_NONE, 4, 0, 1, 2, 3);
-			delete[] data;
 
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-			size = w*h*4;
-
-			delete[] pixels;
+			delete[] dataStart;
 		}
 
 		delete tex;
+
+		if (	(tex->getRasterFormatExtension() & TXD_FORMAT_EXT_AUTO_MIPMAP) != 0
+				&&  glewIsSupported("GL_VERSION_3_0")
+		) {
+			glGenerateMipmap(GL_TEXTURE_2D);
+		}
 
 		TextureCacheEntry* entry = new TextureCacheEntry;
 		entry->texture = glTex;
@@ -630,7 +728,7 @@ bool ResourceManager::readMesh(hash_t name, Mesh*& mesh)
 
 	File* file = it->second->file;
 
-	/*DFFLoader dff;
+	DFFLoader dff;
 	DFFMesh* dffMesh = dff.loadMesh(*file);
 	if (dffMesh->getGeometryCount() <= 0) {
 		printf("Geometry count <= 0!\n");
@@ -640,16 +738,16 @@ bool ResourceManager::readMesh(hash_t name, Mesh*& mesh)
 
 	mesh = new Mesh(*geom);
 
-	delete dffMesh;*/
+	delete dffMesh;
 
-	COLLoader col;
+	/*COLLoader col;
 	InputStream* stream = file->openStream(STREAM_BINARY);
 	stream->seek(it->second->colStart, InputStream::STREAM_SEEK_BEGIN);
     COLModel* model = col.loadModel(stream);
     delete stream;
     COLMeshConverter conv;
     mesh = conv.convert(*model);
-    delete model;
+    delete model;*/
 
 	return true;
 }

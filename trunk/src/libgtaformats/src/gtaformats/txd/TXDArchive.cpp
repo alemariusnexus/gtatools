@@ -125,31 +125,25 @@ void TXDArchive::readTextureData(uint8_t* dest, TXDTexture* texture)
 
 	if ((texture->getRasterFormatExtension() & TXD_FORMAT_EXT_PAL4) != 0) {
 		stream->read((char*) dest, 16*4);
-		stream->read((char*) &rasterSize, 4);
-		stream->read((char*) dest + 16*4, rasterSize);
-		bytesRead += 16*4 + rasterSize + 4;
+		dest += 16*4;
+		bytesRead += 16*4;
 	} else if ((texture->getRasterFormatExtension() & TXD_FORMAT_EXT_PAL8) != 0) {
 		stream->read((char*) dest, 256*4);
-		stream->read((char*) &rasterSize, 4);
-		stream->read((char*) (dest + 256*4), rasterSize);
-		bytesRead += 256*4 + rasterSize + 4;
-	} else {
+		dest += 256*4;
+		bytesRead += 256*4;
+	}
+
+	for (int i = 0 ; i < texture->getMipmapCount() ; i++) {
 		stream->read((char*) &rasterSize, 4);
 		stream->read((char*) dest, rasterSize);
 		bytesRead += rasterSize+4;
+		dest += rasterSize;
 	}
 }
 
 uint8_t* TXDArchive::readTextureData(TXDTexture* texture)
 {
-	int size = texture->getWidth() * texture->getHeight() * texture->getBytesPerPixel();
-
-	if (texture->getRasterFormatExtension() & TXD_FORMAT_EXT_PAL4) {
-		size += 16*4;
-	} else if (texture->getRasterFormatExtension() & TXD_FORMAT_EXT_PAL8) {
-		size += 256*4;
-	}
-
+	int size = texture->computeDataSize();
 	uint8_t* raster = new uint8_t[size];
 	readTextureData(raster, texture);
 	return raster;

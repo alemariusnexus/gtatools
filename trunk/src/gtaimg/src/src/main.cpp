@@ -74,9 +74,11 @@ int main(int argc, char** argv)
 	int verboseOpt = cli.addOption('v', "verbose", "Make output verbose.");
 
 	// List options
+	int lsHeaderOpt = cli.addOption('H', "list-header", "Show header.");
 	int offsetOpt = cli.addOption('p', "offset", "Show entry offsets.");
 	int sizeOpt = cli.addOption('s', "size", "Show entry sizes.");
 	int bytesOpt = cli.addOption('b', "bytes", "Show offsets and sizes in bytes instead of IMG blocks.");
+	int commaOpt = cli.addOption('c', "comma-separation", "Separate fields by commas instead of spaces.");
 
 	// Extract options
 	int outOpt = cli.addOption('o', "out", "Output the following FILEs to %a.\n"
@@ -99,6 +101,8 @@ int main(int argc, char** argv)
 	bool showSize = false;
 	bool showOffset = false;
 	bool bytesUnit = false;
+	bool showHeader = false;
+	bool commaSep = false;
 
 	while ((opt = cli.parse(argc, argv, arg))  >=  0) {
 		if (opt == helpOpt) {
@@ -221,6 +225,10 @@ int main(int argc, char** argv)
 			showOffset = true;
 		} else if (opt == bytesOpt) {
 			bytesUnit = true;
+		} else if (opt == lsHeaderOpt) {
+			showHeader = true;
+		} else if (opt == commaOpt) {
+			commaSep = true;
 		} else if (opt == 0) {
 			ExtractPattern* pattern = new ExtractPattern;
 			pattern->filter = new WildcardFilter(arg);
@@ -266,13 +274,24 @@ int main(int argc, char** argv)
 		numPatterns = 1;
 	}
 
-	if (command == CommandList) {
-		printf("%-24s", "FILE NAME");
+	if (command == CommandList  &&  showHeader) {
+		if (commaSep)
+			printf("%s", "FILE NAME");
+		else
+			printf("%-24s", "FILE NAME");
 
-		if (showOffset)
-			printf(" %-10s", "OFFSET");
-		if (showSize)
-			printf(" %-10s", "SIZE");
+		if (showOffset) {
+			if (commaSep)
+				printf(",%s", "OFFSET");
+			else
+				printf(" %-10s", "OFFSET");
+		}
+		if (showSize) {
+			if (commaSep)
+				printf(",%s", "SIZE");
+			else
+				printf(" %-10s", "SIZE");
+		}
 
 		printf("\n\n");
 	}
@@ -288,7 +307,7 @@ int main(int argc, char** argv)
 				img = new IMGArchive(*file);
 			} else {
 				STLInputStream* in = new STLInputStream(&cin, false, false);
-				img = new IMGArchive(in, false, true);
+				img = new IMGArchive(in, true);
 			}
 		} catch (IMGException ex) {
 			fprintf(stderr, "ERROR opening IMG file %s: %s\n", file ? file->getPath()->toString() : "(stdin)",
@@ -379,15 +398,26 @@ int main(int argc, char** argv)
 						ExtractPattern* pattern = exPatternArr[j];
 
 						if (pattern->filter->process(entry)) {
-							printf("%-24s", entry.name);
+							if (commaSep)
+								printf("%s", entry.name);
+							else
+								printf("%-24s", entry.name);
 
 							int offset = bytesUnit ? entry.offset*IMG_BLOCK_SIZE : entry.offset;
 							int size = bytesUnit ? entry.size*IMG_BLOCK_SIZE : entry.size;
 
-							if (showOffset)
-								printf(" %-10d", offset);
-							if (showSize)
-								printf(" %-10d", size);
+							if (showOffset) {
+								if (commaSep)
+									printf(",%d", offset);
+								else
+									printf(" %-10d", offset);
+							}
+							if (showSize) {
+								if (commaSep)
+									printf(",%d", size);
+								else
+									printf(" %-10d", size);
+							}
 
 							printf("\n");
 						}
