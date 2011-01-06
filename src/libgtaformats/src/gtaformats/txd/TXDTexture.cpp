@@ -19,6 +19,7 @@
 
 #include "TXDTexture.h"
 #include "TXDException.h"
+#include "../util/OutOfBoundsException.h"
 #include <cstring>
 #include <cstdio>
 #include <cmath>
@@ -57,7 +58,7 @@ void TxdGetRasterFormatName(char* dest, int32_t rasterFormat) {
 }
 
 
-TXDTexture::TXDTexture(const char* diffuseName, const char* alphaName, int32_t rasterFormat,
+/*TXDTexture::TXDTexture(const char* diffuseName, const char* alphaName, int32_t rasterFormat,
 			TXDCompression compression, int16_t width, int16_t height, int8_t bpp, int8_t mipmapCount,
 			bool alphaChannel, int8_t uWrap, int8_t vWrap, int16_t filterFlags)
 		: rasterFormat(rasterFormat), compression(compression), width(width), height(height),
@@ -66,7 +67,7 @@ TXDTexture::TXDTexture(const char* diffuseName, const char* alphaName, int32_t r
 {
 	strncpy(this->diffuseName, diffuseName, 32);
 	strncpy(this->alphaName, alphaName, 32);
-}
+}*/
 
 
 TXDTexture::TXDTexture(InputStream* stream, long long& bytesRead)
@@ -209,19 +210,20 @@ void TXDTexture::getFormat(char* dest) const
 
 bool TXDTexture::canConvert() const
 {
-	if (	getRasterFormatExtension() & TXD_FORMAT_EXT_PAL4
-			||  getRasterFormatExtension() & TXD_FORMAT_EXT_PAL8
-	) {
-		return true;
-	}
-
 	return true;
 }
 
 
-void TXDTexture::convert(uint8_t* dest, const uint8_t* src, TXDMirrorFlags mirror,
+void TXDTexture::convert(uint8_t* dest, const uint8_t* src, int mipmap, TXDMirrorFlags mirror,
 		int8_t bpp, int redOffset, int greenOffset, int blueOffset, int alphaOffset) const
 {
+	if (mipmap >= mipmapCount) {
+		throw OutOfBoundsException(mipmap, __FILE__, __LINE__);
+	}
+
+	int w = width / pow(2, mipmap);
+	int h = height / pow(2, mipmap);
+
 	int8_t srcBpp = bytesPerPixel;
 
 	// Will point to the actual, uncompressed raster data, without the palette (if any)
@@ -247,13 +249,13 @@ void TXDTexture::convert(uint8_t* dest, const uint8_t* src, TXDMirrorFlags mirro
 			) {
 				squishDest = dest;
 			} else {
-				squishDest = new uint8_t[width * height * 4];
+				squishDest = new uint8_t[w*h*4];
 			}
 
 			if (getCompression() == DXT1) {
-				DecompressImage(squishDest, width, height, src, kDxt1);
+				DecompressImage(squishDest, w, h, src, kDxt1);
 			} else {
-				DecompressImage(squishDest, width, height, src, kDxt3);
+				DecompressImage(squishDest, w, h, src, kDxt3);
 			}
 
 			if (squishDest == dest) {
@@ -320,24 +322,24 @@ void TXDTexture::convert(uint8_t* dest, const uint8_t* src, TXDMirrorFlags mirro
 	}
 
 	// Now we will transform each pixel
-	for (int16_t y = 0 ; y < height ; y++) {
-		for (int16_t x = 0 ; x < width ; x++) {
+	for (int16_t y = 0 ; y < h ; y++) {
+		for (int16_t x = 0 ; x < w ; x++) {
 			// The index of the new pixel inside the dest array
-			int destIdx = (y*width + x) * bpp;
+			int destIdx = (y*w + x) * bpp;
 
 			// The index of the current pixel inside the data array
-			int srcIdx = (y*width + x);
+			int srcIdx = (y*w + x);
 
 			// To mirror each pixel, we choose another index in the data array.
 			if (mirror == MIRROR_BOTH) {
 				//srcIdx = (width*height) - srcIdx;
-				srcIdx = INDEX_MIRROR_BOTH(srcIdx, width, height);
+				srcIdx = INDEX_MIRROR_BOTH(srcIdx, w, h);
 			} else if (mirror == MIRROR_HORIZONTAL) {
 				//srcIdx = 2*width*(srcIdx/width) + width - srcIdx - 1;
-				srcIdx = INDEX_MIRROR_HORIZONTAL(srcIdx, width, height);
+				srcIdx = INDEX_MIRROR_HORIZONTAL(srcIdx, w, h);
 			} else if (mirror == MIRROR_VERTICAL) {
 				//srcIdx = width*height - 2*width*(srcIdx/width) - width + srcIdx;
-				srcIdx = INDEX_MIRROR_VERTICAL(srcIdx, width, height);
+				srcIdx = INDEX_MIRROR_VERTICAL(srcIdx, w, h);
 			}
 
 			// So far, srcIdx is the pixel index inside 'data', but each pixel consists of more than
@@ -390,10 +392,45 @@ void TXDTexture::convert(uint8_t* dest, const uint8_t* src, TXDMirrorFlags mirro
 }
 
 
-TXDTexture* TXDTexture::generateMipmap() const
+int TXDTexture::computeDataSize() const
 {
-	return new TXDTexture(diffuseName, alphaName, rasterFormat, compression, width/2, height/2,
-			bytesPerPixel, (int8_t) (mipmapCount-1), alphaChannel, uWrap, vWrap, filterFlags);
+	int baseSize = width * height;
+
+	if (compression == DXT1) {
+		baseSize /= 2;
+	} else if (compression == NONE) {
+		baseSize *= bytesPerPixel;
+	}
+
+	int size = 0;
+
+	for (uint8_t i = 0 ; i < mipmapCount ; i++) {
+		size += baseSize;
+		baseSize /= 4;
+	}
+
+	if ((rasterFormat & TXD_FORMAT_EXT_PAL4)  !=  0) {
+		size += 16*4;
+	}
+	if ((rasterFormat & TXD_FORMAT_EXT_PAL8)  !=  0) {
+		size += 256*4;
+	}
+
+	return size;
+}
+
+
+int TXDTexture::computeMipmapDataSize(int mipmap) const
+{
+	int baseSize = width * height;
+
+	if (compression == DXT1) {
+		baseSize /= 2;
+	} else if (compression == NONE) {
+		baseSize *= bytesPerPixel;
+	}
+
+	return baseSize / pow(4, mipmap);
 }
 
 

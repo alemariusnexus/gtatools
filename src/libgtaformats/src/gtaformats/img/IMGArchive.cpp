@@ -33,15 +33,15 @@ using std::vector;
 
 
 
-IMGArchive::IMGArchive(InputStream* stream, bool randomAccess, bool deleteStream)
-		: stream(stream), randomAccess(randomAccess), deleteStream(deleteStream)
+IMGArchive::IMGArchive(InputStream* stream, bool deleteStream)
+		: stream(stream), deleteStream(deleteStream)
 {
 	readHeader(stream);
 }
 
 
 IMGArchive::IMGArchive(const File& file, bool deleteStream)
-		: stream(NULL), randomAccess(true), deleteStream(deleteStream)
+		: stream(NULL), deleteStream(deleteStream)
 {
 	const FilePath* path = file.getPath();
 	FileContentType type = file.guessContentType();
@@ -118,9 +118,8 @@ IMGArchive::IMGArchive(const File& file, bool deleteStream)
 }
 
 
-IMGArchive::IMGArchive(InputStream* dirStream, InputStream* imgStream, bool randomAccess,
-		bool deleteIMGStream)
-		: stream(imgStream), randomAccess(randomAccess), deleteStream(deleteIMGStream)
+IMGArchive::IMGArchive(InputStream* dirStream, InputStream* imgStream, bool deleteIMGStream)
+		: stream(imgStream), deleteStream(deleteIMGStream)
 {
 	BufferedInputStream bDirStream(dirStream, IMG_BUFFER_SIZE, false);
 	readHeader(&bDirStream);
@@ -128,7 +127,7 @@ IMGArchive::IMGArchive(InputStream* dirStream, InputStream* imgStream, bool rand
 
 
 IMGArchive::IMGArchive(const File& dirFile, const File& imgFile, bool deleteStream)
-		: stream(NULL), randomAccess(true), deleteStream(deleteStream)
+		: stream(NULL), deleteStream(deleteStream)
 {
 	stream = openStream(imgFile);
 	stream = new BufferedInputStream(stream, IMG_BUFFER_SIZE);
@@ -142,10 +141,6 @@ IMGArchive::IMGArchive(const File& dirFile, const File& imgFile, bool deleteStre
 
 IMGArchive::~IMGArchive()
 {
-	/*for (int32_t i = 0 ; i < numEntries ; i++) {
-		delete entries[i];
-	}*/
-
 	delete[] entries;
 
 	if (deleteStream)
@@ -188,6 +183,7 @@ InputStream* IMGArchive::gotoEntry(const IMGEntry* entry, bool autoCloseStream) 
 	return rstream;
 }
 
+
 InputStream* IMGArchive::gotoEntry(const char* name, bool autoCloseStream) {
 	const IMGEntry* entry = getEntryByName(name);
 
@@ -198,20 +194,6 @@ InputStream* IMGArchive::gotoEntry(const char* name, bool autoCloseStream) {
 	return gotoEntry(entry, autoCloseStream);
 }
 
-void IMGArchive::visit(IMGVisitor* visitor, IMGEntry* entry) {
-	void* udata = NULL;
-
-	if (visitor->readHeader(entry, udata)) {
-		InputStream* rstream = gotoEntry(entry);
-		visitor->readEntry(entry, rstream, udata);
-	}
-}
-
-void IMGArchive::visitAll(IMGVisitor* visitor) {
-	for (int i = 0 ; i < numEntries ; i++) {
-		visit(visitor, &entries[i]);
-	}
-}
 
 const IMGEntry* IMGArchive::getEntryByName(const char* name) const {
 	for (int32_t i = 0 ; i < numEntries ; i++) {
@@ -251,17 +233,10 @@ void IMGArchive::readHeader(InputStream* stream)
 		version = VER2;
 		stream->read((char*) &numEntries, 4);
 
-		/*entries = new IMGEntry*[numEntries];
-
-		for (int32_t i = 0 ; i < numEntries ; i++) {
-			entries[i] = new IMGEntry;
-			stream->read((char*) entries[i], sizeof(IMGEntry));
-		}*/
-
 		entries = new IMGEntry[numEntries];
 		stream->read((char*) entries, numEntries*sizeof(IMGEntry));
 
-		bytesRead = 8 + numEntries*sizeof(IMGEntry);
+		//bytesRead = 8 + numEntries*sizeof(IMGEntry);
 	} else {
 		version = VER1;
 
@@ -305,7 +280,7 @@ void IMGArchive::readHeader(InputStream* stream)
 			delete *it;
 		}
 
-		bytesRead = 0;
+		//bytesRead = 0;
 	}
 
 	// This is very slow, so we'll skip it
@@ -336,7 +311,7 @@ InputStream* IMGArchive::openStream(const File& file)
 }
 
 
-void IMGArchive::reposition(int offset)
+/*void IMGArchive::reposition(int offset)
 {
 	bytesRead += offset;
-}
+}*/

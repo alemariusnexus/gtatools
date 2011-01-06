@@ -231,37 +231,13 @@ public:
 	 *	@param blueOffset The offset in the output buffer to store the blue component.
 	 *	@param alphaOffset The offset in the output buffer to store the alpha component.
 	 */
-	void convert(uint8_t* dest, const uint8_t* src, TXDMirrorFlags mirror = MIRROR_HORIZONTAL,
+	void convert(uint8_t* dest, const uint8_t* src, int mipmap = 0, TXDMirrorFlags mirror = MIRROR_HORIZONTAL,
 			int8_t bpp = 4, int redOffset = 0, int greenOffset = 1, int blueOffset = 2,
 			int alphaOffset = 3) const;
 
-	/**	\brief Generates a new TXDTexture object which is suitable to read the next bitmap of this texture.
-	 *
-	 *	@return A TXDTexture representing the data of the next bitmap of this texture.
-	 */
-	TXDTexture* generateMipmap() const;
+	int computeDataSize() const;
 
-private:
-	/**	\brief Creates a TXDTexture from already available information.
-	 *
-	 * 	This is used internally only (by generateMipmap()).
-	 *
-	 *	@param diffuseName The diffuse name.
-	 *	@param alphaName The alpha name.
-	 *	@param rasterFormat The raster format.
-	 *	@param compression The compression type.
-	 *	@param width The width.
-	 *	@param height The height.
-	 *	@param bpp The number of bytes per pixel.
-	 *	@param mipmapCount The number of mipmaps.
-	 *	@param alphaChannel Whether the alpha channel is used.
-	 *	@param uWrap The texture U-wrapping flags.
-	 *	@param vWrap The texture V-wrapping flags.
-	 *	@param filterFlags The filter flags.
-	 */
-	TXDTexture(const char* diffuseName, const char* alphaName, int32_t rasterFormat,
-			TXDCompression compression, int16_t width, int16_t height, int8_t bpp, int8_t mipmapCount,
-			bool alphaChannel, int8_t uWrap, int8_t vWrap, int16_t filterFlags);
+	int computeMipmapDataSize(int mipmap) const;
 
 private:
 	char diffuseName[32];

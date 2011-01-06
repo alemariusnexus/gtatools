@@ -178,7 +178,7 @@ void RwGetSectionName(uint32_t id, char* dest) {
 		strcpy(dest, "RW_SECTION_COLLISION_MODEL");
 		break;
 	default:
-		sprintf(dest, "{unknown: %d}", id);
+		sprintf(dest, "{unknown: 0x%X}", id);
 		break;
 	}
 }
@@ -201,7 +201,7 @@ void RwGetVersionName(uint32_t version, char* dest) {
 		sprintf(dest, "%s (RW_VERSION_GTASA)", RW_VERSION_NR_GTASA);
 		break;
 	default:
-		sprintf(dest, "{unknown: %d}", version);
+		sprintf(dest, "{unknown: 0x%X}", version);
 		break;
 	}
 }

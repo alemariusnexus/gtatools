@@ -53,7 +53,7 @@ void STLInputStream::seek(streampos pos, SeekPosition startPos)
 {
 	if (pos > std::numeric_limits<std::streamoff>::max()) {
 		char* errmsg = new char[256];
-		sprintf(errmsg, "Stream position too high! Maximum value allowed by the STL streams on this"
+		sprintf(errmsg, "Stream position too high! Maximum value allowed by the STL streams on this "
 				"platform is %ld", std::numeric_limits<std::streamoff>::max());
 		IOException ex(errmsg);
 		delete[] errmsg;
@@ -86,7 +86,8 @@ void STLInputStream::seek(streampos pos, SeekPosition startPos)
 
 			read(skipBuf, pos % sizeof(skipBuf));
 		} else {
-			throw IOException("Seeking in non-random access streams is only allowed from CURRENT position!", __FILE__, __LINE__);
+			throw IOException("Seeking in non-random access streams is only allowed from CURRENT position!",
+					__FILE__, __LINE__);
 		}
 	}
 }
