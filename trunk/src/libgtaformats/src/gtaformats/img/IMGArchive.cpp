@@ -258,7 +258,7 @@ void IMGArchive::readHeader(istream* stream)
 					break;
 				} else {
 					char errmsg[128];
-					sprintf(errmsg, "ERROR: Input isn't divided into %u-byte blocks. Is this really a "
+					sprintf(errmsg, "ERROR: Input isn't divided into %lu-byte blocks. Is this really a "
 							"VER1 DIR file?", sizeof(IMGEntry));
 					throw IMGException(errmsg, __FILE__, __LINE__);
 				}

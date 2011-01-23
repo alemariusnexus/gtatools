@@ -27,13 +27,13 @@ using std::streamoff;
 
 
 GTASectionFileReader::GTASectionFileReader(istream* stream, bool deleteStream)
-		: stream(stream), deleteStream(deleteStream), errorBehavior(Continue), lastReadLine(0), paramNo(0)
+		: stream(stream), errorBehavior(Continue), deleteStream(deleteStream), lastReadLine(0), paramNo(0)
 {
 }
 
 
 GTASectionFileReader::GTASectionFileReader(const File& file)
-		: stream(file.openInputStream()), deleteStream(true), errorBehavior(Continue), lastReadLine(0),
+		: stream(file.openInputStream()), errorBehavior(Continue), deleteStream(true), lastReadLine(0),
 		  paramNo(0)
 {
 	/*char* msg = new char[10];

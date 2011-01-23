@@ -27,7 +27,7 @@
 
 Mesh::Mesh(int vertexCount, int flags, const float* vertices, const float* normals, const float* texCoords,
 		const uint8_t* vertexColors)
-		: vertexCount(vertexCount), flags(flags)
+		: flags(flags), vertexCount(vertexCount)
 {
 	init(flags, vertices, normals, texCoords, vertexColors);
 }

@@ -43,7 +43,7 @@ private:
 	};
 
 public:
-	Cache(int capacity = 0) : capacity(capacity), occupied(0), first(NULL), last(NULL) {}
+	Cache(int capacity = 0) : first(NULL), last(NULL), capacity(capacity), occupied(0) {}
 	~Cache() { clear(); }
 	bool insert(const K& key, V* value, int size);
 	void remove(const K& key);

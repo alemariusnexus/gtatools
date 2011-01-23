@@ -28,7 +28,7 @@
 DFFGeometry::DFFGeometry(int32_t numVertices, float* vertices, float* normals, float* uvCoords,
 			int8_t uvSetCount, uint8_t* vertexColors)
 		: flags(0), uvSetCount(0), vertexCount(numVertices), frameCount(0), ambientLight(0.0f),
-		  diffuseLight(0.0f), specularLight(0.0f), associatedFrame(NULL), bounds(NULL), mesh(NULL)
+		  diffuseLight(0.0f), specularLight(0.0f), bounds(NULL), associatedFrame(NULL), mesh(NULL)
 {
 	setVertices(numVertices, vertices, normals, uvCoords, uvSetCount, vertexColors);
 }
@@ -41,10 +41,10 @@ DFFGeometry::DFFGeometry(const DFFGeometry& other)
 		  specularLight(other.specularLight),
 		  vertexColors(other.vertexColors == NULL ? NULL : new uint8_t[vertexCount*4]),
 		  uvCoordSets(other.uvCoordSets == NULL ? NULL : new float[vertexCount*uvSetCount*2]),
+		  bounds(new DFFBoundingSphere),
 		  vertices(new float[vertexCount*3]),
 		  normals(other.normals == NULL ? NULL : new float[vertexCount*3]),
-		  associatedFrame(other.associatedFrame),
-		  bounds(new DFFBoundingSphere), mesh(NULL)
+		  associatedFrame(other.associatedFrame), mesh(NULL)
 {
 	if (vertexColors) {
 		memcpy(vertexColors, other.vertexColors, vertexCount*4);
@@ -281,7 +281,7 @@ const float* DFFGeometry::getUVCoordSet(uint8_t idx) const
 }
 
 
-DFFMaterial* DFFGeometry::getMaterial(int index)
+DFFMaterial* DFFGeometry::getMaterial(unsigned int index)
 {
 	if (index < 0  ||  index >= materials.size()) {
 		throw OutOfBoundsException(index, __FILE__, __LINE__);
@@ -291,7 +291,7 @@ DFFMaterial* DFFGeometry::getMaterial(int index)
 }
 
 
-const DFFMaterial* DFFGeometry::getMaterial(int index) const
+const DFFMaterial* DFFGeometry::getMaterial(unsigned int index) const
 {
 	if (index < 0  ||  index >= materials.size()) {
 		throw OutOfBoundsException(index, __FILE__, __LINE__);
@@ -301,7 +301,7 @@ const DFFMaterial* DFFGeometry::getMaterial(int index) const
 }
 
 
-DFFGeometryPart* DFFGeometry::getPart(int index)
+DFFGeometryPart* DFFGeometry::getPart(unsigned int index)
 {
 	if (index < 0  ||  index >= parts.size()) {
 		throw OutOfBoundsException(index, __FILE__, __LINE__);
@@ -311,7 +311,7 @@ DFFGeometryPart* DFFGeometry::getPart(int index)
 }
 
 
-const DFFGeometryPart* DFFGeometry::getPart(int index) const
+const DFFGeometryPart* DFFGeometry::getPart(unsigned int index) const
 {
 	if (index < 0  ||  index >= parts.size()) {
 		throw OutOfBoundsException(index, __FILE__, __LINE__);

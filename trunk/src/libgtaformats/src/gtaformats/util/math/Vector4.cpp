@@ -74,7 +74,11 @@ Vector4& Vector4::operator-=(const Vector4& rhv)
 Vector4& Vector4::operator*=(float rhv)
 {
 #ifdef __GNUC__
-	Vec4SF rhvv = {rhv, rhv, rhv, rhv};
+	Vec4SF rhvv;
+	rhvv.f[0] = rhv;
+	rhvv.f[1] = rhv;
+	rhvv.f[2] = rhv;
+	rhvv.f[3] = rhv;
 	data.v *= rhvv.v;
 #else
 	data.f[0] *= rhv;

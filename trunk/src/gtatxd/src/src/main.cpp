@@ -538,7 +538,6 @@ void extractTexture(const ExtractOptions& opts, TXDArchive* txd, TXDTexture* tex
 {
 	uint8_t* data = txd->readTextureData(tex);
 	uint8_t* dataStart = data;
-	int dataSize = tex->computeDataSize();
 	const File* dest = opts.getDestination();
 
 	if (opts.isPackMipmaps()) {
@@ -780,7 +779,6 @@ void extractMipmapPNG(ostream* out, TXDTexture* tex, int16_t w, int16_t h, uint8
 uint8_t* buildPackedMipmap(const ExtractOptions& opts, TXDTexture* tex, uint8_t* data,
 		int& packedW, int& packedH)
 {
-	uint8_t* dataStart = data;
 	const vector<MipmapRange>& ranges = opts.getMipmapRanges();
 	int16_t baseW = tex->getWidth();
 	int16_t baseH = tex->getHeight();

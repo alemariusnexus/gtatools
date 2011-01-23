@@ -740,7 +740,7 @@ bool ResourceManager::readMesh(hash_t name, Mesh*& mesh)
 		printf("Geometry count <= 0!\n");
 		exit(1337);
 	}
-	DFFGeometry* geom = dffMesh->getGeometry(0);
+	DFFGeometry* geom = dffMesh->getGeometry((uint32_t) 0);
 
 	mesh = new Mesh(*geom);
 

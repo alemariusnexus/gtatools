@@ -149,7 +149,7 @@ uint8_t* TXDArchive::readTextureData(TXDTexture* texture)
 {
 	int size = texture->computeDataSize();
 	uint8_t* raster = new uint8_t[size];
-	int rsize = readTextureData(raster, texture);
+	readTextureData(raster, texture);
 	return raster;
 }
 

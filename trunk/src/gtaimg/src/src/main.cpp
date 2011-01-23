@@ -60,7 +60,6 @@ const int TEXT_WRAP_LENGTH = 60;
 
 int main(int argc, char** argv)
 {
-	char* progName = argv[0];
 	argv++;
 	argc--;
 

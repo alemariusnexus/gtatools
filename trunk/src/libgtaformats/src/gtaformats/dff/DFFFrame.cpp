@@ -25,8 +25,8 @@
 
 
 DFFFrame::DFFFrame(const DFFFrame& other)
-		: rotation(new Matrix3(*other.rotation)), translation(new Vector3(*other.translation)),
-		  flags(other.flags), name(new char[strlen(other.name)+1])
+		: name(new char[strlen(other.name)+1]), translation(new Vector3(*other.translation)),
+		  rotation(new Matrix3(*other.rotation)), flags(other.flags)
 {
 	strcpy(name, other.name);
 }
@@ -71,6 +71,8 @@ DFFFrame* DFFFrame::getChild(const char* name)
 			return *it;
 		}
 	}
+
+	return NULL;
 }
 
 
@@ -83,6 +85,8 @@ const DFFFrame* DFFFrame::getChild(const char* name) const
 			return *it;
 		}
 	}
+
+	return NULL;
 }
 
 
@@ -126,7 +130,7 @@ int32_t DFFFrame::indexOf(const DFFFrame* child) const
 }
 
 
-DFFFrame* DFFFrame::getChild(int32_t index)
+DFFFrame* DFFFrame::getChild(uint32_t index)
 {
 	if (index < 0  ||  index >= children.size()) {
 		throw OutOfBoundsException(index, __FILE__, __LINE__);
@@ -136,7 +140,7 @@ DFFFrame* DFFFrame::getChild(int32_t index)
 }
 
 
-const DFFFrame* DFFFrame::getChild(int32_t index) const
+const DFFFrame* DFFFrame::getChild(uint32_t index) const
 {
 	if (index < 0  ||  index >= children.size()) {
 		throw OutOfBoundsException(index, __FILE__, __LINE__);

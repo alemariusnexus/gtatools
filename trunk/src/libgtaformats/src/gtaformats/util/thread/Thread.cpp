@@ -48,6 +48,7 @@ void* __posixThreadStarter(void* param)
 	thread->run();
 	thread->terminated();
 	delete tc;
+	return NULL;
 }
 #else
 DWORD WINAPI __winThreadStarter(LPVOID param)
@@ -63,7 +64,7 @@ DWORD WINAPI __winThreadStarter(LPVOID param)
 
 
 Thread::Thread(bool deleteOnTermination)
-		: parentThread(currentThread()), running(false), deleteOnTermination(deleteOnTermination),
+		: deleteOnTermination(deleteOnTermination), running(false), parentThread(currentThread()),
 		  terminationHandler(NULL)
 #ifdef linux
 #else
@@ -76,7 +77,7 @@ Thread::Thread(bool deleteOnTermination)
 
 #ifdef linux
 Thread::Thread(pthread_t posixThread)
-		: posixThread(posixThread), parentThread(NULL), deleteOnTermination(false), terminationHandler(NULL)
+		: deleteOnTermination(false), parentThread(NULL), terminationHandler(NULL), posixThread(posixThread)
 {
 }
 #else

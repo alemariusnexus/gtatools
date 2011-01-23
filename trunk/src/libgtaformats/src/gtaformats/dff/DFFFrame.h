@@ -152,14 +152,14 @@ public:
 	 * 	@param index The child frame index.
 	 * 	@return The child frame.
 	 */
-	DFFFrame* getChild(int32_t index);
+	DFFFrame* getChild(uint32_t index);
 
 	/**	\brief Returns a child frame by it's index.
 	 *
 	 * 	@param index The child frame index.
 	 * 	@return The child frame.
 	 */
-	const DFFFrame* getChild(int32_t index) const;
+	const DFFFrame* getChild(uint32_t index) const;
 
 	/**	\brief Returns a child frame by it's name.
 	 *
@@ -301,12 +301,12 @@ private:
 	void reparent(DFFFrame* frame);
 
 private:
-	Matrix3* rotation;
+	char* name;
 	Vector3* translation;
+	Matrix3* rotation;
 	DFFFrame* parent;
 	vector<DFFFrame*> children;
 	int32_t flags;
-	char* name;
 };
 
 #endif /* DFFFRAME_H_ */

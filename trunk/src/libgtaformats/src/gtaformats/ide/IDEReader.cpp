@@ -77,9 +77,9 @@ IDEStatement* IDEReader::readStatement()
 			continue;
 		}
 
-		int numParams = 1;
+		unsigned int numParams = 1;
 
-		for (int i = 0 ; i < strlen(line) ; i++) {
+		for (unsigned int i = 0 ; i < strlen(line) ; i++) {
 			if (line[i] == ',') {
 				numParams++;
 			}

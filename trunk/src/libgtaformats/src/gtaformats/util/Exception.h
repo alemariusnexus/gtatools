@@ -53,12 +53,12 @@ private:
 	char* backTrace;
 #endif
 
-	Exception* nestedException;
 	const char* exceptionName;
 	char* message;
 	char* fullMessage;
 	const char* srcFile;
 	int srcLine;
+	Exception* nestedException;
 };
 
 #endif /* EXCEPTION_H_ */
