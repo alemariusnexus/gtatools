@@ -462,11 +462,16 @@ File::filesize File::getSize() const
 
 	return fileInfo.st_size;
 #else
-	InputStream* stream = openStream(STREAM_BINARY);
+    istream* stream = openInputStream(ifstream::binary | ifstream::in);
+    stream->seekg(0, istream::end);
+    filesize size = stream->tellg();
+    delete stream;
+    return size;
+	/*InputStream* stream = openStream(STREAM_BINARY);
 	stream->seek(0, InputStream::STREAM_SEEK_END);
 	InputStream::streampos size = stream->tell();
 	delete stream;
-	return size;
+	return size;*/
 #endif
 }
 

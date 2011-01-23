@@ -426,9 +426,9 @@ int TXDTexture::computeDataSize() const
 
 int TXDTexture::computeMipmapDataSize(int mipmap) const
 {
-	float scale = ceil(pow(2, mipmap));
-	int mipW = width / scale;
-	int mipH = height / scale;
+	float scale = ceil(pow((float) 2, (float) mipmap));
+	int mipW = (int) (width / scale);
+	int mipH = (int) (height / scale);
 
 	if (compression != NONE) {
 		if (mipW < 4)

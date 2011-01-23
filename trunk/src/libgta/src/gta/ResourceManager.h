@@ -119,10 +119,10 @@ public:
 	int getMeshCacheOccupiedSize() const { return meshCache.getOccupiedSize(); }
 	void resizeTextureCache(int capacity) { textureCache.resize(capacity); }
 	void resizeMeshCache(int capacity) { meshCache.resize(capacity); }
-	int getMeshCacheHits() const { return meshCacheHits; }
-	int getMeshCacheMisses() const { return meshCacheMisses; }
-	int getTextureCacheHits() const { return texCacheHits; }
-	int getTextureCacheMisses() const { return texCacheMisses; }
+	unsigned long long getMeshCacheHits() const { return meshCacheHits; }
+	unsigned long long getMeshCacheMisses() const { return meshCacheMisses; }
+	unsigned long long getTextureCacheHits() const { return texCacheHits; }
+	unsigned long long getTextureCacheMisses() const { return texCacheMisses; }
 	void resetCacheStatistics() { meshCacheHits = 0; meshCacheMisses = 0; texCacheHits = 0; texCacheMisses = 0; }
 	/*bool getCollisionModel(hash_t colHash, COLModel*& model);
 	bool getCollisionModel(const char* name, COLModel*& model)
@@ -149,9 +149,9 @@ private:
 	ItemDefinitionMap items;
 	//COLMap cols;
 
-	long long meshCacheHits, meshCacheMisses;
-	long long texCacheHits, texCacheMisses;
-
+	unsigned long long meshCacheHits, meshCacheMisses;
+	unsigned long long texCacheHits, texCacheMisses;
+    
 	Mutex textureMutex;
 	Mutex textureCacheMutex;
 	Mutex meshMutex;

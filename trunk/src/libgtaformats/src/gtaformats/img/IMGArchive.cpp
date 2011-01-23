@@ -27,6 +27,7 @@
 
 using std::string;
 using std::vector;
+using std::streamoff;
 
 #define IMG_BUFFER_SIZE 4096
 
@@ -208,7 +209,7 @@ void IMGArchive::readHeader(istream* stream)
 	int32_t firstBytes;
 
 	stream->read((char*) &firstBytes, 4);
-	int gcount = stream->gcount();
+	streamoff gcount = stream->gcount();
 
 	if (stream->eof()) {
 		if (gcount == 0) {
@@ -250,7 +251,7 @@ void IMGArchive::readHeader(istream* stream)
 			IMGEntry* entry = new IMGEntry;
 			stream->read((char*) entry, sizeof(IMGEntry));
 
-			int lrc = stream->gcount();
+			streamoff lrc = stream->gcount();
 
 			if (lrc != sizeof(IMGEntry)) {
 				if (lrc == 0) {

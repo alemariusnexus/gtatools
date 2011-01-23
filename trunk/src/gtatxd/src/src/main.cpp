@@ -795,7 +795,8 @@ uint8_t* buildPackedMipmap(const ExtractOptions& opts, TXDTexture* tex, uint8_t*
 			const MipmapRange& range = *it;
 
 			if (range.contains(i)) {
-				normalizedRastersSize += (baseW / (int) pow(2, i)) * (baseH / (int) pow(2, i)) * 4;
+                // TODO: Correct this
+				normalizedRastersSize += (baseW / (int) pow((float) 2, (float) i)) * (baseH / (int) pow((float) 2, (float)i)) * 4;
 				break;
 			}
 		}
@@ -814,7 +815,8 @@ uint8_t* buildPackedMipmap(const ExtractOptions& opts, TXDTexture* tex, uint8_t*
 			if (range.contains(i)) {
 				tex->convert(normalizedRaster, data, i, MIRROR_NONE, 4, 0, 1, 2, 3);
 				data += tex->computeMipmapDataSize(i);
-				normalizedRaster += (baseW / (int) pow(2, i)) * (baseH / (int) pow(2, i)) * 4;
+                // TODO: Correct this
+				normalizedRaster += (baseW / (int) pow((float) 2, (float) i)) * (baseH / (int) pow((float) 2, (float) i)) * 4;
 				break;
 			}
 		}
@@ -844,12 +846,13 @@ uint8_t* buildPackedMipmap(const ExtractOptions& opts, TXDTexture* tex, uint8_t*
 		}
 	}
 
+    // TODO: Correct this
 	if (baseLevel != -1) {
-		packedW = baseW / (int) pow(2, baseLevel);
-		packedH = baseH / (int) pow(2, baseLevel);
+		packedW = baseW / (int) pow((float) 2, (float) baseLevel);
+		packedH = baseH / (int) pow((float) 2, (float) baseLevel);
 	}
 	if (secondLevel != -1) {
-		packedW += baseW / (int) pow(2, secondLevel);
+		packedW += baseW / (int) pow((float) 2, (float) secondLevel);
 	}
 
 	uint8_t* packed = new uint8_t[packedW*packedH*4];

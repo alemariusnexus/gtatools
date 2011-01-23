@@ -245,7 +245,6 @@ int Transcode(char* src, int srcBytes, char* dest, int destBytes, Encoding srcEn
 	return destBytes-outLeft;
 #else
 	// On Windows we use The WinAPI Unicode functions.
-	bool srcIsMultibyte, destIsMultibyte;
 
 	if (srcEnc == UTF16) {
 		UINT cp;
