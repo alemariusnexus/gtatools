@@ -24,10 +24,15 @@
 #include "FilePath.h"
 #include "FileIterator.h"
 #include <cstdlib>
-#include "stream/FileInputStream.h"
 #include <vector>
+#include <fstream>
+#include <istream>
 
 using std::vector;
+using std::ifstream;
+using std::ofstream;
+using std::fstream;
+using std::istream;
 
 
 struct IMGEntry;
@@ -184,7 +189,11 @@ public:
 	 * 	@param flags The stream flags.
 	 * 	@return The newly created stream.
 	 */
-	InputStream* openStream(int flags = 0) const;
+	istream* openInputStream(ifstream::openmode mode = ifstream::in) const;
+
+	//ofstream* openOutputStream(ofstream::openmode mode = ofstream::out) const;
+
+	//fstream* openInputOutputStream(fstream::openmode mode = fstream::in | fstream::out) const;
 
 	File* getChild(int childIdx) const;
 

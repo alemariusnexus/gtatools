@@ -21,7 +21,8 @@
 #include "GLException.h"
 #include <cstring>
 #include <cstdio>
-#include <gtaformats/util/stream/InputStream.h>
+
+using std::streamoff;
 
 
 
@@ -43,10 +44,10 @@ void Shader::loadSourceCode(const char* code, int length)
 
 void Shader::loadSourceCode(const File& file)
 {
-	InputStream* stream = file.openStream();
-	stream->seek(0, InputStream::STREAM_SEEK_END);
-	InputStream::streampos len = stream->tell();
-	stream->seek(0, InputStream::STREAM_SEEK_BEGIN);
+	istream* stream = file.openInputStream();
+	stream->seekg(0, istream::end);
+	streamoff len = stream->tellg();
+	stream->seekg(0, istream::beg);
 	char* buffer = new char[len];
 	stream->read(buffer, len);
 	delete stream;

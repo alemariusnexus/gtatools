@@ -21,7 +21,9 @@
 #define	_GTA_H
 
 #include "config.h"
-#include "util/stream/InputStream.h"
+#include <istream>
+
+using std::istream;
 
 
 typedef int32_t crc32_t;
@@ -76,13 +78,16 @@ struct RwSectionHeader {
 
 //#define RwReadSectionHeader(s,h) (s)->read(&(h), sizeof(RwSectionHeader))
 
-inline int RwReadSectionHeader(InputStream* stream, RwSectionHeader& header) {
+inline int RwReadSectionHeader(istream* stream, RwSectionHeader& header) {
 	stream->read((char*) &header, sizeof(RwSectionHeader));
 	return sizeof(RwSectionHeader);
 }
 
-inline int RwSkipSectionBody(InputStream* stream, RwSectionHeader& header) {
-	stream->skip(header.size);
+inline int RwSkipSectionBody(istream* stream, RwSectionHeader& header) {
+	//stream->ignore(header.size);
+	char* skipBuf = new char[header.size];
+	stream->read(skipBuf, header.size);
+	delete[] skipBuf;
 	return header.size;
 }
 

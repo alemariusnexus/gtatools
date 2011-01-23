@@ -25,12 +25,13 @@
 #include "DFFMesh.h"
 #include "DFFException.h"
 #include <cstdio>
-#include "../util/stream/InputStream.h"
 #include "../util/File.h"
 #include "../util/thread/Mutex.h"
 #include <map>
+#include <istream>
 
 using std::map;
+using std::istream;
 
 
 #define DFF_VERSION_GTA3_1 0
@@ -98,7 +99,7 @@ public:
 	 *	@param stream The stream to read the DFF mesh data from.
 	 *	@return The loaded DFFMesh.
 	 */
-	DFFMesh* loadMesh(InputStream* stream);
+	DFFMesh* loadMesh(istream* stream);
 
 	/**	\brief Loads a DFF mesh from the given file.
 	 *
@@ -131,14 +132,14 @@ protected:
 
 
 private:
-	int parseSection(InputStream* stream, RwSectionHeader* parent, DFFLoadContext* context);
-	int parseStruct(InputStream* stream, RwSectionHeader& structHeader, RwSectionHeader* parent,
+	int parseSection(istream* stream, RwSectionHeader* parent, DFFLoadContext* context);
+	int parseStruct(istream* stream, RwSectionHeader& structHeader, RwSectionHeader* parent,
 			DFFLoadContext* context);
-	int parseString(InputStream* stream, RwSectionHeader& stringHeader, RwSectionHeader* parent,
+	int parseString(istream* stream, RwSectionHeader& stringHeader, RwSectionHeader* parent,
 			DFFLoadContext* context);
-	int parseFrame(InputStream* stream, RwSectionHeader& frameHeader, RwSectionHeader* parent,
+	int parseFrame(istream* stream, RwSectionHeader& frameHeader, RwSectionHeader* parent,
 			DFFLoadContext* context);
-	int parseMaterialSplit(InputStream* stream, RwSectionHeader& matsplitHeader, RwSectionHeader* parent,
+	int parseMaterialSplit(istream* stream, RwSectionHeader& matsplitHeader, RwSectionHeader* parent,
 			DFFLoadContext* context);
 
 	void printHeaderInfo(DFFGeometryStructHeader& header, DFFLoadContext* context);

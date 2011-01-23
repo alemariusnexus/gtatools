@@ -16,9 +16,7 @@
 # along with gtaformats.  If not, see <http://www.gnu.org/licenses/>.
 
 
-SET(FILES
-    FileInputStream InputStream IOException RangedInputStream STLInputStream BufferedInputStream
-    FilterInputStream)
+SET(FILES IOException)
 
 FOREACH(FILE ${FILES})
     SET(SRCS ${SRCS} "gtaformats/util/stream/${FILE}")

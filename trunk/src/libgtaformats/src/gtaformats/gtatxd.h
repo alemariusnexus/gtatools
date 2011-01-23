@@ -25,6 +25,5 @@
 #include "txd/TXDArchive.h"
 #include "txd/TXDException.h"
 #include "txd/TXDTexture.h"
-#include "txd/TXDVisitor.h"
 
 #endif /* GTATXD_H_ */

@@ -25,14 +25,13 @@
 #include "IDEWeapon.h"
 #include <string>
 #include <cstdlib>
-#include "../util/stream/FileInputStream.h"
 #include "IDEException.h"
 
 using std::string;
 
 
 
-IDEReader::IDEReader(InputStream* stream, bool deleteStream)
+IDEReader::IDEReader(istream* stream, bool deleteStream)
 		: GTASectionFileReader(stream, deleteStream), currentSection(NONE)
 {
 }

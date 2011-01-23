@@ -23,14 +23,18 @@
 #include "COLBox.h"
 #include "COLFace.h"
 #include "COLBounds.h"
-#include "../util/stream/BufferedInputStream.h"
 #include <cstdio>
 
+using std::streamoff;
 
 
-COLModel* COLLoader::loadModel(InputStream* stream)
+
+COLModel* COLLoader::loadModel(istream* stream)
 {
-    InputStream::streampos colStart = stream->tell();
+	char skipBuf[4];
+
+	streamoff colStart = stream->tellg();
+    //InputStream::streampos colStart = stream->tell();
 
 	COLVersion version = getVersion(stream);
 
@@ -46,7 +50,7 @@ COLModel* COLLoader::loadModel(InputStream* stream)
 	stream->read(model->name, 20);
 
 	// Unknown, maybe part of the name, but IMG entry names are only 20 bytes without .col extension
-	stream->skip(4);
+	stream->read(skipBuf, 4);
 
 	if (version == COL1) {
 		stream->read((char*) &model->bounds.radius, 4);
@@ -125,15 +129,15 @@ COLModel* COLLoader::loadModel(InputStream* stream)
 			stream->read((char*) &shadowMeshFaceOffset, 4);
 		}
 
-		stream->seek(colStart+sphereOffset+4, InputStream::STREAM_SEEK_BEGIN);
+		stream->seekg(colStart+sphereOffset+4, istream::beg);
 		COLSphere* spheres = new COLSphere[numSpheres];
 		stream->read((char*) spheres, numSpheres*20);
 
-		stream->seek(colStart+boxOffset+4, InputStream::STREAM_SEEK_BEGIN);
+		stream->seekg(colStart+boxOffset+4, istream::beg);
 		COLBox* boxes = new COLBox[numBoxes];
 		stream->read((char*) boxes, numBoxes*28);
 
-		stream->seek(colStart+faceOffset+4, InputStream::STREAM_SEEK_BEGIN);
+		stream->seekg(colStart+faceOffset+4, istream::beg);
 		COLFace* faces = new COLFace[numFaces];
 
 		uint32_t greatestVertexIndex = 0;
@@ -160,7 +164,7 @@ COLModel* COLLoader::loadModel(InputStream* stream)
 
 		uint32_t numVertices = numFaces == 0 ? 0 : greatestVertexIndex+1;
 
-		stream->seek(colStart+vertexOffset+4, InputStream::STREAM_SEEK_BEGIN);
+		stream->seekg(colStart+vertexOffset+4, istream::beg);
 		int16_t* compressedVertices = new int16_t[numVertices*3];
 		stream->read((char*) compressedVertices, numVertices*6);
 
@@ -180,10 +184,10 @@ COLModel* COLLoader::loadModel(InputStream* stream)
 		COLFaceGroup* faceGroups = NULL;
 
 		if ((flags & COLModel::FlagFaceGroups) != 0) {
-			stream->seek(colStart+faceOffset, InputStream::STREAM_SEEK_BEGIN);
+			stream->seekg(colStart+faceOffset, istream::beg);
 			stream->read((char*) &numFaceGroups, 4);
 			faceGroups = new COLFaceGroup[numFaceGroups];
-			stream->seek(stream->tell()-numFaceGroups*28, InputStream::STREAM_SEEK_BEGIN);
+			stream->seekg((streamoff) stream->tellg() - numFaceGroups*28, istream::beg);
 			stream->read((char*) faceGroups, numFaceGroups*28);
 		}
 
@@ -192,7 +196,7 @@ COLModel* COLLoader::loadModel(InputStream* stream)
 		if (version == COL3) {
 			if ((flags & COLModel::FlagShadowMesh) != 0) {
 				COLFace* shadowMeshFaces = new COLFace[numShadowMeshFaces];
-				stream->seek(colStart+shadowMeshFaceOffset+4, InputStream::STREAM_SEEK_BEGIN);
+				stream->seekg(colStart+shadowMeshFaceOffset+4, istream::beg);
 
 				uint32_t greatestVertexIndex = -1;
 
@@ -218,7 +222,7 @@ COLModel* COLLoader::loadModel(InputStream* stream)
 
 				numShadowMeshVertices = greatestVertexIndex+1;
 
-				stream->seek(colStart+shadowMeshVertexOffset+4, InputStream::STREAM_SEEK_BEGIN);
+				stream->seekg(colStart+shadowMeshVertexOffset+4, istream::beg);
 				int16_t* compressedVertices = new int16_t[numShadowMeshVertices*3];
 				stream->read((char*) compressedVertices, numShadowMeshVertices*6);
 
@@ -262,7 +266,7 @@ COLModel* COLLoader::loadModel(InputStream* stream)
 		model->shadowMesh = shadowMesh;
 	}
 
-	stream->seek(colStart + fileSize + 8, InputStream::STREAM_SEEK_BEGIN);
+	stream->seekg(colStart + fileSize + 8, istream::beg);
 
 	return model;
 }
@@ -272,14 +276,15 @@ COLModel* COLLoader::loadModel(const File& file)
 {
 	//BufferedInputStream bis(file.openStream(STREAM_BINARY));
 	//return loadModel(&bis);
-	InputStream* stream = file.openStream(STREAM_BINARY);
+	//InputStream* stream = file.openStream(STREAM_BINARY);
+	istream* stream = file.openInputStream(istream::binary);
 	COLModel* model = loadModel(stream);
 	delete stream;
 	return model;
 }
 
 
-bool COLLoader::loadModelName(InputStream* stream, char* name)
+bool COLLoader::loadModelName(istream* stream, char* name)
 {
 	if (getVersion(stream) == ColEnd) {
 		return false;
@@ -290,7 +295,9 @@ bool COLLoader::loadModelName(InputStream* stream, char* name)
 	stream->read((char*) &size, 4);
 	stream->read(name, 20);
 
-	stream->skip(size-20);
+	char* skipBuf = new char[size-20];
+	stream->read(skipBuf, size-20);
+	delete[] skipBuf;
 
 	return true;
 }
@@ -298,23 +305,24 @@ bool COLLoader::loadModelName(InputStream* stream, char* name)
 
 bool COLLoader::loadModelName(const File& file, char* name)
 {
-	InputStream* stream = file.openStream(STREAM_BINARY);
+	//InputStream* stream = file.openStream(STREAM_BINARY);
+	istream* stream = file.openInputStream(istream::binary);
 	bool retval = loadModelName(stream, name);
 	delete stream;
 	return retval;
 }
 
 
-COLVersion COLLoader::getVersion(InputStream* stream)
+COLVersion COLLoader::getVersion(istream* stream)
 {
-	if (stream->hasReachedEnd()) {
+	if (stream->eof()) {
 		return ColEnd;
 	}
 
 	char fourCC[4];
 	stream->read(fourCC, 4);
 
-	if (stream->getLastReadCount() == 0) {
+	if (stream->gcount() == 0) {
 		return ColEnd;
 	}
 
@@ -349,7 +357,8 @@ COLVersion COLLoader::getVersion(InputStream* stream)
 
 COLVersion COLLoader::getVersion(const File& file)
 {
-	InputStream* stream = file.openStream(STREAM_BINARY);
+	//InputStream* stream = file.openStream(STREAM_BINARY);
+	istream* stream = file.openInputStream(istream::binary);
 	COLVersion version = getVersion(stream);
 	delete stream;
 	return version;

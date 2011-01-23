@@ -23,7 +23,6 @@
 #include <gtaformats/util/strutil.h>
 #include <gtaformats/util/File.h>
 #include <gtaformats/util/FilePath.h>
-#include <gtaformats/util/stream/STLInputStream.h>
 #include <gtaformats/img/IMGArchive.h>
 #include <gtaformats/img/IMGException.h>
 #include "WildcardFilter.h"
@@ -32,12 +31,14 @@
 #include <fstream>
 #include <iostream>
 #include <cstring>
+#include <istream>
 
 using std::vector;
 using std::ostream;
 using std::cout;
 using std::cin;
 using std::ofstream;
+using std::istream;
 
 
 
@@ -306,8 +307,8 @@ int main(int argc, char** argv)
 			if (file) {
 				img = new IMGArchive(*file);
 			} else {
-				STLInputStream* in = new STLInputStream(&cin, false, false);
-				img = new IMGArchive(in, true);
+				//istream* in = new STLInputStream(&cin, false, false);
+				img = new IMGArchive(&cin);
 			}
 		} catch (IMGException ex) {
 			fprintf(stderr, "ERROR opening IMG file %s: %s\n", file ? file->getPath()->toString() : "(stdin)",
@@ -348,7 +349,7 @@ int main(int argc, char** argv)
 							if (verbose)
 								printf("Extracting file %s ", entry.name);
 
-							InputStream* stream = img->gotoEntry(&entry);
+							istream* stream = img->gotoEntry(&entry);
 
 							ostream* out = NULL;
 

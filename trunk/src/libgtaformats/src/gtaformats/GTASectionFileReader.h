@@ -23,9 +23,11 @@
 #include "config.h"
 #include <cstring>
 #include <cstdlib>
-#include "util/stream/InputStream.h"
 #include "util/File.h"
 #include "util/ErrorLog.h"
+#include <istream>
+
+using std::istream;
 
 
 
@@ -43,7 +45,7 @@ public:
 	int getLastReadLine() { return lastReadLine; }
 
 protected:
-	GTASectionFileReader(InputStream* stream, bool deleteStream = true);
+	GTASectionFileReader(istream* stream, bool deleteStream = true);
 	GTASectionFileReader(const File& file);
 	virtual ~GTASectionFileReader();
 
@@ -56,7 +58,7 @@ protected:
 	char* trim(char* str);
 
 protected:
-	InputStream* stream;
+	istream* stream;
 	ErrorLog log;
 	ErrorBehavior errorBehavior;
 

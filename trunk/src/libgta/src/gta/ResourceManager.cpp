@@ -96,19 +96,19 @@ void ResourceManager::addResource(const File& file)
 			FilePath* path = new FilePath(*file.getPath(), entry->name);
 			File child(path, true);
 
-			InputStream* stream = img.gotoEntry(entry);
+			istream* stream = img.gotoEntry(entry);
 			addResource(child, stream);
 			delete stream;
 		}
 	} else {
-		InputStream* stream = NULL;
+		istream* stream = NULL;
 
 		FileContentType type = file.guessContentType();
 
 		if (type == CONTENT_TYPE_TXD/*  ||  type == CONTENT_TYPE_COL*/) {
-			stream = file.openStream(STREAM_BINARY);
+			stream = file.openInputStream(istream::binary);
 		} else if (type == CONTENT_TYPE_IDE) {
-			stream = file.openStream();
+			stream = file.openInputStream();
 		}
 
 		addResource(file, stream);
@@ -120,7 +120,7 @@ void ResourceManager::addResource(const File& file)
 }
 
 
-void ResourceManager::addResource(const File& file, InputStream* stream)
+void ResourceManager::addResource(const File& file, istream* stream)
 {
 	FileContentType type = file.guessContentType();
 
@@ -321,6 +321,7 @@ GLuint ResourceManager::getTexture(const TextureIndex& index)
 	TextureCacheEntry* entry = textureCache[texEntry];
 
 	if (!entry) {
+		texCacheMisses++;
 		textureCacheMutex.unlock();
 		if (cacheTexture(index)) {
 			return bindTexture(index);
@@ -328,6 +329,8 @@ GLuint ResourceManager::getTexture(const TextureIndex& index)
 
 		return 0;
 	}
+
+	texCacheHits++;
 
 	textureCacheMutex.unlock();
 	return entry->texture;
@@ -593,13 +596,13 @@ void ResourceManager::cacheTexture(TXDEntry* txdEntry, TextureEntry* texEntry)
 			delete[] dataStart;
 		}
 
-		delete tex;
-
 		if (	(tex->getRasterFormatExtension() & TXD_FORMAT_EXT_AUTO_MIPMAP) != 0
 				&&  glewIsSupported("GL_VERSION_3_0")
 		) {
 			glGenerateMipmap(GL_TEXTURE_2D);
 		}
+
+		delete tex;
 
 		TextureCacheEntry* entry = new TextureCacheEntry;
 		entry->texture = glTex;
@@ -659,8 +662,11 @@ bool ResourceManager::getMesh(hash_t name, Mesh*& mesh)
 
 	if (entry) {
 		mesh = entry->mesh;
+		meshCacheHits++;
 		return true;
 	}
+
+	meshCacheMisses++;
 
 	if (!readMesh(name, mesh)) {
 		return false;

@@ -28,7 +28,7 @@ using std::string;
 
 
 
-IPLReader::IPLReader(InputStream* stream, bool deleteStream)
+IPLReader::IPLReader(istream* stream, bool deleteStream)
 		: GTASectionFileReader(stream, deleteStream), currentSection(NONE)
 {
 	init();
@@ -49,23 +49,27 @@ IPLReader::IPLReader(const File& file)
 
 void IPLReader::init()
 {
+	char skipBuf[7*4];
 	char firstBytes[4];
 	stream->read(firstBytes, 4);
 
 	if (strncmp(firstBytes, "bnry", 4) == 0) {
 		stream->read((char*) &binaryInstanceCount, 4);
-		stream->skip(3*4);
+		stream->read(skipBuf, 3*4);
 		stream->read((char*) &binaryCarCount, 4);
-		stream->skip(4);
+		stream->read(skipBuf, 4);
 		stream->read((char*) &binaryInstanceOffset, 4);
-		stream->skip(7*4);
+		stream->read(skipBuf, 7*4);
 		stream->read((char*) &binaryCarOffset, 4);
-		stream->skip(3*4);
+		stream->read(skipBuf, 3*4);
 		binaryReadCount = 0;
-		stream->skip(binaryInstanceOffset - 0x4C);
+
+		char* tmpSkipBuf = new char[binaryInstanceOffset - 0x4C];
+		stream->read(tmpSkipBuf, binaryInstanceOffset - 0x4C);
+		delete[] tmpSkipBuf;
 	} else {
 		binaryReadCount = -1;
-		stream->seek(-4, InputStream::STREAM_SEEK_CURRENT);
+		stream->seekg(-4, istream::cur);
 	}
 }
 
@@ -209,7 +213,10 @@ IPLStatement* IPLReader::readStatement()
 		}
 
 		if (binaryReadCount == binaryInstanceCount) {
-			stream->skip(binaryCarOffset-stream->tell());
+			int skipCount = binaryCarOffset-stream->tellg();
+			char* tmpSkipBuf = new char[skipCount];
+			stream->read(tmpSkipBuf, skipCount);
+			delete[] tmpSkipBuf;
 		}
 
 		if (binaryReadCount < binaryInstanceCount) {

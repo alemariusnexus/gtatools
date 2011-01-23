@@ -18,21 +18,23 @@
  */
 
 #include "GTASectionFileReader.h"
-#include "util/stream/FileInputStream.h"
 #include "GTASectionFileException.h"
 #include <cstdio>
 #include <cstdlib>
 
+using std::streamoff;
 
 
-GTASectionFileReader::GTASectionFileReader(InputStream* stream, bool deleteStream)
+
+GTASectionFileReader::GTASectionFileReader(istream* stream, bool deleteStream)
 		: stream(stream), deleteStream(deleteStream), errorBehavior(Continue), lastReadLine(0), paramNo(0)
 {
 }
 
 
 GTASectionFileReader::GTASectionFileReader(const File& file)
-		: stream(file.openStream()), deleteStream(true), errorBehavior(Continue), lastReadLine(0), paramNo(0)
+		: stream(file.openInputStream()), deleteStream(true), errorBehavior(Continue), lastReadLine(0),
+		  paramNo(0)
 {
 	/*char* msg = new char[10];
 	strcpy(msg, "");
@@ -53,11 +55,17 @@ GTASectionFileReader::~GTASectionFileReader()
 bool GTASectionFileReader::readNextLine(char* buf, int len)
 {
 	while (true) {
-		stream->readLine(buf, len);
+		stream->getline(buf, len);
+		streamoff numChars = stream->gcount();
+
+		if (buf[numChars-2] == '\r') {
+			buf[numChars-2] = '\0';
+		}
+
 		lastReadLine++;
 		paramNo = 0;
 
-		if (stream->hasReachedEnd()) {
+		if (stream->eof()) {
 			return false;
 		}
 

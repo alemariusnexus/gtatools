@@ -24,6 +24,5 @@
 
 #include "img/IMGArchive.h"
 #include "img/IMGException.h"
-#include "img/IMGVisitor.h"
 
 #endif /* GTAIMG_H_ */

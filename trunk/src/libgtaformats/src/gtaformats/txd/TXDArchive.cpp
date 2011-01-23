@@ -21,10 +21,9 @@
 #include "../gta.h"
 #include <cstring>
 #include <cstdio>
-#include "../util/stream/FileInputStream.h"
 
 
-TXDArchive::TXDArchive(InputStream* stream, bool randomAccess)
+TXDArchive::TXDArchive(istream* stream, bool randomAccess)
 		: randomAccess(randomAccess), stream(stream), bytesRead(0), readIndex(0),
 		  currentTextureNativeSize(-1), currentTextureNativeStart(-1), deleteStream(false)
 {
@@ -37,7 +36,7 @@ TXDArchive::TXDArchive(InputStream* stream, bool randomAccess)
 
 
 TXDArchive::TXDArchive(const File& file)
-		: randomAccess(true), stream(file.openStream(STREAM_BINARY)),
+		: randomAccess(true), stream(file.openInputStream(istream::binary)),
 		  bytesRead(0), readIndex(0), currentTextureNativeSize(-1), currentTextureNativeStart(-1),
 		  deleteStream(true)
 {
@@ -70,7 +69,7 @@ void TXDArchive::init()
 	readSectionHeaderWithID(stream, header, RW_SECTION_STRUCT);
 
 	stream->read((char*) &textureCount, 2);
-	stream->skip(2);
+	stream->read(skipBuf, 2);
 
 	if (textureCount < 0) {
 		throw TXDException("Texture count is < 0", __FILE__, __LINE__);
@@ -91,7 +90,9 @@ TXDTexture* TXDArchive::nextTexture()
 {
 	if (currentTextureNativeStart != -1) {
 		long long len = currentTextureNativeStart + currentTextureNativeSize + 12 - bytesRead;
-		stream->skip(len);
+		char* tmpSkipBuf = new char[len];
+		stream->read(tmpSkipBuf, len);
+		delete[] tmpSkipBuf;
 		bytesRead += len;
 	}
 
@@ -103,7 +104,7 @@ TXDTexture* TXDArchive::nextTexture()
     RwReadSectionHeader(stream, texNative);
     bytesRead += sizeof(RwSectionHeader);
 
-    stream->skip(12);
+    stream->read(skipBuf, 12);
     bytesRead += 12;
 
     TXDTexture* texture = new TXDTexture(stream, bytesRead);
@@ -119,9 +120,10 @@ TXDTexture* TXDArchive::nextTexture()
     return texture;
 }
 
-void TXDArchive::readTextureData(uint8_t* dest, TXDTexture* texture)
+int TXDArchive::readTextureData(uint8_t* dest, TXDTexture* texture)
 {
 	int32_t rasterSize;
+	uint8_t* destStart = dest;
 
 	if ((texture->getRasterFormatExtension() & TXD_FORMAT_EXT_PAL4) != 0) {
 		stream->read((char*) dest, 16*4);
@@ -139,13 +141,15 @@ void TXDArchive::readTextureData(uint8_t* dest, TXDTexture* texture)
 		bytesRead += rasterSize+4;
 		dest += rasterSize;
 	}
+
+	return dest-destStart;
 }
 
 uint8_t* TXDArchive::readTextureData(TXDTexture* texture)
 {
 	int size = texture->computeDataSize();
 	uint8_t* raster = new uint8_t[size];
-	readTextureData(raster, texture);
+	int rsize = readTextureData(raster, texture);
 	return raster;
 }
 
@@ -154,35 +158,10 @@ void TXDArchive::gotoTexture(TXDTexture* texture)
 	for (int32_t i = 0 ; i < textureCount ; i++) {
 		if (indexedTextures[i] == texture) {
 			long long start = textureNativeStarts[i];
-			stream->seek((start+112) - bytesRead);
+			stream->seekg((start+112) - bytesRead, istream::cur);
 			bytesRead = start+112;
 			return;
 		}
-	}
-}
-
-void TXDArchive::visit(TXDVisitor* visitor, TXDTexture* texture)
-{
-	if (currentTexture != texture) {
-		gotoTexture(texture);
-	}
-
-	visitor->handleTexture(this, texture);
-}
-
-void TXDArchive::visitAll(TXDVisitor* visitor)
-{
-	for (int16_t i = 0 ; i < textureCount ; i++) {
-		TXDTexture* tex;
-
-		if (indexedTextures[i] == NULL) {
-			tex = nextTexture();
-		} else {
-			tex = indexedTextures[i];
-			gotoTexture(tex);
-		}
-
-		visit(visitor, tex);
 	}
 }
 
@@ -202,7 +181,7 @@ void TXDArchive::destroyTexture(TXDTexture* tex)
 
 
 
-void TXDArchive::readSectionHeaderWithID(InputStream* stream, RwSectionHeader& header, uint32_t id)
+void TXDArchive::readSectionHeaderWithID(istream* stream, RwSectionHeader& header, uint32_t id)
 {
 	RwReadSectionHeader(stream, header);
 
