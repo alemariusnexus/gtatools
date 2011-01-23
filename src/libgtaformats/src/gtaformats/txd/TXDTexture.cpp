@@ -70,7 +70,7 @@ void TxdGetRasterFormatName(char* dest, int32_t rasterFormat) {
 }*/
 
 
-TXDTexture::TXDTexture(InputStream* stream, long long& bytesRead)
+TXDTexture::TXDTexture(istream* stream, long long& bytesRead)
 {
 	char skipBuf[4];
 
@@ -221,8 +221,8 @@ void TXDTexture::convert(uint8_t* dest, const uint8_t* src, int mipmap, TXDMirro
 		throw OutOfBoundsException(mipmap, __FILE__, __LINE__);
 	}
 
-	int w = width / pow(2, mipmap);
-	int h = height / pow(2, mipmap);
+	int w = width / (int) ceil(pow(2.0f, (float) mipmap));
+	int h = height / (int) ceil(pow(2.0f, (float) mipmap));
 
 	int8_t srcBpp = bytesPerPixel;
 
@@ -394,7 +394,7 @@ void TXDTexture::convert(uint8_t* dest, const uint8_t* src, int mipmap, TXDMirro
 
 int TXDTexture::computeDataSize() const
 {
-	int baseSize = width * height;
+	/*int baseSize = width * height;
 
 	if (compression == DXT1) {
 		baseSize /= 2;
@@ -407,6 +407,12 @@ int TXDTexture::computeDataSize() const
 	for (uint8_t i = 0 ; i < mipmapCount ; i++) {
 		size += baseSize;
 		baseSize /= 4;
+	}*/
+
+	int size = 0;
+
+	for (uint8_t i = 0 ; i < mipmapCount ; i++) {
+		size += computeMipmapDataSize(i);
 	}
 
 	if ((rasterFormat & TXD_FORMAT_EXT_PAL4)  !=  0) {
@@ -422,15 +428,26 @@ int TXDTexture::computeDataSize() const
 
 int TXDTexture::computeMipmapDataSize(int mipmap) const
 {
-	int baseSize = width * height;
+	float scale = ceil(pow(2, mipmap));
+	int mipW = width / scale;
+	int mipH = height / scale;
 
-	if (compression == DXT1) {
-		baseSize /= 2;
-	} else if (compression == NONE) {
-		baseSize *= bytesPerPixel;
+	if (compression != NONE) {
+		if (mipW < 4)
+			mipW = 4;
+		if (mipH < 4)
+			mipH = 4;
 	}
 
-	return baseSize / pow(4, mipmap);
+	int mipSize = mipW * mipH;
+
+	if (compression == DXT1) {
+		mipSize /= 2;
+	} else if (compression == NONE) {
+		mipSize *= bytesPerPixel;
+	}
+
+	return mipSize;
 }
 
 

@@ -22,8 +22,8 @@
 #include <string>
 #include <cstring>
 #include <vector>
-#include "../util/stream/RangedInputStream.h"
-#include "../util/stream/BufferedInputStream.h"
+#include "../util/stream/RangedStream.h"
+#include "../util/File.h"
 
 using std::string;
 using std::vector;
@@ -33,7 +33,7 @@ using std::vector;
 
 
 
-IMGArchive::IMGArchive(InputStream* stream, bool deleteStream)
+IMGArchive::IMGArchive(istream* stream, bool deleteStream)
 		: stream(stream), deleteStream(deleteStream)
 {
 	readHeader(stream);
@@ -54,13 +54,11 @@ IMGArchive::IMGArchive(const File& file, bool deleteStream)
 		File imgFile(imgFilePath);
 		delete[] imgFilePath;
 
-		InputStream* ubDirStream = openStream(file);
+		istream* dirStream = openStream(file);
 
-		if (!ubDirStream) {
+		if (!dirStream) {
 			throw IMGException("Unable to open DIR file", __FILE__, __LINE__);
 		}
-
-		BufferedInputStream dirStream(ubDirStream, IMG_BUFFER_SIZE);
 
 		stream = openStream(imgFile);
 
@@ -71,9 +69,9 @@ IMGArchive::IMGArchive(const File& file, bool deleteStream)
 			throw IMGException(errmsg, __FILE__, __LINE__);
 		}
 
-		stream = new BufferedInputStream(stream, IMG_BUFFER_SIZE);
+		readHeader(dirStream);
 
-		readHeader(&dirStream);
+		delete dirStream;
 	} else if (type == CONTENT_TYPE_IMG) {
 		stream = openStream(file);
 
@@ -82,15 +80,11 @@ IMGArchive::IMGArchive(const File& file, bool deleteStream)
 				throw IMGException("Unable to open VER2 IMG file", __FILE__, __LINE__);
 			}
 
-			stream = new BufferedInputStream(stream, IMG_BUFFER_SIZE);
-
 			readHeader(stream);
 		} else {
 			if (!stream) {
 				throw IMGException("Unable to open VER1 IMG file", __FILE__, __LINE__);
 			}
-
-			stream = new BufferedInputStream(stream, IMG_BUFFER_SIZE);
 
 			char* dirFilePath = new char[strlen(path->toString())+1];
 			int basePathLen = path->getExtension() - path->toString();
@@ -99,18 +93,18 @@ IMGArchive::IMGArchive(const File& file, bool deleteStream)
 			File dirFile(dirFilePath);
 			delete[] dirFilePath;
 
-			InputStream* ubDirStream = openStream(dirFile);
+			istream* dirStream = openStream(dirFile);
 
-			if (!ubDirStream) {
+			if (!dirStream) {
 				char errmsg[2048];
 				sprintf(errmsg, "Unable to open corresponding DIR file %s for the given IMG file",
 						dirFile.getPath()->toString());
 				throw IMGException(errmsg, __FILE__, __LINE__);
 			}
 
-			BufferedInputStream dirStream(ubDirStream, IMG_BLOCK_SIZE);
+			readHeader(dirStream);
 
-			readHeader(&dirStream);
+			delete dirStream;
 		}
 	} else {
 		throw IMGException("File name is neither an IMG nor a DIR file", __FILE__, __LINE__);
@@ -118,11 +112,10 @@ IMGArchive::IMGArchive(const File& file, bool deleteStream)
 }
 
 
-IMGArchive::IMGArchive(InputStream* dirStream, InputStream* imgStream, bool deleteIMGStream)
+IMGArchive::IMGArchive(istream* dirStream, istream* imgStream, bool deleteIMGStream)
 		: stream(imgStream), deleteStream(deleteIMGStream)
 {
-	BufferedInputStream bDirStream(dirStream, IMG_BUFFER_SIZE, false);
-	readHeader(&bDirStream);
+	readHeader(dirStream);
 }
 
 
@@ -130,12 +123,12 @@ IMGArchive::IMGArchive(const File& dirFile, const File& imgFile, bool deleteStre
 		: stream(NULL), deleteStream(deleteStream)
 {
 	stream = openStream(imgFile);
-	stream = new BufferedInputStream(stream, IMG_BUFFER_SIZE);
 
-	InputStream* dirStream = openStream(dirFile);
-	BufferedInputStream bDirStream(dirStream, IMG_BUFFER_SIZE);
+	istream* dirStream = openStream(dirFile);
 
-	readHeader(&bDirStream);
+	readHeader(dirStream);
+
+	delete dirStream;
 }
 
 
@@ -148,17 +141,17 @@ IMGArchive::~IMGArchive()
 }
 
 
-IMGArchive::IMGVersion IMGArchive::guessIMGVersion(InputStream* stream, bool returnToStart)
+IMGArchive::IMGVersion IMGArchive::guessIMGVersion(istream* stream, bool returnToStart)
 {
 	char fourCC[4];
 	stream->read(fourCC, 4);
 
-	if (stream->hasReachedEnd()) {
+	if (stream->eof()) {
 		return VER1;
 	}
 
 	if (returnToStart) {
-		stream->seek(-4);
+		stream->seekg(-4, istream::cur);
 	}
 
 	if (fourCC[0] == 'V'  &&  fourCC[1] == 'E'  &&  fourCC[2] == 'R'  &&  fourCC[3] == '2') {
@@ -171,20 +164,24 @@ IMGArchive::IMGVersion IMGArchive::guessIMGVersion(InputStream* stream, bool ret
 
 IMGArchive::IMGVersion IMGArchive::guessIMGVersion(const File& file)
 {
-	FileInputStream stream(file, STREAM_BINARY);
-	return guessIMGVersion(&stream, false);
+	//FileInputStream stream(file, STREAM_BINARY);
+	istream* stream = file.openInputStream(istream::binary);
+	IMGVersion ver = guessIMGVersion(stream, false);
+	delete stream;
+	return ver;
 }
 
 
-InputStream* IMGArchive::gotoEntry(const IMGEntry* entry, bool autoCloseStream) {
+istream* IMGArchive::gotoEntry(const IMGEntry* entry, bool autoCloseStream) {
 	long long start = entry->offset*IMG_BLOCK_SIZE;
-	stream->seek(start - stream->tell());
-	RangedInputStream* rstream = new RangedInputStream(stream, entry->size*IMG_BLOCK_SIZE, autoCloseStream);
+	stream->seekg(start - stream->tellg(), istream::cur);
+	//RangedInputStream* rstream = new RangedInputStream(stream, entry->size*IMG_BLOCK_SIZE, autoCloseStream);
+	RangedStream<istream>* rstream = new RangedStream<istream>(stream, entry->size*IMG_BLOCK_SIZE, autoCloseStream);
 	return rstream;
 }
 
 
-InputStream* IMGArchive::gotoEntry(const char* name, bool autoCloseStream) {
+istream* IMGArchive::gotoEntry(const char* name, bool autoCloseStream) {
 	const IMGEntry* entry = getEntryByName(name);
 
 	if (!entry) {
@@ -206,14 +203,14 @@ const IMGEntry* IMGArchive::getEntryByName(const char* name) const {
 }
 
 
-void IMGArchive::readHeader(InputStream* stream)
+void IMGArchive::readHeader(istream* stream)
 {
 	int32_t firstBytes;
 
 	stream->read((char*) &firstBytes, 4);
-	int gcount = stream->getLastReadCount();
+	int gcount = stream->gcount();
 
-	if (stream->hasReachedEnd()) {
+	if (stream->eof()) {
 		if (gcount == 0) {
 			// This is an empty file: VER1 DIR files can be completely empty, so we assume this one is
 			// such a file.
@@ -249,11 +246,11 @@ void IMGArchive::readHeader(InputStream* stream)
 
 		numEntries = 1;
 
-		while (!stream->hasReachedEnd()) {
+		while (!stream->eof()) {
 			IMGEntry* entry = new IMGEntry;
 			stream->read((char*) entry, sizeof(IMGEntry));
 
-			int lrc = stream->getLastReadCount();
+			int lrc = stream->gcount();
 
 			if (lrc != sizeof(IMGEntry)) {
 				if (lrc == 0) {
@@ -305,9 +302,10 @@ void IMGArchive::readHeader(InputStream* stream)
 	}*/
 }
 
-InputStream* IMGArchive::openStream(const File& file)
+istream* IMGArchive::openStream(const File& file)
 {
-	return file.openStream(STREAM_BINARY);
+	//return file.openStream(STREAM_BINARY);
+	return file.openInputStream(istream::binary);
 }
 
 

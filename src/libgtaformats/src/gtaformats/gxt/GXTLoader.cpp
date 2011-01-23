@@ -19,10 +19,11 @@
 
 #include "GXTLoader.h"
 #include "GXTException.h"
-#include "../util/stream/BufferedInputStream.h"
 #include <cstring>
 #include <cstdlib>
 #include <cstdio>
+
+using std::streamoff;
 
 
 struct GXTSAIVEntry
@@ -47,7 +48,7 @@ int EntrySortComparator(const void* e1, const void* e2)
 
 
 
-GXTLoader::GXTLoader(InputStream* stream, Encoding encoding, bool autoClose)
+GXTLoader::GXTLoader(istream* stream, Encoding encoding, bool autoClose)
 		: stream(stream), autoClose(autoClose), encoding(encoding)
 {
 	init();
@@ -55,7 +56,7 @@ GXTLoader::GXTLoader(InputStream* stream, Encoding encoding, bool autoClose)
 
 
 GXTLoader::GXTLoader(const File& file, Encoding encoding)
-		: stream(new BufferedInputStream(file.openStream(STREAM_BINARY))), autoClose(true), encoding(encoding)
+		: stream(file.openInputStream(ifstream::binary)), autoClose(true), encoding(encoding)
 {
 	init();
 }
@@ -63,6 +64,7 @@ GXTLoader::GXTLoader(const File& file, Encoding encoding)
 
 void GXTLoader::init()
 {
+	char skipBuf[4];
 	char tov[4];
 	stream->read(tov, 4);
 	cpos = 4;
@@ -71,7 +73,7 @@ void GXTLoader::init()
 		version = VC3;
 	} else {
 		version = SAIV;
-		stream->skip(4); // TABL
+		stream->read(skipBuf, 4); // TABL
 		cpos += 4;
 	}
 
@@ -112,7 +114,7 @@ bool GXTLoader::nextTableHeader(GXTTableHeader& header)
 	}
 
 	if (cpos != headerOffset) {
-		stream->seek(headerOffset-cpos, InputStream::STREAM_SEEK_CURRENT);
+		stream->seekg(headerOffset-cpos, istream::cur);
 	}
 
 	stream->read((char*) &header, 12);
@@ -140,9 +142,9 @@ void GXTLoader::readTableHeaders(GXTTableHeader* headers)
 }
 
 
-InputStream::streampos GXTLoader::getTableOffset(const GXTTableHeader& header) const
+streamoff GXTLoader::getTableOffset(const GXTTableHeader& header) const
 {
-	InputStream::streampos offset = header.offset;
+	streamoff offset = header.offset;
 
 	if (strncmp(header.name, "MAIN\0", 5) != 0) {
 		offset += 8; // The table name again
@@ -154,11 +156,12 @@ InputStream::streampos GXTLoader::getTableOffset(const GXTTableHeader& header) c
 
 GXTTable* GXTLoader::readTableData(const GXTTableHeader& header)
 {
-	InputStream::streampos offset = getTableOffset(header);
-	stream->seek(offset-cpos, InputStream::STREAM_SEEK_CURRENT);
+	char skipBuf[8];
+	streamoff offset = getTableOffset(header);
+	stream->seekg(offset-cpos, istream::cur);
 	cpos = offset;
 
-	stream->skip(4); // TKEY
+	stream->read(skipBuf, 4); // TKEY
 	cpos += 4;
 
 	int32_t tkeySize;
@@ -176,15 +179,17 @@ GXTTable* GXTLoader::readTableData(const GXTTableHeader& header)
 
 		cpos += 8*numEntries;
 
-		stream->skip(8); // "TDAT" + TDAT size
+		stream->read(skipBuf, 8); // "TDAT" + TDAT size
 		cpos += 8;
 
 		qsort(entries, numEntries, 8, EntrySortComparator);
-		InputStream::streampos tdatRead = 0;
+		streamoff tdatRead = 0;
 
 		for (int32_t i = 0 ; i < numEntries ; i++) {
-			InputStream::streamsize skip = entries[i].offset - tdatRead;
-			stream->skip(skip);
+			streamoff skip = entries[i].offset - tdatRead;
+			char* tmpSkipBuf = new char[skip];
+			stream->read(tmpSkipBuf, skip);
+			delete[] tmpSkipBuf;
 			tdatRead += skip;
 
 			int step = 64;
@@ -254,18 +259,20 @@ GXTTable* GXTLoader::readTableData(const GXTTableHeader& header)
 
 		qsort(entries, numEntries, 12, EntrySortComparator);
 
-		stream->skip(4); // TDAT
+		stream->read(skipBuf, 4); // TDAT
 		cpos += 4;
 
 		int32_t tdatSize;
 		stream->read((char*) &tdatSize, 4);
 		cpos += 4;
 
-		InputStream::streampos tdatRead = 0;
+		streamoff tdatRead = 0;
 
 		for (int32_t i = 0 ; i < numEntries ; i++) {
-			InputStream::streamsize skip = entries[i].offset - tdatRead;
-			stream->skip(skip);
+			streamoff skip = entries[i].offset - tdatRead;
+			char* tmpSkipBuf = new char[skip];
+			stream->read(tmpSkipBuf, skip);
+			delete[] tmpSkipBuf;
 			tdatRead += skip;
 
 			int maxLen;

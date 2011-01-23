@@ -25,7 +25,6 @@
 #include "DFFTexture.h"
 #include <cstdlib>
 #include <cstdio>
-#include "../util/stream/FileInputStream.h"
 #include <utility>
 
 using std::pair;
@@ -42,10 +41,8 @@ DFFLoader::~DFFLoader() {
 }
 
 
-int DFFLoader::parseSection(InputStream* stream, RwSectionHeader* parent, DFFLoadContext* context)
+int DFFLoader::parseSection(istream* stream, RwSectionHeader* parent, DFFLoadContext* context)
 {
-	char skipBuf[1024];
-
 	int readCount = 0;
 
 	while (readCount < parent->size) {
@@ -104,8 +101,9 @@ int DFFLoader::parseSection(InputStream* stream, RwSectionHeader* parent, DFFLoa
 		context->depth--;
 
 		int skipSize = header.size - (readCount - readBefore);
-		//SkipBytes(stream, skipSize, skipBuf, sizeof(skipBuf));
-		stream->skip(skipSize);
+		char* skipBuf = new char[skipSize];
+		stream->read(skipBuf, skipSize);
+		delete[] skipBuf;
 		readCount += skipSize;
 	}
 
@@ -113,7 +111,7 @@ int DFFLoader::parseSection(InputStream* stream, RwSectionHeader* parent, DFFLoa
 }
 
 
-int DFFLoader::parseStruct(InputStream* stream, RwSectionHeader& structHeader, RwSectionHeader* parent,
+int DFFLoader::parseStruct(istream* stream, RwSectionHeader& structHeader, RwSectionHeader* parent,
 		DFFLoadContext* context)
 {
 	char skipBuf[1024];
@@ -212,7 +210,7 @@ int DFFLoader::parseStruct(InputStream* stream, RwSectionHeader& structHeader, R
 		}
 
 		if (context->version < DFF_VERSION_GTAVC_2) {
-			stream->skip(12);
+			stream->read(skipBuf, 12);
 		}
 
 		if ((header.flags & GEOMETRY_FLAG_COLORS) != 0) {
@@ -231,7 +229,9 @@ int DFFLoader::parseStruct(InputStream* stream, RwSectionHeader& structHeader, R
 			rc += size;
 		}
 
-		stream->skip(header.faceCount * sizeof(int16_t) * 4);
+		char* tmpSkipBuf = new char[header.faceCount*sizeof(int16_t)*4];
+		stream->read(tmpSkipBuf, header.faceCount * sizeof(int16_t) * 4);
+		delete[] tmpSkipBuf;
 		rc += header.faceCount * sizeof(int16_t) * 4;
 
 		/*int readCount = 0;
@@ -253,7 +253,7 @@ int DFFLoader::parseStruct(InputStream* stream, RwSectionHeader& structHeader, R
 		stream->read((char*) bounds, 16);
 		rc += 16;
 
-		stream->skip(8);
+		stream->read(skipBuf, 8);
 		rc += 8;
 
 		if ((header.flags & GEOMETRY_FLAG_POSITIONS) != 0) {
@@ -295,9 +295,9 @@ int DFFLoader::parseStruct(InputStream* stream, RwSectionHeader& structHeader, R
 
 		uint8_t* color = mat->getColor();
 
-		stream->skip(4);
+		stream->read(skipBuf, 4);
 		stream->read((char*) color, 4);
-		stream->skip(4);
+		stream->read(skipBuf, 4);
 		stream->read((char*) &textureCount, 4);
 		rc += 16;
 
@@ -332,7 +332,7 @@ int DFFLoader::parseStruct(InputStream* stream, RwSectionHeader& structHeader, R
 }
 
 
-int DFFLoader::parseString(InputStream* stream, RwSectionHeader& stringHeader, RwSectionHeader* parent,
+int DFFLoader::parseString(istream* stream, RwSectionHeader& stringHeader, RwSectionHeader* parent,
 		DFFLoadContext* context)
 {
 	char* str = new char[stringHeader.size];
@@ -365,7 +365,7 @@ int DFFLoader::parseString(InputStream* stream, RwSectionHeader& stringHeader, R
 }
 
 
-int DFFLoader::parseFrame(InputStream* stream, RwSectionHeader& frameHeader, RwSectionHeader* parent,
+int DFFLoader::parseFrame(istream* stream, RwSectionHeader& frameHeader, RwSectionHeader* parent,
 		DFFLoadContext* context)
 {
 	DFFFrame* frame = context->frameInternalIndexMap[context->frameCurrentIndex++];
@@ -383,7 +383,7 @@ int DFFLoader::parseFrame(InputStream* stream, RwSectionHeader& frameHeader, RwS
 }
 
 
-int DFFLoader::parseMaterialSplit(InputStream* stream, RwSectionHeader& matsplitHeader, RwSectionHeader* parent,
+int DFFLoader::parseMaterialSplit(istream* stream, RwSectionHeader& matsplitHeader, RwSectionHeader* parent,
 			DFFLoadContext* context)
 {
 	DFFGeometry* geom = context->mesh->getGeometry(context->mesh->getGeometryCount()-1);
@@ -442,14 +442,15 @@ int DFFLoader::parseMaterialSplit(InputStream* stream, RwSectionHeader& matsplit
 
 DFFMesh* DFFLoader::loadMesh(const File& file)
 {
-	InputStream* stream = file.openStream(STREAM_BINARY);
+	//InputStream* stream = file.openStream(STREAM_BINARY);
+	istream* stream = file.openInputStream(istream::binary);
 	DFFMesh* mesh = loadMesh(stream);
 	delete stream;
 	return mesh;
 }
 
 
-DFFMesh* DFFLoader::loadMesh(InputStream* stream) {
+DFFMesh* DFFLoader::loadMesh(istream* stream) {
 	/*if (stream->fail()) {
 		throw DFFException(DFFException::IOError, "failbit was set in the given DFF stream");
 	}*/
@@ -464,14 +465,14 @@ DFFMesh* DFFLoader::loadMesh(InputStream* stream) {
 
 	RwSectionHeader clump;
 
-	char skipBuf[1024];
-
-	while (!stream->hasReachedEnd()) {
+	while (!stream->eof()) {
 		RwReadSectionHeader(stream, clump);
 
 		if (clump.id != RW_SECTION_CLUMP) {
 			//SkipBytes(stream, clump.size, skipBuf, sizeof(skipBuf));
-			stream->skip(clump.size);
+			char* skipBuf = new char[clump.size];
+			stream->read(skipBuf, clump.size);
+			delete[] skipBuf;
 		} else {
 			context.version = clump.version;
 			break;

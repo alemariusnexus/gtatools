@@ -22,18 +22,20 @@
 
 #include "../config.h"
 #include "COLModel.h"
-#include "../util/stream/InputStream.h"
 #include "../util/File.h"
+#include <istream>
+
+using std::istream;
 
 
 
 class COLLoader {
 public:
-	COLModel* loadModel(InputStream* stream);
+	COLModel* loadModel(istream* stream);
 	COLModel* loadModel(const File& file);
-	bool loadModelName(InputStream* stream, char* name);
+	bool loadModelName(istream* stream, char* name);
 	bool loadModelName(const File& file, char* name);
-	COLVersion getVersion(InputStream* stream);
+	COLVersion getVersion(istream* stream);
 	COLVersion getVersion(const File& file);
 
 private:

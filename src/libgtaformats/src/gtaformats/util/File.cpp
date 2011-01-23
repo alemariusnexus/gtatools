@@ -22,7 +22,6 @@
 #include <cstring>
 #include "util.h"
 #include "FileException.h"
-#include "stream/FileInputStream.h"
 #include "../img/IMGArchive.h"
 #include "FileFinder.h"
 
@@ -186,11 +185,11 @@ FileContentType File::guessContentType() const
 }
 
 
-InputStream* File::openStream(int flags) const
+istream* File::openInputStream(ifstream::openmode mode) const
 {
 	if (physicallyExists()) {
 		if (isRegularFile()) {
-			return new FileInputStream(*this, flags);
+			return new ifstream(path->toString(), mode | ifstream::in);
 		} else {
 			char* errMsg = new char[strlen(path->toString()) + 64];
 			sprintf(errMsg, "Attempt to open stream on non-regular file %s.", path->toString());
@@ -200,11 +199,13 @@ InputStream* File::openStream(int flags) const
 		}
 	} else {
 		if (path->isIMGPath()) {
+			// TODO Reimplement
 			try {
 				File* parent = getParent();
+
 				IMGArchive archive(*parent, false);
 				delete parent;
-				InputStream* rstream = archive.gotoEntry(path->getFileName(), true);
+				istream* rstream = archive.gotoEntry(path->getFileName(), true);
 
 				if (rstream != NULL) {
 					return rstream;
@@ -219,6 +220,7 @@ InputStream* File::openStream(int flags) const
 				delete[] errMsg;
 				throw fex;
 			}
+			return NULL;
 		} else {
 			char* errMsg = new char[strlen(path->toString()) + 64];
 			sprintf(errMsg, "Attempt to open stream on non-existant file %s.", path->toString());

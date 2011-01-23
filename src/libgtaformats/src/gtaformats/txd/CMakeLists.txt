@@ -16,7 +16,7 @@
 # along with gtaformats.  If not, see <http://www.gnu.org/licenses/>.
 
 
-SET(FILES TXDArchive TXDException TXDTexture TXDVisitor)
+SET(FILES TXDArchive TXDException TXDTexture)
 
 FOREACH(FILE ${FILES})
     SET(SRCS ${SRCS} "gtaformats/txd/${FILE}")

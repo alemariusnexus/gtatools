@@ -24,13 +24,12 @@
 #include "../gta.h"
 #include "TXDException.h"
 #include "TXDTexture.h"
-#include "TXDVisitor.h"
 #include <string>
 #include <algorithm>
 #include <cctype>
 #include <cstdio>
-#include "../util/stream/InputStream.h"
 #include "../util/File.h"
+#include <istream>
 
 using std::istream;
 using std::string;
@@ -57,7 +56,7 @@ public:
 	 *
 	 *	@param stream The stream.
 	 */
-	TXDArchive(InputStream* stream, bool randomAccess = true);
+	TXDArchive(istream* stream, bool randomAccess = true);
 
 
 	TXDArchive(const File& file);
@@ -92,7 +91,7 @@ public:
 	 *	@param texture The texture whose data will be read.
 	 *	@see readTextureData(TXDTexture*)
 	 */
-	void readTextureData(uint8_t* dest, TXDTexture* texture);
+	int readTextureData(uint8_t* dest, TXDTexture* texture);
 
 	/**	\brief Reads raw texture data from the stream into a new array.
 	 *
@@ -116,29 +115,6 @@ public:
 	 */
 	void gotoTexture(TXDTexture* texture);
 
-	/**	\brief Visits the given visitor with the given texture.
-	 *
-	 * 	This calls TXDVisitor::readHeader() with the texture. If that call returns true, it calls
-	 * 	TXDVisitor::readEntry() afterwards.
-	 *
-	 *	@param visitor
-	 *	@param texture
-	 *	@see TXDVisitor
-	 *	@see visitAll()
-	 */
-	void visit(TXDVisitor* visitor, TXDTexture* texture);
-
-	/**	\brief Visits the given visitor with every texture inside the TXD archive.
-	 *
-	 * 	This calls visit() for every entry inside the archive. All textures, even those which were already
-	 * 	read (by using gotoTexture() for these ones), will be used.
-	 *
-	 *	@param visitor The visitor.
-	 *	@see visit()
-	 *	@see TXDVisitor
-	 */
-	void visitAll(TXDVisitor* visitor);
-
 	/**	\brief Returns the number of textures inside the archive.
 	 *
 	 *	@return The number of textures.
@@ -157,13 +133,13 @@ private:
 	 *	@param header Where to header should be read to.
 	 *	@param id The ID which is assumed to be the one of the header.
 	 */
-	void readSectionHeaderWithID(InputStream* stream, RwSectionHeader& header, uint32_t id);
+	void readSectionHeaderWithID(istream* stream, RwSectionHeader& header, uint32_t id);
 
 	void init();
 
 private:
 	bool randomAccess;
-	InputStream* stream;
+	istream* stream;
 	long long bytesRead;
 	TXDTexture** indexedTextures;
 	long long* textureNativeStarts;

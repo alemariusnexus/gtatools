@@ -22,9 +22,12 @@
 
 #include "../config.h"
 #include "GXTTable.h"
-#include "../util/stream/InputStream.h"
 #include "../util/File.h"
 #include "../util/encoding.h"
+#include <istream>
+
+using std::istream;
+using std::streamoff;
 
 
 struct GXTTableHeader
@@ -43,7 +46,7 @@ public:
 	};
 
 public:
-	GXTLoader(InputStream* stream, Encoding encoding = None, bool autoClose = false);
+	GXTLoader(istream* stream, Encoding encoding = None, bool autoClose = false);
 	GXTLoader(const File& file, Encoding encoding = None);
 	void setEncoding(Encoding encoding) { this->encoding = encoding; }
 	Encoding getEncoding() const { return encoding; }
@@ -57,15 +60,15 @@ public:
 
 private:
 	void init();
-	InputStream::streampos getTableOffset(const GXTTableHeader& header) const;
+	streamoff getTableOffset(const GXTTableHeader& header) const;
 
 private:
-	InputStream* stream;
+	istream* stream;
 	bool autoClose;
 	Version version;
 	int32_t numTables;
 	int32_t currentTable;
-	InputStream::streampos cpos;
+	streamoff cpos;
 	Encoding encoding;
 	bool keepKeyNames;
 };

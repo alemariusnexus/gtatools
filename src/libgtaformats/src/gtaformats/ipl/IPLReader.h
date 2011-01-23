@@ -24,8 +24,10 @@
 #include <cstring>
 #include "IPLStatement.h"
 #include "../GTASectionFileReader.h"
-#include "../util/stream/InputStream.h"
 #include "../util/File.h"
+#include <istream>
+
+using std::istream;
 
 
 
@@ -39,7 +41,7 @@ private:
 	};
 
 public:
-	IPLReader(InputStream* stream, bool deleteStream = true);
+	IPLReader(istream* stream, bool deleteStream = true);
 	IPLReader(const File& file);
 	~IPLReader();
 	IPLStatement* readStatement();

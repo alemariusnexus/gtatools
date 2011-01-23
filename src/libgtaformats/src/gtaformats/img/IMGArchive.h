@@ -21,13 +21,14 @@
 #define IMGARCHIVE_H_
 
 #include "../config.h"
-#include "IMGVisitor.h"
 #include <string>
 #include <algorithm>
 #include <cctype>
 #include <cstdio>
-#include "../util/stream/InputStream.h"
-#include "../util/stream/FileInputStream.h"
+#include <istream>
+#include "../util/File.h"
+
+using std::istream;
 
 
 /**	\brief The size of a block in IMG files in bytes.
@@ -100,7 +101,7 @@ public:
 	 *	@param returnToStart When true, the stream will be put back to the position where it was before.
 	 *	@return The guessed version.
 	 */
-	static IMGVersion guessIMGVersion(InputStream* stream, bool returnToStart = true);
+	static IMGVersion guessIMGVersion(istream* stream, bool returnToStart = true);
 
 public:
 	/**	\brief Creates an archive from a file.
@@ -122,7 +123,7 @@ public:
 	 *
 	 *	@param stream The stream to read from.
 	 */
-	IMGArchive(InputStream* stream, bool deleteStream = false);
+	IMGArchive(istream* stream, bool deleteStream = false);
 
 	/**	\brief Creates an archive from two VER1 streams.
 	 *
@@ -133,7 +134,7 @@ public:
 	 *	@param dirStream The stream from which to read the DIR data. Not needed after constructor.
 	 *	@param imgStream The stream from which to read the IMG data.
 	 */
-	IMGArchive(InputStream* dirStream, InputStream* imgStream, bool deleteIMGStream = false);
+	IMGArchive(istream* dirStream, istream* imgStream, bool deleteIMGStream = false);
 
 	/**	\brief Creates an archive from a VER1 DIR and IMG file.
 	 *
@@ -164,7 +165,7 @@ public:
 	 * 	@return A new RangedInputStream that reads from the IMG stream. It's range is defined as the bounds of the IMG entry, so
 	 * 		you can't read beyond it.
 	 */
-	InputStream* gotoEntry(const IMGEntry* entry, bool autoCloseStream = false);
+	istream* gotoEntry(const IMGEntry* entry, bool autoCloseStream = false);
 
 	/**	\brief Goes to the first entry with the given name.
 	 *
@@ -175,7 +176,7 @@ public:
 	 *	@return A new RangedInputStream for the first entry with the given name or NULL, if it's not found.
 	 *	@see gotoEntry(IMGEntry*, bool)
 	 */
-	InputStream* gotoEntry(const char* name, bool autoCloseStream = false);
+	istream* gotoEntry(const char* name, bool autoCloseStream = false);
 
 	/**	\brief Returns an entry by it's name.
 	 *
@@ -208,7 +209,7 @@ public:
 	 *
 	 *	@return The IMG stream.
 	 */
-	const InputStream* getStream() const {
+	const istream* getStream() const {
 		return stream;
 	}
 
@@ -240,7 +241,7 @@ private:
 	 *	@param file The file to open a stream for.
 	 *	@return The stream.
 	 */
-	InputStream* openStream(const File& file);
+	istream* openStream(const File& file);
 
 	/**	\brief Reads the IMG/DIR header out of the given stream.
 	 *
@@ -248,10 +249,10 @@ private:
 	 *
 	 *	@param stream The stream to read from (the DIR stream for VER1).
 	 */
-	void readHeader(InputStream* stream);
+	void readHeader(istream* stream);
 
 private:
-	InputStream* stream;
+	istream* stream;
 	IMGEntry* entries;
 	int32_t numEntries;
 	IMGVersion version;

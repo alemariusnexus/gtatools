@@ -36,9 +36,12 @@
 #include "ItemDefinition.h"
 #include <set>
 #include <gtaformats/util/Cache.h>
+#include <istream>
 
 using std::map;
 using std::set;
+using std::istream;
+using std::streamoff;
 
 
 
@@ -47,13 +50,13 @@ private:
 	struct MeshEntry
 	{
 		File* file;
-		InputStream::streampos colStart;
+		streamoff colStart;
 	};
 
 	struct COLEntry
 	{
 		File* file;
-		InputStream::streampos offset;
+		streamoff offset;
 	};
 
 	struct TextureEntry
@@ -116,13 +119,18 @@ public:
 	int getMeshCacheOccupiedSize() const { return meshCache.getOccupiedSize(); }
 	void resizeTextureCache(int capacity) { textureCache.resize(capacity); }
 	void resizeMeshCache(int capacity) { meshCache.resize(capacity); }
+	int getMeshCacheHits() const { return meshCacheHits; }
+	int getMeshCacheMisses() const { return meshCacheMisses; }
+	int getTextureCacheHits() const { return texCacheHits; }
+	int getTextureCacheMisses() const { return texCacheMisses; }
+	void resetCacheStatistics() { meshCacheHits = 0; meshCacheMisses = 0; texCacheHits = 0; texCacheMisses = 0; }
 	/*bool getCollisionModel(hash_t colHash, COLModel*& model);
 	bool getCollisionModel(const char* name, COLModel*& model)
 			{ return getCollisionModel(Hash(name), model); }
 	bool getCollisionModel(hash_t colHash, Mesh*& mesh);*/
 
 private:
-	void addResource(const File& file, InputStream* stream);
+	void addResource(const File& file, istream* stream);
 	TextureEntry* findTexture(const TextureIndex& index, TXDEntry*& txdEntry);
 	void readTexture(TextureEntry* texEntry, TXDEntry* txdEntry, TXDTexture*& tex, uint8_t*& data,
 			bool readData = true);
@@ -140,6 +148,9 @@ private:
 	MeshCache meshCache;
 	ItemDefinitionMap items;
 	//COLMap cols;
+
+	long long meshCacheHits, meshCacheMisses;
+	long long texCacheHits, texCacheMisses;
 
 	Mutex textureMutex;
 	Mutex textureCacheMutex;
