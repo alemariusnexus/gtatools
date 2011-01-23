@@ -42,9 +42,9 @@ public:
 	void setAlphaName(const char* name);
 
 private:
-	int16_t filterModeFlags;
 	char* diffuseName;
 	char* alphaName;
+	int16_t filterModeFlags;
 };
 
 #endif /* DFFTEXTURE_H_ */

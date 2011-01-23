@@ -63,7 +63,6 @@ void ItemDefinition::render()
 {
 	Engine* engine = Engine::getInstance();
 	ShaderProgram* program = engine->getCurrentShaderProgram();
-	ResourceManager* resMgr = engine->getResourceManager();
 
 	//Mesh* mesh = getMesh();
 	Mesh* mesh = **meshPtr;

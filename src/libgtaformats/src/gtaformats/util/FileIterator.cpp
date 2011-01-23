@@ -194,7 +194,7 @@ File* FileIterator::next()
 			return nextFile;
 		} catch (Exception& ex) {
 			char* errMsg = new char[strlen(iteratedDir->getPath()->toString()) + 128];
-			sprintf(errMsg, "Exception thrown during iteration over IMG archive",
+			sprintf(errMsg, "Exception thrown during iteration over IMG archive %s",
 					iteratedDir->getPath()->toString());
 			FileException fex(errMsg, __FILE__, __LINE__, &ex);
 			delete[] errMsg;

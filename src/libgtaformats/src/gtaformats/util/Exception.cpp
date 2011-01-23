@@ -26,8 +26,8 @@
 
 Exception::Exception(const char* message, const char* srcFile, int srcLine, Exception* nestedException,
 		const char* exceptionName)
-		: message(NULL), srcFile(srcFile), srcLine(srcLine), nestedException(nestedException),
-		  exceptionName(exceptionName)
+		: exceptionName(exceptionName), message(NULL), srcFile(srcFile), srcLine(srcLine),
+		  nestedException(nestedException)
 {
 	setMessage(message);
 
@@ -54,8 +54,8 @@ Exception::Exception(const char* message, const char* srcFile, int srcLine, Exce
 
 
 Exception::Exception(const Exception& ex)
-		: message(NULL), srcFile(ex.srcFile), srcLine(ex.srcLine), nestedException(ex.nestedException),
-		  exceptionName(ex.exceptionName)
+		: exceptionName(ex.exceptionName), message(NULL), srcFile(ex.srcFile), srcLine(ex.srcLine),
+		  nestedException(ex.nestedException)
 {
 	setMessage(ex.message);
 

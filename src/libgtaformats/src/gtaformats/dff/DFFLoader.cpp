@@ -279,7 +279,7 @@ int DFFLoader::parseStruct(istream* stream, RwSectionHeader& structHeader, RwSec
 		geom->setBounds(bounds);
 		mesh->addGeometry(geom);
 	} else if (parent->id == RW_SECTION_MATERIALLIST) {
-		DFFGeometry* geom = mesh->getGeometry(mesh->getGeometryCount()-1);
+		//DFFGeometry* geom = mesh->getGeometry(mesh->getGeometryCount()-1);
 		int32_t materialCount;
 		stream->read((char*) &materialCount, 4);
 		rc += 4;

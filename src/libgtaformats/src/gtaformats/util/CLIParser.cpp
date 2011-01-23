@@ -243,7 +243,7 @@ CLIParser& CLIParser::printOption(int option)
 
 void CLIParser::printOptions()
 {
-	for (int i = 0 ; i < options.size() ; i++) {
+	for (unsigned int i = 0 ; i < options.size() ; i++) {
 		printOption(i+1);
 	}
 }

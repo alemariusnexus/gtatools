@@ -353,14 +353,14 @@ public:
 	 * 	@param index The material index.
 	 * 	@return The material at the given index.
 	 */
-	DFFMaterial* getMaterial(int index);
+	DFFMaterial* getMaterial(unsigned int index);
 
 	/**	\brief Returns the material at the given index.
 	 *
 	 * 	@param index The material index.
 	 * 	@return The material at the given index.
 	 */
-	const DFFMaterial* getMaterial(int index) const;
+	const DFFMaterial* getMaterial(unsigned int index) const;
 
 	/**	\brief Add a material.
 	 *
@@ -376,7 +376,7 @@ public:
 	 *
 	 * 	@param index The material index.
 	 */
-	void removeMaterial(int index) { removeMaterial(getMaterial(index)); }
+	void removeMaterial(unsigned int index) { removeMaterial(getMaterial(index)); }
 
 	/**	\brief Removes the given material.
 	 *
@@ -417,8 +417,8 @@ public:
 	ConstPartIterator getPartEnd() const { return parts.end(); }
 
 
-	DFFGeometryPart* getPart(int index);
-	const DFFGeometryPart* getPart(int index) const;
+	DFFGeometryPart* getPart(unsigned int index);
+	const DFFGeometryPart* getPart(unsigned int index) const;
 	void addPart(DFFGeometryPart* part) { parts.push_back(part); part->reparent(this); }
 	void removePart(int index) { removePart(getPart(index)); }
 	void removePart(DFFGeometryPart* part);

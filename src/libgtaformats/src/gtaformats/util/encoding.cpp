@@ -22,6 +22,7 @@
 #include <errno.h>
 #include <cstdio>
 #include <cstring>
+#include <cassert>
 
 #ifdef linux
 #include <iconv.h>
@@ -198,6 +199,9 @@ int Transcode(char* src, int srcBytes, char* dest, int destBytes, Encoding srcEn
 		break;
 	case ISO8859_1:
 		iconvSrcEnc = "ISO8859-1";
+	default:
+		// This should never happen
+		assert(false);
 	}
 
 	switch (destEnc) {
@@ -216,6 +220,9 @@ int Transcode(char* src, int srcBytes, char* dest, int destBytes, Encoding srcEn
 	case ISO8859_1:
 		iconvDestEnc = "ISO-8859-1";
 		break;
+	default:
+		// This should never happen
+		assert(false);
 	}
 
 	iconv_t ic = iconv_open(iconvDestEnc, iconvSrcEnc);

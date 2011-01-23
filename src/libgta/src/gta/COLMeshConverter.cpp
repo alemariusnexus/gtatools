@@ -145,7 +145,6 @@ Mesh* COLMeshConverter::convert(const COLModel& model)
     		indices[j] += vertexOffset;
     	}
 
-    	const COLSphere& sphere = spheres[i];
     	Submesh* submesh = new Submesh(mesh, indexCount, indices);
     	mesh->addSubmesh(submesh);
     	vertexOffset += sphereVertexCounts[i];
@@ -158,7 +157,6 @@ Mesh* COLMeshConverter::convert(const COLModel& model)
     		indices[j] += vertexOffset;
     	}
 
-    	const COLBox& box = boxes[i];
         Submesh* submesh = new Submesh(mesh, indexCount, indices);
         mesh->addSubmesh(submesh);
         vertexOffset += boxVertexCounts[i];
@@ -449,7 +447,6 @@ void COLMeshConverter::convertVertexModel(const COLModel& model, int& vertexCoun
 		uint8_t*& colors, int32_t*& indices)
 {
 	const float* srcVerts = model.getVertices();
-	int srcVertexCount = model.getVertexCount();
 	uint32_t srcFaceCount = model.getFaceCount();
 	const COLFace* faces = model.getFaces();
 
@@ -458,7 +455,7 @@ void COLMeshConverter::convertVertexModel(const COLModel& model, int& vertexCoun
 	colors = new uint8_t[vertexCount*4];
 	indices = new int32_t[vertexCount];
 
-	for (int numFace = 0 ; numFace < srcFaceCount ; numFace++) {
+	for (unsigned int numFace = 0 ; numFace < srcFaceCount ; numFace++) {
 		const COLFace& face = faces[numFace];
 		const uint32_t* srcIndices = face.getIndices();
 

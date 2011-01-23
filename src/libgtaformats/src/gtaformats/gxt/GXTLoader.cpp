@@ -136,7 +136,7 @@ bool GXTLoader::nextTableHeader(GXTTableHeader& header)
 void GXTLoader::readTableHeaders(GXTTableHeader* headers)
 {
 	int32_t readTableCount = numTables-currentTable;
-	for (int32_t i = i = 0 ; i < readTableCount ; i++) {
+	for (int32_t i = 0 ; i < readTableCount ; i++) {
 		nextTableHeader(headers[i]);
 	}
 }
@@ -194,7 +194,6 @@ GXTTable* GXTLoader::readTableData(const GXTTableHeader& header)
 
 			int step = 64;
 			char* text = NULL;
-			int textLen = 0;
 			bool finished = false;
 			int strLen = 0;
 

@@ -72,8 +72,6 @@ void TxdGetRasterFormatName(char* dest, int32_t rasterFormat) {
 
 TXDTexture::TXDTexture(istream* stream, long long& bytesRead)
 {
-	char skipBuf[4];
-
 	int32_t platformId;
 	int32_t alphaFourCC;
 	int8_t dxtType;
