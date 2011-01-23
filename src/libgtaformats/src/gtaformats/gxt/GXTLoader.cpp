@@ -186,7 +186,7 @@ GXTTable* GXTLoader::readTableData(const GXTTableHeader& header)
 		streamoff tdatRead = 0;
 
 		for (int32_t i = 0 ; i < numEntries ; i++) {
-			streamoff skip = entries[i].offset - tdatRead;
+			unsigned int skip = (unsigned int) (entries[i].offset - tdatRead);
 			char* tmpSkipBuf = new char[skip];
 			stream->read(tmpSkipBuf, skip);
 			delete[] tmpSkipBuf;
@@ -268,18 +268,18 @@ GXTTable* GXTLoader::readTableData(const GXTTableHeader& header)
 		streamoff tdatRead = 0;
 
 		for (int32_t i = 0 ; i < numEntries ; i++) {
-			streamoff skip = entries[i].offset - tdatRead;
+			unsigned int skip = (unsigned int) (entries[i].offset - tdatRead);
 			char* tmpSkipBuf = new char[skip];
 			stream->read(tmpSkipBuf, skip);
 			delete[] tmpSkipBuf;
 			tdatRead += skip;
 
-			int maxLen;
+			unsigned int maxLen;
 
 			if (i < numEntries-1) {
 				maxLen = entries[i+1].offset - entries[i].offset;
 			} else {
-				maxLen = tdatSize - tdatRead;
+				maxLen = (unsigned int) (tdatSize - tdatRead);
 			}
 
 			char* text = NULL;

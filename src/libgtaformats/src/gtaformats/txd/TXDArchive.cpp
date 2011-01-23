@@ -89,7 +89,7 @@ void TXDArchive::init()
 TXDTexture* TXDArchive::nextTexture()
 {
 	if (currentTextureNativeStart != -1) {
-		long long len = currentTextureNativeStart + currentTextureNativeSize + 12 - bytesRead;
+		unsigned int len = (unsigned int) (currentTextureNativeStart + currentTextureNativeSize + 12 - bytesRead);
 		char* tmpSkipBuf = new char[len];
 		stream->read(tmpSkipBuf, len);
 		delete[] tmpSkipBuf;

@@ -213,7 +213,7 @@ IPLStatement* IPLReader::readStatement()
 		}
 
 		if (binaryReadCount == binaryInstanceCount) {
-			int skipCount = binaryCarOffset-stream->tellg();
+			unsigned int skipCount = (unsigned int) (binaryCarOffset-stream->tellg());
 			char* tmpSkipBuf = new char[skipCount];
 			stream->read(tmpSkipBuf, skipCount);
 			delete[] tmpSkipBuf;

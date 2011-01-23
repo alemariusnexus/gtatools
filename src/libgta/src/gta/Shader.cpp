@@ -46,7 +46,7 @@ void Shader::loadSourceCode(const File& file)
 {
 	istream* stream = file.openInputStream();
 	stream->seekg(0, istream::end);
-	streamoff len = stream->tellg();
+	unsigned int len = (unsigned int) stream->tellg();
 	stream->seekg(0, istream::beg);
 	char* buffer = new char[len];
 	stream->read(buffer, len);
