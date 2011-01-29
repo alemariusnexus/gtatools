@@ -33,7 +33,7 @@ Mesh::Mesh(int vertexCount, int flags, const float* vertices, const float* norma
 }
 
 
-Mesh::Mesh(const DFFGeometry& geometry)
+Mesh::Mesh(const DFFGeometry& geometry, bool autoSubmeshes)
 		: vertexCount(geometry.getVertexCount())
 {
 	flags = 0;
@@ -65,10 +65,12 @@ Mesh::Mesh(const DFFGeometry& geometry)
 		addMaterial(material);
 	}
 
-	DFFGeometry::ConstPartIterator pit;
-	for (pit = geometry.getPartBegin() ; pit != geometry.getPartEnd() ; pit++) {
-		Submesh* submesh = new Submesh(this, **pit);
-		addSubmesh(submesh);
+	if (autoSubmeshes) {
+		DFFGeometry::ConstPartIterator pit;
+		for (pit = geometry.getPartBegin() ; pit != geometry.getPartEnd() ; pit++) {
+			Submesh* submesh = new Submesh(this, **pit);
+			addSubmesh(submesh);
+		}
 	}
 
 	const DFFBoundingSphere* b = geometry.getBounds();

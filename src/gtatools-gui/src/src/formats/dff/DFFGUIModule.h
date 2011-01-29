@@ -33,17 +33,31 @@ class DFFGUIModule : public GUIModule {
 	Q_OBJECT
 
 public:
-	DFFGUIModule(DFFWidget* dffWidget);
-	~DFFGUIModule();
+	static DFFGUIModule* getInstance() { static DFFGUIModule inst; return &inst; }
+	void installOnce();
+	void uninstallOnce();
+
+signals:
+	void dumpRequested();
+	void texturedPropertyChanged(bool textured);
+	void wireframePropertyChanged(bool wireframe);
 
 private:
+	DFFGUIModule();
+	~DFFGUIModule();
 	virtual void doInstall();
 	virtual void doUninstall();
+
+private slots:
+	void dumpRequestedSlot(bool) { emit dumpRequested(); }
+	void texturedPropertyChangedSlot(bool textured) { emit texturedPropertyChanged(textured); }
+	void wireframePropertyChangedSlot(bool wireframe) { emit wireframePropertyChanged(wireframe); }
 
 private:
 	QAction* dumpAction;
 	QAction* texturedAction;
 	QAction* wireframeAction;
+	int installCount;
 };
 
 #endif /* DFFGUIMODULE_H_ */

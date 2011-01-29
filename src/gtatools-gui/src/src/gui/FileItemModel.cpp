@@ -17,14 +17,12 @@
 	along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "FileItemModel.h"
 #include "../config.h"
+#include "FileItemModel.h"
 #include "../formats/FormatManager.h"
 #include <cstring>
 #include <qprogressdialog.h>
 #include <qsettings.h>
-
-
 
 
 FileItemModel::FileItemModel(Profile* profile, QWidget* parent)
@@ -160,6 +158,8 @@ QVariant FileItemModel::data(const QModelIndex& index, int role) const
 			}
 		}
 	}
+
+	return QVariant();
 }
 
 

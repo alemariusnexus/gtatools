@@ -24,11 +24,11 @@
 #include <QtCore/qlist.h>
 #include <QtCore/qstring.h>
 #include <QtCore/qfile.h>
-#include <gta/ResourceManager.h>
 #include <qmetatype.h>
 #include <gtaformats/util/File.h>
 #include "Task.h"
 #include "ProfileInitializer.h"
+#include "ExtendedResourceManager.h"
 
 
 
@@ -52,7 +52,7 @@ public:
 	void setName(const QString& name) { this->name = name; }
 	void synchronize();
 	bool containsFile(const File& file);
-	ResourceManager* getResourceManager();
+	ExtendedResourceManager* getResourceManager();
 	bool isResourceIndexInitialized() { return resourceIdxInitialized; }
 
 private:
@@ -72,7 +72,7 @@ signals:
 private:
 	QLinkedList<File*> resources;
 	QString name;
-	ResourceManager* resourceManager;
+	ExtendedResourceManager* resourceManager;
 	bool resourceIdxInitialized;
 	Task* resourceInitTask;
 	ProfileInitializer* currentInitializer;

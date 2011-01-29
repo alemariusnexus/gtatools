@@ -28,7 +28,9 @@
 class StaticMeshPointer : public MeshPointer {
 public:
 	StaticMeshPointer(Mesh* mesh) : mesh(mesh) {}
+	StaticMeshPointer(const StaticMeshPointer& other) : mesh(other.mesh) {}
 	virtual Mesh* operator*() { return mesh; }
+	virtual MeshPointer* clone() const { return new StaticMeshPointer(*this); }
 
 private:
 	Mesh* mesh;

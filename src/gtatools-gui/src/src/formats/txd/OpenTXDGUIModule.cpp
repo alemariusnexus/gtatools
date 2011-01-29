@@ -23,7 +23,7 @@
 #include "../../gui/MainWindow.h"
 #include <gtaformats/txd/TXDArchive.h>
 #include <gtaformats/txd/TXDTexture.h>
-#include <gtaformats/gf_config.h>
+#include <gtaformats/config.h>
 #include <qlinkedlist.h>
 #include <qfiledialog.h>
 #include <qimagewriter.h>

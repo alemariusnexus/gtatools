@@ -29,9 +29,11 @@
 class ManagedMeshPointer : public MeshPointer {
 public:
 	ManagedMeshPointer(hash_t meshHash) : meshHash(meshHash) {}
+	ManagedMeshPointer(const ManagedMeshPointer& other) : meshHash(other.meshHash) {}
 	hash_t getMeshHash() const { return meshHash; }
 	void setMeshHash(hash_t hash) { meshHash = hash; }
 	virtual Mesh* operator*();
+	virtual MeshPointer* clone() const { return new ManagedMeshPointer(*this); }
 
 private:
 	hash_t meshHash;

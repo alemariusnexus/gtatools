@@ -25,6 +25,7 @@
 #include "../../System.h"
 #include <qstring.h>
 #include "TXDFormatHandler.h"
+#include <QtGui/QMessageBox>
 
 
 
@@ -44,7 +45,14 @@ TXDWidget::TXDWidget(const File& file, const QString& selectedTex, QWidget* pare
 
 	loadConfigUiSettings();
 
-	txd = new TXDArchive(file);
+	try {
+		txd = new TXDArchive(file);
+	} catch (TXDException ex) {
+		System::getInstance()->logError(ex.what());
+		QMessageBox::critical(this, tr("Error opening TXD file"), tr("The following error occurred "
+				"opening the TXD file:\n\n%1\n\nSee the error log fore more details.").arg(ex.getMessage()));
+		throw;
+	}
 
 	textures = new TXDTexture*[txd->getTextureCount()];
 

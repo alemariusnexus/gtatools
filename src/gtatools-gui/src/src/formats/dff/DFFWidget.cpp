@@ -17,8 +17,8 @@
 	along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DFFWidget.h"
 #include "../../config.h"
+#include "DFFWidget.h"
 #include <qlistwidget.h>
 #include "../../System.h"
 #include <qfiledialog.h>
@@ -27,6 +27,10 @@
 #include <qtextstream.h>
 #include "DFFFormatHandler.h"
 #include <QtCore/QSettings>
+#include <gtaformats/util/strutil.h>
+#include <gta/ManagedTextureSource.h>
+#include <QtGui/QMessageBox>
+#include <QtGui/QInputDialog>
 
 
 int mainTabberIndex = 0;
@@ -58,7 +62,7 @@ void frameRecurse(DFFFrame* parent, int numInd)
 
 
 DFFWidget::DFFWidget(const File& file, QWidget* parent, QGLWidget* shareWidget)
-		: QWidget(parent)
+		: QWidget(parent), texSource(NULL)
 {
 	ui.setupUi(this);
 
@@ -81,7 +85,16 @@ DFFWidget::DFFWidget(const File& file, QWidget* parent, QGLWidget* shareWidget)
 	ui.geometryPartRenderContainerWidget->layout()->addWidget(geometryPartRenderWidget);
 
 	DFFLoader dff;
-	mesh = dff.loadMesh(file);
+
+	try {
+		mesh = dff.loadMesh(file);
+	} catch (DFFException ex) {
+		printf("EX\n");
+		System::getInstance()->logError(ex.what());
+		QMessageBox::critical(this, tr("Error opening DFF file"), tr("The following error occurred "
+				"opening the DFF file:\n\n%1\n\nSee the error log for more details.").arg(ex.getMessage()));
+		throw;
+	}
 
 	frameModel = new DFFFrameItemModel(mesh);
 	ui.frameTree->setModel(frameModel);
@@ -96,10 +109,24 @@ DFFWidget::DFFWidget(const File& file, QWidget* parent, QGLWidget* shareWidget)
 		ui.geometryList->addItem(item);
 	}
 
-	guiModule = new DFFGUIModule(this);
+	DFFGUIModule* guiModule = DFFGUIModule::getInstance();
+	guiModule->installOnce();
 
-	System::getInstance()->installGUIModule(guiModule);
+	Profile* profile = ProfileManager::getInstance()->getCurrentProfile();
 
+	connect(ui.texSourceBox, SIGNAL(currentIndexChanged(int)), this, SLOT(texSourceSelected(int)));
+
+	// Search for the mesh texture
+	char* meshName = new char[strlen(file.getPath()->getFileName())+1];
+	strtolower(meshName, file.getPath()->getFileName());
+	meshName[strlen(meshName)-4] = '\0';
+
+	char** texNames;
+	int numTexNames = profile->getResourceManager()->getTexturesForMesh(meshName, texNames);
+
+	for (int i = 0 ; i < numTexNames ; i++) {
+		ui.texSourceBox->addItem(texNames[i], QString(texNames[i]));
+	}
 
 	connect(ui.frameTree->selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
 			this, SLOT(frameSelected(const QModelIndex&, const QModelIndex&)));
@@ -107,6 +134,10 @@ DFFWidget::DFFWidget(const File& file, QWidget* parent, QGLWidget* shareWidget)
 	connect(ui.materialList, SIGNAL(currentRowChanged(int)), this, SLOT(materialSelected(int)));
 	connect(ui.textureList, SIGNAL(currentRowChanged(int)), this, SLOT(textureSelected(int)));
 	connect(ui.geometryPartList, SIGNAL(currentRowChanged(int)), this, SLOT(geometryPartSelected(int)));
+	connect(ui.otherTexSrcButton, SIGNAL(clicked(bool)), this, SLOT(otherTexSourceRequested(bool)));
+	connect(guiModule, SIGNAL(dumpRequested()), this, SLOT(xmlDumpRequested()));
+	connect(guiModule, SIGNAL(texturedPropertyChanged(bool)), this, SLOT(texturedPropertyChanged(bool)));
+	connect(guiModule, SIGNAL(wireframePropertyChanged(bool)), this, SLOT(wireframePropertyChanged(bool)));
 
 	geometryRenderWidget->updateGL();
 	geometryPartRenderWidget->updateGL();
@@ -121,8 +152,8 @@ DFFWidget::~DFFWidget()
 	geometryTabberIndex = ui.geometryTabber->currentIndex();
 	geometryPartTabberIndex = ui.geometryPartTabber->currentIndex();
 
-	System::getInstance()->uninstallGUIModule(guiModule);
-	delete guiModule;
+	disconnect(this);
+	DFFGUIModule::getInstance()->uninstallOnce();
 
 	clearGeometryPartList();
 	clearMaterialList();
@@ -198,10 +229,12 @@ void DFFWidget::frameSelected(const QModelIndex& index, const QModelIndex& previ
 	const float* arot = rot.toArray();
 
 	ui.frameNameLabel->setText(index.data(Qt::DisplayRole).toString());
-	ui.frameTranslationLabel->setText(tr("(%1, %2, %3)").arg(trans[0]).arg(trans[1]).arg(trans[2]));
+	ui.frameTranslationLabel->setText(tr("(%1, %2, %3)").arg(trans[0], 0, 'f').arg(trans[1], 0, 'f')
+			.arg(trans[2], 0, 'f'));
 	ui.frameRotationLabel->setText(tr("(%1, %2, %3) (%4, %5, %6) (%7, %8, %9)")
-			.arg(arot[0]).arg(arot[1]).arg(arot[2]).arg(arot[3]).arg(arot[4]).arg(arot[5]).arg(arot[6])
-			.arg(arot[7]).arg(arot[8]));
+			.arg(arot[0], -10, 'f').arg(arot[1], -10, 'f').arg(arot[2], -10, 'f').arg(arot[3], -10, 'f')
+			.arg(arot[4], -10, 'f').arg(arot[5], -10, 'f').arg(arot[6], -10, 'f').arg(arot[7], -10, 'f')
+			.arg(arot[8], -10, 'f'));
 
 	if (frame->getParent() == NULL) {
 		ui.frameParentLabel->setText(tr("None"));
@@ -361,8 +394,16 @@ void DFFWidget::geometryPartSelected(int row)
 
 void DFFWidget::texturedPropertyChanged(bool textured)
 {
-	geometryRenderWidget->setShowTextures(textured);
-	geometryPartRenderWidget->setShowTextures(textured);
+	//geometryRenderWidget->setShowTextures(textured);
+	//geometryPartRenderWidget->setShowTextures(textured);
+
+	if (textured) {
+		geometryRenderWidget->setTextureSource(new ManagedTextureSource(*texSource));
+		geometryPartRenderWidget->setTextureSource(new ManagedTextureSource(*texSource));
+	} else {
+		geometryRenderWidget->setTextureSource(NULL);
+		geometryPartRenderWidget->setTextureSource(NULL);
+	}
 }
 
 
@@ -373,8 +414,30 @@ void DFFWidget::wireframePropertyChanged(bool wireframe)
 }
 
 
-void DFFWidget::xmlDumpRequested(bool)
+void DFFWidget::xmlDumpRequested()
 {
 	DFFFormatHandler::getInstance()->xmlDumpDialog(*mesh, this);
+}
+
+
+void DFFWidget::texSourceSelected(int index)
+{
+	if (texSource)
+		delete texSource;
+
+	QString texName = ui.texSourceBox->itemData(index).toString();
+	texSource = new ManagedTextureSource(texName.toAscii().constData());
+	geometryRenderWidget->setTextureSource(new ManagedTextureSource(*texSource));
+	geometryPartRenderWidget->setTextureSource(new ManagedTextureSource(*texSource));
+}
+
+
+void DFFWidget::otherTexSourceRequested(bool)
+{
+	QString txdName = QInputDialog::getText(this, tr("Enter the TXD name"),
+			tr("Enter the name of the TXD you want to add (without extension):"));
+
+	if (!txdName.isNull())
+		ui.texSourceBox->addItem(txdName, txdName);
 }
 

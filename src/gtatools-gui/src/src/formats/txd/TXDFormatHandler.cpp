@@ -26,6 +26,7 @@
 #include <QtGui/QImage>
 #include <QtGui/QImageWriter>
 #include "../../System.h"
+#include "../../ProfileManager.h"
 #include "TextureSearchDialog.h"
 
 
@@ -35,6 +36,13 @@ TXDFormatHandler* TXDFormatHandler::getInstance()
 {
 	static TXDFormatHandler* inst = new TXDFormatHandler;
 	return inst;
+}
+
+
+TXDFormatHandler::TXDFormatHandler()
+{
+	connect(System::getInstance(), SIGNAL(systemQuerySent(const SystemQuery&, SystemQueryResult&)), this,
+			SLOT(systemQuerySent(const SystemQuery&, SystemQueryResult&)));
 }
 
 
@@ -121,8 +129,14 @@ QImage TXDFormatHandler::createImageFromTexture(TXDTexture* tex, uint8_t* data, 
 
 	resultData = new uint8_t[w*h*4];
 
-	tex->convert(resultData, data, MIRROR_NONE, 4, 2, 1, 0, 3);
+	tex->convert(resultData, data, 0, MIRROR_NONE, 4, 2, 1, 0, 3);
 	QImage image(resultData, w, h, QImage::Format_ARGB32);
 
 	return image;
+}
+
+
+void TXDFormatHandler::systemQuerySent(const SystemQuery& query, SystemQueryResult& result)
+{
+	// Currently does nothing
 }

@@ -17,24 +17,28 @@
 	along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IDEFORMATHANDLER_H_
-#define IDEFORMATHANDLER_H_
+#ifndef EXTENDEDRESOURCEMANAGER_H_
+#define EXTENDEDRESOURCEMANAGER_H_
 
-#include "../FormatHandler.h"
-#include "../../System.h"
+#include <gta/ResourceManager.h>
+#include <map>
+#include <gta/Engine.h>
 
-class IDEFormatHandler: public FormatHandler {
-	Q_OBJECT
+using std::multimap;
+
+
+
+class ExtendedResourceManager : public ResourceManager {
+	typedef multimap<hash_t, char*> MeshTexMap;
 
 public:
-	IDEFormatHandler();
-	virtual QString getFormatName(const File* file = NULL) const { return tr("Item Definition File (IDE)"); }
-	virtual QLinkedList<QString> getFileFormatExtensions() const { return QLinkedList<QString>() << "ide"; }
-	virtual bool hasFileFormat(const File& file) const { return file.guessContentType() == CONTENT_TYPE_IDE; }
-	virtual QWidget* createWidgetForFile(const FileOpenRequest& request, QWidget* parent);
+	virtual void addResource(const File& file);
+	int getTexturesForMesh(hash_t meshHash, char**& texNames);
+	int getTexturesForMesh(const char* meshName, char**& texNames)
+			{ return getTexturesForMesh(Hash(meshName), texNames); }
 
-private slots:
-	void systemQuerySent(const SystemQuery& query, SystemQueryResult& result);
+private:
+	MeshTexMap meshTexIndex;
 };
 
-#endif /* IDEFORMATHANDLER_H_ */
+#endif /* EXTENDEDRESOURCEMANAGER_H_ */

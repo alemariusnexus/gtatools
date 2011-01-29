@@ -17,8 +17,8 @@
 	along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ProfileManager.h"
 #include "config.h"
+#include "ProfileManager.h"
 #include <qsettings.h>
 #include <qstring.h>
 #include <gtaformats/util/File.h>

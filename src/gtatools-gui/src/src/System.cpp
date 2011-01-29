@@ -42,7 +42,13 @@ bool System::openFile(const FileOpenRequest& request)
 	}
 
 	openFiles << new File(*request.getFile());
-	emit fileOpened(request);
+
+	try {
+		emit fileOpened(request);
+	} catch (...) {
+		closeFile(*request.getFile());
+		return false;
+	}
 
 	changeCurrentFile(request.getFile());
 }
@@ -201,6 +207,14 @@ void System::uninstallGUIModule(GUIModule* module)
 		module->uninstall();
 		emit uninstalledGUIModule(module);
 	}
+}
+
+
+SystemQueryResult System::sendSystemQuery(const SystemQuery& query)
+{
+	SystemQueryResult result(false);
+	emit systemQuerySent(query, result);
+	return result;
 }
 
 

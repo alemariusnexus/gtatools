@@ -97,7 +97,7 @@ private:
 public:
 	ResourceManager();
 	~ResourceManager();
-	void addResource(const File& file);
+	virtual void addResource(const File& file);
 	GLuint getTexture(const TextureIndex& index);
 	GLuint bindTexture(const TextureIndex& index);
 	bool getTexture(const TextureIndex& index, TXDTexture*& tex);
@@ -124,10 +124,6 @@ public:
 	unsigned long long getTextureCacheHits() const { return texCacheHits; }
 	unsigned long long getTextureCacheMisses() const { return texCacheMisses; }
 	void resetCacheStatistics() { meshCacheHits = 0; meshCacheMisses = 0; texCacheHits = 0; texCacheMisses = 0; }
-	/*bool getCollisionModel(hash_t colHash, COLModel*& model);
-	bool getCollisionModel(const char* name, COLModel*& model)
-			{ return getCollisionModel(Hash(name), model); }
-	bool getCollisionModel(hash_t colHash, Mesh*& mesh);*/
 
 private:
 	void addResource(const File& file, istream* stream);

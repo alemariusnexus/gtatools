@@ -27,7 +27,7 @@
 #include <qmessagebox.h>
 #include <qfiledialog.h>
 #include "../System.h"
-#include <gtaformats/gf_config.h>
+#include <gtaformats/config.h>
 #include "FileSearchDialog.h"
 #include "VersionDialog.h"
 

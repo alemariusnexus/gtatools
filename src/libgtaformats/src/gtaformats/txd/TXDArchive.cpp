@@ -197,7 +197,8 @@ void TXDArchive::readSectionHeaderWithID(istream* stream, RwSectionHeader& heade
 		RwGetSectionName(id, expected);
 		RwGetSectionName(header.id, found);
 		char errmsg[256];
-		sprintf(errmsg, "Found section with type %s where %s was expected", found, expected);
+		sprintf(errmsg, "Found section with type %s where %s was expected (is it really a TXD file?)",
+				found, expected);
 		throw TXDException(errmsg, __FILE__, __LINE__);
 	}
 }

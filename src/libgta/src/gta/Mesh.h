@@ -52,7 +52,7 @@ public:
 public:
 	Mesh(int vertexCount, int flags, const float* vertices, const float* normals = NULL,
 			const float* texCoords = NULL, const uint8_t* vertexColors = NULL);
-	Mesh(const DFFGeometry& geometry);
+	Mesh(const DFFGeometry& geometry, bool autoSubmeshes = true);
 	Mesh(int vertexCount, int flags, GLuint dataBuffer, int normalOffset = -1, int texCoordOffset = -1,
 			int vertexColorOffset = -1);
 	~Mesh();

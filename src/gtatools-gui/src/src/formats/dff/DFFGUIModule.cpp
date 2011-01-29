@@ -21,10 +21,12 @@
 #include <qmenu.h>
 #include "../../gui/MainWindow.h"
 #include "DFFWidget.h"
+#include "../System.h"
 
 
 
-DFFGUIModule::DFFGUIModule(DFFWidget* dffWidget)
+DFFGUIModule::DFFGUIModule()
+		: installCount(0)
 {
 	texturedAction = new QAction(tr("Show textured"), NULL);
 	texturedAction->setCheckable(true);
@@ -36,10 +38,9 @@ DFFGUIModule::DFFGUIModule(DFFWidget* dffWidget)
 
 	dumpAction = new QAction(tr("Dump XML"), NULL);
 
-	connect(texturedAction, SIGNAL(triggered(bool)), dffWidget, SLOT(texturedPropertyChanged(bool)));
-	connect(wireframeAction, SIGNAL(triggered(bool)), dffWidget, SLOT(wireframePropertyChanged(bool)));
-	connect(dumpAction, SIGNAL(triggered(bool)), dffWidget, SLOT(xmlDumpRequested(bool)));
-
+	connect(texturedAction, SIGNAL(triggered(bool)), this, SLOT(texturedPropertyChangedSlot(bool)));
+	connect(wireframeAction, SIGNAL(triggered(bool)), this, SLOT(wireframePropertyChangedSlot(bool)));
+	connect(dumpAction, SIGNAL(triggered(bool)), this, SLOT(dumpRequestedSlot(bool)));
 }
 
 
@@ -48,6 +49,26 @@ DFFGUIModule::~DFFGUIModule()
 	delete texturedAction;
 	delete wireframeAction;
 	delete dumpAction;
+}
+
+
+void DFFGUIModule::installOnce()
+{
+	if (installCount == 0) {
+		System::getInstance()->installGUIModule(this);
+	}
+
+	installCount++;
+}
+
+
+void DFFGUIModule::uninstallOnce()
+{
+	installCount--;
+
+	if (installCount == 0) {
+		System::getInstance()->uninstallGUIModule(this);
+	}
 }
 
 

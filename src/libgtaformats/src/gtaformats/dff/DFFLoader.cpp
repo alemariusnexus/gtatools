@@ -469,10 +469,18 @@ DFFMesh* DFFLoader::loadMesh(istream* stream) {
 		RwReadSectionHeader(stream, clump);
 
 		if (clump.id != RW_SECTION_CLUMP) {
-			//SkipBytes(stream, clump.size, skipBuf, sizeof(skipBuf));
-			char* skipBuf = new char[clump.size];
+			char expected[64], found[64];
+			RwGetSectionName(RW_SECTION_CLUMP, expected);
+			RwGetSectionName(clump.id, found);
+			char* errmsg = new char[256];
+			sprintf(errmsg, "Found section with type %s where %s was expected (is it really a DFF file?)",
+					found, expected);
+			DFFException ex(errmsg, __FILE__, __LINE__);
+			delete[] errmsg;
+			throw ex;
+			/*char* skipBuf = new char[clump.size];
 			stream->read(skipBuf, clump.size);
-			delete[] skipBuf;
+			delete[] skipBuf;*/
 		} else {
 			context.version = clump.version;
 			break;

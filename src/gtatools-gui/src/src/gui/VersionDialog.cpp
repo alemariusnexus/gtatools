@@ -19,7 +19,7 @@
 
 #include "VersionDialog.h"
 #include <GL/gl.h>
-#include <gtaformats/gf_config.h>
+#include <gtaformats/config.h>
 #include <cstdio>
 #include <QGLContext>
 #include <QGLFormat>

@@ -64,6 +64,7 @@ FileViewWidget::FileViewWidget(const FileOpenRequest& request)
 
 		for (it = handlers.begin() ; it != handlers.end() ; it++) {
 			FormatHandler* handler = *it;
+
 			displayWidget = handler->createWidgetForFile(request, ui.contentPluginWidget);
 
 			if (displayWidget) {

@@ -17,8 +17,8 @@
 	along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "FileTree.h"
 #include "../config.h"
+#include "FileTree.h"
 #include "../System.h"
 #include "../ProfileManager.h"
 #include "../formats/FormatHandler.h"

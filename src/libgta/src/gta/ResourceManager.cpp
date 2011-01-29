@@ -30,9 +30,12 @@
 #include <utility>
 #include "EngineException.h"
 #include "COLMeshConverter.h"
+#include <iostream>
 
 using std::pair;
 using std::locale;
+using std::cerr;
+using std::endl;
 
 
 
@@ -125,38 +128,46 @@ void ResourceManager::addResource(const File& file, istream* stream)
 	FileContentType type = file.guessContentType();
 
 	if (type == CONTENT_TYPE_TXD) {
-		TXDArchive txd(stream);
-		char* lTxdName = new char[strlen(file.getPath()->getFileName())+1];
-		strtolower(lTxdName, file.getPath()->getFileName());
-		*strchr(lTxdName, '.') = '\0';
+		try {
+			TXDArchive txd(stream);
+			char* lTxdName = new char[strlen(file.getPath()->getFileName())+1];
+			strtolower(lTxdName, file.getPath()->getFileName());
+			*strchr(lTxdName, '.') = '\0';
 
-		hash_t txdHash = Hash(lTxdName);
+			hash_t txdHash = Hash(lTxdName);
 
-		delete[] lTxdName;
+			delete[] lTxdName;
 
-		TXDEntry* txdEntry = new TXDEntry;
-		txdEntry->parent = NULL;
-		txdEntry->file = new File(file);
+			TXDEntry* txdEntry = new TXDEntry;
+			txdEntry->parent = NULL;
+			txdEntry->file = new File(file);
 
-		for (int16_t i = 0 ; i < txd.getTextureCount() ; i++) {
-			TXDTexture* tex = txd.nextTexture();
+			for (int16_t i = 0 ; i < txd.getTextureCount() ; i++) {
+				TXDTexture* tex = txd.nextTexture();
 
-			char* lName = new char[strlen(tex->getDiffuseName())+1];
-			strtolower(lName, tex->getDiffuseName());
+				char* lName = new char[strlen(tex->getDiffuseName())+1];
+				strtolower(lName, tex->getDiffuseName());
 
-			hash_t texHash = Hash(lName);
+				hash_t texHash = Hash(lName);
 
-			delete[] lName;
+				delete[] lName;
 
-			TextureEntry* entry = new TextureEntry;
-			entry->textureIndex = i;
-			txdEntry->textures.insert(pair<hash_t, TextureEntry*>(texHash, entry));
-			delete tex;
+				TextureEntry* entry = new TextureEntry;
+				entry->textureIndex = i;
+				txdEntry->textures.insert(pair<hash_t, TextureEntry*>(texHash, entry));
+				delete tex;
+			}
+
+			textureMutex.lock();
+			textures.insert(pair<hash_t, TXDEntry*>(txdHash, txdEntry));
+			textureMutex.unlock();
+		} catch (TXDException ex) {
+			cerr << "WARNING: Unable to index TXD file " << file.getPath()->toString() << ": " << ex.what()
+					<< endl;
+		} catch (...) {
+			cerr << "WARNING: Unable to index TXD file (unknown exception) " << file.getPath()->toString()
+					<< endl;
 		}
-
-		textureMutex.lock();
-		textures.insert(pair<hash_t, TXDEntry*>(txdHash, txdEntry));
-		textureMutex.unlock();
 	} else if (type == CONTENT_TYPE_DFF) {
 		/*char name[20];
 		char lname[20];
@@ -609,12 +620,12 @@ void ResourceManager::cacheTexture(TXDEntry* txdEntry, TextureEntry* texEntry)
 		textureCacheMutex.lock();
 
 		if (!textureCache.insert(texEntry, entry, size)) {
-			char* errmsg = new char[128];
+			/*char* errmsg = new char[128];
 			sprintf(errmsg, "Unable to cache texture of size %d: Too big for the cache (capacity: %d)!",
 					size, textureCache.getCapacity());
 			EngineException ex(errmsg, __FILE__, __LINE__);
 			delete[] errmsg;
-			throw ex;
+			throw ex;*/
 		}
 
 		textureCacheMutex.unlock();

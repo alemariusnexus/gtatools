@@ -48,12 +48,12 @@ IDEWidget::IDEWidget(QWidget* parent, const FileOpenRequest& request)
 
 	QString content;
 
-	InputStream* stream = file->openStream();
+	istream* stream = file->openInputStream();
 
 	char buffer[4096];
-	while (!stream->hasReachedEnd()) {
+	while (!stream->eof()) {
 		stream->read(buffer, sizeof(buffer)-1);
-		buffer[stream->getLastReadCount()] = '\0';
+		buffer[stream->gcount()] = '\0';
 		content.append(buffer);
 	}
 
