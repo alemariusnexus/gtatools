@@ -144,13 +144,13 @@ void IMGGUIModule::extract(const QLinkedList<File*>& files)
 				QFile dfile(fname);
 
 				if (dfile.open(QFile::WriteOnly | QFile::Truncate)) {
-					InputStream* stream = file->openStream(STREAM_BINARY);
+					istream* stream = file->openInputStream(istream::binary);
 
 					char buf[2048];
 
-					while (!stream->hasReachedEnd()) {
+					while (!stream->eof()) {
 						stream->read(buf, sizeof(buf));
-						dfile.write(buf, stream->getLastReadCount());
+						dfile.write(buf, stream->gcount());
 					}
 
 					dfile.flush();
@@ -179,13 +179,13 @@ void IMGGUIModule::extract(const QLinkedList<File*>& files)
 					QFile dfile(fname);
 
 					if (dfile.open(QFile::WriteOnly | QFile::Truncate)) {
-						InputStream* stream = file->openStream(STREAM_BINARY);
+						istream* stream = file->openInputStream(istream::binary);
 
 						char buf[2048];
 
-						while (!stream->hasReachedEnd()) {
+						while (!stream->eof()) {
 							stream->read(buf, sizeof(buf));
-							dfile.write(buf, stream->getLastReadCount());
+							dfile.write(buf, stream->gcount());
 						}
 
 						dfile.flush();

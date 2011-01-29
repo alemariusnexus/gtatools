@@ -34,6 +34,7 @@ public:
 	void setTXD(const char* txdName) { setTXD(Hash(txdName)); }
 	hash_t getTXD() const { return txdHash; }
 	virtual GLuint getTexture(hash_t txdHash);
+	virtual TextureSource* clone() const { return new ManagedTextureSource(*this); }
 
 private:
 	hash_t txdHash;

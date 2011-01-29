@@ -20,7 +20,7 @@
 #ifndef GXTTABLEMODEL_H_
 #define GXTTABLEMODEL_H_
 
-#include <gtaformats/gf_config.h>
+#include <gtaformats/config.h>
 #include <QAbstractTableModel>
 #include <QVector>
 #include <QMap>

@@ -45,8 +45,6 @@ ItemDefinition::ItemDefinition(const IDEStaticObject& object)
 	strtolower(lTexName, object.getTextureName());
 	meshPtr = new ManagedMeshPointer(Hash(lMeshName));
 	texSrc = new ManagedTextureSource(Hash(lTexName));
-	//meshHash = Hash(lMeshName);
-	//txdHash = Hash(lTexName);
 	delete[] lMeshName;
 	delete[] lTexName;
 }
@@ -54,8 +52,10 @@ ItemDefinition::ItemDefinition(const IDEStaticObject& object)
 
 ItemDefinition::~ItemDefinition()
 {
-	delete meshPtr;
-	delete texSrc;
+	if (meshPtr)
+		delete meshPtr;
+	if (texSrc)
+		delete texSrc;
 }
 
 
@@ -124,10 +124,8 @@ void ItemDefinition::render()
 				mat->getColor(r, g, b, a);
 				glUniform4f(materialColorUniform, (1.0f/255)*r, (1.0f/255)*g, (1.0f/255)*b, (1.0f/255)*a);
 
-				if (textureUniform != -1  &&  mat->isTextured()) {
+				if (textureUniform != -1  &&  mat->isTextured()  &&  texSrc) {
 					glActiveTexture(GL_TEXTURE0);
-					//TextureIndex index(txdHash, mat->getTextureHash());
-					//resMgr->bindTexture(index);
 					glBindTexture(GL_TEXTURE_2D, texSrc->getTexture(mat->getTextureHash()));
 					glUniform1i(textureUniform, 0);
 					glUniform1i(texturedUniform, 1);

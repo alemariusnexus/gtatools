@@ -26,13 +26,15 @@
 #include <gta/GLException.h>
 #include <QtCore/QFile>
 #include <QtGui/QMessageBox>
+#include <gta/StaticMeshPointer.h>
+#include <gta/Submesh.h>
 
 
 
 
 DFFRenderWidget::DFFRenderWidget(QWidget* parent, QGLWidget* shareWidget)
-		: QGLWidget(parent, shareWidget), lastX(-1), lastY(-1), object(NULL), textures(true),
-		  wireframe(false), currentGeometry(NULL), currentPart(NULL), moveFactor(1.0f)
+		: QGLWidget(parent, shareWidget), lastX(-1), lastY(-1), mesh(NULL), item(NULL), wireframe(false),
+		  moveFactor(1.0f), renderingEnabled(true), texSource(NULL)
 {
 	setFocusPolicy(Qt::ClickFocus);
 
@@ -51,9 +53,10 @@ DFFRenderWidget::DFFRenderWidget(QWidget* parent, QGLWidget* shareWidget)
 
 DFFRenderWidget::~DFFRenderWidget()
 {
-	if (object) {
-		delete object;
-	}
+	if (mesh)
+		delete mesh;
+	if (texSource)
+		delete texSource;
 }
 
 
@@ -63,8 +66,8 @@ void DFFRenderWidget::renderGeometry(DFFGeometry* geometry)
 		makeCurrent();
 		program->makeCurrent();
 
-		if (object) {
-			delete object;
+		if (mesh) {
+			delete mesh;
 		}
 
 		Profile* profile = ProfileManager::getInstance()->getCurrentProfile();
@@ -75,8 +78,13 @@ void DFFRenderWidget::renderGeometry(DFFGeometry* geometry)
 			rm = profile->getResourceManager();
 		}
 
-		object = new StaticObjectDefinition(geometry, NULL, rm);
-		currentGeometry = geometry;
+		TextureSource* texSrc = texSource;
+
+		if (texSrc)
+			texSrc = texSrc->clone();
+
+		mesh = new Mesh(*geometry);
+		item = new ItemDefinition(new StaticMeshPointer(mesh), texSrc, 5000.0f);
 
 		updateGL();
 	}
@@ -89,8 +97,8 @@ void DFFRenderWidget::renderGeometryPart(DFFGeometry* geometry, DFFGeometryPart*
 		makeCurrent();
 		program->makeCurrent();
 
-		if (object) {
-			delete object;
+		if (mesh) {
+			delete mesh;
 		}
 
 		Profile* profile = ProfileManager::getInstance()->getCurrentProfile();
@@ -101,9 +109,14 @@ void DFFRenderWidget::renderGeometryPart(DFFGeometry* geometry, DFFGeometryPart*
 			rm = profile->getResourceManager();
 		}
 
-		object = new StaticObjectDefinition(geometry, part, NULL, rm);
-		currentGeometry = geometry;
-		currentPart = part;
+		TextureSource* texSrc = texSource;
+
+		if (texSrc)
+			texSrc = texSrc->clone();
+
+		mesh = new Mesh(*geometry, false);
+		mesh->addSubmesh(new Submesh(mesh, *part));
+		item = new ItemDefinition(new StaticMeshPointer(mesh), texSrc, 5000.0f);
 
 		updateGL();
 	}
@@ -112,11 +125,6 @@ void DFFRenderWidget::renderGeometryPart(DFFGeometry* geometry, DFFGeometryPart*
 
 void DFFRenderWidget::initializeGL()
 {
-	/*if (!glewInited) {
-		glewInit();
-		glewInited = true;
-	}*/
-
 	makeCurrent();
 	glewInit();
 
@@ -140,12 +148,10 @@ void DFFRenderWidget::initializeGL()
 		QByteArray fsrc = ffile.readAll();
 
 		vertexShader = new Shader(GL_VERTEX_SHADER);
-		//vertexShader->loadSourceCode(File("/home/alemariusnexus/shader/vertex.glsl"));
 		vertexShader->loadSourceCode(vsrc.constData(), vsrc.length());
 		vertexShader->compile();
 
 		fragmentShader = new Shader(GL_FRAGMENT_SHADER);
-		//fragmentShader->loadSourceCode(File("/home/alemariusnexus/shader/fragment.glsl"));
 		fragmentShader->loadSourceCode(fsrc.constData(), fsrc.length());
 		fragmentShader->compile();
 
@@ -153,88 +159,11 @@ void DFFRenderWidget::initializeGL()
 		program->attachShader(vertexShader);
 		program->attachShader(fragmentShader);
 		program->link();
-		program->makeCurrent();
 
 		glEnable(GL_DEPTH_TEST);
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		GLuint texID;
-		glGenTextures(1, &texID);
-
-		glBindTexture(GL_TEXTURE_2D, texID);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-		testTex = texID;
-
-		unsigned char tex[128*128*4];
-
-		for (int y = 0 ; y < 128 ; y++) {
-			for (int x = 0 ; x < 128 ; x++) {
-				int idx = (y*128 + x) * 4;
-
-				if ((y+x) % 2 == 0) {
-					tex[idx] = 0;
-					tex[idx+1] = 0;
-					tex[idx+2] = 0;
-					tex[idx+3] = 255;
-				} else {
-					tex[idx] = 255;
-					tex[idx+1] = 255;
-					tex[idx+2] = 255;
-					tex[idx+3] = 255;
-				}
-			}
-		}
-
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 128, 128, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex);
-
-		glGenTextures(1, &transTex);
-
-		glBindTexture(GL_TEXTURE_2D, transTex);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-		unsigned char tex2[3*3*4] = {
-				255, 0, 0, 255,
-				255, 0, 0, 255,
-				255, 0, 0, 255,
-				255, 0, 0, 255,
-				255, 0, 0, 0,
-				255, 0, 0, 255,
-				255, 0, 0, 255,
-				255, 0, 0, 255,
-				255, 0, 0, 255
-		};
-
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 3, 3, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex2);
-
-
-
-		float vertices[] = {
-			1.0f, -2.0f, 1.0f,
-			-1.0f, -2.0f, 1.0f,
-			-1.0f, -2.0f, -1.0f,
-			1.0f, -2.0f, -1.0f
-		};
-		unsigned int indices[] = {
-			0, 1, 2, 3
-		};
-
-		glGenBuffers(1, &dataBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, dataBuffer);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-		glGenBuffers(1, &indexBuffer);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 	}
 }
 
@@ -266,9 +195,9 @@ void DFFRenderWidget::resizeGL(int w, int h)
 void DFFRenderWidget::paintGL()
 {
 	if (renderingEnabled) {
-		program->makeCurrent();
+		Engine::getInstance()->setCurrentShaderProgram(program);
 
-		if (textures) {
+		if (texSource) {
 			glEnable(GL_TEXTURE_2D);
 		} else {
 			glDisable(GL_TEXTURE_2D);
@@ -284,38 +213,12 @@ void DFFRenderWidget::paintGL()
 
 		GLint mvpMatrixUniform = program->getUniformLocation("MVPMatrix");
 
-		if (object) {
+		if (item) {
 			glUniformMatrix4fv(mvpMatrixUniform, 1, GL_FALSE, mvpMatrix.toArray());
-			object->draw();
+			item->render();
 		}
 
 		glDisable(GL_TEXTURE_2D);
-
-		/*if (textures) {
-			glEnable(GL_TEXTURE_2D);
-		}
-
-		glBindBuffer(GL_ARRAY_BUFFER, dataBuffer);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
-
-		GLint vertexAttrib = program->getAttributeLocation("Vertex");
-		GLint mvpMatrixUniform = program->getUniformLocation("MVPMatrix");
-		GLint texturedUniform = program->getUniformLocation("Textured");
-
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		Matrix4 mvpMatrix = pMatrix;
-		mvpMatrix *= Matrix4::lookAt(cam.getTarget(), cam.getUp());
-		mvpMatrix.translate(-cam.getPosition());
-
-		glUniformMatrix4fv(mvpMatrixUniform, 1, GL_FALSE, mvpMatrix.toArray());
-		glUniform1i(texturedUniform, 0);
-
-		glEnableVertexAttribArray(vertexAttrib);
-		glVertexAttribPointer(vertexAttrib, 3, GL_FLOAT, GL_FALSE, 0, (char*) 0);
-		glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (char*) 0);
-
-		glDisable(GL_TEXTURE_2D);*/
 	}
 }
 
@@ -394,12 +297,21 @@ void DFFRenderWidget::keyPressEvent(QKeyEvent* evt)
 }
 
 
-void DFFRenderWidget::setShowTextures(bool textures)
+void DFFRenderWidget::setTextureSource(TextureSource* source)
 {
-	if (renderingEnabled) {
-		this->textures = textures;
-		updateGL();
+	if (texSource)
+		delete texSource;
+
+	texSource = source;
+
+	if (item) {
+		if (texSource)
+			item->setTextureSource(texSource->clone());
+		else
+			item->setTextureSource(NULL);
 	}
+
+	updateGL();
 }
 
 
@@ -431,12 +343,13 @@ void DFFRenderWidget::currentProfileResourceIndexInitialized()
 	if (renderingEnabled) {
 		Profile* profile = ProfileManager::getInstance()->getCurrentProfile();
 
-		if (currentGeometry) {
+		// TODO Reimplement
+		/*if (currentGeometry) {
 			if (currentPart) {
 				renderGeometryPart(currentGeometry, currentPart);
 			} else {
 				renderGeometry(currentGeometry);
 			}
-		}
+		}*/
 	}
 }

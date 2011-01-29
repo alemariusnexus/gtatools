@@ -24,10 +24,11 @@
 #include <qimage.h>
 #include <gtaformats/txd/TXDArchive.h>
 #include <gtaformats/txd/TXDTexture.h>
-#include <gtaformats/gf_config.h>
+#include <gtaformats/config.h>
 #include <QtCore/QLinkedList>
 #include <QtGui/QWidget>
 #include <QtGui/QImage>
+#include "../../System.h"
 
 
 
@@ -46,6 +47,12 @@ public:
 	bool extractTexturesDialog(TXDArchive* txd, const QLinkedList<TXDTexture*>& texes, QWidget* parent);
 	bool findTextureDialog(const QLinkedList<File*>& files, QWidget* parent);
 	QImage createImageFromTexture(TXDTexture* tex, uint8_t* data, uint8_t*& resultData);
+
+private slots:
+	void systemQuerySent(const SystemQuery& query, SystemQueryResult& result);
+
+private:
+	TXDFormatHandler();
 };
 
 #endif /* TXDFORMATHANDLER_H_ */

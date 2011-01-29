@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="mainTabber">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -73,6 +73,11 @@
               </item>
               <item row="0" column="1">
                <widget class="QLabel" name="frameTranslationLabel">
+                <property name="font">
+                 <font>
+                  <family>Monospace</family>
+                 </font>
+                </property>
                 <property name="text">
                  <string notr="true">-</string>
                 </property>
@@ -87,6 +92,11 @@
               </item>
               <item row="1" column="1">
                <widget class="QLabel" name="frameRotationLabel">
+                <property name="font">
+                 <font>
+                  <family>Monospace</family>
+                 </font>
+                </property>
                 <property name="text">
                  <string notr="true">-</string>
                 </property>
@@ -672,6 +682,52 @@
        </item>
       </layout>
      </widget>
+    </widget>
+   </item>
+   <item>
+    <widget class="QWidget" name="widget_6" native="true">
+     <layout class="QHBoxLayout" name="horizontalLayout_8">
+      <property name="spacing">
+       <number>20</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="label_13">
+        <property name="text">
+         <string>Texture Source</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="texSourceBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="otherTexSrcButton">
+        <property name="text">
+         <string>Other...</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
     </widget>
    </item>
   </layout>

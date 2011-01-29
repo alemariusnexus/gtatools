@@ -67,7 +67,9 @@ void Profile::loadResourceIndex()
 	}
 
 	resourceIdxInitialized = false;
-	resourceManager = new ResourceManager;
+	resourceManager = new ExtendedResourceManager;
+	resourceManager->resizeMeshCache(2 * 1000000); // 2MB
+	resourceManager->resizeTextureCache(10 * 1000000); // 10MB
 
 	currentInitializer = new ProfileInitializer(this);
 	connect(currentInitializer, SIGNAL(finished()), this, SLOT(resourcesInitialized()));
@@ -87,6 +89,8 @@ void Profile::currentProfileChanged(Profile* oldProfile, Profile* newProfile)
 		resourceIdxInitialized = false;
 	} else if (oldProfile != this  &&  newProfile == this) {
 		loadResourceIndex();
+		printf("Setting the manager\n");
+		Engine::getInstance()->setResourceManager(resourceManager);
 	}
 }
 
@@ -145,7 +149,7 @@ void Profile::resourcesInitialized()
 }
 
 
-ResourceManager* Profile::getResourceManager()
+ExtendedResourceManager* Profile::getResourceManager()
 {
 	return resourceManager;
 }

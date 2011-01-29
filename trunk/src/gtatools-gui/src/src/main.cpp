@@ -96,6 +96,15 @@ int main(int argc, char** argv)
 
 		win.initialize();
 
+		argc--;
+		argv++;
+
+		for (int i = 0 ; i < argc ; i++) {
+			File file(argv[i]);
+			FileOpenRequest req(file);
+			System::getInstance()->openFile(req);
+		}
+
 		try {
 			return app.exec();
 		} catch (Exception& ex) {

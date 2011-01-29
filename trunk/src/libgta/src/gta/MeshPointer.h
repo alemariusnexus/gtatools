@@ -27,6 +27,7 @@
 class MeshPointer {
 public:
 	virtual Mesh* operator*() = 0;
+	virtual MeshPointer* clone() const = 0;
 };
 
 #endif /* MESHPOINTER_H_ */

@@ -17,8 +17,8 @@
 	along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MainWindow.h"
 #include "../config.h"
+#include "MainWindow.h"
 #include "FileItemModel.h"
 #include "../ProfileManager.h"
 #include "../formats/FormatManager.h"

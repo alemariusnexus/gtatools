@@ -31,6 +31,8 @@
 #include <qstring.h>
 #include "Task.h"
 #include "FileOpenRequest.h"
+#include "SystemQuery.h"
+#include "SystemQueryResult.h"
 #include <gtaformats/util/FileFinder.h>
 
 
@@ -58,7 +60,7 @@ public:
 	Task* createTask();
 	void installGUIModule(GUIModule* module);
 	void uninstallGUIModule(GUIModule* module);
-
+	SystemQueryResult sendSystemQuery(const SystemQuery& query);
 
 signals:
 	void fileOpened(const FileOpenRequest& request);
@@ -69,6 +71,7 @@ signals:
 	void installedGUIModule(GUIModule* module);
 	void uninstalledGUIModule(GUIModule* module);
 	void errorLogged(const QString& errmsg);
+	void systemQuerySent(const SystemQuery& query, SystemQueryResult& result);
 
 private:
 	System() : mainWindow(NULL), currentFile(NULL) {}

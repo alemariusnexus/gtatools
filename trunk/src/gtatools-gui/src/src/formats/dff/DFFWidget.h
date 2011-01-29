@@ -28,6 +28,7 @@
 #include "DFFGUIModule.h"
 #include "DFFFrameItemModel.h"
 #include <QtOpenGL/qgl.h>
+#include <gta/ManagedTextureSource.h>
 
 
 
@@ -52,15 +53,17 @@ private slots:
 	void geometryPartSelected(int row);
 	void texturedPropertyChanged(bool textured);
 	void wireframePropertyChanged(bool wireframe);
-	void xmlDumpRequested(bool);
+	void xmlDumpRequested();
+	void texSourceSelected(int index);
+	void otherTexSourceRequested(bool);
 
 private:
 	Ui_DFFWidget ui;
-	DFFGUIModule* guiModule;
 	DFFMesh* mesh;
 	DFFRenderWidget* geometryRenderWidget;
 	DFFRenderWidget* geometryPartRenderWidget;
 	DFFFrameItemModel* frameModel;
+	ManagedTextureSource* texSource;
 };
 
 #endif /* DFFWIDGET_H_ */

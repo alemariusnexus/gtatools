@@ -85,13 +85,13 @@ void GXTFormatHandler::iniExport(const File& file, const QLinkedList<GXTTable*>&
 void GXTFormatHandler::stringListMatch(const File& matchFile, const QMap<QString, GXTTable*>& tables,
 		QWidget* parent)
 {
-	InputStream* stream = matchFile.openStream();
+	istream* stream = matchFile.openInputStream();
 
 	GXTTable* currentTable = NULL;
 
 	char buffer[4096];
-	while (!stream->hasReachedEnd()) {
-		stream->readLine(buffer, sizeof(buffer));
+	while (!stream->eof()) {
+		stream->getline(buffer, sizeof(buffer));
 
 		QString line(buffer);
 		int cmtIndex = line.indexOf("//");

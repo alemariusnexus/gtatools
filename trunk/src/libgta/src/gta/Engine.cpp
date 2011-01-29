@@ -30,7 +30,7 @@ Engine* Engine::getInstance()
 
 
 Engine::Engine()
-		: resMgr(new ResourceManager)
+		: resMgr(NULL), currentShader(NULL)
 {
 }
 

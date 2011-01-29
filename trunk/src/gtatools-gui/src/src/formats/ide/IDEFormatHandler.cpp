@@ -19,11 +19,42 @@
 
 #include "IDEFormatHandler.h"
 #include "IDEWidget.h"
+#include "IDEFileFinder.h"
+#include "../../gui/GUI.h"
+#include "../../System.h"
 
+
+
+IDEFormatHandler::IDEFormatHandler()
+{
+	connect(System::getInstance(), SIGNAL(systemQuerySent(const SystemQuery&, SystemQueryResult&)), this,
+			SLOT(systemQuerySent(const SystemQuery&, SystemQueryResult&)));
+}
 
 
 QWidget* IDEFormatHandler::createWidgetForFile(const FileOpenRequest& request, QWidget* parent)
 {
 	IDEWidget* widget = new IDEWidget(parent, request);
 	return widget;
+}
+
+
+void IDEFormatHandler::systemQuerySent(const SystemQuery& query, SystemQueryResult& result)
+{
+	if (!result.isSuccessful()) {
+		if (query.getName() == "FindItemDefinition") {
+			int id = query["id"].toInt();
+
+			IDEFileFinder finder(id);
+			File* toBeOpened = GUI::getInstance()->findFile(&finder);
+
+			if (toBeOpened) {
+				int line = finder.getMatchedLine(*toBeOpened);
+				result["file"] = toBeOpened->getPath()->toString();
+				result["line"] = line;
+				delete toBeOpened;
+				result.setSuccessful(true);
+			}
+		}
+	}
 }

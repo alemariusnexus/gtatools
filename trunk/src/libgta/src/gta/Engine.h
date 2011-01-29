@@ -47,6 +47,7 @@ public:
 
 public:
 	ResourceManager* getResourceManager() { return resMgr; }
+	void setResourceManager(ResourceManager* mgr) { resMgr = mgr; }
 	ShaderProgram* getCurrentShaderProgram() { return currentShader; }
 	void setCurrentShaderProgram(ShaderProgram* program);
 

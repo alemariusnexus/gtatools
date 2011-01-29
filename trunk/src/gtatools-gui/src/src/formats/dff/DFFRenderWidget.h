@@ -25,10 +25,12 @@
 #include <qwidget.h>
 #include <gtaformats/gtadff.h>
 #include <gtaformats/util/math/Matrix4.h>
-#include <gta/StaticObjectDefinition.h>
+#include <gta/Mesh.h>
+#include <gta/ItemDefinition.h>
 #include <gta/Shader.h>
 #include <gta/ShaderProgram.h>
 #include <gta/Camera.h>
+#include <gta/TextureSource.h>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QKeyEvent>
 #include <qpoint.h>
@@ -45,8 +47,9 @@ public:
 	virtual ~DFFRenderWidget();
 	void renderGeometry(DFFGeometry* geometry);
 	void renderGeometryPart(DFFGeometry* geometry, DFFGeometryPart* part);
-	void setShowTextures(bool textures);
 	void setShowWireframe(bool wireframe);
+	void setTextureSource(TextureSource* source);
+	TextureSource* getTextureSource() const { return texSource; }
 
 protected:
 	virtual void initializeGL();
@@ -61,23 +64,21 @@ private slots:
 	void currentProfileResourceIndexInitialized();
 
 private:
-	bool textures;
 	bool wireframe;
-	GLuint testTex;
-	GLuint transTex;
 	int lastX;
 	int lastY;
-	DFFGeometry* currentGeometry;
-	DFFGeometryPart* currentPart;
-	StaticObjectDefinition* object;
+	Mesh* mesh;
+	ItemDefinition* item;
 	Shader* vertexShader;
 	Shader* fragmentShader;
 	ShaderProgram* program;
 	Matrix4 pMatrix;
 	Camera cam;
-	GLuint dataBuffer, indexBuffer;
 	float moveFactor;
 	bool renderingEnabled;
+	TextureSource* texSource;
+
+	GLint vertexAttrib, normalAttrib, texCoordAttrib, colorAttrib;
 };
 
 #endif /* DFFRENDERWIDGET_H_ */

@@ -34,13 +34,18 @@ public:
 	ItemDefinition(MeshPointer* meshPtr, TextureSource* texSrc, float drawDistance);
 	ItemDefinition(const IDEStaticObject& object);
 	~ItemDefinition();
+	TextureSource* getTextureSource() { return texSrc; }
+	const TextureSource* getTextureSource() const { return texSrc; }
+	void setTextureSource(TextureSource* source) { if (texSrc) delete texSrc; texSrc = source; }
+	MeshPointer* getMeshPointer() { return meshPtr; }
+	const MeshPointer* getMeshPointer() const { return meshPtr; }
+	void setMeshPointer(MeshPointer* ptr) { if (meshPtr) delete meshPtr; meshPtr = ptr; }
 	float getDrawDistance() const { return drawDistance; }
 	virtual void render();
 
 private:
 	MeshPointer* meshPtr;
 	TextureSource* texSrc;
-	//hash_t txdHash;
 	float drawDistance;
 };
 

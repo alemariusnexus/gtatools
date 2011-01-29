@@ -27,6 +27,7 @@
 class TextureSource {
 public:
 	virtual GLuint getTexture(hash_t texHash) = 0;
+	virtual TextureSource* clone() const = 0;
 	GLuint getTexture(const char* txdName) { return getTexture(Hash(txdName)); }
 };
 

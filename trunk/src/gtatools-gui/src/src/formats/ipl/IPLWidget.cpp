@@ -75,12 +75,12 @@ IPLWidget::IPLWidget(QWidget* parent, const File& file)
 		content.append(carCode);
 		content.append("end\n");
 	} else {
-		InputStream* stream = file.openStream();
+		istream* stream = file.openInputStream(istream::binary);
 
 		char buffer[4096];
-		while (!stream->hasReachedEnd()) {
+		while (!stream->eof()) {
 			stream->read(buffer, sizeof(buffer)-1);
-			buffer[stream->getLastReadCount()] = '\0';
+			buffer[stream->gcount()] = '\0';
 			content.append(buffer);
 		}
 
@@ -157,7 +157,7 @@ IPLWidget::IPLWidget(QWidget* parent, const File& file)
 			ui.instTable->setRowCount(rc+1);
 
 			ui.instTable->setVerticalHeaderItem(rc, createItem(QString("%1").arg(rc)));
-			ui.instTable->setItem(rc, 0, createItem(QString("%1").arg(inst->getID())));
+			ui.instTable->setItem(rc, 0, createItem(QString("%1").arg(inst->getID()), true));
 			ui.instTable->setItem(rc, 1, createItem(inst->getModelName(), true));
 			ui.instTable->setItem(rc, 2, createItem(QString("%1").arg(inst->getInterior())));
 			ui.instTable->setItem(rc, 3, createItem(QString("%1").arg(x)));
@@ -241,5 +241,18 @@ void IPLWidget::instanceTableCellDoubleClicked(int row, int col)
 		fname.append(".dff");
 		DefaultFileFinder finder(fname.toLocal8Bit().constData(), false);
 		GUI::getInstance()->findAndOpenFile(&finder, this);
+	} else if (col == 0) {
+		int id = item->text().toInt();
+		SystemQuery query("FindItemDefinition");
+		query["id"] = id;
+		SystemQueryResult result = System::getInstance()->sendSystemQuery(query);
+
+		if (result.isSuccessful()) {
+			File file(result["file"].toString().toAscii().constData());
+			int line = result["line"].toInt();
+			FileOpenRequest req(file);
+			req.setAttribute("line", line);
+			System::getInstance()->openFile(req);
+		}
 	}
 }
