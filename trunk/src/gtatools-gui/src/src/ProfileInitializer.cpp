@@ -24,12 +24,6 @@
 #include <ctime>
 
 
-void refreshCallback()
-{
-	qApp->processEvents();
-}
-
-
 
 ProfileInitializer::ProfileInitializer(Profile* profile)
 		: profile(profile), interrupted(false)
@@ -84,6 +78,6 @@ void ProfileInitializer::addResource(const File& file)
 		return;
 	}
 
-	rm->addResource(file, &refreshCallback);
+	rm->addResource(file);
 }
 

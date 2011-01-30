@@ -72,10 +72,6 @@ void MainWindow::initialize()
 {
 	System* sys = System::getInstance();
 
-	ProfileManager* pm = ProfileManager::getInstance();
-
-	Profile* currentProfile = pm->getCurrentProfile();
-
 	connect(sys, SIGNAL(fileOpened(const FileOpenRequest&)), this,
 			SLOT(openFile(const FileOpenRequest&)));
 	connect(sys, SIGNAL(fileClosed(File*)), this, SLOT(closeFile(File*)));
@@ -197,7 +193,8 @@ void MainWindow::openFile(const FileOpenRequest& request)
 
 void MainWindow::currentFileChanged(File* file, File* prev)
 {
-	ui.contentTabber->setCurrentWidget(fileWidgets[*file]);
+	if (file)
+		ui.contentTabber->setCurrentWidget(fileWidgets[*file]);
 }
 
 

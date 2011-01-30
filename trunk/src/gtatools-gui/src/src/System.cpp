@@ -131,17 +131,21 @@ void System::emitConfigurationChange()
 
 void System::changeCurrentFile(const File* file)
 {
-	QLinkedList<File*>::iterator it;
+	if (file) {
+		QLinkedList<File*>::iterator it;
 
-	for (it = openFiles.begin() ; it != openFiles.end() ; it++) {
-		File* ofile = *it;
+		for (it = openFiles.begin() ; it != openFiles.end() ; it++) {
+			File* ofile = *it;
 
-		if (*ofile == *file) {
-			File* prev = currentFile;
-			currentFile = ofile;
-			emit currentFileChanged(ofile, prev);
-			break;
+			if (*ofile == *file) {
+				File* prev = currentFile;
+				currentFile = ofile;
+				emit currentFileChanged(ofile, prev);
+				break;
+			}
 		}
+	} else {
+		emit currentFileChanged(NULL, currentFile);
 	}
 }
 

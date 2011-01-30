@@ -71,10 +71,11 @@ void Profile::loadResourceIndex()
 	resourceManager->resizeMeshCache(2 * 1000000); // 2MB
 	resourceManager->resizeTextureCache(10 * 1000000); // 10MB
 
+	Engine::getInstance()->setResourceManager(resourceManager);
+
 	currentInitializer = new ProfileInitializer(this);
-	//connect(currentInitializer, SIGNAL(finished()), this, SLOT(resourcesInitialized()));
+	connect(currentInitializer, SIGNAL(finished()), this, SLOT(resourcesInitialized()));
 	currentInitializer->start();
-	resourcesInitialized();
 }
 
 
@@ -88,8 +89,6 @@ void Profile::currentProfileChanged(Profile* oldProfile, Profile* newProfile)
 		resourceIdxInitialized = false;
 	} else if (oldProfile != this  &&  newProfile == this) {
 		loadResourceIndex();
-		printf("Setting the manager\n");
-		Engine::getInstance()->setResourceManager(resourceManager);
 	}
 }
 
@@ -145,9 +144,6 @@ void Profile::selfChanged()
 void Profile::resourcesInitialized()
 {
 	resourceIdxInitialized = true;
-
-	if (currentInitializer->isInterrupted())
-		delete currentInitializer;
 }
 
 

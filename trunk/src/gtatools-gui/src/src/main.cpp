@@ -91,8 +91,6 @@ int main(int argc, char** argv)
 			settings.sync();
 		}
 
-		ProfileManager::getInstance()->loadProfiles();
-
 		win.initialize();
 
 		argc--;
@@ -103,6 +101,8 @@ int main(int argc, char** argv)
 			FileOpenRequest req(file);
 			System::getInstance()->openFile(req);
 		}
+
+		ProfileManager::getInstance()->loadProfiles();
 
 		try {
 			return app.exec();
