@@ -22,7 +22,7 @@
 
 #include <GL/glew.h>
 #include <QtOpenGL/qgl.h>
-#include <qwidget.h>
+#include <QtGui/QWidget>
 #include <gtaformats/gtadff.h>
 #include <gtaformats/util/math/Matrix4.h>
 #include <gta/Mesh.h>
@@ -33,7 +33,7 @@
 #include <gta/TextureSource.h>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QKeyEvent>
-#include <qpoint.h>
+#include <QtCore/QPoint>
 #include "../../Profile.h"
 #include "../../ProfileManager.h"
 

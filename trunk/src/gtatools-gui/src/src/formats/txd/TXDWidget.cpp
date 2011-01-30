@@ -19,11 +19,11 @@
 
 #include "TXDWidget.h"
 #include "../../config.h"
-#include <qsettings.h>
-#include <qlayout.h>
-#include <qtabwidget.h>
+#include <QtCore/QSettings>
+#include <QtGui/QLayout>
+#include <QtGui/QTabWidget>
 #include "../../System.h"
-#include <qstring.h>
+#include <QtCore/QString>
 #include "TXDFormatHandler.h"
 #include <QtGui/QMessageBox>
 

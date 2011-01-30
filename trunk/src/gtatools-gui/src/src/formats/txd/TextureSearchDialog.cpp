@@ -21,10 +21,10 @@
 #include "../../config.h"
 #include "../../ProfileManager.h"
 #include "../../Profile.h"
-#include <qstring.h>
-#include <qstringlist.h>
-#include <qinputdialog.h>
-#include <qmessagebox.h>
+#include <QtCore/QString>
+#include <QtCore/QStringList>
+#include <QtGui/QInputDialog>
+#include <QtGui/QMessageBox>
 #include "../../System.h"
 #include <gtaformats/util/DefaultFileFinder.h>
 #include "../../RegexFileFinder.h"

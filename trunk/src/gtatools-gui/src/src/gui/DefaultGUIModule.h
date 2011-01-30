@@ -22,9 +22,9 @@
 
 #include "GUIModule.h"
 #include "MainWindow.h"
-#include <qobject.h>
-#include <qaction.h>
-#include <qmenu.h>
+#include <QtCore/QObject>
+#include <QtGui/QAction>
+#include <QtGui/QMenu>
 #include "../FileOpenRequest.h"
 #include "FileTree.h"
 #include <QtGui/QDockWidget>

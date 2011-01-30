@@ -21,9 +21,9 @@
 #define FILEOPENREQUEST_H_
 
 #include <gtaformats/util/File.h>
-#include <QtCore/qhash.h>
-#include <QtCore/qstring.h>
-#include <QtCore/qvariant.h>
+#include <QtCore/QHash>
+#include <QtCore/QString>
+#include <QtCore/QVariant>
 
 
 

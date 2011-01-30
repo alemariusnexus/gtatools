@@ -21,8 +21,8 @@
 #include <GL/gl.h>
 #include <gtaformats/config.h>
 #include <cstdio>
-#include <QGLContext>
-#include <QGLFormat>
+#include <QtOpenGL/QGLContext>
+#include <QtOpenGL/QGLFormat>
 
 
 

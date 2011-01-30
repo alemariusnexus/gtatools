@@ -21,7 +21,7 @@
 #define DFFWIDGET_H_
 
 #include <ui_DFFWidget.h>
-#include <qwidget.h>
+#include <QtGui/QWidget>
 #include <gtaformats/util/File.h>
 #include <gtaformats/gtadff.h>
 #include "DFFRenderWidget.h"

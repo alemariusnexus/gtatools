@@ -20,16 +20,16 @@
 #ifndef FILETREE_H_
 #define FILETREE_H_
 
-#include <qtreeview.h>
-#include <qwidget.h>
-#include <QModelIndex>
-#include <QPoint>
+#include <QtGui/QTreeView>
+#include <QtGui/QWidget>
+#include <QtCore/QModelIndex>
+#include <QtCore/QPoint>
 #include "FileItemModel.h"
-#include <QHash>
-#include <QString>
-#include <QVariant>
+#include <QtCore/QHash>
+#include <QtCore/QString>
+#include <QtCore/QVariant>
 #include "../FileOpenRequest.h"
-#include <QSortFilterProxyModel>
+#include <QtGui/QSortFilterProxyModel>
 
 
 

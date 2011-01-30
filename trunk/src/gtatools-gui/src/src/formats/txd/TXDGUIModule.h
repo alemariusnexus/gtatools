@@ -22,7 +22,7 @@
 
 #include "../../gui/GUIModule.h"
 #include "../../Profile.h"
-#include <qaction.h>
+#include <QtGui/QAction>
 
 
 

@@ -23,8 +23,8 @@
 #include "../ProfileManager.h"
 #include "../formats/FormatHandler.h"
 #include "../formats/FormatManager.h"
-#include <QLinkedList>
-#include <QStandardItemModel>
+#include <QtCore/QLinkedList>
+#include <QtGui/QStandardItemModel>
 #include <QtCore/QTime>
 #include <QtCore/QSettings>
 

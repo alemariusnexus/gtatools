@@ -22,7 +22,7 @@
 
 
 #include <ui_DFFXMLDumpDialog.h>
-#include <qdialog.h>
+#include <QtGui/QDialog>
 
 
 class DFFXMLDumpDialog : public QDialog

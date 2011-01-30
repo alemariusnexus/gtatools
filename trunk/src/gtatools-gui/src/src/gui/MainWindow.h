@@ -22,20 +22,20 @@
 
 #include <gtaformats/util/File.h>
 #include "ui_MainFrame.h"
-#include <qmainwindow.h>
+#include <QtGui/QMainWindow>
 #include "../Profile.h"
 #include "GUIModule.h"
-#include <qabstractitemmodel.h>
-#include <qmenu.h>
-#include <qpoint.h>
-#include <qprogressbar.h>
-#include <qtabwidget.h>
-#include <QLabel>
-#include <QtCore/qmap.h>
+#include <QtCore/QAbstractItemModel>
+#include <QtGui/QMenu>
+#include <QtCore/QPoint>
+#include <QtGui/QProgressBar>
+#include <QtGui/QTabWidget>
+#include <QtGui/QLabel>
+#include <QtCore/QMap>
 #include "../FileOpenRequest.h"
 #include "FileViewWidget.h"
 #include "FileTree.h"
-#include <QtGui/qaction.h>
+#include <QtGui/QAction>
 
 
 class MainWindow : public QMainWindow {

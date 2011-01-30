@@ -21,9 +21,9 @@
 #include "ConfigWidget.h"
 #include "ProfileConfigWidget.h"
 #include "../ProfileManager.h"
-#include <qsettings.h>
+#include <QtCore/QSettings>
 #include "../System.h"
-#include <QVariant>
+#include <QtCore/QVariant>
 
 
 

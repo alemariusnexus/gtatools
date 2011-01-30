@@ -24,9 +24,9 @@
 #include <gtaformats/txd/TXDArchive.h>
 #include <gtaformats/txd/TXDTexture.h>
 #include <gtaformats/config.h>
-#include <qlinkedlist.h>
-#include <qfiledialog.h>
-#include <qimagewriter.h>
+#include <QtCore/QLinkedList>
+#include <QtGui/QFileDialog>
+#include <QtGui/QImageWriter>
 #include "TXDFormatHandler.h"
 #include "../../System.h"
 

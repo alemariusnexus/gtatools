@@ -19,12 +19,12 @@
 
 #include "../../config.h"
 #include "DFFWidget.h"
-#include <qlistwidget.h>
+#include <QtGui/QListWidget>
 #include "../../System.h"
-#include <qfiledialog.h>
+#include <QtGui/QFileDialog>
 #include "DFFXMLDumpDialog.h"
-#include <qfile.h>
-#include <qtextstream.h>
+#include <QtCore/QFile>
+#include <QtCore/QTextStream>
 #include "DFFFormatHandler.h"
 #include <QtCore/QSettings>
 #include <gtaformats/util/strutil.h>

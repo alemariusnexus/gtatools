@@ -20,9 +20,9 @@
 #ifndef TEXTUREDISPLAYER_H_
 #define TEXTUREDISPLAYER_H_
 
-#include <qlabel.h>
+#include <QtGui/QLabel>
 #include <gtaformats/txd/TXDTexture.h>
-#include <QMouseEvent>
+#include <QtGui/QMouseEvent>
 
 
 class TextureDisplayer : public QLabel {

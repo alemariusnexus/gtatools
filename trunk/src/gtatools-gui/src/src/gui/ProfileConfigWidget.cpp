@@ -18,7 +18,7 @@
  */
 
 #include "ProfileConfigWidget.h"
-#include <qfiledialog.h>
+#include <QtGui/QFileDialog>
 #include <gtaformats/util/File.h>
 
 
