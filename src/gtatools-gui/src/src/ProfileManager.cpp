@@ -187,6 +187,8 @@ bool ProfileManager::removeProfile(Profile* profile)
 
 	disconnect(profile, SIGNAL(changed()), this, SLOT(profileChangedSlot()));
 	emit profileRemoved(profile);
+
+    return true;
 }
 
 

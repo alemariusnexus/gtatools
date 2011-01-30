@@ -47,7 +47,7 @@ void ExtendedResourceManager::addResource(const File& file)
 					char* texName = new char[strlen(sobj->getTextureName())+1];
 					strtolower(texName, sobj->getTextureName());
 
-					if (strcmp(meshName, "lanitewin4_lan") == 0) {
+					if (strcmp(meshName, "jizzy") == 0) {
 						printf("FOUND: %s\n", texName);
 					}
 

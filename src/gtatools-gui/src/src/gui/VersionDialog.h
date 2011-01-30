@@ -20,6 +20,7 @@
 #ifndef VERSIONDIALOG_H_
 #define VERSIONDIALOG_H_
 
+#include "../config.h"
 #include <ui_VersionDialog.h>
 #include <qdialog.h>
 #include <qwidget.h>
