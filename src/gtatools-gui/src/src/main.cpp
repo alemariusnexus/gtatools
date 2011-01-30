@@ -18,27 +18,26 @@
  */
 
 #include "config.h"
-#include <QtGui/qapplication.h>
-#include <QtGui/qwidget.h>
-#include <QtGui/qtreeview.h>
-#include <QtCore/qdir.h>
-#include <QtGui/qfilesystemmodel.h>
+#include <QtGui/QApplication>
+#include <QtGui/QWidget>
+#include <QtGui/QTreeView>
+#include <QtCore/QDir>
+#include <QtGui/QFileSystemModel>
 #include "gui/FileItemModel.h"
 #include "Profile.h"
 #include "ProfileManager.h"
 #include <gtaformats/util/File.h>
 #include "gui/MainWindow.h"
-#include <qsettings.h>
+#include <QtCore/QSettings>
 #include "Profile.h"
-#include <qmetatype.h>
+#include <QtCore/QMetaType>
 #include "gui/ConfigWidget.h"
-#include <qtranslator.h>
-#include <qlibraryinfo.h>
+#include <QtCore/QTranslator>
+#include <QtCore/QLibraryInfo>
 #include "System.h"
 #include <gtaformats/util/Exception.h>
-#include <qmessagebox.h>
-#include <qtimer.h>
-#include <qmessagebox.h>
+#include <QtGui/QMessageBox>
+#include <QtCore/QTimer>
 
 
 

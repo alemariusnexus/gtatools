@@ -20,8 +20,8 @@
 #ifndef GUIMODULE_H_
 #define GUIMODULE_H_
 
-#include <qobject.h>
-#include <qmenu.h>
+#include <QtCore/QObject>
+#include <QtGui/QMenu>
 #include <gtaformats/util/File.h>
 #include <QtCore/QLinkedList>
 

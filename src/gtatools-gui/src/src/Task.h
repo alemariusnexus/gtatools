@@ -20,9 +20,9 @@
 #ifndef TASK_H_
 #define TASK_H_
 
-#include <QObject>
-#include <QProgressBar>
-#include <QLabel>
+#include <QtCore/QObject>
+#include <QtGui/QProgressBar>
+#include <QtGui/QLabel>
 #include <cstdio>
 
 class MainWindow;

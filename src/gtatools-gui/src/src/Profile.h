@@ -20,11 +20,11 @@
 #ifndef PROFILE_H_
 #define PROFILE_H_
 
-#include <QtCore/qlinkedlist.h>
-#include <QtCore/qlist.h>
-#include <QtCore/qstring.h>
-#include <QtCore/qfile.h>
-#include <qmetatype.h>
+#include <QtCore/QLinkedList>
+#include <QtCore/QList>
+#include <QtCore/QString>
+#include <QtCore/QFile>
+#include <QtCore/QMetaType>
 #include <gtaformats/util/File.h>
 #include "Task.h"
 #include "ProfileInitializer.h"

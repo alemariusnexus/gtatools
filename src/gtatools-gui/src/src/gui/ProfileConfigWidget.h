@@ -21,8 +21,8 @@
 #define PROFILECONFIGWIDGET_H_
 
 #include "ui_ProfileConfigWidget.h"
-#include <qwidget.h>
-#include <qlinkedlist.h>
+#include <QtGui/QWidget>
+#include <QtCore/QLinkedList>
 #include "../Profile.h"
 
 

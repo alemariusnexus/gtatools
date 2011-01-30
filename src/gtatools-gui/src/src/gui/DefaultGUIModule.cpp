@@ -18,14 +18,14 @@
  */
 
 #include "DefaultGUIModule.h"
-#include <qdesktopservices.h>
-#include <qurl.h>
-#include <qactiongroup.h>
+#include <QtGui/QDesktopServices>
+#include <QtCore/QUrl>
+#include <QtGui/QActionGroup>
 #include "../Profile.h"
 #include "../ProfileManager.h"
 #include "ConfigWidget.h"
-#include <qmessagebox.h>
-#include <qfiledialog.h>
+#include <QtGui/QMessageBox>
+#include <QtGui/QFileDialog>
 #include "../System.h"
 #include <gtaformats/config.h>
 #include "FileSearchDialog.h"

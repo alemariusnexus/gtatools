@@ -19,7 +19,7 @@
 
 #include "IMGGUIModule.h"
 #include "../../System.h"
-#include <qfiledialog.h>
+#include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
 
 

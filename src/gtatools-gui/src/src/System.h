@@ -20,15 +20,15 @@
 #ifndef SYSTEM_H_
 #define SYSTEM_H_
 
-#include <qobject.h>
+#include <QtCore/QObject>
 #include <gtaformats/util/File.h>
 #include <gtaformats/util/Exception.h>
 #include "gui/GUIModule.h"
-#include <qlinkedlist.h>
+#include <QtCore/QLinkedList>
 #include "gui/MainWindow.h"
-#include <qhash.h>
-#include <qvariant.h>
-#include <qstring.h>
+#include <QtCore/QHash>
+#include <QtCore/QVariant>
+#include <QtCore/QString>
 #include "Task.h"
 #include "FileOpenRequest.h"
 #include "SystemQuery.h"

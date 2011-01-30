@@ -21,8 +21,8 @@
 #include "FileItemModel.h"
 #include "../formats/FormatManager.h"
 #include <cstring>
-#include <qprogressdialog.h>
-#include <qsettings.h>
+#include <QtGui/QProgressDialog>
+#include <QtCore/QSettings>
 
 
 FileItemModel::FileItemModel(Profile* profile, QWidget* parent)

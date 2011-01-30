@@ -21,7 +21,7 @@
 #define TXDFORMATHANDLER_H_
 
 #include "../FormatHandler.h"
-#include <qimage.h>
+#include <QtGui/QImage>
 #include <gtaformats/txd/TXDArchive.h>
 #include <gtaformats/txd/TXDTexture.h>
 #include <gtaformats/config.h>

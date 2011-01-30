@@ -18,7 +18,7 @@
  */
 
 #include "DFFGUIModule.h"
-#include <qmenu.h>
+#include <QtGui/QMenu>
 #include "../../gui/MainWindow.h"
 #include "DFFWidget.h"
 #include "../System.h"

@@ -21,7 +21,7 @@
 #define STATICFILE_H_
 
 #include <gtaformats/util/File.h>
-#include <QtCore/qlist.h>
+#include <QtCore/QList>
 
 
 class StaticFile {

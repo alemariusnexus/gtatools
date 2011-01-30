@@ -22,8 +22,8 @@
 
 #include "../config.h"
 #include <ui_VersionDialog.h>
-#include <qdialog.h>
-#include <qwidget.h>
+#include <QtGui/QDialog>
+#include <QtGui/QWidget>
 
 
 class VersionDialog : public QDialog {

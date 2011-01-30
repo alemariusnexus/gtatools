@@ -21,8 +21,8 @@
 #define OPENTXDGUIMODULE_H_
 
 #include "../../gui/GUIModule.h"
-#include <qaction.h>
-#include <qlinkedlist.h>
+#include <QtGui/QAction>
+#include <QtCore/QLinkedList>
 
 
 class TXDWidget;

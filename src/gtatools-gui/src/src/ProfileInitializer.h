@@ -20,9 +20,9 @@
 #ifndef PROFILEINITIALIZER_H_
 #define PROFILEINITIALIZER_H_
 
-#include <qthread.h>
 #include <gtaformats/util/File.h>
 #include <QtCore/QLinkedList>
+#include <QtCore/QObject>
 
 class Profile;
 

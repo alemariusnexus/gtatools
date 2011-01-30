@@ -20,13 +20,13 @@
 #ifndef FILEITEMMODEL_H_
 #define FILEITEMMODEL_H_
 
-#include <QtCore/qabstractitemmodel.h>
-#include <QtCore/qmap.h>
+#include <QtCore/QAbstractItemModel>
+#include <QtCore/QMap>
 #include <QtCore/QList>
 #include "../Profile.h"
 #include <gtaformats/util/File.h>
 #include "StaticFile.h"
-#include <qwidget.h>
+#include <QtGui/QWidget>
 
 
 class FileItemModel : public QAbstractItemModel

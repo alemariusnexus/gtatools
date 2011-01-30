@@ -21,7 +21,7 @@
 #define FORMATMANAGER_H_
 
 #include "FormatHandler.h"
-#include <qlinkedlist.h>
+#include <QtCore/QLinkedList>
 
 
 class FormatManager {

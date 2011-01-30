@@ -18,8 +18,8 @@
  */
 
 #include "TextureDisplayer.h"
-#include <qimage.h>
-#include <qbitmap.h>
+#include <QtGui/QImage>
+#include <QtGui/QBitmap>
 #include "TXDFormatHandler.h"
 #include "../../System.h"
 

@@ -19,8 +19,8 @@
 
 #include "config.h"
 #include "ProfileManager.h"
-#include <qsettings.h>
-#include <qstring.h>
+#include <QtCore/QSettings>
+#include <QtCore/QString>
 #include <gtaformats/util/File.h>
 #include <gtaformats/util/OutOfBoundsException.h>
 #include "System.h"

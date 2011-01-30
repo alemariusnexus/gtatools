@@ -18,10 +18,10 @@
  */
 
 #include "System.h"
-#include <qmessagebox.h>
-#include <qfile.h>
-#include <qdatetime.h>
-#include <QThread>
+#include <QtGui/QMessageBox>
+#include <QtCore/QFile>
+#include <QtCore/QDateTime>
+#include <QtCore/QThread>
 #include <QtGui/QInputDialog>
 #include <QtGui/QMessageBox>
 

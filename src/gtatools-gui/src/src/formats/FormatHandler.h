@@ -21,13 +21,13 @@
 #define FORMATHANDLER_H_
 
 #include <gtaformats/util/File.h>
-#include <qstring.h>
-#include <qobject.h>
+#include <QtCore/QString>
+#include <QtCore/QObject>
 #include "../gui/GUIModule.h"
-#include <qwidget.h>
-#include <qlinkedlist.h>
-#include <qhash.h>
-#include <qvariant.h>
+#include <QtGui/QWidget>
+#include <QtCore/QLinkedList>
+#include <QtCore/QHash>
+#include <QtCore/QVariant>
 #include "../FileOpenRequest.h"
 
 

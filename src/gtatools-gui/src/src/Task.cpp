@@ -19,9 +19,9 @@
 
 #include "Task.h"
 #include <deque>
-#include <QMutex>
-#include <QThread>
-#include <QTimer>
+#include <QtCore/QMutex>
+#include <QtCore/QThread>
+#include <QtCore/QTimer>
 #include "gui/MainWindow.h"
 
 using std::deque;

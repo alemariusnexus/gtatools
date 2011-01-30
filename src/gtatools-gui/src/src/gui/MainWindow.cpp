@@ -23,21 +23,21 @@
 #include "../ProfileManager.h"
 #include "../formats/FormatManager.h"
 #include "../formats/FormatHandler.h"
-#include <qboxlayout.h>
-#include <qlist.h>
-#include <qsettings.h>
+#include <QtGui/QBoxLayout>
+#include <QtCore/QList>
+#include <QtCore/QSettings>
 #include "ConfigWidget.h"
-#include <qmenu.h>
+#include <QtGui/QMenu>
 #include "../formats/txd/TXDGUIModule.h"
 #include "../formats/ide/IDEGUIModule.h"
 #include "../System.h"
 #include "DefaultGUIModule.h"
-#include <qprogressbar.h>
-#include <qheaderview.h>
-#include <qlayout.h>
-#include <qtablewidget.h>
-#include <QTimer>
-#include <QHBoxLayout>
+#include <QtGui/QProgressBar>
+#include <QtGui/QHeaderView>
+#include <QtGui/QLayout>
+#include <QtGui/QTableWidget>
+#include <QtCore/QTimer>
+#include <QtGui/QHBoxLayout>
 #include <QtGui/qdockwidget.h>
 
 

@@ -19,7 +19,7 @@
 
 #include <GL/glew.h>
 #include "DFFFormatHandler.h"
-#include <qapplication.h>
+#include <QtGui/QApplication>
 #include "DFFWidget.h"
 #include "../../System.h"
 #include <QtGui/QFileDialog>

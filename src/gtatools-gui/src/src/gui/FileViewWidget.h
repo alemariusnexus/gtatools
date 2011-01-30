@@ -21,7 +21,7 @@
 #define FILEVIEWWIDGET_H_
 
 #include <ui_FileViewWidget.h>
-#include <QtGui/qwidget.h>
+#include <QtGui/QWidget>
 #include "../FileOpenRequest.h"
 
 

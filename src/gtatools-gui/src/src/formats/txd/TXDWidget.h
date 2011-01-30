@@ -22,12 +22,12 @@
 
 #include <ui_TXDWidget.h>
 #include <gtaformats/util/File.h>
-#include <qwidget.h>
-#include <qlistwidget.h>
+#include <QtGui/QWidget>
+#include <QtGui/QListWidget>
 #include <gtaformats/txd/TXDArchive.h>
 #include <gtaformats/txd/TXDTexture.h>
 #include "OpenTXDGUIModule.h"
-#include <qlinkedlist.h>
+#include <QtCore/QLinkedList>
 
 
 

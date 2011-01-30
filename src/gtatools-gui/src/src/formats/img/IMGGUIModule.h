@@ -21,10 +21,10 @@
 #define IMGGUIMODULE_H_
 
 #include "../../gui/GUIModule.h"
-#include <qaction.h>
-#include <qhash.h>
-#include <qstring.h>
-#include <qvariant.h>
+#include <QtGui/QAction>
+#include <QtCore/QHash>
+#include <QtCore/QString>
+#include <QtCore/QVariant>
 
 
 class IMGGUIModule : public GUIModule {

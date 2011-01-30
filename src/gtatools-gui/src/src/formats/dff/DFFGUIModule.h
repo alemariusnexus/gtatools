@@ -21,8 +21,8 @@
 #define DFFGUIMODULE_H_
 
 #include "../../gui/GUIModule.h"
-#include <qobject.h>
-#include <qaction.h>
+#include <QtCore/QObject>
+#include <QtGui/QAction>
 
 
 class DFFWidget;
