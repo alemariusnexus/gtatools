@@ -27,7 +27,7 @@
 class Profile;
 
 
-class ProfileInitializer : public QThread {
+class ProfileInitializer : public QObject {
 	Q_OBJECT
 
 public:
@@ -35,6 +35,7 @@ public:
 	~ProfileInitializer();
 	void interrupt() { interrupted = true; }
 	bool isInterrupted() { return interrupted; }
+	void start() { run(); }
 
 protected:
 	virtual void run();

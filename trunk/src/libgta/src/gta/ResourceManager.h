@@ -97,7 +97,7 @@ private:
 public:
 	ResourceManager();
 	~ResourceManager();
-	virtual void addResource(const File& file);
+	virtual void addResource(const File& file, void (*callback)() = NULL);
 	GLuint getTexture(const TextureIndex& index);
 	GLuint bindTexture(const TextureIndex& index);
 	bool getTexture(const TextureIndex& index, TXDTexture*& tex);
@@ -126,7 +126,7 @@ public:
 	void resetCacheStatistics() { meshCacheHits = 0; meshCacheMisses = 0; texCacheHits = 0; texCacheMisses = 0; }
 
 private:
-	void addResource(const File& file, istream* stream);
+	void addResource(const File& file, istream* stream, void (*callback)());
 	TextureEntry* findTexture(const TextureIndex& index, TXDEntry*& txdEntry);
 	void readTexture(TextureEntry* texEntry, TXDEntry* txdEntry, TXDTexture*& tex, uint8_t*& data,
 			bool readData = true);

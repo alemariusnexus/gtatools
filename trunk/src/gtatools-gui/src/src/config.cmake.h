@@ -20,6 +20,9 @@
 #ifndef CONFIG_CMAKE_H_
 #define CONFIG_CMAKE_H_
 
+#ifdef _MSC_VER
+#include <windows.h>
+#endif
 
 #define CONFIG_DIR "${CONFIG_DIR}"
 #define CONFIG_FILE "${CONFIG_DIR}/gtatools-gui.conf"

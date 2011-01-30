@@ -397,7 +397,7 @@ void DFFWidget::texturedPropertyChanged(bool textured)
 	//geometryRenderWidget->setShowTextures(textured);
 	//geometryPartRenderWidget->setShowTextures(textured);
 
-	if (textured) {
+	if (textured  &&  texSource) {
 		geometryRenderWidget->setTextureSource(new ManagedTextureSource(*texSource));
 		geometryPartRenderWidget->setTextureSource(new ManagedTextureSource(*texSource));
 	} else {

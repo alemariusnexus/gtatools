@@ -50,7 +50,7 @@ SET(GLEW_LIB_PATH "GLEW" CACHE PATH "Path to (or name of) the OpenGL Extension W
 SET(SQUISH_INCLUDE_PATH "" CACHE PATH "Directory containing libsquish header files.")
 SET(SQUISH_LIB_PATH "squish" CACHE PATH "Path to (or name of) libsquish library file")
 
-FIND_PACKAGE(Qt4 4.6.0 COMPONENTS QtCore QtGui QtXml QtOpenGL REQUIRED)
+FIND_PACKAGE(Qt4 4.6.0 COMPONENTS QtCore QtGui QtXml QtOpenGL qtmain REQUIRED)
 
 IF(WIN32)
     STRING(REGEX MATCH "-lGL" QTOPENGL_DEPS_UNIX "${QT_QTOPENGL_LIB_DEPENDENCIES}")

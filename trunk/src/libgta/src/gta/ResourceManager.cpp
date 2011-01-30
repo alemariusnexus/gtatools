@@ -77,18 +77,21 @@ ResourceManager::~ResourceManager()
 }
 
 
-void ResourceManager::addResource(const File& file)
+void ResourceManager::addResource(const File& file, void (*callback)())
 {
 	if (file.isDirectory()) {
 		FileIterator* it = file.getIterator();
 		File* child;
 
 		while ((child = it->next())  !=  NULL) {
-			addResource(*child);
+			addResource(*child, callback);
 			delete child;
 		}
 
 		delete it;
+
+		if (callback)
+			callback();
 	} else if (file.isArchiveFile()) {
 		IMGArchive img(file);
 		const IMGEntry* entries = img.getEntries();
@@ -100,7 +103,7 @@ void ResourceManager::addResource(const File& file)
 			File child(path, true);
 
 			istream* stream = img.gotoEntry(entry);
-			addResource(child, stream);
+			addResource(child, stream, callback);
 			delete stream;
 		}
 	} else {
@@ -114,7 +117,7 @@ void ResourceManager::addResource(const File& file)
 			stream = file.openInputStream();
 		}
 
-		addResource(file, stream);
+		addResource(file, stream, callback);
 
 		if (stream) {
 			delete stream;
@@ -123,7 +126,7 @@ void ResourceManager::addResource(const File& file)
 }
 
 
-void ResourceManager::addResource(const File& file, istream* stream)
+void ResourceManager::addResource(const File& file, istream* stream, void (*callback)())
 {
 	FileContentType type = file.guessContentType();
 
@@ -229,6 +232,9 @@ void ResourceManager::addResource(const File& file, istream* stream)
 			cols[colHash] = entry;
 		}
 	}*/
+
+	if (callback)
+		callback();
 }
 
 

@@ -72,8 +72,9 @@ void Profile::loadResourceIndex()
 	resourceManager->resizeTextureCache(10 * 1000000); // 10MB
 
 	currentInitializer = new ProfileInitializer(this);
-	connect(currentInitializer, SIGNAL(finished()), this, SLOT(resourcesInitialized()));
+	//connect(currentInitializer, SIGNAL(finished()), this, SLOT(resourcesInitialized()));
 	currentInitializer->start();
+	resourcesInitialized();
 }
 
 
@@ -82,8 +83,6 @@ void Profile::currentProfileChanged(Profile* oldProfile, Profile* newProfile)
 	if (oldProfile == this  &&  newProfile != this) {
 		if (currentInitializer) {
 			currentInitializer->interrupt();
-			currentInitializer->wait();
-			delete currentInitializer;
 		}
 
 		resourceIdxInitialized = false;
@@ -146,6 +145,9 @@ void Profile::selfChanged()
 void Profile::resourcesInitialized()
 {
 	resourceIdxInitialized = true;
+
+	if (currentInitializer->isInterrupted())
+		delete currentInitializer;
 }
 
 
