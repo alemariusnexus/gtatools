@@ -22,12 +22,12 @@
 
 #include <gtaformats/util/File.h>
 #include <QtCore/QLinkedList>
-#include <QtCore/QObject>
+#include <QtCore/QThread>
 
 class Profile;
 
 
-class ProfileInitializer : public QObject {
+class ProfileInitializer : public QThread {
 	Q_OBJECT
 
 public:
@@ -35,7 +35,6 @@ public:
 	~ProfileInitializer();
 	void interrupt() { interrupted = true; }
 	bool isInterrupted() { return interrupted; }
-	void start() { run(); }
 
 protected:
 	virtual void run();

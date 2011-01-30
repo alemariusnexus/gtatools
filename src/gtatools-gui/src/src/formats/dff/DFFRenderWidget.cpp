@@ -343,6 +343,8 @@ void DFFRenderWidget::currentProfileResourceIndexInitialized()
 	if (renderingEnabled) {
 		Profile* profile = ProfileManager::getInstance()->getCurrentProfile();
 
+		updateGL();
+
 		// TODO Reimplement
 		/*if (currentGeometry) {
 			if (currentPart) {

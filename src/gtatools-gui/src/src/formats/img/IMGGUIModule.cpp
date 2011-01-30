@@ -108,7 +108,7 @@ void IMGGUIModule::currentFileChanged(File* file, File* prev)
 {
 	QMenu* fileMenu = mainWindow->getFileMenu();
 
-	if (file->getPath()->isIMGPath()  ||  file->isArchiveFile()) {
+	if (file  &&  (file->getPath()->isIMGPath()  ||  file->isArchiveFile())) {
 		if (!menuExists) {
 			fileMenu->addAction(extractAction);
 			menuExists = true;
