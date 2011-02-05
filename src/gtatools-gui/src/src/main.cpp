@@ -93,6 +93,8 @@ int main(int argc, char** argv)
 
 		win.initialize();
 
+		System::getInstance()->initializeGL();
+
 		argc--;
 		argv++;
 

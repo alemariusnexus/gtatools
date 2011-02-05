@@ -34,8 +34,6 @@ class DFFGUIModule : public GUIModule {
 
 public:
 	static DFFGUIModule* getInstance() { static DFFGUIModule inst; return &inst; }
-	void installOnce();
-	void uninstallOnce();
 
 signals:
 	void dumpRequested();
@@ -57,7 +55,6 @@ private:
 	QAction* dumpAction;
 	QAction* texturedAction;
 	QAction* wireframeAction;
-	int installCount;
 };
 
 #endif /* DFFGUIMODULE_H_ */

@@ -22,6 +22,107 @@
 #include "MeshGenerator.h"
 
 
+
+Mesh* COLMeshConverter::convert(const float* vertices, int vertexCount, const COLFace* faces, int faceCount)
+{
+	int modelVertexCount, modelIndexCount;
+	float* modelVertices;
+	uint8_t* modelColors;
+	int32_t* modelIndices;
+	convertVertexModel(vertices, vertexCount, faces, faceCount, modelVertexCount, modelVertices, modelColors,
+			modelIndices, modelIndexCount);
+
+	Mesh* mesh = new Mesh(modelVertexCount, MeshVertexColors, modelVertices, NULL, NULL, modelColors);
+	Submesh* submesh = new Submesh(mesh, modelIndexCount, modelIndices);
+	mesh->addSubmesh(submesh);
+
+	return mesh;
+}
+
+
+Mesh* COLMeshConverter::convert(const COLSphere& sphere)
+{
+	MeshGenerator gen;
+	float* vertices;
+	int32_t* indices;
+	int vertexCount, indexCount;
+	gen.createSphere(vertices, vertexCount, indices, indexCount, sphere.getRadius(), 4, 4);
+
+	const COLSurface& surface = sphere.getSurface();
+	uint8_t matNum = surface.getMaterial();
+	uint8_t* colors = new uint8_t[vertexCount*4];
+	uint8_t r, g, b;
+	getMaterialColors(matNum, r, g, b);
+
+	for (int i = 0 ; i < vertexCount ; i++) {
+		colors[i*4] = r;
+		colors[i*4 + 1] = g;
+		colors[i*4 + 2] = b;
+		colors[i*4 + 3] = 255;
+	}
+
+	GLuint dataBuffer;
+	glGenBuffers(1, &dataBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, dataBuffer);
+
+	glBufferData(GL_ARRAY_BUFFER, vertexCount*3*4 + vertexCount*4, NULL, GL_STATIC_DRAW);
+
+	glBufferSubData(GL_ARRAY_BUFFER, 0, vertexCount*3*4, vertices);
+	glBufferSubData(GL_ARRAY_BUFFER, vertexCount*3*4, vertexCount*4, colors);
+
+	Mesh* mesh = new Mesh(vertexCount, 0, dataBuffer, -1, -1, vertexCount*3*4);
+
+	Submesh* submesh = new Submesh(mesh, indexCount, indices);
+	mesh->addSubmesh(submesh);
+
+	const Vector3& center = sphere.getCenter();
+	mesh->setBounds(center[0], center[1], center[2], sphere.getRadius());
+
+	return mesh;
+}
+
+
+Mesh* COLMeshConverter::convert(const COLBox& box)
+{
+	MeshGenerator gen;
+	float* vertices;
+	int32_t* indices;
+	int vertexCount, indexCount;
+	gen.createBox(vertices, vertexCount, indices, indexCount, box.getMinimum(), box.getMaximum());
+
+	const COLSurface& surface = box.getSurface();
+	uint8_t matNum = surface.getMaterial();
+	uint8_t* colors = new uint8_t[vertexCount*4];
+	uint8_t r, g, b;
+	getMaterialColors(matNum, r, g, b);
+
+	for (int i = 0 ; i < vertexCount ; i++) {
+		colors[i*4] = r;
+		colors[i*4 + 1] = g;
+		colors[i*4 + 2] = b;
+		colors[i*4 + 3] = 255;
+	}
+
+	GLuint dataBuffer;
+	glGenBuffers(1, &dataBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, dataBuffer);
+
+	glBufferData(GL_ARRAY_BUFFER, vertexCount*3*4 + vertexCount*4, NULL, GL_STATIC_DRAW);
+
+	glBufferSubData(GL_ARRAY_BUFFER, 0, vertexCount*3*4, vertices);
+	glBufferSubData(GL_ARRAY_BUFFER, vertexCount*3*4, vertexCount*4, colors);
+
+	Mesh* mesh = new Mesh(vertexCount, 0, dataBuffer, -1, -1, vertexCount*3*4);
+
+	Submesh* submesh = new Submesh(mesh, indexCount, indices);
+	mesh->addSubmesh(submesh);
+
+	//mesh->setBounds(center[0], center[1], center[2], sphere.getRadius());
+
+	return mesh;
+}
+
+
 Mesh* COLMeshConverter::convert(const COLModel& model)
 {
 	const COLSphere* spheres = model.getSpheres();
@@ -72,8 +173,10 @@ Mesh* COLMeshConverter::convert(const COLModel& model)
     float* modelVertices;
     uint8_t* modelColors;
     int32_t* modelIndices;
+    int modelIndexCount;
 
-    convertVertexModel(model, modelVertexCount, modelVertices, modelColors, modelIndices);
+    convertVertexModel(model.getVertices(), model.getVertexCount(), model.getFaces(), model.getFaceCount(),
+    		modelVertexCount, modelVertices, modelColors, modelIndices, modelIndexCount);
     vertexCount += modelVertexCount;
 
     glBufferData(GL_ARRAY_BUFFER, vertexCount*3*4 + vertexCount*4, NULL, GL_STATIC_DRAW);
@@ -134,7 +237,7 @@ Mesh* COLMeshConverter::convert(const COLModel& model)
         vertexOffset += vertexCount;
     }
 
-    Submesh* submesh = new Submesh(mesh, modelVertexCount, modelIndices);
+    Submesh* submesh = new Submesh(mesh, modelIndexCount, modelIndices);
     mesh->addSubmesh(submesh);
     vertexOffset = modelVertexCount;
 
@@ -172,11 +275,6 @@ Mesh* COLMeshConverter::convert(const COLModel& model)
 
 void COLMeshConverter::getMaterialColors(uint8_t mat, uint8_t& r, uint8_t& g, uint8_t& b)
 {
-	/*r = 0xFF;
-	g = 0x00;
-	b = 0x00;
-	return;*/
-
 	switch (mat) {
 	case 0:
 	case 1:
@@ -443,47 +541,45 @@ void COLMeshConverter::getMaterialColors(uint8_t mat, uint8_t& r, uint8_t& g, ui
 }
 
 
-void COLMeshConverter::convertVertexModel(const COLModel& model, int& vertexCount, float*& vertices,
-		uint8_t*& colors, int32_t*& indices)
+void COLMeshConverter::convertVertexModel(const float* inVertices, int32_t inVertexCount,
+		const COLFace* inFaces, int32_t inFaceCount, int& outVertexCount, float*& outVertices,
+		uint8_t*& outColors, int32_t*& outIndices, int32_t& outIndexCount)
 {
-	const float* srcVerts = model.getVertices();
-	uint32_t srcFaceCount = model.getFaceCount();
-	const COLFace* faces = model.getFaces();
+	outVertexCount = inFaceCount*3;
+	outVertices = new float[outVertexCount*3];
+	outColors = new uint8_t[outVertexCount*4];
+	outIndices = new int32_t[outVertexCount];
+	outIndexCount = outVertexCount;
 
-	vertexCount = srcFaceCount*3;
-	vertices = new float[vertexCount*3];
-	colors = new uint8_t[vertexCount*4];
-	indices = new int32_t[vertexCount];
-
-	for (unsigned int numFace = 0 ; numFace < srcFaceCount ; numFace++) {
-		const COLFace& face = faces[numFace];
+	for (unsigned int numFace = 0 ; numFace < inFaceCount ; numFace++) {
+		const COLFace& face = inFaces[numFace];
 		const uint32_t* srcIndices = face.getIndices();
 
-		memcpy(vertices + numFace*3 * 3, srcVerts + srcIndices[0]*3, 3*4);
-		memcpy(vertices + (numFace*3+1) * 3, srcVerts + srcIndices[1]*3, 3*4);
-		memcpy(vertices + (numFace*3+2) * 3, srcVerts + srcIndices[2]*3, 3*4);
-		indices[numFace*3] = numFace*3;
-		indices[numFace*3+1] = numFace*3+1;
-		indices[numFace*3+2] = numFace*3+2;
+		memcpy(outVertices + numFace*3 * 3, inVertices + srcIndices[0]*3, 3*4);
+		memcpy(outVertices + (numFace*3+1) * 3, inVertices + srcIndices[1]*3, 3*4);
+		memcpy(outVertices + (numFace*3+2) * 3, inVertices + srcIndices[2]*3, 3*4);
+		outIndices[numFace*3] = numFace*3;
+		outIndices[numFace*3+1] = numFace*3+1;
+		outIndices[numFace*3+2] = numFace*3+2;
 
 		const COLSurface& surface = face.getSurface();
 		uint8_t mat = surface.getMaterial();
 		uint8_t r, g, b;
 		getMaterialColors(mat, r, g, b);
 
-		colors[numFace*3*4] = r;
-		colors[numFace*3*4+1] = g;
-		colors[numFace*3*4+2] = b;
-		colors[numFace*3*4+3] = 255;
+		outColors[numFace*3*4] = r;
+		outColors[numFace*3*4+1] = g;
+		outColors[numFace*3*4+2] = b;
+		outColors[numFace*3*4+3] = 255;
 
-		colors[(numFace*3+1)*4] = r;
-		colors[(numFace*3+1)*4+1] = g;
-		colors[(numFace*3+1)*4+2] = b;
-		colors[(numFace*3+1)*4+3] = 255;
+		outColors[(numFace*3+1)*4] = r;
+		outColors[(numFace*3+1)*4+1] = g;
+		outColors[(numFace*3+1)*4+2] = b;
+		outColors[(numFace*3+1)*4+3] = 255;
 
-		colors[(numFace*3+2)*4] = r;
-		colors[(numFace*3+2)*4+1] = g;
-		colors[(numFace*3+2)*4+2] = b;
-		colors[(numFace*3+2)*4+3] = 255;
+		outColors[(numFace*3+2)*4] = r;
+		outColors[(numFace*3+2)*4+1] = g;
+		outColors[(numFace*3+2)*4+2] = b;
+		outColors[(numFace*3+2)*4+3] = 255;
 	}
 }

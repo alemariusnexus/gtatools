@@ -29,6 +29,7 @@
 #include <QtCore/QHash>
 #include <QtCore/QVariant>
 #include <QtCore/QString>
+#include <QtOpenGL/QGLWidget>
 #include "Task.h"
 #include "FileOpenRequest.h"
 #include "SystemQuery.h"
@@ -43,6 +44,7 @@ public:
 	static System* getInstance();
 
 public:
+	void initializeGL();
 	bool openFile(const FileOpenRequest& request);
 	void closeFile(const File& file);
 	void closeCurrentFile();
@@ -60,7 +62,9 @@ public:
 	Task* createTask();
 	void installGUIModule(GUIModule* module);
 	void uninstallGUIModule(GUIModule* module);
+	void forceUninstallGUIModule(GUIModule* module);
 	SystemQueryResult sendSystemQuery(const SystemQuery& query);
+	QGLWidget* getSharedGLWidget() { return sharedWidget; }
 
 signals:
 	void fileOpened(const FileOpenRequest& request);
@@ -82,6 +86,7 @@ private:
 	QLinkedList<GUIModule*> installedGUIModules;
 	QLinkedList<File*> openFiles;
 	File* currentFile;
+	QGLWidget* sharedWidget;
 
 private:
 	friend class MainWindow;

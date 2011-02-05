@@ -34,11 +34,15 @@ class GUIModule : public QObject {
 	Q_OBJECT
 
 public:
-	GUIModule() : mainWindow(NULL) {};
+	GUIModule() : mainWindow(NULL), installCount(0) {};
 	virtual ~GUIModule();
 	virtual void buildFileTreeMenu(const QLinkedList<File*>& files, QMenu& menu) {}
-	void install(MainWindow* mw) { mainWindow = mw; doInstall(); }
-	void uninstall() { doUninstall(); mainWindow = NULL; }
+	int getInstallCount() const { return installCount; }
+
+private:
+	bool install(MainWindow* mw);
+	bool uninstall();
+	void forceUninstall();
 
 private:
 	virtual void doInstall() = 0;
@@ -46,6 +50,11 @@ private:
 
 protected:
 	MainWindow* mainWindow;
+
+private:
+	int installCount;
+
+	friend class System;
 };
 
 #endif /* GUIMODULE_H_ */

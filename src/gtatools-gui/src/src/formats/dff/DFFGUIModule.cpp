@@ -26,7 +26,6 @@
 
 
 DFFGUIModule::DFFGUIModule()
-		: installCount(0)
 {
 	texturedAction = new QAction(tr("Show textured"), NULL);
 	texturedAction->setCheckable(true);
@@ -49,26 +48,6 @@ DFFGUIModule::~DFFGUIModule()
 	delete texturedAction;
 	delete wireframeAction;
 	delete dumpAction;
-}
-
-
-void DFFGUIModule::installOnce()
-{
-	if (installCount == 0) {
-		System::getInstance()->installGUIModule(this);
-	}
-
-	installCount++;
-}
-
-
-void DFFGUIModule::uninstallOnce()
-{
-	installCount--;
-
-	if (installCount == 0) {
-		System::getInstance()->uninstallGUIModule(this);
-	}
 }
 
 

@@ -110,7 +110,7 @@ DFFWidget::DFFWidget(const File& file, QWidget* parent, QGLWidget* shareWidget)
 	}
 
 	DFFGUIModule* guiModule = DFFGUIModule::getInstance();
-	guiModule->installOnce();
+	System::getInstance()->installGUIModule(guiModule);
 
 	Profile* profile = ProfileManager::getInstance()->getCurrentProfile();
 
@@ -152,8 +152,8 @@ DFFWidget::~DFFWidget()
 	geometryTabberIndex = ui.geometryTabber->currentIndex();
 	geometryPartTabberIndex = ui.geometryPartTabber->currentIndex();
 
-	disconnect(this);
-	DFFGUIModule::getInstance()->uninstallOnce();
+	DFFGUIModule::getInstance()->disconnect(this);
+	System::getInstance()->uninstallGUIModule(DFFGUIModule::getInstance());
 
 	clearGeometryPartList();
 	clearMaterialList();

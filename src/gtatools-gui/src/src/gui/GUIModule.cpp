@@ -26,3 +26,44 @@ GUIModule::~GUIModule()
 	System* sys = System::getInstance();
 	sys->uninstallGUIModule(this);
 }
+
+
+void GUIModule::forceUninstall()
+{
+	installCount = 0;
+	doUninstall();
+	mainWindow = NULL;
+}
+
+
+bool GUIModule::install(MainWindow* mw)
+{
+	bool retval = false;
+
+	if (installCount == 0) {
+		mainWindow = mw;
+		doInstall();
+		retval = true;
+	}
+
+	installCount++;
+	return retval;
+}
+
+
+bool GUIModule::uninstall()
+{
+	bool retval = false;
+
+	installCount--;
+
+	if (installCount == 0) {
+		doUninstall();
+		mainWindow = NULL;
+		retval = true;
+	} else if (installCount < 0) {
+		installCount = 0;
+	}
+
+	return retval;
+}

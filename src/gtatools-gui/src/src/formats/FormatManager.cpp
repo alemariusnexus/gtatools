@@ -24,6 +24,7 @@
 #include "ide/IDEFormatHandler.h"
 #include "dff/DFFFormatHandler.h"
 #include "gxt/GXTFormatHandler.h"
+#include "col/COLFormatHandler.h"
 
 
 
@@ -35,6 +36,7 @@ FormatManager::FormatManager()
 	registerFormatHandler(new IDEFormatHandler);
 	registerFormatHandler(DFFFormatHandler::getInstance());
 	registerFormatHandler(GXTFormatHandler::getInstance());
+	registerFormatHandler(new COLFormatHandler);
 }
 
 

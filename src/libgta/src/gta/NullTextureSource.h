@@ -27,6 +27,7 @@
 class NullTextureSource : public TextureSource {
 public:
 	virtual GLuint getTexture(hash_t texHash) { return 0; }
+	virtual TextureSource* clone() const { return new NullTextureSource; }
 };
 
 #endif /* NULLTEXTURESOURCE_H_ */

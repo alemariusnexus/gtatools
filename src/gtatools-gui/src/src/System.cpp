@@ -35,6 +35,12 @@ System* System::getInstance()
 }
 
 
+void System::initializeGL()
+{
+	sharedWidget = new QGLWidget;
+}
+
+
 bool System::openFile(const FileOpenRequest& request)
 {
 	if (isOpenFile(*request.getFile())) {
@@ -196,9 +202,8 @@ Task* System::createTask()
 
 void System::installGUIModule(GUIModule* module)
 {
-	if (!isGUIModuleInstalled(module)) {
+	if (module->install(mainWindow)) {
 		installedGUIModules << module;
-		module->install(mainWindow);
 		emit installedGUIModule(module);
 	}
 }
@@ -207,8 +212,19 @@ void System::installGUIModule(GUIModule* module)
 void System::uninstallGUIModule(GUIModule* module)
 {
 	if (isGUIModuleInstalled(module)) {
+		if (module->uninstall()) {
+			installedGUIModules.removeOne(module);
+			emit uninstalledGUIModule(module);
+		}
+	}
+}
+
+
+void System::forceUninstallGUIModule(GUIModule* module)
+{
+	if (isGUIModuleInstalled(module)) {
 		installedGUIModules.removeOne(module);
-		module->uninstall();
+		module->forceUninstall();
 		emit uninstalledGUIModule(module);
 	}
 }
