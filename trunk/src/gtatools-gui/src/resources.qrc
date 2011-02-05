@@ -1,10 +1,10 @@
-<?xml version="1.0"?>
-<!DOCTYPE RCC>
-<RCC version="1.0">
-	<qresource>
-		<file>gtatools-gui_de.qm</file>
-		<file>gtatools-gui_en.qm</file>
+<RCC>
+    <qresource prefix="/">
+        <file>gtatools-gui_de.qm</file>
+        <file>gtatools-gui_en.qm</file>
         <file>src/shader/vertex.glsl</file>
         <file>src/shader/fragment.glsl</file>
-	</qresource>
+        <file>src/shader/vertex_col.glsl</file>
+        <file>src/shader/fragment_col.glsl</file>
+    </qresource>
 </RCC>

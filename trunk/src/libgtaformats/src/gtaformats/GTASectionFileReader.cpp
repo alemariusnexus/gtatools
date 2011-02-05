@@ -58,7 +58,7 @@ bool GTASectionFileReader::readNextLine(char* buf, int len)
 		stream->getline(buf, len);
 		streamoff numChars = stream->gcount();
 
-		if (buf[numChars-2] == '\r') {
+		if (numChars >= 2  &&  buf[numChars-2] == '\r') {
 			buf[numChars-2] = '\0';
 		}
 

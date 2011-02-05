@@ -15,15 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
 
-ADD_SUBDIRECTORY(col)
-ADD_SUBDIRECTORY(dff)
-ADD_SUBDIRECTORY(ide)
-ADD_SUBDIRECTORY(img)
-ADD_SUBDIRECTORY(ipl)
-ADD_SUBDIRECTORY(txd)
-ADD_SUBDIRECTORY(gxt)
-
-SET(SRCS ${SRCS} src/formats/FormatHandler.cpp src/formats/FormatManager.cpp PARENT_SCOPE)
-SET(MOC_SRCS ${MOC_SRCS} src/formats/FormatHandler.h PARENT_SCOPE)
-SET(UIC_SRCS ${UIC_SRCS} PARENT_SCOPE)
-SET(INCS ${INCS} PARENT_SCOPE)
+SET(SRCS ${SRCS}
+    src/formats/col/COLFormatHandler.cpp src/formats/col/COLWidget.cpp
+    src/formats/col/COLSphereBoxRenderWidget.cpp src/formats/col/COLGUIModule.cpp
+    src/formats/col/COLMeshRenderWidget.cpp
+    PARENT_SCOPE)
+SET(MOC_SRCS ${MOC_SRCS}
+    src/formats/col/COLFormatHandler.h src/formats/col/COLWidget.h src/formats/col/COLSphereBoxRenderWidget.h
+    src/formats/col/COLGUIModule.h src/formats/col/COLMeshRenderWidget.h
+    PARENT_SCOPE)
+SET(UIC_SRCS ${UIC_SRCS} src/formats/col/COLWidget.ui PARENT_SCOPE)

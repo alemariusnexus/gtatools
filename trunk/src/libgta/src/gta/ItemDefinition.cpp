@@ -140,23 +140,6 @@ void ItemDefinition::render()
 				glUniform4f(materialColorUniform, 1.0f, 1.0f, 1.0f, 0.0f);
 			}
 
-			/*if (textureUniform != -1  &&  mat  &&  mat->isTextured()) {
-				glActiveTexture(GL_TEXTURE0);
-				//TextureIndex index(txdHash, mat->getTextureHash());
-				//resMgr->bindTexture(index);
-				glBindTexture(GL_TEXTURE_2D, texSrc->getTexture(mat->getTextureHash()));
-				glUniform1i(textureUniform, 0);
-				glUniform1i(texturedUniform, 1);
-			} else if (mat) {
-				uint8_t r, g, b, a;
-				mat->getColor(r, g, b, a);
-				glUniform1i(texturedUniform, 0);
-				glUniform4f(materialColorUniform, (1.0f/255)*r, (1.0f/255)*g, (1.0f/255)*b, (1.0f/255)*a);
-			} else {
-				glUniform1i(texturedUniform, 0);
-				glUniform4f(materialColorUniform, 1.0f, 1.0f, 1.0f, 1.0f);
-			}*/
-
 			submesh->bindIndexBuffer();
 
 			GLException::checkError();

@@ -43,10 +43,10 @@ void MeshGenerator::createBox(float*& vertices, int& vertexCount, int32_t*& indi
 			minx, maxy, maxz
 	};
 	memcpy(vertices, localVertices, 8*3*4);
-	vertexCount = 8*3;
+	vertexCount = 8;
 
 	indices = new int32_t[6*6];
-	float localIndices[] = {
+	int32_t localIndices[] = {
 			0, 1, 2, 2, 3, 0,	// Front
 			4, 5, 6, 6, 7, 4,	// Back
 			3, 2, 6, 6, 7, 3,	// Top

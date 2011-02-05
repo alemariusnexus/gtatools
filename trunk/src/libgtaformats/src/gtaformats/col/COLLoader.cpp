@@ -198,7 +198,7 @@ COLModel* COLLoader::loadModel(istream* stream)
 				COLFace* shadowMeshFaces = new COLFace[numShadowMeshFaces];
 				stream->seekg(colStart+shadowMeshFaceOffset+4, istream::beg);
 
-				uint32_t greatestVertexIndex = -1;
+				int64_t greatestVertexIndex = -1;
 
 				for (uint32_t i = 0 ; i < numShadowMeshFaces ; i++) {
 					COLFace& face = shadowMeshFaces[i];
@@ -229,9 +229,9 @@ COLModel* COLLoader::loadModel(istream* stream)
 				float* shadowMeshVertices = new float[numShadowMeshVertices*3];
 
 				for (uint32_t i = 0 ; i < numShadowMeshVertices ; i++) {
-					shadowMeshVertices[0] = compressedVertices[0] / 128.0f;
-					shadowMeshVertices[1] = compressedVertices[1] / 128.0f;
-					shadowMeshVertices[2] = compressedVertices[2] / 128.0f;
+					shadowMeshVertices[i*3] = compressedVertices[i*3] / 128.0f;
+					shadowMeshVertices[i*3+1] = compressedVertices[i*3+1] / 128.0f;
+					shadowMeshVertices[i*3+2] = compressedVertices[i*3+2] / 128.0f;
 				}
 
 				delete[] compressedVertices;
