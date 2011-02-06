@@ -27,7 +27,7 @@ SET(EXCEPTION_POSITION_INFO OFF CACHE BOOL "If true, exception messages will inc
 ADD_SUBDIRECTORY(gtaformats)
 
 SET(SQUISH_INCLUDE_PATH "" CACHE PATH "Directory containing libsquish header files.")
-SET(SQUISH_LIB_PATH "squish" CACHE PATH "Path to (or name of) libsquish library file")
+SET(SQUISH_LIB_PATH "squish" CACHE FILEPATH "Path to (or name of) libsquish library file")
 
 IF(NOT SQUISH_LIB_PATH)
 	SET(SQUISH_LIB_PATH squish)
