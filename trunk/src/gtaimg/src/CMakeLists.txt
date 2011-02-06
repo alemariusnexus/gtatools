@@ -27,7 +27,7 @@ ELSE(prj-gtaformats_SOURCE_DIR)
     SET(GTAFORMATS_INCLUDE_PATH "" CACHE PATH "Path to the gtaformats include dir (EXCLUDING the 'gtaformats' part)")
 ENDIF(prj-gtaformats_SOURCE_DIR)
     
-SET(GTAFORMATS_LIB_PATH "gtaformats" CACHE PATH "Path to (or name of) the libgtaformats library file")
+SET(GTAFORMATS_LIB_PATH "gtaformats" CACHE FILEPATH "Path to (or name of) the libgtaformats library file")
 
 IF(NOT GTAFORMATS_LIB_PATH)
 	SET(GTAFORMATS_LIB_PATH gtaformats)

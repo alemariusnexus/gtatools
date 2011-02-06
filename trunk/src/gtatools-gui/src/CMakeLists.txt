@@ -39,16 +39,16 @@ ELSE(UNIX) # Windows...
 	SET(GLU_DEFAULT_LIB glu32)
 ENDIF(UNIX)
 
-SET(GTAFORMATS_LIB_PATH "gtaformats" CACHE PATH "Path to (or name of) the libgtaformats library file")
-SET(GTA_LIB_PATH "gta" CACHE PATH "Path to (or name of) the libgta library file")
+SET(GTAFORMATS_LIB_PATH "gtaformats" CACHE FILEPATH "Path to (or name of) the libgtaformats library file")
+SET(GTA_LIB_PATH "gta" CACHE FILEPATH "Path to (or name of) the libgta library file")
 SET(GL_INCLUDE_PATH "" CACHE PATH "Directory containing the OpenGL header file(s)")
-SET(GL_LIB_PATH "${GL_DEFAULT_LIB}" CACHE PATH "Path to (or name of) the OpenGL library file")
+SET(GL_LIB_PATH "${GL_DEFAULT_LIB}" CACHE FILEPATH "Path to (or name of) the OpenGL library file")
 SET(GLU_INCLUDE_PATH "" CACHE PATH "Directory containing the OpenGL Utility (GLU) header file(s)")
-SET(GLU_LIB_PATH "${GLU_DEFAULT_LIB}" CACHE PATH "Path to (or name of) the OpenGL Utility (GLU) library file")
+SET(GLU_LIB_PATH "${GLU_DEFAULT_LIB}" CACHE FILEPATH "Path to (or name of) the OpenGL Utility (GLU) library file")
 SET(GLEW_INCLUDE_PATH "" CACHE PATH "Directory containing the OpenGL Extension Wrangler (GLEW) header files")
-SET(GLEW_LIB_PATH "GLEW" CACHE PATH "Path to (or name of) the OpenGL Extension Wrangler (GLEW) library file")
+SET(GLEW_LIB_PATH "GLEW" CACHE FILEPATH "Path to (or name of) the OpenGL Extension Wrangler (GLEW) library file")
 SET(SQUISH_INCLUDE_PATH "" CACHE PATH "Directory containing libsquish header files.")
-SET(SQUISH_LIB_PATH "squish" CACHE PATH "Path to (or name of) libsquish library file")
+SET(SQUISH_LIB_PATH "squish" CACHE FILEPATH "Path to (or name of) libsquish library file")
 
 FIND_PACKAGE(Qt4 4.6.0 COMPONENTS QtCore QtGui QtXml QtOpenGL qtmain REQUIRED)
 

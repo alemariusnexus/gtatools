@@ -37,15 +37,15 @@ ELSE(UNIX) # Windows...
 	SET(GLEW_DEFAULT_LIB glew32)
 ENDIF(UNIX)
 
-SET(GTAFORMATS_LIB_PATH "gtaformats" CACHE PATH "Path to (or name of) libgtaformats library file")
+SET(GTAFORMATS_LIB_PATH "gtaformats" CACHE FILEPATH "Path to (or name of) libgtaformats library file")
 SET(SQUISH_INCLUDE_PATH "" CACHE PATH "Directory containing libsquish header files.")
-SET(SQUISH_LIB_PATH "squish" CACHE PATH "Path to (or name of) libsquish library file")
+SET(SQUISH_LIB_PATH "squish" CACHE FILEPATH "Path to (or name of) libsquish library file")
 SET(GL_INCLUDE_PATH "" CACHE PATH "Directory containing the OpenGL header file(s)")
-SET(GL_LIB_PATH "${GL_DEFAULT_LIB}" CACHE PATH "Path to (or name of) the OpenGL library file")
+SET(GL_LIB_PATH "${GL_DEFAULT_LIB}" CACHE FILEPATH "Path to (or name of) the OpenGL library file")
 SET(GLU_INCLUDE_PATH "" CACHE PATH "Directory containing the OpenGL Utility (GLU) header file(s)")
-SET(GLU_LIB_PATH "${GLU_DEFAULT_LIB}" CACHE PATH "Path to (or name of) the OpenGL Utility (GLU) library file")
+SET(GLU_LIB_PATH "${GLU_DEFAULT_LIB}" CACHE FILEPATH "Path to (or name of) the OpenGL Utility (GLU) library file")
 SET(GLEW_INCLUDE_PATH "" CACHE PATH "Directory containing the OpenGL Extension Wrangler (GLEW) header file(s)")
-SET(GLEW_LIB_PATH "${GLEW_DEFAULT_LIB}" CACHE PATH "Path to (or name of) the OpenGL Extension Wrangler (GLEW) library file")
+SET(GLEW_LIB_PATH "${GLEW_DEFAULT_LIB}" CACHE FILEPATH "Path to (or name of) the OpenGL Extension Wrangler (GLEW) library file")
 
 SET(GTA_ENABLE_SQUISH ON CACHE BOOL "If enabled, libsquish will be available to decompress DXT-textures.")
 
