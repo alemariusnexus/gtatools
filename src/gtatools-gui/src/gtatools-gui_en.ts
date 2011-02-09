@@ -1182,18 +1182,88 @@ You should have received a copy of the GNU General Public License along with thi
         <translation>Search Item Definition</translation>
     </message>
     <message>
-        <location filename="src/formats/ide/IDESearchWidget.ui" line="23"/>
+        <location filename="src/formats/ide/IDESearchWidget.ui" line="20"/>
+        <source>Criteria</source>
+        <translation>Criteria</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDESearchWidget.ui" line="29"/>
         <source>Item &amp;ID</source>
         <oldsource>Item ID</oldsource>
         <translation>Item &amp;ID</translation>
     </message>
     <message>
-        <location filename="src/formats/ide/IDESearchWidget.ui" line="80"/>
+        <location filename="src/formats/ide/IDESearchWidget.ui" line="48"/>
+        <source>Select</source>
+        <translation>Select</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDESearchWidget.ui" line="73"/>
+        <source>&amp;Mesh Name</source>
+        <translation>&amp;Mesh Name</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDESearchWidget.ui" line="83"/>
+        <source>&amp;TXD Name</source>
+        <translation>&amp;TXD Name</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDESearchWidget.ui" line="99"/>
+        <source>&amp;Animations</source>
+        <oldsource>Animation</oldsource>
+        <translation>&amp;Animations</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDESearchWidget.ui" line="106"/>
+        <source>&amp;Pedestrians</source>
+        <oldsource>Pedestrian</oldsource>
+        <translation>&amp;Pedestrians</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDESearchWidget.ui" line="113"/>
+        <source>Stati&amp;c Objects</source>
+        <oldsource>Static Object</oldsource>
+        <translation>Stati&amp;c Objects</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDESearchWidget.ui" line="120"/>
+        <source>&amp;Timed Objects</source>
+        <oldsource>Timed Object</oldsource>
+        <translation>&amp;Timed Objects</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDESearchWidget.ui" line="127"/>
+        <source>&amp;Weapons</source>
+        <oldsource>Weapon</oldsource>
+        <translation>&amp;Weapons</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDESearchWidget.ui" line="140"/>
+        <source>Options</source>
+        <translation>Options</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDESearchWidget.ui" line="146"/>
+        <source>&amp;Exact Match</source>
+        <translation>&amp;Exact Match</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDESearchWidget.ui" line="153"/>
+        <source>&amp;Regular Expression</source>
+        <translation>&amp;Regular Expression</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDESearchWidget.ui" line="160"/>
+        <source>Case-&amp;Sensitive</source>
+        <translation>Case-&amp;Sensitive</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ide/IDESearchWidget.ui" line="186"/>
         <source>&amp;Cancel</source>
         <translation>&amp;Cancel</translation>
     </message>
     <message>
-        <location filename="src/formats/ide/IDESearchWidget.ui" line="87"/>
+        <location filename="src/formats/ide/IDESearchWidget.ui" line="193"/>
         <source>&amp;Search</source>
         <translation>&amp;Search</translation>
     </message>

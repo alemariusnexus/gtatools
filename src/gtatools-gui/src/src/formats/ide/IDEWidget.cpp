@@ -120,7 +120,7 @@ IDEWidget::IDEWidget(QWidget* parent, const FileOpenRequest& request)
 
 		int line = ide.getLastReadLine();
 
-		if (type == IDE_TYPE_STATIC_OBJECT) {
+		if (type == IDETypeStaticObject) {
 			IDEStaticObject* sobj = (IDEStaticObject*) stmt;
 			int rc = ui.staticObjectTable->rowCount();
 			ui.staticObjectTable->setRowCount(rc+1);
@@ -144,7 +144,7 @@ IDEWidget::IDEWidget(QWidget* parent, const FileOpenRequest& request)
 				ui.staticObjectTable->setCurrentCell(rc, 0);
 				ui.tabWidget->setCurrentWidget(ui.staticObjectWidget);
 			}
-		} else if (type == IDE_TYPE_TIMED_OBJECT) {
+		} else if (type == IDETypeTimedObject) {
 			IDETimedObject* tobj = (IDETimedObject*) stmt;
 			int rc = ui.timedObjectTable->rowCount();
 			ui.timedObjectTable->setRowCount(rc+1);
@@ -172,7 +172,7 @@ IDEWidget::IDEWidget(QWidget* parent, const FileOpenRequest& request)
 				ui.timedObjectTable->setCurrentCell(rc, 0);
 				ui.tabWidget->setCurrentWidget(ui.timedObjectWidget);
 			}
-		} else if (type == IDE_TYPE_ANIMATION) {
+		} else if (type == IDETypeAnimation) {
 			IDEAnimation* anim = (IDEAnimation*) stmt;
 			int rc = ui.animationTable->rowCount();
 			ui.animationTable->setRowCount(rc+1);
@@ -188,7 +188,7 @@ IDEWidget::IDEWidget(QWidget* parent, const FileOpenRequest& request)
 				ui.animationTable->setCurrentCell(rc, 0);
 				ui.tabWidget->setCurrentWidget(ui.animationWidget);
 			}
-		} else if (type == IDE_TYPE_PEDESTRIAN) {
+		} else if (type == IDETypePedestrian) {
 			IDEPedestrian* ped = (IDEPedestrian*) stmt;
 			int rc = ui.pedTable->rowCount();
 			ui.pedTable->setRowCount(rc+1);
@@ -214,7 +214,7 @@ IDEWidget::IDEWidget(QWidget* parent, const FileOpenRequest& request)
 				ui.pedTable->setCurrentCell(rc, 0);
 				ui.tabWidget->setCurrentWidget(ui.pedWidget);
 			}
-		} else if (type == IDE_TYPE_WEAPON) {
+		} else if (type == IDETypeWeapon) {
 			IDEWeapon* weap = (IDEWeapon*) stmt;
 			int rc = ui.weaponTable->rowCount();
 			ui.weaponTable->setRowCount(rc+1);

@@ -40,7 +40,7 @@ void ExtendedResourceManager::addResource(const File& file)
 			IDEStatement* stmt;
 
 			while ((stmt = ide.readStatement())  !=  NULL) {
-				if (stmt->getType() == IDE_TYPE_STATIC_OBJECT  ||  stmt->getType() == IDE_TYPE_TIMED_OBJECT) {
+				if (stmt->getType() == IDETypeStaticObject  ||  stmt->getType() == IDETypeTimedObject) {
 					IDEStaticObject* sobj = (IDEStaticObject*) stmt;
 					char* meshName = new char[strlen(sobj->getModelName())+1];
 					strtolower(meshName, sobj->getModelName());

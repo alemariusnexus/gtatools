@@ -23,8 +23,6 @@
 #include "../config.h"
 #include "IDEEntity.h"
 
-#define IDE_TYPE_WEAPON 4
-
 
 
 class IDEWeapon : public IDEEntity {
@@ -40,7 +38,7 @@ public:
 	const float* getDrawDistances() const { return drawDists; }
 	int32_t getFlags() const { return flags; }
 
-	virtual idetype_t getType() const { return IDE_TYPE_WEAPON; }
+	virtual idetype_t getType() const { return IDETypeWeapon; }
 
 private:
 	char* modelName;

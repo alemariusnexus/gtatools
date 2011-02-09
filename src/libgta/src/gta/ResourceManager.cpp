@@ -204,7 +204,7 @@ void ResourceManager::addResource(const File& file, istream* stream, void (*call
 
 		while ((stmt = ide.readStatement())  !=  NULL) {
 			switch (stmt->getType()) {
-			case IDE_TYPE_STATIC_OBJECT:
+			case IDETypeStaticObject:
 				IDEStaticObject* sobj = (IDEStaticObject*) stmt;
 				ItemDefinition* def = new ItemDefinition(*sobj);
 				defineItem(sobj->getId(), def);

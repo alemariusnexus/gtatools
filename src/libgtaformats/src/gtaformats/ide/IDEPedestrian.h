@@ -24,8 +24,6 @@
 #include "IDEEntity.h"
 
 
-#define IDE_TYPE_PEDESTRIAN 3
-
 
 
 class IDEPedestrian : public IDEEntity {
@@ -50,7 +48,7 @@ public:
 	const char* getVoice1() const { return voice1; }
 	const char* getVoice2() const { return voice2; }
 
-	virtual idetype_t getType() const { return IDE_TYPE_PEDESTRIAN; }
+	virtual idetype_t getType() const { return IDETypePedestrian; }
 
 private:
 	char* modelName;

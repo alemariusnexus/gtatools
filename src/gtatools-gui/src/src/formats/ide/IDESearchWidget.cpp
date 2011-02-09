@@ -21,6 +21,9 @@
 #include "IDEFileFinder.h"
 #include "../../gui/GUI.h"
 #include "../../System.h"
+#include "../../RegexFileFinder.h"
+#include <gtaformats/util/DefaultFileFinder.h>
+#include <QtCore/QSettings>
 
 
 
@@ -50,8 +53,66 @@ void IDESearchWidget::onSearch(bool checked)
 	ui.searchButton->setEnabled(false);
 
 	int32_t id = ui.idSpinner->value();
-	finder = new IDEFileFinder(id);
+	QString meshName = ui.meshNameField->text();
+	QString txdName = ui.txdNameField->text();
+	bool exactMatch = ui.exactBox->isChecked();
+	bool regex = ui.regexBox->isChecked();
+	bool caseSensitive = ui.caseBox->isChecked();
+	idetype_t types = 0;
+
+	if (ui.animBox->isChecked())
+		types |= IDETypeAnimation;
+	if (ui.pedBox->isChecked())
+		types |= IDETypePedestrian;
+	if (ui.sobjBox->isChecked())
+		types |= IDETypeStaticObject;
+	if (ui.tobjBox->isChecked())
+		types |= IDETypeTimedObject;
+	if (ui.weaponBox->isChecked())
+		types |= IDETypeWeapon;
+
+	FileFinder* meshFinder = NULL;
+	FileFinder* txdFinder = NULL;
+
+	QRegExp::PatternSyntax syntax;
+
+	QSettings settings;
+
+	QString cfgSyntax = settings.value("main/regex_syntax", "wildcard").toString();
+
+	if (cfgSyntax == "wildcard") {
+		syntax = QRegExp::WildcardUnix;
+	} else if (cfgSyntax == "full") {
+		syntax = QRegExp::RegExp;
+	} else {
+		syntax = QRegExp::WildcardUnix;
+	}
+
+	if (!meshName.isEmpty()) {
+		if (regex)
+			meshFinder = new RegexFileFinder(QRegExp(meshName,
+					caseSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive, syntax), exactMatch);
+		else
+			meshFinder = new DefaultFileFinder(meshName.toLocal8Bit().constData(), caseSensitive,
+					exactMatch);
+	}
+
+	if (!txdName.isEmpty()) {
+		if (regex)
+			txdFinder = new RegexFileFinder(QRegExp(txdName,
+					caseSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive, syntax), exactMatch);
+		else
+			txdFinder = new DefaultFileFinder(txdName.toLocal8Bit().constData(), caseSensitive,
+					exactMatch);
+	}
+
+	finder = new IDEFileFinder(id, types, meshFinder, txdFinder);
 	File* toBeOpened = GUI::getInstance()->findFile(finder, this);
+
+	if (meshFinder)
+		delete meshFinder;
+	if (txdFinder)
+		delete txdFinder;
 
 	if (toBeOpened) {
 		int line = finder->getMatchedLine(*toBeOpened);

@@ -22,6 +22,22 @@
 
 #include "../config.h"
 
+
+enum IDEType
+{
+	IDETypeStaticObject = 1 << 0,
+	IDETypeTimedObject = 1 << 1,
+	IDETypeAnimation = 1 << 2,
+	IDETypePedestrian = 1 << 3,
+	IDETypeWeapon = 1 << 4,
+
+	IDETypeGroupEntity = IDETypeStaticObject | IDETypeTimedObject | IDETypeAnimation | IDETypePedestrian
+			| IDETypeWeapon,
+	IDETypeGroupAll = IDETypeStaticObject | IDETypeTimedObject | IDETypeAnimation | IDETypePedestrian
+			| IDETypeWeapon
+};
+
+
 typedef char idetype_t;
 
 
