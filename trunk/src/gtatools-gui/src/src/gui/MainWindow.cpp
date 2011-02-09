@@ -1,5 +1,5 @@
 /*
-	Copyright 2010 David "Alemarius Nexus" Lerch
+	Copyright 2010-2011 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -80,7 +80,7 @@ void MainWindow::initialize()
 	connect(ui.contentTabber, SIGNAL(currentChanged(int)), this, SLOT(currentFileTabChanged(int)));
 	connect(ui.contentTabber, SIGNAL(tabCloseRequested(int)), this, SLOT(fileTabClosed(int)));
 
-	QSettings settings(CONFIG_FILE, QSettings::IniFormat);
+	QSettings settings;
 
 	resize(settings.value("gui/mainwindow_size", size()).toSize());
 	restoreState(settings.value("gui/mainwindow_state").toByteArray());
@@ -97,7 +97,7 @@ MainWindow::~MainWindow()
 		delete fit.value();
 	}
 
-	QSettings settings(CONFIG_FILE, QSettings::IniFormat);
+	QSettings settings;
 	settings.setValue("gui/mainwindow_size", size());
 	settings.setValue("gui/mainwindow_state", saveState());
 

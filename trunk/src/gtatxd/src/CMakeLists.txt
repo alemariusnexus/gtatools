@@ -1,4 +1,4 @@
-# Copyright 2010 David "Alemarius Nexus" Lerch
+# Copyright 2010-2011 David "Alemarius Nexus" Lerch
 # 
 # This file is part of gtatxd.
 #
@@ -33,7 +33,7 @@ SET(SQUISH_LIB_PATH "squish" CACHE FILEPATH "Path to (or name of) libsquish libr
 SET(PNG_INCLUDE_PATH "" CACHE PATH "Path to the libpng include dir")
 SET(PNG_LIB_PATH "png" CACHE FILEPATH "Path to (or name of) the libpng library file")
 SET(Z_INCLUDE_PATH "" CACHE PATH "Path to the zlib include dir")
-SET(Z_LIB_PATH "png" CACHE FILEPATH "Path to (or name of) the zlib library file")
+SET(Z_LIB_PATH "z" CACHE FILEPATH "Path to (or name of) the zlib library file")
 
 IF(NOT GTAFORMATS_LIB_PATH)
 	SET(GTAFORMATS_LIB_PATH gtaformats)

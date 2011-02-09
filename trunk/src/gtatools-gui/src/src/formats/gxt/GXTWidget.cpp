@@ -1,5 +1,5 @@
 /*
-	Copyright 2010 David "Alemarius Nexus" Lerch
+	Copyright 2010-2011 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -153,7 +153,7 @@ void GXTWidget::applyFilter()
 	}
 
 	if (ui.regexBox->isChecked()) {
-		QSettings settings(CONFIG_FILE, QSettings::IniFormat);
+		QSettings settings;
 
 		QRegExp::PatternSyntax syntax;
 		QString syntaxSetting = settings.value("main/regex_syntax", "wildcard").toString();

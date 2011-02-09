@@ -1,5 +1,5 @@
 /*
-	Copyright 2010 David "Alemarius Nexus" Lerch
+	Copyright 2010-2011 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -29,7 +29,7 @@ FileViewWidget::FileViewWidget(const FileOpenRequest& request)
 {
 	ui.setupUi(this);
 
-	QSettings settings(CONFIG_FILE, QSettings::IniFormat);
+	QSettings settings;
 	bool compact = settings.value("gui/compact_mode", false).toBool();
 	ui.fileNameLabel->setVisible(!compact);
 	ui.fileInfoWidget->setVisible(!compact);

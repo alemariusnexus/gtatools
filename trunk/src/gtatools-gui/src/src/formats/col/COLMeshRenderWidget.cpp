@@ -1,5 +1,5 @@
 /*
-	Copyright 2010 David "Alemarius Nexus" Lerch
+	Copyright 2010-2011 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -32,7 +32,7 @@ using std::ofstream;
 
 
 COLMeshRenderWidget::COLMeshRenderWidget(QWidget* parent)
-		: GLBaseWidget(parent), item(NULL), pickItem(NULL), pickedFace(-1)
+		: GLBaseWidget(parent), item(NULL), pickItem(NULL), pickedFace(-1), wireframe(false)
 {
 
 }
@@ -105,6 +105,8 @@ void COLMeshRenderWidget::paintGL()
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
+
 	if (item) {
 		item->render();
 	}
@@ -123,6 +125,7 @@ void COLMeshRenderWidget::mouseDoubleClickEvent(QMouseEvent* evt)
 
 		GLBaseWidget::paintGL();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		pickItem->render();
 
 		int32_t pixel = 0;

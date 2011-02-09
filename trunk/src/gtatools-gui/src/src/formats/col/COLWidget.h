@@ -1,5 +1,5 @@
 /*
-	Copyright 2010 David "Alemarius Nexus" Lerch
+	Copyright 2010-2011 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -49,7 +49,7 @@ private slots:
 	void vertexMeshFaceSelectionChanged(int prevIdx, int idx);
 
 private:
-    Ui::COLWidgetClass ui;
+    Ui::COLWidget ui;
     QList<COLModel*> models;
     COLSphereBoxRenderWidget* sphereBoxRenderer;
     COLMeshRenderWidget* meshRenderer;

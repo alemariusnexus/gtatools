@@ -1,5 +1,5 @@
 /*
-	Copyright 2010 David "Alemarius Nexus" Lerch
+	Copyright 2010-2011 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -32,6 +32,7 @@ public:
 	COLMeshRenderWidget(QWidget* parent);
 	void render(const float* vertices, int32_t vertexCount, const COLFace* faces, int32_t faceCount);
 	void setSelectedFace(int faceIndex);
+	void setWireframe(bool wf) { wireframe = wf; updateGL(); }
 
 protected:
 	virtual void initializeGL();
@@ -47,6 +48,7 @@ private:
 	ItemDefinition* pickItem;
 	int pickedFace;
 	uint8_t pickedFaceRealColor[4];
+	bool wireframe;
 };
 
 #endif /* COLMESHRENDERWIDGET_H_ */

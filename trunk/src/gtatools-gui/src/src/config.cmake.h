@@ -1,5 +1,5 @@
 /*
-	Copyright 2010 David "Alemarius Nexus" Lerch
+	Copyright 2010-2011 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -23,9 +23,6 @@
 #ifdef _MSC_VER
 #include <windows.h>
 #endif
-
-#define CONFIG_DIR "${CONFIG_DIR}"
-#define CONFIG_FILE "${CONFIG_DIR}/gtatools-gui.conf"
 
 
 #endif /* CONFIG_CMAKE_H_ */

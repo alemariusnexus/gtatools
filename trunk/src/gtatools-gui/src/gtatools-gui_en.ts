@@ -2,6 +2,271 @@
 <!DOCTYPE TS>
 <TS version="2.0" language="en_US">
 <context>
+    <name>COLFormatHandler</name>
+    <message>
+        <location filename="src/formats/col/COLFormatHandler.h" line="28"/>
+        <source>Collision File (COL)</source>
+        <translation>Collision File (COL)</translation>
+    </message>
+</context>
+<context>
+    <name>COLGUIModule</name>
+    <message>
+        <location filename="src/formats/col/COLGUIModule.cpp" line="27"/>
+        <source>COL</source>
+        <translation>COL</translation>
+    </message>
+    <message>
+        <location filename="src/formats/col/COLGUIModule.cpp" line="29"/>
+        <source>Show wireframe</source>
+        <translation>Show wireframe</translation>
+    </message>
+</context>
+<context>
+    <name>COLWidget</name>
+    <message>
+        <location filename="src/formats/col/COLWidget.cpp" line="100"/>
+        <source>no</source>
+        <translation>no</translation>
+    </message>
+    <message>
+        <location filename="src/formats/col/COLWidget.cpp" line="100"/>
+        <source>yes</source>
+        <translation>yes</translation>
+    </message>
+    <message>
+        <location filename="src/formats/col/COLWidget.ui" line="46"/>
+        <location filename="src/formats/col/COLWidget.ui" line="193"/>
+        <location filename="src/formats/col/COLWidget.ui" line="568"/>
+        <source>General Information</source>
+        <translation>General Information</translation>
+    </message>
+    <message>
+        <location filename="src/formats/col/COLWidget.ui" line="55"/>
+        <source>Bounding Box</source>
+        <translation>Bounding Box</translation>
+    </message>
+    <message>
+        <location filename="src/formats/col/COLWidget.ui" line="69"/>
+        <source>Bounding Sphere</source>
+        <translation>Bounding Sphere</translation>
+    </message>
+    <message>
+        <location filename="src/formats/col/COLWidget.ui" line="83"/>
+        <source>Sphere Count</source>
+        <translation>Sphere Count</translation>
+    </message>
+    <message>
+        <location filename="src/formats/col/COLWidget.ui" line="97"/>
+        <source>Box Count</source>
+        <translation>Box Count</translation>
+    </message>
+    <message>
+        <location filename="src/formats/col/COLWidget.ui" line="111"/>
+        <location filename="src/formats/col/COLWidget.ui" line="588"/>
+        <source>Face Count</source>
+        <translation>Face Count</translation>
+    </message>
+    <message>
+        <location filename="src/formats/col/COLWidget.ui" line="125"/>
+        <location filename="src/formats/col/COLWidget.ui" line="574"/>
+        <source>Vertex Count</source>
+        <translation>Vertex Count</translation>
+    </message>
+    <message>
+        <location filename="src/formats/col/COLWidget.ui" line="139"/>
+        <source>Face Group Count</source>
+        <translation>Face Group Count</translation>
+    </message>
+    <message>
+        <location filename="src/formats/col/COLWidget.ui" line="153"/>
+        <location filename="src/formats/col/COLWidget.ui" line="562"/>
+        <source>Shadow Mesh</source>
+        <translation>Shadow Mesh</translation>
+    </message>
+    <message>
+        <location filename="src/formats/col/COLWidget.ui" line="168"/>
+        <source>Spheres and Boxes</source>
+        <translation>Spheres and Boxes</translation>
+    </message>
+    <message>
+        <location filename="src/formats/col/COLWidget.ui" line="212"/>
+        <source>Center</source>
+        <translation>Center</translation>
+    </message>
+    <message>
+        <location filename="src/formats/col/COLWidget.ui" line="226"/>
+        <source>Radius</source>
+        <translation>Radius</translation>
+    </message>
+    <message>
+        <location filename="src/formats/col/COLWidget.ui" line="240"/>
+        <location filename="src/formats/col/COLWidget.ui" line="328"/>
+        <location filename="src/formats/col/COLWidget.ui" line="496"/>
+        <location filename="src/formats/col/COLWidget.ui" line="648"/>
+        <source>Material</source>
+        <translation>Material</translation>
+    </message>
+    <message>
+        <location filename="src/formats/col/COLWidget.ui" line="254"/>
+        <location filename="src/formats/col/COLWidget.ui" line="342"/>
+        <location filename="src/formats/col/COLWidget.ui" line="510"/>
+        <location filename="src/formats/col/COLWidget.ui" line="662"/>
+        <source>Flags</source>
+        <translation>Flags</translation>
+    </message>
+    <message>
+        <location filename="src/formats/col/COLWidget.ui" line="268"/>
+        <location filename="src/formats/col/COLWidget.ui" line="356"/>
+        <location filename="src/formats/col/COLWidget.ui" line="524"/>
+        <location filename="src/formats/col/COLWidget.ui" line="676"/>
+        <source>Brightness</source>
+        <translation>Brightness</translation>
+    </message>
+    <message>
+        <location filename="src/formats/col/COLWidget.ui" line="282"/>
+        <location filename="src/formats/col/COLWidget.ui" line="370"/>
+        <location filename="src/formats/col/COLWidget.ui" line="538"/>
+        <location filename="src/formats/col/COLWidget.ui" line="690"/>
+        <source>Light</source>
+        <translation>Light</translation>
+    </message>
+    <message>
+        <location filename="src/formats/col/COLWidget.ui" line="300"/>
+        <source>Minimum</source>
+        <translation>Minimum</translation>
+    </message>
+    <message>
+        <location filename="src/formats/col/COLWidget.ui" line="314"/>
+        <source>Maximum</source>
+        <translation>Maximum</translation>
+    </message>
+    <message>
+        <location filename="src/formats/col/COLWidget.ui" line="397"/>
+        <location filename="src/formats/col/COLWidget.ui" line="468"/>
+        <location filename="src/formats/col/COLWidget.ui" line="620"/>
+        <source>Rendering</source>
+        <translation>Rendering</translation>
+    </message>
+    <message>
+        <location filename="src/formats/col/COLWidget.ui" line="409"/>
+        <source>Vertex Mesh</source>
+        <translation>Vertex Mesh</translation>
+    </message>
+    <message>
+        <location filename="src/formats/col/COLWidget.ui" line="424"/>
+        <source>Face Groups</source>
+        <translation>Face Groups</translation>
+    </message>
+    <message>
+        <location filename="src/formats/col/COLWidget.ui" line="476"/>
+        <location filename="src/formats/col/COLWidget.ui" line="628"/>
+        <source>Selected Face</source>
+        <translation>Selected Face</translation>
+    </message>
+    <message>
+        <location filename="src/formats/col/COLWidget.ui" line="482"/>
+        <location filename="src/formats/col/COLWidget.ui" line="634"/>
+        <source>Indices</source>
+        <translation>Indices</translation>
+    </message>
+</context>
+<context>
+    <name>COLWidgetClass</name>
+    <message>
+        <source>General Information</source>
+        <translation type="obsolete">General Information</translation>
+    </message>
+    <message>
+        <source>Bounding Box</source>
+        <translation type="obsolete">Bounding Box</translation>
+    </message>
+    <message>
+        <source>Bounding Sphere</source>
+        <translation type="obsolete">Bounding Sphere</translation>
+    </message>
+    <message>
+        <source>Sphere Count</source>
+        <translation type="obsolete">Sphere Count</translation>
+    </message>
+    <message>
+        <source>Box Count</source>
+        <translation type="obsolete">Box Count</translation>
+    </message>
+    <message>
+        <source>Face Count</source>
+        <translation type="obsolete">Face Count</translation>
+    </message>
+    <message>
+        <source>Vertex Count</source>
+        <translation type="obsolete">Vertex Count</translation>
+    </message>
+    <message>
+        <source>Face Group Count</source>
+        <translation type="obsolete">Face Group Count</translation>
+    </message>
+    <message>
+        <source>Shadow Mesh</source>
+        <translation type="obsolete">Shadow Mesh</translation>
+    </message>
+    <message>
+        <source>Spheres and Boxes</source>
+        <translation type="obsolete">Spheres and Boxes</translation>
+    </message>
+    <message>
+        <source>Center</source>
+        <translation type="obsolete">Center</translation>
+    </message>
+    <message>
+        <source>Radius</source>
+        <translation type="obsolete">Radius</translation>
+    </message>
+    <message>
+        <source>Material</source>
+        <translation type="obsolete">Material</translation>
+    </message>
+    <message>
+        <source>Flags</source>
+        <translation type="obsolete">Flags</translation>
+    </message>
+    <message>
+        <source>Brightness</source>
+        <translation type="obsolete">Brightness</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <translation type="obsolete">Light</translation>
+    </message>
+    <message>
+        <source>Minimum</source>
+        <translation type="obsolete">Minimum</translation>
+    </message>
+    <message>
+        <source>Maximum</source>
+        <translation type="obsolete">Maximum</translation>
+    </message>
+    <message>
+        <source>Rendering</source>
+        <translation type="obsolete">Rendering</translation>
+    </message>
+    <message>
+        <source>Vertex Mesh</source>
+        <translation type="obsolete">Vertex Mesh</translation>
+    </message>
+    <message>
+        <source>Face Groups</source>
+        <translation type="obsolete">Face Groups</translation>
+    </message>
+    <message>
+        <source>Selected Face</source>
+        <translation type="obsolete">Selected Face</translation>
+    </message>
+    <message>
+        <source>Indices</source>
+        <translation type="obsolete">Indices</translation>
+    </message>
+</context>
+<context>
     <name>ConfigWidget</name>
     <message>
         <location filename="src/gui/ConfigWidget.cpp" line="36"/>
@@ -129,17 +394,22 @@
 <context>
     <name>DFFGUIModule</name>
     <message>
-        <location filename="src/formats/dff/DFFGUIModule.cpp" line="31"/>
+        <location filename="src/formats/dff/DFFGUIModule.cpp" line="30"/>
+        <source>DFF</source>
+        <translation>DFF</translation>
+    </message>
+    <message>
+        <location filename="src/formats/dff/DFFGUIModule.cpp" line="32"/>
         <source>Show textured</source>
         <translation>Show textured</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFGUIModule.cpp" line="35"/>
+        <location filename="src/formats/dff/DFFGUIModule.cpp" line="37"/>
         <source>Show wireframe</source>
         <translation>Show wireframe</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFGUIModule.cpp" line="39"/>
+        <location filename="src/formats/dff/DFFGUIModule.cpp" line="42"/>
         <source>Dump XML</source>
         <translation>Dump XML</translation>
     </message>
@@ -1541,7 +1811,7 @@ You should have received a copy of the GNU General Public License along with thi
         <translation type="obsolete">Building resource index...</translation>
     </message>
     <message>
-        <location filename="src/ProfileInitializer.cpp" line="56"/>
+        <location filename="src/ProfileInitializer.cpp" line="55"/>
         <source>Generating resource index...</source>
         <translation>Generating resource index...</translation>
     </message>
@@ -1557,12 +1827,12 @@ You should have received a copy of the GNU General Public License along with thi
         <translation type="obsolete">Closed File!</translation>
     </message>
     <message>
-        <location filename="src/System.cpp" line="118"/>
+        <location filename="src/System.cpp" line="124"/>
         <source>Unhandeled Exception</source>
         <translation>Unhandeled Exception</translation>
     </message>
     <message>
-        <location filename="src/System.cpp" line="115"/>
+        <location filename="src/System.cpp" line="121"/>
         <source>Unhandeled Exception %1%2</source>
         <translation>An unhandeled exception occurred. The program might continue to run, but stability can not be guaranteed. A detailed description of the exception was written to the file %2.
 The exception text:
