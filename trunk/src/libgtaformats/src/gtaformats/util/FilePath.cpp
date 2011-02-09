@@ -80,7 +80,7 @@ const char* FilePath::getFileName() const
 	const char* fname = strrchr(path, '/');
 
 	if (fname == NULL) {
-		return NULL;
+		return path;
 	}
 
 	return fname+1;

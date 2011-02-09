@@ -23,8 +23,6 @@
 #include "../config.h"
 #include "IDEEntity.h"
 
-#define IDE_TYPE_ANIMATION 2
-
 
 
 class IDEAnimation : public IDEEntity {
@@ -39,7 +37,7 @@ public:
 	float getDrawDist() const { return drawDist; }
 	int32_t getFlags() const { return flags; }
 
-	virtual idetype_t getType() const { return IDE_TYPE_ANIMATION; }
+	virtual idetype_t getType() const { return IDETypeAnimation; }
 
 private:
 	char* modelName;

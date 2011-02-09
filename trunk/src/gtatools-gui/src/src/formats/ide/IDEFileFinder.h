@@ -20,6 +20,7 @@
 #ifndef IDEFILEFINDER_H_
 #define IDEFILEFINDER_H_
 
+#include <gtaformats/ide/IDEStatement.h>
 #include <gtaformats/util/FileFinder.h>
 #include <QtCore/QMap>
 
@@ -27,7 +28,7 @@
 
 class IDEFileFinder : public FileFinder {
 public:
-	IDEFileFinder(int32_t id);
+	IDEFileFinder(int32_t id, idetype_t types, FileFinder* meshFinder = NULL, FileFinder* txdFinder = NULL);
 	int32_t getID() const { return id; }
 	void setID(int32_t id) { this->id = id; }
 	virtual bool matches(const File& file);
@@ -35,6 +36,9 @@ public:
 
 private:
 	int32_t id;
+	idetype_t types;
+	FileFinder* meshFinder;
+	FileFinder* txdFinder;
 	QMap<File, int> fileLines;
 };
 

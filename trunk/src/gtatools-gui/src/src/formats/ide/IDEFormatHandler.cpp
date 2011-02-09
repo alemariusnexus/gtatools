@@ -45,7 +45,7 @@ void IDEFormatHandler::systemQuerySent(const SystemQuery& query, SystemQueryResu
 		if (query.getName() == "FindItemDefinition") {
 			int id = query["id"].toInt();
 
-			IDEFileFinder finder(id);
+			IDEFileFinder finder(id, IDETypeGroupAll);
 			File* toBeOpened = GUI::getInstance()->findFile(&finder);
 
 			if (toBeOpened) {

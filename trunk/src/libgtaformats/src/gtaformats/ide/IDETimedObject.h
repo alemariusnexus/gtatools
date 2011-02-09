@@ -23,8 +23,6 @@
 #include "../config.h"
 #include "IDEStaticObject.h"
 
-#define IDE_TYPE_TIMED_OBJECT 1
-
 
 class IDETimedObject : public IDEStaticObject
 {
@@ -36,7 +34,7 @@ public:
 	int32_t getTimeOn() const { return timeOn; }
 	int32_t getTimeOff() const { return timeOff; }
 
-	virtual idetype_t getType() const { return IDE_TYPE_TIMED_OBJECT; }
+	virtual idetype_t getType() const { return IDETypeTimedObject; }
 
 private:
 	int32_t timeOn;

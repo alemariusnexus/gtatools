@@ -27,8 +27,8 @@
 
 
 
-IDEFileFinder::IDEFileFinder(int32_t id)
-		: id(id)
+IDEFileFinder::IDEFileFinder(int32_t id, idetype_t types, FileFinder* meshFinder, FileFinder* txdFinder)
+		: id(id), types(types), meshFinder(meshFinder), txdFinder(txdFinder)
 {
 }
 
@@ -45,23 +45,58 @@ bool IDEFileFinder::matches(const File& file)
 	while ((stmt = ide.readStatement())  !=  NULL) {
 		idetype_t type = stmt->getType();
 
-		if (		type == IDE_TYPE_STATIC_OBJECT
-				||  type == IDE_TYPE_TIMED_OBJECT
-				||  type == IDE_TYPE_ANIMATION
-				||  type == IDE_TYPE_PEDESTRIAN
-				||  type == IDE_TYPE_WEAPON
-		) {
-			IDEEntity* entity = (IDEEntity*) stmt;
-			int32_t id = entity->getId();
+		if ((type & types) == 0) {
+			delete stmt;
+			continue;
+		}
 
-			if (id == this->id) {
+		if (id != -1) {
+			if ((type & IDETypeGroupEntity)  !=  0) {
+				IDEEntity* entity = (IDEEntity*) stmt;
+				int32_t id = entity->getId();
+
+				if (id != this->id) {
+					delete stmt;
+					continue;
+				}
+			} else {
 				delete stmt;
-				fileLines[file] = ide.getLastReadLine();
-				return true;
+				continue;
 			}
 		}
 
+		if (meshFinder != NULL) {
+			if (type == IDETypeStaticObject  ||  type == IDETypeTimedObject) {
+				IDEStaticObject* sobj = (IDEStaticObject*) stmt;
+
+				if (!meshFinder->matches(File(sobj->getModelName()))) {
+					delete stmt;
+					continue;
+				}
+			} else {
+				delete stmt;
+				continue;
+			}
+		}
+
+		if (txdFinder != NULL) {
+			if (type == IDETypeStaticObject  ||  type == IDETypeTimedObject) {
+				IDEStaticObject* sobj = (IDEStaticObject*) stmt;
+
+				if (!txdFinder->matches(File(sobj->getTextureName()))) {
+					delete stmt;
+					continue;
+				}
+			} else {
+				delete stmt;
+				continue;
+			}
+		}
+
+		fileLines[file] = ide.getLastReadLine();
+
 		delete stmt;
+		return true;
 	}
 
 	return false;

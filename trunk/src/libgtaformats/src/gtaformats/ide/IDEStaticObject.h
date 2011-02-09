@@ -23,8 +23,6 @@
 #include "../config.h"
 #include "IDEEntity.h"
 
-#define IDE_TYPE_STATIC_OBJECT 0
-
 
 
 class IDEStaticObject : public IDEEntity
@@ -60,7 +58,7 @@ public:
         return textureName;
     }
 
-    virtual idetype_t getType() const { return IDE_TYPE_STATIC_OBJECT; }
+    virtual idetype_t getType() const { return IDETypeStaticObject; }
 
 private:
 	char* modelName;
