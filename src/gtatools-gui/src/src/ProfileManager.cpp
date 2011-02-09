@@ -1,5 +1,5 @@
 /*
-	Copyright 2010 David "Alemarius Nexus" Lerch
+	Copyright 2010-2011 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -49,7 +49,7 @@ ProfileManager* ProfileManager::getInstance()
 
 void ProfileManager::loadProfiles()
 {
-	QSettings settings(CONFIG_FILE, QSettings::IniFormat);
+	QSettings settings;
 
 	for (int i = 0 ; true ; i++) {
 		if (!settings.contains(QString("profile%1/name").arg(i))) {
@@ -111,7 +111,7 @@ Profile* ProfileManager::setCurrentProfile(Profile* profile)
 
 void ProfileManager::saveProfiles()
 {
-	QSettings settings(CONFIG_FILE, QSettings::IniFormat);
+	QSettings settings;
 
 	ProfileIterator it;
 	int i;
@@ -153,7 +153,7 @@ void ProfileManager::saveProfiles()
 
 void ProfileManager::currentProfileChangedSlot(Profile* oldProfile, Profile* newProfile)
 {
-	QSettings settings(CONFIG_FILE, QSettings::IniFormat);
+	QSettings settings;
 
 	if (newProfile != NULL) {
 		settings.setValue("main/current_profile", indexOfProfile(newProfile));

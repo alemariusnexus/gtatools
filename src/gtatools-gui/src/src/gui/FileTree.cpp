@@ -1,5 +1,5 @@
 /*
-	Copyright 2010 David "Alemarius Nexus" Lerch
+	Copyright 2010-2011 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -159,7 +159,7 @@ void FileTree::currentProfileContentChanged()
 
 void FileTree::fileOpened(const FileOpenRequest& request)
 {
-	QSettings settings(CONFIG_FILE, QSettings::IniFormat);
+	QSettings settings;
 
 	if (settings.value("gui/file_tree_auto_select", true).toBool()) {
 		QModelIndex cur = currentIndex();

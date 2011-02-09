@@ -1,5 +1,5 @@
 /*
-	Copyright 2010 David "Alemarius Nexus" Lerch
+	Copyright 2010-2011 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -49,7 +49,7 @@ ConfigWidget::ConfigWidget(QWidget* parent)
 	connect(ui.removeProfileButton, SIGNAL(clicked(bool)), this, SLOT(onRemoveProfile(bool)));
 	connect(ui.buttonBox, SIGNAL(clicked(QAbstractButton*)), this, SLOT(buttonClicked(QAbstractButton*)));
 
-	QSettings settings(CONFIG_FILE, QSettings::IniFormat);
+	QSettings settings;
 
 	QString regexSyntax = settings.value("main/regex_syntax", "wildcard").toString();
 
@@ -112,7 +112,7 @@ void ConfigWidget::buttonClicked(QAbstractButton* button)
 
 void ConfigWidget::apply()
 {
-	QSettings settings(CONFIG_FILE, QSettings::IniFormat);
+	QSettings settings;
 
 	switch (ui.regexFormatBox->currentIndex()) {
 	case 0:

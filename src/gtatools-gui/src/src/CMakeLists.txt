@@ -1,4 +1,4 @@
-# Copyright 2010 David "Alemarius Nexus" Lerch
+# Copyright 2010-2011 David "Alemarius Nexus" Lerch
 # 
 # This file is part of gtatools-gui.
 #
@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
 
-SET(CONFIG_DIR "/etc/gtatools-gui" CACHE PATH "The configuration directory of gtatools-gui")
+#SET(CONFIG_DIR "/etc/gtatools-gui" CACHE PATH "The configuration directory of gtatools-gui")
 
 ADD_SUBDIRECTORY(gui)
 ADD_SUBDIRECTORY(formats)

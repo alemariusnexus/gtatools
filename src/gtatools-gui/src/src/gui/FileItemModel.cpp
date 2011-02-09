@@ -1,5 +1,5 @@
 /*
-	Copyright 2010 David "Alemarius Nexus" Lerch
+	Copyright 2010-2011 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -28,7 +28,7 @@
 FileItemModel::FileItemModel(Profile* profile, QWidget* parent)
 		: QAbstractItemModel(parent), profile(profile)
 {
-	QSettings settings(CONFIG_FILE, QSettings::IniFormat);
+	QSettings settings;
 
 	showFileType = settings.value("gui/file_tree_types", true).toBool();
 

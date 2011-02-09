@@ -1,5 +1,5 @@
 /*
-	Copyright 2010 David "Alemarius Nexus" Lerch
+	Copyright 2010-2011 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -24,9 +24,12 @@
 
 COLGUIModule::COLGUIModule()
 {
+	viewSubMenu = new QMenu(tr("COL"));
+
 	wireframeAction = new QAction(tr("Show wireframe"), NULL);
 	wireframeAction->setCheckable(true);
 	wireframeAction->setChecked(false);
+	viewSubMenu->addAction(wireframeAction);
 
 	connect(wireframeAction, SIGNAL(triggered(bool)), this, SLOT(wireframePropertyChangedSlot(bool)));
 }
@@ -41,12 +44,16 @@ void COLGUIModule::wireframePropertyChangedSlot(bool wireframe)
 void COLGUIModule::doInstall()
 {
 	QMenu* viewMenu = mainWindow->getViewMenu();
-	viewMenu->addAction(wireframeAction);
+
+	viewMenu->addMenu(viewSubMenu);
+	wireframeAction->setParent(mainWindow);
 }
 
 
 void COLGUIModule::doUninstall()
 {
 	QMenu* viewMenu = mainWindow->getViewMenu();
-	viewMenu->removeAction(wireframeAction);
+
+	viewMenu->removeAction(viewSubMenu->menuAction());
+	wireframeAction->setParent(NULL);
 }

@@ -1,5 +1,5 @@
 /*
-	Copyright 2010 David "Alemarius Nexus" Lerch
+	Copyright 2010-2011 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -27,13 +27,17 @@
 
 DFFGUIModule::DFFGUIModule()
 {
+	viewSubMenu = new QMenu(tr("DFF"));
+
 	texturedAction = new QAction(tr("Show textured"), NULL);
 	texturedAction->setCheckable(true);
 	texturedAction->setChecked(true);
+	viewSubMenu->addAction(texturedAction);
 
 	wireframeAction = new QAction(tr("Show wireframe"), NULL);
 	wireframeAction->setCheckable(true);
 	wireframeAction->setChecked(false);
+	viewSubMenu->addAction(wireframeAction);
 
 	dumpAction = new QAction(tr("Dump XML"), NULL);
 
@@ -48,6 +52,7 @@ DFFGUIModule::~DFFGUIModule()
 	delete texturedAction;
 	delete wireframeAction;
 	delete dumpAction;
+	delete viewSubMenu;
 }
 
 
@@ -56,10 +61,14 @@ void DFFGUIModule::doInstall()
 	QMenu* viewMenu = mainWindow->getViewMenu();
 	QMenu* fileMenu = mainWindow->getFileMenu();
 
-	viewMenu->addAction(texturedAction);
+	/*viewMenu->addAction(texturedAction);
 	texturedAction->setParent(mainWindow);
 
 	viewMenu->addAction(wireframeAction);
+	wireframeAction->setParent(mainWindow);*/
+
+	viewMenu->addMenu(viewSubMenu);
+	texturedAction->setParent(mainWindow);
 	wireframeAction->setParent(mainWindow);
 
 	fileMenu->addAction(dumpAction);
@@ -72,10 +81,14 @@ void DFFGUIModule::doUninstall()
 	QMenu* viewMenu = mainWindow->getViewMenu();
 	QMenu* fileMenu = mainWindow->getFileMenu();
 
-	viewMenu->removeAction(texturedAction);
+	/*viewMenu->removeAction(texturedAction);
 	texturedAction->setParent(NULL);
 
 	viewMenu->removeAction(wireframeAction);
+	wireframeAction->setParent(NULL);*/
+
+	viewMenu->removeAction(viewSubMenu->menuAction());
+	texturedAction->setParent(NULL);
 	wireframeAction->setParent(NULL);
 
 	fileMenu->removeAction(dumpAction);

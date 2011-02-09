@@ -1,5 +1,5 @@
 /*
-	Copyright 2010 David "Alemarius Nexus" Lerch
+	Copyright 2010-2011 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -109,7 +109,7 @@ TXDWidget::~TXDWidget()
 
 void TXDWidget::loadConfigUiSettings()
 {
-	QSettings settings(CONFIG_FILE, QSettings::IniFormat);
+	QSettings settings;
 
 	if (settings.value("gui/compact_mode", false).toBool()) {
 		QLayout* layout = ui.displayWidget->layout();

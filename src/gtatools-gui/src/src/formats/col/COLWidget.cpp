@@ -1,5 +1,5 @@
 /*
-	Copyright 2010 David "Alemarius Nexus" Lerch
+	Copyright 2010-2011 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -206,6 +206,8 @@ void COLWidget::currentMeshChanged(int index)
 void COLWidget::wireframePropertyChanged(bool wireframe)
 {
 	sphereBoxRenderer->setWireframe(wireframe);
+	meshRenderer->setWireframe(wireframe);
+	shadowMeshRenderer->setWireframe(wireframe);
 }
 
 
@@ -218,7 +220,8 @@ void COLWidget::shadowMeshFaceSelectionChanged(int prevIdx, int idx)
 		const uint32_t* indices = face.getIndices();
 		const COLSurface& surf = face.getSurface();
 
-		ui.smeshFaceIndicesLabel->setText(QString("%1, %2, %3").arg(indices[0]).arg(indices[1]).arg(indices[2]));
+		ui.smeshFaceIndicesLabel->setText(QString("%1, %2, %3").arg(indices[0]).arg(indices[1])
+				.arg(indices[2]));
 		ui.smeshFaceMaterialLabel->setText(QString("%1").arg(surf.getMaterial()));
 		ui.smeshFaceFlagsLabel->setText(QString("%1").arg(surf.getFlags()));
 		ui.smeshFaceBrightnessLabel->setText(QString("%1").arg(surf.getBrightness()));
@@ -243,7 +246,8 @@ void COLWidget::vertexMeshFaceSelectionChanged(int prevIdx, int idx)
 		const uint32_t* indices = face.getIndices();
 		const COLSurface& surf = face.getSurface();
 
-		ui.vmeshFaceIndicesLabel->setText(QString("%1, %2, %3").arg(indices[0]).arg(indices[1]).arg(indices[2]));
+		ui.vmeshFaceIndicesLabel->setText(QString("%1, %2, %3").arg(indices[0]).arg(indices[1])
+				.arg(indices[2]));
 		ui.vmeshFaceMaterialLabel->setText(QString("%1").arg(surf.getMaterial()));
 		ui.vmeshFaceFlagsLabel->setText(QString("%1").arg(surf.getFlags()));
 		ui.vmeshFaceBrightnessLabel->setText(QString("%1").arg(surf.getBrightness()));

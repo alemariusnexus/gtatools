@@ -1,5 +1,5 @@
 /*
-	Copyright 2010 David "Alemarius Nexus" Lerch
+	Copyright 2010-2011 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -67,6 +67,10 @@ int main(int argc, char** argv)
 	try {
 		QApplication app(argc, argv);
 
+		app.setOrganizationName("gtatools");
+		app.setApplicationName("gtatools-gui");
+		app.setOrganizationDomain("gtatools.googlecode.com");
+
 		QTranslator qtTrans;
 		qtTrans.load("qt_" + QLocale::system().name(), QLibraryInfo::location(QLibraryInfo::TranslationsPath));
 		app.installTranslator(&qtTrans);
@@ -77,19 +81,6 @@ int main(int argc, char** argv)
 
 		MainWindow win;
 		win.show();
-
-		if (!File(CONFIG_FILE).exists()) {
-			if (!File(CONFIG_DIR).exists()) {
-				if (!File(CONFIG_DIR).mkdir()) {
-					QMessageBox::critical(NULL, win.tr("Configuration Error"),
-							win.tr("Configuration directory %1 could not be created. Program will terminate.").arg(CONFIG_DIR));
-					return 1;
-				}
-			}
-
-			QSettings settings(CONFIG_FILE, QSettings::IniFormat);
-			settings.sync();
-		}
 
 		win.initialize();
 
