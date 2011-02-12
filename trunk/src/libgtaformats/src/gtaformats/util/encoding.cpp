@@ -24,10 +24,13 @@
 #include <cstring>
 #include <cassert>
 
-#ifdef linux
+#ifdef _HAVE_ICONV
 #include <iconv.h>
-#else
+#elif defined(_WIN32)
 #include <windows.h>
+#else
+#error "ERROR: Platform not supported (neither iconv nor WIN32 available. If you do have iconv, then " \
+		"#define _HAVE_ICONV)"
 #endif
 
 
@@ -176,7 +179,7 @@ int Transcode(char* src, int srcBytes, char* dest, int destBytes, Encoding srcEn
 		return len;
 	}
 
-#ifdef linux
+#ifdef _HAVE_ICONV
 	// On Linux we use iconv.
 
 	const char* iconvSrcEnc;
@@ -243,7 +246,7 @@ int Transcode(char* src, int srcBytes, char* dest, int destBytes, Encoding srcEn
 
 	// iconv() does NOT return the number of actual bytes written, but decrements outLeft for each byte.
 	return destBytes-outLeft;
-#else
+#elif defined(_WIN32)
 	// On Windows we use The WinAPI Unicode functions.
 
 	if (srcEnc == UTF16) {

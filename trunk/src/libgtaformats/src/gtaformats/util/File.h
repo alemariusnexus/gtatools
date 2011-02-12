@@ -41,11 +41,11 @@ class InputStream;
 class FileFinder;
 
 
-#ifdef linux
+#ifdef _POSIX_VERSION
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <dirent.h>
-#else
+#elif defined(_WIN32)
 #include <windows.h>
 #endif
 

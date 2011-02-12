@@ -17,6 +17,8 @@
 	along with libgta.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#define COL_RENDERING
+
 #include "ResourceManager.h"
 #include <gtaformats/txd/TXDArchive.h>
 #include <gtaformats/txd/TXDTexture.h>
@@ -111,7 +113,11 @@ void ResourceManager::addResource(const File& file, void (*callback)())
 
 		FileContentType type = file.guessContentType();
 
-		if (type == CONTENT_TYPE_TXD/*  ||  type == CONTENT_TYPE_COL*/) {
+		if (	type == CONTENT_TYPE_TXD
+#ifdef COL_RENDERING
+				||  type == CONTENT_TYPE_COL
+#endif
+		) {
 			stream = file.openInputStream(istream::binary);
 		} else if (type == CONTENT_TYPE_IDE) {
 			stream = file.openInputStream();
@@ -171,11 +177,12 @@ void ResourceManager::addResource(const File& file, istream* stream, void (*call
 			cerr << "WARNING: Unable to index TXD file (unknown exception) " << file.getPath()->toString()
 					<< endl;
 		}
-	} else if (type == CONTENT_TYPE_DFF) {
-		/*char name[20];
+#ifdef COL_RENDERING
+	} else if (type == CONTENT_TYPE_COL) {
+		char name[20];
 		char lname[20];
 
-		InputStream::streampos colStart = stream->tell();
+		streamoff colStart = stream->tellg();
 
 		COLLoader col;
 		while (col.loadModelName(stream, name)) {
@@ -183,12 +190,13 @@ void ResourceManager::addResource(const File& file, istream* stream, void (*call
 			MeshEntry* entry = new MeshEntry;
 			entry->file = new File(file);
 			entry->colStart = colStart;
-			colStart = stream->tell();
+			colStart = stream->tellg();
 			meshMutex.lock();
 			meshes.insert(pair<hash_t, MeshEntry*>(Hash(lname), entry));
 			meshMutex.unlock();
-		}*/
-
+		}
+#else
+	} else if (type == CONTENT_TYPE_DFF) {
 		char* lMeshName = new char[strlen(file.getPath()->getFileName())+1];
 		strtolower(lMeshName, file.getPath()->getFileName());
 		*strchr(lMeshName, '.') = '\0';
@@ -198,6 +206,7 @@ void ResourceManager::addResource(const File& file, istream* stream, void (*call
 		meshes.insert(pair<hash_t, MeshEntry*>(Hash(lMeshName), entry));
 		meshMutex.unlock();
 		delete[] lMeshName;
+#endif
 	} else if (type == CONTENT_TYPE_IDE) {
 		IDEReader ide(stream, false);
 		IDEStatement* stmt;
@@ -743,14 +752,13 @@ bool ResourceManager::readMesh(hash_t name, Mesh*& mesh)
 {
 	MeshMap::iterator it = meshes.find(name);
 
-	//printf("Reading in %d\n", meshes.size());
-
 	if (it == meshes.end()) {
 		return false;
 	}
 
 	File* file = it->second->file;
 
+#ifndef COL_RENDERING
 	DFFLoader dff;
 	DFFMesh* dffMesh = dff.loadMesh(*file);
 	if (dffMesh->getGeometryCount() <= 0) {
@@ -762,15 +770,16 @@ bool ResourceManager::readMesh(hash_t name, Mesh*& mesh)
 	mesh = new Mesh(*geom);
 
 	delete dffMesh;
-
-	/*COLLoader col;
-	InputStream* stream = file->openStream(STREAM_BINARY);
-	stream->seek(it->second->colStart, InputStream::STREAM_SEEK_BEGIN);
+#else
+	COLLoader col;
+	istream* stream = file->openInputStream(istream::binary | istream::in);
+	stream->seekg(it->second->colStart, istream::beg);
     COLModel* model = col.loadModel(stream);
     delete stream;
     COLMeshConverter conv;
     mesh = conv.convert(*model);
-    delete model;*/
+    delete model;
+#endif
 
 	return true;
 }
