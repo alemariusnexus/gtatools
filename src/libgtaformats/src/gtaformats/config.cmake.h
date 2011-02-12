@@ -24,6 +24,10 @@
 #	pragma warning(disable : 4996)
 #endif
 
+#if defined(__unix) || defined(__unix__)
+#include <unistd.h>
+#endif
+
 #include "stdint.h"
 
 

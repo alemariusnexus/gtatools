@@ -25,7 +25,7 @@
 #include "../img/IMGArchive.h"
 #include "FileFinder.h"
 
-#ifdef linux
+#ifdef _POSIX_VERSION
 #include <errno.h>
 #endif
 
@@ -81,10 +81,10 @@ File::~File()
 
 bool File::physicallyExists() const
 {
-#ifdef linux
+#ifdef _POSIX_VERSION
 	struct stat fileInfo;
 	return stat(path->toString(), &fileInfo) == 0;
-#else
+#elif defined(_WIN32)
 	DWORD attribs = GetFileAttributes(path->toString());
 	return attribs != 0xFFFFFFFF;
 #endif
@@ -129,7 +129,7 @@ FileType File::getType() const
 		}
 	}
 
-#ifdef linux
+#ifdef _POSIX_VERSION
 	struct stat fileInfo;
 
 	if (stat(path->toString(), &fileInfo) != 0) {
@@ -145,7 +145,7 @@ FileType File::getType() const
 	} else {
 		return TYPE_OTHER;
 	}
-#else
+#elif defined(_WIN32)
 	DWORD attribs = GetFileAttributes(path->toString());
 
 	if (attribs == INVALID_FILE_ATTRIBUTES) {
@@ -448,7 +448,7 @@ File::filesize File::getSize() const
 		throw ex;
 	}
 
-#ifdef linux
+#ifdef _POSIX_VERSION
 	struct stat fileInfo;
 
 	if (stat(path->toString(), &fileInfo) != 0) {
@@ -461,7 +461,7 @@ File::filesize File::getSize() const
 	}
 
 	return fileInfo.st_size;
-#else
+#elif defined(_WIN32)
     istream* stream = openInputStream(ifstream::binary | ifstream::in);
     stream->seekg(0, istream::end);
     filesize size = stream->tellg();
@@ -478,9 +478,9 @@ File::filesize File::getSize() const
 
 bool File::mkdir() const
 {
-#ifdef linux
+#ifdef _POSIX_VERSION
 	return ::mkdir(path->toString(), S_IRWXU | S_IRWXG | S_IRWXO) == 0;
-#else
+#elif defined(_WIN32)
 	return CreateDirectory(path->toString(), NULL) != 0;
 #endif
 }

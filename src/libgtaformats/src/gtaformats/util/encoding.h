@@ -23,6 +23,14 @@
 #include "../config.h"
 #include <cstddef>
 
+
+#if		defined(_HAVE_ICONV) \
+	||	defined(_POSIX_VERSION)  &&  _POSIX_VERSION >= 200112 \
+	||	defined(__GLIBC__) && __GLIBC__ >= 2 && __GLIBC_MINOR__ >= 1
+#define _HAVE_ICONV
+#endif
+
+
 #define ERR_INVALID_PARAMETER -1
 #define ERR_INSUFFICIENT_BUFFER -2
 #define ERR_INVALID_SEQUENCE -3

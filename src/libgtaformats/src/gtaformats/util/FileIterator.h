@@ -23,11 +23,11 @@
 #include "../config.h"
 #include <cstdlib>
 
-#ifdef linux
+#ifdef _POSIX_VERSION
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <dirent.h>
-#else
+#elif defined(_WIN32)
 #include <windows.h>
 #endif
 
@@ -61,7 +61,7 @@ private:
 
 	bool isRealDirectory()
 	{
-#ifdef linux
+#ifdef _POSIX_VERSION
 		return dir != NULL;
 #else
 		return dirHandle != NULL;
@@ -72,7 +72,7 @@ private:
 	const File* iteratedDir;
 	IMGArchive* archive;
 	int archiveIdx;
-#ifdef linux
+#ifdef _POSIX_VERSION
 		DIR* dir;
 #else
 	HANDLE dirHandle;
