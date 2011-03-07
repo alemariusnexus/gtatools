@@ -21,7 +21,7 @@
 #define MESH_H_
 
 #include "config.h"
-#include <GL/glew.h>
+#include "gl.h"
 #include <vector>
 #include <gtaformats/dff/DFFGeometry.h>
 #include <gtaformats/col/COLModel.h>
@@ -44,20 +44,31 @@ enum MeshFlags
 };
 
 
+enum VertexFormat
+{
+	VertexFormatPoints,
+	VertexFormatLines,
+	VertexFormatTriangles,
+	VertexFormatTriangleStrips
+};
+
+
 class Mesh {
 public:
 	typedef vector<Submesh*>::iterator SubmeshIterator;
 	typedef vector<Material*>::iterator MaterialIterator;
 
 public:
-	Mesh(int vertexCount, int flags, const float* vertices, const float* normals = NULL,
-			const float* texCoords = NULL, const uint8_t* vertexColors = NULL);
+	Mesh(int vertexCount, VertexFormat vertexFormat, int flags, const float* vertices,
+			const float* normals = NULL, const float* texCoords = NULL, const uint8_t* vertexColors = NULL);
 	Mesh(const DFFGeometry& geometry, bool autoSubmeshes = true);
-	Mesh(int vertexCount, int flags, GLuint dataBuffer, int normalOffset = -1, int texCoordOffset = -1,
-			int vertexColorOffset = -1);
+	Mesh(int vertexCount, VertexFormat vertexFormat, int flags, GLuint dataBuffer, int normalOffset = -1,
+			int texCoordOffset = -1, int vertexColorOffset = -1);
 	~Mesh();
 
 	int getFlags() const { return flags; }
+
+	VertexFormat getVertexFormat() const { return vertexFormat; }
 
 	int getVertexCount() const { return vertexCount; }
 
@@ -101,6 +112,7 @@ private:
 
 private:
 	int flags;
+	VertexFormat vertexFormat;
 	int vertexCount;
 	GLuint dataBuffer;
 	hash_t txdHash;

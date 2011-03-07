@@ -18,14 +18,27 @@
  */
 
 #include "ManagedTextureSource.h"
+#include "resource/ResourceCache.h"
+#include "resource/texture/TextureCacheLoader.h"
+#include "resource/texture/TextureIndexer.h"
+#include "resource/texture/TextureCacheEntry.h"
 #include "Engine.h"
-#include "ResourceManager.h"
 
 
 
 GLuint ManagedTextureSource::getTexture(hash_t texHash)
 {
-	ResourceManager* resMgr = Engine::getInstance()->getResourceManager();
+	ResourceCache* cache = Engine::getInstance()->getTextureCache();
+	TextureIndexer* indexer = Engine::getInstance()->getTextureIndexer();
+	hash_t hash;
+
+	if (!indexer->resolveCombinedHash(txdHash, texHash, hash)) {
+		return 0;
+	}
+
+	TextureCacheEntry* entry = (TextureCacheEntry*) cache->getEntry(hash);
+	return entry->getTexture();
+	/*ResourceManager* resMgr = Engine::getInstance()->getResourceManager();
 	GLuint tex = resMgr->getTexture(TextureIndex(txdHash, texHash));
-	return tex;
+	return tex;*/
 }

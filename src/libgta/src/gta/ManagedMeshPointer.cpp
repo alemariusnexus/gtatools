@@ -18,17 +18,22 @@
  */
 
 #include "ManagedMeshPointer.h"
-#include "ResourceManager.h"
+#include "resource/mesh/MeshCacheEntry.h"
+#include "resource/ResourceCache.h"
 
 
 
 Mesh* ManagedMeshPointer::operator*()
 {
-	ResourceManager* resMgr = Engine::getInstance()->getResourceManager();
+	ResourceCache* cache = Engine::getInstance()->getMeshCache();
+	MeshCacheEntry* entry = (MeshCacheEntry*) cache->getEntry(meshHash);
+	return entry->getMesh();
+
+	/*ResourceManager* resMgr = Engine::getInstance()->getResourceManager();
 	Mesh* mesh;
 	if (resMgr->getMesh(meshHash, mesh)) {
 		return mesh;
 	} else {
 		return NULL;
-	}
+	}*/
 }

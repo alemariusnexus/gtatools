@@ -32,7 +32,8 @@ Mesh* COLMeshConverter::convert(const float* vertices, int vertexCount, const CO
 	convertVertexModel(vertices, vertexCount, faces, faceCount, modelVertexCount, modelVertices, modelColors,
 			modelIndices, modelIndexCount);
 
-	Mesh* mesh = new Mesh(modelVertexCount, MeshVertexColors, modelVertices, NULL, NULL, modelColors);
+	Mesh* mesh = new Mesh(modelVertexCount, VertexFormatTriangles, MeshVertexColors, modelVertices, NULL,
+			NULL, modelColors);
 	Submesh* submesh = new Submesh(mesh, modelIndexCount, modelIndices);
 	mesh->addSubmesh(submesh);
 
@@ -70,7 +71,7 @@ Mesh* COLMeshConverter::convert(const COLSphere& sphere)
 	glBufferSubData(GL_ARRAY_BUFFER, 0, vertexCount*3*4, vertices);
 	glBufferSubData(GL_ARRAY_BUFFER, vertexCount*3*4, vertexCount*4, colors);
 
-	Mesh* mesh = new Mesh(vertexCount, 0, dataBuffer, -1, -1, vertexCount*3*4);
+	Mesh* mesh = new Mesh(vertexCount, VertexFormatTriangles, 0, dataBuffer, -1, -1, vertexCount*3*4);
 
 	Submesh* submesh = new Submesh(mesh, indexCount, indices);
 	mesh->addSubmesh(submesh);
@@ -112,7 +113,7 @@ Mesh* COLMeshConverter::convert(const COLBox& box)
 	glBufferSubData(GL_ARRAY_BUFFER, 0, vertexCount*3*4, vertices);
 	glBufferSubData(GL_ARRAY_BUFFER, vertexCount*3*4, vertexCount*4, colors);
 
-	Mesh* mesh = new Mesh(vertexCount, 0, dataBuffer, -1, -1, vertexCount*3*4);
+	Mesh* mesh = new Mesh(vertexCount, VertexFormatTriangles, 0, dataBuffer, -1, -1, vertexCount*3*4);
 
 	Submesh* submesh = new Submesh(mesh, indexCount, indices);
 	mesh->addSubmesh(submesh);
@@ -187,7 +188,8 @@ Mesh* COLMeshConverter::convert(const COLModel& model)
     glBufferSubData(GL_ARRAY_BUFFER, colorOffset, modelVertexCount*4, modelColors);
     vertexOffset = modelVertexCount;
 
-    Mesh* mesh = new Mesh(vertexCount, MeshVertexColors, dataBuffer, -1, -1, colorOffset);
+    Mesh* mesh = new Mesh(vertexCount, VertexFormatTriangles, MeshVertexColors, dataBuffer, -1, -1,
+    		colorOffset);
 
     uint8_t r, g, b;
 

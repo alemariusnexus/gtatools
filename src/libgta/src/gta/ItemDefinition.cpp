@@ -18,15 +18,15 @@
  */
 
 #include "ItemDefinition.h"
-#include <GL/glew.h>
+#include "gl.h"
 #include "ShaderProgram.h"
-#include "ResourceManager.h"
 #include "Submesh.h"
 #include <cstring>
 #include <gtaformats/util/strutil.h>
 #include "GLException.h"
 #include "ManagedMeshPointer.h"
 #include "ManagedTextureSource.h"
+#include "ManagedCollisionShapePointer.h"
 
 
 
@@ -45,6 +45,7 @@ ItemDefinition::ItemDefinition(const IDEStaticObject& object)
 	strtolower(lTexName, object.getTextureName());
 	meshPtr = new ManagedMeshPointer(Hash(lMeshName));
 	texSrc = new ManagedTextureSource(Hash(lTexName));
+	colShapePtr = new ManagedCollisionShapePointer(Hash(lMeshName));
 	delete[] lMeshName;
 	delete[] lTexName;
 }
@@ -56,6 +57,8 @@ ItemDefinition::~ItemDefinition()
 		delete meshPtr;
 	if (texSrc)
 		delete texSrc;
+	if (colShapePtr)
+		delete colShapePtr;
 }
 
 
@@ -70,6 +73,8 @@ void ItemDefinition::render()
 	//printf("Rendering\n");
 
 	if (mesh) {
+		GLException::checkError();
+
 		GLint vertexAttrib = program->getAttributeLocation("Vertex");
 		GLint normalAttrib = program->getAttributeLocation("Normal");
 		GLint texCoordAttrib = program->getAttributeLocation("TexCoord");
@@ -79,9 +84,13 @@ void ItemDefinition::render()
 		GLint materialColorUniform = program->getUniformLocation("MaterialColor");
 		GLint vertexColorsUniform = program->getUniformLocation("VertexColors");
 
+		GLException::checkError();
+
 		glUniform1i(vertexColorsUniform, (mesh->getFlags() & MeshVertexColors) != 0 ? 1 : 0);
 
 		mesh->bindDataBuffer();
+
+		GLException::checkError();
 
 		if (vertexAttrib != -1) {
 			int offset = mesh->getVertexOffset();
@@ -113,11 +122,15 @@ void ItemDefinition::render()
 			}
 		}
 
+		GLException::checkError();
+
 		Mesh::SubmeshIterator it;
 
 		for (it = mesh->getSubmeshBegin() ; it != mesh->getSubmeshEnd() ; it++) {
 			Submesh* submesh = *it;
 			Material* mat = submesh->getMaterial();
+
+			GLException::checkError();
 
 			if (mat) {
 				uint8_t r, g, b, a;
@@ -140,12 +153,36 @@ void ItemDefinition::render()
 				glUniform4f(materialColorUniform, 1.0f, 1.0f, 1.0f, 0.0f);
 			}
 
+			GLException::checkError();
+
 			submesh->bindIndexBuffer();
 
 			GLException::checkError();
 
-			glDrawElements((mesh->getFlags() & MeshTriangleStrips) != 0 ? GL_TRIANGLE_STRIP : GL_TRIANGLES,
-					submesh->getIndexCount(), GL_UNSIGNED_INT, (char*) 0);
+			GLenum mode;
+
+			switch (mesh->getVertexFormat()) {
+			case VertexFormatPoints:
+				mode = GL_POINTS;
+				break;
+
+			case VertexFormatLines:
+				mode = GL_LINES;
+				break;
+
+			case VertexFormatTriangles:
+				mode = GL_TRIANGLES;
+				break;
+
+			case VertexFormatTriangleStrips:
+				mode = GL_TRIANGLE_STRIP;
+				break;
+
+			default:
+				assert(false);
+			}
+
+			glDrawElements(mode, submesh->getIndexCount(), GL_UNSIGNED_INT, (char*) 0);
 		}
 	}
 }

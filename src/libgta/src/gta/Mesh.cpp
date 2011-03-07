@@ -25,9 +25,9 @@
 
 
 
-Mesh::Mesh(int vertexCount, int flags, const float* vertices, const float* normals, const float* texCoords,
-		const uint8_t* vertexColors)
-		: flags(flags), vertexCount(vertexCount)
+Mesh::Mesh(int vertexCount, VertexFormat vertexFormat, int flags, const float* vertices, const float* normals,
+		const float* texCoords, const uint8_t* vertexColors)
+		: flags(flags), vertexFormat(vertexFormat), vertexCount(vertexCount)
 {
 	init(flags, vertices, normals, texCoords, vertexColors);
 }
@@ -47,8 +47,11 @@ Mesh::Mesh(const DFFGeometry& geometry, bool autoSubmeshes)
 	}
 
 	if (geometry.isTriangleStripFormat()) {
-		flags |= MeshTriangleStrips;
+		vertexFormat = VertexFormatTriangleStrips;
+	} else {
+		vertexFormat = VertexFormatTriangles;
 	}
+
 	if (normals) {
 		flags |= MeshNormals;
 	}
@@ -80,9 +83,9 @@ Mesh::Mesh(const DFFGeometry& geometry, bool autoSubmeshes)
 }
 
 
-Mesh::Mesh(int vertexCount, int flags, GLuint dataBuffer, int normalOffset, int texCoordOffset,
-		int vertexColorOffset)
-		: flags(flags), vertexCount(vertexCount), dataBuffer(dataBuffer),
+Mesh::Mesh(int vertexCount, VertexFormat vertexFormat, int flags, GLuint dataBuffer, int normalOffset,
+		int texCoordOffset, int vertexColorOffset)
+		: flags(flags), vertexFormat(vertexFormat), vertexCount(vertexCount), dataBuffer(dataBuffer),
 		  normalOffs(normalOffset), texCoordOffs(texCoordOffset), vertexColorOffs(vertexColorOffset)
 {
 }
