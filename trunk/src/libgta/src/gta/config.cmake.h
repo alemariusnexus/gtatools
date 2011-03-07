@@ -21,5 +21,6 @@
 #define CONFIG_CMAKE_H_
 
 #cmakedefine GTA_ENABLE_SQUISH
+#cmakedefine GTA_USE_OPENGL_ES
 
 #endif /* CONFIG_CMAKE_H_ */

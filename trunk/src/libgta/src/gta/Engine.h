@@ -22,14 +22,25 @@
 
 #include "config.h"
 #include "ShaderProgram.h"
+#include "Camera.h"
 #include <locale>
 #include <cstring>
+#include <vector>
+#include <gtaformats/util/math/Matrix4.h>
 
 using std::locale;
 using std::collate;
 using std::use_facet;
+using std::vector;
 
-class ResourceManager;
+
+class ResourceCache;
+class ResourceObserver;
+class MeshCacheLoader;
+class TextureCacheLoader;
+class MeshIndexer;
+class TextureIndexer;
+class Scene;
 
 
 
@@ -46,18 +57,41 @@ public:
 	static Engine* getInstance();
 
 public:
-	ResourceManager* getResourceManager() { return resMgr; }
-	void setResourceManager(ResourceManager* mgr) { resMgr = mgr; }
+	void addResource(const File& file);
 	ShaderProgram* getCurrentShaderProgram() { return currentShader; }
 	void setCurrentShaderProgram(ShaderProgram* program);
+	ResourceCache* getMeshCache();
+	ResourceCache* getTextureCache();
+	MeshIndexer* getMeshIndexer() { return meshIndexer; }
+	TextureIndexer* getTextureIndexer() { return texIndexer; }
+	void addResourceObserver(ResourceObserver* observer);
+	void setCamera(Camera* cam) { camera = cam; }
+	Camera* getCamera() { return camera; }
+	void setProjectionMatrix(const Matrix4& mat) { projectionMatrix = mat; }
+	const Matrix4& getProjectionMatrix() const { return projectionMatrix; }
+	Matrix4& getProjectionMatrix() { return projectionMatrix; }
+	void setScene(Scene* scene) { this->scene = scene; }
+	Scene* getScene() { return scene; }
+	void render();
 
 private:
 	Engine();
 
 private:
-	ResourceManager* resMgr;
 	ShaderProgram* currentShader;
+	vector<ResourceObserver*> resObservers;
+	Camera* camera;
+	Matrix4 projectionMatrix;
+	Scene* scene;
 
+	MeshIndexer* meshIndexer;
+	TextureIndexer* texIndexer;
+
+	MeshCacheLoader* meshCacheLoader;
+	TextureCacheLoader* texCacheLoader;
+
+	ResourceCache* meshCache;
+	ResourceCache* texCache;
 };
 
 #endif /* ENGINE_H_ */

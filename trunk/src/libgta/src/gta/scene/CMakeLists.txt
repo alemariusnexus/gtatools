@@ -1,6 +1,6 @@
-# Copyright 2010 David "Alemarius Nexus"
+# Copyright 2010-2011 David "Alemarius Nexus" Lerch
 # 
-# This file is part of gtaformats.
+# This file is part of libgta.
 #
 # gtaformats is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,21 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with gtaformats.  If not, see <http://www.gnu.org/licenses/>.
 
-
-SET(FILES
-    gl Camera Shader ShaderProgram ItemDefinition MeshPointer StaticMeshPointer
-    GLException Engine Material Mesh Submesh ManagedMeshPointer TextureSource
-    ManagedTextureSource COLMeshConverter MeshGenerator ItemManager COLBulletConverter
-    CollisionShapePointer ManagedCollisionShapePointer)
-    
-ADD_SUBDIRECTORY(resource)
-ADD_SUBDIRECTORY(scene)
-    
-CONFIGURE_FILE(config.cmake.h "${CMAKE_CURRENT_SOURCE_DIR}/config.h")
+SET(FILES DefaultSceneObject Scene)
 
 FOREACH(FILE ${FILES})
-    SET(SRCS ${SRCS} "gta/${FILE}")
+    SET(SRCS ${SRCS} "gta/scene/${FILE}")
 ENDFOREACH(FILE)
 
 SET(SRCS ${SRCS} PARENT_SCOPE)
-

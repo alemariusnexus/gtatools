@@ -51,6 +51,10 @@ SET(GLEW_INCLUDE_PATH "" CACHE PATH "Directory containing the OpenGL Extension W
 SET(GLEW_LIB_PATH "${GLEW_DEFAULT_LIB}" CACHE FILEPATH "Path to (or name of) the OpenGL Extension Wrangler (GLEW) library file")
 SET(SQUISH_INCLUDE_PATH "" CACHE PATH "Directory containing libsquish header files.")
 SET(SQUISH_LIB_PATH "squish" CACHE FILEPATH "Path to (or name of) libsquish library file")
+SET(BULLET_DYNAMICS_LIB_PATH "BulletDynamics" CACHE FILEPATH "Path to (or name of) the BulletDynamics library file")
+SET(BULLET_COLLISION_LIB_PATH "BulletCollision" CACHE FILEPATH "Path to (or name of) the BulletCollision library file")
+SET(BULLET_LINEAR_MATH_LIB_PATH "LinearMath" CACHE FILEPATH "Path to (or name of) the Bullet LinearMath library file")
+SET(BULLET_INCLUDE_PATH "" CACHE PATH "Directory containing Bullet header files")
 
 FIND_PACKAGE(Qt4 4.6.0 COMPONENTS QtCore QtGui QtXml QtOpenGL qtmain REQUIRED)
 
@@ -90,12 +94,13 @@ ENDIF(WIN32)
 
 INCLUDE_DIRECTORIES(${GL_INCLUDE_PATH} ${GLU_INCLUDE_PATH} ${GTAFORMATS_INCLUDE_PATH} ${GTA_INCLUDE_PATH}
         ${CMAKE_BINARY_DIR}/gtatools-gui/build/src ${CMAKE_BINARY_DIR} ${CMAKE_BINARY_DIR}/gtatools-gui/build
-        ${INCS} ${GLEW_INCLUDE_PATH} ${SQUISH_INCLUDE_PATH})
+        ${INCS} ${GLEW_INCLUDE_PATH} ${SQUISH_INCLUDE_PATH} ${BULLET_INCLUDE_PATH})
 
 ADD_EXECUTABLE(gtatools-gui ${EXECUTABLE_PROPERTIES} ${SRCS} ${MOC_COMPILED_SRCS} ${UIC_COMPILED_SRCS} ${QM_FILES}
         ${QT_RESOURCE_FILES})
 TARGET_LINK_LIBRARIES(gtatools-gui ${GTA_LIB_PATH} ${GTAFORMATS_LIB_PATH} ${QT_LIBRARIES} ${GL_LIB_PATH}
-        ${GLU_LIB_PATH} ${GLEW_LIB_PATH} ${THREAD_LIB} ${SQUISH_LIB_PATH})
+        ${GLU_LIB_PATH} ${GLEW_LIB_PATH} ${THREAD_LIB} ${SQUISH_LIB_PATH} ${BULLET_DYNAMICS_LIB_PATH}
+        ${BULLET_COLLISION_LIB_PATH} ${BULLET_LINEAR_MATH_LIB_PATH})
 
 INSTALL(TARGETS gtatools-gui DESTINATION bin)
 INSTALL(FILES ${QM_FILES} DESTINATION bin)

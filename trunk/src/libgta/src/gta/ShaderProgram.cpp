@@ -49,14 +49,25 @@ void ShaderProgram::link()
 		GLint maxLength;
 		GLint actualLength;
 		glGetProgramiv(program, GL_INFO_LOG_LENGTH, &maxLength);
-		GLchar* log = new GLchar[maxLength];
+		char* log = new char[maxLength];
 		glGetProgramInfoLog(program, maxLength, &actualLength, log);
 
 		char* errmsg = new char[actualLength + 64];
 		sprintf(errmsg, "Error linking shader program %d. Info log:\n\n%s", program, log);
 		GLException ex(errmsg, __FILE__, __LINE__);
 		delete[] errmsg;
+		delete[] log;
 		throw ex;
+	} else {
+		GLint maxLength;
+		GLint actualLength;
+		glGetProgramiv(program, GL_INFO_LOG_LENGTH, &maxLength);
+		char* log = new char[maxLength];
+		glGetProgramInfoLog(program, maxLength, &actualLength, log);
+
+		printf("Shader program linking successful. Build log:\n==========\n%s\n==========\n", log);
+
+		delete[] log;
 	}
 }
 

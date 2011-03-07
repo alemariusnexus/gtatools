@@ -31,40 +31,47 @@ using std::pair;
 
 template<class K, class V>
 class Cache {
+public:
+	typedef unsigned int cachesize_t;
+
 private:
 	struct Entry
 	{
-		Entry(V* vPtr, int cost) : vPtr(vPtr), cost(cost), prev(NULL), next(NULL) {}
+		Entry(V* vPtr, cachesize_t cost, bool locked) : vPtr(vPtr), cost(cost), prev(NULL), next(NULL),
+				locked(locked) {}
 		const K* kPtr;
 		V* vPtr;
-		int cost;
+		cachesize_t cost;
 		Entry* prev;
 		Entry* next;
+		bool locked;
 	};
 
 public:
-	Cache(int capacity = 0) : first(NULL), last(NULL), capacity(capacity), occupied(0) {}
+	Cache(cachesize_t capacity = 0) : first(NULL), last(NULL), capacity(capacity), occupied(0) {}
 	~Cache() { clear(); }
-	bool insert(const K& key, V* value, int size);
-	void remove(const K& key);
+	bool insert(const K& key, V* value, cachesize_t size, bool locked = false);
+	bool remove(const K& key);
 	V* item(const K& key) { return access(key); }
-	void free(int size);
+	bool free(cachesize_t size);
 	V* operator[](const K& key) { return item(key); }
-	int getCapacity() const { return capacity; }
-	int getOccupiedSize() const { return occupied; }
-	void clear();
-	void resize(int capacity) { free(capacity); this->capacity = capacity; }
+	cachesize_t getCapacity() const { return capacity; }
+	cachesize_t getOccupiedSize() const { return occupied; }
+	bool clear();
+	void resize(cachesize_t capacity) { free(capacity); this->capacity = capacity; }
+	V* lock(const K& key, bool locked = true);
+	V* unlock(const K& key) { return lock(key, false); }
 
 private:
 	V* access(const K& key);
-	void remove(Entry& entry);
+	bool remove(Entry& entry);
 
 private:
 	map<K, Entry> entries;
 	Entry* first;
 	Entry* last;
-	int capacity;
-	int occupied;
+	cachesize_t capacity;
+	cachesize_t occupied;
 };
 
 
@@ -99,8 +106,12 @@ V* Cache<K, V>::access(const K& key)
 
 
 template<class K, class V>
-void Cache<K, V>::remove(Entry& entry)
+bool Cache<K, V>::remove(Entry& entry)
 {
+	if (entry.locked) {
+		return false;
+	}
+
 	if (entry.prev) {
 		entry.prev->next = entry.next;
 	}
@@ -116,18 +127,20 @@ void Cache<K, V>::remove(Entry& entry)
 	occupied -= entry.cost;
 	delete entry.vPtr;
 	entries.erase(entries.find(*entry.kPtr));
+	return true;
 }
 
 
 template<class K, class V>
-bool Cache<K, V>::insert(const K& key, V* value, int size)
+bool Cache<K, V>::insert(const K& key, V* value, cachesize_t size, bool locked)
 {
-	if (size > capacity) {
+	if (size > capacity  &&  !locked) {
 		delete value;
 		return false;
 	}
 	free(capacity-size);
-	typename map<K, Entry>::iterator it = entries.insert(pair<const K, Entry>(key, Entry(value, size))).first;
+	typename map<K, Entry>::iterator it = entries
+			.insert(pair<const K, Entry>(key, Entry(value, size, locked))).first;
 	Entry& entry = it->second;
 	if (first) {
 		first->prev = &entry;
@@ -144,7 +157,7 @@ bool Cache<K, V>::insert(const K& key, V* value, int size)
 
 
 template<class K, class V>
-void Cache<K, V>::free(int size)
+bool Cache<K, V>::free(cachesize_t size)
 {
 	Entry* entry = last;
 	while (entry  &&  occupied > size) {
@@ -152,27 +165,47 @@ void Cache<K, V>::free(int size)
 		entry = entry->prev;
 		remove(*cur);
 	}
+
+	return occupied <= size;
 }
 
 
 template<class K, class V>
-void Cache<K, V>::clear()
+bool Cache<K, V>::clear()
 {
-	while (first) {
+	/*while (first) {
 		delete first->vPtr;
 		first = first->next;
 	}
 	occupied = 0;
 	entries.clear();
-	last = NULL;
+	last = NULL;*/
+
+	return free(0);
 }
 
 
 template<class K, class V>
-void Cache<K, V>::remove(const K& key)
+bool Cache<K, V>::remove(const K& key)
 {
 	typename map<K, Entry>::iterator it = entries.find(key);
-	remove(it->second);
+	return remove(it->second);
+}
+
+
+template<class K, class V>
+V* Cache<K, V>::lock(const K& key, bool locked)
+{
+	typename map<K, Entry>::iterator it = entries.find(key);
+
+	if (it == entries.end()) {
+		return NULL;
+	}
+
+	Entry& entry = it->second;
+	entry.locked = locked;
+	free(capacity);
+	return entry.vPtr;
 }
 
 #endif /* CACHE_H_ */

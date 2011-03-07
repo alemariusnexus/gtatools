@@ -18,8 +18,9 @@
  */
 
 #include "GLException.h"
-#include <GL/glew.h>
+#include "gl.h"
 #include <cstring>
+#include <cstdio>
 
 
 
@@ -28,7 +29,34 @@ void GLException::checkError(const char* msg)
 	GLenum error = glGetError();
 
 	if (error != GL_NO_ERROR) {
-		const GLchar* errstr = (const GLchar*) gluErrorString(error);
+#ifdef GTA_USE_OPENGL_ES
+		char errname[32];
+
+		switch (error) {
+		case GL_INVALID_ENUM:
+			sprintf(errname, "GL_INVALID_ENUM");
+			break;
+		case GL_INVALID_VALUE:
+			sprintf(errname, "GL_INVALID_VALUE");
+			break;
+		case GL_INVALID_OPERATION:
+			sprintf(errname, "GL_INVALID_OPERATION");
+			break;
+		case GL_INVALID_FRAMEBUFFER_OPERATION:
+			sprintf(errname, "GL_INVALID_FRAMEBUFFER_OPERATION");
+			break;
+		case GL_OUT_OF_MEMORY:
+			sprintf(errname, "GL_OUT_OF_MEMORY");
+			break;
+		default:
+			sprintf(errname, "[UNKNOWN]");
+		}
+
+		char errmsg[128];
+		sprintf(errmsg, "OpenGL error %s (%u)", errname, error);
+		throw GLException(errmsg, __FILE__, __LINE__);
+#else
+		const char* errstr = (const char*) gluErrorString(error);
 
 		char* errmsg;
 
@@ -47,5 +75,6 @@ void GLException::checkError(const char* msg)
 		GLException ex(errmsg, __FILE__, __LINE__);
 		delete[] errmsg;
 		throw ex;
+#endif
 	}
 }

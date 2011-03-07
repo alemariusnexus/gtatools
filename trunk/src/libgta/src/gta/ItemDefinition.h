@@ -26,6 +26,7 @@
 #include <gtaformats/ide/IDEStaticObject.h>
 #include "MeshPointer.h"
 #include "TextureSource.h"
+#include "CollisionShapePointer.h"
 
 
 
@@ -40,12 +41,17 @@ public:
 	MeshPointer* getMeshPointer() { return meshPtr; }
 	const MeshPointer* getMeshPointer() const { return meshPtr; }
 	void setMeshPointer(MeshPointer* ptr) { if (meshPtr) delete meshPtr; meshPtr = ptr; }
+	CollisionShapePointer* getCollisionShapePointer() { return colShapePtr; }
+	const CollisionShapePointer* getCollisionShapePointer() const { return colShapePtr; }
+	void setCollisionShapePointer(CollisionShapePointer* ptr)
+			{ if (colShapePtr) delete colShapePtr; colShapePtr = ptr; }
 	float getDrawDistance() const { return drawDistance; }
 	virtual void render();
 
 private:
 	MeshPointer* meshPtr;
 	TextureSource* texSrc;
+	CollisionShapePointer* colShapePtr;
 	float drawDistance;
 };
 

@@ -66,7 +66,7 @@ void Shader::compile()
 		GLint maxLength;
 		GLint actualLength;
 		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
-		GLchar* log = new GLchar[maxLength];
+		char* log = new char[maxLength];
 		glGetShaderInfoLog(shader, maxLength, &actualLength, log);
 
 		char* errmsg = new char[actualLength + 64];
@@ -75,5 +75,15 @@ void Shader::compile()
 		GLException ex(errmsg, __FILE__, __LINE__);
 		delete[] errmsg;
 		throw ex;
+	} else {
+		GLint maxLength;
+		GLint actualLength;
+		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
+		char* log = new char[maxLength];
+		glGetShaderInfoLog(shader, maxLength, &actualLength, log);
+
+		printf("Shader compilation successful. Build log:\n==========\n%s\n==========\n", log);
+
+		delete[] log;
 	}
 }

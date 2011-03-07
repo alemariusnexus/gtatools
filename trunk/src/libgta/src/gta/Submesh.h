@@ -21,10 +21,8 @@
 #define SUBMESH_H_
 
 #include "config.h"
-#include <GL/glew.h>
-#include "Submesh.h"
-#include "ResourceManager.h"
-#include "TextureIndex.h"
+#include "gl.h"
+#include "Mesh.h"
 #include "Material.h"
 #include <gtaformats/dff/DFFGeometryPart.h>
 

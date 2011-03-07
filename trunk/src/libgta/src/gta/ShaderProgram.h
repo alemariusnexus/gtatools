@@ -21,7 +21,7 @@
 #define SHADERPROGRAM_H_
 
 #include "config.h"
-#include <GL/glew.h>
+#include "gl.h"
 #include "Shader.h"
 
 
