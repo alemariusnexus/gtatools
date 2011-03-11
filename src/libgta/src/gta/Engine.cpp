@@ -27,6 +27,7 @@
 #include "ItemManager.h"
 #include "scene/Scene.h"
 #include "GLException.h"
+#include <cstdio>
 
 
 
@@ -117,6 +118,10 @@ void Engine::render()
 	GLuint mvpMatrixUniform = currentShader->getUniformLocation("MVPMatrix");
 
 	Scene::ObjectIterator it;
+	
+	printf("Start rendering...");
+	
+	int i = 0;
 
 	for (it = visibleObjects.begin() ; it != visibleObjects.end() ; it++) {
 		DefaultSceneObject* obj = *it;
@@ -126,7 +131,11 @@ void Engine::render()
 		const float* r = mat.toArray();
 		glUniformMatrix4fv(mvpMatrixUniform, 1, GL_FALSE, r);
 		def->render();
+		
+		printf("Rendered object %d of %d\n", ++i, visibleObjects.size());
 	}
+	
+	printf("Rendering done!\n");
 }
 
 

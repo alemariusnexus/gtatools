@@ -28,7 +28,7 @@ void gtaglInit()
 {
 #ifdef GTA_USE_OPENGL_ES
 	const char* extStr = (const char*) glGetString(GL_EXTENSIONS);
-	char* extStrCpy = new char[strlen(extStr)];
+	char* extStrCpy = new char[strlen(extStr)+1];
 	strcpy(extStrCpy, extStr);
 
 	char* ext = strtok(extStrCpy, " ");
