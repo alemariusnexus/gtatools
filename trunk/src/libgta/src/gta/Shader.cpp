@@ -79,11 +79,16 @@ void Shader::compile()
 		GLint maxLength;
 		GLint actualLength;
 		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
-		char* log = new char[maxLength];
-		glGetShaderInfoLog(shader, maxLength, &actualLength, log);
+		
+		if (maxLength != 0) {
+			char* log = new char[maxLength];
+			glGetShaderInfoLog(shader, maxLength, &actualLength, log);
 
-		printf("Shader compilation successful. Build log:\n==========\n%s\n==========\n", log);
+			printf("Shader compilation successful. Build log:\n==========\n%s\n==========\n", log);
 
-		delete[] log;
+			delete[] log;
+		} else {
+			printf("Shader compilation successful. Build log is empty\n");
+		}
 	}
 }
