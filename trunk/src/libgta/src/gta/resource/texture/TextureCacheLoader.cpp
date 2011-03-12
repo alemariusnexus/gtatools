@@ -191,8 +191,10 @@ CacheEntry* TextureCacheLoader::load(hash_t hash)
 		int16_t mipW = w;
 		int16_t mipH = h;
 
+		int8_t bppFraction = tex->getCompression() == DXT1 ? 2 : 1;
+
 		for (int i = 0 ; i < numIncludedMipmaps ; i++) {
-			if (mipW < 1  ||  mipH < 1) {
+			if (mipW < 4  ||  mipH < 4) {
 				// TODO See above...
 				//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, i-1);
 				break;
@@ -203,7 +205,7 @@ CacheEntry* TextureCacheLoader::load(hash_t hash)
 
 			glTexImage2D(GL_TEXTURE_2D, i, GL_RGBA, mipW, mipH, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 			size += mipW*mipH*4;
-			data += mipW*mipH*tex->getBytesPerPixel();
+			data += mipW*mipH/bppFraction;
 
 			delete[] pixels;
 
