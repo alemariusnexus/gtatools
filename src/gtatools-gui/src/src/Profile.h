@@ -26,25 +26,37 @@
 #include <QtCore/QFile>
 #include <QtCore/QMetaType>
 #include <gtaformats/util/File.h>
+#include <gta/resource/ResourceObserver.h>
+#include <gta/Engine.h>
 #include "Task.h"
-#include "ProfileInitializer.h"
-#include "ExtendedResourceManager.h"
+#include <map>
+
+using std::multimap;
 
 
 
-class Profile : public QObject {
+class Profile : public QObject, public ResourceObserver {
 	Q_OBJECT
 
 public:
 	typedef QLinkedList<File*>::iterator ResourceIterator;
 
+private:
+	typedef multimap<hash_t, char*> MeshTexMap;
+
 public:
 	Profile(const QString& name);
 
 	void addResource(const File& resource);
+	void addDATFile(const File& file);
 	ResourceIterator getResourceBegin();
 	ResourceIterator getResourceEnd();
-	int getResourceCount() { return resources.size(); }
+	ResourceIterator getDATFilesBegin() { return datFiles.begin(); }
+	ResourceIterator getDATFilesEnd() { return datFiles.end(); }
+	int getResourceCount() const { return resources.size(); }
+	int getDATFileCount() const { return datFiles.size(); }
+	QString getDATRootDirectory() const { return datRoot; }
+	void setDATRootDirectory(const QString& dir) { datRoot = dir; }
 	QLinkedList<File*> getResources() const { return resources; }
 	QString getName() const { return name; }
 	ResourceIterator removeResource(ResourceIterator it);
@@ -52,8 +64,8 @@ public:
 	void setName(const QString& name) { this->name = name; }
 	void synchronize();
 	bool containsFile(const File& file);
-	ExtendedResourceManager* getResourceManager();
-	bool isResourceIndexInitialized() { return resourceIdxInitialized; }
+	virtual void resourceAdded(const File& file);
+	int findTexturesForMesh(hash_t meshName, char**& textures);
 
 private:
 	void loadResourceIndex();
@@ -72,11 +84,9 @@ signals:
 private:
 	QLinkedList<File*> resources;
 	QString name;
-	ExtendedResourceManager* resourceManager;
-	bool resourceIdxInitialized;
-	Task* resourceInitTask;
-	ProfileInitializer* currentInitializer;
-
+	MeshTexMap meshTextures;
+	QString datRoot;
+	QLinkedList<File*> datFiles;
 
 
 

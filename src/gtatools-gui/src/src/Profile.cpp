@@ -22,6 +22,12 @@
 #include <cstdlib>
 #include "ProfileManager.h"
 #include "System.h"
+#include <utility>
+#include <gtaformats/gtaide.h>
+#include <gtaformats/util/strutil.h>
+
+using std::pair;
+using std::distance;
 
 
 /*void profileInitialized()
@@ -34,7 +40,7 @@
 
 
 Profile::Profile(const QString& name)
-		: name(QString(name)), resourceManager(NULL), resourceIdxInitialized(false)
+		: name(QString(name))
 {
 	connect(ProfileManager::getInstance(), SIGNAL(currentProfileChanged(Profile*, Profile*)), this,
 			SLOT(currentProfileChanged(Profile*, Profile*)));
@@ -45,6 +51,12 @@ Profile::Profile(const QString& name)
 void Profile::addResource(const File& resource)
 {
 	resources << new File(resource);
+}
+
+
+void Profile::addDATFile(const File& file)
+{
+	datFiles << new File(file);
 }
 
 
@@ -62,7 +74,7 @@ Profile::ResourceIterator Profile::getResourceEnd()
 
 void Profile::loadResourceIndex()
 {
-	if (resourceManager) {
+	/*if (resourceManager) {
 		delete resourceManager;
 	}
 
@@ -75,19 +87,28 @@ void Profile::loadResourceIndex()
 
 	currentInitializer = new ProfileInitializer(this);
 	connect(currentInitializer, SIGNAL(finished()), this, SLOT(resourcesInitialized()));
-	currentInitializer->start();
+	currentInitializer->start();*/
+
+	Engine* engine = Engine::getInstance();
+
+	ResourceIterator it;
+
+	for (it = resources.begin() ; it != resources.end() ; it++) {
+		File* resFile = *it;
+		engine->addResource(*resFile);
+	}
 }
 
 
 void Profile::currentProfileChanged(Profile* oldProfile, Profile* newProfile)
 {
-	if (oldProfile == this  &&  newProfile != this) {
-		if (currentInitializer) {
-			currentInitializer->interrupt();
-		}
+	Engine* engine = Engine::getInstance();
 
-		resourceIdxInitialized = false;
+	if (oldProfile == this  &&  newProfile != this) {
+		engine->clearResources();
+		engine->removeResourceObserver(this);
 	} else if (oldProfile != this  &&  newProfile == this) {
+		engine->addResourceObserver(this);
 		loadResourceIndex();
 	}
 }
@@ -143,13 +164,50 @@ void Profile::selfChanged()
 
 void Profile::resourcesInitialized()
 {
-	resourceIdxInitialized = true;
 }
 
 
-ExtendedResourceManager* Profile::getResourceManager()
+void Profile::resourceAdded(const File& file)
 {
-	return resourceManager;
+	if (file.guessContentType() == CONTENT_TYPE_IDE) {
+		IDEReader ide(file);
+
+		IDEStatement* stmt;
+
+		while ((stmt = ide.readStatement())  !=  NULL) {
+			if (stmt->getType() == IDETypeStaticObject  ||  stmt->getType() == IDETypeTimedObject) {
+				IDEStaticObject* sobj = (IDEStaticObject*) stmt;
+				char* lMeshName = new char[strlen(sobj->getModelName())+1];
+				strtolower(lMeshName, sobj->getModelName());
+				char* lTexName = new char[strlen(sobj->getTextureName())+1];
+				strtolower(lTexName, sobj->getTextureName());
+
+				meshTextures.insert(pair<hash_t, char*>(Hash(lMeshName), lTexName));
+
+				delete[] lMeshName;
+			}
+
+			delete stmt;
+		}
+	}
+}
+
+
+int Profile::findTexturesForMesh(hash_t meshName, char**& textures)
+{
+	pair<MeshTexMap::iterator, MeshTexMap::iterator> range = meshTextures.equal_range(meshName);
+
+	int numElements = distance(range.first, range.second);
+
+	textures = new char*[numElements];
+
+	MeshTexMap::iterator it;
+	int i = 0;
+	for (it = range.first ; it != range.second ; it++, i++) {
+		textures[i] = it->second;
+	}
+
+	return numElements;
 }
 
 

@@ -19,13 +19,7 @@ using std::pair;
 
 TextureIndexer::~TextureIndexer()
 {
-	IndexMap::iterator it;
-
-	for (it = txdTexCombinedIndex.begin() ; it != txdTexCombinedIndex.end() ; it++) {
-		TextureIndexEntry* entry = it->second;
-		delete entry->file;
-		delete entry;
-	}
+	resourcesCleared();
 }
 
 
@@ -67,6 +61,25 @@ void TextureIndexer::resourceAdded(const File& file)
 
 		delete[] combinedName;
 		delete[] txdName;
+	}
+}
+
+
+void TextureIndexer::resourcesCleared()
+{
+	IndexMap::iterator it;
+
+	for (it = txdTexCombinedIndex.begin() ; it != txdTexCombinedIndex.end() ; it++) {
+		delete it->second->file;
+		delete it->second;
+	}
+
+	txdTexCombinedIndex.clear();
+
+	ArchiveMap::iterator ait;
+
+	for (ait = archives.begin() ; ait != archives.end() ; ait++) {
+		delete ait->second;
 	}
 }
 

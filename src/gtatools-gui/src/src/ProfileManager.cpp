@@ -57,6 +57,7 @@ void ProfileManager::loadProfiles()
 		}
 
 		Profile* profile = new Profile(settings.value(QString("profile%1/name").arg(i)).toString());
+		profile->setDATRootDirectory(settings.value(QString("profile%1/dat_root").arg(i)).toString());
 
 		for (int j = 0 ; true ; j++) {
 			if (!settings.contains(QString("profile%1/resource%2").arg(i).arg(j))) {
@@ -67,7 +68,15 @@ void ProfileManager::loadProfiles()
 			profile->addResource(File(resource.toLocal8Bit().constData()));
 		}
 
-		//profiles << profile;
+		for (int j = 0 ; true ; j++) {
+			if (!settings.contains(QString("profile%1/dat_file%2").arg(i).arg(j))) {
+				break;
+			}
+
+			QString datFile = settings.value(QString("profile%1/dat_file%2").arg(i).arg(j)).toString();
+			profile->addDATFile(File(datFile.toLocal8Bit().constData()));
+		}
+
 		addProfile(profile);
 	}
 
@@ -129,6 +138,7 @@ void ProfileManager::saveProfiles()
 	for (it = getProfileBegin() ; it != getProfileEnd() ; it++, i++) {
 		Profile* profile = *it;
 		settings.setValue(QString("profile%1/name").arg(i), profile->getName());
+		settings.setValue(QString("profile%1/dat_root").arg(i), profile->getDATRootDirectory());
 
 		Profile::ResourceIterator rit;
 
@@ -142,10 +152,24 @@ void ProfileManager::saveProfiles()
 			}
 		}
 
+		for (j = 0 ; true ; j++) {
+			if (settings.contains(QString("profile%1/dat_file%2").arg(i).arg(j))) {
+				settings.remove(QString("profile%1/dat_file%2").arg(i).arg(j));
+			} else {
+				break;
+			}
+		}
+
 		j = 0;
 
 		for (rit = profile->getResourceBegin() ; rit != profile->getResourceEnd() ; rit++, j++) {
 			settings.setValue(QString("profile%1/resource%2").arg(i).arg(j), (*rit)->getPath()->toString());
+		}
+
+		j = 0;
+
+		for (rit = profile->getDATFilesBegin() ; rit != profile->getDATFilesEnd() ; rit++, j++) {
+			settings.setValue(QString("profile%1/dat_file%2").arg(i).arg(j), (*rit)->getPath()->toString());
 		}
 	}
 }

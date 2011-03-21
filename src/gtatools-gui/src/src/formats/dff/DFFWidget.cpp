@@ -122,7 +122,7 @@ DFFWidget::DFFWidget(const File& file, QWidget* parent, QGLWidget* shareWidget)
 	meshName[strlen(meshName)-4] = '\0';
 
 	char** texNames;
-	int numTexNames = profile->getResourceManager()->getTexturesForMesh(meshName, texNames);
+	int numTexNames = profile->findTexturesForMesh(Hash(meshName), texNames);
 
 	for (int i = 0 ; i < numTexNames ; i++) {
 		ui.texSourceBox->addItem(texNames[i], QString(texNames[i]));

@@ -37,6 +37,7 @@ GLuint ManagedTextureSource::getTexture(hash_t texHash)
 	}
 
 	TextureCacheEntry* entry = (TextureCacheEntry*) cache->getEntry(hash);
+
 	return entry->getTexture();
 	/*ResourceManager* resMgr = Engine::getInstance()->getResourceManager();
 	GLuint tex = resMgr->getTexture(TextureIndex(txdHash, texHash));

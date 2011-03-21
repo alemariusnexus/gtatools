@@ -60,7 +60,7 @@
      <x>0</x>
      <y>0</y>
      <width>923</width>
-     <height>20</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuProfile">
@@ -98,10 +98,16 @@
      <string>Windows</string>
     </property>
    </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuView"/>
    <addaction name="menuProfile"/>
+   <addaction name="menuTools"/>
    <addaction name="menuSettings"/>
    <addaction name="menuWindows"/>
    <addaction name="menuHelp"/>

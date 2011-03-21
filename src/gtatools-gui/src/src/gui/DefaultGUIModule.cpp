@@ -30,6 +30,7 @@
 #include <gtaformats/config.h>
 #include "FileSearchDialog.h"
 #include "VersionDialog.h"
+#include "PVSDialog.h"
 
 
 
@@ -76,6 +77,9 @@ DefaultGUIModule::DefaultGUIModule()
 	systemOpenAction = new QAction(tr("Execute System Program"), NULL);
 	connect(systemOpenAction, SIGNAL(triggered(bool)), this, SLOT(onOpenSystemProgram(bool)));
 
+	pvsGenAction = new QAction(tr("Generate PVS Data"), NULL);
+	connect(pvsGenAction, SIGNAL(triggered(bool)), this, SLOT(onPVSGeneration(bool)));
+
 	connect(sys, SIGNAL(fileOpened(const FileOpenRequest&)), this, SLOT(fileOpened(const FileOpenRequest&)));
 	connect(sys, SIGNAL(fileClosed(File*)), this, SLOT(fileClosed(File*)));
 }
@@ -111,6 +115,7 @@ void DefaultGUIModule::doInstall()
 	QMenu* settingsMenu = mainWindow->getSettingsMenu();
 	QMenu* profileMenu = mainWindow->getProfileMenu();
 	QMenu* helpMenu = mainWindow->getHelpMenu();
+	QMenu* toolsMenu = mainWindow->getToolsMenu();
 
 	mainWindow->addDockWidget(Qt::BottomDockWidgetArea, logConsoleDock);
 	mainWindow->addDockWidget(Qt::LeftDockWidgetArea, fileTreeDock);
@@ -123,6 +128,7 @@ void DefaultGUIModule::doInstall()
 	aboutAction->setParent(mainWindow);
 	versionInfoAction->setParent(mainWindow);
 	systemOpenAction->setParent(mainWindow);
+	pvsGenAction->setParent(mainWindow);
 
 	fileMenu->addAction(fileOpenAction);
 	fileMenu->addAction(fileCloseAction);
@@ -131,6 +137,7 @@ void DefaultGUIModule::doInstall()
 	helpMenu->addAction(aboutQtAction);
 	helpMenu->addAction(aboutAction);
 	helpMenu->addAction(versionInfoAction);
+	toolsMenu->addAction(pvsGenAction);
 
 	profileSwitchMenu = new QMenu(tr("Switch"), profileMenu);
 	profileMenu->addMenu(profileSwitchMenu);
@@ -203,6 +210,7 @@ void DefaultGUIModule::doUninstall()
 	QMenu* settingsMenu = mainWindow->getSettingsMenu();
 	QMenu* profileMenu = mainWindow->getProfileMenu();
 	QMenu* helpMenu = mainWindow->getHelpMenu();
+	QMenu* toolsMenu = mainWindow->getToolsMenu();
 
 	mainWindow->removeDockWidget(fileTreeDock);
 	mainWindow->removeDockWidget(logConsoleDock);
@@ -214,6 +222,7 @@ void DefaultGUIModule::doUninstall()
 	aboutQtAction->setParent(NULL);
 	aboutAction->setParent(NULL);
 	versionInfoAction->setParent(NULL);
+	pvsGenAction->setParent(NULL);
 
 	fileMenu->removeAction(fileOpenAction);
 	fileMenu->removeAction(fileCloseAction);
@@ -222,6 +231,7 @@ void DefaultGUIModule::doUninstall()
 	helpMenu->removeAction(aboutQtAction);
 	helpMenu->removeAction(aboutAction);
 	helpMenu->removeAction(versionInfoAction);
+	toolsMenu->removeAction(pvsGenAction);
 
 	ProfileManager* pm = ProfileManager::getInstance();
 
@@ -305,6 +315,13 @@ void DefaultGUIModule::onFileOpen(bool checked)
 void DefaultGUIModule::onFileClose(bool checked)
 {
 	System::getInstance()->closeCurrentFile();
+}
+
+
+void DefaultGUIModule::onPVSGeneration(bool checked)
+{
+	PVSDialog dialog(mainWindow);
+	dialog.exec();
 }
 
 

@@ -38,6 +38,8 @@
 #include <gtaformats/util/Exception.h>
 #include <QtGui/QMessageBox>
 #include <QtCore/QTimer>
+#include <gta/Engine.h>
+#include <gta/resource/ResourceCache.h>
 
 
 
@@ -78,6 +80,11 @@ int main(int argc, char** argv)
 		QTranslator trans;
 		trans.load(":/gtatools-gui_" + QLocale::system().name());
 		app.installTranslator(&trans);
+
+		Engine* engine = Engine::getInstance();
+
+		engine->getMeshCache()->resize(10 * 1000000); // 10MB
+		engine->getTextureCache()->resize(25 * 1000000); // 25MB
 
 		MainWindow win;
 		win.show();

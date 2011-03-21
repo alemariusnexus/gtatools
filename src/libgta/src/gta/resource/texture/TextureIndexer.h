@@ -31,6 +31,7 @@ private:
 public:
 	~TextureIndexer();
 	virtual void resourceAdded(const File& file);
+	virtual void resourcesCleared();
 	const TextureIndexEntry* find(hash_t combinedHash);
 	const TextureIndexEntry* operator[](hash_t combinedHash);
 	hash_t createCombinedHash(const char* txdName, const char* texName);

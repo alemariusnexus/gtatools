@@ -24,6 +24,8 @@
 
 class COLFormatHandler: public FormatHandler
 {
+	Q_OBJECT
+
 public:
 	virtual QString getFormatName(const File* file = NULL) const { return tr("Collision File (COL)"); }
 	virtual QLinkedList<QString> getFileFormatExtensions() const { return QLinkedList<QString>() << "col"; }
