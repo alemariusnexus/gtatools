@@ -18,11 +18,18 @@ public:
 	DefaultSceneObject(ItemDefinition* def, const Matrix4& modelMatrix = Matrix4(),
 			DefaultSceneObject* lodParent = NULL);
 	ItemDefinition* getDefinition() { return def; }
+	const ItemDefinition* getDefinition() const { return def; }
 	Matrix4& getModelMatrix() { return modelMatrix; }
+	const Matrix4& getModelMatrix() const { return modelMatrix; }
 	DefaultSceneObject* getLODParent() { return lodParent; }
+	const DefaultSceneObject* getLODParent() const { return lodParent; }
 	void setLODParent(DefaultSceneObject* parent) { lodParent = parent; }
+	int getLODHierarchyDepth() const { return lodParent ? lodParent->getLODHierarchyDepth()+1 : 0; }
+	int getID() const { return id; }
+	void setID(int id) { this->id = id; }
 
 private:
+	int id;
 	ItemDefinition* def;
 	Matrix4 modelMatrix;
 	DefaultSceneObject* lodParent;

@@ -7,18 +7,37 @@
 
 #include "Scene.h"
 #include "../Engine.h"
+#include <fstream>
+#include <utility>
 
+using std::ofstream;
+using std::min;
+
+
+
+Scene::Scene()
+		: pvs(PVSData(this)), pvsValid(false)
+{
+}
 
 
 void Scene::addSceneObject(DefaultSceneObject* obj)
 {
+	obj->setID(objects.size());
 	objects.push_back(obj);
+	pvsValid = false;
 }
 
 
 void Scene::buildVisibleSceneObjectList(ObjectList& list)
 {
+	if (!pvsValid) {
+		pvs.build();
+		pvsValid = true;
+	}
+
 	Engine* engine = Engine::getInstance();
+
 	Camera* cam = engine->getCamera();
 	const Vector3& cpos = cam->getPosition();
 
@@ -26,10 +45,17 @@ void Scene::buildVisibleSceneObjectList(ObjectList& list)
 	float cy = cpos.getY();
 	float cz = cpos.getZ();
 
-	ObjectList::iterator it;
+	ObjectList pvObjects;
+	pvs.queryPVS(cx, cy, cz, pvObjects);
 
-	for (it = objects.begin() ; it != objects.end() ; it++) {
+	printf("PVS algorithm chose %d of %d objects (%.2f%%) for narrow distance testing\n",
+			pvObjects.size(), objects.size(), ((float) pvObjects.size() / (float) objects.size())*100.0f);
+
+	ObjectIterator it;
+
+	for (it = pvObjects.begin() ; it != pvObjects.end() ; it++) {
 		DefaultSceneObject* obj = *it;
+
 		const float* mat = obj->getModelMatrix().toArray();
 		float ox = mat[12];
 		float oy = mat[13];
@@ -39,11 +65,11 @@ void Scene::buildVisibleSceneObjectList(ObjectList& list)
 		float dy = cy - oy;
 		float dz = cz - oz;
 
-		float dist = sqrt(dx*dx + dy*dy + dz*dz);
+		float distSq = dx*dx + dy*dy + dz*dz;
 
 		while (obj) {
 			ItemDefinition* def = obj->getDefinition();
-			float distDiff = def->getDrawDistance() - dist;
+			float distDiff = def->getDrawDistanceSquarred() - distSq;
 
 			if (distDiff > 0.0f) {
 				list.push_back(obj);

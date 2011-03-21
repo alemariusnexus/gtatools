@@ -46,6 +46,7 @@ public:
 	void setCollisionShapePointer(CollisionShapePointer* ptr)
 			{ if (colShapePtr) delete colShapePtr; colShapePtr = ptr; }
 	float getDrawDistance() const { return drawDistance; }
+	float getDrawDistanceSquarred() const { return drawDistanceSquarred; }
 	virtual void render();
 
 private:
@@ -53,6 +54,7 @@ private:
 	TextureSource* texSrc;
 	CollisionShapePointer* colShapePtr;
 	float drawDistance;
+	float drawDistanceSquarred;
 };
 
 #endif /* ITEMDEFINITION_H_ */
