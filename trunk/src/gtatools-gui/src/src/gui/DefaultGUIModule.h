@@ -62,6 +62,7 @@ private slots:
 	void profilesLoaded();
 	void currentProfileChanged(Profile* oldProfile, Profile* newProfile);
 	void profileChanged(Profile* profile);
+	void onPVSGeneration(bool checked);
 
 private:
 	LogConsole* logConsole;
@@ -74,6 +75,7 @@ private:
 	QAction* versionInfoAction;
 	QAction* searchFileAction;
 	QAction* systemOpenAction;
+	QAction* pvsGenAction;
 	QMenu* profileSwitchMenu;
 	QLinkedList<File*> contextFiles;
 	QDockWidget* logConsoleDock;

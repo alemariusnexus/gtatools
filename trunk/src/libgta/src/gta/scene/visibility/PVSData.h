@@ -12,11 +12,13 @@
 #include "../DefaultSceneObject.h"
 #include <vector>
 #include <gtaformats/util/File.h>
+#include <gtaformats/util/ProgressObserver.h>
 #include <istream>
 #include <ostream>
 
 using std::istream;
 using std::ostream;
+using std::vector;
 
 
 class Scene;
@@ -35,14 +37,20 @@ public:
 	void serialize(const File& file);
 	bool unserialize(istream* in);
 	bool unserialize(const File& file);
+	void setSectionSize(float x, float y, float z) { sectSizeX = x; sectSizeY = y; sectSizeZ = z; }
+	void getSectionSize(float& x, float& y, float& z) const { x = sectSizeX; y = sectSizeY; z = sectSizeZ; }
+	void addProgressObserver(ProgressObserver* obsv) { progressObservers.push_back(obsv); }
+	void removeProgressObserver(ProgressObserver* obsv);
 
 private:
 	PVSSection* findSection(float x, float y, float z);
 
 private:
+	vector<ProgressObserver*> progressObservers;
 	Scene* scene;
 	PVSSection** sections;
 	int numSects;
+	float sectSizeX, sectSizeY, sectSizeZ;
 };
 
 #endif /* PVSDATA_H_ */

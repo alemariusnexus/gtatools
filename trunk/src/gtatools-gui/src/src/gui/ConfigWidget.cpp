@@ -132,6 +132,7 @@ void ConfigWidget::apply()
 		ProfileConfigWidget* profileWidget = (ProfileConfigWidget*) ui.profileStackedWidget->widget(i);
 
 		profile->setName(profileWidget->getProfileName());
+		profile->setDATRootDirectory(profileWidget->getDATRootFile());
 		profile->clearResources();
 
 		QLinkedList<QString> resources;
@@ -140,6 +141,13 @@ void ConfigWidget::apply()
 
 		for (it = resources.begin() ; it != resources.end() ; it++) {
 			profile->addResource(File(it->toLocal8Bit().constData()));
+		}
+
+		QLinkedList<QString> datFiles;
+		profileWidget->getDATFiles(datFiles);
+
+		for (it = datFiles.begin() ; it != datFiles.end() ; it++) {
+			profile->addDATFile(File(it->toLocal8Bit().constData()));
 		}
 
 		profile->synchronize();

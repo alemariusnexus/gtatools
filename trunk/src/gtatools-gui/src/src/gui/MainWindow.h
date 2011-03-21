@@ -52,6 +52,7 @@ public:
 	QMenu* getHelpMenu() { return ui.menuHelp; }
 	QMenu* getFileMenu() { return ui.menuFile; }
 	QMenu* getViewMenu() { return ui.menuView; }
+	QMenu* getToolsMenu() { return ui.menuTools; }
 	QProgressBar* getProgressBar() { return progressBar; }
 	QStatusBar* getStatusBar() { return ui.statusbar; }
 	QLabel* getTaskLabel() { return taskLabel; }

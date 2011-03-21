@@ -72,12 +72,6 @@ void DFFRenderWidget::renderGeometry(DFFGeometry* geometry)
 
 		Profile* profile = ProfileManager::getInstance()->getCurrentProfile();
 
-		ResourceManager* rm = NULL;
-
-		if (profile) {
-			rm = profile->getResourceManager();
-		}
-
 		TextureSource* texSrc = texSource;
 
 		if (texSrc)
@@ -102,12 +96,6 @@ void DFFRenderWidget::renderGeometryPart(DFFGeometry* geometry, DFFGeometryPart*
 		}
 
 		Profile* profile = ProfileManager::getInstance()->getCurrentProfile();
-
-		ResourceManager* rm = NULL;
-
-		if (profile) {
-			rm = profile->getResourceManager();
-		}
 
 		TextureSource* texSrc = texSource;
 

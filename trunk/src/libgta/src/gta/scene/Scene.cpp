@@ -32,7 +32,14 @@ void Scene::addSceneObject(DefaultSceneObject* obj)
 void Scene::buildVisibleSceneObjectList(ObjectList& list)
 {
 	if (!pvsValid) {
-		pvs.build();
+		File pvsFile("/home/alemariusnexus/pvs.pvs");
+
+		if (pvsFile.exists()) {
+			pvs.unserialize(pvsFile);
+		} else {
+			pvs.build();
+		}
+
 		pvsValid = true;
 	}
 

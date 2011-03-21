@@ -10,15 +10,17 @@
 #include <cstdio>
 #include <fstream>
 #include "../Scene.h"
+#include <algorithm>
 
 using std::copy;
 using std::find;
 using std::ofstream;
+using std::find;
 
 
 
 PVSData::PVSData(Scene* scene)
-		: scene(scene)
+		: scene(scene), sectSizeX(250.0f), sectSizeY(250.0f), sectSizeZ(2000.0f)
 {
 }
 
@@ -73,10 +75,6 @@ void PVSData::build()
 	printf("  Building the sections...\n");
 
 	// Now build the sections
-	float sectSizeX = 100.0f;
-	float sectSizeY = 100.0f;
-	float sectSizeZ = 2000.0f;
-
 	int numSectsX = ceil((bx2-bx1) / sectSizeX);
 	int numSectsY = ceil((by2-by1) / sectSizeY);
 	int numSectsZ = ceil((bz2-bz1) / sectSizeZ);
@@ -126,6 +124,12 @@ void PVSData::build()
 
 		if (i % (numSects/100) == 0) {
 			printf("    %d%% done\n", i / (numSects/100));
+			vector<ProgressObserver*>::iterator pit;
+
+			for (pit = progressObservers.begin() ; pit != progressObservers.end() ; pit++) {
+				ProgressObserver* obsv = *pit;
+				obsv->progressChanged(i / (numSects/100), 100);
+			}
 		}
 	}
 
@@ -253,4 +257,10 @@ bool PVSData::unserialize(const File& file)
 	bool retval = unserialize(in);
 	delete in;
 	return retval;
+}
+
+
+void PVSData::removeProgressObserver(ProgressObserver* obsv)
+{
+	progressObservers.erase(find(progressObservers.begin(), progressObservers.end(), obsv));
 }

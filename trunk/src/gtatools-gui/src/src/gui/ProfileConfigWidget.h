@@ -34,18 +34,27 @@ public:
 	ProfileConfigWidget(Profile* profile, QWidget* parent = NULL);
 	~ProfileConfigWidget();
 	QString getProfileName() { return ui.nameField->text(); }
+	QString getDATRootFile() { return ui.datRootField->text(); }
 	void getFiles(QLinkedList<QString>& dest);
+	void getDATFiles(QLinkedList<QString>& dest);
 
 private slots:
 	void fileAddButtonClicked(bool checked = false);
 	void dirAddButtonClicked(bool checked = false);
 	void fileEditButtonClicked(bool checked = false);
 	void fileRemoveButtonClicked(bool checked = false);
-	//void currentResourceChanged(int index);
 	void resourceSelectionChanged();
+
+	void datFileAddButtonClicked(bool checked = false);
+	void datFileEditButtonClicked(bool checked = false);
+	void datFileRemoveButtonClicked(bool checked = false);
+	void datSelectionChanged();
+
+	void datRootChooseButtonClicked(bool checked);
 
 private:
 	void clearFiles();
+	void tryDATAutocomplete();
 
 private:
 	Ui_ProfileConfigWidget ui;

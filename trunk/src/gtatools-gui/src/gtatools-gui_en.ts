@@ -4,7 +4,7 @@
 <context>
     <name>COLFormatHandler</name>
     <message>
-        <location filename="src/formats/col/COLFormatHandler.h" line="28"/>
+        <location filename="src/formats/col/COLFormatHandler.h" line="30"/>
         <source>Collision File (COL)</source>
         <translation>Collision File (COL)</translation>
     </message>
@@ -316,7 +316,7 @@
     </message>
     <message>
         <location filename="src/gui/ConfigWidget.ui" line="98"/>
-        <location filename="src/gui/ConfigWidget.cpp" line="170"/>
+        <location filename="src/gui/ConfigWidget.cpp" line="178"/>
         <source>New Profile</source>
         <translation>New Profile</translation>
     </message>
@@ -417,12 +417,12 @@
 <context>
     <name>DFFRenderWidget</name>
     <message>
-        <location filename="src/formats/dff/DFFRenderWidget.cpp" line="133"/>
+        <location filename="src/formats/dff/DFFRenderWidget.cpp" line="121"/>
         <source>OpenGL Too Old</source>
         <translation>OpenGL Too Old</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFRenderWidget.cpp" line="134"/>
+        <location filename="src/formats/dff/DFFRenderWidget.cpp" line="122"/>
         <source>This program needs at least OpenGL version 2.1! Rendering will be disabled.</source>
         <translation>This program needs at least OpenGL version 2.1! Rendering will be disabled.</translation>
     </message>
@@ -776,73 +776,78 @@ See the error log for more details.</translation>
 <context>
     <name>DefaultGUIModule</name>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="50"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="51"/>
         <source>Open...</source>
         <translation>Open...</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="54"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="55"/>
         <source>Close</source>
         <translation>Close</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="59"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="60"/>
         <source>Search File...</source>
         <translation>Search File...</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="63"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="64"/>
         <source>Settings...</source>
         <translation>Settings...</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="67"/>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="277"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="68"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="287"/>
         <source>About Qt</source>
         <translation>About Qt</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="70"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="71"/>
         <source>About</source>
         <translation>About</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="73"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="74"/>
         <source>Version Information</source>
         <translation>Version Information</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="40"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="41"/>
         <source>Error Log Console</source>
         <translation>Error Log Console</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="135"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="142"/>
         <source>Switch</source>
         <translation>Switch</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="76"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="77"/>
         <source>Execute System Program</source>
         <translation>Execute System Program</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="45"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="46"/>
         <source>File Tree</source>
         <translation>File Tree</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="169"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="80"/>
+        <source>Generate PVS Data</source>
+        <translation>Generate PVS Data</translation>
+    </message>
+    <message>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="176"/>
         <source>No Profile</source>
         <translation>No Profile</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="284"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="294"/>
         <source>About GTATools GUI Tool</source>
         <translation>About GTATools GUI Tool</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="283"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="293"/>
         <source>AboutText</source>
         <translation>This is gtatools-gui. This program is part of gtatools and runs with version %1.
 
@@ -853,7 +858,7 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="297"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="307"/>
         <source>Select file</source>
         <translation>Select file</translation>
     </message>
@@ -1193,77 +1198,77 @@ You should have received a copy of the GNU General Public License along with thi
         <translation>Item &amp;ID</translation>
     </message>
     <message>
-        <location filename="src/formats/ide/IDESearchWidget.ui" line="48"/>
+        <location filename="src/formats/ide/IDESearchWidget.ui" line="51"/>
         <source>Select</source>
         <translation>Select</translation>
     </message>
     <message>
-        <location filename="src/formats/ide/IDESearchWidget.ui" line="73"/>
+        <location filename="src/formats/ide/IDESearchWidget.ui" line="76"/>
         <source>&amp;Mesh Name</source>
         <translation>&amp;Mesh Name</translation>
     </message>
     <message>
-        <location filename="src/formats/ide/IDESearchWidget.ui" line="83"/>
+        <location filename="src/formats/ide/IDESearchWidget.ui" line="89"/>
         <source>&amp;TXD Name</source>
         <translation>&amp;TXD Name</translation>
     </message>
     <message>
-        <location filename="src/formats/ide/IDESearchWidget.ui" line="99"/>
+        <location filename="src/formats/ide/IDESearchWidget.ui" line="108"/>
         <source>&amp;Animations</source>
         <oldsource>Animation</oldsource>
         <translation>&amp;Animations</translation>
     </message>
     <message>
-        <location filename="src/formats/ide/IDESearchWidget.ui" line="106"/>
+        <location filename="src/formats/ide/IDESearchWidget.ui" line="115"/>
         <source>&amp;Pedestrians</source>
         <oldsource>Pedestrian</oldsource>
         <translation>&amp;Pedestrians</translation>
     </message>
     <message>
-        <location filename="src/formats/ide/IDESearchWidget.ui" line="113"/>
+        <location filename="src/formats/ide/IDESearchWidget.ui" line="122"/>
         <source>Stati&amp;c Objects</source>
         <oldsource>Static Object</oldsource>
         <translation>Stati&amp;c Objects</translation>
     </message>
     <message>
-        <location filename="src/formats/ide/IDESearchWidget.ui" line="120"/>
+        <location filename="src/formats/ide/IDESearchWidget.ui" line="129"/>
         <source>&amp;Timed Objects</source>
         <oldsource>Timed Object</oldsource>
         <translation>&amp;Timed Objects</translation>
     </message>
     <message>
-        <location filename="src/formats/ide/IDESearchWidget.ui" line="127"/>
+        <location filename="src/formats/ide/IDESearchWidget.ui" line="136"/>
         <source>&amp;Weapons</source>
         <oldsource>Weapon</oldsource>
         <translation>&amp;Weapons</translation>
     </message>
     <message>
-        <location filename="src/formats/ide/IDESearchWidget.ui" line="140"/>
+        <location filename="src/formats/ide/IDESearchWidget.ui" line="149"/>
         <source>Options</source>
         <translation>Options</translation>
     </message>
     <message>
-        <location filename="src/formats/ide/IDESearchWidget.ui" line="146"/>
+        <location filename="src/formats/ide/IDESearchWidget.ui" line="155"/>
         <source>&amp;Exact Match</source>
         <translation>&amp;Exact Match</translation>
     </message>
     <message>
-        <location filename="src/formats/ide/IDESearchWidget.ui" line="153"/>
+        <location filename="src/formats/ide/IDESearchWidget.ui" line="162"/>
         <source>&amp;Regular Expression</source>
         <translation>&amp;Regular Expression</translation>
     </message>
     <message>
-        <location filename="src/formats/ide/IDESearchWidget.ui" line="160"/>
+        <location filename="src/formats/ide/IDESearchWidget.ui" line="169"/>
         <source>Case-&amp;Sensitive</source>
         <translation>Case-&amp;Sensitive</translation>
     </message>
     <message>
-        <location filename="src/formats/ide/IDESearchWidget.ui" line="186"/>
+        <location filename="src/formats/ide/IDESearchWidget.ui" line="195"/>
         <source>&amp;Cancel</source>
         <translation>&amp;Cancel</translation>
     </message>
     <message>
-        <location filename="src/formats/ide/IDESearchWidget.ui" line="193"/>
+        <location filename="src/formats/ide/IDESearchWidget.ui" line="202"/>
         <source>&amp;Search</source>
         <translation>&amp;Search</translation>
     </message>
@@ -1789,7 +1794,12 @@ You should have received a copy of the GNU General Public License along with thi
         <translation>Windows</translation>
     </message>
     <message>
-        <location filename="src/gui/MainFrame.ui" line="116"/>
+        <location filename="src/gui/MainFrame.ui" line="103"/>
+        <source>Tools</source>
+        <translation>Tools</translation>
+    </message>
+    <message>
+        <location filename="src/gui/MainFrame.ui" line="122"/>
         <source>Settings...</source>
         <translation>Settings...</translation>
     </message>
@@ -1815,6 +1825,49 @@ You should have received a copy of the GNU General Public License along with thi
     </message>
 </context>
 <context>
+    <name>PVSDialog</name>
+    <message>
+        <location filename="src/gui/PVSDialog.ui" line="14"/>
+        <source>Generate PVS Data</source>
+        <translation>Generate PVS Data</translation>
+    </message>
+    <message>
+        <location filename="src/gui/PVSDialog.ui" line="20"/>
+        <source>Section Settings</source>
+        <translation>Section Settings</translation>
+    </message>
+    <message>
+        <location filename="src/gui/PVSDialog.ui" line="29"/>
+        <source>Size X</source>
+        <translation>Size X</translation>
+    </message>
+    <message>
+        <location filename="src/gui/PVSDialog.ui" line="36"/>
+        <source>Size Y</source>
+        <translation>Size Y</translation>
+    </message>
+    <message>
+        <location filename="src/gui/PVSDialog.ui" line="43"/>
+        <source>Size Z</source>
+        <translation>Size Z</translation>
+    </message>
+    <message>
+        <location filename="src/gui/PVSDialog.cpp" line="58"/>
+        <source>Generating PVS Data...</source>
+        <translation>Generating PVS Data...</translation>
+    </message>
+    <message>
+        <location filename="src/gui/PVSDialog.cpp" line="62"/>
+        <source>Choose a file to store PVS data</source>
+        <translation>Choose a file to store PVS data</translation>
+    </message>
+    <message>
+        <location filename="src/gui/PVSDialog.cpp" line="63"/>
+        <source>PVS files (*.pvs)</source>
+        <translation>PVS files (*.pvs)</translation>
+    </message>
+</context>
+<context>
     <name>Profile</name>
     <message>
         <source>Generating resource index...</source>
@@ -1824,54 +1877,97 @@ You should have received a copy of the GNU General Public License along with thi
 <context>
     <name>ProfileConfigWidget</name>
     <message>
-        <location filename="src/gui/ProfileConfigWidget.cpp" line="82"/>
+        <location filename="src/gui/ProfileConfigWidget.cpp" line="116"/>
         <source>Select one or more resources</source>
         <oldsource>Select resource</oldsource>
         <translation>Select one or more resources</translation>
     </message>
     <message>
-        <location filename="src/gui/ProfileConfigWidget.cpp" line="95"/>
+        <location filename="src/gui/ProfileConfigWidget.cpp" line="130"/>
         <source>Select a resource directory</source>
         <translation>Select a resource directory</translation>
     </message>
     <message>
-        <location filename="src/gui/ProfileConfigWidget.cpp" line="114"/>
+        <location filename="src/gui/ProfileConfigWidget.cpp" line="151"/>
         <source>Select the new resource directory</source>
         <translation>Select the new resource directory</translation>
     </message>
     <message>
-        <location filename="src/gui/ProfileConfigWidget.cpp" line="121"/>
+        <location filename="src/gui/ProfileConfigWidget.cpp" line="158"/>
         <source>Select the new resource file</source>
         <translation>Select the new resource file</translation>
+    </message>
+    <message>
+        <location filename="src/gui/ProfileConfigWidget.cpp" line="184"/>
+        <source>Select one or more DAT files</source>
+        <translation>Select one or more DAT files</translation>
+    </message>
+    <message>
+        <location filename="src/gui/ProfileConfigWidget.cpp" line="185"/>
+        <source>DAT Files (*.dat)</source>
+        <translation>DAT Files (*.dat)</translation>
+    </message>
+    <message>
+        <location filename="src/gui/ProfileConfigWidget.cpp" line="204"/>
+        <source>Select the new DAT file</source>
+        <translation>Select the new DAT file</translation>
+    </message>
+    <message>
+        <location filename="src/gui/ProfileConfigWidget.cpp" line="243"/>
+        <source>Choose a DAT root directory</source>
+        <translation>Choose a DAT root directory</translation>
     </message>
     <message>
         <source>Select new resource</source>
         <translation type="obsolete">Select new resource</translation>
     </message>
     <message>
-        <location filename="src/gui/ProfileConfigWidget.ui" line="26"/>
+        <location filename="src/gui/ProfileConfigWidget.ui" line="29"/>
         <source>Profile Name</source>
         <translation>Profile Name</translation>
     </message>
     <message>
-        <location filename="src/gui/ProfileConfigWidget.ui" line="68"/>
+        <location filename="src/gui/ProfileConfigWidget.ui" line="42"/>
+        <source>DAT Root Directory</source>
+        <translation>DAT Root Directory</translation>
+    </message>
+    <message>
+        <location filename="src/gui/ProfileConfigWidget.ui" line="61"/>
+        <source>Select..</source>
+        <translation>Select...</translation>
+    </message>
+    <message>
+        <location filename="src/gui/ProfileConfigWidget.ui" line="87"/>
+        <source>Resources</source>
+        <translation>Resources</translation>
+    </message>
+    <message>
+        <location filename="src/gui/ProfileConfigWidget.ui" line="103"/>
+        <location filename="src/gui/ProfileConfigWidget.ui" line="172"/>
         <source>Add File</source>
         <translation>Add File</translation>
     </message>
     <message>
-        <location filename="src/gui/ProfileConfigWidget.ui" line="75"/>
+        <location filename="src/gui/ProfileConfigWidget.ui" line="110"/>
         <source>Add Directory</source>
         <translation>Add Directory</translation>
     </message>
     <message>
-        <location filename="src/gui/ProfileConfigWidget.ui" line="82"/>
+        <location filename="src/gui/ProfileConfigWidget.ui" line="117"/>
+        <location filename="src/gui/ProfileConfigWidget.ui" line="179"/>
         <source>Edit</source>
         <translation>Edit</translation>
     </message>
     <message>
-        <location filename="src/gui/ProfileConfigWidget.ui" line="89"/>
+        <location filename="src/gui/ProfileConfigWidget.ui" line="124"/>
+        <location filename="src/gui/ProfileConfigWidget.ui" line="186"/>
         <source>Remove</source>
         <translation>Remove</translation>
+    </message>
+    <message>
+        <location filename="src/gui/ProfileConfigWidget.ui" line="156"/>
+        <source>DAT Files</source>
+        <translation>DAT Files</translation>
     </message>
 </context>
 <context>

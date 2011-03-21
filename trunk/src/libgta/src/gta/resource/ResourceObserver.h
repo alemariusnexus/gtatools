@@ -14,6 +14,7 @@
 class ResourceObserver {
 public:
 	virtual void resourceAdded(const File& file) = 0;
+	virtual void resourcesCleared() {};
 };
 
 #endif /* RESOURCEOBSERVER_H_ */

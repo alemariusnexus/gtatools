@@ -58,6 +58,7 @@ public:
 
 public:
 	void addResource(const File& file);
+	void clearResources();
 	ShaderProgram* getCurrentShaderProgram() { return currentShader; }
 	void setCurrentShaderProgram(ShaderProgram* program);
 	ResourceCache* getMeshCache();
@@ -65,6 +66,7 @@ public:
 	MeshIndexer* getMeshIndexer() { return meshIndexer; }
 	TextureIndexer* getTextureIndexer() { return texIndexer; }
 	void addResourceObserver(ResourceObserver* observer);
+	void removeResourceObserver(ResourceObserver* observer);
 	void setCamera(Camera* cam) { camera = cam; }
 	Camera* getCamera() { return camera; }
 	void setProjectionMatrix(const Matrix4& mat) { projectionMatrix = mat; }
@@ -73,9 +75,11 @@ public:
 	void setScene(Scene* scene) { this->scene = scene; }
 	Scene* getScene() { return scene; }
 	void render();
+	void loadDAT(const File& file, const File& rootDir);
 
 private:
 	Engine();
+	void iplRecurse(File* file, const File& rootDir);
 
 private:
 	ShaderProgram* currentShader;
