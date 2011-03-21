@@ -11,6 +11,6 @@
 
 DefaultSceneObject::DefaultSceneObject(ItemDefinition* def, const Matrix4& modelMatrix,
 			DefaultSceneObject* lodParent)
-		: def(def), modelMatrix(modelMatrix), lodParent(lodParent)
+		: id(-1), def(def), modelMatrix(modelMatrix), lodParent(lodParent)
 {
 }

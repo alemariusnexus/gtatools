@@ -31,13 +31,13 @@
 
 
 ItemDefinition::ItemDefinition(MeshPointer* meshPtr, TextureSource* texSrc, float drawDist)
-		: meshPtr(meshPtr), texSrc(texSrc), drawDistance(drawDist)
+		: meshPtr(meshPtr), texSrc(texSrc), drawDistance(drawDist), drawDistanceSquarred(drawDist*drawDist)
 {
 }
 
 
 ItemDefinition::ItemDefinition(const IDEStaticObject& object)
-		: drawDistance(object.getDrawDistances()[0])
+		: drawDistance(object.getDrawDistances()[0]), drawDistanceSquarred(drawDistance*drawDistance)
 {
 	char* lMeshName = new char[strlen(object.getModelName())+1];
 	char* lTexName = new char[strlen(object.getTextureName())+1];

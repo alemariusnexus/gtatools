@@ -16,7 +16,7 @@
 # along with gtaformats.  If not, see <http://www.gnu.org/licenses/>.
 
 
-SET(FILES Vector3 Vector4 Matrix3 Matrix4)
+SET(FILES Vector3 Vector4 Matrix3 Matrix4 intersection)
 
 FOREACH(FILE ${FILES})
     SET(SRCS ${SRCS} "gtaformats/util/math/${FILE}")

@@ -15,12 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with gtaformats.  If not, see <http://www.gnu.org/licenses/>.
 
-SET(FILES DefaultSceneObject Scene)
-
-ADD_SUBDIRECTORY(visibility)
+SET(FILES PVSData PVSSection)
 
 FOREACH(FILE ${FILES})
-    SET(SRCS ${SRCS} "gta/scene/${FILE}")
+    SET(SRCS ${SRCS} "gta/scene/visibility/${FILE}")
 ENDFOREACH(FILE)
 
 SET(SRCS ${SRCS} PARENT_SCOPE)
