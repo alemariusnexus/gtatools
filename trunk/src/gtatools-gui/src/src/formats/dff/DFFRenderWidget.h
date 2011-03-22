@@ -20,7 +20,7 @@
 #ifndef DFFRENDERWIDGET_H_
 #define DFFRENDERWIDGET_H_
 
-#include <GL/glew.h>
+#include <gta/gl.h>
 #include <QtOpenGL/qgl.h>
 #include <QtGui/QWidget>
 #include <gtaformats/gtadff.h>

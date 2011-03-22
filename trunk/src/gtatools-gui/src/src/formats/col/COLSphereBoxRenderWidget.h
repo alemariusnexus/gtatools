@@ -21,7 +21,7 @@
 #define SPHEREBOXRENDERWIDGET_H_
 
 #include "../../gui/GLBaseWidget.h"
-#include <GL/glew.h>
+#include <gta/gl.h>
 #include <gta/Shader.h>
 #include <gta/ShaderProgram.h>
 #include <gta/ItemDefinition.h>
