@@ -63,7 +63,7 @@ void GLBaseWidget::initializeGL()
 	makeCurrent();
 
 	if (!initialized)
-		glewInit();
+		gtaglInit();
 
 	initialized = true;
 }

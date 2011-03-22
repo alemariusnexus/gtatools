@@ -41,6 +41,20 @@ ELSE(WIN32)
 	SET(GLEW_DEFAULT_LIB GLEW)
 ENDIF(WIN32)
 
+SET(GTATOOLS_GUI_USE_OPENGL_ES OFF CACHE BOOL "If enabled, OpenGL ES will be used instead of Desktop OpenGL.")
+
+IF(GTATOOLS_GUI_USE_OPENGL_ES)
+    SET(GLESV2_INCLUDE_PATH "" CACHE PATH "Directory containing the OpenGL ES 2.0 header file(s)")
+    SET(GLESV2_LIB_PATH "GLESv2" CACHE FILEPATH "Path to (or name of) the OpenGL ES 2.0 library file")
+ELSE(GTATOOLS_GUI_USE_OPENGL_ES)
+    SET(GL_INCLUDE_PATH "" CACHE PATH "Directory containing the OpenGL header file(s)")
+    SET(GL_LIB_PATH "${GL_DEFAULT_LIB}" CACHE FILEPATH "Path to (or name of) the OpenGL library file")
+    SET(GLU_INCLUDE_PATH "" CACHE PATH "Directory containing the OpenGL Utility (GLU) header file(s)")
+    SET(GLU_LIB_PATH "${GLU_DEFAULT_LIB}" CACHE FILEPATH "Path to (or name of) the OpenGL Utility (GLU) library file")
+    SET(GLEW_INCLUDE_PATH "" CACHE PATH "Directory containing the OpenGL Extension Wrangler (GLEW) header file(s)")
+    SET(GLEW_LIB_PATH "${GLEW_DEFAULT_LIB}" CACHE FILEPATH "Path to (or name of) the OpenGL Extension Wrangler (GLEW) library file")
+ENDIF(GTATOOLS_GUI_USE_OPENGL_ES)
+
 SET(GTAFORMATS_LIB_PATH "gtaformats" CACHE FILEPATH "Path to (or name of) the libgtaformats library file")
 SET(GTA_LIB_PATH "gta" CACHE FILEPATH "Path to (or name of) the libgta library file")
 SET(GL_INCLUDE_PATH "" CACHE PATH "Directory containing the OpenGL header file(s)")
@@ -55,6 +69,14 @@ SET(BULLET_DYNAMICS_LIB_PATH "BulletDynamics" CACHE FILEPATH "Path to (or name o
 SET(BULLET_COLLISION_LIB_PATH "BulletCollision" CACHE FILEPATH "Path to (or name of) the BulletCollision library file")
 SET(BULLET_LINEAR_MATH_LIB_PATH "LinearMath" CACHE FILEPATH "Path to (or name of) the Bullet LinearMath library file")
 SET(BULLET_INCLUDE_PATH "" CACHE PATH "Directory containing Bullet header files")
+
+IF(GTA_USE_OPENGL_ES)
+    SET(GL_LIBRARIES "${GLESV2_LIB_PATH}")
+    SET(GL_INCDIRS "${GLESV2_INCLUDE_PATH}")
+ELSE(GTA_USE_OPENGL_ES)
+    SET(GL_LIBRARIES "${GL_LIB_PATH}" "${GLU_LIB_PATH}" "${GLEW_LIB_PATH}")
+    SET(GL_INCDIRS "${GL_INCLUDE_PATH}" "${GLU_INCLUDE_PATH}" "${GLEW_INCLUDE_PATH}")
+ENDIF(GTA_USE_OPENGL_ES)
 
 FIND_PACKAGE(Qt4 4.6.0 COMPONENTS QtCore QtGui QtXml QtOpenGL qtmain REQUIRED)
 
@@ -92,14 +114,14 @@ IF(WIN32)
     SET(EXECUTABLE_PROPERTIES "WIN32")
 ENDIF(WIN32)
 
-INCLUDE_DIRECTORIES(${GL_INCLUDE_PATH} ${GLU_INCLUDE_PATH} ${GTAFORMATS_INCLUDE_PATH} ${GTA_INCLUDE_PATH}
+INCLUDE_DIRECTORIES(${GL_INCDIRS} ${GTAFORMATS_INCLUDE_PATH} ${GTA_INCLUDE_PATH}
         ${CMAKE_BINARY_DIR}/gtatools-gui/build/src ${CMAKE_BINARY_DIR} ${CMAKE_BINARY_DIR}/gtatools-gui/build
-        ${INCS} ${GLEW_INCLUDE_PATH} ${SQUISH_INCLUDE_PATH} ${BULLET_INCLUDE_PATH})
+        ${INCS} ${SQUISH_INCLUDE_PATH} ${BULLET_INCLUDE_PATH})
 
 ADD_EXECUTABLE(gtatools-gui ${EXECUTABLE_PROPERTIES} ${SRCS} ${MOC_COMPILED_SRCS} ${UIC_COMPILED_SRCS} ${QM_FILES}
         ${QT_RESOURCE_FILES})
-TARGET_LINK_LIBRARIES(gtatools-gui ${GTA_LIB_PATH} ${GTAFORMATS_LIB_PATH} ${QT_LIBRARIES} ${GL_LIB_PATH}
-        ${GLU_LIB_PATH} ${GLEW_LIB_PATH} ${THREAD_LIB} ${SQUISH_LIB_PATH} ${BULLET_DYNAMICS_LIB_PATH}
+TARGET_LINK_LIBRARIES(gtatools-gui ${GTA_LIB_PATH} ${GTAFORMATS_LIB_PATH} ${QT_LIBRARIES} ${GL_LIBRARIES}
+        ${THREAD_LIB} ${SQUISH_LIB_PATH} ${BULLET_DYNAMICS_LIB_PATH}
         ${BULLET_COLLISION_LIB_PATH} ${BULLET_LINEAR_MATH_LIB_PATH})
 
 INSTALL(TARGETS gtatools-gui DESTINATION bin)
