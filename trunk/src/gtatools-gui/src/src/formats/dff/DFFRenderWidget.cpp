@@ -114,12 +114,19 @@ void DFFRenderWidget::renderGeometryPart(DFFGeometry* geometry, DFFGeometryPart*
 void DFFRenderWidget::initializeGL()
 {
 	makeCurrent();
-	glewInit();
+	//glewInit();
 
-	if (!glewIsSupported("GL_VERSION_2_1")) {
+	if (
+#ifdef GTATOOLS_GUI_USE_OPENGL_ES
+		!gtaglIsVersionSupported(2, 0)
+#else
+		!gtaglIsVersionSupported(2, 1)
+#endif
+	) {
 		renderingEnabled = false;
 		QMessageBox::critical(this, tr("OpenGL Too Old"),
-				tr("This program needs at least OpenGL version 2.1! Rendering will be disabled."));
+				tr("This program needs at least OpenGL version 2.1 or OpenGL ES version 2.0! "
+				"Rendering will be disabled."));
 	} else {
 		renderingEnabled = true;
 	}
@@ -191,7 +198,9 @@ void DFFRenderWidget::paintGL()
 			glDisable(GL_TEXTURE_2D);
 		}
 
+#ifndef GTATOOLS_GUI_USE_OPENGL_ES
 		glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
+#endif
 
 		Matrix4 mvpMatrix = pMatrix;
 		mvpMatrix *= Matrix4::lookAt(cam.getTarget(), cam.getUp());

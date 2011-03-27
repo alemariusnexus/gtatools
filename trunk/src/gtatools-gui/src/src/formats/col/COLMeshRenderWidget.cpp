@@ -105,7 +105,9 @@ void COLMeshRenderWidget::paintGL()
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+#ifndef GTATOOLS_GUI_USE_OPENGL_ES
 	glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
+#endif
 
 	if (item) {
 		item->render();
@@ -121,11 +123,17 @@ void COLMeshRenderWidget::mouseDoubleClickEvent(QMouseEvent* evt)
 		int x = evt->x();
 		int y = height() - evt->y();
 
+#ifndef GTATOOLS_GUI_USE_OPENGL_ES
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+#endif
 
 		GLBaseWidget::paintGL();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		
+#ifndef GTATOOLS_GUI_USE_OPENGL_ES
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+#endif
+		
 		pickItem->render();
 
 		int32_t pixel = 0;
@@ -148,6 +156,8 @@ void COLMeshRenderWidget::setSelectedFace(int index)
 
 		if (mesh->getVertexCount() != 0) {
 			mesh->bindDataBuffer();
+			
+#ifndef GTATOOLS_GUI_USE_OPENGL_ES
 			uint8_t* vboData = (uint8_t*) glMapBuffer(GL_ARRAY_BUFFER, GL_READ_WRITE);
 			int vcount = mesh->getVertexCount();
 			int colorOffs = mesh->getVertexColorOffset();
@@ -175,6 +185,7 @@ void COLMeshRenderWidget::setSelectedFace(int index)
 			pickedFace = index;
 
 			emit faceSelectionChanged(prevIdx, index);
+#endif
 		}
 	}
 }

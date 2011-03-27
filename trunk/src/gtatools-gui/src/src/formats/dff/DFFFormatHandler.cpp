@@ -17,7 +17,7 @@
 	along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <GL/glew.h>
+#include <gta/gl.h>
 #include "DFFFormatHandler.h"
 #include <QtGui/QApplication>
 #include "DFFWidget.h"

@@ -26,6 +26,8 @@ int majorVersion, minorVersion;
 
 void gtaglInit()
 {
+	const char* verStr = (const char*) glGetString(GL_VERSION);
+
 #ifdef GTA_USE_OPENGL_ES
 	const char* extStr = (const char*) glGetString(GL_EXTENSIONS);
 	char* extStrCpy = new char[strlen(extStr)+1];
@@ -36,12 +38,12 @@ void gtaglInit()
 		supportedExtensions.insert(Hash(ext));
 		ext = strtok(NULL, " ");
 	}
+	
+	sscanf(verStr, "OpenGL ES %d.%d", &majorVersion, &minorVersion);
 #else
 	glewInit();
-#endif
-
-	const char* verStr = (const char*) glGetString(GL_VERSION);
 	sscanf(verStr, "%d.%d", &majorVersion, &minorVersion);
+#endif
 }
 
 
