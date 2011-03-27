@@ -17,12 +17,13 @@
 	along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CONFIG_CMAKE_H_
-#define CONFIG_CMAKE_H_
+#ifndef GTATOOLS_GUI_CONFIG_CMAKE_H_
+#define GTATOOLS_GUI_CONFIG_CMAKE_H_
 
 #ifdef _MSC_VER
 #include <windows.h>
 #endif
 
+#cmakedefine GTATOOLS_GUI_USE_OPENGL_ES
 
-#endif /* CONFIG_CMAKE_H_ */
+#endif /* GTATOOLS_GUI_CONFIG_CMAKE_H_ */

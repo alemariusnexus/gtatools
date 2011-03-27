@@ -18,7 +18,7 @@
  */
 
 #include "VersionDialog.h"
-#include <GL/gl.h>
+#include <gta/gl.h>
 #include <gtaformats/config.h>
 #include <cstdio>
 #include <QtOpenGL/QGLContext>
