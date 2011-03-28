@@ -46,6 +46,7 @@ signals:
 private:
 	ItemDefinition* item;
 	ItemDefinition* pickItem;
+	uint8_t* colors;
 	int pickedFace;
 	uint8_t pickedFaceRealColor[4];
 	bool wireframe;

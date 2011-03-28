@@ -6,5 +6,9 @@
         <file>src/shader/fragment.glsl</file>
         <file>src/shader/vertex_col.glsl</file>
         <file>src/shader/fragment_col.glsl</file>
+        <file>src/shader/vertex_es.glsl</file>
+        <file>src/shader/fragment_es.glsl</file>
+        <file>src/shader/vertex_col_es.glsl</file>
+        <file>src/shader/fragment_col_es.glsl</file>
     </qresource>
 </RCC>

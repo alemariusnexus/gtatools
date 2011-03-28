@@ -26,6 +26,7 @@
 #include <QtGui/QImage>
 #include <QtGui/QImageWriter>
 #include <fstream>
+#include "../../System.h"
 
 using std::ofstream;
 
@@ -41,42 +42,56 @@ COLMeshRenderWidget::COLMeshRenderWidget(QWidget* parent)
 void COLMeshRenderWidget::render(const float* vertices, int32_t vertexCount, const COLFace* faces,
 		int32_t faceCount)
 {
-	GLBaseWidget::initializeGL();
+	try {
+		GLBaseWidget::initializeGL();
 
-	//printf("Vertex count: %d\n", vertexCount);
+		makeCurrent();
 
-	makeCurrent();
+		COLMeshConverter conv;
 
-	COLMeshConverter conv;
+		// Build visible mesh
+		int modelVertexCount, modelIndexCount;
+		float* modelVertices;
+		uint8_t* modelColors;
+		int32_t* modelIndices;
+		conv.convertVertexModel(vertices, vertexCount, faces, faceCount, modelVertexCount, modelVertices, modelColors,
+				modelIndices, modelIndexCount);
 
-	// Build visible mesh
-	Mesh* mesh = conv.convert(vertices, vertexCount, faces, faceCount);
-	if (item)
-		delete item;
-	item = new ItemDefinition(new StaticMeshPointer(mesh), new NullTextureSource, 5000.0f);
+		Mesh* mesh = new Mesh(modelVertexCount, VertexFormatTriangles, MeshVertexColors, modelVertices, NULL,
+				NULL, modelColors);
+		Submesh* submesh = new Submesh(mesh, modelIndexCount, modelIndices);
+		mesh->addSubmesh(submesh);
+		colors = modelColors;
+
+		if (item)
+			delete item;
+		item = new ItemDefinition(new StaticMeshPointer(mesh), new NullTextureSource, 5000.0f);
 
 
-	// Build picking mesh
-	Mesh* pickMesh = conv.convert(vertices, vertexCount, faces, faceCount);
-	pickMesh->bindDataBuffer();
-	int colorOffs = pickMesh->getVertexColorOffset();
-	int vcount = pickMesh->getVertexCount();
+		// Build picking mesh
+		Mesh* pickMesh = conv.convert(vertices, vertexCount, faces, faceCount);
+		pickMesh->bindDataBuffer();
+		int colorOffs = pickMesh->getVertexColorOffset();
+		int vcount = pickMesh->getVertexCount();
 
-	uint32_t* pickColors = new uint32_t[vcount];
-	for (uint32_t i = 0 ; i < faceCount ; i++) {
-		pickColors[i*3] = i+1;
-		pickColors[i*3+1] = i+1;
-		pickColors[i*3+2] = i+1;
+		uint32_t* pickColors = new uint32_t[vcount];
+		for (uint32_t i = 0 ; i < faceCount ; i++) {
+			pickColors[i*3] = i+1;
+			pickColors[i*3+1] = i+1;
+			pickColors[i*3+2] = i+1;
+		}
+
+		glBufferSubData(GL_ARRAY_BUFFER, colorOffs, vcount*4, pickColors);
+
+		if (pickItem)
+			delete pickItem;
+
+		pickItem = new ItemDefinition(new StaticMeshPointer(pickMesh), new NullTextureSource, 5000.0f);
+
+		updateGL();
+	} catch (Exception& ex) {
+		System::getInstance()->unhandeledException(ex);
 	}
-
-	glBufferSubData(GL_ARRAY_BUFFER, colorOffs, vcount*4, pickColors);
-
-	if (pickItem)
-		delete pickItem;
-
-	pickItem = new ItemDefinition(new StaticMeshPointer(pickMesh), new NullTextureSource, 5000.0f);
-
-	updateGL();
 }
 
 
@@ -84,8 +99,13 @@ void COLMeshRenderWidget::initializeGL()
 {
 	GLBaseWidget::initializeGL();
 
+#ifdef GTATOOLS_GUI_USE_OPENGL_ES
+	QFile vfile(":/src/shader/vertex_col_es.glsl");
+	QFile ffile(":/src/shader/fragment_col_es.glsl");
+#else
 	QFile vfile(":/src/shader/vertex_col.glsl");
 	QFile ffile(":/src/shader/fragment_col.glsl");
+#endif
 
 	initializeShaders(vfile, ffile);
 
@@ -157,35 +177,30 @@ void COLMeshRenderWidget::setSelectedFace(int index)
 		if (mesh->getVertexCount() != 0) {
 			mesh->bindDataBuffer();
 			
-#ifndef GTATOOLS_GUI_USE_OPENGL_ES
-			uint8_t* vboData = (uint8_t*) glMapBuffer(GL_ARRAY_BUFFER, GL_READ_WRITE);
 			int vcount = mesh->getVertexCount();
 			int colorOffs = mesh->getVertexColorOffset();
 
 			if (pickedFace != -1) {
 				// Reset the previously picked face's color
-				memcpy(vboData + colorOffs + pickedFace*3*4, pickedFaceRealColor, 4);
-				memcpy(vboData + colorOffs + pickedFace*3*4 + 4, pickedFaceRealColor, 4);
-				memcpy(vboData + colorOffs + pickedFace*3*4 + 8, pickedFaceRealColor, 4);
+				glBufferSubData(GL_ARRAY_BUFFER, colorOffs + pickedFace*3*4, 4, pickedFaceRealColor);
+				glBufferSubData(GL_ARRAY_BUFFER, colorOffs + pickedFace*3*4 + 4, 4, pickedFaceRealColor);
+				glBufferSubData(GL_ARRAY_BUFFER, colorOffs + pickedFace*3*4 + 8, 4, pickedFaceRealColor);
 			}
 
 			if (index != -1) {
 				// Save the picked face's real color
-				memcpy(pickedFaceRealColor, vboData + colorOffs + index*3*4, 4);
+				memcpy(pickedFaceRealColor, colors + index*3*4, 4);
 
 				// And set the picked face's color to the 'picked-color'
 				uint8_t pickColor[] = {255, 255, 255, 255};
-				memcpy(vboData + colorOffs + index*3*4, pickColor, 4);
-				memcpy(vboData + colorOffs + index*3*4 + 4, pickColor, 4);
-				memcpy(vboData + colorOffs + index*3*4 + 8, pickColor, 4);
+				glBufferSubData(GL_ARRAY_BUFFER, colorOffs + index*3*4, 4, pickColor);
+				glBufferSubData(GL_ARRAY_BUFFER, colorOffs + index*3*4 + 4, 4, pickColor);
+				glBufferSubData(GL_ARRAY_BUFFER, colorOffs + index*3*4 + 8, 4, pickColor);
 			}
-
-			glUnmapBuffer(GL_ARRAY_BUFFER);
 
 			pickedFace = index;
 
 			emit faceSelectionChanged(prevIdx, index);
-#endif
 		}
 	}
 }

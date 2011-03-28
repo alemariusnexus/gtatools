@@ -37,24 +37,28 @@ GLBaseWidget::GLBaseWidget(QWidget* parent)
 
 void GLBaseWidget::initializeShaders(QFile& vfile, QFile& ffile)
 {
-	vfile.open(QFile::ReadOnly);
-	QByteArray vsrc = vfile.readAll();
+	try {
+		vfile.open(QFile::ReadOnly);
+		QByteArray vsrc = vfile.readAll();
 
-	ffile.open(QFile::ReadOnly);
-	QByteArray fsrc = ffile.readAll();
+		ffile.open(QFile::ReadOnly);
+		QByteArray fsrc = ffile.readAll();
 
-	vertexShader = new Shader(GL_VERTEX_SHADER);
-	vertexShader->loadSourceCode(vsrc.constData(), vsrc.length());
-	vertexShader->compile();
+		vertexShader = new Shader(GL_VERTEX_SHADER);
+		vertexShader->loadSourceCode(vsrc.constData(), vsrc.length());
+		vertexShader->compile();
 
-	fragmentShader = new Shader(GL_FRAGMENT_SHADER);
-	fragmentShader->loadSourceCode(fsrc.constData(), fsrc.length());
-	fragmentShader->compile();
+		fragmentShader = new Shader(GL_FRAGMENT_SHADER);
+		fragmentShader->loadSourceCode(fsrc.constData(), fsrc.length());
+		fragmentShader->compile();
 
-	program = new ShaderProgram;
-	program->attachShader(vertexShader);
-	program->attachShader(fragmentShader);
-	program->link();
+		program = new ShaderProgram;
+		program->attachShader(vertexShader);
+		program->attachShader(fragmentShader);
+		program->link();
+	} catch (Exception& ex) {
+		System::getInstance()->unhandeledException(ex);
+	}
 }
 
 

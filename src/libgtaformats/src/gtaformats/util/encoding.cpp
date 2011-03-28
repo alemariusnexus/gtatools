@@ -202,6 +202,7 @@ int Transcode(char* src, int srcBytes, char* dest, int destBytes, Encoding srcEn
 		break;
 	case ISO8859_1:
 		iconvSrcEnc = "ISO8859-1";
+		break;
 	default:
 		// This should never happen
 		assert(false);

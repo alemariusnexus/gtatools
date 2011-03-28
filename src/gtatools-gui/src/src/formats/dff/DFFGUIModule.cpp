@@ -17,6 +17,7 @@
 	along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "../../config.h"
 #include "DFFGUIModule.h"
 #include <QtGui/QMenu>
 #include "../../gui/MainWindow.h"
@@ -37,6 +38,12 @@ DFFGUIModule::DFFGUIModule()
 	wireframeAction = new QAction(tr("Show wireframe"), NULL);
 	wireframeAction->setCheckable(true);
 	wireframeAction->setChecked(false);
+
+#ifdef GTATOOLS_GUI_USE_OPENGL_ES
+	wireframeAction->setEnabled(false);
+	wireframeAction->setToolTip(tr("Wireframe rendering is not available in OpenGL ES!"));
+#endif
+
 	viewSubMenu->addAction(wireframeAction);
 
 	dumpAction = new QAction(tr("Dump XML"), NULL);
