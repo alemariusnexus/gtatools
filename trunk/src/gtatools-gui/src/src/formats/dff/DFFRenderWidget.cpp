@@ -114,7 +114,7 @@ void DFFRenderWidget::renderGeometryPart(DFFGeometry* geometry, DFFGeometryPart*
 void DFFRenderWidget::initializeGL()
 {
 	makeCurrent();
-	//glewInit();
+	gtaglInit();
 
 	if (
 #ifdef GTATOOLS_GUI_USE_OPENGL_ES

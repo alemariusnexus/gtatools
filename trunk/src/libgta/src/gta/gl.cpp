@@ -22,10 +22,14 @@ set<hash_t> supportedExtensions;
 #endif
 
 int majorVersion, minorVersion;
+bool gtaglInitialized = false;
 
 
 void gtaglInit()
 {
+	if (gtaglInitialized)
+		return;
+
 	const char* verStr = (const char*) glGetString(GL_VERSION);
 
 #ifdef GTA_USE_OPENGL_ES
@@ -44,6 +48,8 @@ void gtaglInit()
 	glewInit();
 	sscanf(verStr, "%d.%d", &majorVersion, &minorVersion);
 #endif
+
+	gtaglInitialized = true;
 }
 
 
