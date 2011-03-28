@@ -20,6 +20,7 @@
 #include "DFFRenderWidget.h"
 #include <cstdio>
 #include "../../Profile.h"
+#include "../../System.h"
 #include "../../ProfileManager.h"
 #include <gtaformats/util/File.h>
 #include <gtaformats/util/thread/Mutex.h>
@@ -113,52 +114,65 @@ void DFFRenderWidget::renderGeometryPart(DFFGeometry* geometry, DFFGeometryPart*
 
 void DFFRenderWidget::initializeGL()
 {
-	makeCurrent();
-	gtaglInit();
+	try {
+		makeCurrent();
 
-	if (
+		gtaglInit();
+
+		if (
 #ifdef GTATOOLS_GUI_USE_OPENGL_ES
-		!gtaglIsVersionSupported(2, 0)
+			!gtaglIsVersionSupported(2, 0)
 #else
-		!gtaglIsVersionSupported(2, 1)
+			!gtaglIsVersionSupported(2, 1)
 #endif
-	) {
-		renderingEnabled = false;
-		QMessageBox::critical(this, tr("OpenGL Too Old"),
-				tr("This program needs at least OpenGL version 2.1 or OpenGL ES version 2.0! "
-				"Rendering will be disabled."));
-	} else {
-		renderingEnabled = true;
-	}
+		) {
+			renderingEnabled = false;
+			QMessageBox::critical(this, tr("OpenGL Too Old"),
+					tr("This program needs at least OpenGL version 2.1 or OpenGL ES version 2.0! "
+					"Rendering will be disabled."));
+		} else {
+			renderingEnabled = true;
+		}
 
-	if (renderingEnabled) {
-		cam.move(-2.0f);
+		if (renderingEnabled) {
+			cam.move(-2.0f);
 
-		QFile vfile(":/src/shader/vertex.glsl");
-		vfile.open(QFile::ReadOnly);
-		QByteArray vsrc = vfile.readAll();
+#ifdef GTATOOLS_GUI_USE_OPENGL_ES
+			QFile vfile(":/src/shader/vertex_es.glsl");
+			QFile ffile(":/src/shader/fragment_es.glsl");
+#else
+			QFile vfile(":/src/shader/vertex.glsl");
+			QFile ffile(":/src/shader/fragment.glsl");
+#endif
 
-		QFile ffile(":/src/shader/fragment.glsl");
-		ffile.open(QFile::ReadOnly);
-		QByteArray fsrc = ffile.readAll();
+			vfile.open(QFile::ReadOnly);
+			QByteArray vsrc = vfile.readAll();
 
-		vertexShader = new Shader(GL_VERTEX_SHADER);
-		vertexShader->loadSourceCode(vsrc.constData(), vsrc.length());
-		vertexShader->compile();
+			ffile.open(QFile::ReadOnly);
+			QByteArray fsrc = ffile.readAll();
 
-		fragmentShader = new Shader(GL_FRAGMENT_SHADER);
-		fragmentShader->loadSourceCode(fsrc.constData(), fsrc.length());
-		fragmentShader->compile();
+			vertexShader = new Shader(GL_VERTEX_SHADER);
+			vertexShader->loadSourceCode(vsrc.constData(), vsrc.length());
+			vertexShader->compile();
 
-		program = new ShaderProgram;
-		program->attachShader(vertexShader);
-		program->attachShader(fragmentShader);
-		program->link();
+			fragmentShader = new Shader(GL_FRAGMENT_SHADER);
+			fragmentShader->loadSourceCode(fsrc.constData(), fsrc.length());
+			fragmentShader->compile();
 
-		glEnable(GL_DEPTH_TEST);
+			program = new ShaderProgram;
+			program->attachShader(vertexShader);
+			program->attachShader(fragmentShader);
+			program->link();
 
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glEnable(GL_DEPTH_TEST);
+
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+			GLException::checkError();
+		}
+	} catch (Exception& ex) {
+		System::getInstance()->unhandeledException(ex);
 	}
 }
 
@@ -189,33 +203,41 @@ void DFFRenderWidget::resizeGL(int w, int h)
 
 void DFFRenderWidget::paintGL()
 {
-	if (renderingEnabled) {
-		Engine::getInstance()->setCurrentShaderProgram(program);
+	try {
+		if (renderingEnabled) {
+			Engine::getInstance()->setCurrentShaderProgram(program);
 
-		if (texSource) {
-			glEnable(GL_TEXTURE_2D);
-		} else {
-			glDisable(GL_TEXTURE_2D);
-		}
+			// TODO Is this really not necessary?
+			/*if (texSource) {
+				glEnable(GL_TEXTURE_2D);
+			} else {
+				glDisable(GL_TEXTURE_2D);
+			}*/
 
 #ifndef GTATOOLS_GUI_USE_OPENGL_ES
-		glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
+			glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
 #endif
 
-		Matrix4 mvpMatrix = pMatrix;
-		mvpMatrix *= Matrix4::lookAt(cam.getTarget(), cam.getUp());
-		mvpMatrix.translate(-cam.getPosition());
+			Matrix4 mvpMatrix = pMatrix;
+			mvpMatrix *= Matrix4::lookAt(cam.getTarget(), cam.getUp());
+			mvpMatrix.translate(-cam.getPosition());
 
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		GLint mvpMatrixUniform = program->getUniformLocation("MVPMatrix");
+			GLint mvpMatrixUniform = program->getUniformLocation("MVPMatrix");
 
-		if (item) {
-			glUniformMatrix4fv(mvpMatrixUniform, 1, GL_FALSE, mvpMatrix.toArray());
-			item->render();
+			if (item) {
+				glUniformMatrix4fv(mvpMatrixUniform, 1, GL_FALSE, mvpMatrix.toArray());
+				item->render();
+			}
+
+			GLException::checkError();
+
+			// TODO See above
+			//glDisable(GL_TEXTURE_2D);
 		}
-
-		glDisable(GL_TEXTURE_2D);
+	} catch (Exception& ex) {
+		System::getInstance()->unhandeledException(ex);
 	}
 }
 

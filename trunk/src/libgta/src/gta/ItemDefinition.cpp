@@ -31,7 +31,8 @@
 
 
 ItemDefinition::ItemDefinition(MeshPointer* meshPtr, TextureSource* texSrc, float drawDist)
-		: meshPtr(meshPtr), texSrc(texSrc), drawDistance(drawDist), drawDistanceSquarred(drawDist*drawDist)
+		: meshPtr(meshPtr), texSrc(texSrc), colShapePtr(NULL), drawDistance(drawDist),
+		  drawDistanceSquarred(drawDist*drawDist)
 {
 }
 

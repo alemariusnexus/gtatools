@@ -17,9 +17,8 @@
 	along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#version 120
 
-flat varying vec4 FragColor;
+varying vec4 FragColor;
 
 void main()
 {

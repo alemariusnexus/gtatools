@@ -18,7 +18,7 @@
  */
 
 #include "config.h"
-#include <QtGui/QApplication>
+#include "MainApplication.h"
 #include <QtGui/QWidget>
 #include <QtGui/QTreeView>
 #include <QtCore/QDir>
@@ -67,7 +67,7 @@ void listRecurse(File* file, int ind = 0)
 int main(int argc, char** argv)
 {
 	try {
-		QApplication app(argc, argv);
+		MainApplication app(argc, argv);
 
 		app.setOrganizationName("gtatools");
 		app.setApplicationName("gtatools-gui");

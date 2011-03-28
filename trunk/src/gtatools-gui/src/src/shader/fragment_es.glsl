@@ -21,7 +21,7 @@
 uniform bool Textured;
 uniform sampler2D Texture;
 
-varying vec2 FragTexCoord;
+varying highp vec2 FragTexCoord;
 
 void main()
 {

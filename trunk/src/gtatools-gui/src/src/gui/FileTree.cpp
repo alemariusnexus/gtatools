@@ -76,7 +76,10 @@ void FileTree::showProfile(Profile* profile)
 
 	header()->setStretchLastSection(false);
 	header()->setResizeMode(0, QHeaderView::Stretch);
-	header()->setResizeMode(1, QHeaderView::ResizeToContents);
+
+	if (header()->count() > 1) {
+		header()->setResizeMode(1, QHeaderView::ResizeToContents);
+	}
 
 	setSortingEnabled(true);
 	sortByColumn(0, Qt::AscendingOrder);

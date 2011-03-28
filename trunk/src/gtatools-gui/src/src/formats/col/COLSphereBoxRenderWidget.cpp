@@ -21,6 +21,7 @@
 #include <gta/COLMeshConverter.h>
 #include <gta/StaticMeshPointer.h>
 #include <gta/NullTextureSource.h>
+#include "../../System.h"
 
 
 
@@ -34,8 +35,13 @@ void COLSphereBoxRenderWidget::initializeGL()
 {
 	GLBaseWidget::initializeGL();
 
+#ifdef GTATOOLS_GUI_USE_OPENGL_ES
+	QFile vfile(":/src/shader/vertex_col_es.glsl");
+	QFile ffile(":/src/shader/fragment_col_es.glsl");
+#else
 	QFile vfile(":/src/shader/vertex_col.glsl");
 	QFile ffile(":/src/shader/fragment_col.glsl");
+#endif
 
 	initializeShaders(vfile, ffile);
 
@@ -51,19 +57,23 @@ void COLSphereBoxRenderWidget::resizeGL(int w, int h)
 
 void COLSphereBoxRenderWidget::paintGL()
 {
-	GLBaseWidget::paintGL();
+	try {
+		GLBaseWidget::paintGL();
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 #ifndef GTATOOLS_GUI_USE_OPENGL_ES
-	glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
+		glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
 #endif
 
-	QLinkedList<ItemDefinition*>::iterator it;
-
-	for (it = items.begin() ; it != items.end() ; it++) {
-		ItemDefinition* item = *it;
-		item->render();
+		QLinkedList<ItemDefinition*>::iterator it;
+	
+		for (it = items.begin() ; it != items.end() ; it++) {
+			ItemDefinition* item = *it;
+			item->render();
+		}
+	} catch (Exception& ex) {
+		System::getInstance()->unhandeledException(ex);
 	}
 }
 
