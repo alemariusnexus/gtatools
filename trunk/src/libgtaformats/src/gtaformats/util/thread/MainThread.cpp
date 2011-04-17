@@ -22,7 +22,7 @@
 
 
 MainThread::MainThread()
-#ifdef linux
+#ifdef _POSIX_VERSION
 		: Thread(pthread_self())
 #else
 		: Thread(GetCurrentThread())

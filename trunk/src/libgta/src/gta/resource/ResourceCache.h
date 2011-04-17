@@ -34,6 +34,19 @@ public:
 	bool isOverfilled() const { return getOccupiedSize() > getCapacity(); }
 	bool clear();
 	CacheEntryLoader* getEntryLoader() { return loader; }
+#ifndef NDEBUG
+	uint64_t getHitCount() const { return numHits; }
+	uint64_t getMissCount() const { return numMisses; }
+	void resetStatistics() { numHits = 0; numMisses = 0; }
+	bool isStatisticsAvailable() const { return true; }
+	float getEfficiency() const { return (float) numHits / (float) (numHits+numMisses); }
+#else
+	uint64_t getHitCount() const { return 0; }
+	uint64_t getMissCount() const { return 0; }
+	void resetStatistics() {}
+	bool isStatisticsAvailable() const { return false; }
+	float getEfficiency() const { return 0.0f; }
+#endif
 
 private:
 	CacheEntry* doCache(hash_t key, bool lock = false);
@@ -41,6 +54,11 @@ private:
 private:
 	EntryCache cache;
 	CacheEntryLoader* loader;
+
+#ifndef NDEBUG
+	uint64_t numHits;
+	uint64_t numMisses;
+#endif
 };
 
 #endif /* RESOURCECACHE_H_ */

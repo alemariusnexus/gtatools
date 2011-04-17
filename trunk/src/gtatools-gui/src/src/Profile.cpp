@@ -30,12 +30,11 @@ using std::pair;
 using std::distance;
 
 
-/*void profileInitialized()
+
+void _UiUpdateCallback()
 {
-	System* sys = System::getInstance();
-	sys->updateTaskValue(1);
-	sys->endTask();
-}*/
+	qApp->processEvents();
+}
 
 
 
@@ -44,19 +43,44 @@ Profile::Profile(const QString& name)
 {
 	connect(ProfileManager::getInstance(), SIGNAL(currentProfileChanged(Profile*, Profile*)), this,
 			SLOT(currentProfileChanged(Profile*, Profile*)));
-	connect(this, SIGNAL(changed()), this, SLOT(selfChanged()));
+}
+
+
+bool Profile::isCurrent() const
+{
+	return ProfileManager::getInstance()->getCurrentProfile() == this;
 }
 
 
 void Profile::addResource(const File& resource)
 {
 	resources << new File(resource);
+	addResourceRecurse(resource);
+}
+
+
+void Profile::addResourceRecurse(const File& file)
+{
+	if (file.isDirectory()  ||  file.isArchiveFile()) {
+		FileIterator* it = file.getIterator();
+		File* child;
+
+		while ((child = it->next())  !=  NULL) {
+			addResourceRecurse(*child);
+			delete child;
+		}
+
+		delete it;
+	}
+
+	emit profileResourceAdded(file);
 }
 
 
 void Profile::addDATFile(const File& file)
 {
 	datFiles << new File(file);
+	emit datFileAdded(file);
 }
 
 
@@ -74,29 +98,22 @@ Profile::ResourceIterator Profile::getResourceEnd()
 
 void Profile::loadResourceIndex()
 {
-	/*if (resourceManager) {
-		delete resourceManager;
-	}
-
-	resourceIdxInitialized = false;
-	resourceManager = new ExtendedResourceManager;
-	resourceManager->resizeMeshCache(2 * 1000000); // 2MB
-	resourceManager->resizeTextureCache(10 * 1000000); // 10MB
-
-	Engine::getInstance()->setResourceManager(resourceManager);
-
-	currentInitializer = new ProfileInitializer(this);
-	connect(currentInitializer, SIGNAL(finished()), this, SLOT(resourcesInitialized()));
-	currentInitializer->start();*/
-
 	Engine* engine = Engine::getInstance();
+	System* sys = System::getInstance();
 
 	ResourceIterator it;
 
+	Task* task = sys->createTask();
+	task->start(tr("Building resource index..."));
+
+	engine->clearResources();
+
 	for (it = resources.begin() ; it != resources.end() ; it++) {
 		File* resFile = *it;
-		engine->addResource(*resFile);
+		engine->addResource(*resFile, _UiUpdateCallback);
 	}
+
+	delete task;
 }
 
 
@@ -105,9 +122,10 @@ void Profile::currentProfileChanged(Profile* oldProfile, Profile* newProfile)
 	Engine* engine = Engine::getInstance();
 
 	if (oldProfile == this  &&  newProfile != this) {
-		engine->clearResources();
+		//disconnect(this, SIGNAL(resourceAdded(const File&)), this, SLOT(resourceAddedSlot(const File&)));
 		engine->removeResourceObserver(this);
 	} else if (oldProfile != this  &&  newProfile == this) {
+		//connect(this, SIGNAL(resourceAdded(const File&)), this, SLOT(resourceAddedSlot(const File&)));
 		engine->addResourceObserver(this);
 		loadResourceIndex();
 	}
@@ -118,6 +136,35 @@ Profile::ResourceIterator Profile::removeResource(ResourceIterator it)
 {
 	File* file = *it;
 	ResourceIterator next = resources.erase(it);
+	removeResourceRecurse(*file);
+	delete file;
+	return next;
+}
+
+
+void Profile::removeResourceRecurse(const File& file)
+{
+	if (file.isDirectory()  ||  file.isArchiveFile()) {
+		FileIterator* it = file.getIterator();
+		File* child;
+
+		while ((child = it->next())  !=  NULL) {
+			removeResourceRecurse(*child);
+			delete child;
+		}
+
+		delete it;
+	}
+
+	emit profileResourceRemoved(file);
+}
+
+
+Profile::ResourceIterator Profile::removeDATFile(ResourceIterator it)
+{
+	File* file = *it;
+	ResourceIterator next = datFiles.erase(it);
+	emit datFileRemoved(*file);
 	delete file;
 	return next;
 }
@@ -133,9 +180,24 @@ void Profile::clearResources()
 }
 
 
+void Profile::setDATRootDirectory(const QString& dir)
+{
+	QString oldStr = datRoot;
+	datRoot = dir;
+	emit datRootChanged(oldStr, dir);
+}
+
+
+void Profile::setName(const QString& name)
+{
+	QString oldName = this->name;
+	this->name = name;
+	emit nameChanged(oldName, name);
+}
+
+
 void Profile::synchronize()
 {
-	emit changed();
 }
 
 
@@ -151,14 +213,6 @@ bool Profile::containsFile(const File& file)
 	}
 
 	return false;
-}
-
-
-void Profile::selfChanged()
-{
-	if (ProfileManager::getInstance()->getCurrentProfile() == this) {
-		loadResourceIndex();
-	}
 }
 
 
@@ -208,6 +262,72 @@ int Profile::findTexturesForMesh(hash_t meshName, char**& textures)
 	}
 
 	return numElements;
+}
+
+
+bool Profile::setResources(const QLinkedList<File>& resources)
+{
+	bool hasChanges = false;
+
+	QLinkedList<File> oldResources;
+	ResourceIterator rit;
+	for (rit = this->resources.begin() ; rit != this->resources.end() ; rit++) {
+		oldResources << **rit;
+	}
+
+	// First, search for removed files
+	for (rit = this->resources.begin() ; rit != this->resources.end() ;) {
+		if (!resources.contains(**rit)) {
+			rit = removeResource(rit);
+			hasChanges = true;
+		} else {
+			rit++;
+		}
+	}
+
+	// Then find new files
+	QLinkedList<File>::const_iterator newIt;
+	for (newIt = resources.begin() ; newIt != resources.end() ; newIt++) {
+		if (!oldResources.contains(*newIt)) {
+			addResource(*newIt);
+			hasChanges = true;
+		}
+	}
+
+	return hasChanges;
+}
+
+
+bool Profile::setDATFiles(const QLinkedList<File>& files)
+{
+	bool hasChanges = false;
+
+	QLinkedList<File> oldFiles;
+	ResourceIterator rit;
+	for (rit = this->datFiles.begin() ; rit != this->datFiles.end() ; rit++) {
+		oldFiles << **rit;
+	}
+
+	// First, search for removed files
+	for (rit = this->datFiles.begin() ; rit != this->datFiles.end() ;) {
+		if (!files.contains(**rit)) {
+			rit = removeDATFile(rit);
+			hasChanges = true;
+		} else {
+			rit++;
+		}
+	}
+
+	// Then find new files
+	QLinkedList<File>::const_iterator newIt;
+	for (newIt = files.begin() ; newIt != files.end() ; newIt++) {
+		if (!oldFiles.contains(*newIt)) {
+			addDATFile(*newIt);
+			hasChanges = true;
+		}
+	}
+
+	return hasChanges;
 }
 
 

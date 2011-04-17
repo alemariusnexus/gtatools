@@ -38,6 +38,7 @@ public:
 	const Vector3& getUp() const { return up; }
 	Vector3& getUp() { return up; }
 	void setPosition(const Vector3& pos) { position = pos; }
+	void setPosition(float x, float y, float z) { setPosition(Vector3(x, y, z)); }
 	void lookAt(const Vector3& target, const Vector3& up) { this->target = target; this->up = up; }
 	void rotateHorizontal(float angle);
 	void rotateVertical(float angle);

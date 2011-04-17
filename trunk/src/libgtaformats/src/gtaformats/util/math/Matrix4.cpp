@@ -21,6 +21,8 @@
 #include "Matrix3.h"
 #include <cstring>
 #include <cmath>
+#include <cstdlib>
+#include <cstdio>
 
 
 /*const Matrix4 Matrix4::IDENTITY = Matrix4 (
@@ -187,31 +189,30 @@ const Vector4 Matrix4::column(int i) const
 
 Matrix4& Matrix4::operator*=(const Matrix4& rhv)
 {
-	Vector4 r0 = row(0);
-	Vector4 r1 = row(1);
-	Vector4 r2 = row(2);
-	Vector4 r3 = row(3);
-	Vector4 c0 = rhv.column(0);
-	Vector4 c1 = rhv.column(1);
-	Vector4 c2 = rhv.column(2);
-	Vector4 c3 = rhv.column(3);
+	float newData[16];
 
-	data[0] = r0.dot(c0);
-	data[1] = r1.dot(c0);
-	data[2] = r2.dot(c0);
-	data[3] = r3.dot(c0);
-	data[4] = r0.dot(c1);
-	data[5] = r1.dot(c1);
-	data[6] = r2.dot(c1);
-	data[7] = r3.dot(c1);
-	data[8] = r0.dot(c2);
-	data[9] = r1.dot(c2);
-	data[10] = r2.dot(c2);
-	data[11] = r3.dot(c2);
-	data[12] = r0.dot(c3);
-	data[13] = r1.dot(c3);
-	data[14] = r2.dot(c3);
-	data[15] = r3.dot(c3);
+	newData[0] = data[0]*rhv.data[0] + data[4]*rhv.data[1] + data[8]*rhv.data[2] + data[12]*rhv.data[3];
+	newData[1] = data[1]*rhv.data[0] + data[5]*rhv.data[1] + data[9]*rhv.data[2] + data[13]*rhv.data[3];
+	newData[2] = data[2]*rhv.data[0] + data[6]*rhv.data[1] + data[10]*rhv.data[2] + data[14]*rhv.data[3];
+	newData[3] = data[3]*rhv.data[0] + data[7]*rhv.data[1] + data[11]*rhv.data[2] + data[15]*rhv.data[3];
+
+	newData[4] = data[0]*rhv.data[4] + data[4]*rhv.data[5] + data[8]*rhv.data[6] + data[12]*rhv.data[7];
+	newData[5] = data[1]*rhv.data[4] + data[5]*rhv.data[5] + data[9]*rhv.data[6] + data[13]*rhv.data[7];
+	newData[6] = data[2]*rhv.data[4] + data[6]*rhv.data[5] + data[10]*rhv.data[6] + data[14]*rhv.data[7];
+	newData[7] = data[3]*rhv.data[4] + data[7]*rhv.data[5] + data[11]*rhv.data[6] + data[15]*rhv.data[7];
+
+	newData[8] = data[0]*rhv.data[8] + data[4]*rhv.data[9] + data[8]*rhv.data[10] + data[12]*rhv.data[11];
+	newData[9] = data[1]*rhv.data[8] + data[5]*rhv.data[9] + data[9]*rhv.data[10] + data[13]*rhv.data[11];
+	newData[10] = data[2]*rhv.data[8] + data[6]*rhv.data[9] + data[10]*rhv.data[10] + data[14]*rhv.data[11];
+	newData[11] = data[3]*rhv.data[8] + data[7]*rhv.data[9] + data[11]*rhv.data[10] + data[15]*rhv.data[11];
+
+	newData[12] = data[0]*rhv.data[12] + data[4]*rhv.data[13] + data[8]*rhv.data[14] + data[12]*rhv.data[15];
+	newData[13] = data[1]*rhv.data[12] + data[5]*rhv.data[13] + data[9]*rhv.data[14] + data[13]*rhv.data[15];
+	newData[14] = data[2]*rhv.data[12] + data[6]*rhv.data[13] + data[10]*rhv.data[14] + data[14]*rhv.data[15];
+	newData[15] = data[3]*rhv.data[12] + data[7]*rhv.data[13] + data[11]*rhv.data[14] + data[15]*rhv.data[15];
+
+	memcpy(data, newData, 16*sizeof(float));
+
 	return *this;
 }
 

@@ -34,12 +34,14 @@ ItemDefinition::ItemDefinition(MeshPointer* meshPtr, TextureSource* texSrc, floa
 		: meshPtr(meshPtr), texSrc(texSrc), colShapePtr(NULL), drawDistance(drawDist),
 		  drawDistanceSquarred(drawDist*drawDist)
 {
+	initShaderLocations();
 }
 
 
 ItemDefinition::ItemDefinition(const IDEStaticObject& object)
 		: drawDistance(object.getDrawDistances()[0]), drawDistanceSquarred(drawDistance*drawDistance)
 {
+	initShaderLocations();
 	char* lMeshName = new char[strlen(object.getModelName())+1];
 	char* lTexName = new char[strlen(object.getTextureName())+1];
 	strtolower(lMeshName, object.getModelName());
@@ -63,35 +65,37 @@ ItemDefinition::~ItemDefinition()
 }
 
 
+void ItemDefinition::initShaderLocations()
+{
+	Engine* engine = Engine::getInstance();
+	ShaderProgram* program = engine->getCurrentShaderProgram();
+
+
+}
+
+
 void ItemDefinition::render()
 {
 	Engine* engine = Engine::getInstance();
 	ShaderProgram* program = engine->getCurrentShaderProgram();
 
-	//Mesh* mesh = getMesh();
 	Mesh* mesh = **meshPtr;
-
-	//printf("Rendering\n");
 
 	if (mesh) {
 		GLException::checkError();
 
-		GLint vertexAttrib = program->getAttributeLocation("Vertex");
-		GLint normalAttrib = program->getAttributeLocation("Normal");
-		GLint texCoordAttrib = program->getAttributeLocation("TexCoord");
-		GLint colorAttrib = program->getAttributeLocation("Color");
-		GLint textureUniform = program->getUniformLocation("Texture");
-		GLint texturedUniform = program->getUniformLocation("Textured");
-		GLint materialColorUniform = program->getUniformLocation("MaterialColor");
-		GLint vertexColorsUniform = program->getUniformLocation("VertexColors");
-
-		GLException::checkError();
+		vertexAttrib = program->getAttributeLocation("Vertex");
+		normalAttrib = program->getAttributeLocation("Normal");
+		texCoordAttrib = program->getAttributeLocation("TexCoord");
+		colorAttrib = program->getAttributeLocation("Color");
+		textureUniform = program->getUniformLocation("Texture");
+		texturedUniform = program->getUniformLocation("Textured");
+		materialColorUniform = program->getUniformLocation("MaterialColor");
+		vertexColorsUniform = program->getUniformLocation("VertexColors");
 
 		glUniform1i(vertexColorsUniform, (mesh->getFlags() & MeshVertexColors) != 0 ? 1 : 0);
 
 		mesh->bindDataBuffer();
-
-		GLException::checkError();
 
 		if (vertexAttrib != -1) {
 			int offset = mesh->getVertexOffset();
@@ -104,6 +108,8 @@ void ItemDefinition::render()
 			if (offset != -1) {
 				glEnableVertexAttribArray(normalAttrib);
 				glVertexAttribPointer(normalAttrib, 3, GL_FLOAT, GL_FALSE, 0, (char*) offset);
+			} else {
+				glDisableVertexAttribArray(normalAttrib);
 			}
 		}
 		if (texCoordAttrib != -1) {
@@ -112,6 +118,8 @@ void ItemDefinition::render()
 			if (offset != -1) {
 				glEnableVertexAttribArray(texCoordAttrib);
 				glVertexAttribPointer(texCoordAttrib, 2, GL_FLOAT, GL_FALSE, 0, (char*) offset);
+			} else {
+				glDisableVertexAttribArray(texCoordAttrib);
 			}
 		}
 		if (colorAttrib != -1) {
@@ -120,6 +128,8 @@ void ItemDefinition::render()
 			if (offset != -1) {
 				glEnableVertexAttribArray(colorAttrib);
 				glVertexAttribPointer(colorAttrib, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, (char*) offset);
+			} else {
+				glDisableVertexAttribArray(colorAttrib);
 			}
 		}
 
@@ -140,7 +150,9 @@ void ItemDefinition::render()
 
 				if (textureUniform != -1  &&  mat->isTextured()  &&  texSrc) {
 					glActiveTexture(GL_TEXTURE0);
-					glBindTexture(GL_TEXTURE_2D, texSrc->getTexture(mat->getTextureHash()));
+					hash_t texHash = mat->getTextureHash();
+					GLuint tex = texSrc->getTexture(texHash);
+					glBindTexture(GL_TEXTURE_2D, tex);
 					glUniform1i(textureUniform, 0);
 					glUniform1i(texturedUniform, 1);
 				} else if (texturedUniform) {

@@ -22,7 +22,7 @@
 
 #include "../../config.h"
 
-#ifdef linux
+#ifdef _POSIX_VERSION
 #include <pthread.h>
 #else
 #include <windows.h>
@@ -37,7 +37,7 @@ public:
 	void unlock();
 
 private:
-#ifdef linux
+#ifdef _POSIX_VERSION
 	pthread_mutex_t posixMutex;
 #else
 	CRITICAL_SECTION winCriticalSection;

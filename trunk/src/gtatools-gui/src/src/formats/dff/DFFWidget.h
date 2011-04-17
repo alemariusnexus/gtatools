@@ -56,6 +56,7 @@ private slots:
 	void xmlDumpRequested();
 	void texSourceSelected(int index);
 	void otherTexSourceRequested(bool);
+	void updateLayoutType();
 
 private:
 	Ui_DFFWidget ui;

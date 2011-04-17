@@ -34,6 +34,10 @@
 #define PI 3.141593f
 
 
+#if defined(__GNUC__)  &&  defined(__GXX_EXPERIMENTAL_CXX0X__)
+#define CXX0X_AVAILABLE
+#endif
+
 
 #cmakedefine GTAFORMATS_ENABLE_SQUISH
 #cmakedefine EXCEPTION_POSITION_INFO

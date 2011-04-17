@@ -112,6 +112,8 @@ void ConfigWidget::buttonClicked(QAbstractButton* button)
 
 void ConfigWidget::apply()
 {
+	close();
+
 	QSettings settings;
 
 	switch (ui.regexFormatBox->currentIndex()) {
@@ -133,37 +135,42 @@ void ConfigWidget::apply()
 
 		profile->setName(profileWidget->getProfileName());
 		profile->setDATRootDirectory(profileWidget->getDATRootFile());
-		profile->clearResources();
+		//profile->clearResources();
 
-		QLinkedList<QString> resources;
-		profileWidget->getFiles(resources);
+		QLinkedList<QString> newResources;
+		profileWidget->getFiles(newResources);
 		QLinkedList<QString>::iterator it;
 
-		for (it = resources.begin() ; it != resources.end() ; it++) {
-			profile->addResource(File(it->toLocal8Bit().constData()));
+		QLinkedList<File> newResFiles;
+		for (it = newResources.begin() ; it != newResources.end() ; it++) {
+			newResFiles << File(it->toLocal8Bit().constData());
 		}
+
+		bool hasChanges = profile->setResources(newResFiles);
 
 		QLinkedList<QString> datFiles;
 		profileWidget->getDATFiles(datFiles);
 
+		QLinkedList<File> newDATFiles;
+
 		for (it = datFiles.begin() ; it != datFiles.end() ; it++) {
-			profile->addDATFile(File(it->toLocal8Bit().constData()));
+			newDATFiles << File(it->toLocal8Bit().constData());
 		}
 
-		profile->synchronize();
+		profile->setDATFiles(newDATFiles);
+
+		if (hasChanges) {
+			profile->updateResourceIndex();
+		}
 	}
 
 	ProfileManager* pm = ProfileManager::getInstance();
 	pm->setProfiles(profiles);
 	pm->setCurrentProfile(profiles[ui.profileBox->currentIndex()]);
 	pm->saveProfiles();
+	System::getInstance()->emitConfigurationChange();
 
 	settings.sync();
-
-	System* sys = System::getInstance();
-	sys->emitConfigurationChange();
-
-	close();
 }
 
 

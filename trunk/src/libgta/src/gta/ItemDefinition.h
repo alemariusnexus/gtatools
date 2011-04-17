@@ -50,11 +50,16 @@ public:
 	virtual void render();
 
 private:
+	void initShaderLocations();
+
+private:
 	MeshPointer* meshPtr;
 	TextureSource* texSrc;
 	CollisionShapePointer* colShapePtr;
 	float drawDistance;
 	float drawDistanceSquarred;
+	GLint vertexAttrib, normalAttrib, texCoordAttrib, colorAttrib;
+	GLint textureUniform, texturedUniform, materialColorUniform, vertexColorsUniform;
 };
 
 #endif /* ITEMDEFINITION_H_ */

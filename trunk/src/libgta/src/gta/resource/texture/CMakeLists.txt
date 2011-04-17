@@ -16,7 +16,7 @@
 # along with gtaformats.  If not, see <http://www.gnu.org/licenses/>.
 
 
-SET(FILES TextureIndexer TextureCacheLoader TextureArchive)
+SET(FILES TextureIndexer TextureCacheLoader TextureArchive TextureCacheEntry)
 
 FOREACH(FILE ${FILES})
     SET(SRCS ${SRCS} "gta/resource/texture/${FILE}")

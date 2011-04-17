@@ -77,6 +77,7 @@ TXDWidget::TXDWidget(const File& file, const QString& selectedTex, QWidget* pare
 			SLOT(textureActivated(QListWidgetItem*, QListWidgetItem*)));
 	connect(ui.textureList, SIGNAL(customContextMenuRequested(const QPoint&)), this,
 			SLOT(textureListContextMenuRequested(const QPoint&)));
+	connect(sys, SIGNAL(configurationChanged()), this, SLOT(loadConfigUiSettings()));
 
 	openGUIModule = new OpenTXDGUIModule(this);
 
@@ -178,13 +179,19 @@ void TXDWidget::textureActivated(QListWidgetItem* item, QListWidgetItem* previou
 		TXDCompression compr = texture->getCompression();
 
 		switch (compr) {
-		case TXD_COMPRESSION_DXT1:
+		case DXT1:
 			ui.compressionField->setText(tr("DXT1"));
 			break;
-		case TXD_COMPRESSION_DXT3:
+		case DXT3:
 			ui.compressionField->setText(tr("DXT3"));
 			break;
-		case TXD_COMPRESSION_NONE:
+		case PVRTC2:
+			ui.compressionField->setText(tr("PVRTC2"));
+			break;
+		case PVRTC4:
+			ui.compressionField->setText(tr("PVRTC4"));
+			break;
+		case NONE:
 			ui.compressionField->setText(tr("None"));
 			break;
 		}

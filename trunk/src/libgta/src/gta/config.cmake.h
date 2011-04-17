@@ -20,6 +20,8 @@
 #ifndef CONFIG_CMAKE_H_
 #define CONFIG_CMAKE_H_
 
+#include <gtaformats/config.h>
+
 #cmakedefine GTA_ENABLE_SQUISH
 #cmakedefine GTA_USE_OPENGL_ES
 

@@ -8,17 +8,27 @@
 #ifndef MESHINDEXER_H_
 #define MESHINDEXER_H_
 
+#include "../../config.h"
 #include <gtaformats/util/File.h>
 #include "../../Engine.h"
 #include "../ResourceObserver.h"
-#include <map>
 
+#ifdef CXX0X_AVAILABLE
+#include <unordered_map>
+using std::unordered_map;
+#else
+#include <map>
 using std::map;
+#endif
 
 
 class MeshIndexer : public ResourceObserver {
 private:
+#ifdef CXX0X_AVAILABLE
+	typedef unordered_map<hash_t, File*> IndexMap;
+#else
 	typedef map<hash_t, File*> IndexMap;
+#endif
 
 public:
 	~MeshIndexer();

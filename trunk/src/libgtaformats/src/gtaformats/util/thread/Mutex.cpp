@@ -22,7 +22,7 @@
 
 Mutex::Mutex()
 {
-#ifdef linux
+#ifdef _POSIX_VERSION
 	pthread_mutex_init(&posixMutex, NULL);
 #else
 	InitializeCriticalSection(&winCriticalSection);
@@ -32,7 +32,7 @@ Mutex::Mutex()
 
 void Mutex::lock()
 {
-#ifdef linux
+#ifdef _POSIX_VERSION
 	pthread_mutex_lock(&posixMutex);
 #else
 	EnterCriticalSection(&winCriticalSection);
@@ -42,7 +42,7 @@ void Mutex::lock()
 
 void Mutex::unlock()
 {
-#ifdef linux
+#ifdef _POSIX_VERSION
 	pthread_mutex_unlock(&posixMutex);
 #else
 	LeaveCriticalSection(&winCriticalSection);

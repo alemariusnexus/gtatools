@@ -9,6 +9,7 @@
 #include "../Engine.h"
 #include <fstream>
 #include <utility>
+#include <gtaformats/util/util.h>
 
 using std::ofstream;
 using std::min;
@@ -16,7 +17,7 @@ using std::min;
 
 
 Scene::Scene()
-		: pvs(PVSData(this)), pvsValid(false)
+		: pvs(PVSData(this)), pvsValid(false), pvObjCount(0), visibleObjCount(0), ddMultiplier(1.0f)
 {
 }
 
@@ -34,9 +35,7 @@ void Scene::buildVisibleSceneObjectList(ObjectList& list)
 	if (!pvsValid) {
 		File pvsFile("/home/alemariusnexus/pvs.pvs");
 
-		if (pvsFile.exists()) {
-			pvs.unserialize(pvsFile);
-		} else {
+		if (!pvsFile.exists()  ||  !pvs.unserialize(pvsFile)) {
 			pvs.build();
 		}
 
@@ -55,12 +54,15 @@ void Scene::buildVisibleSceneObjectList(ObjectList& list)
 	ObjectList pvObjects;
 	pvs.queryPVS(cx, cy, cz, pvObjects);
 
-	printf("PVS algorithm chose %d of %d objects (%.2f%%) for narrow distance testing\n",
-			pvObjects.size(), objects.size(), ((float) pvObjects.size() / (float) objects.size())*100.0f);
+	pvObjCount = pvObjects.size();
 
 	ObjectIterator it;
+	ObjectIterator begin = pvObjects.begin();
+	ObjectIterator end = pvObjects.end();
 
-	for (it = pvObjects.begin() ; it != pvObjects.end() ; it++) {
+	int actuallyRendered = 0;
+
+	for (it = begin ; it != end ; it++) {
 		DefaultSceneObject* obj = *it;
 
 		const float* mat = obj->getModelMatrix().toArray();
@@ -76,14 +78,18 @@ void Scene::buildVisibleSceneObjectList(ObjectList& list)
 
 		while (obj) {
 			ItemDefinition* def = obj->getDefinition();
-			float distDiff = def->getDrawDistanceSquarred() - distSq;
+			float dd = def->getDrawDistance();
+			float distDiff = dd*dd - distSq;
 
 			if (distDiff > 0.0f) {
 				list.push_back(obj);
+				actuallyRendered++;
 				break;
 			} else {
 				obj = obj->getLODParent();
 			}
 		}
 	}
+
+	visibleObjCount = actuallyRendered;
 }

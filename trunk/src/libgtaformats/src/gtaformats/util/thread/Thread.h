@@ -22,7 +22,7 @@
 
 #include "../../config.h"
 
-#ifdef linux
+#ifdef _POSIX_VERSION
 #include <pthread.h>
 #else
 #include <windows.h>
@@ -71,7 +71,7 @@ protected:
 	void blubb(void* test);
 
 private:
-#ifdef linux
+#ifdef _POSIX_VERSION
 	Thread(pthread_t posixThread);
 #else
 	Thread(HANDLE winHandle);
@@ -84,7 +84,7 @@ private:
 	Priority priority;
 	Thread* parentThread;
 	void (*terminationHandler)();
-#ifdef linux
+#ifdef _POSIX_VERSION
 	pthread_t posixThread;
 #else
 	HANDLE winHandle;
@@ -92,7 +92,7 @@ private:
 
 private:
 	friend class MainThread;
-#ifdef linux
+#ifdef _POSIX_VERSION
 	friend void* __posixThreadStarter(void* param);
 #else
 	friend DWORD WINAPI __winThreadStarter(LPVOID param);

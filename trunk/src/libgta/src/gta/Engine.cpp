@@ -29,6 +29,7 @@
 #include "GLException.h"
 #include <gtaformats/util/File.h>
 #include <gtaformats/util/strutil.h>
+#include <gtaformats/util/util.h>
 #include <cstdio>
 #include <utility>
 #include <algorithm>
@@ -71,14 +72,14 @@ Engine::Engine()
 }
 
 
-void Engine::addResource(const File& file)
+void Engine::addResource(const File& file, void (*callback)())
 {
 	if (file.isDirectory()  ||  file.isArchiveFile()) {
 		FileIterator* it = file.getIterator();
 		File* child;
 
 		while ((child = it->next())  !=  NULL) {
-			addResource(*child);
+			addResource(*child, callback);
 			delete child;
 		}
 
@@ -89,6 +90,10 @@ void Engine::addResource(const File& file)
 		for (it = resObservers.begin() ; it != resObservers.end() ; it++) {
 			ResourceObserver* observer = *it;
 			observer->resourceAdded(file);
+		}
+
+		if (callback) {
+			callback();
 		}
 	}
 }
@@ -154,14 +159,19 @@ void Engine::render()
 	GLuint mvpMatrixUniform = currentShader->getUniformLocation("MVPMatrix");
 
 	Scene::ObjectIterator it;
+	Scene::ObjectIterator begin = visibleObjects.begin();
+	Scene::ObjectIterator end = visibleObjects.end();
 
-	for (it = visibleObjects.begin() ; it != visibleObjects.end() ; it++) {
+	for (it = begin ; it != end ; it++) {
 		DefaultSceneObject* obj = *it;
 		ItemDefinition* def = obj->getDefinition();
 
-		Matrix4 mat = mvpMatrix * obj->getModelMatrix();
+		Matrix4& modelMat = obj->getModelMatrix();
+		Matrix4 mat = mvpMatrix * modelMat;
 		const float* r = mat.toArray();
+		GLException::checkError();
 		glUniformMatrix4fv(mvpMatrixUniform, 1, GL_FALSE, r);
+		GLException::checkError();
 		def->render();
 	}
 }

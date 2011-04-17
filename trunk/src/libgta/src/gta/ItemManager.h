@@ -8,16 +8,27 @@
 #ifndef ITEMMANAGER_H_
 #define ITEMMANAGER_H_
 
+#include "config.h"
 #include "ItemDefinition.h"
 #include "resource/ResourceObserver.h"
-#include <map>
 
+#ifdef CXX0X_AVAILABLE
+#include <unordered_map>
+using std::unordered_map;
+#else
+#include <map>
 using std::map;
+#endif
+
 
 
 class ItemManager : public ResourceObserver {
 private:
+#ifdef CXX0X_AVAILABLE
+	typedef unordered_map<int32_t, ItemDefinition*> ItemMap;
+#else
 	typedef map<int32_t, ItemDefinition*> ItemMap;
+#endif
 
 public:
 	static ItemManager* getInstance() { static ItemManager inst; return &inst; }

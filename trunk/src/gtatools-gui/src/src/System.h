@@ -35,6 +35,7 @@
 #include "SystemQuery.h"
 #include "SystemQueryResult.h"
 #include <gtaformats/util/FileFinder.h>
+#include <QtGui/QImage>
 
 
 class System : public QObject {
@@ -65,6 +66,7 @@ public:
 	void forceUninstallGUIModule(GUIModule* module);
 	SystemQueryResult sendSystemQuery(const SystemQuery& query);
 	QGLWidget* getSharedGLWidget() { return sharedWidget; }
+	QImage getDummyTextureImage() { return dummyTexImage; }
 
 signals:
 	void fileOpened(const FileOpenRequest& request);
@@ -78,7 +80,7 @@ signals:
 	void systemQuerySent(const SystemQuery& query, SystemQueryResult& result);
 
 private:
-	System() : mainWindow(NULL), currentFile(NULL) {}
+	System();
 	void setMainWindow(MainWindow* mw) { mainWindow = mw; }
 
 private:
@@ -87,6 +89,7 @@ private:
 	QLinkedList<File*> openFiles;
 	File* currentFile;
 	QGLWidget* sharedWidget;
+	QImage dummyTexImage;
 
 private:
 	friend class MainWindow;

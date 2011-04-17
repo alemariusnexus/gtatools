@@ -47,6 +47,7 @@ private slots:
     void wireframePropertyChanged(bool wireframe);
 	void shadowMeshFaceSelectionChanged(int prevIdx, int idx);
 	void vertexMeshFaceSelectionChanged(int prevIdx, int idx);
+	void updateLayoutType();
 
 private:
     Ui::COLWidget ui;
@@ -55,6 +56,11 @@ private:
     COLMeshRenderWidget* meshRenderer;
     COLMeshRenderWidget* shadowMeshRenderer;
     QList<int> vmeshFaceIndexMap;
+    bool currentlyCompact;
+
+    QTabWidget* sphereBoxTabber;
+    QTabWidget* vmeshTabber;
+    QTabWidget* smeshTabber;
 };
 
 #endif // COLWIDGET_H

@@ -28,6 +28,32 @@
 
 
 
+System::System()
+		: mainWindow(NULL), currentFile(NULL)
+{
+	int dummyTexW = 16;
+	int dummyTexH = 16;
+	uint8_t* dummyTexData = new uint8_t[dummyTexW*dummyTexH*3];
+
+	for (int i = 0 ; i < dummyTexH ; i++) {
+		for (int j = 0 ; j < dummyTexW ; j++) {
+			if ((i+j) % 2 == 0) {
+				dummyTexData[(i*dummyTexW+j)*3] = 128;
+				dummyTexData[(i*dummyTexW+j)*3 + 1] = 128;
+				dummyTexData[(i*dummyTexW+j)*3 + 2] = 128;
+			} else {
+				dummyTexData[(i*dummyTexW+j)*3] = 255;
+				dummyTexData[(i*dummyTexW+j)*3 + 1] = 255;
+				dummyTexData[(i*dummyTexW+j)*3 + 2] = 255;
+			}
+		}
+	}
+
+	dummyTexImage = QImage(dummyTexData, dummyTexW, dummyTexH, QImage::Format_RGB888);
+	dummyTexImage = dummyTexImage.scaled(128, 128);
+}
+
+
 System* System::getInstance()
 {
 	static System* inst = new System;

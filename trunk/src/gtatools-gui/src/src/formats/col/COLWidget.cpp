@@ -21,22 +21,35 @@
 #include "COLWidget.h"
 #include "COLGUIModule.h"
 #include "../../System.h"
+#include <QtCore/QSettings>
 
 
 
 COLWidget::COLWidget(const File& file, QWidget *parent)
-		: QWidget(parent)
+		: QWidget(parent), currentlyCompact(false)
 {
 	ui.setupUi(this);
+
+	sphereBoxTabber = new QTabWidget;
+	sphereBoxTabber->setParent(ui.sphereBoxInfoWidget);
+	ui.sphereBoxInfoWidgetLayout->addWidget(sphereBoxTabber);
+
+	vmeshTabber = new QTabWidget;
+	vmeshTabber->setParent(ui.vmeshInfoWidget);
+	ui.vmeshInfoWidgetLayout->addWidget(vmeshTabber);
+
+	smeshTabber = new QTabWidget;
+	smeshTabber->setParent(ui.smeshTab);
+	ui.smeshTabLayout->addWidget(smeshTabber);
 
 	sphereBoxRenderer = new COLSphereBoxRenderWidget(ui.sphereBoxRenderWidgetContainer);
 	ui.sphereBoxRenderWidgetContainer->layout()->addWidget(sphereBoxRenderer);
 
-	shadowMeshRenderer = new COLMeshRenderWidget(ui.shadowMeshRenderWidgetContainer);
-	ui.shadowMeshRenderWidgetContainer->layout()->addWidget(shadowMeshRenderer);
+	shadowMeshRenderer = new COLMeshRenderWidget(ui.smeshRenderWidgetContainer);
+	ui.smeshRenderWidgetContainer->layout()->addWidget(shadowMeshRenderer);
 
-	meshRenderer = new COLMeshRenderWidget(ui.vertexMeshRenderWidgetContainer);
-	ui.vertexMeshRenderWidgetContainer->layout()->addWidget(meshRenderer);
+	meshRenderer = new COLMeshRenderWidget(ui.vmeshRenderWidgetContainer);
+	ui.vmeshRenderWidgetContainer->layout()->addWidget(meshRenderer);
 
 	COLLoader col;
 	istream* stream = file.openInputStream(istream::binary);
@@ -48,7 +61,9 @@ COLWidget::COLWidget(const File& file, QWidget *parent)
 		ui.modelList->addItem(model->getName());
 	}
 
-	System::getInstance()->installGUIModule(COLGUIModule::getInstance());
+	System* sys = System::getInstance();
+
+	sys->installGUIModule(COLGUIModule::getInstance());
 
 	connect(ui.modelList, SIGNAL(currentRowChanged(int)), this, SLOT(currentModelChanged(int)));
 	connect(ui.faceGroupBox, SIGNAL(toggled(bool)), this, SLOT(faceGroupsToggled(bool)));
@@ -60,8 +75,11 @@ COLWidget::COLWidget(const File& file, QWidget *parent)
 			SLOT(shadowMeshFaceSelectionChanged(int, int)));
 	connect(meshRenderer, SIGNAL(faceSelectionChanged(int, int)), this,
 			SLOT(vertexMeshFaceSelectionChanged(int, int)));
+	connect(sys, SIGNAL(configurationChanged()), this, SLOT(updateLayoutType()));
 
 	ui.faceGroupBox->setChecked(false);
+
+	updateLayoutType();
 }
 
 
@@ -75,6 +93,158 @@ COLWidget::~COLWidget()
 
 	COLGUIModule::getInstance()->disconnect(this);
 	System::getInstance()->uninstallGUIModule(COLGUIModule::getInstance());
+}
+
+
+void COLWidget::updateLayoutType()
+{
+	QSettings settings;
+
+	bool compact = settings.value("gui/compact_mode", false).toBool();
+
+	if (compact  &&  !currentlyCompact) {
+		// Spheres and Boxes
+		ui.sphereBoxGeneralInfoWidget->setParent(sphereBoxTabber);
+		sphereBoxTabber->addTab(ui.sphereBoxGeneralInfoWidget, tr("General Information"));
+
+		ui.sphereBoxRenderWidgetContainer->setParent(sphereBoxTabber);
+		sphereBoxTabber->addTab(ui.sphereBoxRenderWidgetContainer, tr("Rendering"));
+
+		ui.sphereBoxRenderWidgetContainerLayout->setContentsMargins(4, 4, 4, 4);
+		ui.sphereBoxGeneralInfoWidgetLayout->setContentsMargins(4, 4, 4, 4);
+
+		ui.sphereBoxRenderWidgetContainer->show();
+		ui.sphereBoxGeneralInfoWidget->show();
+
+		ui.sphereBoxGeneralInfoGroupBox->hide();
+		ui.sphereBoxRenderGroupBox->hide();
+
+		// TODO: This is a hack. Without it, some graphical problems occur on the sphereBoxTabber.
+		sphereBoxTabber->setCurrentWidget(ui.sphereBoxRenderWidgetContainer);
+		sphereBoxTabber->setCurrentWidget(ui.sphereBoxGeneralInfoWidget);
+
+		sphereBoxTabber->show();
+
+
+		// Vertex Mesh
+		ui.vmeshRenderWidgetContainer->setParent(vmeshTabber);
+		vmeshTabber->addTab(ui.vmeshRenderWidgetContainer, tr("Rendering"));
+
+		ui.vmeshSelFaceWidget->setParent(vmeshTabber);
+		vmeshTabber->addTab(ui.vmeshSelFaceWidget, tr("Selected Face"));
+
+		ui.vmeshRenderWidgetContainerLayout->setContentsMargins(4, 4, 4, 4);
+		ui.vmeshSelFaceWidgetLayout->setContentsMargins(4, 4, 4, 4);
+
+		ui.vmeshRenderWidgetContainer->show();
+		ui.vmeshSelFaceWidget->show();
+
+		ui.vmeshRenderGroupBox->hide();
+		ui.vmeshSelFaceGroupBox->hide();
+
+		vmeshTabber->show();
+
+
+		// Shadow Mesh
+		ui.smeshGeneralInfoWidget->setParent(smeshTabber);
+		smeshTabber->addTab(ui.smeshGeneralInfoWidget, tr("General Information"));
+
+		ui.smeshRenderWidgetContainer->setParent(smeshTabber);
+		smeshTabber->addTab(ui.smeshRenderWidgetContainer, tr("Rendering"));
+
+		ui.smeshSelFaceWidget->setParent(smeshTabber);
+		smeshTabber->addTab(ui.smeshSelFaceWidget, tr("Selected Face"));
+
+		ui.smeshGeneralInfoWidgetLayout->setContentsMargins(4, 4, 4, 4);
+		ui.smeshRenderWidgetContainerLayout->setContentsMargins(4, 4, 4, 4);
+		ui.smeshSelFaceWidgetLayout->setContentsMargins(4, 4, 4, 4);
+
+		ui.smeshGeneralInfoWidget->show();
+		ui.smeshRenderWidgetContainer->show();
+		ui.smeshSelFaceWidget->show();
+
+		ui.smeshGeneralInfoGroupBox->hide();
+		ui.smeshRenderGroupBox->hide();
+		ui.smeshSelFaceGroupBox->hide();
+
+		// TODO: This is a hack. Without it, some graphical problems occur on the smeshTabber
+		smeshTabber->setCurrentWidget(ui.smeshRenderWidgetContainer);
+		smeshTabber->setCurrentWidget(ui.smeshSelFaceWidget);
+		smeshTabber->setCurrentWidget(ui.smeshGeneralInfoWidget);
+
+		smeshTabber->show();
+	} else if (!compact &&  currentlyCompact) {
+		// Spheres and Boxes
+		sphereBoxTabber->removeTab(sphereBoxTabber->indexOf(ui.sphereBoxRenderWidgetContainer));
+		sphereBoxTabber->removeTab(sphereBoxTabber->indexOf(ui.sphereBoxGeneralInfoWidget));
+
+		ui.sphereBoxRenderWidgetContainer->setParent(ui.sphereBoxRenderGroupBox);
+		ui.sphereBoxRenderGroupBoxLayout->addWidget(ui.sphereBoxRenderWidgetContainer);
+
+		ui.sphereBoxGeneralInfoWidget->setParent(ui.sphereBoxGeneralInfoGroupBox);
+		ui.sphereBoxGeneralInfoGroupBoxLayout->addWidget(ui.sphereBoxGeneralInfoWidget);
+
+		ui.sphereBoxRenderWidgetContainerLayout->setContentsMargins(0, 0, 0, 0);
+		ui.sphereBoxGeneralInfoWidgetLayout->setContentsMargins(0, 0, 0, 0);
+
+		ui.sphereBoxRenderWidgetContainer->show();
+		ui.sphereBoxGeneralInfoWidget->show();
+		ui.sphereBoxRenderGroupBox->show();
+		ui.sphereBoxGeneralInfoGroupBox->show();
+
+		sphereBoxTabber->hide();
+
+
+		// Vertex Mesh
+		vmeshTabber->removeTab(vmeshTabber->indexOf(ui.vmeshRenderWidgetContainer));
+		vmeshTabber->removeTab(vmeshTabber->indexOf(ui.vmeshSelFaceWidget));
+
+		ui.vmeshRenderWidgetContainer->setParent(ui.vmeshRenderGroupBox);
+		ui.vmeshRenderGroupBoxLayout->addWidget(ui.vmeshRenderWidgetContainer);
+
+		ui.vmeshSelFaceWidget->setParent(ui.vmeshSelFaceGroupBox);
+		ui.vmeshSelFaceGroupBoxLayout->addWidget(ui.vmeshSelFaceWidget);
+
+		ui.vmeshRenderWidgetContainerLayout->setContentsMargins(0, 0, 0, 0);
+		ui.vmeshSelFaceWidgetLayout->setContentsMargins(0, 0, 0, 0);
+
+		ui.vmeshRenderWidgetContainer->show();
+		ui.vmeshSelFaceWidget->show();
+		ui.vmeshRenderGroupBox->show();
+		ui.vmeshSelFaceGroupBox->show();
+
+		vmeshTabber->hide();
+
+
+		// Shadow Mesh
+		smeshTabber->removeTab(smeshTabber->indexOf(ui.smeshGeneralInfoWidget));
+		smeshTabber->removeTab(smeshTabber->indexOf(ui.smeshRenderWidgetContainer));
+		smeshTabber->removeTab(smeshTabber->indexOf(ui.smeshSelFaceWidget));
+
+		ui.smeshGeneralInfoWidget->setParent(ui.smeshGeneralInfoGroupBox);
+		ui.smeshGeneralInfoGroupBoxLayout->addWidget(ui.smeshGeneralInfoWidget);
+
+		ui.smeshRenderWidgetContainer->setParent(ui.smeshRenderGroupBox);
+		ui.smeshRenderGroupBoxLayout->addWidget(ui.smeshRenderWidgetContainer);
+
+		ui.smeshSelFaceWidget->setParent(ui.smeshSelFaceGroupBox);
+		ui.smeshSelFaceGroupBoxLayout->addWidget(ui.smeshSelFaceWidget);
+
+		ui.smeshGeneralInfoWidgetLayout->setContentsMargins(0, 0, 0, 0);
+		ui.smeshRenderWidgetContainerLayout->setContentsMargins(0, 0, 0, 0);
+		ui.smeshSelFaceWidgetLayout->setContentsMargins(0, 0, 0, 0);
+
+		ui.smeshGeneralInfoWidget->show();
+		ui.smeshRenderWidgetContainer->show();
+		ui.smeshSelFaceWidget->show();
+		ui.smeshGeneralInfoGroupBox->show();
+		ui.smeshRenderGroupBox->show();
+		ui.smeshSelFaceGroupBox->show();
+
+		smeshTabber->hide();
+	}
+
+	currentlyCompact = compact;
 }
 
 
@@ -131,14 +301,14 @@ void COLWidget::currentModelChanged(int index)
 	const COLShadowMesh* shadowMesh = model->getShadowMesh();
 
 	if (shadowMesh) {
-		ui.tabber->setTabEnabled(ui.tabber->indexOf(ui.shadowMeshTab), true);
+		ui.tabber->setTabEnabled(ui.tabber->indexOf(ui.smeshTab), true);
 		ui.smeshVertexCountLabel->setText(QString("%1").arg(shadowMesh->getVertexCount()));
 		ui.smeshFaceCountLabel->setText(QString("%1").arg(shadowMesh->getFaceCount()));
 
 		shadowMeshRenderer->render(shadowMesh->getVertices(), shadowMesh->getVertexCount(),
 				shadowMesh->getFaces(), shadowMesh->getFaceCount());
 	} else {
-		ui.tabber->setTabEnabled(ui.tabber->indexOf(ui.shadowMeshTab), false);
+		ui.tabber->setTabEnabled(ui.tabber->indexOf(ui.smeshTab), false);
 	}
 
 	updateVertexMesh();

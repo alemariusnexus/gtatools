@@ -173,8 +173,13 @@ void PVSData::serialize(ostream* out)
 	out->write((char*) &version, 4);
 	out->write((char*) &numSects, 4);
 
+	uint64_t hash = scene->getSceneObjectCount();
+
+	out->write((char*) &hash, 8);
+
 	for (int i = 0 ; i < numSects ; i++) {
 		PVSSection* sect = sections[i];
+
 		float x1, y1, z1, x2, y2, z2;
 		sect->getFirstCorner(x1, y1, z1);
 		sect->getSecondCorner(x2, y2, z2);
@@ -222,6 +227,16 @@ bool PVSData::unserialize(istream* in)
 	}
 
 	in->read((char*) &numSects, 4);
+
+	uint64_t hash = scene->getSceneObjectCount();
+
+	uint64_t savedHash;
+	in->read((char*) &savedHash, 8);
+
+	if (hash != savedHash) {
+		return false;
+	}
+
 	sections = new PVSSection*[numSects];
 
 	for (int i = 0 ; i < numSects ; i++) {

@@ -12,20 +12,13 @@ using std::pair;
 
 
 
-void TextureArchive::addTexture(hash_t tex, hash_t combinedHash)
+TextureArchive* TextureArchive::findTextureArchive(hash_t tex)
 {
-	combinedHashMap.insert(pair<hash_t, hash_t>(tex, combinedHash));
-}
-
-
-bool TextureArchive::getTextureCombinedHash(hash_t tex, hash_t& combinedHash)
-{
-	map<hash_t, hash_t>::iterator it = combinedHashMap.find(tex);
-
-	if (it == combinedHashMap.end()) {
-		return parent  &&  parent->getTextureCombinedHash(tex, combinedHash);
+	if (contains(tex)) {
+		return this;
+	} else if (parent) {
+		return parent->findTextureArchive(tex);
 	}
 
-	combinedHash = it->second;
-	return true;
+	return NULL;
 }
