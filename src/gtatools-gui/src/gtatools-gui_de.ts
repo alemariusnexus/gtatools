@@ -12,14 +12,19 @@
 <context>
     <name>COLGUIModule</name>
     <message>
-        <location filename="src/formats/col/COLGUIModule.cpp" line="27"/>
+        <location filename="src/formats/col/COLGUIModule.cpp" line="28"/>
         <source>COL</source>
         <translation>COL</translation>
     </message>
     <message>
-        <location filename="src/formats/col/COLGUIModule.cpp" line="29"/>
+        <location filename="src/formats/col/COLGUIModule.cpp" line="30"/>
         <source>Show wireframe</source>
         <translation>Wireframe anzeigen</translation>
+    </message>
+    <message>
+        <location filename="src/formats/col/COLGUIModule.cpp" line="36"/>
+        <source>Wireframe rendering is not available in OpenGL ES!</source>
+        <translation>Wireframe-Rendering ist in OpenGL ES nicht verfügbar!</translation>
     </message>
 </context>
 <context>
@@ -316,7 +321,7 @@
     </message>
     <message>
         <location filename="src/gui/ConfigWidget.ui" line="98"/>
-        <location filename="src/gui/ConfigWidget.cpp" line="178"/>
+        <location filename="src/gui/ConfigWidget.cpp" line="184"/>
         <source>New Profile</source>
         <translation>Neues Profil</translation>
     </message>
@@ -394,22 +399,27 @@
 <context>
     <name>DFFGUIModule</name>
     <message>
-        <location filename="src/formats/dff/DFFGUIModule.cpp" line="30"/>
+        <location filename="src/formats/dff/DFFGUIModule.cpp" line="31"/>
         <source>DFF</source>
         <translation>DFF</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFGUIModule.cpp" line="32"/>
+        <location filename="src/formats/dff/DFFGUIModule.cpp" line="33"/>
         <source>Show textured</source>
         <translation>Texturiert anzeigen</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFGUIModule.cpp" line="37"/>
+        <location filename="src/formats/dff/DFFGUIModule.cpp" line="38"/>
         <source>Show wireframe</source>
         <translation>Wireframe anzeigen</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFGUIModule.cpp" line="42"/>
+        <location filename="src/formats/dff/DFFGUIModule.cpp" line="44"/>
+        <source>Wireframe rendering is not available in OpenGL ES!</source>
+        <translation>Wireframe-Rendering ist in OpenGL ES nicht verfügbar!</translation>
+    </message>
+    <message>
+        <location filename="src/formats/dff/DFFGUIModule.cpp" line="49"/>
         <source>Dump XML</source>
         <translation>Nach XML dumpen</translation>
     </message>
@@ -417,14 +427,18 @@
 <context>
     <name>DFFRenderWidget</name>
     <message>
-        <location filename="src/formats/dff/DFFRenderWidget.cpp" line="121"/>
+        <location filename="src/formats/dff/DFFRenderWidget.cpp" line="130"/>
         <source>OpenGL Too Old</source>
         <translation>OpenGL Zu Alt</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFRenderWidget.cpp" line="122"/>
+        <location filename="src/formats/dff/DFFRenderWidget.cpp" line="131"/>
+        <source>This program needs at least OpenGL version 2.1 or OpenGL ES version 2.0! Rendering will be disabled.</source>
+        <translation>Dieses Programm benötigt mindestens OpenGL Version 2.1 oder OpenGL ES Version 2.0! Rendering wird deaktiviert.</translation>
+    </message>
+    <message>
         <source>This program needs at least OpenGL version 2.1! Rendering will be disabled.</source>
-        <translation>Dieses Programm benötigt mindestens OpenGL Version 2.1! Rendering wird deaktiviert.</translation>
+        <translation type="obsolete">Dieses Programm benötigt mindestens OpenGL Version 2.1! Rendering wird deaktiviert.</translation>
     </message>
 </context>
 <context>
@@ -472,7 +486,7 @@
     </message>
     <message>
         <location filename="src/formats/dff/DFFWidget.ui" line="192"/>
-        <location filename="src/formats/dff/DFFWidget.ui" line="597"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="583"/>
         <source>General Information</source>
         <translation>Allgemeine Informationen</translation>
     </message>
@@ -512,27 +526,26 @@
         <translation>Specular Light</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="316"/>
         <source>Vertex Colors</source>
-        <translation>Vertexfarben</translation>
+        <translation type="obsolete">Vertexfarben</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="330"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="264"/>
         <source>Normals</source>
         <translation>Normals</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="344"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="316"/>
         <source>Bounds</source>
         <translation>Bounds</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="696"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="682"/>
         <source>Texture Source</source>
         <translation>Texturquelle</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="713"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="699"/>
         <source>Other...</source>
         <translation>Andere...</translation>
     </message>
@@ -545,22 +558,32 @@
         <translation type="obsolete">Anzahl Teile</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="358"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="330"/>
         <source>Associated Frame</source>
         <translation>Zugewiesenes Frame</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="373"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="344"/>
+        <source>Vertex Data</source>
+        <translation>Vertexdaten</translation>
+    </message>
+    <message>
+        <location filename="src/formats/dff/DFFWidget.ui" line="351"/>
+        <source>TextLabel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="src/formats/dff/DFFWidget.ui" line="359"/>
         <source>Materials</source>
         <translation>Materiale</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="407"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="393"/>
         <source>[No Material Selected]</source>
         <translation>[Kein Material ausgewählt]</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="432"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="418"/>
         <source>Color</source>
         <translation>Farbe</translation>
     </message>
@@ -569,48 +592,48 @@
         <translation type="obsolete">Anzahl Texturen</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="473"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="459"/>
         <source>[No Texture Selected]</source>
         <translation>[Keine Textur ausgewählt]</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="498"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="484"/>
         <source>Diffuse Name</source>
         <translation>Diffuse Name</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="512"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="498"/>
         <source>Alpha Name</source>
         <translation>Alpha Name</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="526"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="512"/>
         <source>Filter Flags</source>
         <translation>Filter-Flags</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="555"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="541"/>
         <source>Parts</source>
         <translation>Teile</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="583"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="569"/>
         <source>[No Part Selected]</source>
         <translation>[Kein Teil ausgewählt]</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="615"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="601"/>
         <source>Index Count</source>
         <translation>Anzahl Indizes</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="629"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="615"/>
         <source>Material</source>
         <translation>Material</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="647"/>
-        <location filename="src/formats/dff/DFFWidget.ui" line="667"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="633"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="653"/>
         <source>Rendering</source>
         <translation>Rendering</translation>
     </message>
@@ -658,60 +681,71 @@ Siehe im Fehlerlog für weitere Details nach.</translation>
     </message>
     <message>
         <location filename="src/formats/dff/DFFWidget.cpp" line="240"/>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="293"/>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="387"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="304"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="398"/>
         <source>None</source>
         <translation>Keine</translation>
     </message>
     <message>
         <location filename="src/formats/dff/DFFWidget.cpp" line="260"/>
+        <source>Vertices</source>
+        <translation>Vertices</translation>
+    </message>
+    <message>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="262"/>
+        <source>Colors</source>
+        <translation>Farben</translation>
+    </message>
+    <message>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="266"/>
+        <source>UV Coordinates</source>
+        <translation>UV-Koordinaten</translation>
+    </message>
+    <message>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="270"/>
         <source>Triangle Strips</source>
         <translation>Triangle Strips</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="260"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="270"/>
         <source>Triangle List</source>
         <translation>Triangle List</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="268"/>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="269"/>
         <source>no</source>
-        <translation>nein</translation>
+        <translation type="obsolete">nein</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="268"/>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="269"/>
         <source>yes</source>
-        <translation>ja</translation>
+        <translation type="obsolete">ja</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="270"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="281"/>
         <source>(%1, %2, %3 : %4)</source>
         <translation>(%1, %2, %3 : %4)</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="306"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="317"/>
         <source>Material %1</source>
         <translation>Material %1</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="315"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="326"/>
         <source>Part %1</source>
         <translation>Teil %1</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="339"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="350"/>
         <source>(%1, %2, %3, %4)</source>
         <translation>(%1, %2, %3, %4)</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="437"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="448"/>
         <source>Enter the TXD name</source>
         <translation>TXD-Name angeben</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="438"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="449"/>
         <source>Enter the name of the TXD you want to add (without extension):</source>
         <translation>Gebe den Namen der TXD an, die hinzugefügt werden soll (ohne Endung):</translation>
     </message>
@@ -797,7 +831,7 @@ Siehe im Fehlerlog für weitere Details nach.</translation>
     </message>
     <message>
         <location filename="src/gui/DefaultGUIModule.cpp" line="68"/>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="287"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="286"/>
         <source>About Qt</source>
         <translation>Über Qt</translation>
     </message>
@@ -837,17 +871,17 @@ Siehe im Fehlerlog für weitere Details nach.</translation>
         <translation>PVS-Daten Generieren</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="176"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="175"/>
         <source>No Profile</source>
         <translation>Kein Profil</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="294"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="293"/>
         <source>About GTATools GUI Tool</source>
         <translation>Über GTATools GUI Tool</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="293"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="292"/>
         <source>AboutText</source>
         <translation>Dies ist gtatools-gui. Dieses Programm ist Teil der gtatools und läuft mit Version %1.
 
@@ -858,7 +892,7 @@ Die Veröffentlichung dieses Programms erfolgt in der Hoffnung, daß es Ihnen vo
 Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem Programm erhalten haben. Falls nicht, siehe &lt;http://www.gnu.org/licenses/&gt;.</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="307"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="306"/>
         <source>Select file</source>
         <translation>Datei auswählen</translation>
     </message>
@@ -1873,6 +1907,11 @@ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem Prog
         <source>Generating resource index...</source>
         <translation type="obsolete">Erstelle Ressourcenindex...</translation>
     </message>
+    <message>
+        <location filename="src/Profile.cpp" line="107"/>
+        <source>Building resource index...</source>
+        <translation>Erstelle Ressourcenindex...</translation>
+    </message>
 </context>
 <context>
     <name>ProfileConfigWidget</name>
@@ -1977,9 +2016,8 @@ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem Prog
         <translation type="obsolete">Erstelle Ressourcenindex...</translation>
     </message>
     <message>
-        <location filename="src/ProfileInitializer.cpp" line="55"/>
         <source>Generating resource index...</source>
-        <translation>Erstelle Ressourcenindex...</translation>
+        <translation type="obsolete">Erstelle Ressourcenindex...</translation>
     </message>
 </context>
 <context>

@@ -40,6 +40,7 @@
 #include <QtCore/QTimer>
 #include <gta/Engine.h>
 #include <gta/resource/ResourceCache.h>
+#include <signal.h>
 
 
 

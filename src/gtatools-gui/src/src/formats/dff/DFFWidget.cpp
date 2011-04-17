@@ -66,13 +66,7 @@ DFFWidget::DFFWidget(const File& file, QWidget* parent, QGLWidget* shareWidget)
 {
 	ui.setupUi(this);
 
-	QSettings settings;
-	bool compact = settings.value("gui/compact_mode", false).toBool();
-
-	ui.geometryNameLabel->setVisible(!compact);
-	ui.materialNameLabel->setVisible(!compact);
-	//ui.textureNameLabel->setVisible(!compact);
-	ui.geometryPartNameLabel->setVisible(!compact);
+	updateLayoutType();
 
 	ui.mainTabber->setCurrentIndex(mainTabberIndex);
 	ui.geometryTabber->setCurrentIndex(geometryTabberIndex);
@@ -138,6 +132,7 @@ DFFWidget::DFFWidget(const File& file, QWidget* parent, QGLWidget* shareWidget)
 	connect(guiModule, SIGNAL(dumpRequested()), this, SLOT(xmlDumpRequested()));
 	connect(guiModule, SIGNAL(texturedPropertyChanged(bool)), this, SLOT(texturedPropertyChanged(bool)));
 	connect(guiModule, SIGNAL(wireframePropertyChanged(bool)), this, SLOT(wireframePropertyChanged(bool)));
+	connect(System::getInstance(), SIGNAL(configurationChanged()), this, SLOT(updateLayoutType()));
 
 	geometryRenderWidget->updateGL();
 	geometryPartRenderWidget->updateGL();
@@ -170,6 +165,33 @@ DFFWidget::~DFFWidget()
 
 	delete geometryRenderWidget;
 	delete geometryPartRenderWidget;
+}
+
+
+void DFFWidget::updateLayoutType()
+{
+	QSettings settings;
+
+	bool compact = settings.value("gui/compact_mode", false).toBool();
+
+	ui.geometryNameLabel->setVisible(!compact);
+	ui.materialNameLabel->setVisible(!compact);
+	ui.geometryPartNameLabel->setVisible(!compact);
+
+	if (compact) {
+		if (ui.texSourceWidget->parentWidget() == this) {
+			ui.mainLayout->removeWidget(ui.texSourceWidget);
+			ui.mainTabber->addTab(ui.texSourceWidget, tr("Texture Source"));
+		}
+	} else {
+		if (ui.mainTabber->indexOf(ui.texSourceWidget) != -1) {
+			printf("Non-compact\n");
+			ui.mainTabber->removeTab(ui.mainTabber->indexOf(ui.texSourceWidget));
+			ui.texSourceWidget->setParent(this);
+			ui.mainLayout->addWidget(ui.texSourceWidget);
+			ui.texSourceWidget->show();
+		}
+	}
 }
 
 
@@ -255,6 +277,16 @@ void DFFWidget::geometrySelected(int row)
 
 	const DFFBoundingSphere* bounds = geom->getBounds();
 
+	QStringList vdataComponents;
+
+	vdataComponents << tr("Vertices");
+	if (geom->getVertexColors())
+		vdataComponents << tr("Colors");
+	if (geom->getNormals())
+		vdataComponents << tr("Normals");
+	if (geom->getUVCoordSets())
+		vdataComponents << tr("UV Coordinates");
+
 	ui.geometryNameLabel->setText(ui.geometryList->item(row)->text());
 	ui.geometryFaceFormatLabel->setText(geom->isTriangleStripFormat()
 			? tr("Triangle Strips") : tr("Triangle List"));
@@ -265,8 +297,9 @@ void DFFWidget::geometrySelected(int row)
 	ui.geometryAmbientLightLabel->setText(QString("%1").arg(geom->getAmbientLight()));
 	ui.geometryDiffuseLightLabel->setText(QString("%1").arg(geom->getDiffuseLight()));
 	ui.geometrySpecularLightLabel->setText(QString("%1").arg(geom->getSpecularLight()));
-	ui.geometryVertexColorsLabel->setText(geom->getVertexColors() == NULL ? tr("no") : tr("yes"));
-	ui.geometryNormalsLabel->setText(geom->getNormals() == NULL ? tr("no") : tr("yes"));
+	ui.geometryVdataLabel->setText(vdataComponents.join(", "));
+	//ui.geometryVertexColorsLabel->setText(geom->getVertexColors() == NULL ? tr("no") : tr("yes"));
+	//ui.geometryNormalsLabel->setText(geom->getNormals() == NULL ? tr("no") : tr("yes"));
 	ui.geometryBoundsLabel->setText(tr("(%1, %2, %3 : %4)")
 			.arg(bounds->x).arg(bounds->y).arg(bounds->z).arg(bounds->radius));
 	//ui.geometryMaterialCountLabel->setText(QString("%1").arg(geom->getMaterialCount()));

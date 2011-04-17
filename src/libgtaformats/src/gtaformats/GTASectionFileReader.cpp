@@ -213,6 +213,8 @@ float GTASectionFileReader::nextFloat(bool* ok, char* str)
 		return 0;
 	}
 
+	setlocale(LC_NUMERIC, "C");
+
 	float val;
 	int numScanned = sscanf(cstr, "%f", &val);
 

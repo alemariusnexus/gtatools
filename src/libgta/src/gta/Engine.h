@@ -57,7 +57,7 @@ public:
 	static Engine* getInstance();
 
 public:
-	void addResource(const File& file);
+	void addResource(const File& file, void (*callback)() = NULL);
 	void clearResources();
 	ShaderProgram* getCurrentShaderProgram() { return currentShader; }
 	void setCurrentShaderProgram(ShaderProgram* program);

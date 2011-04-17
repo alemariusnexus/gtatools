@@ -32,11 +32,17 @@ public:
 	size_type getSceneObjectCount() { return objects.size(); }
 	void buildVisibleSceneObjectList(ObjectList& list);
 	DefaultSceneObject* getObjectByID(int id) { return objects[id]; }
+	int getLastPotentiallyVisibleObjectCount() const { return pvObjCount; }
+	int getLastVisibleObjectCount() const { return visibleObjCount; }
+	void setDrawDistanceMultiplier(float ddm) { ddMultiplier = ddm; }
+	float getDrawDistanceMultiplier() const { return ddMultiplier; }
 
 private:
 	ObjectList objects;
 	PVSData pvs;
 	bool pvsValid;
+	int pvObjCount, visibleObjCount;
+	float ddMultiplier;
 };
 
 #endif /* SCENE_H_ */

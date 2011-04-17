@@ -26,6 +26,7 @@
 #include <QtGui/QImage>
 #include <QtGui/QImageWriter>
 #include <fstream>
+#include <gta/GLException.h>
 #include "../../System.h"
 
 using std::ofstream;
@@ -149,15 +150,16 @@ void COLMeshRenderWidget::mouseDoubleClickEvent(QMouseEvent* evt)
 
 		GLBaseWidget::paintGL();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
+
 #ifndef GTATOOLS_GUI_USE_OPENGL_ES
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 #endif
-		
+
 		pickItem->render();
 
 		int32_t pixel = 0;
-		glReadPixels(x, y, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, &pixel);
+		glReadPixels(x, y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &pixel);
+		pixel &= 0xFFFFFF;
 		pixel--;
 
 		setSelectedFace(pixel);

@@ -34,9 +34,11 @@
 using std::istream;
 using std::string;
 
-#define TXD_COMPRESSION_NONE 0
+/*#define TXD_COMPRESSION_NONE 0
 #define TXD_COMPRESSION_DXT1 1
 #define TXD_COMPRESSION_DXT3 3
+#define TXD_COMPRESSION_PVRTC2 100
+#define TXD_COMPRESSION_PVRTC4 101*/
 
 class TXDVisitor;
 

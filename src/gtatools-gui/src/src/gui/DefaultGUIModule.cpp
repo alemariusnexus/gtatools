@@ -152,7 +152,6 @@ void DefaultGUIModule::doInstall()
 	connect(pm, SIGNAL(profilesLoaded()), this, SLOT(profilesLoaded()));
 	connect(pm, SIGNAL(currentProfileChanged(Profile*, Profile*)), this,
 			SLOT(currentProfileChanged(Profile*, Profile*)));
-	connect(pm, SIGNAL(profileChanged(Profile*)), this, SLOT(profileChanged(Profile*)));
 }
 
 
@@ -350,12 +349,15 @@ void DefaultGUIModule::onSearchFile(bool checked)
 
 void DefaultGUIModule::profileAdded(Profile* profile)
 {
+	connect(profile, SIGNAL(nameChanged(const QString&, const QString&)), this,
+			SLOT(profileNameChanged(const QString&, const QString&)));
 	loadProfileSwitchMenu();
 }
 
 
 void DefaultGUIModule::profileRemoved(Profile* profile)
 {
+	disconnect(profile, SIGNAL(nameChanged(const QString&)), this, SLOT(profileNameChanged(const QString&)));
 	loadProfileSwitchMenu();
 }
 
@@ -366,7 +368,7 @@ void DefaultGUIModule::profilesLoaded()
 }
 
 
-void DefaultGUIModule::profileChanged(Profile* profile)
+void DefaultGUIModule::profileNameChanged(const QString& oldName, const QString& newName)
 {
 	loadProfileSwitchMenu();
 }

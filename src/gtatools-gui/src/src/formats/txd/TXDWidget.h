@@ -45,7 +45,7 @@ private slots:
 	void textureListContextMenuRequested(const QPoint& pos);
 	void textureExtractionRequested(bool checked);
 
-private:
+private slots:
 	void loadConfigUiSettings();
 
 private:

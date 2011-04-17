@@ -29,37 +29,27 @@ void TextureIndexer::resourceAdded(const File& file)
 		const char* fname = file.getPath()->getFileName();
 		char* txdName = new char[strlen(fname)+1];
 		strtolower(txdName, fname);
-		*strrchr(txdName, '.') = '\0';
+		*strchr(txdName, '.') = '\0';
 
-		int txdLen = strlen(txdName);
-		char* combinedName = new char[txdLen+33];
-		strcpy(combinedName, txdName);
-		*(combinedName+txdLen) = ':';
-		char* texName = combinedName+txdLen+1;
+		char texName[33];
 
 		hash_t txdHash = Hash(txdName);
 
 		TXDArchive txd(file);
 
-		TextureArchive* archive = new TextureArchive(txdHash);
+		TextureArchive* archive = new TextureArchive(txdHash, file);
 
 		for (int16_t i = 0 ; i < txd.getTextureCount() ; i++) {
 			TXDTexture* tex = txd.nextTexture();
-			TextureIndexEntry* entry = new TextureIndexEntry;
-			entry->file = new File(file);
-			entry->index = i;
 
 			strtolower(texName, tex->getDiffuseName());
-			hash_t combinedHash = Hash(combinedName);
-			txdTexCombinedIndex.insert(pair<hash_t, TextureIndexEntry*>(combinedHash, entry));
-			archive->addTexture(Hash(texName), combinedHash);
+			archive->addTexture(Hash(texName));
 
 			delete tex;
 		}
 
 		archives.insert(pair<hash_t, TextureArchive*>(txdHash, archive));
 
-		delete[] combinedName;
 		delete[] txdName;
 	}
 }
@@ -67,66 +57,23 @@ void TextureIndexer::resourceAdded(const File& file)
 
 void TextureIndexer::resourcesCleared()
 {
-	IndexMap::iterator it;
-
-	for (it = txdTexCombinedIndex.begin() ; it != txdTexCombinedIndex.end() ; it++) {
-		delete it->second->file;
-		delete it->second;
-	}
-
-	txdTexCombinedIndex.clear();
-
 	ArchiveMap::iterator ait;
 
 	for (ait = archives.begin() ; ait != archives.end() ; ait++) {
 		delete ait->second;
 	}
+
+	archives.clear();
 }
 
 
-const TextureIndexEntry* TextureIndexer::find(hash_t combinedHash)
+TextureArchive* TextureIndexer::findArchive(hash_t name)
 {
-	IndexMap::iterator it = txdTexCombinedIndex.find(combinedHash);
+	ArchiveMap::iterator it = archives.find(name);
 
-	if (it == txdTexCombinedIndex.end()) {
+	if (it == archives.end()) {
 		return NULL;
 	}
 
 	return it->second;
-}
-
-
-bool TextureIndexer::resolveCombinedHash(hash_t txdHash, hash_t texHash, hash_t& combinedHash)
-{
-	ArchiveMap::iterator it = archives.find(txdHash);
-
-	if (it == archives.end()) {
-		return false;
-	}
-
-	TextureArchive* archive = it->second;
-
-	return archive->getTextureCombinedHash(texHash, combinedHash);
-}
-
-
-hash_t TextureIndexer::createCombinedHash(const char* txdName, const char* texName)
-{
-	char* combinedName = new char[strlen(txdName)+strlen(texName)+2];
-	sprintf(combinedName, "%s:%s", txdName, texName);
-	hash_t hash = Hash(combinedName);
-	delete[] combinedName;
-	return hash;
-}
-
-
-const TextureIndexEntry* TextureIndexer::find(hash_t txdHash, hash_t texHash)
-{
-	hash_t hash;
-
-	if (!resolveCombinedHash(txdHash, texHash, hash)) {
-		return NULL;
-	}
-
-	return find(hash);
 }

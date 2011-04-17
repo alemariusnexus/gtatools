@@ -21,7 +21,7 @@
 #include <cctype>
 #include <cstring>
 
-#ifdef linux
+#ifdef _POSIX_VERSION
 #include <sys/time.h>
 #else
 #include <windows.h>
@@ -30,7 +30,7 @@
 
 uint64_t GetTickcount()
 {
-#ifdef linux
+#ifdef _POSIX_VERSION
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
 	return tv.tv_sec*1000 + tv.tv_usec/1000;

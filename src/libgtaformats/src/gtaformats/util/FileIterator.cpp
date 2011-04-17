@@ -22,7 +22,7 @@
 #include <cstring>
 #include "../img/IMGArchive.h"
 
-#ifdef linux
+#ifdef _POSIX_VERSION
 #include <errno.h>
 #endif
 
@@ -30,7 +30,7 @@
 
 FileIterator::FileIterator(const File* file)
 		: iteratedDir(file), archive(NULL), archiveIdx(0)
-#ifdef linux
+#ifdef _POSIX_VERSION
 		  , dir(NULL)
 #else
 		  , dirHandle(NULL), nextFile(NULL)
@@ -60,7 +60,7 @@ FileIterator::FileIterator(const File* file)
 				throw ex;
 			}
 		} else {
-#ifdef linux
+#ifdef _POSIX_VERSION
 			dir = opendir(file->getPath()->toString());
 
 			if (dir == NULL) {
@@ -110,7 +110,7 @@ FileIterator::~FileIterator()
 		delete archive;
 	}
 
-#ifdef linux
+#ifdef _POSIX_VERSION
 	if (dir != NULL) {
 		closedir(dir);
 	}
@@ -129,7 +129,7 @@ FileIterator::~FileIterator()
 File* FileIterator::next()
 {
 	if (isRealDirectory()) {
-#ifdef linux
+#ifdef _POSIX_VERSION
 		struct dirent* entry;
 
 		while ((entry = readdir(dir))  !=  NULL) {

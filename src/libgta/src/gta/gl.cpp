@@ -10,6 +10,7 @@
 #include <set>
 #include <cstring>
 #include <cstdio>
+#include "GLException.h"
 
 using std::set;
 
@@ -31,6 +32,8 @@ void gtaglInit()
 		return;
 
 	const char* verStr = (const char*) glGetString(GL_VERSION);
+
+	GLException::checkError();
 
 #ifdef GTA_USE_OPENGL_ES
 	const char* extStr = (const char*) glGetString(GL_EXTENSIONS);

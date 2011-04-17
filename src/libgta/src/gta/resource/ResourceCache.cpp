@@ -9,12 +9,16 @@
 #include "CacheEntry.h"
 #include <gtaformats/util/InvalidStateException.h>
 #include <cstdio>
+#include <gtaformats/util/util.h>
 
 
 
 
 ResourceCache::ResourceCache(CacheEntryLoader* loader, cachesize_t capacity)
 		: cache(EntryCache(capacity)), loader(loader)
+#ifndef NDEBUG
+		  , numHits(0), numMisses(0)
+#endif
 {
 }
 
@@ -32,6 +36,9 @@ ResourceCache::~ResourceCache()
 
 CacheEntry* ResourceCache::doCache(hash_t key, bool lock)
 {
+#ifndef NDEBUG
+	numMisses++;
+#endif
 	CacheEntry* entry = loader->load(key);
 
 	if (!cache.insert(key, entry, entry->getSize(), lock)) {
@@ -57,6 +64,10 @@ CacheEntry* ResourceCache::getEntry(hash_t key, bool lock)
 		CacheEntry* entry = doCache(key, lock);
 		return entry;
 	}
+
+#ifndef NDEBUG
+	numHits++;
+#endif
 
 	return entry;
 }

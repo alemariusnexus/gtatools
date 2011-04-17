@@ -40,7 +40,7 @@ struct ThreadContainer
 
 
 
-#ifdef linux
+#ifdef _POSIX_VERSION
 void* __posixThreadStarter(void* param)
 {
 	ThreadContainer* tc = (ThreadContainer*) param;
@@ -66,7 +66,7 @@ DWORD WINAPI __winThreadStarter(LPVOID param)
 Thread::Thread(bool deleteOnTermination)
 		: deleteOnTermination(deleteOnTermination), running(false), parentThread(currentThread()),
 		  terminationHandler(NULL)
-#ifdef linux
+#ifdef _POSIX_VERSION
 #else
 		  , winHandle(NULL)
 #endif
@@ -75,7 +75,7 @@ Thread::Thread(bool deleteOnTermination)
 }
 
 
-#ifdef linux
+#ifdef _POSIX_VERSION
 Thread::Thread(pthread_t posixThread)
 		: deleteOnTermination(false), parentThread(NULL), terminationHandler(NULL), posixThread(posixThread)
 {
@@ -90,7 +90,7 @@ Thread::Thread(HANDLE winHandle)
 
 Thread::~Thread()
 {
-#ifdef linux
+#ifdef _POSIX_VERSION
 #else
 	CloseHandle(winHandle);
 #endif
@@ -101,7 +101,7 @@ Thread* Thread::currentThread()
 {
 	unsigned long threadId;
 
-#ifdef linux
+#ifdef _POSIX_VERSION
 	threadId = pthread_self();
 #else
 	threadId = GetCurrentThreadId();
@@ -125,7 +125,7 @@ void Thread::start()
 	ThreadContainer* tc = new ThreadContainer;
 	tc->thread = this;
 
-#ifdef linux
+#ifdef _POSIX_VERSION
 	pthread_create(&posixThread, NULL, __posixThreadStarter, tc);
 	running = true;
 	id = (unsigned long) posixThread;
@@ -178,7 +178,7 @@ void Thread::terminated()
 
 void Thread::join()
 {
-#ifdef linux
+#ifdef _POSIX_VERSION
 	pthread_join(posixThread, NULL);
 #else
 	WaitForSingleObject(winHandle, INFINITE);

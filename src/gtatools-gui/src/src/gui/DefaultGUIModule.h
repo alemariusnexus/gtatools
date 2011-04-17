@@ -60,8 +60,8 @@ private slots:
 	void profileAdded(Profile* profile);
 	void profileRemoved(Profile* profile);
 	void profilesLoaded();
+	void profileNameChanged(const QString& oldName, const QString& newName);
 	void currentProfileChanged(Profile* oldProfile, Profile* newProfile);
-	void profileChanged(Profile* profile);
 	void onPVSGeneration(bool checked);
 
 private:

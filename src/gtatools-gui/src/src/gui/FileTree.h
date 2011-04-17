@@ -48,7 +48,8 @@ private slots:
 	void fileSelected(const QModelIndex& index);
 	void contextMenuRequested(const QPoint& pos);
 	void currentProfileChanged(Profile* oldProfile, Profile* newProfile);
-	void currentProfileContentChanged();
+	void currentProfileResourceAdded(const File& file) { reload(); }
+	void currentProfileResourceRemoved(const File& file) { reload(); }
 	void fileOpened(const FileOpenRequest& request);
 
 private:

@@ -62,7 +62,9 @@ void TxdGetRasterFormatName(char* dest, int32_t rasterFormat);
 
 
 enum TXDCompression {
-	NONE = 0, DXT1 = 1, DXT3 = 3
+	NONE = 0,
+	DXT1 = 1, DXT3 = 3,
+	PVRTC2 = 50, PVRTC4 = 51
 };
 enum TXDMirrorFlags {
 	MIRROR_NONE, MIRROR_HORIZONTAL, MIRROR_VERTICAL, MIRROR_BOTH

@@ -26,20 +26,19 @@
 
 
 
+
 GLuint ManagedTextureSource::getTexture(hash_t texHash)
 {
 	ResourceCache* cache = Engine::getInstance()->getTextureCache();
 	TextureIndexer* indexer = Engine::getInstance()->getTextureIndexer();
-	hash_t hash;
 
-	if (!indexer->resolveCombinedHash(txdHash, texHash, hash)) {
+	TextureCacheEntry* entry = (TextureCacheEntry*) cache->getEntry(txdHash);
+
+	if (!entry) {
 		return 0;
 	}
 
-	TextureCacheEntry* entry = (TextureCacheEntry*) cache->getEntry(hash);
+	GLuint tex = entry->getTexture(texHash);
 
-	return entry->getTexture();
-	/*ResourceManager* resMgr = Engine::getInstance()->getResourceManager();
-	GLuint tex = resMgr->getTexture(TextureIndex(txdHash, texHash));
-	return tex;*/
+	return tex;
 }

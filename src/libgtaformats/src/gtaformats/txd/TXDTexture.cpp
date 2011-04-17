@@ -113,6 +113,14 @@ TXDTexture::TXDTexture(istream* stream, long long& bytesRead)
 			} else {
 				compression = NONE;
 			}
+		} else if (dxtFourCC[0] == 'P'  &&  dxtFourCC[1] == 'V'  &&  dxtFourCC[2] == 'R') {
+			if (dxtFourCC[3] == '2') {
+				compression = PVRTC2;
+			} else if (dxtFourCC[3] == '4') {
+				compression = PVRTC4;
+			} else {
+				compression = NONE;
+			}
 		} else {
 			compression = NONE;
 		}
@@ -192,12 +200,22 @@ void TXDTexture::getFormat(char* dest) const
 	char compStr[8];
 	char formatStr[16];
 
-	if (compression == NONE) {
+	switch (compression) {
+	case NONE:
 		strcpy(compStr, "un");
-	} else if (compression == DXT1) {
+		break;
+	case DXT1:
 		strcpy(compStr, "DXT1-");
-	} else {
+		break;
+	case DXT3:
 		strcpy(compStr, "DXT3-");
+		break;
+	case PVRTC2:
+		strcpy(compStr, "PVRTC2-");
+		break;
+	case PVRTC4:
+		strcpy(compStr, "PVRTC4-");
+		break;
 	}
 
 	TxdGetRasterFormatName(formatStr, rasterFormat & 0xF00);
@@ -208,6 +226,14 @@ void TXDTexture::getFormat(char* dest) const
 
 bool TXDTexture::canConvert() const
 {
+	if (compression == PVRTC2  ||  compression == PVRTC4) {
+		return false;
+	} else if (compression == DXT1  ||  compression == DXT3) {
+#ifndef GTAFORMATS_ENABLE_SQUISH
+		return false;
+#endif
+	}
+
 	return true;
 }
 
@@ -235,6 +261,7 @@ void TXDTexture::convert(uint8_t* dest, const uint8_t* src, int mipmap, TXDMirro
 		getColorMasks(redMask, greenMask, blueMask, alphaMask);
 		data = src;
 	} else {
+		if (getCompression() == DXT1  ||  getCompression() == DXT3) {
 #		ifdef GTAFORMATS_ENABLE_SQUISH
 			uint8_t* squishDest;
 
@@ -272,6 +299,10 @@ void TXDTexture::convert(uint8_t* dest, const uint8_t* src, int mipmap, TXDMirro
 			throw TXDException("Attempt to call TXDTexture::convert() for a DXT-compressed texture, but DXT "
 					"is not supported because GTAFORMATS_ENABLE_SQUISH was turned off during compilation");
 #		endif
+		} else {
+			throw TXDException("Attempt to call TXDTexture::convert() for a PVRTC-compressed texture. "
+					"PVRTC decompression is not supported by the TXD API!");
+		}
 	}
 
 	// How many times do we have to shift each color channel value to the right so that they
@@ -439,10 +470,20 @@ int TXDTexture::computeMipmapDataSize(int mipmap) const
 
 	int mipSize = mipW * mipH;
 
-	if (compression == DXT1) {
-		mipSize /= 2;
-	} else if (compression == NONE) {
+	switch (compression) {
+	case NONE:
 		mipSize *= bytesPerPixel;
+		break;
+	case DXT1:
+	case PVRTC4:
+		mipSize /= 2;
+		break;
+	case DXT3:
+		// Size already correct
+		break;
+	case PVRTC2:
+		mipSize /= 4;
+		break;
 	}
 
 	return mipSize;

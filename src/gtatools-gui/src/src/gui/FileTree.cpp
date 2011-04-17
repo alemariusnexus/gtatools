@@ -143,20 +143,20 @@ void FileTree::contextMenuRequested(const QPoint& pos)
 void FileTree::currentProfileChanged(Profile* oldProfile, Profile* newProfile)
 {
 	if (oldProfile) {
-		disconnect(oldProfile, SIGNAL(changed()), this, SLOT(currentProfileContentChanged()));
+		disconnect(oldProfile, SIGNAL(profileResourceAdded(const File&)), this,
+				SLOT(currentProfileResourceAdded(const File&)));
+		disconnect(oldProfile, SIGNAL(profileResourceRemoved(const File&)), this,
+				SLOT(currentProfileResourceRemoved(const File&)));
 	}
 
 	showProfile(newProfile);
 
 	if (newProfile) {
-		connect(newProfile, SIGNAL(changed()), this, SLOT(currentProfileContentChanged()));
+		connect(newProfile, SIGNAL(profileResourceAdded(const File&)), this,
+				SLOT(currentProfileResourceAdded(const File&)));
+		connect(newProfile, SIGNAL(profileResourceRemoved(const File&)), this,
+				SLOT(currentProfileResourceRemoved(const File&)));
 	}
-}
-
-
-void FileTree::currentProfileContentChanged()
-{
-	reload();
 }
 
 

@@ -35,7 +35,8 @@ using std::multimap;
 
 
 
-class Profile : public QObject, public ResourceObserver {
+class Profile : public QObject, public ResourceObserver
+{
 	Q_OBJECT
 
 public:
@@ -49,36 +50,48 @@ public:
 
 	void addResource(const File& resource);
 	void addDATFile(const File& file);
+	bool setResources(const QLinkedList<File>& resources);
+	bool setDATFiles(const QLinkedList<File>& files);
 	ResourceIterator getResourceBegin();
 	ResourceIterator getResourceEnd();
 	ResourceIterator getDATFilesBegin() { return datFiles.begin(); }
 	ResourceIterator getDATFilesEnd() { return datFiles.end(); }
+	QLinkedList<File*>& getResources() { return resources; }
 	int getResourceCount() const { return resources.size(); }
 	int getDATFileCount() const { return datFiles.size(); }
 	QString getDATRootDirectory() const { return datRoot; }
-	void setDATRootDirectory(const QString& dir) { datRoot = dir; }
+	void setDATRootDirectory(const QString& dir);
 	QLinkedList<File*> getResources() const { return resources; }
 	QString getName() const { return name; }
 	ResourceIterator removeResource(ResourceIterator it);
+	ResourceIterator removeDATFile(ResourceIterator it);
 	void clearResources();
-	void setName(const QString& name) { this->name = name; }
+	void setName(const QString& name);
 	void synchronize();
 	bool containsFile(const File& file);
-	virtual void resourceAdded(const File& file);
 	int findTexturesForMesh(hash_t meshName, char**& textures);
+	void updateResourceIndex() { if (isCurrent()) loadResourceIndex(); }
+	bool isCurrent() const;
+	virtual void resourceAdded(const File& file);
 
 private:
 	void loadResourceIndex();
+	void addResourceRecurse(const File& file);
+	void removeResourceRecurse(const File& file);
 
-public slots:
+private slots:
 	void currentProfileChanged(Profile* oldProfile, Profile* newProfile);
 	void resourcesInitialized();
 
-private slots:
-	void selfChanged();
 
 signals:
-	void changed();
+	//void changed();
+	void nameChanged(const QString& oldStr, const QString& newStr);
+	void datRootChanged(const QString& oldRoot, const QString& newRoot);
+	void datFileAdded(const File& file);
+	void datFileRemoved(const File& file);
+	void profileResourceAdded(const File& file);
+	void profileResourceRemoved(const File& file);
 	void resourceIndexInitialized();
 
 private:

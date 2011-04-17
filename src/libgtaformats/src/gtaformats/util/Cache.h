@@ -21,10 +21,16 @@
 #define CACHE_H_
 
 #include "../config.h"
-#include <map>
 #include <utility>
 
+#ifdef CXX0X_AVAILABLE
+#include <unordered_map>
+using std::unordered_map;
+#else
+#include <map>
 using std::map;
+#endif
+
 using std::pair;
 
 
@@ -47,6 +53,12 @@ private:
 		bool locked;
 	};
 
+#ifdef CXX0X_AVAILABLE
+	typedef unordered_map<K, Entry> EntryMap;
+#else
+	typedef map<K, Entry> EntryMap;
+#endif
+
 public:
 	Cache(cachesize_t capacity = 0) : first(NULL), last(NULL), capacity(capacity), occupied(0) {}
 	~Cache() { clear(); }
@@ -67,7 +79,7 @@ private:
 	bool remove(Entry& entry);
 
 private:
-	map<K, Entry> entries;
+	EntryMap entries;
 	Entry* first;
 	Entry* last;
 	cachesize_t capacity;
@@ -78,7 +90,7 @@ private:
 template<class K, class V>
 V* Cache<K, V>::access(const K& key)
 {
-	typename map<K, Entry>::iterator it = entries.find(key);
+	typename EntryMap::iterator it = entries.find(key);
 
 	if (it == entries.end()) {
 		return NULL;
@@ -139,7 +151,7 @@ bool Cache<K, V>::insert(const K& key, V* value, cachesize_t size, bool locked)
 		return false;
 	}
 	free(capacity-size);
-	typename map<K, Entry>::iterator it = entries
+	typename EntryMap::iterator it = entries
 			.insert(pair<const K, Entry>(key, Entry(value, size, locked))).first;
 	Entry& entry = it->second;
 	if (first) {
@@ -188,7 +200,7 @@ bool Cache<K, V>::clear()
 template<class K, class V>
 bool Cache<K, V>::remove(const K& key)
 {
-	typename map<K, Entry>::iterator it = entries.find(key);
+	typename EntryMap::iterator it = entries.find(key);
 	return remove(it->second);
 }
 
@@ -196,7 +208,7 @@ bool Cache<K, V>::remove(const K& key)
 template<class K, class V>
 V* Cache<K, V>::lock(const K& key, bool locked)
 {
-	typename map<K, Entry>::iterator it = entries.find(key);
+	typename EntryMap::iterator it = entries.find(key);
 
 	if (it == entries.end()) {
 		return NULL;

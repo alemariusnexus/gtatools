@@ -7,9 +7,12 @@
 
 #include "TextureCacheLoader.h"
 #include "TextureCacheEntry.h"
+#include "TextureArchive.h"
 #include <gtaformats/txd/TXDArchive.h>
 #include <gtaformats/txd/TXDTexture.h>
+#include <gtaformats/util/strutil.h>
 #include "../../gl.h"
+#include "../../EngineException.h"
 
 
 
@@ -22,213 +25,275 @@ TextureCacheLoader::TextureCacheLoader(TextureIndexer* indexer)
 
 CacheEntry* TextureCacheLoader::load(hash_t hash)
 {
-	const TextureIndexEntry* entry = indexer->find(hash);
+	TextureArchive* indexArchive = indexer->findArchive(hash);
 
-	TXDArchive txd(*entry->file);
+	TXDArchive txd(indexArchive->getFile());
 
-	for (int16_t i = 0 ; i < entry->index ; i++) delete txd.nextTexture();
+	TextureCacheEntry* cacheEntry = new TextureCacheEntry;
 
-	TXDTexture* tex = txd.nextTexture();
-	uint8_t* data = txd.readTextureData(tex);
+	for (int16_t i = 0 ; i < txd.getTextureCount() ; i++) {
+		int size = 0;
 
-	GLuint glTex;
-	glGenTextures(1, &glTex);
-	glBindTexture(GL_TEXTURE_2D, glTex);
+		TXDTexture* tex = txd.nextTexture();
+		uint8_t* data = txd.readTextureData(tex);
 
-	GLint uWrap = GL_REPEAT;
-	GLint vWrap = GL_REPEAT;
+		const char* name = tex->getDiffuseName();
+		char* lname = new char[strlen(name)+1];
+		strtolower(lname, name);
+		hash_t texHash = Hash(lname);
+		delete[] lname;
 
-	switch (tex->getUWrapFlags()) {
-	case TXD_WRAP_NONE:
-		uWrap = GL_REPEAT;
-		break;
-	case TXD_WRAP_WRAP:
-		uWrap = GL_REPEAT;
-		break;
-	case TXD_WRAP_MIRROR:
-		uWrap = GL_MIRRORED_REPEAT;
-		break;
-	case TXD_WRAP_CLAMP:
-		uWrap = GL_CLAMP_TO_EDGE;
-		break;
-	}
+		GLuint glTex;
+		glGenTextures(1, &glTex);
+		glBindTexture(GL_TEXTURE_2D, glTex);
 
-	switch (tex->getVWrapFlags()) {
-	case TXD_WRAP_NONE:
-		vWrap = GL_REPEAT;
-		break;
-	case TXD_WRAP_WRAP:
-		vWrap = GL_REPEAT;
-		break;
-	case TXD_WRAP_MIRROR:
-		vWrap = GL_MIRRORED_REPEAT;
-		break;
-	case TXD_WRAP_CLAMP:
-		vWrap = GL_CLAMP_TO_EDGE;
-		break;
-	}
+		GLint uWrap = GL_REPEAT;
+		GLint vWrap = GL_REPEAT;
 
-	GLint magFilter, minFilter;
+		switch (tex->getUWrapFlags()) {
+		case TXD_WRAP_NONE:
+			uWrap = GL_REPEAT;
+			break;
+		case TXD_WRAP_WRAP:
+			uWrap = GL_REPEAT;
+			break;
+		case TXD_WRAP_MIRROR:
+			uWrap = GL_MIRRORED_REPEAT;
+			break;
+		case TXD_WRAP_CLAMP:
+			uWrap = GL_CLAMP_TO_EDGE;
+			break;
+		}
 
-	switch (tex->getFilterFlags()) {
-	case TXD_FILTER_LINEAR:
-		magFilter = GL_LINEAR;
-		minFilter = GL_LINEAR;
-		break;
+		switch (tex->getVWrapFlags()) {
+		case TXD_WRAP_NONE:
+			vWrap = GL_REPEAT;
+			break;
+		case TXD_WRAP_WRAP:
+			vWrap = GL_REPEAT;
+			break;
+		case TXD_WRAP_MIRROR:
+			vWrap = GL_MIRRORED_REPEAT;
+			break;
+		case TXD_WRAP_CLAMP:
+			vWrap = GL_CLAMP_TO_EDGE;
+			break;
+		}
 
-	case TXD_FILTER_NEAREST:
-		magFilter = GL_NEAREST;
-		minFilter = GL_NEAREST;
-		break;
+		GLint magFilter, minFilter;
 
-	case TXD_FILTER_MIP_NEAREST:
-		magFilter = GL_NEAREST;
-		minFilter = GL_NEAREST_MIPMAP_NEAREST;
-		break;
+		switch (tex->getFilterFlags()) {
+		case TXD_FILTER_LINEAR:
+			magFilter = GL_LINEAR;
+			minFilter = GL_LINEAR;
+			break;
 
-	case TXD_FILTER_MIP_LINEAR:
-		magFilter = GL_NEAREST;
-		minFilter = GL_NEAREST_MIPMAP_LINEAR;
-		break;
+		case TXD_FILTER_NEAREST:
+			magFilter = GL_NEAREST;
+			minFilter = GL_NEAREST;
+			break;
 
-	case TXD_FILTER_LINEAR_MIP_NEAREST:
-		magFilter = GL_LINEAR;
-		minFilter = GL_LINEAR_MIPMAP_NEAREST;
-		break;
+		case TXD_FILTER_MIP_NEAREST:
+			magFilter = GL_NEAREST;
+			minFilter = GL_NEAREST_MIPMAP_NEAREST;
+			break;
 
-	case TXD_FILTER_LINEAR_MIP_LINEAR:
-		magFilter = GL_LINEAR;
-		minFilter = GL_LINEAR_MIPMAP_LINEAR;
-		break;
+		case TXD_FILTER_MIP_LINEAR:
+			magFilter = GL_NEAREST;
+			minFilter = GL_NEAREST_MIPMAP_LINEAR;
+			break;
 
-	case TXD_FILTER_NONE:
-		// Don't know what it is
-		magFilter = GL_LINEAR;
-		minFilter = GL_LINEAR;
-		break;
+		case TXD_FILTER_LINEAR_MIP_NEAREST:
+			magFilter = GL_LINEAR;
+			minFilter = GL_LINEAR_MIPMAP_NEAREST;
+			break;
 
-	default:
-		// Unknown filter, use linear
-		magFilter = GL_LINEAR;
-		minFilter = GL_LINEAR;
-	}
+		case TXD_FILTER_LINEAR_MIP_LINEAR:
+			magFilter = GL_LINEAR;
+			minFilter = GL_LINEAR_MIPMAP_LINEAR;
+			break;
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, uWrap);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, vWrap);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
+		case TXD_FILTER_NONE:
+			// Don't know what it is
+			magFilter = GL_LINEAR;
+			minFilter = GL_LINEAR;
+			break;
 
-	// TODO Can we really disable this?
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, tex->getMipmapCount()-1);
+		default:
+			// Unknown filter, use linear
+			magFilter = GL_LINEAR;
+			minFilter = GL_LINEAR;
+		}
 
-	bool mipmapsIncluded = (tex->getRasterFormatExtension() & TXD_FORMAT_EXT_MIPMAP) != 0;
-	bool mipmapsAuto = (tex->getRasterFormatExtension() & TXD_FORMAT_EXT_AUTO_MIPMAP) != 0;
-	int numIncludedMipmaps = mipmapsIncluded ? tex->getMipmapCount() : 1;
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, uWrap);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, vWrap);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
 
-#ifndef GTA_USE_OPENGL_ES
-	if (mipmapsAuto  &&  !gtaglIsVersionSupported(3, 0)) {
-		glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
-	}
-#endif
+		// TODO Can we really disable this?
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, tex->getMipmapCount()-1);
 
-	int16_t w = tex->getWidth();
-	int16_t h = tex->getHeight();
+		bool mipmapsIncluded = (tex->getRasterFormatExtension() & TXD_FORMAT_EXT_MIPMAP) != 0;
+		bool mipmapsAuto = (tex->getRasterFormatExtension() & TXD_FORMAT_EXT_AUTO_MIPMAP) != 0;
+		int numIncludedMipmaps = mipmapsIncluded ? tex->getMipmapCount() : 1;
 
-	TXDCompression compr = tex->getCompression();
-	int size = 0;
+	#ifndef GTA_USE_OPENGL_ES
+		if (mipmapsAuto  &&  !gtaglIsVersionSupported(3, 0)) {
+			glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+		}
+	#endif
 
-#ifndef GTA_USE_OPENGL_ES
-	if (	(compr == DXT1  ||  compr == DXT3)
-			&&  gtaglIsExtensionSupported("GL_EXT_texture_compression_s3tc")
-	) {
-		if (compr == DXT1) {
-			uint8_t* dataStart = data;
+		int16_t w = tex->getWidth();
+		int16_t h = tex->getHeight();
 
-			int16_t mipW = w;
-			int16_t mipH = h;
+		TXDCompression compr = tex->getCompression();
 
-			for (int i = 0 ; i < numIncludedMipmaps ; i++) {
-				if (mipW < 4  ||  mipH < 4) {
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, i-1);
-					break;
+	#ifndef GTA_USE_OPENGL_ES
+		if (	(compr == DXT1  ||  compr == DXT3)
+				&&  gtaglIsExtensionSupported("GL_EXT_texture_compression_s3tc")
+		) {
+			if (compr == DXT1) {
+				uint8_t* dataStart = data;
+
+				int16_t mipW = w;
+				int16_t mipH = h;
+
+				for (int i = 0 ; i < numIncludedMipmaps ; i++) {
+					if (mipW < 4  ||  mipH < 4) {
+						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, i-1);
+						break;
+					}
+
+					glCompressedTexImage2D(GL_TEXTURE_2D, i, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT,
+							mipW, mipH, 0, (mipW*mipH)/2, data);
+					size += (mipW*mipH)/2;
+					data += (mipW*mipH)/2;
+					mipW /= 2;
+					mipH /= 2;
 				}
 
-				glCompressedTexImage2D(GL_TEXTURE_2D, i, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT,
-						mipW, mipH, 0, (mipW*mipH)/2, data);
-				size += (mipW*mipH)/2;
-				data += (mipW*mipH)/2;
-				mipW /= 2;
-				mipH /= 2;
+				delete[] dataStart;
+			} else if (compr == DXT3) {
+				uint8_t* dataStart = data;
+
+				int16_t mipW = w;
+				int16_t mipH = h;
+
+				for (int i = 0 ; i < numIncludedMipmaps ; i++) {
+					if (mipW < 4  ||  mipH < 4) {
+						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, i-1);
+						break;
+					}
+
+					glCompressedTexImage2D(GL_TEXTURE_2D, i, GL_COMPRESSED_RGBA_S3TC_DXT3_EXT,
+							mipW, mipH, 0, mipW*mipH, data);
+					size += mipW*mipH;
+					data += mipW*mipH;
+					mipW /= 2;
+					mipH /= 2;
+				}
+
+				delete[] dataStart;
+			}
+		} else
+	#endif
+		if (compr == PVRTC2  ||  compr == PVRTC4) {
+			printf("1\n");
+			if (!gtaglIsExtensionSupported("GL_IMG_texture_compression_pvrtc")) {
+				printf("2\n");
+				throw EngineException("Attempt to load a PVRTC-compressed texture. This is only supported "
+						"when GL_IMG_texture_compression_pvrtc is available, which doesn't seem to be.",
+						__FILE__, __LINE__);
 			}
 
-			delete[] dataStart;
+#ifdef GTA_USE_OPENGL_ES
+			if (compr == PVRTC2) {
+				uint8_t* dataStart = data;
+
+				int16_t mipW = w;
+				int16_t mipH = h;
+
+				for (int i = 0 ; i < numIncludedMipmaps ; i++) {
+					/*if (mipW < 4  ||  mipH < 4) {
+						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, i-1);
+						break;
+					}*/
+
+					glCompressedTexImage2D(GL_TEXTURE_2D, i, GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG,
+							mipW, mipH, 0, mipW*mipH, data);
+					size += (mipW*mipH)/4;
+					data += (mipW*mipH)/4;
+					mipW /= 2;
+					mipH /= 2;
+				}
+
+				delete[] dataStart;
+			} else if (compr == PVRTC4) {
+				uint8_t* dataStart = data;
+
+				int16_t mipW = w;
+				int16_t mipH = h;
+
+				for (int i = 0 ; i < numIncludedMipmaps ; i++) {
+					/*if (mipW < 4  ||  mipH < 4) {
+						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, i-1);
+						break;
+					}*/
+
+					glCompressedTexImage2D(GL_TEXTURE_2D, i, GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG,
+							mipW, mipH, 0, mipW*mipH, data);
+					size += (mipW*mipH)/2;
+					data += (mipW*mipH)/2;
+					mipW /= 2;
+					mipH /= 2;
+				}
+
+				delete[] dataStart;
+			}
+#endif
 		} else {
 			uint8_t* dataStart = data;
 
 			int16_t mipW = w;
 			int16_t mipH = h;
 
+			int8_t bppFraction = tex->getCompression() == DXT1 ? 2 : 1;
+
 			for (int i = 0 ; i < numIncludedMipmaps ; i++) {
 				if (mipW < 4  ||  mipH < 4) {
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, i-1);
+					// TODO See above...
+					//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, i-1);
 					break;
 				}
 
-				glCompressedTexImage2D(GL_TEXTURE_2D, i, GL_COMPRESSED_RGBA_S3TC_DXT3_EXT,
-						mipW, mipH, 0, mipW*mipH, data);
-				size += mipW*mipH;
-				data += mipW*mipH;
+				uint8_t* pixels = new uint8_t[mipW*mipH*4];
+				tex->convert(pixels, data, i, MIRROR_NONE, 4, 0, 1, 2, 3);
+
+				glTexImage2D(GL_TEXTURE_2D, i, GL_RGBA, mipW, mipH, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+				size += mipW*mipH*4;
+				data += mipW*mipH/bppFraction;
+
+				delete[] pixels;
+
 				mipW /= 2;
 				mipH /= 2;
 			}
 
 			delete[] dataStart;
 		}
-	} else {
-#endif
-		uint8_t* dataStart = data;
 
-		int16_t mipW = w;
-		int16_t mipH = h;
-
-		int8_t bppFraction = tex->getCompression() == DXT1 ? 2 : 1;
-
-		for (int i = 0 ; i < numIncludedMipmaps ; i++) {
-			if (mipW < 4  ||  mipH < 4) {
-				// TODO See above...
-				//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, i-1);
-				break;
-			}
-
-			uint8_t* pixels = new uint8_t[mipW*mipH*4];
-			tex->convert(pixels, data, i, MIRROR_NONE, 4, 0, 1, 2, 3);
-
-			glTexImage2D(GL_TEXTURE_2D, i, GL_RGBA, mipW, mipH, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-			size += mipW*mipH*4;
-			data += mipW*mipH/bppFraction;
-
-			delete[] pixels;
-
-			mipW /= 2;
-			mipH /= 2;
+		if (	(tex->getRasterFormatExtension() & TXD_FORMAT_EXT_AUTO_MIPMAP) != 0
+	#ifndef GTA_USE_OPENGL_ES
+				&&  gtaglIsVersionSupported(3, 0)
+	#endif
+		) {
+			glGenerateMipmap(GL_TEXTURE_2D);
 		}
 
-		delete[] dataStart;
-#ifndef GTA_USE_OPENGL_ES
+		delete tex;
+
+		cacheEntry->addTexture(texHash, glTex, size);
 	}
-#endif
-
-	if (	(tex->getRasterFormatExtension() & TXD_FORMAT_EXT_AUTO_MIPMAP) != 0
-#ifndef GTA_USE_OPENGL_ES
-			&&  gtaglIsVersionSupported(3, 0)
-#endif
-	) {
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-
-	delete tex;
-
-	TextureCacheEntry* cacheEntry = new TextureCacheEntry(glTex, size);
 
 	return cacheEntry;
 }

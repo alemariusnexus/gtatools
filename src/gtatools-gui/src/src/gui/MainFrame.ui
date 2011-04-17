@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>923</width>
-    <height>663</height>
+    <width>884</width>
+    <height>655</height>
    </rect>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>16777215</width>
+    <height>16777215</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string notr="true">GTATools GUI Tool</string>
@@ -59,7 +65,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>923</width>
+     <width>884</width>
      <height>23</height>
     </rect>
    </property>
