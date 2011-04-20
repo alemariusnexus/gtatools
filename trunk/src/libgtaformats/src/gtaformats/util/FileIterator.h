@@ -22,6 +22,10 @@
 
 #include "../config.h"
 #include <cstdlib>
+#include "../img/IMGArchive.h"
+#include <boost/smart_ptr/shared_ptr.hpp>
+
+using boost::shared_ptr;
 
 #ifdef _POSIX_VERSION
 #include <sys/stat.h>
@@ -32,7 +36,6 @@
 #endif
 
 
-class IMGArchive;
 class File;
 
 
@@ -70,8 +73,8 @@ private:
 
 private:
 	const File* iteratedDir;
-	IMGArchive* archive;
-	int archiveIdx;
+	shared_ptr<IMGArchive> archive;
+	IMGArchive::EntryIterator archiveIt;
 #ifdef _POSIX_VERSION
 		DIR* dir;
 #else

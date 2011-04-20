@@ -24,6 +24,7 @@
 #include "FileException.h"
 #include "../img/IMGArchive.h"
 #include "FileFinder.h"
+#include "FileIMGWrapperStream.h"
 
 #ifdef _POSIX_VERSION
 #include <errno.h>
@@ -33,26 +34,27 @@
 
 
 File::File(const char* path)
-		: path(new FilePath(path)), autoDeletePath(true)
-
+		: path(new FilePath(path)), autoDeletePath(true),
+		  archivePtr(shared_ptr< shared_ptr<IMGArchive> > (new shared_ptr<IMGArchive>))
 {
 }
 
 
 File::File(FilePath* path, bool autoDeletePath)
-		: path(path), autoDeletePath(autoDeletePath)
+		: path(path), autoDeletePath(autoDeletePath),
+		  archivePtr(shared_ptr< shared_ptr<IMGArchive> > (new shared_ptr<IMGArchive>))
 {
 }
 
 
 File::File(const File& other)
-		: path(new FilePath(*other.path)), autoDeletePath(true)
+		: path(new FilePath(*other.path)), autoDeletePath(true), archivePtr(other.archivePtr)
 {
 }
 
 
 File::File(const File& parent, const char* child)
-		: path(NULL), autoDeletePath(true)
+		: path(NULL), autoDeletePath(true), archivePtr(parent.archivePtr)
 {
 	if (!parent.isDirectory()) {
 		FileContentType type = parent.guessContentType();
@@ -99,10 +101,11 @@ bool File::exists() const
 		if (path->isIMGPath()) {
 			try {
 				File* parent = getParent();
-				IMGArchive archive(*parent);
+				//IMGArchive archive(*parent);
+				shared_ptr<IMGArchive> archive = getIMGArchive();
 				delete parent;
 
-				if (archive.getEntryByName(path->getFileName()) != NULL) {
+				if (archive->getEntryByName(path->getFileName()) != archive->getEntryEnd()) {
 					return true;
 				} else {
 					return false;
@@ -175,7 +178,9 @@ File* File::getParent() const
 		return NULL;
 	}
 
-	return new File(parent);
+	File* parentFile = new File(parent);
+	parentFile->archivePtr = archivePtr;
+	return parentFile;
 }
 
 
@@ -201,16 +206,14 @@ istream* File::openInputStream(ifstream::openmode mode) const
 		if (path->isIMGPath()) {
 			// TODO Reimplement
 			try {
-				File* parent = getParent();
-
-				IMGArchive archive(*parent, false);
-				delete parent;
-				istream* rstream = archive.gotoEntry(path->getFileName(), true);
+				//IMGArchive archive(*parent, IMGArchive::ReadOnly | IMGArchive::KeepStreamsOpen);
+				shared_ptr<IMGArchive> archive = getIMGArchive();
+				istream* rstream = archive->gotoEntry(path->getFileName(), false);
 
 				if (rstream != NULL) {
-					return rstream;
+					FileIMGWrapperStream<istream>* wrapper = new FileIMGWrapperStream<istream>(rstream, archive);
+					return wrapper;
 				} else {
-					delete archive.getStream();
 					return NULL;
 				}
 			} catch (Exception& ex) {
@@ -232,6 +235,58 @@ istream* File::openInputStream(ifstream::openmode mode) const
 }
 
 
+ostream* File::openOutputStream(ostream::openmode mode) const
+{
+	return new ofstream(path->toString(), mode | ostream::out);
+	/*if (physicallyExists()) {
+		return new ofstream(path->toString(), mode | ostream::out);
+	} else {
+		if (path->isIMGPath()) {
+			char* errMsg = new char[strlen(path->toString()) + 128];
+			sprintf(errMsg, "Attempt to open output stream on IMG entry %s. Output to IMG entries using the "
+					"file API is not supported.", path->toString());
+			FileException fex(errMsg, __FILE__, __LINE__);
+			delete[] errMsg;
+			throw fex;
+		} else {
+			char* errMsg = new char[strlen(path->toString()) + 64];
+			sprintf(errMsg, "Attempt to open stream on non-existant file %s.", path->toString());
+			FileException fex(errMsg, __FILE__, __LINE__);
+			delete[] errMsg;
+			throw fex;
+		}
+	}*/
+}
+
+
+iostream* File::openInputOutputStream(iostream::openmode mode) const
+{
+	if (!physicallyExists()) {
+		ofstream tmp(path->toString());
+		tmp.close();
+	}
+	return new fstream(path->toString(), mode | iostream::out | iostream::in);
+	/*if (physicallyExists()) {
+		return new fstream(path->toString(), mode | iostream::out | iostream::in);
+	} else {
+		if (path->isIMGPath()) {
+			char* errMsg = new char[strlen(path->toString()) + 128];
+			sprintf(errMsg, "Attempt to open input/output stream on IMG entry %s. Output to IMG entries "
+					"using the file API is not supported.", path->toString());
+			FileException fex(errMsg, __FILE__, __LINE__);
+			delete[] errMsg;
+			throw fex;
+		} else {
+			char* errMsg = new char[strlen(path->toString()) + 64];
+			sprintf(errMsg, "Attempt to open stream on non-existant file %s.", path->toString());
+			FileException fex(errMsg, __FILE__, __LINE__);
+			delete[] errMsg;
+			throw fex;
+		}
+	}*/
+}
+
+
 File* File::getChild(int childIdx) const
 {
 	if (physicallyExists()) {
@@ -240,13 +295,16 @@ File* File::getChild(int childIdx) const
 
 			if (type == CONTENT_TYPE_DIR  ||  type == CONTENT_TYPE_IMG) {
 				try {
-					IMGArchive archive(*this);
+					shared_ptr<IMGArchive> archive = getIMGArchive();
 
-					if (childIdx >= archive.getEntryCount()) {
+					if (childIdx >= archive->getEntryCount()) {
 						return NULL;
 					}
 
-					return new File(*this, archive.getEntries()[childIdx].name);
+					IMGArchive::EntryIterator it = archive->getEntryBegin();
+					for (int i = 0 ; it != archive->getEntryEnd()  &&  i < childIdx ; it++, i++);
+
+					return new File(*this, (*it)->name);
 				} catch (Exception& ex) {
 					char* errMsg = new char[strlen(path->toString()) + 64];
 					sprintf(errMsg, "Exception thrown during child count of IMG archive %s.", path->toString());
@@ -306,8 +364,9 @@ int File::getChildCount(bool recursive, bool archiveEntries) const
 			return 0;
 		} else {
 			if (!recursive  ||  archiveEntries) {
-				IMGArchive img(*this);
-				return img.getEntryCount();
+				//IMGArchive img(*this);
+				//return img.getEntryCount();
+				return getIMGArchive()->getEntryCount();
 			} else {
 				return 0;
 			}
@@ -418,10 +477,9 @@ File::filesize File::getSize() const
 			File* imgFile = getParent();
 
 			try {
-				IMGArchive* img = new IMGArchive(*imgFile);
-				const IMGEntry* entry = img->getEntryByName(path->getFileName());
+				shared_ptr<IMGArchive> img = getIMGArchive();
+				const IMGEntry* entry = *img->getEntryByName(path->getFileName());
 				filesize size = entry->size * IMG_BLOCK_SIZE;
-				delete img;
 				delete imgFile;
 				return size;
 			} catch (Exception& ex) {
@@ -575,3 +633,111 @@ int File::findChildren(FileFinder& finder, vector<File*>& results, bool recursiv
 	return matchCount;
 }
 
+
+shared_ptr<IMGArchive> File::getIMGArchive() const
+{
+	shared_ptr<IMGArchive>* sharedPtr = archivePtr.get();
+
+	if (sharedPtr->get() == NULL) {
+		if (path->isIMGPath()) {
+			File* parent = getParent();
+			parent->getIMGArchive();
+			delete parent;
+		} else {
+			(*sharedPtr) = shared_ptr<IMGArchive>(new IMGArchive(*this));
+		}
+	}
+
+	return *sharedPtr;
+}
+
+
+File File::createTemporaryFile()
+{
+	// tmpnam() is dangerous, so we try to use platform-specific functions
+
+#ifdef _POSIX_VERSION
+	const char* tmpDir;
+#ifdef P_tmpdir
+	tmpDir = P_tmpdir;
+#else
+	tmpDir = getenv("TMPDIR");
+
+	if (!tmpDir) {
+		tmpDir = "/tmp";
+	}
+#endif // P_tmpdir
+
+	char* tmpTemplate = new char[strlen(tmpDir)+16];
+	sprintf(tmpTemplate, "%s/gff-XXXXXX", tmpDir);
+	close(mkstemp(tmpTemplate));
+	File file(tmpTemplate);
+	delete[] tmpTemplate;
+	return file;
+#elif defined(_WIN32)
+	DWORD status;
+	char tmpPath[512];
+	if ((status = GetTempPath(sizeof(tmpPath), tmpPath))  ==  0) {
+		char* errmsg = new char[128];
+		sprintf(errmsg, "Internal error creating temporary file (in GetTempPath()): %d.", status);
+		FileException ex(errmsg, __FILE__, __LINE__);
+		delete[] errmsg;
+		throw ex;
+	}
+	char tmpFilePath[1024];
+	if ((status = GetTempFileName(tmpPath, "gff", 0, tmpFilePath))  ==  0) {
+		char* errmsg = new char[128];
+		sprintf(errmsg, "Internal error creating temporary file (in GetTempFileName()): %d.", status);
+		FileException ex(errmsg, __FILE__, __LINE__);
+		delete[] errmsg;
+		throw ex;
+	}
+	return File(tmpFilePath);
+#else
+	return File(tmpnam());
+#endif // _POSIX_VERSION
+}
+
+
+void File::copy(const File& newFile) const
+{
+	istream* inStream = openInputStream(istream::binary);
+	newFile.copyFrom(inStream);
+}
+
+
+void File::copyFrom(istream* inStream) const
+{
+	ostream* outStream = openOutputStream(ostream::binary);
+
+	char buf[8192];
+
+	while (!inStream->eof()) {
+		inStream->read(buf, sizeof(buf));
+		outStream->write(buf, inStream->gcount());
+	}
+
+	inStream->clear();
+
+	delete outStream;
+}
+
+
+bool File::remove() const
+{
+	return ::remove(path->toString()) == 0;
+}
+
+
+void File::resize(filesize size) const
+{
+#ifdef _POSIX_VERSION
+	truncate(path->toString(), size);
+#elif defined(_WIN32)
+	HANDLE fhandle = CreateFile(path->toString(), GENERIC_WRITE, 0, NULL, OPEN_ALWAYS,
+			FILE_ATTRIBUTE_NORMAL, NULL);
+	SetFilePointerEx(fhandle, size, 0, FILE_BEGIN);
+	SetEndOfFile(fhandle);
+	CloseHandle(fhandle);
+#endif
+}

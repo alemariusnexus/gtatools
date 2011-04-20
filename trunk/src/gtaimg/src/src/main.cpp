@@ -315,7 +315,6 @@ int main(int argc, char** argv)
 			return 5;
 		}
 
-		const IMGEntry* entries = img->getEntries();
 		int32_t entryCount = img->getEntryCount();
 
 		if (command == CommandShowHeader) {
@@ -337,8 +336,9 @@ int main(int argc, char** argv)
 
 			printf("  %d entries\n", img->getEntryCount());
 		} else {
-			for (int i = 0 ; i < entryCount ; i++) {
-				const IMGEntry& entry = entries[i];
+			//for (int i = 0 ; i < entryCount ; i++) {
+			for (IMGArchive::ConstEntryIterator it = img->getEntryBegin() ; it != img->getEntryEnd() ; it++) {
+				const IMGEntry& entry = **it;
 
 				if (command == CommandExtract) {
 					for (int j = 0 ; j < numPatterns ; j++) {
@@ -348,7 +348,7 @@ int main(int argc, char** argv)
 							if (verbose)
 								printf("Extracting file %s ", entry.name);
 
-							istream* stream = img->gotoEntry(&entry);
+							istream* stream = img->gotoEntry(it);
 
 							ostream* out = NULL;
 

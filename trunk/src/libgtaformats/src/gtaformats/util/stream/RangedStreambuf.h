@@ -30,6 +30,7 @@
 using std::basic_streambuf;
 using std::char_traits;
 using std::streampos;
+using std::streamoff;
 using std::streamsize;
 using std::ios_base;
 using std::locale;
@@ -65,7 +66,7 @@ protected:
 private:
 	BackType& backend;
 	streamsize maxWrite;
-	streampos startPos;
+	streamoff startPos;
 	streamsize curReadPos;
 	streamsize curWritePos;
 };
