@@ -5,6 +5,9 @@ Here are the dependencies for parts of the gtatools
 libgtaformats
 -------------------------
 
+Required:
+	- The Boost::smart_ptr header-only library
+
 Optional:
 	- libsquish: DXT (de-)compression library. Needed for support of DXT-compressed TXD textures. If you
 	  don't want to use it, set GF_USE_SQUISH to false.

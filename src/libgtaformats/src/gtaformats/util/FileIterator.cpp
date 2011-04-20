@@ -21,6 +21,7 @@
 #include "FileException.h"
 #include <cstring>
 #include "../img/IMGArchive.h"
+#include "File.h"
 
 #ifdef _POSIX_VERSION
 #include <errno.h>
@@ -29,7 +30,7 @@
 
 
 FileIterator::FileIterator(const File* file)
-		: iteratedDir(file), archive(NULL), archiveIdx(0)
+		: iteratedDir(file), archive(shared_ptr<IMGArchive>())
 #ifdef _POSIX_VERSION
 		  , dir(NULL)
 #else
@@ -42,7 +43,9 @@ FileIterator::FileIterator(const File* file)
 
 			if (type == CONTENT_TYPE_DIR  ||  type == CONTENT_TYPE_IMG) {
 				try {
-					archive = new IMGArchive(*file);
+					//archive = new IMGArchive(*file);
+					archive = file->getIMGArchive();
+					archiveIt = archive->getEntryBegin();
 				} catch (Exception& ex) {
 					char* errMsg = new char[strlen(file->getPath()->toString()) + 128];
 					sprintf(errMsg, "Exception thrown during initialization of a FileIterator over IMG archive %s.",
@@ -106,10 +109,6 @@ FileIterator::FileIterator(const File* file)
 
 FileIterator::~FileIterator()
 {
-	if (archive != NULL) {
-		delete archive;
-	}
-
 #ifdef _POSIX_VERSION
 	if (dir != NULL) {
 		closedir(dir);
@@ -179,17 +178,16 @@ File* FileIterator::next()
 #endif
 	} else {
 		try {
-			const IMGEntry* entries = archive->getEntries();
-
-			if (archiveIdx >= archive->getEntryCount()) {
+			if (archiveIt == archive->getEntryEnd()) {
 				return NULL;
 			}
 
-			const IMGEntry* entry = &entries[archiveIdx++];
+			const IMGEntry* entry = *archiveIt++;
 
 			// Way faster than File(const File&, const char*) because it skips the parent-is-directory check
 			FilePath* path = new FilePath(*iteratedDir->getPath(), entry->name);
 			File* nextFile = new File(path, true);
+			nextFile->archivePtr = iteratedDir->archivePtr;
 
 			return nextFile;
 		} catch (Exception& ex) {

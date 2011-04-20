@@ -27,12 +27,18 @@
 #include <vector>
 #include <fstream>
 #include <istream>
+#include <ostream>
+#include <iostream>
+#include <boost/smart_ptr/shared_ptr.hpp>
 
 using std::vector;
 using std::ifstream;
 using std::ofstream;
 using std::fstream;
 using std::istream;
+using std::ostream;
+using std::iostream;
+using boost::shared_ptr;
 
 
 struct IMGEntry;
@@ -76,6 +82,9 @@ enum FileType {
 class File {
 public:
 	typedef int64_t filesize;
+
+public:
+	static File createTemporaryFile();
 
 public:
 	/**	\brief Constructs a file from the given path.
@@ -191,6 +200,10 @@ public:
 	 */
 	istream* openInputStream(ifstream::openmode mode = ifstream::in) const;
 
+	ostream* openOutputStream(ostream::openmode mode = ostream::out) const;
+
+	iostream* openInputOutputStream(iostream::openmode mode = iostream::in | iostream::out) const;
+
 	//ofstream* openOutputStream(ofstream::openmode mode = ofstream::out) const;
 
 	//fstream* openInputOutputStream(fstream::openmode mode = fstream::in | fstream::out) const;
@@ -218,6 +231,13 @@ public:
 	int findChildren(FileFinder& finder, vector<File*>& results, bool recursive = false,
 			bool archiveEntries = true) const;
 
+	void copy(const File& newFile) const;
+	void copyFrom(istream* inStream) const;
+
+	bool remove() const;
+
+	void resize(filesize size) const;
+
 	bool operator==(const File& other) const;
 	bool operator!=(const File& other) const { return !(*this == other); }
 	bool operator>(const File& other) const;
@@ -226,8 +246,15 @@ public:
 	bool operator<=(const File& other) const { return !(*this > other); }
 
 private:
+	shared_ptr<IMGArchive> getIMGArchive() const;
+
+private:
 	FilePath* path;
 	bool autoDeletePath;
+	shared_ptr< shared_ptr<IMGArchive> > archivePtr;
+
+
+	friend class FileIterator;
 };
 
 #endif /* FILE_H_ */
