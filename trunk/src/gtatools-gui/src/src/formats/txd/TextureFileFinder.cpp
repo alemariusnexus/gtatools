@@ -15,11 +15,14 @@
 
 	You should have received a copy of the GNU General Public License
 	along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
+
+	Additional permissions are granted, which are listed in the file
+	GPLADDITIONS.
  */
 
 #include "TextureFileFinder.h"
 #include <gtaformats/txd/TXDArchive.h>
-#include <gtaformats/txd/TXDTexture.h>
+#include <gtaformats/txd/TXDTextureHeader.h>
 
 
 
@@ -54,7 +57,7 @@ bool TextureFileFinder::matches(const File& file)
 	TXDArchive txd(file);
 
 	for (int32_t i = 0 ; i < txd.getTextureCount() ; i++) {
-		TXDTexture* tex = txd.nextTexture();
+		TXDTextureHeader* tex = txd.nextTexture();
 		FilePath pseudoPath(*file.getPath(), tex->getDiffuseName());
 		File pseudoFile(&pseudoPath, false);
 		bool matches = textureBackend->matches(pseudoFile);

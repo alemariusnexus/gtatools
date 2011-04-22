@@ -14,12 +14,15 @@
 # 
 # You should have received a copy of the GNU General Public License
 # along with gtaformats.  If not, see <http://www.gnu.org/licenses/>.
+# Additional permissions are granted, which are listed in the file
+# GPLADDITIONS.
 
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 PROJECT(prj-gtaformats CXX)
 
 
+SET(GTAFORMATS_ENABLE_PVRTEXLIB OFF CACHE BOOL "Whether we use the proprietary PVRTexLib for PVRTC-compressed textures.")
 SET(GTAFORMATS_ENABLE_SQUISH ON CACHE BOOL "Whether we use libsquish for DXT-compressed textures. If false, those textures are not supported directly by the library")
 SET(EXCEPTION_POSITION_INFO OFF CACHE BOOL "If true, exception messages will include the full path to the source file and the line in which the exception was thrown.")
 
@@ -27,18 +30,18 @@ SET(EXCEPTION_POSITION_INFO OFF CACHE BOOL "If true, exception messages will inc
 ADD_SUBDIRECTORY(gtaformats)
 
 SET(SQUISH_INCLUDE_PATH "" CACHE PATH "Directory containing libsquish header files.")
-SET(SQUISH_LIB_PATH "squish" CACHE FILEPATH "Path to (or name of) libsquish library file")
+SET(SQUISH_LIB_PATH "squish" CACHE FILEPATH "Path to (or name of) libsquish library file.")
 
-IF(NOT SQUISH_LIB_PATH)
-	SET(SQUISH_LIB_PATH squish)
-ENDIF(NOT SQUISH_LIB_PATH)
+SET(PVRTEXLIB_INCLUDE_PATH "" CACHE PATH "Directory containing PVRTexLib header files.")
+SET(PVRTEXLIB_LIB_PATH "PVRTexLib" CACHE FILEPATH "Path to (or name of) PVRTexLib library file.")
 
-INCLUDE_DIRECTORIES(${SQUISH_INCLUDE_PATH} "${CMAKE_BINARY_DIR}/libgtaformats/build/gtaformats")
+INCLUDE_DIRECTORIES(${SQUISH_INCLUDE_PATH} ${PVRTEXLIB_INCLUDE_PATH}
+        "${CMAKE_BINARY_DIR}/libgtaformats/build/gtaformats")
 
 ADD_LIBRARY(gtaformats STATIC ${SRCS})
 
 IF(GTAFORMATS_USE_SQUISH)
-    TARGET_LINK_LIBRARIES(gtaformats ${SQUISH_LIB_PATH})
+    TARGET_LINK_LIBRARIES(gtaformats ${SQUISH_LIB_PATH} ${PVRTEXLIB_LIB_PATH})
 ENDIF(GTAFORMATS_USE_SQUISH)
 
 INSTALL(TARGETS gtaformats DESTINATION lib)

@@ -15,42 +15,18 @@
 
 	You should have received a copy of the GNU General Public License
 	along with gtaformats.  If not, see <http://www.gnu.org/licenses/>.
+
+	Additional permissions are granted, which are listed in the file
+	GPLADDITIONS.
  */
 
-#ifndef TXDTEXTURE_H_
-#define TXDTEXTURE_H_
+#ifndef TXDTEXTUREHEADER_H_
+#define TXDTEXTUREHEADER_H_
 
 #include "../config.h"
 #include <istream>
 
 using std::istream;
-
-
-#define TXD_FORMAT_A1R5G5B5 0x100
-#define TXD_FORMAT_R5G6B5 0x200
-#define TXD_FORMAT_R4G4B4A4 0x300
-#define TXD_FORMAT_LUM8 0x400
-#define TXD_FORMAT_B8G8R8A8 0x500
-#define TXD_FORMAT_B8G8R8 0x600
-#define TXD_FORMAT_R5G5B5 0xA00
-
-#define TXD_FORMAT_EXT_AUTO_MIPMAP 0x1000
-#define TXD_FORMAT_EXT_PAL8 0x2000
-#define TXD_FORMAT_EXT_PAL4 0x4000
-#define TXD_FORMAT_EXT_MIPMAP 0x8000
-
-#define TXD_FILTER_NONE 0x0
-#define TXD_FILTER_NEAREST 0x1
-#define TXD_FILTER_LINEAR 0x2
-#define TXD_FILTER_MIP_NEAREST 0x3
-#define TXD_FILTER_MIP_LINEAR 0x4
-#define TXD_FILTER_LINEAR_MIP_NEAREST 0x5
-#define TXD_FILTER_LINEAR_MIP_LINEAR 0x6
-
-#define TXD_WRAP_NONE 0x0
-#define TXD_WRAP_WRAP 0x1
-#define TXD_WRAP_MIRROR 0x2
-#define TXD_WRAP_CLAMP 0x3
 
 
 #define INDEX_MIRROR_HORIZONTAL(i,w,h) (2*(w)*((i)/(w)) + (w) - (i) - 1)
@@ -66,8 +42,47 @@ enum TXDCompression {
 	DXT1 = 1, DXT3 = 3,
 	PVRTC2 = 50, PVRTC4 = 51
 };
+
 enum TXDMirrorFlags {
-	MIRROR_NONE, MIRROR_HORIZONTAL, MIRROR_VERTICAL, MIRROR_BOTH
+	MirrorNone, MirrorHorizontal, MirrorVertical, MirrorBoth
+};
+
+enum TXDRasterFormat {
+	RasterFormatDefault = 0x000,
+	RasterFormatA1R5G5B5 = 0x100,
+	RasterFormatR5G6B5 = 0x200,
+	RasterFormatR4G4B4A4 = 0x300,
+	RasterFormatLUM8 = 0x400,
+	RasterFormatB8G8R8A8 = 0x500,
+	RasterFormatB8G8R8 = 0x600,
+	RasterFormatR5G5B5 = 0xA00,
+
+	RasterFormatR8G8B8A8 = 0xF00, // Not supported by TXD, but used in the TXDConverter
+
+	RasterFormatEXTAutoMipmap = 0x1000,
+	RasterFormatEXTPAL8 = 0x2000,
+	RasterFormatEXTPAL4 = 0x4000,
+	RasterFormatEXTMipmap = 0x8000,
+
+	RasterFormatMask = 0xF00,
+	RasterFormatEXTMask = 0xF000
+};
+
+enum TXDFilterFlags {
+	FilterNone = 0,
+	FilterNearest = 1,
+	FilterLinear = 2,
+	FilterMipNearest = 3,
+	FilterMipLinear = 4,
+	FilterLinearMipNearest = 5,
+	FilterLinearMipLinear = 6
+};
+
+enum TXDWrappingMode {
+	WrapNone = 0,
+	WrapWrap = 1,
+	WrapMirror = 2,
+	WrapClamp = 3
 };
 
 
@@ -77,7 +92,7 @@ enum TXDMirrorFlags {
  * 	It is read by TXDArchive and can be used to fetch information about the texture (the header data is
  * 	kept here) and to convert the raw data to a more convenient format.
  */
-class TXDTexture {
+class TXDTextureHeader {
 public:
 	/**	\brief This method reads a texture header from the given stream.
 	 *
@@ -86,7 +101,12 @@ public:
 	 *	@param stream The stream to read from.
 	 *	@param bytesRead This will be increased by the number of bytes read by this constructor.
 	 */
-	TXDTexture(istream* stream, long long& bytesRead);
+	//TXDTextureHeader(istream* stream, long long& bytesRead);
+
+	TXDTextureHeader(const char* diffuseName, int32_t rasterFormat, TXDCompression compression,
+			int16_t w, int16_t h);
+
+	TXDTextureHeader(const TXDTextureHeader& other);
 
 	/**	\brief Returns the RGBA masks of the raw data of this texture.
 	 *
@@ -128,7 +148,7 @@ public:
 	 *
 	 *	@return The raster format without extensions.
 	 */
-	int32_t getRasterFormat() const { return rasterFormat & 0x0F00; }
+	int32_t getRasterFormat() const { return rasterFormat & RasterFormatMask; }
 
 	/**	\brief Returns the full raster format (extension included) of this texture.
 	 *
@@ -145,7 +165,7 @@ public:
 	 *
 	 *	@return The raster format extension.
 	 */
-	int32_t getRasterFormatExtension() const { return rasterFormat & 0xF000; }
+	int32_t getRasterFormatExtension() const { return rasterFormat & RasterFormatEXTMask; }
 
 	/**	\brief Returns the type of compression used for this texture.
 	 *
@@ -205,6 +225,24 @@ public:
 	 */
 	int16_t getFilterFlags() const { return filterFlags; }
 
+	void setRasterFormat(int32_t rasterFormat, TXDCompression compression = NONE);
+
+	void setDiffuseName(const char* name);
+
+	void setAlphaName(const char* name);
+
+	void setRasterSize(int32_t w, int32_t h) { width = w; height = h; }
+
+	void setMipmapCount(int8_t mmc) { mipmapCount = mmc; }
+
+	void setAlphaChannel(bool alpha) { alphaChannel = alpha; }
+
+	void setWrappingFlags(int8_t uWrap, int8_t vWrap) { this->uWrap = uWrap; this->vWrap = vWrap; }
+
+	void setFilterFlags(int16_t flags) { filterFlags = flags; }
+
+	void setBytesPerPixel(int8_t bpp) { bytesPerPixel = bpp; }
+
 	/**	\brief Returns whether this texture can be converted using convert().
 	 *
 	 * 	This currently returns true for all textures. This just means that there is currently no TXD
@@ -236,13 +274,16 @@ public:
 	 *	@param blueOffset The offset in the output buffer to store the blue component.
 	 *	@param alphaOffset The offset in the output buffer to store the alpha component.
 	 */
-	void convert(uint8_t* dest, const uint8_t* src, int mipmap = 0, TXDMirrorFlags mirror = MIRROR_HORIZONTAL,
+	/*void convert(uint8_t* dest, const uint8_t* src, int mipmap = 0, TXDMirrorFlags mirror = MIRROR_HORIZONTAL,
 			int8_t bpp = 4, int redOffset = 0, int greenOffset = 1, int blueOffset = 2,
-			int alphaOffset = 3) const;
+			int alphaOffset = 3) const;*/
 
 	int computeDataSize() const;
 
 	int computeMipmapDataSize(int mipmap) const;
+
+private:
+	int8_t calculateFormatBPP(int32_t rasterFormat);
 
 private:
 	char diffuseName[32];
@@ -260,4 +301,4 @@ private:
 };
 
 
-#endif /* TXDTEXTURE_H_ */
+#endif /* TXDTEXTUREHEADER_H_ */

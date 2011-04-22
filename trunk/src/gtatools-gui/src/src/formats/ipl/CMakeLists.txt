@@ -15,6 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
 
+# Additional permissions are granted, which are listed in the file
+# GPLADDITIONS.
+
 SET(SRCS ${SRCS} src/formats/ipl/IPLFormatHandler.cpp src/formats/ipl/IPLWidget.cpp PARENT_SCOPE)
 SET(MOC_SRCS ${MOC_SRCS} src/formats/ipl/IPLFormatHandler.h src/formats/ipl/IPLWidget.h PARENT_SCOPE)
 SET(UIC_SRCS ${UIC_SRCS} src/formats/ipl/IPLWidget.ui PARENT_SCOPE)

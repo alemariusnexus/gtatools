@@ -15,6 +15,9 @@
 
 	You should have received a copy of the GNU General Public License
 	along with gtaimg.  If not, see <http://www.gnu.org/licenses/>.
+
+	Additional permissions are granted, which are listed in the file
+	GPLADDITIONS.
  */
 
 #include <gtaformats/util/CLIParser.h>
@@ -170,7 +173,9 @@ int main(int argc, char** argv)
 			printf("MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n");
 			printf("GNU General Public License for more details.\n\n");
 			printf("You should have received a copy of the GNU General Public License\n");
-			printf("along with gtaimg.  If not, see <http://www.gnu.org/licenses/>.\n");
+			printf("along with gtaimg.  If not, see <http://www.gnu.org/licenses/>.\n\n");
+			printf("Additional permissions are granted, which are listed in the file\n");
+			printf("GPLADDITIONS.\n");
 
 			return 0;
 		} else if (opt == listOpt) {

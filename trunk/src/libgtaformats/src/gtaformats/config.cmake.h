@@ -15,6 +15,9 @@
 
 	You should have received a copy of the GNU General Public License
 	along with gtaformats.  If not, see <http://www.gnu.org/licenses/>.
+
+	Additional permissions are granted, which are listed in the file
+	GPLADDITIONS.
  */
 
 #ifndef GF_CONFIG_H_
@@ -39,6 +42,7 @@
 #endif
 
 
+#cmakedefine GTAFORMATS_ENABLE_PVRTEXLIB
 #cmakedefine GTAFORMATS_ENABLE_SQUISH
 #cmakedefine EXCEPTION_POSITION_INFO
 #cmakedefine _CMAKE_HAVE_SVNREV

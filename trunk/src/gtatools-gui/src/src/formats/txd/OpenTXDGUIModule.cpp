@@ -15,6 +15,9 @@
 
 	You should have received a copy of the GNU General Public License
 	along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
+
+	Additional permissions are granted, which are listed in the file
+	GPLADDITIONS.
  */
 
 #include "OpenTXDGUIModule.h"
@@ -22,7 +25,7 @@
 #include <cstdio>
 #include "../../gui/MainWindow.h"
 #include <gtaformats/txd/TXDArchive.h>
-#include <gtaformats/txd/TXDTexture.h>
+#include <gtaformats/txd/TXDTextureHeader.h>
 #include <gtaformats/config.h>
 #include <QtCore/QLinkedList>
 #include <QtGui/QFileDialog>
@@ -65,7 +68,7 @@ void OpenTXDGUIModule::doUninstall()
 void OpenTXDGUIModule::onExtract(bool checked)
 {
 	TXDArchive* txd = txdWidget->getArchive();
-	QLinkedList<TXDTexture*> textures = txdWidget->getSelectedTextures();
+	QLinkedList<TXDTextureHeader*> textures = txdWidget->getSelectedTextures();
 	TXDFormatHandler::getInstance()->extractTexturesDialog(txd, textures, mainWindow);
 }
 

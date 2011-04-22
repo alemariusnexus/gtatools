@@ -15,9 +15,12 @@
 
 	You should have received a copy of the GNU General Public License
 	along with gtaformats.  If not, see <http://www.gnu.org/licenses/>.
+
+	Additional permissions are granted, which are listed in the file
+	GPLADDITIONS.
  */
 
-#include "TXDTexture.h"
+#include "TXDTextureHeader.h"
 #include "TXDException.h"
 #include "../util/OutOfBoundsException.h"
 #include <cstring>
@@ -33,32 +36,38 @@ using namespace squish;
 
 void TxdGetRasterFormatName(char* dest, int32_t rasterFormat) {
 	switch (rasterFormat & 0xF00) {
-	case TXD_FORMAT_A1R5G5B5:
+	case RasterFormatA1R5G5B5:
 		strcpy(dest, "A1R5G5B5");
 		break;
-	case TXD_FORMAT_B8G8R8:
+	case RasterFormatB8G8R8:
 		strcpy(dest, "B8G8R8");
 		break;
-	case TXD_FORMAT_B8G8R8A8:
+	case RasterFormatB8G8R8A8:
 		strcpy(dest, "B8G8R8A8");
 		break;
-	case TXD_FORMAT_R4G4B4A4:
+	case RasterFormatR4G4B4A4:
 		strcpy(dest, "R4G4B4A4");
 		break;
-	case TXD_FORMAT_R5G5B5:
+	case RasterFormatR5G5B5:
 		strcpy(dest, "R5G5B5");
 		break;
-	case TXD_FORMAT_R5G6B5:
+	case RasterFormatR5G6B5:
 		strcpy(dest, "R5G6B5");
 		break;
-	case TXD_FORMAT_LUM8:
+	case RasterFormatLUM8:
 		strcpy(dest, "LUM8");
+		break;
+	case RasterFormatR8G8B8A8:
+		strcpy(dest, "R8G8B8A8");
+		break;
+	case RasterFormatDefault:
+		strcpy(dest, "DEFAULT");
 		break;
 	}
 }
 
 
-/*TXDTexture::TXDTexture(const char* diffuseName, const char* alphaName, int32_t rasterFormat,
+/*TXDTextureHeader::TXDTextureHeader(const char* diffuseName, const char* alphaName, int32_t rasterFormat,
 			TXDCompression compression, int16_t width, int16_t height, int8_t bpp, int8_t mipmapCount,
 			bool alphaChannel, int8_t uWrap, int8_t vWrap, int16_t filterFlags)
 		: rasterFormat(rasterFormat), compression(compression), width(width), height(height),
@@ -70,7 +79,27 @@ void TxdGetRasterFormatName(char* dest, int32_t rasterFormat) {
 }*/
 
 
-TXDTexture::TXDTexture(istream* stream, long long& bytesRead)
+TXDTextureHeader::TXDTextureHeader(const char* diffuseName, int32_t rasterFormat, TXDCompression compression,
+			int16_t w, int16_t h)
+		: width(w), height(h)
+{
+	setRasterFormat(rasterFormat, compression);
+	setDiffuseName(diffuseName);
+}
+
+
+TXDTextureHeader::TXDTextureHeader(const TXDTextureHeader& other)
+		: rasterFormat(other.rasterFormat), compression(other.compression), width(other.width),
+		  height(other.height), bytesPerPixel(other.bytesPerPixel), mipmapCount(other.mipmapCount),
+		  alphaChannel(other.alphaChannel), uWrap(other.uWrap), vWrap(other.vWrap),
+		  filterFlags(other.filterFlags)
+{
+	strcpy(diffuseName, other.diffuseName);
+	strcpy(alphaName, other.alphaName);
+}
+
+
+/*TXDTextureHeader::TXDTextureHeader(istream* stream, long long& bytesRead)
 {
 	int32_t platformId;
 	int32_t alphaFourCC;
@@ -135,13 +164,13 @@ TXDTexture::TXDTexture(istream* stream, long long& bytesRead)
 
 		alphaChannel = (alphaFourCC == 1);
 	}
-}
+}*/
 
-void TXDTexture::getColorMasks(int32_t& redMask, int32_t& greenMask, int32_t& blueMask,
+void TXDTextureHeader::getColorMasks(int32_t& redMask, int32_t& greenMask, int32_t& blueMask,
 		int32_t& alphaMask) const
 {
-	if (	getRasterFormatExtension() & TXD_FORMAT_EXT_PAL4
-			||  getRasterFormatExtension() & TXD_FORMAT_EXT_PAL8
+	if (	getRasterFormatExtension() & RasterFormatEXTPAL4
+			||  getRasterFormatExtension() & RasterFormatEXTPAL8
 	) {
 		redMask = 0xFF;
 		greenMask = 0xFF00;
@@ -149,43 +178,43 @@ void TXDTexture::getColorMasks(int32_t& redMask, int32_t& greenMask, int32_t& bl
 		alphaMask = 0xFF000000;
 	} else {
 		switch (getRasterFormat()) {
-		case TXD_FORMAT_A1R5G5B5:
+		case RasterFormatA1R5G5B5:
 			alphaMask = 1;
 			redMask = 0x3E;
 			greenMask = 0x7C0;
 			blueMask = 0xF800;
 			break;
-		case TXD_FORMAT_B8G8R8:
+		case RasterFormatB8G8R8:
 			blueMask = 0xFF;
 			greenMask = 0xFF00;
 			redMask = 0xFF0000;
 			alphaMask = 0;
 			break;
-		case TXD_FORMAT_B8G8R8A8:
+		case RasterFormatB8G8R8A8:
 			blueMask = 0xFF;
 			greenMask = 0xFF00;
 			redMask = 0xFF0000;
 			alphaMask = 0xFF000000;
 			break;
-		case TXD_FORMAT_R4G4B4A4:
+		case RasterFormatR4G4B4A4:
 			redMask = 0xF;
 			greenMask = 0xF0;
 			blueMask = 0xF00;
 			alphaMask = 0xF000;
 			break;
-		case TXD_FORMAT_R5G5B5:
+		case RasterFormatR5G5B5:
 			redMask = 0x1F;
 			greenMask = 0x3E0;
 			blueMask = 0x7C00;
 			alphaMask = 0;
 			break;
-		case TXD_FORMAT_R5G6B5:
+		case RasterFormatR5G6B5:
 			redMask = 0x1F;
 			greenMask = 0x7E0;
 			blueMask = 0xF800;
 			alphaMask = 0;
 			break;
-		case TXD_FORMAT_LUM8:
+		case RasterFormatLUM8:
 			redMask = 0xFF;
 			greenMask = 0xFF;
 			blueMask = 0xFF;
@@ -195,7 +224,7 @@ void TXDTexture::getColorMasks(int32_t& redMask, int32_t& greenMask, int32_t& bl
 	}
 }
 
-void TXDTexture::getFormat(char* dest) const
+void TXDTextureHeader::getFormat(char* dest) const
 {
 	char compStr[8];
 	char formatStr[16];
@@ -218,13 +247,23 @@ void TXDTexture::getFormat(char* dest) const
 		break;
 	}
 
+	char palStr[16];
+
+	if ((rasterFormat & RasterFormatEXTPAL4)  !=  0) {
+		strcpy(palStr, "4bit-paletted");
+	} else if ((rasterFormat & RasterFormatEXTPAL8)  !=  0) {
+		strcpy(palStr, "8bit-paletted");
+	} else {
+		strcpy(palStr, "unpaletted");
+	}
+
 	TxdGetRasterFormatName(formatStr, rasterFormat & 0xF00);
 
-	sprintf(dest, "%d BPP %scompressed %s image", bytesPerPixel, compStr, formatStr);
+	sprintf(dest, "%d BPP %scompressed %s %s image", bytesPerPixel, compStr, palStr, formatStr);
 }
 
 
-bool TXDTexture::canConvert() const
+bool TXDTextureHeader::canConvert() const
 {
 	if (compression == PVRTC2  ||  compression == PVRTC4) {
 		return false;
@@ -238,7 +277,7 @@ bool TXDTexture::canConvert() const
 }
 
 
-void TXDTexture::convert(uint8_t* dest, const uint8_t* src, int mipmap, TXDMirrorFlags mirror,
+/*void TXDTextureHeader::convert(uint8_t* dest, const uint8_t* src, int mipmap, TXDMirrorFlags mirror,
 		int8_t bpp, int redOffset, int greenOffset, int blueOffset, int alphaOffset) const
 {
 	if (mipmap >= mipmapCount) {
@@ -296,12 +335,14 @@ void TXDTexture::convert(uint8_t* dest, const uint8_t* src, int mipmap, TXDMirro
 			alphaMask = 0xFF000000;
 			srcBpp = 4;
 #		else
-			throw TXDException("Attempt to call TXDTexture::convert() for a DXT-compressed texture, but DXT "
-					"is not supported because GTAFORMATS_ENABLE_SQUISH was turned off during compilation");
+			throw TXDException("Attempt to call TXDTextureHeader::convert() for a DXT-compressed texture, but DXT "
+					"is not supported because GTAFORMATS_ENABLE_SQUISH was turned off during compilation",
+					__FILE__, __LINE__);
 #		endif
 		} else {
-			throw TXDException("Attempt to call TXDTexture::convert() for a PVRTC-compressed texture. "
-					"PVRTC decompression is not supported by the TXD API!");
+			throw TXDException("Attempt to call TXDTextureHeader::convert() for a PVRTC-compressed texture. "
+					"PVRTC decompression is not supported by the TXD API!",
+					__FILE__, __LINE__);
 		}
 	}
 
@@ -418,10 +459,10 @@ void TXDTexture::convert(uint8_t* dest, const uint8_t* src, int mipmap, TXDMirro
 	if (compression != NONE) {
 		delete[] data;
 	}
-}
+}*/
 
 
-int TXDTexture::computeDataSize() const
+int TXDTextureHeader::computeDataSize() const
 {
 	/*int baseSize = width * height;
 
@@ -444,10 +485,10 @@ int TXDTexture::computeDataSize() const
 		size += computeMipmapDataSize(i);
 	}
 
-	if ((rasterFormat & TXD_FORMAT_EXT_PAL4)  !=  0) {
+	if ((rasterFormat & RasterFormatEXTPAL4)  !=  0) {
 		size += 16*4;
 	}
-	if ((rasterFormat & TXD_FORMAT_EXT_PAL8)  !=  0) {
+	if ((rasterFormat & RasterFormatEXTPAL8)  !=  0) {
 		size += 256*4;
 	}
 
@@ -455,13 +496,13 @@ int TXDTexture::computeDataSize() const
 }
 
 
-int TXDTexture::computeMipmapDataSize(int mipmap) const
+int TXDTextureHeader::computeMipmapDataSize(int mipmap) const
 {
 	float scale = ceil(pow((float) 2, (float) mipmap));
 	int mipW = (int) (width / scale);
 	int mipH = (int) (height / scale);
 
-	if (compression != NONE) {
+	if (compression == DXT1  ||  compression == DXT3) {
 		if (mipW < 4)
 			mipW = 4;
 		if (mipH < 4)
@@ -487,6 +528,73 @@ int TXDTexture::computeMipmapDataSize(int mipmap) const
 	}
 
 	return mipSize;
+}
+
+
+void TXDTextureHeader::setRasterFormat(int32_t rasterFormat, TXDCompression compression)
+{
+	if (rasterFormat == RasterFormatDefault) {
+		switch (compression) {
+		case DXT1:
+			rasterFormat = RasterFormatR5G6B5;
+			break;
+		case DXT3:
+			rasterFormat = RasterFormatR4G4B4A4;
+			break;
+		case PVRTC2:
+		case PVRTC4:
+			break;
+		case NONE:
+			throw TXDException("Raster format DEFAULT is invalid for uncompressed textures!",
+					__FILE__, __LINE__);
+		}
+	}
+
+	this->rasterFormat = rasterFormat;
+	this->compression = compression;
+}
+
+
+void TXDTextureHeader::setDiffuseName(const char* name)
+{
+	if (strlen(name) > 31) {
+		throw TXDException("Texture diffuse name too long. Maximum length is 31 characters plus null "
+				"terminator.", __FILE__, __LINE__);
+	}
+
+	strcpy(diffuseName, name);
+}
+
+
+void TXDTextureHeader::setAlphaName(const char* name)
+{
+	if (strlen(name) > 31) {
+		throw TXDException("Texture alpha name too long. Maximum length is 31 characters plus null "
+				"terminator.", __FILE__, __LINE__);
+	}
+
+	strcpy(alphaName, name);
+}
+
+
+int8_t TXDTextureHeader::calculateFormatBPP(int32_t rasterFormat)
+{
+	switch (rasterFormat & 0x0F00) {
+	case RasterFormatDefault:
+		return 0;
+	case RasterFormatLUM8:
+		return 8;
+	case RasterFormatA1R5G5B5:
+	case RasterFormatR4G4B4A4:
+	case RasterFormatR5G5B5:
+	case RasterFormatR5G6B5:
+		return 16;
+	case RasterFormatB8G8R8:
+		return 32;
+	case RasterFormatB8G8R8A8:
+	case RasterFormatR8G8B8A8:
+		return 32;
+	}
 }
 
 

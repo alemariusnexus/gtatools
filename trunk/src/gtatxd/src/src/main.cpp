@@ -45,11 +45,11 @@ void pngFlushCallback(png_structp png)
 
 
 
-void extractTexture(const ExtractOptions& opts, TXDArchive* txd, TXDTexture* tex);
-void extractMipmapPNG(ostream* out, TXDTexture* tex, int16_t w, int16_t h, uint8_t* data, int mipmap);
-uint8_t* buildPackedMipmap(const ExtractOptions& opts, TXDTexture* tex, uint8_t* data,
+void extractTexture(const ExtractOptions& opts, TXDArchive* txd, TXDTextureHeader* tex);
+void extractMipmapPNG(ostream* out, TXDTextureHeader* tex, int16_t w, int16_t h, uint8_t* data, int mipmap);
+uint8_t* buildPackedMipmap(const ExtractOptions& opts, TXDTextureHeader* tex, uint8_t* data,
 		int& packedW, int& packedH);
-void listTexture(const ListOptions& opts, TXDArchive* txd, TXDTexture* tex);
+void listTexture(const ListOptions& opts, TXDArchive* txd, TXDTextureHeader* tex);
 
 
 
@@ -333,7 +333,7 @@ int main(int argc, char** argv)
 			printf("%c%-*s", sep, cs ? 0 : 19, "RASTER FORMAT");
 		}
 		if ((lsOpts.getListSections() & Compression) != 0) {
-			printf("%c%-*s", sep, cs ? 0 : 4, "CMPR");
+			printf("%c%-*s", sep, cs ? 0 : 6, "COMPR");
 		}
 		if ((lsOpts.getListSections() & Width) != 0) {
 			printf("%c%-*s", sep, cs ? 0 : 5, "WIDTH");
@@ -376,7 +376,7 @@ int main(int argc, char** argv)
 		}
 
 		for (int16_t i = 0 ; i < txd->getTextureCount() ; i++) {
-			TXDTexture* tex = txd->nextTexture();
+			TXDTextureHeader* tex = txd->nextTexture();
 
 			for (int j = 0 ; j < numExOpts ; j++) {
 				ExtractOptions* opt = opts[j];
@@ -405,7 +405,7 @@ int main(int argc, char** argv)
 
 
 
-void listTexture(const ListOptions& opts, TXDArchive* txd, TXDTexture* tex)
+void listTexture(const ListOptions& opts, TXDArchive* txd, TXDTextureHeader* tex)
 {
 	bool cs = opts.isCommaSeparation();
 	char sep = cs ? ',' : ' ';
@@ -419,16 +419,16 @@ void listTexture(const ListOptions& opts, TXDArchive* txd, TXDTexture* tex)
 
 		int32_t ext = tex->getRasterFormatExtension();
 
-		if (( ext & TXD_FORMAT_EXT_AUTO_MIPMAP)  !=  0) {
+		if (( ext & RasterFormatEXTAutoMipmap)  !=  0) {
 			strcat(rasterFormat, ",AM");
 		}
-		if ((ext & TXD_FORMAT_EXT_MIPMAP)  !=  0) {
+		if ((ext & RasterFormatEXTMipmap)  !=  0) {
 			strcat(rasterFormat, ",M");
 		}
-		if ((ext & TXD_FORMAT_EXT_PAL4)  !=  0) {
+		if ((ext & RasterFormatEXTPAL4)  !=  0) {
 			strcat(rasterFormat, ",P4");
 		}
-		if ((ext & TXD_FORMAT_EXT_PAL8)  !=  0) {
+		if ((ext & RasterFormatEXTPAL8)  !=  0) {
 			strcat(rasterFormat, ",P8");
 		}
 
@@ -438,15 +438,23 @@ void listTexture(const ListOptions& opts, TXDArchive* txd, TXDTexture* tex)
 	if ((opts.getListSections() & Compression)  !=  0) {
 		switch (tex->getCompression()) {
 		case NONE:
-			printf("%c%-*s", sep, cs ? 0 : 4, "None");
+			printf("%c%-*s", sep, cs ? 0 : 6, "None");
 			break;
 
 		case DXT1:
-			printf("%c%-*s", sep, cs ? 0 : 4, "DXT1");
+			printf("%c%-*s", sep, cs ? 0 : 6, "DXT1");
 			break;
 
 		case DXT3:
-			printf("%c%-*s", sep, cs ? 0 : 4, "DXT3");
+			printf("%c%-*s", sep, cs ? 0 : 6, "DXT3");
+			break;
+
+		case PVRTC2:
+			printf("%c%-*s", sep, cs ? 0 : 6, "PVRTC2");
+			break;
+
+		case PVRTC4:
+			printf("%c%-*s", sep, cs ? 0 : 6, "PVRTC4");
 			break;
 		}
 	}
@@ -464,16 +472,16 @@ void listTexture(const ListOptions& opts, TXDArchive* txd, TXDTexture* tex)
 
 	if ((opts.getListSections() & UWrapFlags)  !=  0) {
 		switch (tex->getUWrapFlags()) {
-		case TXD_WRAP_CLAMP:
+		case WrapClamp:
 			printf("%c%-*s", sep, cs ? 0 : 6, "CLAMP");
 			break;
-		case TXD_WRAP_MIRROR:
+		case WrapMirror:
 			printf("%c%-*s", sep, cs ? 0 : 6, "MIRROR");
 			break;
-		case TXD_WRAP_NONE:
+		case WrapNone:
 			printf("%c%-*s", sep, cs ? 0 : 6, "NONE");
 			break;
-		case TXD_WRAP_WRAP:
+		case WrapWrap:
 			printf("%c%-*s", sep, cs ? 0 : 6, "WRAP");
 			break;
 		default:
@@ -484,16 +492,16 @@ void listTexture(const ListOptions& opts, TXDArchive* txd, TXDTexture* tex)
 
 	if ((opts.getListSections() & VWrapFlags)  !=  0) {
 		switch (tex->getVWrapFlags()) {
-		case TXD_WRAP_CLAMP:
+		case WrapClamp:
 			printf("%c%-*s", sep, cs ? 0 : 6, "CLAMP");
 			break;
-		case TXD_WRAP_MIRROR:
+		case WrapMirror:
 			printf("%c%-*s", sep, cs ? 0 : 6, "MIRROR");
 			break;
-		case TXD_WRAP_NONE:
+		case WrapNone:
 			printf("%c%-*s", sep, cs ? 0 : 6, "NONE");
 			break;
-		case TXD_WRAP_WRAP:
+		case WrapWrap:
 			printf("%c%-*s", sep, cs ? 0 : 6, "WRAP");
 			break;
 		default:
@@ -504,25 +512,25 @@ void listTexture(const ListOptions& opts, TXDArchive* txd, TXDTexture* tex)
 
 	if ((opts.getListSections() & FilterFlags)  !=  0) {
 		switch (tex->getFilterFlags()) {
-		case TXD_FILTER_LINEAR:
+		case FilterLinear:
 			printf("%c%-*s", sep, cs ? 0 : 5, "L");
 			break;
-		case TXD_FILTER_NEAREST:
+		case FilterNearest:
 			printf("%c%-*s", sep, cs ? 0 : 5, "N");
 			break;
-		case TXD_FILTER_LINEAR_MIP_LINEAR:
+		case FilterLinearMipLinear:
 			printf("%c%-*s", sep, cs ? 0 : 5, "LMIPL");
 			break;
-		case TXD_FILTER_LINEAR_MIP_NEAREST:
+		case FilterLinearMipNearest:
 			printf("%c%-*s", sep, cs ? 0 : 5, "LMIPN");
 			break;
-		case TXD_FILTER_MIP_LINEAR:
+		case FilterMipLinear:
 			printf("%c%-*s", sep, cs ? 0 : 5, "NMIPL");
 			break;
-		case TXD_FILTER_MIP_NEAREST:
+		case FilterMipNearest:
 			printf("%c%-*s", sep, cs ? 0 : 5, "NMIPN");
 			break;
-		case TXD_FILTER_NONE:
+		case FilterNone:
 			printf("%c%-*s", sep, cs ? 0 : 5, "NONE");
 			break;
 		default:
@@ -534,7 +542,7 @@ void listTexture(const ListOptions& opts, TXDArchive* txd, TXDTexture* tex)
 }
 
 
-void extractTexture(const ExtractOptions& opts, TXDArchive* txd, TXDTexture* tex)
+void extractTexture(const ExtractOptions& opts, TXDArchive* txd, TXDTextureHeader* tex)
 {
 	uint8_t* data = txd->readTextureData(tex);
 	uint8_t* dataStart = data;
@@ -690,7 +698,7 @@ void extractTexture(const ExtractOptions& opts, TXDArchive* txd, TXDTexture* tex
 }
 
 
-void extractMipmapPNG(ostream* out, TXDTexture* tex, int16_t w, int16_t h, uint8_t* data, int mipmap)
+void extractMipmapPNG(ostream* out, TXDTextureHeader* tex, int16_t w, int16_t h, uint8_t* data, int mipmap)
 {
 	png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL,
 			NULL);
@@ -712,17 +720,19 @@ void extractMipmapPNG(ostream* out, TXDTexture* tex, int16_t w, int16_t h, uint8
 	png_set_write_fn(png, (void*) out, pngWriteCallback, pngFlushCallback);
 
 	int8_t bpp = 4;
-	bool alpha = tex->hasAlphaChannel();
-
-	if (!alpha) {
-		bpp = 3;
-	}
 
 	uint8_t* pixels = new uint8_t[w*h*bpp];
-	tex->convert(pixels, data, mipmap, MIRROR_NONE, bpp, 0, 1, 2, alpha ? 3 : -1);
+
+	TXDConverter conv;
+
+	TXDTextureHeader toTex(*tex);
+	toTex.setRasterFormat(RasterFormatR8G8B8A8);
+	//tex->convert(pixels, data, mipmap, MIRROR_NONE, bpp, 0, 1, 2, alpha ? 3 : -1);
+
+	conv.convert(*tex, toTex, data, pixels, mipmap, mipmap);
 
 	png_set_IHDR(png, info, w, h, 8,
-			alpha ? PNG_COLOR_TYPE_RGB_ALPHA : PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE,
+			PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE,
 			PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
 
 	const char* softwareKey = "Software";
@@ -776,7 +786,7 @@ void extractMipmapPNG(ostream* out, TXDTexture* tex, int16_t w, int16_t h, uint8
 }
 
 
-uint8_t* buildPackedMipmap(const ExtractOptions& opts, TXDTexture* tex, uint8_t* data,
+uint8_t* buildPackedMipmap(const ExtractOptions& opts, TXDTextureHeader* tex, uint8_t* data,
 		int& packedW, int& packedH)
 {
 	const vector<MipmapRange>& ranges = opts.getMipmapRanges();
@@ -806,6 +816,10 @@ uint8_t* buildPackedMipmap(const ExtractOptions& opts, TXDTexture* tex, uint8_t*
 	uint8_t* normalizedRasters = new uint8_t[normalizedRastersSize];
 	uint8_t* normalizedRaster = normalizedRasters;
 
+	TXDTextureHeader toTex(*tex);
+	toTex.setRasterFormat(RasterFormatR8G8B8A8);
+	TXDConverter conv;
+
 	for (int i = 0 ; i < tex->getMipmapCount() ; i++) {
 		vector<MipmapRange>::const_iterator it;
 
@@ -813,7 +827,9 @@ uint8_t* buildPackedMipmap(const ExtractOptions& opts, TXDTexture* tex, uint8_t*
 			const MipmapRange& range = *it;
 
 			if (range.contains(i)) {
-				tex->convert(normalizedRaster, data, i, MIRROR_NONE, 4, 0, 1, 2, 3);
+				//tex->convert(normalizedRaster, data, i, MIRROR_NONE, 4, 0, 1, 2, 3);
+				conv.convert(*tex, toTex, data, normalizedRaster, i, i);
+
 				data += tex->computeMipmapDataSize(i);
                 // TODO: Correct this
 				normalizedRaster += (baseW / (int) pow((float) 2, (float) i)) * (baseH / (int) pow((float) 2, (float) i)) * 4;

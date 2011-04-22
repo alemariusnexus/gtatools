@@ -13,7 +13,7 @@
 
 class NullTextureFilter : public TextureFilter {
 public:
-	virtual bool process(const TXDTexture& tex) { return true; }
+	virtual bool process(const TXDTextureHeader& tex) { return true; }
 };
 
 #endif /* NULLTEXTUREFILTER_H_ */

@@ -15,6 +15,9 @@
 
 	You should have received a copy of the GNU General Public License
 	along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
+
+	Additional permissions are granted, which are listed in the file
+	GPLADDITIONS.
  */
 
 #include "TXDFormatHandler.h"
@@ -28,6 +31,7 @@
 #include "../../System.h"
 #include "../../ProfileManager.h"
 #include "TextureSearchDialog.h"
+#include <gtaformats/txd/TXDConverter.h>
 
 
 
@@ -59,13 +63,13 @@ QWidget* TXDFormatHandler::createWidgetForFile(const FileOpenRequest& request, Q
 }
 
 
-bool TXDFormatHandler::extractTexturesDialog(TXDArchive* txd, const QLinkedList<TXDTexture*>& texes,
+bool TXDFormatHandler::extractTexturesDialog(TXDArchive* txd, const QLinkedList<TXDTextureHeader*>& texes,
 		QWidget* parent)
 {
 	System* sys = System::getInstance();
 
 	if (texes.count() == 1) {
-		TXDTexture* tex = *texes.begin();
+		TXDTextureHeader* tex = *texes.begin();
 
 		QString fname = QFileDialog::getSaveFileName(parent, tr("Select the file to save to"),
 				QString(tex->getDiffuseName()).append(".png"), "Portable Network Graphics (*.png)");
@@ -90,10 +94,10 @@ bool TXDFormatHandler::extractTexturesDialog(TXDArchive* txd, const QLinkedList<
 		QString dname = QFileDialog::getExistingDirectory(parent, tr("Select the destination directory"));
 
 		if (!dname.isNull()) {
-			QLinkedList<TXDTexture*>::const_iterator it;
+			QLinkedList<TXDTextureHeader*>::const_iterator it;
 
 			for (it = texes.begin() ; it != texes.end() ; it++) {
-				TXDTexture* tex = *it;
+				TXDTextureHeader* tex = *it;
 				txd->gotoTexture(tex);
 				uint8_t* rawData = txd->readTextureData(tex);
 				uint8_t* data;
@@ -122,15 +126,22 @@ bool TXDFormatHandler::findTextureDialog(const QLinkedList<File*>& files, QWidge
 }
 
 
-QImage TXDFormatHandler::createImageFromTexture(TXDTexture* tex, uint8_t* data, uint8_t*& resultData)
+QImage TXDFormatHandler::createImageFromTexture(TXDTextureHeader* tex, uint8_t* data, uint8_t*& resultData)
 {
-	if (tex->canConvert()) {
+	TXDConverter conv;
+
+	TXDTextureHeader toTex(*tex);
+	toTex.setRasterFormat(RasterFormatB8G8R8A8);
+
+	//if (tex->canConvert()) {
+	if (conv.canConvert(*tex, toTex)) {
 		int16_t w = tex->getWidth();
 		int16_t h = tex->getHeight();
 
 		resultData = new uint8_t[w*h*4];
 
-		tex->convert(resultData, data, 0, MIRROR_NONE, 4, 2, 1, 0, 3);
+		conv.convert(*tex, toTex, data, resultData, 0, 0);
+
 		QImage image(resultData, w, h, QImage::Format_ARGB32);
 
 		return image;

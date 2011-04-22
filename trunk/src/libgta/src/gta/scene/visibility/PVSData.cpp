@@ -20,7 +20,8 @@ using std::find;
 
 
 PVSData::PVSData(Scene* scene)
-		: scene(scene), sectSizeX(250.0f), sectSizeY(250.0f), sectSizeZ(2000.0f)
+		//: scene(scene), sectSizeX(250.0f), sectSizeY(250.0f), sectSizeZ(2000.0f)
+		: scene(scene), sectSizeX(500.0f), sectSizeY(500.0f), sectSizeZ(2000.0f)
 {
 }
 
