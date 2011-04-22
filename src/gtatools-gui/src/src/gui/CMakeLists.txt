@@ -15,6 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
 
+# Additional permissions are granted, which are listed in the file
+# GPLADDITIONS.
+
 SET(SRCS ${SRCS}
     src/gui/FileItemModel.cpp src/gui/StaticFile.cpp src/gui/MainWindow.cpp src/gui/ProfileConfigWidget.cpp
     src/gui/ConfigWidget.cpp src/gui/GUIModule.cpp src/gui/DefaultGUIModule.cpp src/gui/FileSearchDialog.cpp

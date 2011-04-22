@@ -15,6 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
 
+# Additional permissions are granted, which are listed in the file
+# GPLADDITIONS.
+
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 PROJECT(prj-gtatools-gui CXX)
 
@@ -65,6 +68,8 @@ SET(GLEW_INCLUDE_PATH "" CACHE PATH "Directory containing the OpenGL Extension W
 SET(GLEW_LIB_PATH "${GLEW_DEFAULT_LIB}" CACHE FILEPATH "Path to (or name of) the OpenGL Extension Wrangler (GLEW) library file")
 SET(SQUISH_INCLUDE_PATH "" CACHE PATH "Directory containing libsquish header files.")
 SET(SQUISH_LIB_PATH "squish" CACHE FILEPATH "Path to (or name of) libsquish library file")
+SET(PVRTEXLIB_INCLUDE_PATH "" CACHE PATH "Directory containing PVRTexLib header files.")
+SET(PVRTEXLIB_LIB_PATH "PVRTexLib" CACHE FILEPATH "Path to (or name of) PVRTexLib library file.")
 SET(BULLET_DYNAMICS_LIB_PATH "BulletDynamics" CACHE FILEPATH "Path to (or name of) the BulletDynamics library file")
 SET(BULLET_COLLISION_LIB_PATH "BulletCollision" CACHE FILEPATH "Path to (or name of) the BulletCollision library file")
 SET(BULLET_LINEAR_MATH_LIB_PATH "LinearMath" CACHE FILEPATH "Path to (or name of) the Bullet LinearMath library file")
@@ -116,12 +121,12 @@ ENDIF(WIN32)
 
 INCLUDE_DIRECTORIES(${GL_INCDIRS} ${GTAFORMATS_INCLUDE_PATH} ${GTA_INCLUDE_PATH}
         ${CMAKE_BINARY_DIR}/gtatools-gui/build/src ${CMAKE_BINARY_DIR} ${CMAKE_BINARY_DIR}/gtatools-gui/build
-        ${INCS} ${SQUISH_INCLUDE_PATH} ${BULLET_INCLUDE_PATH})
+        ${INCS} ${SQUISH_INCLUDE_PATH} ${PVRTEXLIB_INCLUDE_PATH} ${BULLET_INCLUDE_PATH})
 
 ADD_EXECUTABLE(gtatools-gui ${EXECUTABLE_PROPERTIES} ${SRCS} ${MOC_COMPILED_SRCS} ${UIC_COMPILED_SRCS} ${QM_FILES}
         ${QT_RESOURCE_FILES})
 TARGET_LINK_LIBRARIES(gtatools-gui ${GTA_LIB_PATH} ${GTAFORMATS_LIB_PATH} ${QT_LIBRARIES} ${GL_LIBRARIES}
-        ${THREAD_LIB} ${SQUISH_LIB_PATH} ${BULLET_DYNAMICS_LIB_PATH}
+        ${THREAD_LIB} ${SQUISH_LIB_PATH} ${PVRTEXLIB_LIB_PATH} ${BULLET_DYNAMICS_LIB_PATH}
         ${BULLET_COLLISION_LIB_PATH} ${BULLET_LINEAR_MATH_LIB_PATH})
 
 INSTALL(TARGETS gtatools-gui DESTINATION bin)

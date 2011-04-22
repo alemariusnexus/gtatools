@@ -15,13 +15,16 @@
 
 	You should have received a copy of the GNU General Public License
 	along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
+
+	Additional permissions are granted, which are listed in the file
+	GPLADDITIONS.
  */
 
 #ifndef TEXTUREDISPLAYER_H_
 #define TEXTUREDISPLAYER_H_
 
 #include <QtGui/QLabel>
-#include <gtaformats/txd/TXDTexture.h>
+#include <gtaformats/txd/TXDTextureHeader.h>
 #include <QtGui/QMouseEvent>
 
 
@@ -30,15 +33,15 @@ class TextureDisplayer : public QLabel {
 
 public:
 	TextureDisplayer(QWidget* parent);
-	TextureDisplayer(TXDTexture* texture, uint8_t* rawData, QWidget* parent);
+	TextureDisplayer(TXDTextureHeader* texture, uint8_t* rawData, QWidget* parent);
 	~TextureDisplayer();
-	void display(TXDTexture* texture, uint8_t* rawData);
+	void display(TXDTextureHeader* texture, uint8_t* rawData);
 
 protected:
 	virtual void mouseMoveEvent(QMouseEvent* evt);
 
 private:
-	TXDTexture* texture;
+	TXDTextureHeader* texture;
 	uint8_t* data;
 };
 

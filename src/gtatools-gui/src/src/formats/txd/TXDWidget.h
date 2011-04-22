@@ -15,6 +15,9 @@
 
 	You should have received a copy of the GNU General Public License
 	along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
+
+	Additional permissions are granted, which are listed in the file
+	GPLADDITIONS.
  */
 
 #ifndef TXDWIDGET_H_
@@ -25,7 +28,7 @@
 #include <QtGui/QWidget>
 #include <QtGui/QListWidget>
 #include <gtaformats/txd/TXDArchive.h>
-#include <gtaformats/txd/TXDTexture.h>
+#include <gtaformats/txd/TXDTextureHeader.h>
 #include "OpenTXDGUIModule.h"
 #include <QtCore/QLinkedList>
 
@@ -38,7 +41,7 @@ public:
 	TXDWidget(const File& file, const QString& texture, QWidget* parent);
 	~TXDWidget();
 	TXDArchive* getArchive() { return txd; }
-	QLinkedList<TXDTexture*> getSelectedTextures();
+	QLinkedList<TXDTextureHeader*> getSelectedTextures();
 
 private slots:
 	void textureActivated(QListWidgetItem* item, QListWidgetItem* previous);
@@ -54,7 +57,7 @@ private:
 	QTabWidget* compactTab;
 	Ui_TXDWidget ui;
 	TXDArchive* txd;
-	TXDTexture** textures;
+	TXDTextureHeader** textures;
 };
 
 #endif /* TXDWIDGET_H_ */

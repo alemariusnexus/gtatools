@@ -14,7 +14,7 @@
 class WildcardTextureFilter : public TextureFilter {
 public:
 	WildcardTextureFilter(const char* pattern);
-	virtual bool process(const TXDTexture& tex);
+	virtual bool process(const TXDTextureHeader& tex);
 
 private:
 	char* pattern;

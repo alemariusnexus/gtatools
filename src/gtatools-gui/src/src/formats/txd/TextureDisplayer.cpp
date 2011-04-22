@@ -15,6 +15,9 @@
 
 	You should have received a copy of the GNU General Public License
 	along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
+
+	Additional permissions are granted, which are listed in the file
+	GPLADDITIONS.
  */
 
 #include "TextureDisplayer.h"
@@ -25,7 +28,7 @@
 
 
 
-TextureDisplayer::TextureDisplayer(TXDTexture* texture, uint8_t* rawData, QWidget* parent)
+TextureDisplayer::TextureDisplayer(TXDTextureHeader* texture, uint8_t* rawData, QWidget* parent)
 		: QLabel(parent), texture(NULL), data(NULL)
 {
 	display(texture, rawData);
@@ -47,7 +50,7 @@ TextureDisplayer::~TextureDisplayer()
 }
 
 
-void TextureDisplayer::display(TXDTexture* texture, uint8_t* rawData)
+void TextureDisplayer::display(TXDTextureHeader* texture, uint8_t* rawData)
 {
 	if (data) {
 		delete[] data;

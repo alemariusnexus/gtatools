@@ -15,6 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
 
+# Additional permissions are granted, which are listed in the file
+# GPLADDITIONS.
+
 SET(SRCS ${SRCS}
     src/formats/ide/IDEFormatHandler.cpp src/formats/ide/IDEWidget.cpp src/formats/ide/IDEGUIModule.cpp
     src/formats/ide/IDESearchWidget.cpp src/formats/ide/IDEFileFinder.cpp

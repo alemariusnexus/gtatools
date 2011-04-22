@@ -15,6 +15,9 @@
 
 	You should have received a copy of the GNU General Public License
 	along with gtaformats.  If not, see <http://www.gnu.org/licenses/>.
+
+	Additional permissions are granted, which are listed in the file
+	GPLADDITIONS.
  */
 
 #ifndef TXDARCHIVE_H_
@@ -23,7 +26,7 @@
 #include "../config.h"
 #include "../gta.h"
 #include "TXDException.h"
-#include "TXDTexture.h"
+#include "TXDTextureHeader.h"
 #include <string>
 #include <algorithm>
 #include <cctype>
@@ -33,12 +36,6 @@
 
 using std::istream;
 using std::string;
-
-/*#define TXD_COMPRESSION_NONE 0
-#define TXD_COMPRESSION_DXT1 1
-#define TXD_COMPRESSION_DXT3 3
-#define TXD_COMPRESSION_PVRTC2 100
-#define TXD_COMPRESSION_PVRTC4 101*/
 
 class TXDVisitor;
 
@@ -76,7 +73,7 @@ public:
 	 *
 	 *	@return The TXDTexture that was read.
 	 */
-	TXDTexture* nextTexture();
+	TXDTextureHeader* nextTexture();
 
 	/**	\brief Reads raw texture data from the stream.
 	 *
@@ -93,7 +90,7 @@ public:
 	 *	@param texture The texture whose data will be read.
 	 *	@see readTextureData(TXDTexture*)
 	 */
-	int readTextureData(uint8_t* dest, TXDTexture* texture);
+	int readTextureData(uint8_t* dest, TXDTextureHeader* texture);
 
 	/**	\brief Reads raw texture data from the stream into a new array.
 	 *
@@ -105,7 +102,7 @@ public:
 	 *	@return The raw texture data.
 	 *	@see readTextureData(uint8_t*, TXDTexture*)
 	 */
-	uint8_t* readTextureData(TXDTexture* texture);
+	uint8_t* readTextureData(TXDTextureHeader* texture);
 
 	/**	\brief Repositions the stream to the position in front of the data of the given texture.
 	 *
@@ -115,7 +112,7 @@ public:
 	 *
 	 *	@param texture The texture to go to.
 	 */
-	void gotoTexture(TXDTexture* texture);
+	void gotoTexture(TXDTextureHeader* texture);
 
 	/**	\brief Returns the number of textures inside the archive.
 	 *
@@ -123,7 +120,7 @@ public:
 	 */
 	int16_t getTextureCount() { return textureCount; }
 
-	void destroyTexture(TXDTexture* tex);
+	void destroyTexture(TXDTextureHeader* tex);
 
 private:
 	/**	\brief Reads an RW section header with a given ID.
@@ -143,11 +140,11 @@ private:
 	bool randomAccess;
 	istream* stream;
 	long long bytesRead;
-	TXDTexture** indexedTextures;
+	TXDTextureHeader** indexedTextures;
 	long long* textureNativeStarts;
 	int16_t readIndex;
 	int16_t textureCount;
-	TXDTexture* currentTexture;
+	TXDTextureHeader* currentTexture;
 	int32_t currentTextureNativeSize;
 	long long currentTextureNativeStart;
 	bool deleteStream;

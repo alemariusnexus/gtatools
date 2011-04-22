@@ -15,6 +15,9 @@
 
 	You should have received a copy of the GNU General Public License
 	along with libgta.  If not, see <http://www.gnu.org/licenses/>.
+
+	Additional permissions are granted, which are listed in the file
+	GPLADDITIONS.
  */
 
 #ifndef CONFIG_CMAKE_H_
@@ -23,6 +26,7 @@
 #include <gtaformats/config.h>
 
 #cmakedefine GTA_ENABLE_SQUISH
+#cmakedefine GTA_ENABLE_PVRTEXLIB
 #cmakedefine GTA_USE_OPENGL_ES
 
 #endif /* CONFIG_CMAKE_H_ */

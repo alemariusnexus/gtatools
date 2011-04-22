@@ -15,5 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with gtaimg.  If not, see <http://www.gnu.org/licenses/>.
 
+# Additional permissions are granted, which are listed in the file
+# GPLADDITIONS.
+
 
 SET(SRCS ${SRCS} src/main src/WildcardFilter PARENT_SCOPE)

@@ -15,6 +15,9 @@
 
 	You should have received a copy of the GNU General Public License
 	along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
+
+	Additional permissions are granted, which are listed in the file
+	GPLADDITIONS.
  */
 
 #ifndef TXDFORMATHANDLER_H_
@@ -23,7 +26,7 @@
 #include "../FormatHandler.h"
 #include <QtGui/QImage>
 #include <gtaformats/txd/TXDArchive.h>
-#include <gtaformats/txd/TXDTexture.h>
+#include <gtaformats/txd/TXDTextureHeader.h>
 #include <gtaformats/config.h>
 #include <QtCore/QLinkedList>
 #include <QtGui/QWidget>
@@ -44,9 +47,9 @@ public:
 	virtual bool hasFileFormat(const File& file) const { return file.guessContentType() == CONTENT_TYPE_TXD; }
 	virtual QWidget* createWidgetForFile(const FileOpenRequest& request, QWidget* parent);
 
-	bool extractTexturesDialog(TXDArchive* txd, const QLinkedList<TXDTexture*>& texes, QWidget* parent);
+	bool extractTexturesDialog(TXDArchive* txd, const QLinkedList<TXDTextureHeader*>& texes, QWidget* parent);
 	bool findTextureDialog(const QLinkedList<File*>& files, QWidget* parent);
-	QImage createImageFromTexture(TXDTexture* tex, uint8_t* data, uint8_t*& resultData);
+	QImage createImageFromTexture(TXDTextureHeader* tex, uint8_t* data, uint8_t*& resultData);
 
 private slots:
 	void systemQuerySent(const SystemQuery& query, SystemQueryResult& result);

@@ -15,6 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with gtatxd.  If not, see <http://www.gnu.org/licenses/>.
 
+# Additional permissions are granted, which are listed in the file
+# GPLADDITIONS.
+
 
 #SET(SRCS ${SRCS} src/cliarg src/ExtractVisitor src/ListVisitor src/main PARENT_SCOPE)
 SET(SRCS ${SRCS} src/main src/WildcardTextureFilter PARENT_SCOPE)

@@ -15,6 +15,9 @@
 
 	You should have received a copy of the GNU General Public License
 	along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
+
+	Additional permissions are granted, which are listed in the file
+	GPLADDITIONS.
  */
 
 #include "TXDWidget.h"
@@ -54,12 +57,12 @@ TXDWidget::TXDWidget(const File& file, const QString& selectedTex, QWidget* pare
 		throw;
 	}
 
-	textures = new TXDTexture*[txd->getTextureCount()];
+	textures = new TXDTextureHeader*[txd->getTextureCount()];
 
 	int currentRow = 0;
 
 	for (int i = 0 ; i < txd->getTextureCount() ; i++) {
-		TXDTexture* texture = txd->nextTexture();
+		TXDTextureHeader* texture = txd->nextTexture();
 		textures[i] = texture;
 		ui.textureList->addItem(texture->getDiffuseName());
 
@@ -143,9 +146,9 @@ void TXDWidget::loadConfigUiSettings()
 }
 
 
-QLinkedList<TXDTexture*> TXDWidget::getSelectedTextures()
+QLinkedList<TXDTextureHeader*> TXDWidget::getSelectedTextures()
 {
-	QLinkedList<TXDTexture*> list;
+	QLinkedList<TXDTextureHeader*> list;
 
 	for (int i = 0 ; i < ui.textureList->count() ; i++) {
 		if (ui.textureList->item(i)->isSelected()) {
@@ -162,7 +165,7 @@ void TXDWidget::textureActivated(QListWidgetItem* item, QListWidgetItem* previou
 	int row = ui.textureList->currentRow();
 
 	if (row >= 0) {
-		TXDTexture* texture = textures[row];
+		TXDTextureHeader* texture = textures[row];
 		txd->gotoTexture(texture);
 		uint8_t* rawData = txd->readTextureData(texture);
 		ui.displayLabel->display(texture, rawData);
@@ -206,7 +209,7 @@ void TXDWidget::textureActivated(QListWidgetItem* item, QListWidgetItem* previou
 
 void TXDWidget::textureListContextMenuRequested(const QPoint& pos)
 {
-	QLinkedList<TXDTexture*> texes = getSelectedTextures();
+	QLinkedList<TXDTextureHeader*> texes = getSelectedTextures();
 
 	if (texes.size() > 0) {
 		QMenu* menu = new QMenu(ui.textureList);
@@ -219,7 +222,7 @@ void TXDWidget::textureListContextMenuRequested(const QPoint& pos)
 
 void TXDWidget::textureExtractionRequested(bool checked)
 {
-	QLinkedList<TXDTexture*> texes = getSelectedTextures();
+	QLinkedList<TXDTextureHeader*> texes = getSelectedTextures();
 	TXDFormatHandler::getInstance()->extractTexturesDialog(txd, texes, this);
 }
 

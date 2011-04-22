@@ -1,15 +1,31 @@
 /*
- * TextureCacheLoader.cpp
- *
- *  Created on: 07.03.2011
- *      Author: alemariusnexus
+	Copyright 2010-2011 David "Alemarius Nexus" Lerch
+
+	This file is part of libgta.
+
+	libgta is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	libgta is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with libgta.  If not, see <http://www.gnu.org/licenses/>.
+
+	Additional permissions are granted, which are listed in the file
+	GPLADDITIONS.
  */
 
 #include "TextureCacheLoader.h"
 #include "TextureCacheEntry.h"
 #include "TextureArchive.h"
 #include <gtaformats/txd/TXDArchive.h>
-#include <gtaformats/txd/TXDTexture.h>
+#include <gtaformats/txd/TXDTextureHeader.h>
+#include <gtaformats/txd/TXDConverter.h>
 #include <gtaformats/util/strutil.h>
 #include "../../gl.h"
 #include "../../EngineException.h"
@@ -34,7 +50,7 @@ CacheEntry* TextureCacheLoader::load(hash_t hash)
 	for (int16_t i = 0 ; i < txd.getTextureCount() ; i++) {
 		int size = 0;
 
-		TXDTexture* tex = txd.nextTexture();
+		TXDTextureHeader* tex = txd.nextTexture();
 		uint8_t* data = txd.readTextureData(tex);
 
 		const char* name = tex->getDiffuseName();
@@ -51,31 +67,31 @@ CacheEntry* TextureCacheLoader::load(hash_t hash)
 		GLint vWrap = GL_REPEAT;
 
 		switch (tex->getUWrapFlags()) {
-		case TXD_WRAP_NONE:
+		case WrapNone:
 			uWrap = GL_REPEAT;
 			break;
-		case TXD_WRAP_WRAP:
+		case WrapWrap:
 			uWrap = GL_REPEAT;
 			break;
-		case TXD_WRAP_MIRROR:
+		case WrapMirror:
 			uWrap = GL_MIRRORED_REPEAT;
 			break;
-		case TXD_WRAP_CLAMP:
+		case WrapClamp:
 			uWrap = GL_CLAMP_TO_EDGE;
 			break;
 		}
 
 		switch (tex->getVWrapFlags()) {
-		case TXD_WRAP_NONE:
+		case WrapNone:
 			vWrap = GL_REPEAT;
 			break;
-		case TXD_WRAP_WRAP:
+		case WrapWrap:
 			vWrap = GL_REPEAT;
 			break;
-		case TXD_WRAP_MIRROR:
+		case WrapMirror:
 			vWrap = GL_MIRRORED_REPEAT;
 			break;
-		case TXD_WRAP_CLAMP:
+		case WrapClamp:
 			vWrap = GL_CLAMP_TO_EDGE;
 			break;
 		}
@@ -83,37 +99,37 @@ CacheEntry* TextureCacheLoader::load(hash_t hash)
 		GLint magFilter, minFilter;
 
 		switch (tex->getFilterFlags()) {
-		case TXD_FILTER_LINEAR:
+		case FilterLinear:
 			magFilter = GL_LINEAR;
 			minFilter = GL_LINEAR;
 			break;
 
-		case TXD_FILTER_NEAREST:
+		case FilterNearest:
 			magFilter = GL_NEAREST;
 			minFilter = GL_NEAREST;
 			break;
 
-		case TXD_FILTER_MIP_NEAREST:
+		case FilterMipNearest:
 			magFilter = GL_NEAREST;
 			minFilter = GL_NEAREST_MIPMAP_NEAREST;
 			break;
 
-		case TXD_FILTER_MIP_LINEAR:
+		case FilterMipLinear:
 			magFilter = GL_NEAREST;
 			minFilter = GL_NEAREST_MIPMAP_LINEAR;
 			break;
 
-		case TXD_FILTER_LINEAR_MIP_NEAREST:
+		case FilterLinearMipNearest:
 			magFilter = GL_LINEAR;
 			minFilter = GL_LINEAR_MIPMAP_NEAREST;
 			break;
 
-		case TXD_FILTER_LINEAR_MIP_LINEAR:
+		case FilterLinearMipLinear:
 			magFilter = GL_LINEAR;
 			minFilter = GL_LINEAR_MIPMAP_LINEAR;
 			break;
 
-		case TXD_FILTER_NONE:
+		case FilterNone:
 			// Don't know what it is
 			magFilter = GL_LINEAR;
 			minFilter = GL_LINEAR;
@@ -133,8 +149,8 @@ CacheEntry* TextureCacheLoader::load(hash_t hash)
 		// TODO Can we really disable this?
 		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, tex->getMipmapCount()-1);
 
-		bool mipmapsIncluded = (tex->getRasterFormatExtension() & TXD_FORMAT_EXT_MIPMAP) != 0;
-		bool mipmapsAuto = (tex->getRasterFormatExtension() & TXD_FORMAT_EXT_AUTO_MIPMAP) != 0;
+		bool mipmapsIncluded = (tex->getRasterFormatExtension() & RasterFormatEXTMipmap) != 0;
+		bool mipmapsAuto = (tex->getRasterFormatExtension() & RasterFormatEXTAutoMipmap) != 0;
 		int numIncludedMipmaps = mipmapsIncluded ? tex->getMipmapCount() : 1;
 
 	#ifndef GTA_USE_OPENGL_ES
@@ -197,15 +213,9 @@ CacheEntry* TextureCacheLoader::load(hash_t hash)
 			}
 		} else
 	#endif
-		if (compr == PVRTC2  ||  compr == PVRTC4) {
-			printf("1\n");
-			if (!gtaglIsExtensionSupported("GL_IMG_texture_compression_pvrtc")) {
-				printf("2\n");
-				throw EngineException("Attempt to load a PVRTC-compressed texture. This is only supported "
-						"when GL_IMG_texture_compression_pvrtc is available, which doesn't seem to be.",
-						__FILE__, __LINE__);
-			}
-
+		if (	(compr == PVRTC2  ||  compr == PVRTC4)
+				&&  gtaglIsExtensionSupported("GL_IMG_texture_compression_pvrtc")
+		) {
 #ifdef GTA_USE_OPENGL_ES
 			if (compr == PVRTC2) {
 				uint8_t* dataStart = data;
@@ -257,21 +267,30 @@ CacheEntry* TextureCacheLoader::load(hash_t hash)
 			int16_t mipW = w;
 			int16_t mipH = h;
 
-			int8_t bppFraction = tex->getCompression() == DXT1 ? 2 : 1;
+			//int8_t bppFraction = tex->getCompression() == DXT1 ? 2 : 1;
+			int8_t bppFraction = 1;
 
 			for (int i = 0 ; i < numIncludedMipmaps ; i++) {
-				if (mipW < 4  ||  mipH < 4) {
+				if (	(mipW < 4  ||  mipH < 4)
+						&&  (compr == DXT1  ||  compr == DXT3)
+				) {
 					// TODO See above...
 					//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, i-1);
 					break;
 				}
 
 				uint8_t* pixels = new uint8_t[mipW*mipH*4];
-				tex->convert(pixels, data, i, MIRROR_NONE, 4, 0, 1, 2, 3);
+
+				TXDTextureHeader to = *tex;
+				to.setRasterFormat(RasterFormatR8G8B8A8);
+
+				TXDConverter conv;
+				conv.convert(*tex, to, data, pixels, i, i);
 
 				glTexImage2D(GL_TEXTURE_2D, i, GL_RGBA, mipW, mipH, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 				size += mipW*mipH*4;
-				data += mipW*mipH/bppFraction;
+				data += tex->computeMipmapDataSize(i);
+				//data += mipW*mipH/bppFraction;
 
 				delete[] pixels;
 
@@ -282,7 +301,7 @@ CacheEntry* TextureCacheLoader::load(hash_t hash)
 			delete[] dataStart;
 		}
 
-		if (	(tex->getRasterFormatExtension() & TXD_FORMAT_EXT_AUTO_MIPMAP) != 0
+		if (	(tex->getRasterFormatExtension() & RasterFormatEXTAutoMipmap) != 0
 	#ifndef GTA_USE_OPENGL_ES
 				&&  gtaglIsVersionSupported(3, 0)
 	#endif

@@ -15,6 +15,9 @@
 
 	You should have received a copy of the GNU General Public License
 	along with gtaformats.  If not, see <http://www.gnu.org/licenses/>.
+
+	Additional permissions are granted, which are listed in the file
+	GPLADDITIONS.
  */
 
 #ifndef GTATXD_H_
@@ -24,6 +27,7 @@
 
 #include "txd/TXDArchive.h"
 #include "txd/TXDException.h"
-#include "txd/TXDTexture.h"
+#include "txd/TXDTextureHeader.h"
+#include "txd/TXDConverter.h"
 
 #endif /* GTATXD_H_ */

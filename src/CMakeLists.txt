@@ -15,6 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with gtatools.  If not, see <http://www.gnu.org/licenses/>.
 
+# Additional permissions are granted, which are listed in the file
+# GPLADDITIONS.
+
+# Additional permissions are granted, which are listed in the file
+# GPLADDITIONS.
+
 
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)

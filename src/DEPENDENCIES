@@ -10,9 +10,17 @@ Required:
 
 Optional:
 	- libsquish: DXT (de-)compression library. Needed for support of DXT-compressed TXD textures. If you
-	  don't want to use it, set GF_USE_SQUISH to false.
+	  don't want to use it, set GTAFORMATS_ENABLE_SQUISH to false.
 	  WARNING: Usage of libsquish might be illegal in some states (most notably the USA) without paying
-	  license fees because of software patents.
+	  license fees because of software patents. In such states, YOU ARE NOT ALLOWED to use libsquish with
+	  gtatools!
+	- PVRTexLib: Needed for support of PVRTC-compressed textures. If you don't want to use it, set
+	  GTAFORMATS_ENABLE_PVRTEXLIB to false. PVRTC-compressed textures don't appear in and are not supported by
+	  the original games, but are supported as an extension by gtatools, so you need PVRTexLib only when you
+	  use modified files which use this extension.
+	  WARNING: PVRTexLib is a proprietary library and support for it is therefore disabled by default. You
+	  are, however, allowed to use it with gtatools because of an additional permission granted to you under
+	  the GPL. See the file GPLADDITIONS for more information.
 	  
 
 	  
@@ -29,6 +37,11 @@ Optional:
 	- libsquish: Normally not needed if your graphics card supports the GL_EXT_texture_compression_s3tc
 	  extension (which all modern cards should support). Otherwise you need libsquish for DXT-compressed
 	  TXD textures.
+	  WARNING: See dependencies for libgtaformats
+	- PVRTexLib: Needed for PVRTC-compressed textures if your graphics card does not support the
+	  GL_IMG_texture_compression_pvrtc extension, which is the case for, as far as I know, all graphics cards
+	  except PowerVR ones. See the dependencies of libgtaformats for more information.
+	  WARNING: See dependencies for libgtaformats
 
 	  
 
@@ -46,3 +59,9 @@ Optional:
 	- libsquish: Needed for support of DXT-compressed textures (Viewing of models with DXT-compressed
 	  textures might work without libsquish if your graphics card supports GL_EXT_texture_compression_s3tc,
 	  but for standard texture displaying you need libsquish)
+	  WARNING: See dependencies for libgtaformats
+	- PVRTexLib: Needed for support of PVRTC-compressed textures (Viewing of models with PVRTC-compressed
+	  textures might work without PVRTexLib if your graphics card supports GL_IMG_texture_compression_pvrtc,
+	  but for standard texture displaying you need PVRTexLib). See the dependencies of libgta and
+	  libgtaformats for more information.
+	  WARNING: See dependencies for libgtaformats

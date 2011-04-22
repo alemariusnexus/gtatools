@@ -15,6 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
 
+# Additional permissions are granted, which are listed in the file
+# GPLADDITIONS.
+
 SET(SRCS ${SRCS}
     src/formats/txd/TXDFormatHandler.cpp src/formats/txd/TXDGUIModule.cpp src/formats/txd/TXDWidget.cpp
     src/formats/txd/TextureDisplayer.cpp src/formats/txd/TextureSearchDialog.cpp
