@@ -86,7 +86,6 @@ DFFWidget::DFFWidget(const File& file, QWidget* parent, QGLWidget* shareWidget)
 	try {
 		mesh = dff.loadMesh(file);
 	} catch (DFFException ex) {
-		printf("EX\n");
 		System::getInstance()->logError(ex.what());
 		QMessageBox::critical(this, tr("Error opening DFF file"), tr("The following error occurred "
 				"opening the DFF file:\n\n%1\n\nSee the error log for more details.").arg(ex.getMessage()));
@@ -96,6 +95,7 @@ DFFWidget::DFFWidget(const File& file, QWidget* parent, QGLWidget* shareWidget)
 	frameModel = new DFFFrameItemModel(mesh);
 	ui.frameTree->setModel(frameModel);
 
+	System* sys = System::getInstance();
 
 	DFFMesh::GeometryIterator git;
 
@@ -107,7 +107,7 @@ DFFWidget::DFFWidget(const File& file, QWidget* parent, QGLWidget* shareWidget)
 	}
 
 	DFFGUIModule* guiModule = DFFGUIModule::getInstance();
-	System::getInstance()->installGUIModule(guiModule);
+	sys->installGUIModule(guiModule);
 
 	Profile* profile = ProfileManager::getInstance()->getCurrentProfile();
 
@@ -118,12 +118,16 @@ DFFWidget::DFFWidget(const File& file, QWidget* parent, QGLWidget* shareWidget)
 	strtolower(meshName, file.getPath()->getFileName());
 	meshName[strlen(meshName)-4] = '\0';
 
-	char** texNames;
-	int numTexNames = profile->findTexturesForMesh(Hash(meshName), texNames);
+	SystemQuery query("FindMeshTextures");
+	query["meshName"] = meshName;
 
-	for (int i = 0 ; i < numTexNames ; i++) {
-		ui.texSourceBox->addItem(texNames[i], QString(texNames[i]));
+	SystemQueryResult result = sys->sendSystemQuery(query);
+
+	if (result.isSuccessful()) {
+		ui.texSourceBox->addItems(result["textures"].toStringList());
 	}
+
+	delete[] meshName;
 
 	connect(ui.frameTree->selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
 			this, SLOT(frameSelected(const QModelIndex&, const QModelIndex&)));
@@ -461,7 +465,7 @@ void DFFWidget::texSourceSelected(int index)
 	if (texSource)
 		delete texSource;
 
-	QString texName = ui.texSourceBox->itemData(index).toString();
+	QString texName = ui.texSourceBox->itemText(index);
 	texSource = new ManagedTextureSource(texName.toAscii().constData());
 	geometryRenderWidget->setTextureSource(new ManagedTextureSource(*texSource));
 	geometryPartRenderWidget->setTextureSource(new ManagedTextureSource(*texSource));

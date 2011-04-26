@@ -75,8 +75,8 @@ bool TXDFormatHandler::extractTexturesDialog(TXDArchive* txd, const QLinkedList<
 				QString(tex->getDiffuseName()).append(".png"), "Portable Network Graphics (*.png)");
 
 		if (!fname.isNull()) {
-			txd->gotoTexture(tex);
-			uint8_t* rawData = txd->readTextureData(tex);
+			//uint8_t* rawData = txd->readTextureData(tex);
+			uint8_t* rawData = txd->getTextureData(tex);
 			uint8_t* data;
 			QImage image = createImageFromTexture(tex, rawData, data);
 			image.setText("Description", "Converted from GTA TXD by gtatools " GTATOOLS_VERSION);
@@ -98,8 +98,7 @@ bool TXDFormatHandler::extractTexturesDialog(TXDArchive* txd, const QLinkedList<
 
 			for (it = texes.begin() ; it != texes.end() ; it++) {
 				TXDTextureHeader* tex = *it;
-				txd->gotoTexture(tex);
-				uint8_t* rawData = txd->readTextureData(tex);
+				uint8_t* rawData = txd->getTextureData(tex);
 				uint8_t* data;
 				QImage image = createImageFromTexture(tex, rawData, data);
 				image.setText("Description", "Converted from GTA TXD by gtatools " GTATOOLS_VERSION);

@@ -46,6 +46,7 @@ CacheEntry* MeshCacheLoader::load(hash_t key)
 	}
 
 	Mesh* mesh = new Mesh(*dffMesh->getGeometry((uint32_t) 0));
+	delete dffMesh;
 	MeshCacheEntry* entry = new MeshCacheEntry(mesh);
 	return entry;
 }

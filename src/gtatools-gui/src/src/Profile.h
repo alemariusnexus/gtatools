@@ -32,6 +32,8 @@
 #include <gta/resource/ResourceObserver.h>
 #include <gta/Engine.h>
 #include "Task.h"
+#include "SystemQuery.h"
+#include "SystemQueryResult.h"
 #include <map>
 
 using std::multimap;
@@ -85,7 +87,7 @@ private:
 private slots:
 	void currentProfileChanged(Profile* oldProfile, Profile* newProfile);
 	void resourcesInitialized();
-
+	void systemQuerySent(const SystemQuery& query, SystemQueryResult& result);
 
 signals:
 	//void changed();

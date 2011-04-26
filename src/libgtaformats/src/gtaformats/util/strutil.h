@@ -24,6 +24,16 @@
 #define STRUTIL_H_
 
 #include "../config.h"
+#include <locale>
+#include <cstring>
+
+using std::locale;
+using std::collate;
+using std::use_facet;
+
+
+typedef long hash_t;
+
 
 
 /**	\brief Converts src to lower case.
@@ -66,6 +76,16 @@ char* indent(const char* src, const char* indStr);
 
 
 bool WildcardMatch(const char* pattern, const char* text);
+
+
+
+inline hash_t Hash(const char* str)
+{
+	return use_facet< collate<char> >(locale()).hash(str, str+strlen(str));
+}
+
+
+hash_t LowerHash(const char* str);
 
 
 #endif /* STRUTIL_H_ */

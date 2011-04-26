@@ -56,8 +56,8 @@ bool TextureFileFinder::matches(const File& file)
 
 	TXDArchive txd(file);
 
-	for (int32_t i = 0 ; i < txd.getTextureCount() ; i++) {
-		TXDTextureHeader* tex = txd.nextTexture();
+	for (TXDArchive::TextureIterator it = txd.getHeaderBegin() ; it != txd.getHeaderEnd() ; it++) {
+		TXDTextureHeader* tex = *it;
 		FilePath pseudoPath(*file.getPath(), tex->getDiffuseName());
 		File pseudoFile(&pseudoPath, false);
 		bool matches = textureBackend->matches(pseudoFile);

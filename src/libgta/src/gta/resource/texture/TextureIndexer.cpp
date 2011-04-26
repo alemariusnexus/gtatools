@@ -54,13 +54,12 @@ void TextureIndexer::resourceAdded(const File& file)
 
 		TextureArchive* archive = new TextureArchive(txdHash, file);
 
-		for (int16_t i = 0 ; i < txd.getTextureCount() ; i++) {
-			TXDTextureHeader* tex = txd.nextTexture();
+		//for (int16_t i = 0 ; i < txd.getTextureCount() ; i++) {
+		for (TXDArchive::TextureIterator it = txd.getHeaderBegin() ; it != txd.getHeaderEnd() ; it++) {
+			TXDTextureHeader* tex = *it;
 
 			strtolower(texName, tex->getDiffuseName());
 			archive->addTexture(Hash(texName));
-
-			delete tex;
 		}
 
 		archives.insert(pair<hash_t, TextureArchive*>(txdHash, archive));

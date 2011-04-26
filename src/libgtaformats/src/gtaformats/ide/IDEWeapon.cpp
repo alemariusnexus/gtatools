@@ -42,4 +42,5 @@ IDEWeapon::~IDEWeapon()
 	delete[] modelName;
 	delete[] txdName;
 	delete[] animName;
+	delete[] drawDists;
 }

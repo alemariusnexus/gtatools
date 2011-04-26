@@ -21,247 +21,369 @@
  */
 
 #include "TXDArchive.h"
+#include <utility>
+#include "../util/strutil.h"
+#include <algorithm>
 #include "../gta.h"
-#include <cstring>
-#include <cstdio>
+
+using std::pair;
+using std::find;
 
 
-TXDArchive::TXDArchive(istream* stream, bool randomAccess)
-		: randomAccess(randomAccess), stream(stream), bytesRead(0), readIndex(0),
-		  currentTextureNativeSize(-1), currentTextureNativeStart(-1), deleteStream(false)
+
+
+struct TextureNativeStruct
 {
-	init();
+	int32_t platform;
+	int16_t filterFlags;
+	int8_t vWrap;
+	int8_t uWrap;
+	char diffuseName[32];
+	char alphaName[32];
+	int32_t rasterFormat;
+	int32_t alphaOrCompression;
+	int16_t width;
+	int16_t height;
+	int8_t bpp;
+	int8_t mipmapCount;
+	int8_t rasterType;
+	int8_t compressionOrAlpha;
+};
+
+
+
+TXDArchive::TXDArchive()
+		: texDict(new RWSection(RW_SECTION_TEXTUREDICTIONARY, RW_VERSION_GTASA))
+{
+	RWSection* txdSect = new RWSection(RW_SECTION_STRUCT, texDict);
+	int16_t* txdSectData = new int16_t[2];
+	txdSectData[0] = 0; // Texture count
+	txdSectData[1] = 0; // Unknown
+	txdSect->setData((uint8_t*) txdSectData, 4);
+	RWSection* txdExtSect = new RWSection(RW_SECTION_EXTENSION, texDict);
+	txdExtSect->setData(new uint8_t[0], 0); // Empty
+}
+
+
+TXDArchive::TXDArchive(istream* stream)
+		: texDict(new RWSection(stream))
+{
+	init(stream);
 }
 
 
 TXDArchive::TXDArchive(const File& file)
-		: randomAccess(true), stream(file.openInputStream(istream::binary)),
-		  bytesRead(0), readIndex(0), currentTextureNativeSize(-1), currentTextureNativeStart(-1),
-		  deleteStream(true)
 {
-	init();
+	istream* stream = file.openInputStream(istream::binary);
+	texDict = new RWSection(stream);
+	init(stream);
+	delete stream;
 }
 
 
 TXDArchive::~TXDArchive()
 {
-	delete[] textureNativeStarts;
+	delete texDict;
 
-	delete[] indexedTextures;
-
-	if (deleteStream) {
-		delete stream;
+	for (TextureIterator it = texHeaders.begin() ; it != texHeaders.end() ; it++) {
+		delete *it;
 	}
 }
 
 
-void TXDArchive::init()
+void TXDArchive::init(istream* stream)
 {
-	char skipBuf[2];
+	RWSection& texDictStruct = (*texDict)[RW_SECTION_STRUCT];
+	int16_t texCount = *((int16_t*) texDictStruct.getData());
 
-	RwSectionHeader header;
-	readSectionHeaderWithID(stream, header, RW_SECTION_TEXTUREDICTIONARY);
-	readSectionHeaderWithID(stream, header, RW_SECTION_STRUCT);
+	RWSection::ChildIterator it = texDict->getChildBegin();
 
-	stream->read((char*) &textureCount, 2);
-	stream->read(skipBuf, 2);
+	while ((it = texDict->nextChild(RW_SECTION_TEXTURENATIVE, it))  !=  texDict->getChildEnd()) {
+		RWSection* texNative = *it;
+		RWSection* texNativeStruct = texNative->getChild(RW_SECTION_STRUCT);
+		TextureNativeStruct& header = *((TextureNativeStruct*) texNativeStruct->getData());
 
-	if (textureCount < 0) {
-		throw TXDException("Texture count is < 0", __FILE__, __LINE__);
-	}
+		TXDCompression compr = NONE;
+		bool alpha;
 
-	bytesRead += 4;
+		if (header.platform == 9) {
+			char* fourCC = (char*) &header.alphaOrCompression;
+			if (fourCC[0] == 'D'  &&  fourCC[1] == 'X'  &&  fourCC[2] == 'T') {
+				if (fourCC[3] == '1') {
+					compr = DXT1;
+				} else if (fourCC[3] == '3') {
+					compr = DXT3;
+				}
+			} else if (fourCC[0] == 'P'  &&  fourCC[1] == 'V'  &&  fourCC[2] == 'R') {
+				if (fourCC[3] == '2') {
+					compr = PVRTC2;
+				} else if (fourCC[3] == '4') {
+					compr = PVRTC4;
+				}
+			}
 
-	textureNativeStarts = new long long[textureCount];
-	indexedTextures = new TXDTextureHeader*[textureCount];
+			alpha = (header.compressionOrAlpha == 9  ||  header.compressionOrAlpha == 1);
+		} else {
+			if (header.compressionOrAlpha == 1) {
+				compr = DXT1;
+			} else if (header.compressionOrAlpha == 3) {
+				compr = DXT3;
+			} else if (header.compressionOrAlpha == 50) {
+				compr = PVRTC2;
+			} else if (header.compressionOrAlpha == 51) {
+				compr = PVRTC4;
+			}
 
-	for (int16_t i = 0 ; i < textureCount ; i++) {
-		indexedTextures[i] = NULL;
+			alpha = (header.alphaOrCompression == 1);
+		}
+
+		TXDTextureHeader* tex = new TXDTextureHeader(header.diffuseName, header.rasterFormat, compr,
+				header.width, header.height);
+		tex->setAlphaChannel(alpha);
+		tex->setAlphaName(header.alphaName);
+		tex->setBytesPerPixel(header.bpp/8);
+		tex->setFilterFlags(header.filterFlags);
+		tex->setMipmapCount(header.mipmapCount);
+		tex->setWrappingFlags(header.uWrap, header.vWrap);
+
+		texHeaders.push_back(tex);
+
+		texNativeMap.insert(pair<hash_t, RWSection*>(LowerHash(header.diffuseName), texNative));
+
+		it++;
 	}
 }
 
 
-TXDTextureHeader* TXDArchive::nextTexture()
+uint8_t* TXDArchive::getTextureData(TXDTextureHeader* header)
 {
-	if (currentTextureNativeStart != -1) {
-		unsigned int len = (unsigned int) (currentTextureNativeStart + currentTextureNativeSize + 12 - bytesRead);
-		char* tmpSkipBuf = new char[len];
-		stream->read(tmpSkipBuf, len);
-		delete[] tmpSkipBuf;
-		bytesRead += len;
+	hash_t hash = LowerHash(header->getDiffuseName());
+	TexNativeMap::iterator it = texNativeMap.find(hash);
+
+	if (it == texNativeMap.end()) {
+		return NULL;
 	}
 
-	char skipBuf[12];
+	RWSection* texNative = it->second;
+	RWSection* texNativeStruct = texNative->getChild(RW_SECTION_STRUCT);
 
-	long long texNativeStart = bytesRead;
+	uint8_t* texData = new uint8_t[header->computeDataSize()];
+	uint8_t* texDataStart = texData;
+	uint8_t* inData = texNativeStruct->getData()+88;
 
-	RwSectionHeader texNative;
-    RwReadSectionHeader(stream, texNative);
-    bytesRead += sizeof(RwSectionHeader);
-
-    stream->read(skipBuf, 12);
-    bytesRead += 12;
-
-    int32_t platform;
-    int16_t filterFlags;
-    int8_t vWrap, uWrap;
-    char diffuseName[32];
-    char alphaName[32];
-    int32_t rasterFormat;
-    int32_t alphaOrCompr;
-    int16_t width, height;
-    int8_t bpp;
-    int8_t mipmapCount;
-    //int8_t rasterType;
-    int8_t comprTypeOrAlpha;
-
-    stream->read((char*) &platform, 4);
-    stream->read((char*) &filterFlags, 2);
-    stream->read((char*) &vWrap, 1);
-    stream->read((char*) &uWrap, 1);
-    stream->read(diffuseName, 32);
-    stream->read(alphaName, 32);
-    stream->read((char*) &rasterFormat, 4);
-    stream->read((char*) &alphaOrCompr, 4);
-    stream->read((char*) &width, 2);
-    stream->read((char*) &height, 2);
-    stream->read((char*) &bpp, 1);
-    stream->read((char*) &mipmapCount, 1);
-    stream->ignore(1); // Raster Type
-    stream->read((char*) &comprTypeOrAlpha, 1);
-
-    bytesRead += 88;
-
-    TXDCompression compr = NONE;
-    bool alpha;
-
-    if (platform == 9) {
-    	char* fourCC = (char*) &alphaOrCompr;
-    	if (fourCC[0] == 'D'  &&  fourCC[1] == 'X'  &&  fourCC[2] == 'T') {
-    		if (fourCC[3] == '1') {
-    			compr = DXT1;
-    		} else if (fourCC[3] == '3') {
-    			compr = DXT3;
-    		}
-    	} else if (fourCC[0] == 'P'  &&  fourCC[1] == 'V'  &&  fourCC[2] == 'R') {
-    		if (fourCC[3] == '2') {
-    			compr = PVRTC2;
-    		} else if (fourCC[3] == '4') {
-    			compr = PVRTC4;
-    		}
-    	}
-
-    	alpha = (comprTypeOrAlpha == 9  ||  comprTypeOrAlpha == 1);
-    } else {
-    	if (comprTypeOrAlpha == 1) {
-    		compr = DXT1;
-    	} else if (comprTypeOrAlpha == 3) {
-    		compr = DXT3;
-    	} else if (comprTypeOrAlpha == 50) {
-    		compr = PVRTC2;
-    	} else if (comprTypeOrAlpha == 51) {
-    		compr = PVRTC4;
-    	}
-
-    	alpha = (alphaOrCompr == 1);
-    }
-
-    TXDTextureHeader* texture = new TXDTextureHeader(diffuseName, rasterFormat, compr, width, height);
-    texture->setAlphaChannel(alpha);
-    texture->setAlphaName(alphaName);
-    texture->setFilterFlags(filterFlags);
-    texture->setMipmapCount(mipmapCount);
-    texture->setWrappingFlags(uWrap, vWrap);
-    texture->setBytesPerPixel(bpp/8);
-
-    currentTextureNativeStart = texNativeStart;
-    currentTextureNativeSize = texNative.size;
-    currentTexture = texture;
-
-    indexedTextures[readIndex] = texture;
-    textureNativeStarts[readIndex] = texNativeStart;
-    readIndex++;
-
-    return texture;
-}
-
-int TXDArchive::readTextureData(uint8_t* dest, TXDTextureHeader* texture)
-{
-	int32_t rasterSize;
-	uint8_t* destStart = dest;
-
-	if ((texture->getRasterFormatExtension() & RasterFormatEXTPAL4) != 0) {
-		stream->read((char*) dest, 16*4);
-		dest += 16*4;
-		bytesRead += 16*4;
-	} else if ((texture->getRasterFormatExtension() & RasterFormatEXTPAL8) != 0) {
-		stream->read((char*) dest, 256*4);
-		dest += 256*4;
-		bytesRead += 256*4;
+	if ((header->getRasterFormatExtension() & RasterFormatEXTPAL4)  !=  0) {
+		memcpy(texData, inData, 16*4);
+		texData += 16*4;
+	} else if ((header->getRasterFormatExtension() & RasterFormatEXTPAL4)  !=  0) {
+		memcpy(texData, inData, 256*4);
+		texData += 256*4;
 	}
 
-	for (int i = 0 ; i < texture->getMipmapCount() ; i++) {
-		stream->read((char*) &rasterSize, 4);
-		stream->read((char*) dest, rasterSize);
-		bytesRead += rasterSize+4;
-		dest += rasterSize;
+	for (int i = 0 ; i < header->getMipmapCount() ; i++) {
+		int32_t size = *((int32_t*) inData);
+		memcpy(texData, inData+4, size);
+		texData += size;
+		inData += size+4;
 	}
 
-	return dest-destStart;
+	return texDataStart;
 }
 
 
-uint8_t* TXDArchive::readTextureData(TXDTextureHeader* texture)
+void TXDArchive::applyTextureHeader(TXDTextureHeader* header)
 {
-	int size = texture->computeDataSize();
-	uint8_t* raster = new uint8_t[size];
-	readTextureData(raster, texture);
-	return raster;
-}
+	hash_t hash = LowerHash(header->getDiffuseName());
+	TexNativeMap::iterator it = texNativeMap.find(hash);
 
-void TXDArchive::gotoTexture(TXDTextureHeader* texture)
-{
-	for (int32_t i = 0 ; i < textureCount ; i++) {
-		if (indexedTextures[i] == texture) {
-			long long start = textureNativeStarts[i];
-			stream->seekg((start+112) - bytesRead, istream::cur);
-			bytesRead = start+112;
-			return;
+	RWSection* texNative = it->second;
+	RWSection* texNativeStruct = texNative->getChild(RW_SECTION_STRUCT);
+	TextureNativeStruct& nativeHeader = *((TextureNativeStruct*) texNativeStruct->getData());
+
+	nativeHeader.platform = 9;
+	nativeHeader.filterFlags = header->getFilterFlags();
+	nativeHeader.vWrap = header->getVWrapFlags();
+	nativeHeader.uWrap = header->getUWrapFlags();
+	strcpy(nativeHeader.diffuseName, header->getDiffuseName());
+	strcpy(nativeHeader.alphaName, header->getAlphaName());
+	nativeHeader.rasterFormat = header->getFullRasterFormat();
+	nativeHeader.width = header->getWidth();
+	nativeHeader.height = header->getHeight();
+	nativeHeader.bpp = header->getBytesPerPixel() * 8;
+	nativeHeader.mipmapCount = header->getMipmapCount();
+	nativeHeader.rasterType = 0x4;
+
+	if (nativeHeader.platform == 9) {
+		char* dxtFourCC = (char*) &nativeHeader.alphaOrCompression;
+
+		switch (header->getCompression()) {
+		case DXT1:
+			strncpy(dxtFourCC, "DXT1", 4);
+			break;
+		case DXT3:
+			strncpy(dxtFourCC, "DXT3", 4);
+			break;
+		case PVRTC2:
+			strncpy(dxtFourCC, "PVR2", 4);
+			break;
+		case PVRTC4:
+			strncpy(dxtFourCC, "PVR4", 4);
+			break;
+		case NONE:
+			if (header->hasAlphaChannel()) {
+				*((int32_t*) dxtFourCC) = 21;
+			} else {
+				*((int32_t*) dxtFourCC) = 22;
+			}
+			break;
+		}
+
+		//nativeHeader.compressionOrAlpha = (header->hasAlphaChannel() ? 1 : 0);
+
+		if (header->getCompression() == NONE) {
+			nativeHeader.compressionOrAlpha = (header->hasAlphaChannel() ? 1 : 0);
+		} else {
+			nativeHeader.compressionOrAlpha = (header->hasAlphaChannel() ? 9 : 8);
+		}
+	} else {
+		nativeHeader.alphaOrCompression = (header->hasAlphaChannel() ? 1 : 0);
+
+		switch (header->getCompression()) {
+		case DXT1:
+			nativeHeader.compressionOrAlpha = 1;
+			break;
+		case DXT3:
+			nativeHeader.compressionOrAlpha = 3;
+			break;
+		case PVRTC2:
+			nativeHeader.compressionOrAlpha = 50;
+			break;
+		case PVRTC4:
+			nativeHeader.compressionOrAlpha = 51;
+			break;
+		case NONE:
+			nativeHeader.compressionOrAlpha = 0;
+			break;
 		}
 	}
 }
 
 
-void TXDArchive::destroyTexture(TXDTextureHeader* tex)
+void TXDArchive::setTextureData(TXDTextureHeader* header, uint8_t* data)
 {
-	for (int16_t i = 0 ; i < textureCount ; i++) {
-		if (indexedTextures[i] == tex) {
-			indexedTextures[i] = NULL;
+	hash_t hash = LowerHash(header->getDiffuseName());
+	TexNativeMap::iterator it = texNativeMap.find(hash);
+
+	RWSection* texNative = it->second;
+	RWSection* texNativeStruct = texNative->getChild(RW_SECTION_STRUCT);
+
+	int32_t dataSize = header->computeDataSize() + 88 + 4*header->getMipmapCount();
+	uint8_t* nativeData = new uint8_t[dataSize];
+
+	memcpy(nativeData, texNativeStruct->getData(), 88);
+	uint8_t* nativeDataStart = nativeData;
+
+	nativeData += 88;
+
+	for (int8_t i = 0 ; i < header->getMipmapCount() ; i++) {
+		int32_t mipSize = header->computeMipmapDataSize(i);
+		memcpy(nativeData, &mipSize, 4);
+		memcpy(nativeData+4, data, mipSize);
+		nativeData += mipSize+4;
+		data += mipSize;
+	}
+
+	delete[] texNativeStruct->getData();
+	texNativeStruct->setData(nativeDataStart, dataSize);
+}
+
+
+void TXDArchive::rename(TXDTextureHeader* header, const char* name)
+{
+	hash_t hash = LowerHash(header->getDiffuseName());
+	TexNativeMap::iterator it = texNativeMap.find(hash);
+	header->setDiffuseName(name);
+
+	if (it != texNativeMap.end()) {
+		RWSection* sect = it->second;
+		texNativeMap.erase(it);
+		texNativeMap.insert(pair<hash_t, RWSection*>(LowerHash(name), sect));
+	}
+}
+
+
+void TXDArchive::addTexture(TXDTextureHeader* header, uint8_t* data)
+{
+	RWSection* texNativeSect = new RWSection(RW_SECTION_TEXTURENATIVE, 0);
+	RWSection* texNativeStructSect = new RWSection(RW_SECTION_STRUCT, texNativeSect);
+	RWSection* texNativeExtSect = new RWSection(RW_SECTION_EXTENSION, texNativeSect);
+	texNativeExtSect->setData(new uint8_t[0], 0); // Empty
+
+	// Values will be set by applyTextureHeader and data is added by setTextureData
+	texNativeStructSect->setData(new uint8_t[88], 88);
+
+	RWSection::ChildIterator it = texDict->getLastChildIterator(RW_SECTION_TEXTURENATIVE);
+
+	if (it == texDict->getChildEnd()) {
+		it = texDict->getChildBegin();
+		it++;
+	} else {
+		it++;
+	}
+
+	texDict->insertChild(it, texNativeSect);
+	texNativeSect->setVersion(texDict->getVersion());
+
+	texHeaders.push_back(header);
+	texNativeMap.insert(pair<hash_t, RWSection*>(LowerHash(header->getDiffuseName()), texNativeSect));
+	applyTextureHeader(header);
+
+	if (data) {
+		setTextureData(header, data);
+	}
+
+	applyTextureCountChange();
+}
+
+
+void TXDArchive::removeTexture(TXDTextureHeader* header)
+{
+	hash_t hash = LowerHash(header->getDiffuseName());
+	TexNativeMap::iterator it = texNativeMap.find(hash);
+
+	RWSection* texNative = it->second;
+	texDict->removeChild(texNative);
+	delete texNative;
+	texNativeMap.erase(it);
+
+	for (TextureIterator it = texHeaders.begin() ; it != texHeaders.end() ; it++) {
+		TXDTextureHeader* storedHeader = *it;
+
+		if (LowerHash(storedHeader->getDiffuseName()) == hash) {
+			delete storedHeader;
 			break;
 		}
 	}
 
-	delete tex;
+	applyTextureCountChange();
 }
 
 
-
-
-void TXDArchive::readSectionHeaderWithID(istream* stream, RwSectionHeader& header, uint32_t id)
+void TXDArchive::applyTextureCountChange()
 {
-	RwReadSectionHeader(stream, header);
-
-	bytesRead += sizeof(RwSectionHeader);
-
-	if (header.id != id) {
-		char expected[64];
-		char found[64];
-		RwGetSectionName(id, expected);
-		RwGetSectionName(header.id, found);
-		char errmsg[256];
-		sprintf(errmsg, "Found section with type %s where %s was expected (is it really a TXD file?)",
-				found, expected);
-		throw TXDException(errmsg, __FILE__, __LINE__);
-	}
+	RWSection* txdStruct = texDict->getChild(RW_SECTION_STRUCT);
+	*((int16_t*) txdStruct->getData()) = texHeaders.size();
 }
+
+
+void TXDArchive::write(ostream* stream)
+{
+	texDict->write(stream);
+}
+
+
+void TXDArchive::write(const File& file)
+{
+	texDict->write(file);
+}
+
 

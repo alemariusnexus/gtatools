@@ -64,6 +64,7 @@ RangedStream<StreamClass>::RangedStream(typename BufType::BackType& backend, str
 template <class StreamClass>
 RangedStream<StreamClass>::~RangedStream()
 {
+	delete this->rdbuf();
 	if (autoDeleteBackend)
 		delete backend;
 }

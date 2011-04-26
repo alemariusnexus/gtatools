@@ -126,9 +126,13 @@ void Profile::currentProfileChanged(Profile* oldProfile, Profile* newProfile)
 
 	if (oldProfile == this  &&  newProfile != this) {
 		//disconnect(this, SIGNAL(resourceAdded(const File&)), this, SLOT(resourceAddedSlot(const File&)));
+		disconnect(System::getInstance(), SIGNAL(systemQuerySent(const SystemQuery&, SystemQueryResult&)),
+				this, SLOT(systemQuerySent(const SystemQuery&, SystemQueryResult&)));
 		engine->removeResourceObserver(this);
 	} else if (oldProfile != this  &&  newProfile == this) {
 		//connect(this, SIGNAL(resourceAdded(const File&)), this, SLOT(resourceAddedSlot(const File&)));
+		connect(System::getInstance(), SIGNAL(systemQuerySent(const SystemQuery&, SystemQueryResult&)),
+				this, SLOT(systemQuerySent(const SystemQuery&, SystemQueryResult&)));
 		engine->addResourceObserver(this);
 		loadResourceIndex();
 	}
@@ -331,6 +335,28 @@ bool Profile::setDATFiles(const QLinkedList<File>& files)
 	}
 
 	return hasChanges;
+}
+
+
+void Profile::systemQuerySent(const SystemQuery& query, SystemQueryResult& result)
+{
+	if (!result.isSuccessful()) {
+		if (query.getName() == "FindMeshTextures") {
+			QString meshName = query["meshName"].toString();
+			char** textures;
+			int numTexes = findTexturesForMesh(LowerHash(meshName.toAscii().constData()), textures);
+			QStringList texNames;
+
+			for (int i = 0 ; i < numTexes ; i++) {
+				texNames << textures[i];
+			}
+
+			delete[] textures;
+
+			result["textures"] = QVariant(texNames);
+			result.setSuccessful(true);
+		}
+	}
 }
 
 

@@ -86,7 +86,7 @@ void Engine::addResource(const File& file, void (*callback)())
 			delete child;
 		}
 
-		delete child;
+		delete it;
 	} else {
 		vector<ResourceObserver*>::iterator it;
 

@@ -193,8 +193,17 @@ FileContentType File::guessContentType() const
 }
 
 
-istream* File::openInputStream(ifstream::openmode mode) const
+istream* File::openInputStream(ifstream::openmode mode, bool testen) const
 {
+	if (testen) {
+		if (physicallyExists()) {
+			if (isRegularFile()) {
+
+			}
+		}
+		return NULL;
+	}
+
 	if (physicallyExists()) {
 		if (isRegularFile()) {
 			return new ifstream(path->toString(), mode | ifstream::in);
@@ -726,6 +735,21 @@ void File::copyFrom(istream* inStream) const
 }
 
 
+void File::copyTo(ostream* stream) const
+{
+	istream* inStream = openInputStream(istream::binary);
+
+	char buf[8192];
+
+	while (!inStream->eof()) {
+		inStream->read(buf, sizeof(buf));
+		stream->write(buf, inStream->gcount());
+	}
+
+	delete inStream;
+}
+
+
 bool File::remove() const
 {
 	return ::remove(path->toString()) == 0;
@@ -739,7 +763,9 @@ void File::resize(filesize size) const
 #elif defined(_WIN32)
 	HANDLE fhandle = CreateFile(path->toString(), GENERIC_WRITE, 0, NULL, OPEN_ALWAYS,
 			FILE_ATTRIBUTE_NORMAL, NULL);
-	SetFilePointerEx(fhandle, size, 0, FILE_BEGIN);
+	LARGE_INTEGER sizeVal;
+	sizeVal.QuadPart = size;
+	SetFilePointerEx(fhandle, sizeVal, 0, FILE_BEGIN);
 	SetEndOfFile(fhandle);
 	CloseHandle(fhandle);
 #endif

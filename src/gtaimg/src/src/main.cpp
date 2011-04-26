@@ -289,13 +289,13 @@ int main(int argc, char** argv)
 			if (commaSep)
 				printf(",%s", "OFFSET");
 			else
-				printf(" %-10s", "OFFSET");
+				printf(" %-20s", "OFFSET");
 		}
 		if (showSize) {
 			if (commaSep)
 				printf(",%s", "SIZE");
 			else
-				printf(" %-10s", "SIZE");
+				printf(" %-20s", "SIZE");
 		}
 
 		printf("\n\n");
@@ -413,15 +413,15 @@ int main(int argc, char** argv)
 
 							if (showOffset) {
 								if (commaSep)
-									printf(",%d", offset);
+									printf(",%lld", offset);
 								else
-									printf(" %-10d", offset);
+									printf(" %-20lld", offset);
 							}
 							if (showSize) {
 								if (commaSep)
-									printf(",%d", size);
+									printf(",%lld", size);
 								else
-									printf(" %-10d", size);
+									printf(" %-20lld", size);
 							}
 
 							printf("\n");

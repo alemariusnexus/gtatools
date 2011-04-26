@@ -39,7 +39,9 @@ public:
 public:
 	TXDConverter();
 	int32_t convert(const TXDTextureHeader& from, const TXDTextureHeader& to, const uint8_t* fromData,
-			uint8_t* toData, int8_t mipStart = 0, int8_t mipEnd = -1);
+			uint8_t* toData, int8_t mipStart, int8_t mipEnd);
+	uint8_t* convert(const TXDTextureHeader& from, const TXDTextureHeader& to, const uint8_t* fromData,
+			int8_t mipStart, int8_t mipEnd);
 	bool canConvert(const TXDTextureHeader& from, const TXDTextureHeader& to);
 	void setCompressionHint(CompressionHint hint) { comprHint = hint; }
 

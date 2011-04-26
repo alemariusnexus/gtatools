@@ -205,3 +205,13 @@ bool WildcardMatch(const char* pattern, const char* text)
 	while (*pattern == '*') pattern++;
 	return *pattern == '\0';
 }
+
+
+hash_t LowerHash(const char* str)
+{
+	char* lStr = new char[strlen(str)+1];
+	strtolower(lStr, str);
+	hash_t hash = Hash(lStr);
+	delete[] lStr;
+	return hash;
+}

@@ -56,7 +56,7 @@ CacheEntry* ResourceCache::doCache(hash_t key, bool lock)
 #endif
 	CacheEntry* entry = loader->load(key);
 
-	if (!cache.insert(key, entry, entry->getSize(), lock)) {
+	if (!entry  ||  !cache.insert(key, entry, entry->getSize(), lock)) {
 		return NULL;
 	}
 

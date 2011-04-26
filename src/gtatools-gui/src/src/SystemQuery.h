@@ -25,6 +25,7 @@
 
 #include <QtCore/QString>
 #include <QtCore/QHash>
+#include <QtCore/QVariant>
 
 
 class SystemQuery {

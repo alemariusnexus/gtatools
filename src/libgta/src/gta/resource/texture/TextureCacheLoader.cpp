@@ -43,15 +43,19 @@ CacheEntry* TextureCacheLoader::load(hash_t hash)
 {
 	TextureArchive* indexArchive = indexer->findArchive(hash);
 
+	if (!indexArchive) {
+		return NULL;
+	}
+
 	TXDArchive txd(indexArchive->getFile());
 
 	TextureCacheEntry* cacheEntry = new TextureCacheEntry;
 
-	for (int16_t i = 0 ; i < txd.getTextureCount() ; i++) {
+	for (TXDArchive::TextureIterator it = txd.getHeaderBegin() ; it != txd.getHeaderEnd() ; it++) {
 		int size = 0;
 
-		TXDTextureHeader* tex = txd.nextTexture();
-		uint8_t* data = txd.readTextureData(tex);
+		TXDTextureHeader* tex = *it;
+		uint8_t* data = txd.getTextureData(tex);
 
 		const char* name = tex->getDiffuseName();
 		char* lname = new char[strlen(name)+1];
@@ -224,11 +228,6 @@ CacheEntry* TextureCacheLoader::load(hash_t hash)
 				int16_t mipH = h;
 
 				for (int i = 0 ; i < numIncludedMipmaps ; i++) {
-					/*if (mipW < 4  ||  mipH < 4) {
-						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, i-1);
-						break;
-					}*/
-
 					glCompressedTexImage2D(GL_TEXTURE_2D, i, GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG,
 							mipW, mipH, 0, mipW*mipH, data);
 					size += (mipW*mipH)/4;
@@ -245,11 +244,6 @@ CacheEntry* TextureCacheLoader::load(hash_t hash)
 				int16_t mipH = h;
 
 				for (int i = 0 ; i < numIncludedMipmaps ; i++) {
-					/*if (mipW < 4  ||  mipH < 4) {
-						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, i-1);
-						break;
-					}*/
-
 					glCompressedTexImage2D(GL_TEXTURE_2D, i, GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG,
 							mipW, mipH, 0, mipW*mipH, data);
 					size += (mipW*mipH)/2;
@@ -308,8 +302,6 @@ CacheEntry* TextureCacheLoader::load(hash_t hash)
 		) {
 			glGenerateMipmap(GL_TEXTURE_2D);
 		}
-
-		delete tex;
 
 		cacheEntry->addTexture(texHash, glTex, size);
 	}

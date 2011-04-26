@@ -49,6 +49,7 @@ public:
 	static ItemManager* getInstance() { static ItemManager inst; return &inst; }
 
 public:
+	~ItemManager();
 	virtual void resourceAdded(const File& file);
 	void defineItem(int32_t id, ItemDefinition* item);
 	ItemDefinition* getItem(int32_t id);

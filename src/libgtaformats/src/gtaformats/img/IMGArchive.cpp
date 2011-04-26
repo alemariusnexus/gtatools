@@ -252,9 +252,11 @@ istream* IMGArchive::gotoEntry(ConstEntryIterator it, bool autoCloseStream)
 		RangedStream<istream>* rstream = new RangedStream<istream>(imgStream, entry->size*IMG_BLOCK_SIZE, autoCloseStream);
 		return rstream;
 	} else {
+		printf("Going to write to %lld\n", start);
 		iostream* outImgStream = static_cast<iostream*>(imgStream);
 		imgStream->seekg(start - imgStream->tellg(), istream::cur);
 		outImgStream->seekp(start - outImgStream->tellp(), fstream::cur);
+		//printf("Frankophilia %lld\n", outImgStream->tellp());
 		RangedStream<iostream>* rstream = new RangedStream<iostream>(outImgStream, entry->size*IMG_BLOCK_SIZE, autoCloseStream);
 		return rstream;
 	}
@@ -301,6 +303,8 @@ IMGArchive::EntryIterator IMGArchive::getEntryByName(const char* name)
 
 void IMGArchive::readHeader()
 {
+	printf("READING IMG\n");
+
 	istream* stream = dirStream;
 
 	int32_t firstBytes;
