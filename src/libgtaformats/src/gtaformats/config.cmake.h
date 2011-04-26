@@ -27,7 +27,7 @@
 #	pragma warning(disable : 4996)
 #endif
 
-#if defined(__unix) || defined(__unix__)
+#if defined(__unix) || defined(__unix__) || defined(__APPLE__)
 #include <unistd.h>
 #endif
 

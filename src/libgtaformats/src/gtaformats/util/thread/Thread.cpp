@@ -32,7 +32,7 @@ using std::pair;
 
 
 MainThread mainThread;
-map<unsigned long, Thread*> threads;
+map<Thread::threadid_t, Thread*> threads;
 
 
 struct ThreadContainer
@@ -102,7 +102,7 @@ Thread::~Thread()
 
 Thread* Thread::currentThread()
 {
-	unsigned long threadId;
+	threadid_t threadId;
 
 #ifdef _POSIX_VERSION
 	threadId = pthread_self();
@@ -110,10 +110,10 @@ Thread* Thread::currentThread()
 	threadId = GetCurrentThreadId();
 #endif
 
-	map<unsigned long, Thread*>::iterator it = threads.find(threadId);
+	map<threadid_t, Thread*>::iterator it = threads.find(threadId);
 
 	if (it == threads.end()) {
-		threads.insert(pair<unsigned long, Thread*>(threadId, &mainThread));
+		threads.insert(pair<threadid_t, Thread*>(threadId, &mainThread));
 		return &mainThread;
 	} else {
 		return it->second;
@@ -123,7 +123,7 @@ Thread* Thread::currentThread()
 
 void Thread::start()
 {
-	unsigned long id;
+	threadid_t id;
 
 	ThreadContainer* tc = new ThreadContainer;
 	tc->thread = this;
@@ -131,7 +131,7 @@ void Thread::start()
 #ifdef _POSIX_VERSION
 	pthread_create(&posixThread, NULL, __posixThreadStarter, tc);
 	running = true;
-	id = (unsigned long) posixThread;
+	id = posixThread;
 #else
 	winHandle = CreateThread(NULL, 0, __winThreadStarter, tc, 0, &id);
 	running = true;
@@ -165,7 +165,7 @@ void Thread::start()
 	SetThreadPriority(winHandle, winPriority);
 #endif
 
-	threads.insert(pair<unsigned int, Thread*>(id, this));
+	threads.insert(pair<threadid_t, Thread*>(id, this));
 }
 
 
