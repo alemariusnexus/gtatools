@@ -29,6 +29,7 @@
 #include <QtCore/QString>
 #include "TXDFormatHandler.h"
 #include <QtGui/QMessageBox>
+#include <gtaformats/txd/TXDException.h>
 
 
 
@@ -57,13 +58,11 @@ TXDWidget::TXDWidget(const File& file, const QString& selectedTex, QWidget* pare
 		throw;
 	}
 
-	textures = new TXDTextureHeader*[txd->getTextureCount()];
-
 	int currentRow = 0;
 
-	for (int i = 0 ; i < txd->getTextureCount() ; i++) {
-		TXDTextureHeader* texture = txd->nextTexture();
-		textures[i] = texture;
+	int i = 0;
+	for (TXDArchive::TextureIterator it = txd->getHeaderBegin() ; it != txd->getHeaderEnd() ; it++, i++) {
+		TXDTextureHeader* texture = *it;
 		ui.textureList->addItem(texture->getDiffuseName());
 
 		if (!selectedTex.isNull()  &&  selectedTex == QString(texture->getDiffuseName())) {
@@ -102,11 +101,6 @@ TXDWidget::~TXDWidget()
 	sys->uninstallGUIModule(openGUIModule);
 	delete openGUIModule;
 
-	for (int i = 0 ; i < txd->getTextureCount() ; i++) {
-		delete textures[i];
-	}
-
-	delete[] textures;
 	delete txd;
 }
 
@@ -152,7 +146,7 @@ QLinkedList<TXDTextureHeader*> TXDWidget::getSelectedTextures()
 
 	for (int i = 0 ; i < ui.textureList->count() ; i++) {
 		if (ui.textureList->item(i)->isSelected()) {
-			list << textures[i];
+			list << txd->getHeader(i);
 		}
 	}
 
@@ -165,15 +159,14 @@ void TXDWidget::textureActivated(QListWidgetItem* item, QListWidgetItem* previou
 	int row = ui.textureList->currentRow();
 
 	if (row >= 0) {
-		TXDTextureHeader* texture = textures[row];
-		txd->gotoTexture(texture);
-		uint8_t* rawData = txd->readTextureData(texture);
+		TXDTextureHeader* texture = txd->getHeader(row);
+		uint8_t* rawData = txd->getTextureData(texture);
 		ui.displayLabel->display(texture, rawData);
 		delete[] rawData;
 
 		int32_t format = texture->getRasterFormat();
-		char formatDesc[16];
-		TxdGetRasterFormatName(formatDesc, format);
+		char formatDesc[32];
+		TxdGetRasterFormatDescription(formatDesc, format);
 
 		ui.formatLabel->setText(formatDesc);
 		ui.diffuseNameField->setText(texture->getDiffuseName());

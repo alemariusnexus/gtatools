@@ -30,6 +30,7 @@
 #include <cstring>
 #include <vector>
 #include <gtaformats/util/math/Matrix4.h>
+#include <gtaformats/util/strutil.h>
 
 using std::locale;
 using std::collate;
@@ -46,13 +47,6 @@ class TextureIndexer;
 class Scene;
 
 
-
-typedef long hash_t;
-
-inline hash_t Hash(const char* str)
-{
-	return use_facet< collate<char> >(locale()).hash(str, str+strlen(str));
-}
 
 
 class Engine {

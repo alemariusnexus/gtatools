@@ -372,11 +372,12 @@ int main(int argc, char** argv)
 		if (file) {
 			txd = new TXDArchive(*file);
 		} else {
-			txd = new TXDArchive(&cin, false);
+			txd = new TXDArchive(&cin);
 		}
 
-		for (int16_t i = 0 ; i < txd->getTextureCount() ; i++) {
-			TXDTextureHeader* tex = txd->nextTexture();
+		//for (int16_t i = 0 ; i < txd->getTextureCount() ; i++) {
+		for (TXDArchive::TextureIterator it = txd->getHeaderBegin() ; it != txd->getHeaderEnd() ; it++) {
+			TXDTextureHeader* tex = *it;
 
 			for (int j = 0 ; j < numExOpts ; j++) {
 				ExtractOptions* opt = opts[j];
@@ -392,8 +393,6 @@ int main(int argc, char** argv)
 					break;
 				}
 			}
-
-			txd->destroyTexture(tex);
 		}
 
 		delete txd;
@@ -544,7 +543,7 @@ void listTexture(const ListOptions& opts, TXDArchive* txd, TXDTextureHeader* tex
 
 void extractTexture(const ExtractOptions& opts, TXDArchive* txd, TXDTextureHeader* tex)
 {
-	uint8_t* data = txd->readTextureData(tex);
+	uint8_t* data = txd->getTextureData(tex);
 	uint8_t* dataStart = data;
 	const File* dest = opts.getDestination();
 

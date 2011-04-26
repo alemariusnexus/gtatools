@@ -23,131 +23,202 @@
 #ifndef TXDARCHIVE_H_
 #define TXDARCHIVE_H_
 
-#include "../config.h"
-#include "../gta.h"
-#include "TXDException.h"
+#include "../rwbs/RWSection.h"
 #include "TXDTextureHeader.h"
-#include <string>
-#include <algorithm>
-#include <cctype>
-#include <cstdio>
-#include "../util/File.h"
 #include <istream>
+#include <map>
+#include "../util/strutil.h"
+#include "../util/File.h"
 
 using std::istream;
-using std::string;
-
-class TXDVisitor;
+using std::map;
 
 
 
-/**	\brief A loader class for GTA TXD files.
+/**	\brief Represents a GTA TXD archive.
  *
- *	The class is designed as a streaming loader, so it can't be used for caching. Some methods for random
- *	access are included, though. It can be used for streams without random acces (without support for tellg()
- *	and seekg()). Note that without random acces, some methods might not be available.
+ *	This class is a high-level representation of the GTA Texture Dictionary (TXD) files. A TXD file contains
+ *	a number of textures in different formats. Each texture consists of a header and the texture data (and
+ *	probably something else, because <i>in theory</i>, TXD is an extensible format).
+ *
+ *	This class loads the complete archive content into memory on initialization and provides an interface to
+ *	work with this data. The archive content is internally represented using an RWSection object.
+ *
+ *	If you use this class to write to TXD files, you have to be careful to choose only texture properties
+ *	which are supported by the original GTA if you want to use them for it. Which combinations are actually
+ *	supported isn't known very well, so basically you have to test and hope. One thing known to cause
+ *	problems is using mipmaps in uncompressed textures, but there will sure be others, too.
+ *
+ *	\warning All writing access to TXD files is <b>experimental</b>, so <b>backup</b> your files before you
+ *		write anything!
  */
 class TXDArchive {
 public:
-	/**	\brief Constructs a TXDArchive from the given stream.
-	 *
-	 * 	This reads/skips the header of the TXD file to the first TextureNative section.
-	 *
-	 *	@param stream The stream.
+	typedef vector<TXDTextureHeader*> TextureList;
+	typedef TextureList::iterator TextureIterator;
+	typedef TextureList::const_iterator ConstTextureIterator;
+
+private:
+	typedef map<hash_t, RWSection*> TexNativeMap;
+
+public:
+	/**	\brief Creates a new, empty TXD archive.
 	 */
-	TXDArchive(istream* stream, bool randomAccess = true);
+	TXDArchive();
 
+	/**	\brief Creates a TXDArchive by reading data from a stream.
+	 *
+	 * 	The stream will not be used after this constructor, so you can safely delete it.
+	 *
+	 * 	@pram stream The stream to read from.
+	 */
+	TXDArchive(istream* stream);
 
+	/**	\brief Creates a TXDArchie by reading data from a file.
+	 *
+	 * 	@param file The file to read from.
+	 */
 	TXDArchive(const File& file);
 
-	/**	\brief Deletes this TXDArchive.
+	/**	\brief Destroys this TXDArchive.
 	 *
-	 * 	Note that the TXDTextures will NOT be automatically deleted to allow using them standalone.
+	 *	This will delete all the TXD data from memory, so be sure not to use a TXDTextureHeader directly
+	 *	obtained from this class afterwards (if you want to, make a copy).
 	 */
 	~TXDArchive();
 
-	/**	\brief Reads a TXDTexture without data from the stream.
+	/**	\brief Returns the number of textures currently in the archive.
 	 *
-	 * 	This parses the TextureNative section header and sets the stream in front of the texture data. The
-	 *	returned TXDTexture must be deleted when not used anymore.
-	 *
-	 *	@return The TXDTexture that was read.
+	 * 	@return The number of textures.
 	 */
-	TXDTextureHeader* nextTexture();
+	int16_t getTextureCount() const { return texHeaders.size(); }
 
-	/**	\brief Reads raw texture data from the stream.
+	/**	\brief Returns the begin iterator of the texture headers.
 	 *
-	 * 	This method reads in an array of bytes which is the data of the texture. Note that this is raw
-	 * 	information, so it may be compressed and/or paletted and can have different formats. Use
-	 * 	TXDTexture::convert() to bring it to a more suitable form for processing.
-	 * 	The stream position must be right in front of the data. The TXDTexture parameter is used only to
-	 * 	determine the format of the data which will follow.
-	 *
-	 * 	As this method may produce a buffer overflow, you should only use this function if you really know
-	 * 	what you do. Always try to use readTextureData(TXDTexture*) instead.
-	 *
-	 *	@param dest Where to write the destination data.
-	 *	@param texture The texture whose data will be read.
-	 *	@see readTextureData(TXDTexture*)
+	 * 	@return The begin iterator.
 	 */
-	int readTextureData(uint8_t* dest, TXDTextureHeader* texture);
+	TextureIterator getHeaderBegin() { return texHeaders.begin(); }
 
-	/**	\brief Reads raw texture data from the stream into a new array.
+	/**	\brief Returns the end iterator of the texture headers.
 	 *
-	 * 	This does the same as readTextureData(uint8_t*, TXDTexture*), but it creates a new array which will
-	 * 	always be of exactly the right size to hold the data. You are responsible for deleting it when not
-	 * 	needed anymore.
-	 *
-	 *	@param texture The texture whose data will be read.
-	 *	@return The raw texture data.
-	 *	@see readTextureData(uint8_t*, TXDTexture*)
+	 * 	@return The end iterator.
 	 */
-	uint8_t* readTextureData(TXDTextureHeader* texture);
+	TextureIterator getHeaderEnd() { return texHeaders.end(); }
 
-	/**	\brief Repositions the stream to the position in front of the data of the given texture.
+	/**	\brief Returns the begin iterator of the texture headers.
 	 *
-	 * 	This can be used to return to an already read texture to retrieve it's data. Note that seekg()
-	 * 	must be a valid operation on the stream in order for this method to work. You can't use it for
-	 * 	streams without random-access.
-	 *
-	 *	@param texture The texture to go to.
+	 * 	@return The begin iterator.
 	 */
-	void gotoTexture(TXDTextureHeader* texture);
+	ConstTextureIterator getHeaderBegin() const { return texHeaders.begin(); }
 
-	/**	\brief Returns the number of textures inside the archive.
+	/**	\brief Returns the end iterator of the texture headers.
 	 *
-	 *	@return The number of textures.
+	 * 	@return The end iterator.
 	 */
-	int16_t getTextureCount() { return textureCount; }
+	ConstTextureIterator getHeaderEnd() const { return texHeaders.end(); }
 
-	void destroyTexture(TXDTextureHeader* tex);
+	/**	\brief Returns the header of the texture at the given index.
+	 *
+	 *	@param num The texture index.
+	 *	@return The texture header. The object behind this pointer belongs to this class, so do not delete it.
+	 */
+	TXDTextureHeader* getHeader(int16_t num) { return texHeaders[num]; }
+
+	/**	\brief Returns the header of the texture at the given index.
+	 *
+	 * 	Same as getHeader(int16_t).
+	 *
+	 *	@param num The texture index.
+	 *	@return The texture header. The object behind this pointer belongs to this class, so do not delete it.
+	 *	@see getHeader(int16_t)
+	 */
+	TXDTextureHeader* operator[](int16_t num) { return getHeader(num); }
+
+	/**	\brief Returns the raw pixel data of the given texture.
+	 *
+	 *	The texture data returned is just the concatenated pixel data of all mipmaps. If the texture is
+	 *	paletted, the palette data is prepended.
+	 *
+	 *	@param header The texture to read. The actual texture is identified by diffuse name, so you do not
+	 *		have to use the same TXDTextureHeader object as stored by this class, as long as the name is the
+	 *		same.
+	 *	@return The texture data. This is a dynamically allocates memory block. Ownership is passed to the
+	 *		caller.
+	 */
+	uint8_t* getTextureData(TXDTextureHeader* header);
+
+	/**	\brief Writes changes of the given texture header back into the internal RWSections.
+	 *
+	 * 	You need to call this everytimes you make changes to a header and want to apply them.
+	 *
+	 * 	@param header The texture header whose changes are to apply.
+	 */
+	void applyTextureHeader(TXDTextureHeader* header);
+
+	/**	\brief Sets the raw data for the given texture.
+	 *
+	 * 	The data is expected to be in the format described in getTextureData(TXDTextureHeader*). If the header
+	 * 	given as a parameter is not in sync with the internal RWSections, you'll have to sync it using
+	 * 	applyTextureHeader(TXDTextureHeader*) first.
+	 *
+	 * 	@param header The texture header whose data you want to change.
+	 * 	@param data The new texture data. A copy of it is stored, so no ownership will be taken.
+	 */
+	void setTextureData(TXDTextureHeader* header, uint8_t* data);
+
+	/**	\brief Renames a texture.
+	 *
+	 *	You have to explicitly call this method for name changes, because textures are internally identified
+	 *	using their names.
+	 *
+	 *	@param header The header you want to change. It should have the old texture name set.
+	 *	@param name The new name for the texture.
+	 */
+	void rename(TXDTextureHeader* header, const char* name);
+
+	/**	\brief Adds a new texture to the end of the archive.
+	 *
+	 * 	@param header The header of the new texture. Ownership of it is taken.
+	 * 	@param data The texture data, in the format described in getTextureData(TXDTextureHeader*). A copy
+	 * 		of it will be stored, so no ownership will be taken.
+	 */
+	void addTexture(TXDTextureHeader* header, uint8_t* data = NULL);
+
+	/**	\brief Removes the given texture from the archive.
+	 *
+	 * 	This will also delete the internal TXDTextureHeader, so if you obtained your header from this class,
+	 * 	you may not use it afterwards.
+	 *
+	 *	@param header The header of the texture to be removed.
+	 */
+	void removeTexture(TXDTextureHeader* header);
+
+	/**	\brief Write out the TXD archive to the given stream.
+	 *
+	 * 	This will write out the internal RWSections, so you have to be sure that all your changes are
+	 * 	synced using applyTextureHeader(TXDTextureHeader*).
+	 *
+	 * 	@param stream The stream to write to.
+	 */
+	void write(ostream* stream);
+
+	/**	\brief Write out the TXD archive to the given file.
+	 *
+	 * 	This method calls write(ostream*).
+	 *
+	 * 	@param file The file to write to.
+	 */
+	void write(const File& file);
 
 private:
-	/**	\brief Reads an RW section header with a given ID.
-	 *
-	 * 	This uses RwReadSectionHeader() to read the header. Also, it checks whether the ID read matches
-	 * 	the ID given as parameter. If it doesn't, it throws an exception.
-	 *
-	 *	@param stream The stream to read from.
-	 *	@param header Where to header should be read to.
-	 *	@param id The ID which is assumed to be the one of the header.
-	 */
-	void readSectionHeaderWithID(istream* stream, RwSectionHeader& header, uint32_t id);
-
-	void init();
+	void init(istream* stream);
+	void applyTextureCountChange();
 
 private:
-	bool randomAccess;
 	istream* stream;
-	long long bytesRead;
-	TXDTextureHeader** indexedTextures;
-	long long* textureNativeStarts;
-	int16_t readIndex;
-	int16_t textureCount;
-	TXDTextureHeader* currentTexture;
-	int32_t currentTextureNativeSize;
-	long long currentTextureNativeStart;
-	bool deleteStream;
+	RWSection* texDict;
+	TextureList texHeaders;
+	TexNativeMap texNativeMap;
 };
 
 #endif /* TXDARCHIVE_H_ */

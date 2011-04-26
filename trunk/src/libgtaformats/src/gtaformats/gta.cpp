@@ -180,6 +180,9 @@ void RwGetSectionName(uint32_t id, char* dest) {
 	case RW_SECTION_COLLISION_MODEL:
 		strcpy(dest, "RW_SECTION_COLLISION_MODEL");
 		break;
+	case RW_SECTION_TEXTURENATIVE:
+		strcpy(dest, "RW_SECTION_TEXTURENATIVE");
+		break;
 	default:
 		sprintf(dest, "{unknown: 0x%X}", id);
 		break;

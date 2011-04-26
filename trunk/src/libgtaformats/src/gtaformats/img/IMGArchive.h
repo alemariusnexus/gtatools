@@ -43,7 +43,7 @@ using std::list;
 
 /**	\brief The size of a block in IMG files in bytes.
  */
-#define IMG_BLOCK_SIZE 2048
+#define IMG_BLOCK_SIZE 2048L
 
 
 

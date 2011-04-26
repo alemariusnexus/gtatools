@@ -35,7 +35,9 @@ SET(SQUISH_LIB_PATH "squish" CACHE FILEPATH "Path to (or name of) libsquish libr
 SET(PVRTEXLIB_INCLUDE_PATH "" CACHE PATH "Directory containing PVRTexLib header files.")
 SET(PVRTEXLIB_LIB_PATH "PVRTexLib" CACHE FILEPATH "Path to (or name of) PVRTexLib library file.")
 
-INCLUDE_DIRECTORIES(${SQUISH_INCLUDE_PATH} ${PVRTEXLIB_INCLUDE_PATH}
+SET(BOOST_INCLUDE_PATH "" CACHE PATH "Directory to the boost header files.")
+
+INCLUDE_DIRECTORIES(${SQUISH_INCLUDE_PATH} ${PVRTEXLIB_INCLUDE_PATH} ${BOOST_INCLUDE_PATH}
         "${CMAKE_BINARY_DIR}/libgtaformats/build/gtaformats")
 
 ADD_LIBRARY(gtaformats STATIC ${SRCS})

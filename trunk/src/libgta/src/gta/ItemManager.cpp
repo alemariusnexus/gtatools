@@ -27,6 +27,15 @@
 using std::pair;
 
 
+
+ItemManager::~ItemManager()
+{
+	for (ItemMap::iterator it = items.begin() ; it != items.end() ; it++) {
+		delete it->second;
+	}
+}
+
+
 void ItemManager::resourceAdded(const File& file)
 {
 	if (file.guessContentType() == CONTENT_TYPE_IDE) {

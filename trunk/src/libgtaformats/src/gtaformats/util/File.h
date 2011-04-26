@@ -201,7 +201,7 @@ public:
 	 * 	@param flags The stream flags.
 	 * 	@return The newly created stream.
 	 */
-	istream* openInputStream(ifstream::openmode mode = ifstream::in) const;
+	istream* openInputStream(ifstream::openmode mode = ifstream::in, bool testen = false) const;
 
 	ostream* openOutputStream(ostream::openmode mode = ostream::out) const;
 
@@ -236,6 +236,8 @@ public:
 
 	void copy(const File& newFile) const;
 	void copyFrom(istream* inStream) const;
+
+	void copyTo(ostream* stream) const;
 
 	bool remove() const;
 
