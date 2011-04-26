@@ -35,6 +35,7 @@ using std::char_traits;
 using std::streampos;
 using std::streamoff;
 using std::streamsize;
+using std::streamoff;
 using std::ios_base;
 using std::locale;
 using std::min;

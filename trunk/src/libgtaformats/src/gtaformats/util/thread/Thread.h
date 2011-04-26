@@ -53,6 +53,12 @@ public:
 		Inherit
 	};
 
+#ifdef _POSIX_VERSION
+	typedef pthread_t threadid_t;
+#else
+	typedef DWORD threadid_t;
+#endif
+
 public:
 	static Thread* currentThread();
 
