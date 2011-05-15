@@ -23,7 +23,7 @@
 #ifndef FILEEXCEPTION_H_
 #define FILEEXCEPTION_H_
 
-#include "../config.h"
+#include <gtaformats/config.h>
 #include "Exception.h"
 
 

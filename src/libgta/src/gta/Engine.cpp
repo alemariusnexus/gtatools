@@ -27,6 +27,8 @@
 #include "resource/mesh/MeshIndexer.h"
 #include "resource/texture/TextureCacheLoader.h"
 #include "resource/texture/TextureIndexer.h"
+#include "resource/collision/CollisionMeshCacheLoader.h"
+#include "resource/collision/CollisionMeshIndexer.h"
 #include "ItemManager.h"
 #include "scene/Scene.h"
 #include "GLException.h"
@@ -36,9 +38,13 @@
 #include <cstdio>
 #include <utility>
 #include <algorithm>
+#include <set>
 
 using std::streamoff;
 using std::find;
+using std::set;
+
+
 
 
 struct IndexedSceneObject
@@ -58,19 +64,23 @@ Engine* Engine::getInstance()
 
 
 Engine::Engine()
-		: currentShader(NULL)
+		: currentShader(NULL), enableDrawing(true)
 {
 	meshIndexer = new MeshIndexer;
 	texIndexer = new TextureIndexer;
+	colIndexer = new CollisionMeshIndexer;
 
 	meshCacheLoader = new MeshCacheLoader(meshIndexer);
 	texCacheLoader = new TextureCacheLoader(texIndexer);
+	colCacheLoader = new CollisionMeshCacheLoader(colIndexer);
 
 	meshCache = new ResourceCache(meshCacheLoader, 0);
 	texCache = new ResourceCache(texCacheLoader, 0);
+	colCache = new ResourceCache(colCacheLoader, 0);
 
 	addResourceObserver(meshIndexer);
 	addResourceObserver(texIndexer);
+	addResourceObserver(colIndexer);
 	addResourceObserver(ItemManager::getInstance());
 }
 
@@ -113,6 +123,7 @@ void Engine::clearResources()
 
 	meshCache->clear();
 	texCache->clear();
+	colCache->clear();
 }
 
 
@@ -167,15 +178,16 @@ void Engine::render()
 
 	for (it = begin ; it != end ; it++) {
 		DefaultSceneObject* obj = *it;
-		ItemDefinition* def = obj->getDefinition();
+		obj->render(mvpMatrix, mvpMatrixUniform);
+		physicsWorld->addRigidBody(obj->getRigidBody());
+	}
 
-		Matrix4& modelMat = obj->getModelMatrix();
-		Matrix4 mat = mvpMatrix * modelMat;
-		const float* r = mat.toArray();
-		GLException::checkError();
-		glUniformMatrix4fv(mvpMatrixUniform, 1, GL_FALSE, r);
-		GLException::checkError();
-		def->render();
+	physicsWorld->stepSimulation(1.0f/60.0f, 10);
+	physicsWorld->debugDrawWorld();
+
+	for (it = begin ; it != end ; it++) {
+		DefaultSceneObject* obj = *it;
+		physicsWorld->removeRigidBody(obj->getRigidBody());
 	}
 }
 
@@ -205,8 +217,6 @@ void Engine::loadDAT(const File& file, const File& rootDir)
 		}
 
 		//printf("Processing DAT line: %s\n", line);
-
-		Engine* engine = Engine::getInstance();
 
 		if (strncmp(line, "IDE", 3) == 0) {
 			FilePath path(*rootDir.getPath(), line+4, FilePath::BackslashAsSeparator | FilePath::CorrectCase);
@@ -285,7 +295,7 @@ void Engine::iplRecurse(File* file, const File& rootDir)
 				IPLReader ipl(*sfile);
 				IPLStatement* iplStmt;
 
-				delete sfile;
+				int localIplIdx = 0;
 
 				while ((iplStmt = ipl.readStatement())  !=  NULL) {
 					switch (iplStmt->getType()) {
@@ -325,17 +335,26 @@ void Engine::iplRecurse(File* file, const File& rootDir)
 							iobj->obj = obj;
 							iobj->lodIndex = inst->getLOD();
 
+							char* debugStr = new char[strlen(sfile->getPath()->toString())+128];
+							sprintf(debugStr, "Instance #%d (locally #%d) of object %d in %s",
+									iplIdx, localIplIdx, id, sfile->getPath()->toString());
+							obj->setDebugString(debugStr);
+							delete[] debugStr;
+
 							localObjs.push_back(iobj);
 						} else {
 							printf("WARNING: Object with ID %d (%s) not found!\n", id, inst->getModelName());
 							localObjs.push_back(NULL);
 						}
 						iplIdx++;
+						localIplIdx++;
 						break;
 					}
 
 					delete iplStmt;
 				}
+
+				delete sfile;
 			}
 
 			vector<IndexedSceneObject*>::iterator it;
@@ -354,8 +373,17 @@ void Engine::iplRecurse(File* file, const File& rootDir)
 						IndexedSceneObject* lodParent = localObjs[iobj->lodIndex];
 
 						if (lodParent) {
-							lodParent->topLevel = false;
-							obj->setLODParent(lodParent->obj);
+							if (!lodParent->topLevel) {
+								// It is possible that two IPL objects point to the same (yes, the SAME, not
+								// two equal ones) LOD parent. We'll handle this by making a copy of the
+								// parent (having the same object rendered twice confuses the engine).
+								DefaultSceneObject* lodParentCopy = new DefaultSceneObject(*lodParent->obj);
+								lodParentCopy->setModelMatrix(obj->getModelMatrix());
+								obj->setLODParent(lodParentCopy);
+							} else {
+								lodParent->topLevel = false;
+								obj->setLODParent(lodParent->obj);
+							}
 						}
 					}
 				}

@@ -23,7 +23,7 @@
 #ifndef GTADFF_H_
 #define GTADFF_H_
 
-#include "config.h"
+#include <gtaformats/config.h>
 
 #include "dff/DFFLoader.h"
 #include "dff/DFFMesh.h"

@@ -23,7 +23,7 @@
 #ifndef MESH_H_
 #define MESH_H_
 
-#include "config.h"
+#include <gta/config.h>
 #include "gl.h"
 #include <vector>
 #include <gtaformats/dff/DFFGeometry.h>

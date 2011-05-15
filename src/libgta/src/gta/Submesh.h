@@ -23,7 +23,7 @@
 #ifndef SUBMESH_H_
 #define SUBMESH_H_
 
-#include "config.h"
+#include <gta/config.h>
 #include "gl.h"
 #include "Mesh.h"
 #include "Material.h"

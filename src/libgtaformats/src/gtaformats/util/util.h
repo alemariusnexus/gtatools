@@ -23,10 +23,13 @@
 #ifndef UTIL_H_
 #define UTIL_H_
 
-#include "../config.h"
+#include <gtaformats/config.h>
 
 
 
 uint64_t GetTickcount();
+
+float RandomFloat(float min, float max);
+bool RandomBool();
 
 #endif /* UTIL_H_ */

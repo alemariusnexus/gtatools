@@ -23,6 +23,7 @@
 #include "util.h"
 #include <cctype>
 #include <cstring>
+#include <cstdlib>
 
 #ifdef _POSIX_VERSION
 #include <sys/time.h>
@@ -40,4 +41,16 @@ uint64_t GetTickcount()
 #else
 	return GetTickCount();
 #endif
+}
+
+
+float RandomFloat(float min, float max)
+{
+	return (rand() / (float) RAND_MAX) * (max-min) + min;
+}
+
+
+bool RandomBool()
+{
+	return rand() <= RAND_MAX/2;
 }

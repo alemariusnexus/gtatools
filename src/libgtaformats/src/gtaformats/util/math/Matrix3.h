@@ -23,7 +23,7 @@
 #ifndef MATRIX3_H_
 #define MATRIX3_H_
 
-#include "../../config.h"
+#include <gtaformats/config.h>
 #include "Vector3.h"
 
 

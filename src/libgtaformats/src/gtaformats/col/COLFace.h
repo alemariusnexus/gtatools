@@ -23,7 +23,7 @@
 #ifndef COLFACE_H_
 #define COLFACE_H_
 
-#include "../config.h"
+#include <gtaformats/config.h>
 #include "COLSurface.h"
 #include <cstring>
 

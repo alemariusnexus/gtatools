@@ -23,7 +23,7 @@
 #ifndef IDEWEAPON_H_
 #define IDEWEAPON_H_
 
-#include "../config.h"
+#include <gtaformats/config.h>
 #include "IDEEntity.h"
 
 

@@ -23,7 +23,7 @@
 #ifndef NULLTEXTURESOURCE_H_
 #define NULLTEXTURESOURCE_H_
 
-#include "config.h"
+#include <gta/config.h>
 #include "TextureSource.h"
 
 

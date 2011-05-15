@@ -21,7 +21,7 @@
  */
 
 #include "Exception.h"
-#include "../config.h"
+#include <gtaformats/config.h>
 #include <cstring>
 #include <cstdio>
 

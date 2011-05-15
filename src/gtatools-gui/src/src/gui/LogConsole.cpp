@@ -21,7 +21,7 @@
  */
 
 #include "LogConsole.h"
-#include "../config.h"
+#include <gtatools-gui/config.h>
 #include "../System.h"
 #include <QtCore/QSettings>
 

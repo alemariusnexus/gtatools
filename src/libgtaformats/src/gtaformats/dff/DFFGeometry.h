@@ -23,7 +23,7 @@
 #ifndef DFFGEOMETRY_H_
 #define DFFGEOMETRY_H_
 
-#include "../config.h"
+#include <gtaformats/config.h>
 #include "DFFGeometryPart.h"
 #include "DFFMaterial.h"
 #include "DFFFrame.h"

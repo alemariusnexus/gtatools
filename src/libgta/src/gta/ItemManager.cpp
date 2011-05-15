@@ -47,6 +47,7 @@ void ItemManager::resourceAdded(const File& file)
 			case IDETypeStaticObject:
 				IDEStaticObject* sobj = (IDEStaticObject*) stmt;
 				ItemDefinition* item = new ItemDefinition(*sobj);
+				item->setIDEID(sobj->getId());
 				defineItem(sobj->getId(), item);
 				break;
 			}

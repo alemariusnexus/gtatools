@@ -23,7 +23,7 @@
 #ifndef ITEMMANAGER_H_
 #define ITEMMANAGER_H_
 
-#include "config.h"
+#include <gta/config.h>
 #include "ItemDefinition.h"
 #include "resource/ResourceObserver.h"
 

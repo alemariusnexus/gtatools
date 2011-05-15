@@ -55,9 +55,11 @@ void GLException::checkError(const char* msg)
 			sprintf(errname, "[UNKNOWN]");
 		}
 
-		char errmsg[128];
-		sprintf(errmsg, "OpenGL error %s (%u)", errname, error);
-		throw GLException(errmsg, __FILE__, __LINE__);
+		char* errmsg = new char[128+strlen(msg)];
+		sprintf(errmsg, "OpenGL error %s (%u) [%s]", errname, error, msg);
+		GLException ex(errmsg, __FILE__, __LINE__);
+		delete[] errmsg;
+		throw ex;
 #else
 		const char* errstr = (const char*) gluErrorString(error);
 

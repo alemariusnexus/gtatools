@@ -23,7 +23,7 @@
 #ifndef SHADERPROGRAM_H_
 #define SHADERPROGRAM_H_
 
-#include "config.h"
+#include <gta/config.h>
 #include "gl.h"
 #include "Shader.h"
 

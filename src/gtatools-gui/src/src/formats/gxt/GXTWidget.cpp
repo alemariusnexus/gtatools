@@ -20,7 +20,7 @@
 	GPLADDITIONS.
  */
 
-#include "../../config.h"
+#include <gtatools-gui/config.h>
 #include "GXTWidget.h"
 #include <gtaformats/gxt/GXTLoader.h>
 #include <gtaformats/gxt/GXTTable.h>

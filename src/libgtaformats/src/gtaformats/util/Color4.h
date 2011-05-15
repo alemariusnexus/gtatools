@@ -23,7 +23,7 @@
 #ifndef COLOR4_H_
 #define COLOR4_H_
 
-#include "../config.h"
+#include <gtaformats/config.h>
 #include "math/Vector4.h"
 
 

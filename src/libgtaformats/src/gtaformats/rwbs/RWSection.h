@@ -93,7 +93,7 @@ public:
 	void printDebug(int ind = 0);
 
 private:
-	RWSection() : data(NULL), parent(NULL) {}
+	RWSection() : parent(NULL), data(NULL) {}
 	void childResized(int32_t change) { size += change; if (parent) parent->childResized(change); }
 
 private:

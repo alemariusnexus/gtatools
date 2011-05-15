@@ -23,7 +23,7 @@
 #ifndef IPLSTATEMENT_H_
 #define IPLSTATEMENT_H_
 
-#include "../config.h"
+#include <gtaformats/config.h>
 
 typedef char ipltype_t;
 

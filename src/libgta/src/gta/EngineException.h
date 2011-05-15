@@ -23,7 +23,7 @@
 #ifndef ENGINEEXCEPTION_H_
 #define ENGINEEXCEPTION_H_
 
-#include "config.h"
+#include <gta/config.h>
 #include <gtaformats/util/Exception.h>
 
 

@@ -21,7 +21,24 @@
  */
 
 #include "ManagedCollisionShapePointer.h"
-//#include "ResourceManager.h"
+#include "resource/ResourceCache.h"
+#include "resource/collision/CollisionMeshCacheEntry.h"
+
+
+
+ManagedCollisionShapePointer::ManagedCollisionShapePointer(const char* name)
+		: strName(new char[strlen(name)+1]), name(LowerHash(name))
+{
+	strcpy(strName, name);
+}
+
+
+ManagedCollisionShapePointer::~ManagedCollisionShapePointer()
+{
+	if (strName) {
+		delete[] strName;
+	}
+}
 
 
 CollisionShapePointer* ManagedCollisionShapePointer::clone() const
@@ -34,5 +51,13 @@ btCollisionShape* ManagedCollisionShapePointer::operator*()
 {
 	/*ResourceManager* resMgr = Engine::getInstance()->getResourceManager();
 	return resMgr->getCollisionShape(name);*/
-	return NULL;
+	ResourceCache* cache = Engine::getInstance()->getCollisionMeshCache();
+	CollisionMeshCacheEntry* entry = (CollisionMeshCacheEntry*) cache->getEntry(name);
+
+	if (!entry) {
+		return NULL;
+	}
+
+	btCollisionShape* shape = **entry;
+	return shape;
 }

@@ -23,7 +23,7 @@
 #ifndef DFFRENDERWIDGET_H_
 #define DFFRENDERWIDGET_H_
 
-#include "../../config.h"
+#include <gtatools-gui/config.h>
 #include <gta/gl.h>
 #include <QtOpenGL/qgl.h>
 #include <QtGui/QWidget>

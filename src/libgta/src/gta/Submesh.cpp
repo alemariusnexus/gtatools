@@ -21,6 +21,7 @@
  */
 
 #include "Submesh.h"
+#include "GLException.h"
 
 
 

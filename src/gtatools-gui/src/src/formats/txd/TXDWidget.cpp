@@ -21,7 +21,7 @@
  */
 
 #include "TXDWidget.h"
-#include "../../config.h"
+#include <gtatools-gui/config.h>
 #include <QtCore/QSettings>
 #include <QtGui/QLayout>
 #include <QtGui/QTabWidget>

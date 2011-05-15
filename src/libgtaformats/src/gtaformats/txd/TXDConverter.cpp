@@ -21,7 +21,7 @@
  */
 
 #include "TXDConverter.h"
-#include "../config.h"
+#include <gtaformats/config.h>
 #include <cmath>
 #include <cstring>
 

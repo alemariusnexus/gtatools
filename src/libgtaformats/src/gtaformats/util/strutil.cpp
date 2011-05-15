@@ -215,3 +215,17 @@ hash_t LowerHash(const char* str)
 	delete[] lStr;
 	return hash;
 }
+
+
+void FormatByteSize(char* str, uint64_t size, int precision)
+{
+	if (size > 1000000000) {
+		sprintf(str, "%.*fGB", precision, size/1000000000.0f);
+	} else if (size > 1000000) {
+		sprintf(str, "%.*fMB", precision, size/1000000.0f);
+	} else if (size > 1000) {
+		sprintf(str, "%.*fkB", precision, size/1000.0f);
+	} else {
+		sprintf(str, "%llu", size);
+	}
+}

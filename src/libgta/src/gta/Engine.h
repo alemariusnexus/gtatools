@@ -23,7 +23,7 @@
 #ifndef ENGINE_H_
 #define ENGINE_H_
 
-#include "config.h"
+#include <gta/config.h>
 #include "ShaderProgram.h"
 #include "Camera.h"
 #include <locale>
@@ -31,6 +31,7 @@
 #include <vector>
 #include <gtaformats/util/math/Matrix4.h>
 #include <gtaformats/util/strutil.h>
+#include <btBulletDynamicsCommon.h>
 
 using std::locale;
 using std::collate;
@@ -42,8 +43,10 @@ class ResourceCache;
 class ResourceObserver;
 class MeshCacheLoader;
 class TextureCacheLoader;
+class CollisionMeshCacheLoader;
 class MeshIndexer;
 class TextureIndexer;
+class CollisionMeshIndexer;
 class Scene;
 
 
@@ -60,8 +63,10 @@ public:
 	void setCurrentShaderProgram(ShaderProgram* program);
 	ResourceCache* getMeshCache();
 	ResourceCache* getTextureCache();
+	ResourceCache* getCollisionMeshCache() { return colCache; }
 	MeshIndexer* getMeshIndexer() { return meshIndexer; }
 	TextureIndexer* getTextureIndexer() { return texIndexer; }
+	CollisionMeshIndexer* getCollisionMeshIndexer() { return colIndexer; }
 	void addResourceObserver(ResourceObserver* observer);
 	void removeResourceObserver(ResourceObserver* observer);
 	void setCamera(Camera* cam) { camera = cam; }
@@ -73,6 +78,10 @@ public:
 	Scene* getScene() { return scene; }
 	void render();
 	void loadDAT(const File& file, const File& rootDir);
+	void setPhysicsWorld(btDiscreteDynamicsWorld* world) { physicsWorld = world; }
+	btDiscreteDynamicsWorld* getPhysicsWorld() { return physicsWorld; }
+	void switchDrawing() { enableDrawing = !enableDrawing; }
+	bool isDrawingEnabled() { return enableDrawing; }
 
 private:
 	Engine();
@@ -87,12 +96,19 @@ private:
 
 	MeshIndexer* meshIndexer;
 	TextureIndexer* texIndexer;
+	CollisionMeshIndexer* colIndexer;
 
 	MeshCacheLoader* meshCacheLoader;
 	TextureCacheLoader* texCacheLoader;
+	CollisionMeshCacheLoader* colCacheLoader;
 
 	ResourceCache* meshCache;
 	ResourceCache* texCache;
+	ResourceCache* colCache;
+
+	btDiscreteDynamicsWorld* physicsWorld;
+
+	bool enableDrawing;
 };
 
 #endif /* ENGINE_H_ */

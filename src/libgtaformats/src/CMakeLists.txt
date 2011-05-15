@@ -38,7 +38,7 @@ SET(PVRTEXLIB_LIB_PATH "PVRTexLib" CACHE FILEPATH "Path to (or name of) PVRTexLi
 SET(BOOST_INCLUDE_PATH "" CACHE PATH "Directory to the boost header files.")
 
 INCLUDE_DIRECTORIES(${SQUISH_INCLUDE_PATH} ${PVRTEXLIB_INCLUDE_PATH} ${BOOST_INCLUDE_PATH}
-        "${CMAKE_BINARY_DIR}/libgtaformats/build/gtaformats")
+        "${CMAKE_BINARY_DIR}/libgtaformats/build")
 
 ADD_LIBRARY(gtaformats STATIC ${SRCS})
 
@@ -52,6 +52,10 @@ INSTALL(	DIRECTORY gtaformats
 		FILES_MATCHING
 			PATTERN *.h
 			PATTERN .svn EXCLUDE
+			PATTERN *.cmake.h EXCLUDE
 	)
+INSTALL(    FILES "${CMAKE_CURRENT_BINARY_DIR}/gtaformats/config.h"
+        DESTINATION "include/gtaformats"
+    )
 
 

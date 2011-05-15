@@ -23,7 +23,7 @@
 #ifndef FILEPATH_H_
 #define FILEPATH_H_
 
-#include "../config.h"
+#include <gtaformats/config.h>
 
 
 /**	\brief Content types which can be guessed by FilePath::guessContentType().

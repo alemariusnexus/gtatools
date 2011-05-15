@@ -23,7 +23,7 @@
 #ifndef GTAGXT_H_
 #define GTAGXT_H_
 
-#include "config.h"
+#include <gtaformats/config.h>
 
 #include "gxt/GXTException.h"
 #include "gxt/GXTLoader.h"

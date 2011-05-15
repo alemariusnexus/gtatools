@@ -23,7 +23,7 @@
 #ifndef TEXTURECACHEENTRY_H_
 #define TEXTURECACHEENTRY_H_
 
-#include "../../config.h"
+#include <gta/config.h>
 #include "../CacheEntry.h"
 #include "TextureArchive.h"
 #include <map>

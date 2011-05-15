@@ -23,7 +23,7 @@
 #ifndef OUTOFBOUNDSEXCEPTION_H_
 #define OUTOFBOUNDSEXCEPTION_H_
 
-#include "../config.h"
+#include <gtaformats/config.h>
 #include "Exception.h"
 
 

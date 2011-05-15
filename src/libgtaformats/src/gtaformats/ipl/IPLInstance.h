@@ -23,7 +23,7 @@
 #ifndef IPLINSTANCE_H_
 #define IPLINSTANCE_H_
 
-#include "../config.h"
+#include <gtaformats/config.h>
 #include "IPLStatement.h"
 
 #define IPL_TYPE_INSTANCE 0

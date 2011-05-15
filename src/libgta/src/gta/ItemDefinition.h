@@ -23,7 +23,7 @@
 #ifndef ITEMDEFINITION_H_
 #define ITEMDEFINITION_H_
 
-#include "config.h"
+#include <gta/config.h>
 #include "Engine.h"
 #include "Mesh.h"
 #include <gtaformats/ide/IDEStaticObject.h>
@@ -51,6 +51,8 @@ public:
 	float getDrawDistance() const { return drawDistance; }
 	float getDrawDistanceSquarred() const { return drawDistanceSquarred; }
 	virtual void render();
+	void setIDEID(int32_t ideId) { this->ideId = ideId; }
+	int32_t getIDEID() const { return ideId; }
 
 private:
 	void initShaderLocations();
@@ -63,6 +65,7 @@ private:
 	float drawDistanceSquarred;
 	GLint vertexAttrib, normalAttrib, texCoordAttrib, colorAttrib;
 	GLint textureUniform, texturedUniform, materialColorUniform, vertexColorsUniform;
+	int32_t ideId;
 };
 
 #endif /* ITEMDEFINITION_H_ */

@@ -28,5 +28,6 @@
 #cmakedefine GTA_ENABLE_SQUISH
 #cmakedefine GTA_ENABLE_PVRTEXLIB
 #cmakedefine GTA_USE_OPENGL_ES
+#cmakedefine GTA_VISIBILITY_PVS
 
 #endif /* CONFIG_CMAKE_H_ */

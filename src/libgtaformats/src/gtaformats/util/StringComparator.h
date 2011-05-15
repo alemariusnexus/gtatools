@@ -23,7 +23,7 @@
 #ifndef STRINGCOMPARATOR_H_
 #define STRINGCOMPARATOR_H_
 
-#include "../config.h"
+#include <gtaformats/config.h>
 #include <cstring>
 
 

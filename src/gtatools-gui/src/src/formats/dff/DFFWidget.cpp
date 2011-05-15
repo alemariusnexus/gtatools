@@ -20,7 +20,7 @@
 	GPLADDITIONS.
  */
 
-#include "../../config.h"
+#include <gtatools-gui/config.h>
 #include "DFFWidget.h"
 #include <QtGui/QListWidget>
 #include "../../System.h"

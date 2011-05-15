@@ -23,7 +23,7 @@
 #ifndef IMGARCHIVE_H_
 #define IMGARCHIVE_H_
 
-#include "../config.h"
+#include <gtaformats/config.h>
 #include <string>
 #include <algorithm>
 #include <cctype>

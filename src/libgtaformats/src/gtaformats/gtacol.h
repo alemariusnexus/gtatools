@@ -23,7 +23,7 @@
 #ifndef GTACOL_H_
 #define GTACOL_H_
 
-#include "config.h"
+#include <gtaformats/config.h>
 
 #include "col/COLBounds.h"
 #include "col/COLBox.h"

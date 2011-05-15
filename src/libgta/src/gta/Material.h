@@ -23,7 +23,7 @@
 #ifndef MATERIAL_H_
 #define MATERIAL_H_
 
-#include "config.h"
+#include <gta/config.h>
 #include "Engine.h"
 #include <gtaformats/dff/DFFMaterial.h>
 

@@ -23,7 +23,7 @@
 #ifndef GL_H_
 #define GL_H_
 
-#include "config.h"
+#include <gta/config.h>
 
 #ifdef GTA_USE_OPENGL_ES
 

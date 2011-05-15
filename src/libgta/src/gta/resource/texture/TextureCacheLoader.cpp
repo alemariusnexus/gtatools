@@ -29,6 +29,7 @@
 #include <gtaformats/util/strutil.h>
 #include "../../gl.h"
 #include "../../EngineException.h"
+#include "../../GLException.h"
 
 
 
@@ -163,6 +164,8 @@ CacheEntry* TextureCacheLoader::load(hash_t hash)
 		}
 	#endif
 
+		GLException::checkError("Fehler bei 1");
+
 		int16_t w = tex->getWidth();
 		int16_t h = tex->getHeight();
 
@@ -238,19 +241,24 @@ CacheEntry* TextureCacheLoader::load(hash_t hash)
 
 				delete[] dataStart;
 			} else if (compr == PVRTC4) {
+				//printf("PVRTC?!\n");
 				uint8_t* dataStart = data;
 
 				int16_t mipW = w;
 				int16_t mipH = h;
 
+				GLException::checkError("Fehler bei 2");
+
 				for (int i = 0 ; i < numIncludedMipmaps ; i++) {
 					glCompressedTexImage2D(GL_TEXTURE_2D, i, GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG,
-							mipW, mipH, 0, mipW*mipH, data);
+							mipW, mipH, 0, mipW*mipH/2, data);
 					size += (mipW*mipH)/2;
 					data += (mipW*mipH)/2;
 					mipW /= 2;
 					mipH /= 2;
 				}
+
+				GLException::checkError("Fehler bei 3");
 
 				delete[] dataStart;
 			}
@@ -260,9 +268,6 @@ CacheEntry* TextureCacheLoader::load(hash_t hash)
 
 			int16_t mipW = w;
 			int16_t mipH = h;
-
-			//int8_t bppFraction = tex->getCompression() == DXT1 ? 2 : 1;
-			int8_t bppFraction = 1;
 
 			for (int i = 0 ; i < numIncludedMipmaps ; i++) {
 				if (	(mipW < 4  ||  mipH < 4)
@@ -295,6 +300,8 @@ CacheEntry* TextureCacheLoader::load(hash_t hash)
 			delete[] dataStart;
 		}
 
+		GLException::checkError("Fehler bei 4");
+
 		if (	(tex->getRasterFormatExtension() & RasterFormatEXTAutoMipmap) != 0
 	#ifndef GTA_USE_OPENGL_ES
 				&&  gtaglIsVersionSupported(3, 0)
@@ -302,6 +309,8 @@ CacheEntry* TextureCacheLoader::load(hash_t hash)
 		) {
 			glGenerateMipmap(GL_TEXTURE_2D);
 		}
+
+		GLException::checkError("Fehler bei 5");
 
 		cacheEntry->addTexture(texHash, glTex, size);
 	}

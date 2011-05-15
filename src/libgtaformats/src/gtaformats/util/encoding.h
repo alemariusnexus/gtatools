@@ -23,7 +23,7 @@
 #ifndef ENCODING_H_
 #define ENCODING_H_
 
-#include "../config.h"
+#include <gtaformats/config.h>
 #include <cstddef>
 
 

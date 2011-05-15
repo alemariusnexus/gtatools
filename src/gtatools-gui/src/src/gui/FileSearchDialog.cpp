@@ -21,7 +21,7 @@
  */
 
 #include "FileSearchDialog.h"
-#include "../config.h"
+#include <gtatools-gui/config.h>
 #include "../ProfileManager.h"
 #include "../Profile.h"
 #include "../System.h"

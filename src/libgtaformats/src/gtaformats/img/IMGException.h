@@ -23,7 +23,7 @@
 #ifndef IMGEXCEPTION_H_
 #define IMGEXCEPTION_H_
 
-#include "../config.h"
+#include <gtaformats/config.h>
 #include "../util/Exception.h"
 
 

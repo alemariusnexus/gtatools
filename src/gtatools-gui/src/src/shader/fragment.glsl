@@ -20,6 +20,7 @@
 
 uniform bool Textured;
 uniform sampler2D Texture;
+uniform vec4 MaterialColor;
 
 varying vec2 FragTexCoord;
 
@@ -28,6 +29,7 @@ void main()
     if (Textured) {
         gl_FragColor = texture2D(Texture, FragTexCoord);
     } else {
-        gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+        //gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+        gl_FragColor = MaterialColor;
     }
 }

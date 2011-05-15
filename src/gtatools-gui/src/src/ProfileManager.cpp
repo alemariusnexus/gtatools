@@ -20,7 +20,7 @@
 	GPLADDITIONS.
  */
 
-#include "config.h"
+#include <gtatools-gui/config.h>
 #include "ProfileManager.h"
 #include <QtCore/QSettings>
 #include <QtCore/QString>

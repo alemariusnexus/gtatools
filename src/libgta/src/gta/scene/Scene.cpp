@@ -10,9 +10,13 @@
 #include <fstream>
 #include <utility>
 #include <gtaformats/util/util.h>
+#include <set>
+#include <map>
 
 using std::ofstream;
 using std::min;
+using std::set;
+using std::map;
 
 
 
@@ -51,8 +55,12 @@ void Scene::buildVisibleSceneObjectList(ObjectList& list)
 	float cy = cpos.getY();
 	float cz = cpos.getZ();
 
+#ifdef GTA_VISIBILITY_PVS
 	ObjectList pvObjects;
 	pvs.queryPVS(cx, cy, cz, pvObjects);
+#else
+	ObjectList& pvObjects = objects;
+#endif
 
 	pvObjCount = pvObjects.size();
 
@@ -64,6 +72,7 @@ void Scene::buildVisibleSceneObjectList(ObjectList& list)
 
 	for (it = begin ; it != end ; it++) {
 		DefaultSceneObject* obj = *it;
+		DefaultSceneObject* baseObj = obj;
 
 		const float* mat = obj->getModelMatrix().toArray();
 		float ox = mat[12];

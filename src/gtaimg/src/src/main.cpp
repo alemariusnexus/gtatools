@@ -320,8 +320,6 @@ int main(int argc, char** argv)
 			return 5;
 		}
 
-		int32_t entryCount = img->getEntryCount();
-
 		if (command == CommandShowHeader) {
 			if (file) {
 				printf("%s\n", file->getPath()->toString());
@@ -395,7 +393,7 @@ int main(int argc, char** argv)
 							}
 
 							if (verbose)
-								printf("  %d bytes written!\n", entry.size*IMG_BLOCK_SIZE);
+								printf("  %lld bytes written!\n", entry.size*IMG_BLOCK_SIZE);
 						}
 					}
 				} else if (command == CommandList) {
@@ -408,8 +406,8 @@ int main(int argc, char** argv)
 							else
 								printf("%-24s", entry.name);
 
-							int offset = bytesUnit ? entry.offset*IMG_BLOCK_SIZE : entry.offset;
-							int size = bytesUnit ? entry.size*IMG_BLOCK_SIZE : entry.size;
+							long long offset = bytesUnit ? entry.offset*IMG_BLOCK_SIZE : entry.offset;
+							long long size = bytesUnit ? entry.size*IMG_BLOCK_SIZE : entry.size;
 
 							if (showOffset) {
 								if (commaSep)

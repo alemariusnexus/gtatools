@@ -23,7 +23,7 @@
 #ifndef FILEFINDER_H_
 #define FILEFINDER_H_
 
-#include "../config.h"
+#include <gtaformats/config.h>
 #include "File.h"
 
 

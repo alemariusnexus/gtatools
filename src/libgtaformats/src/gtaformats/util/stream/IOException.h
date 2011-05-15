@@ -23,7 +23,7 @@
 #ifndef IOEXCEPTION_H_
 #define IOEXCEPTION_H_
 
-#include "../../config.h"
+#include <gtaformats/config.h>
 #include "../Exception.h"
 
 

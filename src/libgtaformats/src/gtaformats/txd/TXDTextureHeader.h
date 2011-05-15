@@ -23,7 +23,7 @@
 #ifndef TXDTEXTUREHEADER_H_
 #define TXDTEXTUREHEADER_H_
 
-#include "../config.h"
+#include <gtaformats/config.h>
 #include <istream>
 
 using std::istream;

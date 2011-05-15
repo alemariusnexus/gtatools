@@ -23,7 +23,7 @@
 #ifndef STRUTIL_H_
 #define STRUTIL_H_
 
-#include "../config.h"
+#include <gtaformats/config.h>
 #include <locale>
 #include <cstring>
 
@@ -86,6 +86,9 @@ inline hash_t Hash(const char* str)
 
 
 hash_t LowerHash(const char* str);
+
+
+void FormatByteSize(char* str, uint64_t size, int precision = 3);
 
 
 #endif /* STRUTIL_H_ */

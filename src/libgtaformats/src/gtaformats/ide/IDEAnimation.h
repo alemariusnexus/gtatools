@@ -23,7 +23,7 @@
 #ifndef IDEANIMATION_H_
 #define IDEANIMATION_H_
 
-#include "../config.h"
+#include <gtaformats/config.h>
 #include "IDEEntity.h"
 
 

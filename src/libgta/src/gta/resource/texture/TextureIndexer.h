@@ -23,7 +23,7 @@
 #ifndef TEXTUREINDEXER_H_
 #define TEXTUREINDEXER_H_
 
-#include "../../config.h"
+#include <gta/config.h>
 #include "../ResourceObserver.h"
 #include "TextureArchive.h"
 #include "../../Engine.h"

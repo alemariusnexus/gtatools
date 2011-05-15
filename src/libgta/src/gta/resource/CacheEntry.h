@@ -31,8 +31,18 @@ typedef unsigned int cachesize_t;
 
 class CacheEntry {
 public:
+#ifndef NDEBUG
+	CacheEntry() : usedInFrame(false) {}
+#endif
 	virtual ~CacheEntry() {}
 	virtual cachesize_t getSize() const = 0;
+
+private:
+#ifndef NDEBUG
+	bool usedInFrame;
+#endif
+
+	friend class ResourceCache;
 };
 
 #endif /* CACHEENTRY_H_ */
