@@ -28,8 +28,11 @@
 #include <gtaformats/util/strutil.h>
 #include "GLException.h"
 #include "ManagedMeshPointer.h"
+#include "StaticMeshPointer.h"
 #include "ManagedTextureSource.h"
 #include "ManagedCollisionShapePointer.h"
+#include "resource/mesh/MeshCacheEntry.h"
+#include "MeshGenerator.h"
 
 
 
@@ -50,8 +53,12 @@ ItemDefinition::ItemDefinition(const IDEStaticObject& object)
 	strtolower(lMeshName, object.getModelName());
 	strtolower(lTexName, object.getTextureName());
 	meshPtr = new ManagedMeshPointer(Hash(lMeshName));
+	/*MeshGenerator gen;
+	Mesh* mesh = gen.createSphere(10.0f, 5, 5);
+	meshPtr = new StaticMeshPointer(mesh);*/
 	texSrc = new ManagedTextureSource(Hash(lTexName));
-	colShapePtr = new ManagedCollisionShapePointer(Hash(lMeshName));
+	//colShapePtr = new ManagedCollisionShapePointer(Hash(lMeshName));
+	colShapePtr = new ManagedCollisionShapePointer(lMeshName);
 	delete[] lMeshName;
 	delete[] lTexName;
 }
@@ -70,10 +77,6 @@ ItemDefinition::~ItemDefinition()
 
 void ItemDefinition::initShaderLocations()
 {
-	Engine* engine = Engine::getInstance();
-	ShaderProgram* program = engine->getCurrentShaderProgram();
-
-
 }
 
 
@@ -95,8 +98,6 @@ void ItemDefinition::render()
 		texturedUniform = program->getUniformLocation("Textured");
 		materialColorUniform = program->getUniformLocation("MaterialColor");
 		vertexColorsUniform = program->getUniformLocation("VertexColors");
-
-		glUniform1i(vertexColorsUniform, (mesh->getFlags() & MeshVertexColors) != 0 ? 1 : 0);
 
 		mesh->bindDataBuffer();
 

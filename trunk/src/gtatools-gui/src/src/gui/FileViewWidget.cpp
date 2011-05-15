@@ -21,7 +21,7 @@
  */
 
 #include "FileViewWidget.h"
-#include "../config.h"
+#include <gtatools-gui/config.h>
 #include "../FormatManager.h"
 #include <QtCore/QSettings>
 

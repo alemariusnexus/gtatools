@@ -23,16 +23,19 @@
 #ifndef MESHGENERATOR_H_
 #define MESHGENERATOR_H_
 
-#include "config.h"
+#include <gta/config.h>
 #include <gtaformats/util/math/Vector3.h>
+#include "Mesh.h"
 
 
 class MeshGenerator {
 public:
 	void createBox(float*& vertices, int& vertexCount, int32_t*& indices, int& indexCount, const Vector3& min,
 			const Vector3& max);
+	Mesh* createBox(const Vector3& min, const Vector3& max);
     void createSphere(float*& vertices, int& vertexCount, int32_t*& indices, int& indexCount, float radius,
     		int slices, int stacks);
+    Mesh* createSphere(float radius, int slices, int stacks);
 };
 
 #endif /* MESHGENERATOR_H_ */

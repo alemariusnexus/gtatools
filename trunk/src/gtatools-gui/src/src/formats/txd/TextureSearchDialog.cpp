@@ -21,7 +21,7 @@
  */
 
 #include "TextureSearchDialog.h"
-#include "../../config.h"
+#include <gtatools-gui/config.h>
 #include "../../ProfileManager.h"
 #include "../../Profile.h"
 #include <QtCore/QString>

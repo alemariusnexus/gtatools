@@ -25,6 +25,9 @@
 #include <gtaformats/util/InvalidStateException.h>
 #include <cstdio>
 #include <gtaformats/util/util.h>
+#include <algorithm>
+
+using std::find;
 
 
 
@@ -32,7 +35,7 @@
 ResourceCache::ResourceCache(CacheEntryLoader* loader, cachesize_t capacity)
 		: cache(EntryCache(capacity)), loader(loader)
 #ifndef NDEBUG
-		  , numHits(0), numMisses(0)
+		  , numHits(0), numMisses(0), sizeUsed(0)
 #endif
 {
 }
@@ -60,6 +63,10 @@ CacheEntry* ResourceCache::doCache(hash_t key, bool lock)
 		return NULL;
 	}
 
+#ifndef NDEBUG
+	entryAccessed(entry);
+#endif
+
 	return entry;
 }
 
@@ -67,6 +74,9 @@ CacheEntry* ResourceCache::doCache(hash_t key, bool lock)
 CacheEntry* ResourceCache::getEntryIfCached(hash_t key, bool lock)
 {
 	CacheEntry* entry = cache.lock(key, lock);
+#ifndef NDEBUG
+	entryAccessed(entry);
+#endif
 	return entry;
 }
 
@@ -81,6 +91,7 @@ CacheEntry* ResourceCache::getEntry(hash_t key, bool lock)
 	}
 
 #ifndef NDEBUG
+	entryAccessed(entry);
 	numHits++;
 #endif
 
@@ -104,3 +115,27 @@ bool ResourceCache::clear()
 {
 	return cache.clear();
 }
+
+
+#ifndef NDEBUG
+void ResourceCache::resetStatistics()
+{
+	numHits = 0;
+	numMisses = 0;
+	sizeUsed = 0;
+	entriesUsed.clear();
+}
+#endif
+
+
+#ifndef NDEBUG
+void ResourceCache::entryAccessed(CacheEntry* entry)
+{
+	vector<CacheEntry*>::iterator it = find(entriesUsed.begin(), entriesUsed.end(), entry);
+
+	if (it == entriesUsed.end()) {
+		sizeUsed += entry->getSize();
+		entriesUsed.push_back(entry);
+	}
+}
+#endif

@@ -23,7 +23,7 @@
 #ifndef GXTTABLE_H_
 #define GXTTABLE_H_
 
-#include "../config.h"
+#include <gtaformats/config.h>
 #include "../util/encoding.h"
 #include "../gta.h"
 #include <map>

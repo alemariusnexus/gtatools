@@ -23,7 +23,7 @@
 #ifndef MAINTHREAD_H_
 #define MAINTHREAD_H_
 
-#include "../../config.h"
+#include <gtaformats/config.h>
 #include "Thread.h"
 
 

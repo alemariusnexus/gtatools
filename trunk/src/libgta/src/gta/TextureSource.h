@@ -23,7 +23,7 @@
 #ifndef TEXTURESOURCE_H_
 #define TEXTURESOURCE_H_
 
-#include "config.h"
+#include <gta/config.h>
 #include "Engine.h"
 
 

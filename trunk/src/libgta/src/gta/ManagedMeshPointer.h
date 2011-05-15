@@ -23,7 +23,7 @@
 #ifndef MANAGEDMESHPOINTER_H_
 #define MANAGEDMESHPOINTER_H_
 
-#include "config.h"
+#include <gta/config.h>
 #include "MeshPointer.h"
 #include <gtaformats/config.h>
 #include "Engine.h"

@@ -22,6 +22,7 @@
 
 #include "MeshGenerator.h"
 #include <cmath>
+#include "Submesh.h"
 
 
 void MeshGenerator::createBox(float*& vertices, int& vertexCount, int32_t*& indices, int& indexCount,
@@ -59,6 +60,22 @@ void MeshGenerator::createBox(float*& vertices, int& vertexCount, int32_t*& indi
 	};
 	memcpy(indices, localIndices, 6*6*4);
 	indexCount = 6*6;
+}
+
+
+Mesh* MeshGenerator::createBox(const Vector3& min, const Vector3& max)
+{
+	float* vertices;
+	int vcount;
+	int32_t* indices;
+	int indCount;
+	createBox(vertices, vcount, indices, indCount, min, max);
+	Mesh* mesh = new Mesh(vcount, VertexFormatTriangles, 0, vertices);
+	Submesh* submesh = new Submesh(mesh, indCount, indices);
+	mesh->addSubmesh(submesh);
+	delete[] vertices;
+	delete[] indices;
+	return mesh;
 }
 
 
@@ -140,4 +157,20 @@ void MeshGenerator::createSphere(float*& vertices, int& vertexCount, int32_t*& i
 	indices[indexOffset++] = sv + slices;
 	indices[indexOffset++] = sv;
 	indices[indexOffset++] = sv + slices - 1;
+}
+
+
+Mesh* MeshGenerator::createSphere(float radius, int slices, int stacks)
+{
+	float* vertices;
+	int vcount;
+	int32_t* indices;
+	int indCount;
+	createSphere(vertices, vcount, indices, indCount, radius, slices, stacks);
+	Mesh* mesh = new Mesh(vcount, VertexFormatTriangles, 0, vertices);
+	Submesh* submesh = new Submesh(mesh, indCount, indices);
+	mesh->addSubmesh(submesh);
+	delete[] vertices;
+	delete[] indices;
+	return mesh;
 }

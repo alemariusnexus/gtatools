@@ -23,7 +23,7 @@
 #ifndef CACHE_H_
 #define CACHE_H_
 
-#include "../config.h"
+#include <gtaformats/config.h>
 #include <utility>
 
 #ifdef CXX0X_AVAILABLE
@@ -123,6 +123,7 @@ V* Cache<K, V>::access(const K& key)
 template<class K, class V>
 bool Cache<K, V>::remove(Entry& entry)
 {
+	printf("Removing\n");
 	if (entry.locked) {
 		return false;
 	}

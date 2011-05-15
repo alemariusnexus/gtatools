@@ -23,7 +23,7 @@
 #ifndef GLBASEWIDGET_H_
 #define GLBASEWIDGET_H_
 
-#include "../config.h"
+#include <gtatools-gui/config.h>
 #include <gta/gl.h>
 #include <QtGui/QWidget>
 #include <QtOpenGL/QGLWidget>

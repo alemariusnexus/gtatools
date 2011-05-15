@@ -23,7 +23,7 @@
 #ifndef IPLCAR_H_
 #define IPLCAR_H_
 
-#include "../config.h"
+#include <gtaformats/config.h>
 #include "IPLStatement.h"
 
 #define IPL_TYPE_CAR 1

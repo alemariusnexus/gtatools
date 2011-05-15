@@ -21,6 +21,7 @@
 
 ADD_SUBDIRECTORY(mesh)
 ADD_SUBDIRECTORY(texture)
+ADD_SUBDIRECTORY(collision)
 
 SET(FILES ResourceCache)
 

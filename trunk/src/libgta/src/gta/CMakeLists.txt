@@ -28,7 +28,8 @@ SET(FILES
 ADD_SUBDIRECTORY(resource)
 ADD_SUBDIRECTORY(scene)
     
-CONFIGURE_FILE(config.cmake.h "${CMAKE_CURRENT_SOURCE_DIR}/config.h")
+#CONFIGURE_FILE(config.cmake.h "${CMAKE_CURRENT_SOURCE_DIR}/config.h")
+CONFIGURE_FILE(config.cmake.h "${CMAKE_CURRENT_BINARY_DIR}/config.h")
 
 FOREACH(FILE ${FILES})
     SET(SRCS ${SRCS} "gta/${FILE}")

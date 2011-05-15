@@ -23,7 +23,7 @@
 #ifndef COLMODEL_H_
 #define COLMODEL_H_
 
-#include "../config.h"
+#include <gtaformats/config.h>
 #include "COLBox.h"
 #include "COLSphere.h"
 #include "COLFace.h"

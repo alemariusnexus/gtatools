@@ -23,7 +23,7 @@
 #ifndef COLLOADER_H_
 #define COLLOADER_H_
 
-#include "../config.h"
+#include <gtaformats/config.h>
 #include "COLModel.h"
 #include "../util/File.h"
 #include <istream>
@@ -40,6 +40,7 @@ public:
 	bool loadModelName(const File& file, char* name);
 	COLVersion getVersion(istream* stream);
 	COLVersion getVersion(const File& file);
+	void skip(istream* stream, int numEntries);
 
 private:
 

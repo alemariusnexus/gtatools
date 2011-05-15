@@ -23,7 +23,7 @@
 #ifndef COLSPHERE_H_
 #define COLSPHERE_H_
 
-#include "../config.h"
+#include <gtaformats/config.h>
 #include "../util/math/Vector3.h"
 #include "COLSurface.h"
 

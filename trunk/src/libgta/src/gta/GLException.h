@@ -23,7 +23,7 @@
 #ifndef GLEXCEPTION_H_
 #define GLEXCEPTION_H_
 
-#include "config.h"
+#include <gta/config.h>
 #include <gtaformats/util/Exception.h>
 
 

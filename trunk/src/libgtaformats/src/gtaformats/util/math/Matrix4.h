@@ -23,7 +23,7 @@
 #ifndef MATRIX4_H_
 #define MATRIX4_H_
 
-#include "../../config.h"
+#include <gtaformats/config.h>
 #include "Vector3.h"
 #include "Vector4.h"
 

@@ -23,7 +23,7 @@
 #ifndef COLFACEGROUP_H_
 #define COLFACEGROUP_H_
 
-#include "../config.h"
+#include <gtaformats/config.h>
 #include "../util/math/Vector3.h"
 
 

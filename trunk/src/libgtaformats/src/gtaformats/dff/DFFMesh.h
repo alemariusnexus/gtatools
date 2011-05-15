@@ -23,7 +23,7 @@
 #ifndef DFFMODEL_H_
 #define DFFMODEL_H_
 
-#include "../config.h"
+#include <gtaformats/config.h>
 #include "DFFGeometry.h"
 #include "DFFFrame.h"
 #include <vector>

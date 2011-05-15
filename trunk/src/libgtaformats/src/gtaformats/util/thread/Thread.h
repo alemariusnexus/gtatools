@@ -23,7 +23,7 @@
 #ifndef THREAD_H_
 #define THREAD_H_
 
-#include "../../config.h"
+#include <gtaformats/config.h>
 
 #ifdef _POSIX_VERSION
 #include <pthread.h>

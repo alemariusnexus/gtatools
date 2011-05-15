@@ -23,7 +23,7 @@
 #ifndef GTAIPL_H_
 #define GTAIPL_H_
 
-#include "config.h"
+#include <gtaformats/config.h>
 
 #include "ipl/IPLStatement.h"
 #include "ipl/IPLInstance.h"

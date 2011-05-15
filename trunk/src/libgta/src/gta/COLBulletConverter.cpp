@@ -20,8 +20,10 @@ btCollisionShape* COLBulletConverter::convert(const COLBox& box)
 {
 	const Vector3& min = box.getMinimum();
 	const Vector3& max = box.getMaximum();
-	btBoxShape* shape = new btBoxShape(btVector3(max.getX()-min.getX(), max.getY()-min.getY(),
-			max.getZ()-min.getZ()));
+	btBoxShape* shape = new btBoxShape(btVector3(
+			(max.getX()-min.getX()) / 2.0f,
+			(max.getY()-min.getY()) / 2.0f,
+			(max.getZ()-min.getZ()) / 2.0f));
 	return shape;
 }
 
@@ -67,8 +69,12 @@ btCollisionShape* COLBulletConverter::convert(const COLModel& model)
 
 	for (uint32_t i = 0 ; i < boxCount ; i++) {
 		const COLBox& box = boxes[i];
+		const Vector3& min = box.getMinimum();
+		const Vector3& max = box.getMaximum();
+		Vector3 center = min + (max - min) * 0.5f;
 		btCollisionShape* boxShape = convert(box);
-		shape->addChildShape(btTransform(btQuaternion(0.0f, 0.0f, 0.0f, 1.0f)), boxShape);
+		shape->addChildShape(btTransform(btQuaternion(0.0f, 0.0f, 0.0f, 1.0f),
+				btVector3(center.getX(), center.getY(), center.getZ())), boxShape);
 	}
 
 	if (model.getFaceCount() > 0) {

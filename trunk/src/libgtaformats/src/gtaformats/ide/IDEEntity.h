@@ -23,7 +23,7 @@
 #ifndef IDEENTITY_H_
 #define IDEENTITY_H_
 
-#include "../config.h"
+#include <gtaformats/config.h>
 #include "IDEStatement.h"
 
 

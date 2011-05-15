@@ -23,7 +23,7 @@
 #ifndef COLBOUNDS_H_
 #define COLBOUNDS_H_
 
-#include "../config.h"
+#include <gtaformats/config.h>
 #include "../util/math/Vector3.h"
 
 

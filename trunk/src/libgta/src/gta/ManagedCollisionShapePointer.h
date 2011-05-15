@@ -29,13 +29,17 @@
 
 class ManagedCollisionShapePointer : public CollisionShapePointer {
 public:
-	ManagedCollisionShapePointer(hash_t name) : name(name) {}
-	ManagedCollisionShapePointer(const ManagedCollisionShapePointer& other) : name(other.name) {}
+	ManagedCollisionShapePointer(const char* name);
+	ManagedCollisionShapePointer(hash_t name) : name(name), strName(NULL) {}
+	ManagedCollisionShapePointer(const ManagedCollisionShapePointer& other) : name(other.name), strName(NULL) {}
+	~ManagedCollisionShapePointer();
 	virtual CollisionShapePointer* clone() const;
 	virtual btCollisionShape* operator*();
+	const char* getName() const { return strName; }
 
 private:
 	hash_t name;
+	char* strName;
 };
 
 #endif /* MANAGEDCOLLISIONSHAPEPOINTER_H_ */

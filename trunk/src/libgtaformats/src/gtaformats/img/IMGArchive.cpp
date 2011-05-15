@@ -53,7 +53,7 @@ bool _EntrySortComparator(const IMGEntry* e1, const IMGEntry* e2)
 
 
 IMGArchive::IMGArchive(istream* stream, int mode)
-		: dirStream(stream), imgStream(stream), mode(mode)
+		: imgStream(stream), dirStream(stream), mode(mode)
 {
 	readHeader();
 }
@@ -403,16 +403,14 @@ bool IMGArchive::reserveHeaderSpace(int32_t numHeaders)
 		throw IMGException("Attempt to modify a read-only IMG archive!", __FILE__, __LINE__);
 	}
 
-	int32_t numEntries = entries.size();
-
-	uint64_t bytesToReserve = numHeaders * sizeof(IMGEntry);
+	int64_t bytesToReserve = numHeaders * sizeof(IMGEntry);
 
 	if (version == VER2) {
 		// Consider the IMG header for VER2
 		bytesToReserve += 8;
 	}
 
-	uint64_t reservedSize = getHeaderReservedSize();
+	int64_t reservedSize = getHeaderReservedSize();
 
 	headerReservedSpace = ceil((float) bytesToReserve / IMG_BLOCK_SIZE);
 
@@ -487,6 +485,8 @@ bool IMGArchive::reserveHeaderSpace(int32_t numHeaders)
 	entries.erase(moveBegin, oldMoveEnd);
 
 	expandSize();
+
+	return true;
 }
 
 
@@ -707,7 +707,6 @@ int32_t IMGArchive::pack()
 	istream* oldImgStream = copyFile.openInputOutputStream(istream::binary);
 	for (i = 0, it = entries.begin() ; it != entries.end() ; it++, i++) {
 		// We don't have to reposition outImgStream, because the new entries are tightly packed.
-		IMGEntry* newEntry = *it;
 		IMGEntry* oldEntry = oldEntries[i];
 		oldImgStream->seekg(oldEntry->offset*IMG_BLOCK_SIZE, istream::beg);
 		char buf[4096];

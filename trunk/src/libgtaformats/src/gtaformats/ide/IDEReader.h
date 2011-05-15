@@ -23,7 +23,7 @@
 #ifndef IDEREADER_H_
 #define IDEREADER_H_
 
-#include "../config.h"
+#include <gtaformats/config.h>
 #include <cstring>
 #include <cstdlib>
 #include <cstdio>

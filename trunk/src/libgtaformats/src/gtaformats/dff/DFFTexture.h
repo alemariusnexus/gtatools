@@ -23,7 +23,7 @@
 #ifndef DFFTEXTURE_H_
 #define DFFTEXTURE_H_
 
-#include "../config.h"
+#include <gtaformats/config.h>
 #include <cstdlib>
 
 class DFFTexture {

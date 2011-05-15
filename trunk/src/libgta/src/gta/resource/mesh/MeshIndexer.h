@@ -23,7 +23,7 @@
 #ifndef MESHINDEXER_H_
 #define MESHINDEXER_H_
 
-#include "../../config.h"
+#include <gta/config.h>
 #include <gtaformats/util/File.h>
 #include "../../Engine.h"
 #include "../ResourceObserver.h"

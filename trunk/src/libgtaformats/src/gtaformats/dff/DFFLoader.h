@@ -23,7 +23,7 @@
 #ifndef DFFLOADER_H_
 #define DFFLOADER_H_
 
-#include "../config.h"
+#include <gtaformats/config.h>
 #include "../gta.h"
 #include "DFFMesh.h"
 #include "DFFException.h"

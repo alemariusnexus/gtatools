@@ -23,7 +23,7 @@
 #ifndef IDESTATICOBJECT_H_
 #define IDESTATICOBJECT_H_
 
-#include "../config.h"
+#include <gtaformats/config.h>
 #include "IDEEntity.h"
 
 

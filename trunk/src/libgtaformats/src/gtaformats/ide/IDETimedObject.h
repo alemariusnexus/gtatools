@@ -23,7 +23,7 @@
 #ifndef IDETIMEDOBJECT_H_
 #define IDETIMEDOBJECT_H_
 
-#include "../config.h"
+#include <gtaformats/config.h>
 #include "IDEStaticObject.h"
 
 

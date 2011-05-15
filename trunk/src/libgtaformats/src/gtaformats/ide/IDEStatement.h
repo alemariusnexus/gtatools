@@ -23,7 +23,7 @@
 #ifndef IDESTATEMENT_H_
 #define IDESTATEMENT_H_
 
-#include "../config.h"
+#include <gtaformats/config.h>
 
 
 enum IDEType

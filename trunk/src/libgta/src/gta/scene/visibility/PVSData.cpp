@@ -123,7 +123,7 @@ void PVSData::build()
 			}
 		}
 
-		if (i % (numSects/100) == 0) {
+		/*if (i % (numSects/100) == 0) {
 			printf("    %d%% done\n", i / (numSects/100));
 			vector<ProgressObserver*>::iterator pit;
 
@@ -131,7 +131,7 @@ void PVSData::build()
 				ProgressObserver* obsv = *pit;
 				obsv->progressChanged(i / (numSects/100), 100);
 			}
-		}
+		}*/
 	}
 
 	printf("PVS DATA SUCCESSFULLY BUILT!\n");

@@ -23,7 +23,7 @@
 #ifndef DEFAULTFILEITERATOR_H_
 #define DEFAULTFILEITERATOR_H_
 
-#include "../config.h"
+#include <gtaformats/config.h>
 #include <cstdlib>
 #include "../img/IMGArchive.h"
 #include <boost/smart_ptr/shared_ptr.hpp>

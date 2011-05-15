@@ -23,7 +23,7 @@
 ADD_SUBDIRECTORY(gui)
 ADD_SUBDIRECTORY(formats)
 
-CONFIGURE_FILE(config.cmake.h "${CMAKE_CURRENT_SOURCE_DIR}/config.h")
+CONFIGURE_FILE(config.cmake.h "${CMAKE_CURRENT_BINARY_DIR}/gtatools-gui/config.h")
 
 SET(SRCS ${SRCS}
     src/main.cpp src/Profile.cpp src/ProfileManager.cpp src/System.cpp

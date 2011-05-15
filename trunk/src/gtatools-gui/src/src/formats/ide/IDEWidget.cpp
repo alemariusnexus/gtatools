@@ -20,7 +20,7 @@
 	GPLADDITIONS.
  */
 
-#include "../../config.h"
+#include <gtatools-gui/config.h>
 #include "IDEWidget.h"
 #include <gtaformats/ide/IDEReader.h>
 #include <gtaformats/ide/IDEStaticObject.h>

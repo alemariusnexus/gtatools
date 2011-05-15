@@ -43,6 +43,7 @@ ENDIF(WIN32)
 SET(GTA_ENABLE_PVRTEXLIB OFF CACHE BOOL "Whether we use the proprietary PVRTexLib for PVRTC-compressed textures.")
 SET(GTA_ENABLE_SQUISH ON CACHE BOOL "If enabled, libsquish will be available to decompress DXT-textures.")
 SET(GTA_USE_OPENGL_ES OFF CACHE BOOL "If enabled, OpenGL ES will be used instead of Desktop OpenGL.")
+SET(GTA_VISIBILITY_PVS ON CACHE BOOL "Whether to use PVS for visibility check.")
 
 SET(GTAFORMATS_LIB_PATH "gtaformats" CACHE FILEPATH "Path to (or name of) libgtaformats library file")
 SET(SQUISH_INCLUDE_PATH "" CACHE PATH "Directory containing libsquish header files.")
@@ -80,7 +81,8 @@ ELSE(GTA_USE_OPENGL_ES)
 ENDIF(GTA_USE_OPENGL_ES)
 
 INCLUDE_DIRECTORIES(${SQUISH_INCLUDE_PATH} ${PVRTECLIB_INCLUDE_PATH} ${GTAFORMATS_INCLUDE_PATH} ${GL_INCDIRS}
-        ${BULLET_INCLUDE_PATH} ${BOOST_INCLUDE_PATH})
+        ${BULLET_INCLUDE_PATH} ${BOOST_INCLUDE_PATH} "${CMAKE_BINARY_DIR}/libgtaformats/build"
+        "${CMAKE_CURRENT_BINARY_DIR}")
 
 ADD_LIBRARY(gta STATIC ${SRCS})
 TARGET_LINK_LIBRARIES(gta ${SQUISH_LIB_PATH} ${PVRTEXLIB_LIB_PATH} ${GTAFORMATS_LIB_PATH} ${GL_LIBRARIES}
@@ -92,6 +94,9 @@ INSTALL(	DIRECTORY gta
 		FILES_MATCHING
 			PATTERN *.h
 			PATTERN .svn EXCLUDE
+			PATTERN *.cmake.h EXCLUDE
 	)
-
+INSTALL(    FILES "${CMAKE_CURRENT_BINARY_DIR}/gta/config.h"
+        DESTINATION "include/gta"
+    )
 

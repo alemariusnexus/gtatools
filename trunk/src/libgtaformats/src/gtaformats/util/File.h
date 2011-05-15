@@ -23,7 +23,7 @@
 #ifndef FILE_H_
 #define FILE_H_
 
-#include "../config.h"
+#include <gtaformats/config.h>
 #include "FilePath.h"
 #include "FileIterator.h"
 #include <cstdlib>

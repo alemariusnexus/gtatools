@@ -20,7 +20,7 @@
 	GPLADDITIONS.
  */
 
-#include "../config.h"
+#include <gtatools-gui/config.h>
 #include "FileTree.h"
 #include "../System.h"
 #include "../ProfileManager.h"

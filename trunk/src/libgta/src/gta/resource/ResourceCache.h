@@ -52,12 +52,14 @@ public:
 #ifndef NDEBUG
 	uint64_t getHitCount() const { return numHits; }
 	uint64_t getMissCount() const { return numMisses; }
-	void resetStatistics() { numHits = 0; numMisses = 0; }
+	uint64_t getBytesAccessed() const { return sizeUsed; }
+	void resetStatistics();
 	bool isStatisticsAvailable() const { return true; }
 	float getEfficiency() const { return (float) numHits / (float) (numHits+numMisses); }
 #else
 	uint64_t getHitCount() const { return 0; }
 	uint64_t getMissCount() const { return 0; }
+	uint64_t getBytesAccessed() const { return 0; }
 	void resetStatistics() {}
 	bool isStatisticsAvailable() const { return false; }
 	float getEfficiency() const { return 0.0f; }
@@ -65,6 +67,9 @@ public:
 
 private:
 	CacheEntry* doCache(hash_t key, bool lock = false);
+#ifndef NDEBUG
+	void entryAccessed(CacheEntry* entry);
+#endif
 
 private:
 	EntryCache cache;
@@ -73,6 +78,8 @@ private:
 #ifndef NDEBUG
 	uint64_t numHits;
 	uint64_t numMisses;
+	uint64_t sizeUsed;
+	vector<CacheEntry*> entriesUsed;
 #endif
 };
 

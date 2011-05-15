@@ -316,6 +316,22 @@ bool COLLoader::loadModelName(const File& file, char* name)
 }
 
 
+void COLLoader::skip(istream* stream, int numEntries)
+{
+	for (int i = 0 ; i < numEntries ; i++) {
+		COLVersion ver = getVersion(stream);
+
+		if (ver == ColEnd) {
+			break;
+		}
+
+		uint32_t size;
+		stream->read((char*) &size, 4);
+		stream->seekg(size, istream::cur);
+	}
+}
+
+
 COLVersion COLLoader::getVersion(istream* stream)
 {
 	if (stream->eof()) {

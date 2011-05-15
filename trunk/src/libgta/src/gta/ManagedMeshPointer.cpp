@@ -30,6 +30,9 @@ Mesh* ManagedMeshPointer::operator*()
 {
 	ResourceCache* cache = Engine::getInstance()->getMeshCache();
 	MeshCacheEntry* entry = (MeshCacheEntry*) cache->getEntry(meshHash);
+	if (!entry) {
+		return NULL;
+	}
 	return entry->getMesh();
 
 	/*ResourceManager* resMgr = Engine::getInstance()->getResourceManager();

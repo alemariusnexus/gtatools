@@ -23,7 +23,7 @@
 #ifndef COLSHADOWMESH_H_
 #define COLSHADOWMESH_H_
 
-#include "../config.h"
+#include <gtaformats/config.h>
 #include "COLFace.h"
 
 
