@@ -226,6 +226,6 @@ void FormatByteSize(char* str, uint64_t size, int precision)
 	} else if (size > 1000) {
 		sprintf(str, "%.*fkB", precision, size/1000.0f);
 	} else {
-		sprintf(str, "%llu", size);
+		sprintf(str, "%llu", (long long unsigned int) size);
 	}
 }

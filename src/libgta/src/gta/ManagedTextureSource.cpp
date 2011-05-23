@@ -33,7 +33,6 @@
 GLuint ManagedTextureSource::getTexture(hash_t texHash)
 {
 	ResourceCache* cache = Engine::getInstance()->getTextureCache();
-	TextureIndexer* indexer = Engine::getInstance()->getTextureIndexer();
 
 	TextureCacheEntry* entry = (TextureCacheEntry*) cache->getEntry(txdHash);
 

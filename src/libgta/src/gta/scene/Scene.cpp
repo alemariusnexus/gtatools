@@ -72,7 +72,6 @@ void Scene::buildVisibleSceneObjectList(ObjectList& list)
 
 	for (it = begin ; it != end ; it++) {
 		DefaultSceneObject* obj = *it;
-		DefaultSceneObject* baseObj = obj;
 
 		const float* mat = obj->getModelMatrix().toArray();
 		float ox = mat[12];

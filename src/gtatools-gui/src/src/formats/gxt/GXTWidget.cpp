@@ -35,7 +35,7 @@
 
 
 GXTWidget::GXTWidget(const FileOpenRequest& request, QWidget* parent)
-		: QWidget(parent), model(NULL), guiModule(this)
+		: QWidget(parent), guiModule(this), model(NULL)
 {
 	ui.setupUi(this);
 

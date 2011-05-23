@@ -25,7 +25,7 @@
 #include <QtGui/QMenu>
 #include "../../gui/MainWindow.h"
 #include "DFFWidget.h"
-#include "../System.h"
+#include "../../System.h"
 
 
 

@@ -249,15 +249,15 @@ istream* IMGArchive::gotoEntry(ConstEntryIterator it, bool autoCloseStream)
 
 	if ((mode & ReadOnly)  !=  0) {
 		imgStream->seekg(start - imgStream->tellg(), istream::cur);
-		RangedStream<istream>* rstream = new RangedStream<istream>(imgStream, entry->size*IMG_BLOCK_SIZE, autoCloseStream);
+		RangedStream<istream>* rstream = new RangedStream<istream>(imgStream,
+				IMG_BLOCKS2BYTES(entry->size), autoCloseStream);
 		return rstream;
 	} else {
-		printf("Going to write to %lld\n", start);
 		iostream* outImgStream = static_cast<iostream*>(imgStream);
 		imgStream->seekg(start - imgStream->tellg(), istream::cur);
 		outImgStream->seekp(start - outImgStream->tellp(), fstream::cur);
-		//printf("Frankophilia %lld\n", outImgStream->tellp());
-		RangedStream<iostream>* rstream = new RangedStream<iostream>(outImgStream, entry->size*IMG_BLOCK_SIZE, autoCloseStream);
+		RangedStream<iostream>* rstream = new RangedStream<iostream>(outImgStream,
+				IMG_BLOCKS2BYTES(entry->size), autoCloseStream);
 		return rstream;
 	}
 }
@@ -303,8 +303,6 @@ IMGArchive::EntryIterator IMGArchive::getEntryByName(const char* name)
 
 void IMGArchive::readHeader()
 {
-	printf("READING IMG\n");
-
 	istream* stream = dirStream;
 
 	int32_t firstBytes;
@@ -359,7 +357,7 @@ void IMGArchive::readHeader()
 					break;
 				} else {
 					char errmsg[128];
-					sprintf(errmsg, "ERROR: Input isn't divided into %lu-byte blocks. Is this really a "
+					sprintf(errmsg, "ERROR: Input isn't divided into %u-byte blocks. Is this really a "
 							"VER1 DIR file?", sizeof(IMGEntry));
 					throw IMGException(errmsg, __FILE__, __LINE__);
 				}
@@ -457,12 +455,12 @@ bool IMGArchive::reserveHeaderSpace(int32_t numHeaders)
 
 	// Move the contents of all entries between moveBegin and moveEnd to newOffset
 	int32_t moveCount = (lastMoveEntry->offset + lastMoveEntry->size) - moveBeginEntry->offset;
-	imgStream->seekg(moveBeginEntry->offset*IMG_BLOCK_SIZE, istream::beg);
-	char* data = new char[moveCount * IMG_BLOCK_SIZE];
-	imgStream->read(data, moveCount * IMG_BLOCK_SIZE);
+	imgStream->seekg(IMG_BLOCKS2BYTES(moveBeginEntry->offset), istream::beg);
+	char* data = new char[IMG_BLOCKS2BYTES(moveCount)];
+	imgStream->read(data, IMG_BLOCKS2BYTES(moveCount));
 
-	outImgStream->seekp(newOffset*IMG_BLOCK_SIZE, ostream::beg);
-	outImgStream->write(data, moveCount*IMG_BLOCK_SIZE);
+	outImgStream->seekp(IMG_BLOCKS2BYTES(newOffset), ostream::beg);
+	outImgStream->write(data, IMG_BLOCKS2BYTES(moveCount));
 
 	// The offset by which all moved entries have been moved.
 	int32_t relativeOffset = newOffset - moveBeginEntry->offset;
@@ -597,12 +595,12 @@ void IMGArchive::resizeEntry(EntryIterator it, int32_t size)
 	if (nextEntry->offset-entry->offset < size) {
 		// Too few space left, so we have to move the entry to the end
 		int32_t previousEnd = getDataEndOffset();
-		imgStream->seekg(entry->offset*IMG_BLOCK_SIZE - imgStream->tellg(), istream::cur);
-		char* data = new char[entry->size*IMG_BLOCK_SIZE];
-		imgStream->read(data, entry->size*IMG_BLOCK_SIZE);
+		imgStream->seekg(IMG_BLOCKS2BYTES(entry->offset) - imgStream->tellg(), istream::cur);
+		char* data = new char[IMG_BLOCKS2BYTES(entry->size)];
+		imgStream->read(data, IMG_BLOCKS2BYTES(entry->size));
 
-		outImgStream->seekp(getDataEndOffset()*IMG_BLOCK_SIZE - outImgStream->tellp(), fstream::cur);
-		outImgStream->write(data, entry->size*IMG_BLOCK_SIZE);
+		outImgStream->seekp(IMG_BLOCKS2BYTES(getDataEndOffset()) - outImgStream->tellp(), fstream::cur);
+		outImgStream->write(data, IMG_BLOCKS2BYTES(entry->size));
 		entries.erase(it);
 		entries.push_back(entry);
 
@@ -649,7 +647,7 @@ void IMGArchive::expandSize(int32_t size)
 	iostream* outImgStream = static_cast<iostream*>(imgStream);
 	outImgStream->seekp(0, iostream::end);
 	streamoff curSize = outImgStream->tellp();
-	int bytesToAdd = size*IMG_BLOCK_SIZE - curSize;
+	int bytesToAdd = IMG_BLOCKS2BYTES(size) - curSize;
 
 	while (bytesToAdd != 0) {
 		int numBytes = min(bytesToAdd, (int) sizeof(_DummyBuffer));
@@ -703,14 +701,14 @@ int32_t IMGArchive::pack()
 
 	// And now we reassign the content to each entry, reading it from the copy file.
 	iostream* outImgStream = static_cast<iostream*>(imgStream);
-	outImgStream->seekp(headerSize*IMG_BLOCK_SIZE, ostream::beg);
+	outImgStream->seekp(IMG_BLOCKS2BYTES(headerSize), ostream::beg);
 	istream* oldImgStream = copyFile.openInputOutputStream(istream::binary);
 	for (i = 0, it = entries.begin() ; it != entries.end() ; it++, i++) {
 		// We don't have to reposition outImgStream, because the new entries are tightly packed.
 		IMGEntry* oldEntry = oldEntries[i];
-		oldImgStream->seekg(oldEntry->offset*IMG_BLOCK_SIZE, istream::beg);
+		oldImgStream->seekg(IMG_BLOCKS2BYTES(oldEntry->offset), istream::beg);
 		char buf[4096];
-		int bytesToRead = oldEntry->size*IMG_BLOCK_SIZE;
+		int bytesToRead = (int) IMG_BLOCKS2BYTES(oldEntry->size);
 
 		while (bytesToRead != 0) {
 			int numBytes = min(bytesToRead, (int) sizeof(buf));

@@ -347,6 +347,12 @@ int8_t TXDTextureHeader::calculateFormatBPP(int32_t rasterFormat)
 	case RasterFormatB8G8R8A8:
 	case RasterFormatR8G8B8A8:
 		return 32;
+	default:
+		char* errmsg = new char[64];
+		sprintf(errmsg, "Invalid raster format: 0x%X", rasterFormat);
+		TXDException ex(errmsg, __FILE__, __LINE__);
+		delete[] errmsg;
+		throw ex;
 	}
 }
 
@@ -374,7 +380,7 @@ int8_t TXDTextureHeader::calculateMaximumMipmapLevel()
 		minH = 1;
 	}
 
-	return min(-(log10((float) minW/width)/log10(2)), -(log10((float) minH/height)/log10(2)));
+	return min(-(log10((float) minW/width)/log10(2.0f)), -(log10((float) minH/height)/log10(2.0f)));
 }
 
 

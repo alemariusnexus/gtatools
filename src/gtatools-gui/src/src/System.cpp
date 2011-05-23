@@ -86,6 +86,7 @@ bool System::openFile(const FileOpenRequest& request)
 	}
 
 	changeCurrentFile(request.getFile());
+	return true;
 }
 
 

@@ -37,7 +37,7 @@
 
 
 DFFRenderWidget::DFFRenderWidget(QWidget* parent, QGLWidget* shareWidget)
-		: QGLWidget(parent, shareWidget), lastX(-1), lastY(-1), mesh(NULL), item(NULL), wireframe(false),
+		: QGLWidget(parent, shareWidget), wireframe(false), lastX(-1), lastY(-1), mesh(NULL), item(NULL),
 		  moveFactor(1.0f), renderingEnabled(true), texSource(NULL)
 {
 	setFocusPolicy(Qt::ClickFocus);
@@ -74,8 +74,6 @@ void DFFRenderWidget::renderGeometry(DFFGeometry* geometry)
 			delete mesh;
 		}
 
-		Profile* profile = ProfileManager::getInstance()->getCurrentProfile();
-
 		TextureSource* texSrc = texSource;
 
 		if (texSrc)
@@ -98,8 +96,6 @@ void DFFRenderWidget::renderGeometryPart(DFFGeometry* geometry, DFFGeometryPart*
 		if (mesh) {
 			delete mesh;
 		}
-
-		Profile* profile = ProfileManager::getInstance()->getCurrentProfile();
 
 		TextureSource* texSrc = texSource;
 
@@ -363,8 +359,6 @@ void DFFRenderWidget::currentProfileChanged(Profile* oldProfile, Profile* newPro
 void DFFRenderWidget::currentProfileResourceIndexInitialized()
 {
 	if (renderingEnabled) {
-		Profile* profile = ProfileManager::getInstance()->getCurrentProfile();
-
 		updateGL();
 
 		// TODO Reimplement

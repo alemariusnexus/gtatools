@@ -73,8 +73,6 @@ File* GUI::findFile(const QLinkedList<File*>& rootFiles, FileFinder* finder, QWi
 
 	delete proxyFinder;
 
-	System* sys = System::getInstance();
-
 	if (files.size() > 1) {
 		QStringList options;
 		vector<File*>::iterator it;

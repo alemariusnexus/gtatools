@@ -28,6 +28,7 @@
 #include <gtaformats/util/Cache.h>
 #include "CacheEntryLoader.h"
 #include <map>
+#include <cstdio>
 
 
 

@@ -66,8 +66,6 @@ QWidget* TXDFormatHandler::createWidgetForFile(const FileOpenRequest& request, Q
 bool TXDFormatHandler::extractTexturesDialog(TXDArchive* txd, const QLinkedList<TXDTextureHeader*>& texes,
 		QWidget* parent)
 {
-	System* sys = System::getInstance();
-
 	if (texes.count() == 1) {
 		TXDTextureHeader* tex = *texes.begin();
 

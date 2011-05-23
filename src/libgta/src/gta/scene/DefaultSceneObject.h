@@ -32,8 +32,6 @@ public:
 	void setID(int id) { this->id = id; }
 	btRigidBody* getRigidBody() { return rigidBody; }
 	void render(Matrix4& vpMatrix, GLuint mvpMatrixUniform);
-	void setDebugString(const char* str) { debugStr = new char[strlen(str)+1]; strcpy(debugStr, str); }
-	const char* getDebugString() const { return debugStr; }
 
 private:
 	int id;
@@ -42,7 +40,6 @@ private:
 	DefaultSceneObject* lodParent;
 	btRigidBody* rigidBody;
 	btMotionState* motionState;
-	char* debugStr;
 };
 
 #endif /* DEFAULTSCENEOBJECT_H_ */

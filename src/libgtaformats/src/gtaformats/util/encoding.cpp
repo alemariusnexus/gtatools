@@ -269,6 +269,9 @@ int Transcode(char* src, int srcBytes, char* dest, int destBytes, Encoding srcEn
 		case ISO8859_1:
 			cp = 28591;
 			break;
+		default:
+			assert(false);
+			break;
 		}
 
 		int len = WideCharToMultiByte(cp, 0, (LPWSTR) src, srcBytes/2, dest, destBytes, NULL, NULL);
@@ -302,6 +305,9 @@ int Transcode(char* src, int srcBytes, char* dest, int destBytes, Encoding srcEn
 				break;
 			case ISO8859_1:
 				cp = 28591;
+				break;
+			default:
+				assert(false);
 				break;
 			}
 

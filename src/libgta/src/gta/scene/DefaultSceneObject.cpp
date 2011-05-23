@@ -7,6 +7,7 @@
 
 #include "DefaultSceneObject.h"
 #include "../gl.h"
+#include "../resource/ResourceCache.h"
 
 
 
@@ -26,10 +27,8 @@ DefaultSceneObject::DefaultSceneObject(ItemDefinition* def, const Matrix4& model
 
 
 DefaultSceneObject::DefaultSceneObject(const DefaultSceneObject& other)
-		: id(-1), def(other.def), modelMatrix(other.modelMatrix), lodParent(other.lodParent),
-		  debugStr(new char[strlen(other.debugStr)+32])
+		: id(-1), def(other.def), modelMatrix(other.modelMatrix), lodParent(other.lodParent)
 {
-	sprintf(debugStr, "%s [LOD parent copy]", other.debugStr);
 	const float* matData = modelMatrix.toArray();
 	btMatrix3x3 matrix(matData[0], matData[4], matData[8], matData[1], matData[5], matData[9], matData[2],
 			matData[6], matData[10]);

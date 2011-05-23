@@ -556,7 +556,7 @@ void COLMeshConverter::convertVertexModel(const float* inVertices, int32_t inVer
 	outIndices = new int32_t[outVertexCount];
 	outIndexCount = outVertexCount;
 
-	for (unsigned int numFace = 0 ; numFace < inFaceCount ; numFace++) {
+	for (int32_t numFace = 0 ; numFace < inFaceCount ; numFace++) {
 		const COLFace& face = inFaces[numFace];
 		const uint32_t* srcIndices = face.getIndices();
 

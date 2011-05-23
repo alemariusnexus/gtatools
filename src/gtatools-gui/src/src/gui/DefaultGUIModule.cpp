@@ -210,7 +210,7 @@ void DefaultGUIModule::doUninstall()
 	QMenu* fileMenu = mainWindow->getFileMenu();
 	QMenu* editMenu = mainWindow->getEditMenu();
 	QMenu* settingsMenu = mainWindow->getSettingsMenu();
-	QMenu* profileMenu = mainWindow->getProfileMenu();
+	//QMenu* profileMenu = mainWindow->getProfileMenu();
 	QMenu* helpMenu = mainWindow->getHelpMenu();
 	QMenu* toolsMenu = mainWindow->getToolsMenu();
 

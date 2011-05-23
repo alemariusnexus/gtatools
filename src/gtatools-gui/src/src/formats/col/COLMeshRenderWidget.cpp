@@ -79,7 +79,7 @@ void COLMeshRenderWidget::render(const float* vertices, int32_t vertexCount, con
 		int vcount = pickMesh->getVertexCount();
 
 		uint32_t* pickColors = new uint32_t[vcount];
-		for (uint32_t i = 0 ; i < faceCount ; i++) {
+		for (int32_t i = 0 ; i < faceCount ; i++) {
 			pickColors[i*3] = i+1;
 			pickColors[i*3+1] = i+1;
 			pickColors[i*3+2] = i+1;
@@ -182,7 +182,6 @@ void COLMeshRenderWidget::setSelectedFace(int index)
 		if (mesh->getVertexCount() != 0) {
 			mesh->bindDataBuffer();
 			
-			int vcount = mesh->getVertexCount();
 			int colorOffs = mesh->getVertexColorOffset();
 
 			if (pickedFace != -1) {

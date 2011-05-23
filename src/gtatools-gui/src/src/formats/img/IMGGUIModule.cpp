@@ -52,7 +52,7 @@ IMGGUIModule::~IMGGUIModule()
 
 void IMGGUIModule::doInstall()
 {
-	QMenu* fileMenu = mainWindow->getFileMenu();
+	//QMenu* fileMenu = mainWindow->getFileMenu();
 
 	extractAction->setParent(mainWindow);
 }

@@ -271,5 +271,7 @@ IPLStatement* IPLReader::readStatement()
 		binaryReadCount++;
 		return stmt;
 	}
+
+	printf("OH GOTT, NEIN!\n");
 }
 
