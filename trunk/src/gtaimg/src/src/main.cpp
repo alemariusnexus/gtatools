@@ -393,7 +393,7 @@ int main(int argc, char** argv)
 							}
 
 							if (verbose)
-								printf("  %lld bytes written!\n", entry.size*IMG_BLOCK_SIZE);
+								printf("  %llu bytes written!\n", (long long unsigned) IMG_BLOCKS2BYTES(entry.size));
 						}
 					}
 				} else if (command == CommandList) {
@@ -406,20 +406,20 @@ int main(int argc, char** argv)
 							else
 								printf("%-24s", entry.name);
 
-							long long offset = bytesUnit ? entry.offset*IMG_BLOCK_SIZE : entry.offset;
-							long long size = bytesUnit ? entry.size*IMG_BLOCK_SIZE : entry.size;
+							long long unsigned offset = bytesUnit ? IMG_BLOCKS2BYTES(entry.offset) : entry.offset;
+							long long unsigned size = bytesUnit ? IMG_BLOCKS2BYTES(entry.size) : entry.size;
 
 							if (showOffset) {
 								if (commaSep)
-									printf(",%lld", offset);
+									printf(",%llu", offset);
 								else
-									printf(" %-20lld", offset);
+									printf(" %-20llu", offset);
 							}
 							if (showSize) {
 								if (commaSep)
-									printf(",%lld", size);
+									printf(",%llu", size);
 								else
-									printf(" %-20lld", size);
+									printf(" %-20llu", size);
 							}
 
 							printf("\n");

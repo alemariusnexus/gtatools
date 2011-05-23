@@ -101,15 +101,12 @@ DFFWidget::DFFWidget(const File& file, QWidget* parent, QGLWidget* shareWidget)
 
 	int i = 0;
 	for (git = mesh->getGeometryBegin() ; git != mesh->getGeometryEnd() ; git++, i++) {
-		DFFGeometry* geom = *git;
 		QListWidgetItem* item = new QListWidgetItem(tr("Geometry %1").arg(i+1));
 		ui.geometryList->addItem(item);
 	}
 
 	DFFGUIModule* guiModule = DFFGUIModule::getInstance();
 	sys->installGUIModule(guiModule);
-
-	Profile* profile = ProfileManager::getInstance()->getCurrentProfile();
 
 	connect(ui.texSourceBox, SIGNAL(currentIndexChanged(int)), this, SLOT(texSourceSelected(int)));
 
@@ -342,7 +339,6 @@ void DFFWidget::geometrySelected(int row)
 
 	int i = 0;
 	for (mit = geom->getMaterialBegin() ; mit != geom->getMaterialEnd() ; mit++, i++) {
-		DFFMaterial* mat = *mit;
 		QListWidgetItem* item = new QListWidgetItem(tr("Material %1").arg(i+1));
 		ui.materialList->addItem(item);
 	}
@@ -351,7 +347,6 @@ void DFFWidget::geometrySelected(int row)
 
 	i = 0;
 	for (pit = geom->getPartBegin() ; pit != geom->getPartEnd() ; pit++, i++) {
-		DFFGeometryPart* part = *pit;
 		QListWidgetItem* item = new QListWidgetItem(tr("Part %1").arg(i+1));
 		ui.geometryPartList->addItem(item);
 	}
@@ -421,7 +416,6 @@ void DFFWidget::geometryPartSelected(int row)
 	ui.geometryPartIndexCountLabel->setText(QString("%1").arg(part->getIndexCount()));
 
 	if (mat) {
-		QListWidgetItem* item = ui.materialList->item(geom->indexOf(mat));
 		ui.geometryPartMaterialLabel->setText(ui.materialList->item(geom->indexOf(mat))->text());
 	} else {
 		ui.geometryPartMaterialLabel->setText(tr("None"));

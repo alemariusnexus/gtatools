@@ -216,8 +216,6 @@ void Engine::loadDAT(const File& file, const File& rootDir)
 			continue;
 		}
 
-		//printf("Processing DAT line: %s\n", line);
-
 		if (strncmp(line, "IDE", 3) == 0) {
 			FilePath path(*rootDir.getPath(), line+4, FilePath::BackslashAsSeparator | FilePath::CorrectCase);
 			File ide(&path, false);
@@ -239,8 +237,6 @@ void Engine::loadDAT(const File& file, const File& rootDir)
 
 void Engine::iplRecurse(File* file, const File& rootDir)
 {
-	//printf("IPL recurse %s\n", file->getPath()->toString());
-
 	File gta3img(rootDir, "/models/gta3.img");
 
 	if (file->isDirectory()) {
@@ -273,7 +269,6 @@ void Engine::iplRecurse(File* file, const File& rootDir)
 				File* sfile = new File(gta3img, sfname);
 
 				if (sfile->exists()) {
-					//printf("  -> %s depends on %s\n", file->getPath()->getFileName(), sfname);
 					delete[] sfname;
 					streamingFiles.push(sfile);
 				} else {
@@ -334,12 +329,6 @@ void Engine::iplRecurse(File* file, const File& rootDir)
 							DefaultSceneObject* obj = new DefaultSceneObject(def, modelMatrix, NULL);
 							iobj->obj = obj;
 							iobj->lodIndex = inst->getLOD();
-
-							char* debugStr = new char[strlen(sfile->getPath()->toString())+128];
-							sprintf(debugStr, "Instance #%d (locally #%d) of object %d in %s",
-									iplIdx, localIplIdx, id, sfile->getPath()->toString());
-							obj->setDebugString(debugStr);
-							delete[] debugStr;
 
 							localObjs.push_back(iobj);
 						} else {

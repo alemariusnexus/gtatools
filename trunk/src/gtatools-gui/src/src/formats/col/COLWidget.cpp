@@ -278,17 +278,11 @@ void COLWidget::currentModelChanged(int index)
 	ui.tabber->setTabEnabled(ui.tabber->indexOf(ui.sphereBoxTab),
 			model->getSphereCount() > 0  ||  model->getBoxCount() > 0);
 
-	const COLSphere* spheres = model->getSpheres();
-
 	for (uint32_t i = 0 ; i < model->getSphereCount() ; i++) {
-		const COLSphere& sphere = spheres[i];
 		ui.meshList->addItem(QString("Sphere %1").arg(i+1));
 	}
 
-	const COLBox* boxes = model->getBoxes();
-
 	for (uint32_t i = 0 ; i < model->getBoxCount() ; i++) {
-		const COLBox& box = boxes[i];
 		ui.meshList->addItem(QString("Box %1").arg(i+1));
 	}
 
@@ -296,7 +290,6 @@ void COLWidget::currentModelChanged(int index)
 
 	if (faceGroups) {
 		for (uint32_t i = 0 ; i < model->getFaceGroupCount() ; i++) {
-			const COLFaceGroup& faceGroup = faceGroups[i];
 			ui.faceGroupList->addItem(QString("Face Group %1").arg(i+1));
 		}
 	}
@@ -338,7 +331,7 @@ void COLWidget::currentMeshChanged(int index)
 
 	COLModel* model = models[ui.modelList->currentRow()];
 
-	if (index < model->getSphereCount()) {
+	if (index < (int) model->getSphereCount()) {
 		const COLSphere& sphere = model->getSpheres()[index];
 		const Vector3& center = sphere.getCenter();
 		float radius = sphere.getRadius();

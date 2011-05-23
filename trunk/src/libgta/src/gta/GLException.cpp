@@ -61,21 +61,48 @@ void GLException::checkError(const char* msg)
 		delete[] errmsg;
 		throw ex;
 #else
-		const char* errstr = (const char*) gluErrorString(error);
+		char errname[32];
+   
+		switch (error) {
+		case GL_INVALID_ENUM:
+			sprintf(errname, "invalid enumerant");
+			break;
+		case GL_INVALID_VALUE:
+			sprintf(errname, "invalid enumerant");
+			break;
+		case GL_INVALID_OPERATION:
+			sprintf(errname, "invalid enumerant");
+			break;
+		case GL_STACK_OVERFLOW:
+			sprintf(errname, "invalid enumerant");
+			break;
+		case GL_STACK_UNDERFLOW:
+			sprintf(errname, "invalid enumerant");
+			break;
+		case GL_OUT_OF_MEMORY:
+			sprintf(errname, "invalid enumerant");
+			break;
+		case GL_TABLE_TOO_LARGE:
+			sprintf(errname, "invalid enumerant");
+			break;
+		default:
+			sprintf(errname, "[UNKNOWN]");
+		}
+		
 
 		char* errmsg;
 
 		if (msg) {
-			errmsg = new char[strlen(errstr) + strlen(msg) + 64];
+			errmsg = new char[strlen(errname) + strlen(msg) + 64];
 			strcpy(errmsg, msg);
 			strcat(errmsg, ": ");
 		} else {
-			errmsg = new char[strlen(errstr) + 64];
+			errmsg = new char[strlen(errname) + 64];
 			errmsg[0] = '\0';
 		}
 
 		strcat(errmsg, "OpenGL error: ");
-		strcat(errmsg, errstr);
+		strcat(errmsg, errname);
 
 		GLException ex(errmsg, __FILE__, __LINE__);
 		delete[] errmsg;

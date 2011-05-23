@@ -691,7 +691,7 @@ File File::createTemporaryFile()
 	char tmpPath[512];
 	if ((status = GetTempPath(sizeof(tmpPath), tmpPath))  ==  0) {
 		char* errmsg = new char[128];
-		sprintf(errmsg, "Internal error creating temporary file (in GetTempPath()): %d.", status);
+		sprintf(errmsg, "Internal error creating temporary file (in GetTempPath()): %d.", (int) status);
 		FileException ex(errmsg, __FILE__, __LINE__);
 		delete[] errmsg;
 		throw ex;
@@ -699,7 +699,7 @@ File File::createTemporaryFile()
 	char tmpFilePath[1024];
 	if ((status = GetTempFileName(tmpPath, "gff", 0, tmpFilePath))  ==  0) {
 		char* errmsg = new char[128];
-		sprintf(errmsg, "Internal error creating temporary file (in GetTempFileName()): %d.", status);
+		sprintf(errmsg, "Internal error creating temporary file (in GetTempFileName()): %d.", (int) status);
 		FileException ex(errmsg, __FILE__, __LINE__);
 		delete[] errmsg;
 		throw ex;

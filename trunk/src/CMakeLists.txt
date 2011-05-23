@@ -24,7 +24,7 @@
 
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
-PROJECT(gtatools CXX)
+PROJECT(gtatools C CXX)
 
 SET(GTATOOLS_VERSION_MAJOR "0") # Major version, must be numeric
 SET(GTATOOLS_VERSION_MINOR "2") # Minor version, must be numeric

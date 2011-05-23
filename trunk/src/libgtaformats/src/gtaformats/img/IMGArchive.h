@@ -45,6 +45,8 @@ using std::list;
  */
 #define IMG_BLOCK_SIZE 2048L
 
+#define IMG_BLOCKS2BYTES(n) ((n) * (uint64_t) (2048))
+
 
 
 

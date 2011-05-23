@@ -27,6 +27,10 @@
 #include <windows.h>
 #endif
 
-#cmakedefine GTATOOLS_GUI_USE_OPENGL_ES
+#ifdef GTA_USE_OPENGL_ES
+#define GTATOOLS_GUI_USE_OPENGL_ES
+#else
+#undef GTATOOLS_GUI_USE_OPENGL_ES
+#endif
 
 #endif /* GTATOOLS_GUI_CONFIG_CMAKE_H_ */

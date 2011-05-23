@@ -25,6 +25,7 @@
 #include <map>
 #include <utility>
 #include "MainThread.h"
+#include <cassert>
 
 using std::map;
 using std::pair;
@@ -85,7 +86,7 @@ Thread::Thread(pthread_t posixThread)
 }
 #else
 Thread::Thread(HANDLE winHandle)
-		: winHandle(winHandle), parentThread(NULL), deleteOnTermination(false), terminationHandler(NULL)
+		: deleteOnTermination(false), parentThread(NULL), terminationHandler(NULL), winHandle(winHandle)
 {
 }
 #endif
@@ -159,6 +160,10 @@ void Thread::start()
 		break;
 	case TimeCritical:
 		winPriority = THREAD_PRIORITY_TIME_CRITICAL;
+		break;
+	default:
+		// TODO Implement
+		assert(false);
 		break;
 	}
 

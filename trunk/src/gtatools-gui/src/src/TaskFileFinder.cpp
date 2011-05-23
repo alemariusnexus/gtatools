@@ -57,11 +57,9 @@ bool TaskFileFinder::matches(const File& file)
 	filesDone++;
 
 	if (numFiles < 100) {
-		System* sys = System::getInstance();
 		task->update((int) (((float)filesDone / (float) numFiles)*100.0f));
 	} else {
 		if (filesDone%(numFiles / 100) == 0) {
-			System* sys = System::getInstance();
 			task->update(task->getValue()+1);
 		}
 	}

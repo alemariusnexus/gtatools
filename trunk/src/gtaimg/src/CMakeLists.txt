@@ -20,28 +20,33 @@
 
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
-PROJECT(prj-gtaimg CXX)
+PROJECT(prj-gtaimg C CXX)
 
 ADD_SUBDIRECTORY(src)
 
 IF(prj-gtaformats_SOURCE_DIR)
-    SET(GTAFORMATS_INCLUDE_PATH "${prj-gtaformats_SOURCE_DIR}" CACHE PATH "Path to the gtaformats include dir (EXCLUDING the 'gtaformats' part)")
+    SET(GTAFORMATS_LIB_PATH gtaformats)
+    SET(GTAFORMATS_INCLUDE_PATH "${prj-gtaformats_SOURCE_DIR}" "${prj-gtaformats_BINARY_DIR}")
 ELSE(prj-gtaformats_SOURCE_DIR)
-    SET(GTAFORMATS_INCLUDE_PATH "" CACHE PATH "Path to the gtaformats include dir (EXCLUDING the 'gtaformats' part)")
+    FIND_LIBRARY(GTAFORMATS_LIB_PATH NAMES gtaformats libgtaformats)
+    FIND_PATH(GTAFORMATS_INCLUDE_PATH gtaformats/config.h)
 ENDIF(prj-gtaformats_SOURCE_DIR)
-    
-SET(GTAFORMATS_LIB_PATH "gtaformats" CACHE FILEPATH "Path to (or name of) the libgtaformats library file")
-SET(BOOST_INCLUDE_PATH "" CACHE PATH "Directory to the boost header files.")
 
-IF(NOT GTAFORMATS_LIB_PATH)
-	SET(GTAFORMATS_LIB_PATH gtaformats)
-ENDIF(NOT GTAFORMATS_LIB_PATH)
+FIND_PACKAGE(Boost)
 
-INCLUDE_DIRECTORIES(${GTAFORMATS_INCLUDE_PATH} ${CMAKE_BINARY_DIR} ${BOOST_INCLUDE_PATH}
-        "${CMAKE_BINARY_DIR}/libgtaformats/build")
+
+SET(LIBRARIES "")
+SET(INCLUDES "")
+
+SET(LIBRARIES ${LIBRARIES} "${GTAFORMATS_LIB_PATH}")
+SET(INCLUDES ${INCLUDES} ${GTAFORMATS_INCLUDE_PATH})
+
+SET(INCLUDES ${INCLUDES} "${Boost_INCLUDE_DIRS}")
+
+INCLUDE_DIRECTORIES(${INCLUDES})
 
 ADD_EXECUTABLE(gtaimg ${SRCS})
-TARGET_LINK_LIBRARIES(gtaimg ${GTAFORMATS_LIB_PATH})
+TARGET_LINK_LIBRARIES(gtaimg ${LIBRARIES})
 
 INSTALL(TARGETS gtaimg DESTINATION bin)
 

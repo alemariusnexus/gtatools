@@ -22,7 +22,7 @@
 
 #include "FileViewWidget.h"
 #include <gtatools-gui/config.h>
-#include "../FormatManager.h"
+#include "../formats/FormatManager.h"
 #include <QtCore/QSettings>
 
 

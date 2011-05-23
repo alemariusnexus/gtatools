@@ -93,9 +93,6 @@ TXDArchive::~TXDArchive()
 
 void TXDArchive::init(istream* stream)
 {
-	RWSection& texDictStruct = (*texDict)[RW_SECTION_STRUCT];
-	int16_t texCount = *((int16_t*) texDictStruct.getData());
-
 	RWSection::ChildIterator it = texDict->getChildBegin();
 
 	while ((it = texDict->nextChild(RW_SECTION_TEXTURENATIVE, it))  !=  texDict->getChildEnd()) {

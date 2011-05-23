@@ -62,8 +62,8 @@ int32_t TXDConverter::convert(const TXDTextureHeader& from, const TXDTextureHead
 	char toFormatDesc[128];
 	to.getFormat(toFormatDesc);
 
-	int16_t mipW = from.getWidth() / pow(2, mipStart);
-	int16_t mipH = from.getHeight() / pow(2, mipStart);
+	int16_t mipW = from.getWidth() / pow(2.0f, mipStart);
+	int16_t mipH = from.getHeight() / pow(2.0f, mipStart);
 
 	for (int8_t mipNum = mipStart ; mipNum <= mipEnd ; mipNum++) {
 		TXDCompression fromCompr = from.getCompression();

@@ -83,7 +83,11 @@ private:
 
 private:
 	EntryMap entries;
+
+public:
 	Entry* first;
+
+private:
 	Entry* last;
 	cachesize_t capacity;
 	cachesize_t occupied;
@@ -123,7 +127,6 @@ V* Cache<K, V>::access(const K& key)
 template<class K, class V>
 bool Cache<K, V>::remove(Entry& entry)
 {
-	printf("Removing\n");
 	if (entry.locked) {
 		return false;
 	}
