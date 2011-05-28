@@ -27,6 +27,8 @@
 #include <windows.h>
 #endif
 
+#include <gta/config.h>
+
 #ifdef GTA_USE_OPENGL_ES
 #define GTATOOLS_GUI_USE_OPENGL_ES
 #else

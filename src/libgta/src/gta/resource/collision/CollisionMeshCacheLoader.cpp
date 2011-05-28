@@ -35,6 +35,6 @@ CacheEntry* CollisionMeshCacheLoader::load(hash_t name)
 	delete model;
 	delete stream;
 
-	CollisionMeshCacheEntry* cacheEntry = new CollisionMeshCacheEntry(shape, 0);
+	CollisionMeshCacheEntry* cacheEntry = new CollisionMeshCacheEntry(shape, 10);
 	return cacheEntry;
 }
