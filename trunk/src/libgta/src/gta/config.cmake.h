@@ -25,8 +25,18 @@
 
 #include <gtaformats/config.h>
 
-#cmakedefine GTA_ENABLE_SQUISH
-#cmakedefine GTA_ENABLE_PVRTEXLIB
+#ifdef GTAFORMATS_ENABLE_SQUISH
+#define GTA_ENABLE_SQUISH
+#else
+#undef GTA_ENABLE_SQUISH
+#endif
+
+#ifdef GTAFORMATS_ENABLE_PVRTEXLIB
+#define GTA_ENABLE_PVRTEXLIB
+#else
+#undef GTA_ENABLE_PVRTEXLIB
+#endif
+
 #cmakedefine GTA_USE_OPENGL_ES
 #cmakedefine GTA_VISIBILITY_PVS
 
