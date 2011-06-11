@@ -22,10 +22,13 @@
 
 #include "COLFormatHandler.h"
 #include "COLWidget.h"
+#include "../../DefaultDisplayedFile.h"
 
 
 
-QWidget* COLFormatHandler::createWidgetForFile(const FileOpenRequest& request, QWidget* parent)
+DisplayedFile* COLFormatHandler::openFile(const FileOpenRequest& request)
 {
-	return new COLWidget(*request.getFile(), parent);
+	COLWidget* widget = new COLWidget(*request.getFile(), NULL);
+	DefaultDisplayedFile* file = new DefaultDisplayedFile(*request.getFile(), this, widget);
+	return file;
 }

@@ -27,6 +27,7 @@
 #include "../../System.h"
 #include <QtGui/QFileDialog>
 #include "DFFXMLDumpDialog.h"
+#include "../../DefaultDisplayedFile.h"
 
 
 
@@ -44,9 +45,11 @@ DFFFormatHandler::DFFFormatHandler()
 }
 
 
-QWidget* DFFFormatHandler::createWidgetForFile(const FileOpenRequest& request, QWidget* parent)
+DisplayedFile* DFFFormatHandler::openFile(const FileOpenRequest& request)
 {
-	return new DFFWidget(*request.getFile(), parent, shareWidget);
+	DFFWidget* widget = new DFFWidget(*request.getFile(), NULL, shareWidget);
+	DefaultDisplayedFile* file = new DefaultDisplayedFile(*request.getFile(), this, widget);
+	return file;
 }
 
 
@@ -55,7 +58,8 @@ void DFFFormatHandler::xmlDumpDialog(const DFFMesh& mesh, QWidget* parent)
 	System* sys = System::getInstance();
 
 	QString filePath = QFileDialog::getSaveFileName(parent, tr("Choose a destination file"),
-			QString(sys->getCurrentFile()->getPath()->getFileName()).append(".xml"), tr("XML Files (*.xml)"));
+			QString(sys->getCurrentFile()->getFile().getPath()->getFileName()).append(".xml"),
+					tr("XML Files (*.xml)"));
 
 	if (!filePath.isEmpty()) {
 		DFFXMLDumpDialog optDialog(parent);

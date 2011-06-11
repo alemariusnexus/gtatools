@@ -23,7 +23,7 @@ SET(FILES
     gl Camera Shader ShaderProgram ItemDefinition MeshPointer StaticMeshPointer
     GLException Engine Material Mesh Submesh ManagedMeshPointer TextureSource
     ManagedTextureSource COLMeshConverter MeshGenerator ItemManager COLBulletConverter
-    CollisionShapePointer ManagedCollisionShapePointer)
+    CollisionShapePointer ManagedCollisionShapePointer StaticMapItemDefinition TimedMapItemDefinition)
     
 ADD_SUBDIRECTORY(resource)
 ADD_SUBDIRECTORY(scene)

@@ -44,23 +44,11 @@ ItemDefinition::ItemDefinition(MeshPointer* meshPtr, TextureSource* texSrc, floa
 }
 
 
-ItemDefinition::ItemDefinition(const IDEStaticObject& object)
-		: drawDistance(object.getDrawDistances()[0]), drawDistanceSquarred(drawDistance*drawDistance)
+ItemDefinition::ItemDefinition()
+		: meshPtr(NULL), texSrc(NULL), colShapePtr(NULL), drawDistance(0.0f),
+		  drawDistanceSquarred(0.0f)
 {
 	initShaderLocations();
-	char* lMeshName = new char[strlen(object.getModelName())+1];
-	char* lTexName = new char[strlen(object.getTextureName())+1];
-	strtolower(lMeshName, object.getModelName());
-	strtolower(lTexName, object.getTextureName());
-	meshPtr = new ManagedMeshPointer(Hash(lMeshName));
-	/*MeshGenerator gen;
-	Mesh* mesh = gen.createSphere(10.0f, 5, 5);
-	meshPtr = new StaticMeshPointer(mesh);*/
-	texSrc = new ManagedTextureSource(Hash(lTexName));
-	//colShapePtr = new ManagedCollisionShapePointer(Hash(lMeshName));
-	colShapePtr = new ManagedCollisionShapePointer(lMeshName);
-	delete[] lMeshName;
-	delete[] lTexName;
 }
 
 
@@ -202,4 +190,10 @@ void ItemDefinition::render()
 			glDrawElements(mode, submesh->getIndexCount(), GL_UNSIGNED_INT, (char*) 0);
 		}
 	}
+}
+
+
+bool ItemDefinition::isVisible() const
+{
+	return true;
 }

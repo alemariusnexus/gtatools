@@ -24,6 +24,7 @@
 #include <gta/COLMeshConverter.h>
 #include <gta/StaticMeshPointer.h>
 #include <gta/NullTextureSource.h>
+#include <gta/StaticMapItemDefinition.h>
 #include "../../System.h"
 
 
@@ -85,7 +86,8 @@ void COLSphereBoxRenderWidget::addSphere(const COLSphere& sphere)
 {
 	COLMeshConverter conv;
 	Mesh* mesh = conv.convert(sphere);
-	ItemDefinition* item = new ItemDefinition(new StaticMeshPointer(mesh), new NullTextureSource, 5000.0f);
+	ItemDefinition* item = new StaticMapItemDefinition(new StaticMeshPointer(mesh),
+			new NullTextureSource, 5000.0f);
 	items << item;
 }
 
@@ -94,7 +96,8 @@ void COLSphereBoxRenderWidget::addBox(const COLBox& box)
 {
 	COLMeshConverter conv;
 	Mesh* mesh = conv.convert(box);
-	ItemDefinition* item = new ItemDefinition(new StaticMeshPointer(mesh), new NullTextureSource, 5000.0f);
+	ItemDefinition* item = new StaticMapItemDefinition(new StaticMeshPointer(mesh),
+			new NullTextureSource, 5000.0f);
 	items << item;
 }
 
@@ -103,7 +106,8 @@ void COLSphereBoxRenderWidget::addModel(const COLModel& model)
 {
 	COLMeshConverter conv;
 	Mesh* mesh = conv.convert(model);
-	ItemDefinition* item = new ItemDefinition(new StaticMeshPointer(mesh), new NullTextureSource, 5000.0f);
+	ItemDefinition* item = new StaticMapItemDefinition(new StaticMeshPointer(mesh),
+			new NullTextureSource, 5000.0f);
 	items << item;
 }
 

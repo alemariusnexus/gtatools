@@ -53,13 +53,27 @@ private:
 #endif
 
 public:
+	static TextureIndexer* getInstance()
+	{
+		static TextureIndexer inst;
+		return &inst;
+	}
+
+public:
 	~TextureIndexer();
 	virtual void resourceAdded(const File& file);
 	virtual void resourcesCleared();
 	TextureArchive* findArchive(hash_t name);
 
 private:
+	TextureIndexer() {}
+
+private:
 	ArchiveMap archives;
+
+#ifndef NDEBUG
+	map<hash_t, char*> dbgArchivePaths;
+#endif
 };
 
 #endif /* TEXTUREINDEXER_H_ */

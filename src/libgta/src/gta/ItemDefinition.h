@@ -35,8 +35,6 @@
 
 class ItemDefinition {
 public:
-	ItemDefinition(MeshPointer* meshPtr, TextureSource* texSrc, float drawDistance);
-	ItemDefinition(const IDEStaticObject& object);
 	~ItemDefinition();
 	TextureSource* getTextureSource() { return texSrc; }
 	const TextureSource* getTextureSource() const { return texSrc; }
@@ -50,14 +48,18 @@ public:
 			{ if (colShapePtr) delete colShapePtr; colShapePtr = ptr; }
 	float getDrawDistance() const { return drawDistance; }
 	float getDrawDistanceSquarred() const { return drawDistanceSquarred; }
+	void setDrawDistance(float dd) { drawDistance = dd; drawDistanceSquarred = dd*dd; }
+	virtual bool isVisible() const;
 	virtual void render();
-	void setIDEID(int32_t ideId) { this->ideId = ideId; }
-	int32_t getIDEID() const { return ideId; }
+
+protected:
+	ItemDefinition(MeshPointer* meshPtr, TextureSource* texSrc, float drawDistance);
+	ItemDefinition();
 
 private:
 	void initShaderLocations();
 
-private:
+protected:
 	MeshPointer* meshPtr;
 	TextureSource* texSrc;
 	CollisionShapePointer* colShapePtr;
@@ -65,7 +67,6 @@ private:
 	float drawDistanceSquarred;
 	GLint vertexAttrib, normalAttrib, texCoordAttrib, colorAttrib;
 	GLint textureUniform, texturedUniform, materialColorUniform, vertexColorsUniform;
-	int32_t ideId;
 };
 
 #endif /* ITEMDEFINITION_H_ */

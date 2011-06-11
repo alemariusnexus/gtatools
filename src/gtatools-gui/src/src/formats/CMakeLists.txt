@@ -18,6 +18,7 @@
 # Additional permissions are granted, which are listed in the file
 # GPLADDITIONS.
 
+ADD_SUBDIRECTORY(unrecog)
 ADD_SUBDIRECTORY(col)
 ADD_SUBDIRECTORY(dff)
 ADD_SUBDIRECTORY(ide)
@@ -25,6 +26,7 @@ ADD_SUBDIRECTORY(img)
 ADD_SUBDIRECTORY(ipl)
 ADD_SUBDIRECTORY(txd)
 ADD_SUBDIRECTORY(gxt)
+ADD_SUBDIRECTORY(rwbs)
 
 SET(SRCS ${SRCS} src/formats/FormatHandler.cpp src/formats/FormatManager.cpp PARENT_SCOPE)
 SET(MOC_SRCS ${MOC_SRCS} src/formats/FormatHandler.h PARENT_SCOPE)

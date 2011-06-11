@@ -1,8 +1,23 @@
 /*
- * RWSection.h
- *
- *  Created on: 23.04.2011
- *      Author: alemariusnexus
+	Copyright 2010-2011 David "Alemarius Nexus" Lerch
+
+	This file is part of gtatools-gui.
+
+	gtatools-gui is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	gtatools-gui is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
+
+	Additional permissions are granted, which are listed in the file
+	GPLADDITIONS.
  */
 
 #ifndef RWSECTION_H_
@@ -12,8 +27,10 @@
 #include <istream>
 #include <ostream>
 #include "../util/File.h"
+#include <algorithm>
 
 using std::vector;
+using std::find;
 using std::istream;
 using std::ostream;
 
@@ -57,17 +74,23 @@ public:
 	typedef ChildList::const_iterator ConstChildIterator;
 
 public:
+	static RWSection* readSection(istream* stream, RWSection* lastRead = NULL);
+
+public:
 	RWSection(int32_t id, int32_t version);
 	RWSection(int32_t id, RWSection* parent);
-	RWSection(istream* stream);
 	~RWSection();
 
 	int32_t getID() const { return id; }
 	int32_t getSize() const { return size; }
 	int32_t getVersion() const { return version; }
+	uint64_t getAbsoluteOffset() const { return offset; }
+	void setAbsoluteOffset(uint64_t offset) { this->offset = offset; }
 	RWSection* getParent() { return parent; }
 	uint8_t* getData() { return data; }
 	bool isDataSection() const { return data != NULL; }
+
+	void computeAbsoluteOffsets(uint64_t offset = 0);
 
 	void setVersion(int32_t version) { this->version = version; }
 	void setData(uint8_t* data, int32_t size);
@@ -83,9 +106,12 @@ public:
 	ChildIterator nextChild(int32_t id, ChildIterator it);
 	ChildIterator getChildIterator(int32_t id);
 	ChildIterator getLastChildIterator(int32_t id);
+	int getChildCount() const { return children.size(); }
 	RWSection* getChild(int32_t id);
 	RWSection* getLastChild(int32_t id);
 	RWSection& operator[](int32_t id) { return *getChild(id); }
+	int indexOf(const RWSection* child) const
+			{ return find(children.begin(), children.end(), child) - children.begin(); }
 
 	void write(ostream* stream);
 	void write(const File& file);
@@ -100,6 +126,7 @@ private:
 	int32_t id;
 	int32_t size;
 	int32_t version;
+	uint64_t offset;
 	RWSection* parent;
 	uint8_t* data;
 	ChildList children;

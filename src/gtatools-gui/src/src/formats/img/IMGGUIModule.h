@@ -28,10 +28,14 @@
 #include <QtCore/QHash>
 #include <QtCore/QString>
 #include <QtCore/QVariant>
+#include "../../DisplayedFile.h"
 
 
 class IMGGUIModule : public GUIModule {
 	Q_OBJECT
+
+public:
+	static IMGGUIModule* getInstance() { static IMGGUIModule* inst = new IMGGUIModule; return inst; }
 
 public:
 	IMGGUIModule();
@@ -42,19 +46,19 @@ public:
 private:
 	virtual void doInstall();
 	virtual void doUninstall();
-	void extract(const QLinkedList<File*>& files);
+	void extract(const QLinkedList<File>& files);
 	void deleteCurrentContextFiles();
 
 private slots:
 	void onExtract(bool);
 	void onContextExtract(bool);
-	void currentFileChanged(File* file, File* prev);
+	void currentFileChanged(DisplayedFile* file, DisplayedFile* prev);
 
 private:
 	QAction* extractAction;
 	QAction* contextExtractAction;
 	//File* currentContextFile;
-	QLinkedList<File*> currentContextFiles;
+	QLinkedList<File> currentContextFiles;
 	bool menuExists;
 };
 

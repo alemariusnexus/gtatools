@@ -32,6 +32,7 @@
 #include <QtCore/QHash>
 #include <QtCore/QVariant>
 #include "../FileOpenRequest.h"
+#include "../DisplayedFile.h"
 
 
 
@@ -44,7 +45,10 @@ public:
 	virtual QString getFormatName(const File* file = NULL) const = 0;
 	virtual QLinkedList<QString> getFileFormatExtensions() const = 0;
 	virtual bool hasFileFormat(const File& file) const = 0;
-	virtual QWidget* createWidgetForFile(const FileOpenRequest& request, QWidget* parent) { return NULL; }
+	virtual DisplayedFile* openFile(const FileOpenRequest& request) { return NULL; }
+	virtual int getSuitability(const File& file) const { return 10000; }
+
+	virtual QString buildFileDialogFilter() const;
 };
 
 #endif /* FORMATHANDLER_H_ */

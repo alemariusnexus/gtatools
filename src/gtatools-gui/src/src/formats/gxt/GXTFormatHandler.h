@@ -41,7 +41,7 @@ public:
 	virtual QString getFormatName(const File* file = NULL) const { return tr("GXT Text File"); }
 	virtual QLinkedList<QString> getFileFormatExtensions() const { return QLinkedList<QString>() << "gxt"; }
 	virtual bool hasFileFormat(const File& file) const;
-	virtual QWidget* createWidgetForFile(const FileOpenRequest& request, QWidget* parent);
+	virtual DisplayedFile* openFile(const FileOpenRequest& request);
 	void iniExport(const File& file, const QLinkedList<GXTTable*>& tables);
 	void stringListMatch(const File& matchFile, const QMap<QString, GXTTable*>& tables, QWidget* parent);
 

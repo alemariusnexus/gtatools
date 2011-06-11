@@ -23,6 +23,7 @@
 #include "IPLFormatHandler.h"
 #include <gtaformats/ipl/IPLReader.h>
 #include "IPLWidget.h"
+#include "../../DefaultDisplayedFile.h"
 
 
 
@@ -40,8 +41,9 @@ QString IPLFormatHandler::getFormatName(const File* file) const
 }
 
 
-QWidget* IPLFormatHandler::createWidgetForFile(const FileOpenRequest& request, QWidget* parent)
+DisplayedFile* IPLFormatHandler::openFile(const FileOpenRequest& request)
 {
-	IPLWidget* widget = new IPLWidget(parent, *request.getFile());
-	return widget;
+	IPLWidget* widget = new IPLWidget(NULL, *request.getFile());
+	DefaultDisplayedFile* file = new DefaultDisplayedFile(*request.getFile(), this, widget);
+	return file;
 }

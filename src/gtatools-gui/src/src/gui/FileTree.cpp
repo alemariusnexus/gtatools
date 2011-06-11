@@ -47,8 +47,8 @@ FileTree::FileTree(QWidget* parent)
 			SLOT(contextMenuRequested(const QPoint&)));
 	connect(pm, SIGNAL(currentProfileChanged(Profile*, Profile*)), this,
 			SLOT(currentProfileChanged(Profile*, Profile*)));
-	connect(sys, SIGNAL(fileOpened(const FileOpenRequest&)), this,
-			SLOT(fileOpened(const FileOpenRequest&)));
+	connect(sys, SIGNAL(fileOpened(const FileOpenRequest&, DisplayedFile*)), this,
+			SLOT(fileOpened(const FileOpenRequest&, DisplayedFile*)));
 }
 
 
@@ -163,7 +163,7 @@ void FileTree::currentProfileChanged(Profile* oldProfile, Profile* newProfile)
 }
 
 
-void FileTree::fileOpened(const FileOpenRequest& request)
+void FileTree::fileOpened(const FileOpenRequest& request, DisplayedFile* file)
 {
 	QSettings settings;
 
@@ -171,8 +171,8 @@ void FileTree::fileOpened(const FileOpenRequest& request)
 		QModelIndex cur = currentIndex();
 		cur = proxyModel->mapToSource(cur);
 
-		if (!cur.isValid()  ||  *model->getFileForIndex(cur) != *request.getFile()) {
-			QModelIndex index = model->indexOf(*request.getFile(), rootIndex());
+		if (!cur.isValid()  ||  *model->getFileForIndex(cur) != file->getFile()) {
+			QModelIndex index = model->indexOf(file->getFile(), rootIndex());
 
 			if (index.isValid()) {
 				QModelIndex idx = proxyModel->mapFromSource(index);

@@ -11,7 +11,7 @@
 
 
 
-DefaultSceneObject::DefaultSceneObject(ItemDefinition* def, const Matrix4& modelMatrix,
+DefaultSceneObject::DefaultSceneObject(MapItemDefinition* def, const Matrix4& modelMatrix,
 			DefaultSceneObject* lodParent)
 		: id(-1), def(def), modelMatrix(modelMatrix), lodParent(lodParent)
 {
@@ -66,7 +66,9 @@ void DefaultSceneObject::render(Matrix4& vpMatrix, GLuint mvpMatrixUniform)
 	matData = mat.toArray();
 	glUniformMatrix4fv(mvpMatrixUniform, 1, GL_FALSE, matData);
 
-	btCollisionShape* shape = **def->getCollisionShapePointer();
+	if (def->getCollisionShapePointer()) {
+		btCollisionShape* shape = **def->getCollisionShapePointer();
 
-	rigidBody->setCollisionShape(shape);
+		rigidBody->setCollisionShape(shape);
+	}
 }

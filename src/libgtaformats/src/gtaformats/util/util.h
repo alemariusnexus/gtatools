@@ -26,10 +26,89 @@
 #include <gtaformats/config.h>
 
 
+#ifdef __GNUC__
+
+#define SwapEndianness16(v) ((((v) >> 8) & 0xFF)  |  (((v) << 8) & 0xFF00))
+#define SwapEndianness32(v) (__builtin_bswap32((v)))
+#define SwapEndianness64(v) (__builtin_bswap64((v)))
+
+#elif defined(_MSC_VER)
+
+#define SwapEndianness16(v) (_byteswap_ushort((v)))
+#define SwapEndianness32(v) (_byteswap_ulong((v)))
+#define SwapEndianness64(v) (_byteswap_uint64((v)))
+
+#else
+
+#define SwapEndianness16(v) ((((v) >> 8) & 0xFF)  |  (((v) << 8) & 0xFF00))
+
+#define SwapEndianness32(v) ( \
+		(((v) >> 24) & 0xFF) \
+		| (((v) >> 8) & 0xFF00) \
+		| (((v) << 8) & 0xFF0000) \
+		| (((v) << 24) & 0xFF000000))
+
+#define SwapEndianness64(v) ( \
+		(((v) >> 56) & 0xFFULL) \
+		| (((v) >> 40) & 0xFF00ULL) \
+		| (((v) >> 24) & 0xFF0000ULL) \
+		| (((v) >> 8) & 0xFF000000ULL) \
+		| (((v) << 8) & 0xFF00000000ULL) \
+		| (((v) << 24) & 0xFF0000000000ULL) \
+		| (((v) << 40) & 0xFF000000000000ULL) \
+		| (((v) << 56) & 0xFF00000000000000ULL))
+
+#endif
+
+inline float SwapEndiannessF32(float val)
+{
+	uint32_t uswp = SwapEndianness32(*((uint32_t*) &val));
+	return *((float*) &uswp);
+}
+
+
+inline double SwapEndiannessF64(double val)
+{
+	uint64_t uswp = SwapEndianness64(*((uint64_t*) &val));
+	return *((double*) &uswp);
+}
+
+
+#ifdef GTAFORMATS_LITTLE_ENDIAN
+
+#define ToLittleEndian16(v) (v)
+#define ToLittleEndian32(v) (v)
+#define ToLittleEndian64(v) (v)
+#define ToLittleEndianF32(v) (v)
+#define ToLittleEndianF64(v) (v)
+
+#define ToBigEndian16(v) (SwapEndianness16((v)))
+#define ToBigEndian32(v) (SwapEndianness32((v)))
+#define ToBigEndian64(v) (SwapEndianness64((v)))
+#define ToBigEndianF32(v) (SwapEndiannessF32((v)))
+#define ToBigEndianF64(v) (SwapEndiannessF64((v)))
+
+#else
+
+#define ToLittleEndian16(v) (SwapEndianness16((v)))
+#define ToLittleEndian32(v) (SwapEndianness32((v)))
+#define ToLittleEndian64(v) (SwapEndianness64((v)))
+#define ToLittleEndianF32(v) (SwapEndiannessF32((v)))
+#define ToLittleEndianF64(v) (SwapEndiannessF64((v)))
+
+#define ToBigEndian16(v) (v)
+#define ToBigEndian32(v) (v)
+#define ToBigEndian64(v) (v)
+#define ToBigEndianF32(v) (v)
+#define ToBigEndianF64(v) (v)
+
+#endif
+
 
 uint64_t GetTickcount();
 
 float RandomFloat(float min, float max);
 bool RandomBool();
+bool IsTimeBetween(int8_t timeH, int8_t timeM, int8_t startH, int8_t startM, int8_t endH, int8_t endM);
 
 #endif /* UTIL_H_ */

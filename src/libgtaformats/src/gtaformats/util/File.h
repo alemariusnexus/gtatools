@@ -243,6 +243,7 @@ public:
 
 	void resize(filesize size) const;
 
+	File& operator=(const File& other);
 	bool operator==(const File& other) const;
 	bool operator!=(const File& other) const { return !(*this == other); }
 	bool operator>(const File& other) const;

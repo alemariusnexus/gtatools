@@ -33,7 +33,7 @@ public:
 	virtual QString getFormatName(const File* file = NULL) const { return tr("Collision File (COL)"); }
 	virtual QLinkedList<QString> getFileFormatExtensions() const { return QLinkedList<QString>() << "col"; }
 	virtual bool hasFileFormat(const File& file) const { return file.guessContentType() == CONTENT_TYPE_COL; }
-	virtual QWidget* createWidgetForFile(const FileOpenRequest& request, QWidget* parent);
+	virtual DisplayedFile* openFile(const FileOpenRequest& request);
 };
 
 #endif /* COLFORMATHANDLER_H_ */

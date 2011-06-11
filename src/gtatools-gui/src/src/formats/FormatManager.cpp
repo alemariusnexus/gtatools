@@ -21,6 +21,7 @@
  */
 
 #include "FormatManager.h"
+#include "unrecog/UnrecognizedFormatHandler.h"
 #include "img/IMGFormatHandler.h"
 #include "txd/TXDFormatHandler.h"
 #include "ipl/IPLFormatHandler.h"
@@ -33,6 +34,7 @@
 
 FormatManager::FormatManager()
 {
+	registerFormatHandler(new UnrecognizedFormatHandler());
 	registerFormatHandler(TXDFormatHandler::getInstance());
 	registerFormatHandler(new IMGFormatHandler);
 	registerFormatHandler(new IPLFormatHandler);
@@ -76,12 +78,20 @@ FormatHandler* FormatManager::getHandler(const File& file)
 {
 	HandlerList::iterator it;
 
+	int bestSuitability = 0;
+	FormatHandler* bestHandler = NULL;
+
 	for (it = handlers.begin() ; it != handlers.end() ; it++) {
 		FormatHandler* handler = *it;
 		if (handler->hasFileFormat(file)) {
-			return handler;
+			int suitability = handler->getSuitability(file);
+
+			if (suitability > bestSuitability) {
+				bestHandler = handler;
+				bestSuitability = suitability;
+			}
 		}
 	}
 
-	return NULL;
+	return bestHandler;
 }

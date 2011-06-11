@@ -25,6 +25,7 @@
 #include <gta/StaticMeshPointer.h>
 #include <gta/NullTextureSource.h>
 #include <gta/Submesh.h>
+#include <gta/StaticMapItemDefinition.h>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QImage>
 #include <QtGui/QImageWriter>
@@ -69,7 +70,7 @@ void COLMeshRenderWidget::render(const float* vertices, int32_t vertexCount, con
 
 		if (item)
 			delete item;
-		item = new ItemDefinition(new StaticMeshPointer(mesh), new NullTextureSource, 5000.0f);
+		item = new StaticMapItemDefinition(new StaticMeshPointer(mesh), new NullTextureSource, 5000.0f);
 
 
 		// Build picking mesh
@@ -90,7 +91,8 @@ void COLMeshRenderWidget::render(const float* vertices, int32_t vertexCount, con
 		if (pickItem)
 			delete pickItem;
 
-		pickItem = new ItemDefinition(new StaticMeshPointer(pickMesh), new NullTextureSource, 5000.0f);
+		pickItem = new StaticMapItemDefinition(new StaticMeshPointer(pickMesh),
+				new NullTextureSource, 5000.0f);
 
 		updateGL();
 	} catch (Exception& ex) {

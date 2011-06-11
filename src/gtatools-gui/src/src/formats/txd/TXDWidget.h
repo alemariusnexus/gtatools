@@ -31,6 +31,7 @@
 #include <gtaformats/txd/TXDTextureHeader.h>
 #include "OpenTXDGUIModule.h"
 #include <QtCore/QLinkedList>
+#include "../../DisplayedFile.h"
 
 
 
@@ -38,20 +39,23 @@ class TXDWidget : public QWidget {
 	Q_OBJECT
 
 public:
-	TXDWidget(const File& file, const QString& texture, QWidget* parent);
+	TXDWidget(DisplayedFile* dfile, const QString& texture, QWidget* parent);
 	~TXDWidget();
 	TXDArchive* getArchive() { return txd; }
 	QLinkedList<TXDTextureHeader*> getSelectedTextures();
+
+public slots:
+	void saveTo(const File& file);
 
 private slots:
 	void textureActivated(QListWidgetItem* item, QListWidgetItem* previous);
 	void textureListContextMenuRequested(const QPoint& pos);
 	void textureExtractionRequested(bool checked);
-
-private slots:
 	void loadConfigUiSettings();
+	void sectionChanged(RWSection* sect) { dfile->setHasChanges(true); }
 
 private:
+	DisplayedFile* dfile;
 	QAction* extractAction;
 	OpenTXDGUIModule* openGUIModule;
 	QTabWidget* compactTab;

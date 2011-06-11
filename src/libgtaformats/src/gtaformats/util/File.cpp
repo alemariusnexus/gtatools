@@ -250,24 +250,6 @@ istream* File::openInputStream(ifstream::openmode mode, bool testen) const
 ostream* File::openOutputStream(ostream::openmode mode) const
 {
 	return new ofstream(path->toString(), mode | ostream::out);
-	/*if (physicallyExists()) {
-		return new ofstream(path->toString(), mode | ostream::out);
-	} else {
-		if (path->isIMGPath()) {
-			char* errMsg = new char[strlen(path->toString()) + 128];
-			sprintf(errMsg, "Attempt to open output stream on IMG entry %s. Output to IMG entries using the "
-					"file API is not supported.", path->toString());
-			FileException fex(errMsg, __FILE__, __LINE__);
-			delete[] errMsg;
-			throw fex;
-		} else {
-			char* errMsg = new char[strlen(path->toString()) + 64];
-			sprintf(errMsg, "Attempt to open stream on non-existant file %s.", path->toString());
-			FileException fex(errMsg, __FILE__, __LINE__);
-			delete[] errMsg;
-			throw fex;
-		}
-	}*/
 }
 
 
@@ -278,24 +260,6 @@ iostream* File::openInputOutputStream(iostream::openmode mode) const
 		tmp.close();
 	}
 	return new fstream(path->toString(), mode | iostream::out | iostream::in);
-	/*if (physicallyExists()) {
-		return new fstream(path->toString(), mode | iostream::out | iostream::in);
-	} else {
-		if (path->isIMGPath()) {
-			char* errMsg = new char[strlen(path->toString()) + 128];
-			sprintf(errMsg, "Attempt to open input/output stream on IMG entry %s. Output to IMG entries "
-					"using the file API is not supported.", path->toString());
-			FileException fex(errMsg, __FILE__, __LINE__);
-			delete[] errMsg;
-			throw fex;
-		} else {
-			char* errMsg = new char[strlen(path->toString()) + 64];
-			sprintf(errMsg, "Attempt to open stream on non-existant file %s.", path->toString());
-			FileException fex(errMsg, __FILE__, __LINE__);
-			delete[] errMsg;
-			throw fex;
-		}
-	}*/
 }
 
 
@@ -450,6 +414,19 @@ int File::getDirectoryIndex() const
 	int index = parent->indexOf(*this);
 	delete parent;
 	return index;
+}
+
+
+File& File::operator=(const File& other)
+{
+	if (this == &other) {
+		return *this;
+	}
+
+	delete path;
+	path = new FilePath(*other.path);
+	autoDeletePath = true;
+	archivePtr = other.archivePtr;
 }
 
 

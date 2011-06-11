@@ -32,6 +32,7 @@
 #include <QtGui/QMessageBox>
 #include <gta/StaticMeshPointer.h>
 #include <gta/Submesh.h>
+#include <gta/StaticMapItemDefinition.h>
 
 
 
@@ -80,7 +81,7 @@ void DFFRenderWidget::renderGeometry(DFFGeometry* geometry)
 			texSrc = texSrc->clone();
 
 		mesh = new Mesh(*geometry);
-		item = new ItemDefinition(new StaticMeshPointer(mesh), texSrc, 5000.0f);
+		item = new StaticMapItemDefinition(new StaticMeshPointer(mesh), texSrc, 5000.0f);
 
 		updateGL();
 	}
@@ -104,7 +105,7 @@ void DFFRenderWidget::renderGeometryPart(DFFGeometry* geometry, DFFGeometryPart*
 
 		mesh = new Mesh(*geometry, false);
 		mesh->addSubmesh(new Submesh(mesh, *part));
-		item = new ItemDefinition(new StaticMeshPointer(mesh), texSrc, 5000.0f);
+		item = new StaticMapItemDefinition(new StaticMeshPointer(mesh), texSrc, 5000.0f);
 
 		updateGL();
 	}
@@ -162,6 +163,8 @@ void DFFRenderWidget::initializeGL()
 			program->attachShader(vertexShader);
 			program->attachShader(fragmentShader);
 			program->link();
+
+			glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
 
 			glEnable(GL_DEPTH_TEST);
 

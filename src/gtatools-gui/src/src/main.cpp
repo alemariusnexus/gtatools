@@ -44,6 +44,7 @@
 #include <gta/Engine.h>
 #include <gta/resource/ResourceCache.h>
 #include <signal.h>
+#include <gtaformats/util/util.h>
 
 
 
@@ -66,6 +67,7 @@ void listRecurse(File* file, int ind = 0)
 
 	delete it;
 }
+
 
 
 int main(int argc, char** argv)

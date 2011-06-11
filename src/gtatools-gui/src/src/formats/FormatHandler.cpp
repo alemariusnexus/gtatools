@@ -21,3 +21,24 @@
  */
 
 #include "FormatHandler.h"
+
+QString FormatHandler::buildFileDialogFilter() const
+{
+	QString filter = getFormatName(NULL) + " (";
+
+	QLinkedList<QString> exts = getFileFormatExtensions();
+	QLinkedList<QString>::iterator it;
+
+	bool first = true;
+	for (it = exts.begin() ; it != exts.end() ; it++) {
+		if (!first)
+			filter.append(' ');
+
+		filter.append("*.").append(*it);
+		first = false;
+	}
+
+	filter.append(')');
+
+	return filter;
+}

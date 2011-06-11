@@ -1,13 +1,29 @@
 /*
- * RWSection.cpp
- *
- *  Created on: 23.04.2011
- *      Author: alemariusnexus
+	Copyright 2010-2011 David "Alemarius Nexus" Lerch
+
+	This file is part of gtatools-gui.
+
+	gtatools-gui is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	gtatools-gui is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
+
+	Additional permissions are granted, which are listed in the file
+	GPLADDITIONS.
  */
 
 #include "RWSection.h"
 #include <algorithm>
 #include "../gta.h"
+#include "RWBSException.h"
 
 using std::find;
 
@@ -15,37 +31,57 @@ using std::find;
 
 
 RWSection::RWSection(int32_t id, int32_t version)
-		: id(id), size(0), version(version), parent(NULL), data(NULL)
+		: id(id), size(0), version(version), offset(0), parent(NULL), data(NULL)
 {
 }
 
 
 RWSection::RWSection(int32_t id, RWSection* parent)
-		: id(id), size(0), version(parent->version), parent(parent), data(NULL)
+		: id(id), size(0), version(parent->version), offset(0), parent(parent), data(NULL)
 {
 	parent->addChild(this);
 }
 
 
-RWSection::RWSection(istream* stream)
-		: parent(NULL)
+RWSection* RWSection::readSection(istream* stream, RWSection* lastRead)
 {
-	stream->read((char*) this, 12);
+	// Check if there is data to read
+	stream->peek();
+	if (stream->eof()) {
+		return NULL;
+	}
+
+	RWSection* sect = new RWSection;
+	stream->read((char*) sect, 12);
+
+	if (lastRead) {
+		// Do some heuristic checks to see if the data we read is actually a section. For files in IMG
+		// archives, there might be some junk after the actual section data (to fill the IMG section). If it
+		// seems to be an invalid section, we assume this is the end of the RWBS file.
+		if (	lastRead->version != sect->version
+				||  sect->size < 0
+		) {
+			delete sect;
+			return NULL;
+		}
+	}
+
+	sect->offset = 0;
 
 	bool dataSect;
 
-	if (	id == RW_SECTION_CLUMP
-		||  id == RW_SECTION_FRAMELIST
-		||  id == RW_SECTION_EXTENSION
-		||  id == RW_SECTION_GEOMETRYLIST
-		||  id == RW_SECTION_GEOMETRY
-		||  id == RW_SECTION_MATERIALLIST
-		||  id == RW_SECTION_MATERIAL
-		||  id == RW_SECTION_TEXTURE
-		||  id == RW_SECTION_MATERIAL_EFFECTS_PLG
-		||  id == RW_SECTION_ATOMIC
-		||  id == RW_SECTION_TEXTUREDICTIONARY
-		||  id == RW_SECTION_TEXTURENATIVE
+	if (	sect->id == RW_SECTION_CLUMP
+		||  sect->id == RW_SECTION_FRAMELIST
+		||  sect->id == RW_SECTION_EXTENSION
+		||  sect->id == RW_SECTION_GEOMETRYLIST
+		||  sect->id == RW_SECTION_GEOMETRY
+		||  sect->id == RW_SECTION_MATERIALLIST
+		||  sect->id == RW_SECTION_MATERIAL
+		||  sect->id == RW_SECTION_TEXTURE
+		||  sect->id == RW_SECTION_MATERIAL_EFFECTS_PLG
+		||  sect->id == RW_SECTION_ATOMIC
+		||  sect->id == RW_SECTION_TEXTUREDICTIONARY
+		||  sect->id == RW_SECTION_TEXTURENATIVE
 	) {
 		dataSect = false;
 	} else {
@@ -53,17 +89,43 @@ RWSection::RWSection(istream* stream)
 	}
 
 	if (dataSect) {
-		data = new uint8_t[size];
-		stream->read((char*) data, size);
+		sect->data = new uint8_t[sect->size];
+		stream->read((char*) sect->data, sect->size);
 	} else {
-		data = NULL;
+		sect->data = NULL;
 		int32_t numRead = 0;
 
-		while (numRead < size) {
-			RWSection* child = new RWSection(stream);
-			child->parent = this;
+		while (numRead < sect->size) {
+			// Using NULL disables the end-of-file check. We know that there has to be another section.
+			RWSection* child = RWSection::readSection(stream, NULL);
+
+
+
+			if (!child) {
+				throw RWBSException("Premature end of RWBS file (wrong section size)", __FILE__, __LINE__);
+			}
+
+			child->parent = sect;
 			numRead += child->size+12;
-			children.push_back(child);
+			sect->children.push_back(child);
+		}
+	}
+
+	return sect;
+}
+
+
+void RWSection::computeAbsoluteOffsets(uint64_t offset)
+{
+	this->offset = offset;
+
+	offset += 12;
+
+	if (!isDataSection()) {
+		for (ChildIterator it = children.begin() ; it != children.end() ; it++) {
+			RWSection* child = *it;
+			child->computeAbsoluteOffsets(offset);
+			offset += child->size + 12;
 		}
 	}
 }
@@ -83,6 +145,9 @@ RWSection::~RWSection()
 
 void RWSection::setData(uint8_t* data, int32_t size)
 {
+	if (this->data)
+		delete[] this->data;
+
 	this->data = data;
 
 	if (parent)

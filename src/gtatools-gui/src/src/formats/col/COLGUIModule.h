@@ -31,7 +31,7 @@ class COLGUIModule : public GUIModule {
 	Q_OBJECT
 
 public:
-	static COLGUIModule* getInstance() { static COLGUIModule inst; return &inst; }
+	static COLGUIModule* getInstance() { static COLGUIModule* inst = new COLGUIModule; return inst; }
 
 signals:
 	void wireframePropertyChanged(bool wireframe);

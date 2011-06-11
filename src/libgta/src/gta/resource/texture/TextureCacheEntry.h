@@ -46,7 +46,7 @@ private:
 #endif
 
 public:
-	TextureCacheEntry() : size(0) {}
+	TextureCacheEntry(TextureArchive* archive);
 	virtual ~TextureCacheEntry();
 	void addTexture(hash_t name, GLuint tex, cachesize_t size);
 	virtual cachesize_t getSize() const { return size; }
@@ -56,6 +56,7 @@ public:
 private:
 	TextureMap texMap;
 	cachesize_t size;
+	hash_t parent;
 };
 
 #endif /* TEXTURECACHEENTRY_H_ */

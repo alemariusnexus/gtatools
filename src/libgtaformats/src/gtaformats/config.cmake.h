@@ -47,6 +47,19 @@
 #cmakedefine EXCEPTION_POSITION_INFO
 #cmakedefine _CMAKE_HAVE_SVNREV
 
+// Special check on Mac OS X to allow building of universal binaries.
+#ifdef __APPLE__
+#ifdef __powerpc
+#define GTAFORMATS_BIG_ENDIAN
+#endif
+#else
+#cmakedefine GTAFORMATS_BIG_ENDIAN
+#endif
+
+#ifndef GTAFORMATS_BIG_ENDIAN
+#define GTAFORMATS_LITTLE_ENDIAN
+#endif
+
 #define GTATOOLS_VERSION_MAJOR ${GTATOOLS_VERSION_MAJOR}
 #define GTATOOLS_VERSION_MINOR ${GTATOOLS_VERSION_MINOR}
 #define GTATOOLS_VERSION_SUFFIX "${GTATOOLS_VERSION_SUFFIX}"

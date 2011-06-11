@@ -85,7 +85,7 @@ void Scene::buildVisibleSceneObjectList(ObjectList& list)
 		float distSq = dx*dx + dy*dy + dz*dz;
 
 		while (obj) {
-			ItemDefinition* def = obj->getDefinition();
+			MapItemDefinition* def = obj->getDefinition();
 			float dd = def->getDrawDistance();
 			float distDiff = dd*dd - distSq;
 

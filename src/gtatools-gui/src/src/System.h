@@ -37,6 +37,7 @@
 #include "FileOpenRequest.h"
 #include "SystemQuery.h"
 #include "SystemQueryResult.h"
+#include "DisplayedFile.h"
 #include <gtaformats/util/FileFinder.h>
 #include <QtGui/QImage>
 
@@ -50,12 +51,15 @@ public:
 public:
 	void initializeGL();
 	bool openFile(const FileOpenRequest& request);
-	void closeFile(const File& file);
+	void closeFile(const File& file) { closeFile(findOpenFile(file)); }
+	void closeFile(DisplayedFile* file);
 	void closeCurrentFile();
-	void changeCurrentFile(const File* file);
-	File* getCurrentFile() { return currentFile; }
-	QLinkedList<File*> getOpenFiles() { return openFiles; }
-	bool isOpenFile(const File& file);
+	void changeCurrentFile(DisplayedFile* file);
+	void changeCurrentFile(const File& file) { changeCurrentFile(findOpenFile(file)); }
+	DisplayedFile* findOpenFile(const File& file);
+	DisplayedFile* getCurrentFile() { return currentFile; }
+	QLinkedList<DisplayedFile*> getOpenFiles() { return openFiles; }
+	bool isOpenFile(const File& file) { return findOpenFile(file) != NULL; }
 	bool hasOpenFile();
 	void unhandeledException(Exception& ex);
 	void emitConfigurationChange();
@@ -72,9 +76,9 @@ public:
 	QImage getDummyTextureImage() { return dummyTexImage; }
 
 signals:
-	void fileOpened(const FileOpenRequest& request);
-	void fileClosed(File* file);
-	void currentFileChanged(File* current, File* prev);
+	void fileOpened(const FileOpenRequest& request, DisplayedFile* file);
+	void fileClosed(DisplayedFile* file);
+	void currentFileChanged(DisplayedFile* current, DisplayedFile* prev);
 	void currentFileClosed();
 	void configurationChanged();
 	void installedGUIModule(GUIModule* module);
@@ -89,8 +93,8 @@ private:
 private:
 	MainWindow* mainWindow;
 	QLinkedList<GUIModule*> installedGUIModules;
-	QLinkedList<File*> openFiles;
-	File* currentFile;
+	QLinkedList<DisplayedFile*> openFiles;
+	DisplayedFile* currentFile;
 	QGLWidget* sharedWidget;
 	QImage dummyTexImage;
 

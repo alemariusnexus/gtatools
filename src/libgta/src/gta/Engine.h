@@ -54,6 +54,14 @@ class Scene;
 
 class Engine {
 public:
+	enum VersionMode
+	{
+		GTAIII,
+		GTAVC,
+		GTASA
+	};
+
+public:
 	static Engine* getInstance();
 
 public:
@@ -82,12 +90,21 @@ public:
 	btDiscreteDynamicsWorld* getPhysicsWorld() { return physicsWorld; }
 	void switchDrawing() { enableDrawing = !enableDrawing; }
 	bool isDrawingEnabled() { return enableDrawing; }
+	void setGameTime(int8_t h, int8_t m) { gameHours = h; gameMinutes = m; }
+	int8_t getGameHours() const { return gameHours; }
+	int8_t getGameMinutes() const { return gameMinutes; }
+	void getGameTime(int8_t& h, int8_t& m) const { h = gameHours; m = gameMinutes; }
+	void advanceGameTime(int8_t h, int8_t m);
+	void setVersionMode(VersionMode mode) { verMode = mode; }
+	VersionMode getVersionMode() const { return verMode; }
 
 private:
 	Engine();
 	void iplRecurse(File* file, const File& rootDir);
 
 private:
+	VersionMode verMode;
+
 	ShaderProgram* currentShader;
 	vector<ResourceObserver*> resObservers;
 	Camera* camera;
@@ -109,6 +126,8 @@ private:
 	btDiscreteDynamicsWorld* physicsWorld;
 
 	bool enableDrawing;
+
+	int8_t gameHours, gameMinutes;
 };
 
 #endif /* ENGINE_H_ */
