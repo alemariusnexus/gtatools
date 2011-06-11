@@ -31,6 +31,7 @@
 ShaderProgram::ShaderProgram()
 		: program(glCreateProgram())
 {
+	printf("Created %d\n", program);
 }
 
 
@@ -38,6 +39,7 @@ ShaderProgram::~ShaderProgram()
 {
 	glUseProgram(0);
 	glDeleteProgram(program);
+	printf("Destroyed %d\n", program);
 }
 
 
