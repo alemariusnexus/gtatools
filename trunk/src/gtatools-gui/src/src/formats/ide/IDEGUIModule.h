@@ -33,6 +33,9 @@ class IDEGUIModule : public GUIModule {
 	Q_OBJECT
 
 public:
+	static IDEGUIModule* getInstance() { static IDEGUIModule* inst = new IDEGUIModule; return inst; }
+
+public:
 	IDEGUIModule();
 	virtual ~IDEGUIModule();
 

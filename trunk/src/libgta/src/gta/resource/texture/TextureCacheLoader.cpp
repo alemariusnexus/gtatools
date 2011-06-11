@@ -50,7 +50,7 @@ CacheEntry* TextureCacheLoader::load(hash_t hash)
 
 	TXDArchive txd(indexArchive->getFile());
 
-	TextureCacheEntry* cacheEntry = new TextureCacheEntry;
+	TextureCacheEntry* cacheEntry = new TextureCacheEntry(indexArchive);
 
 	for (TXDArchive::TextureIterator it = txd.getHeaderBegin() ; it != txd.getHeaderEnd() ; it++) {
 		int size = 0;
@@ -174,6 +174,7 @@ CacheEntry* TextureCacheLoader::load(hash_t hash)
 	#ifndef GTA_USE_OPENGL_ES
 		if (	(compr == DXT1  ||  compr == DXT3)
 				&&  gtaglIsExtensionSupported("GL_EXT_texture_compression_s3tc")
+				&&  false
 		) {
 			if (compr == DXT1) {
 				uint8_t* dataStart = data;

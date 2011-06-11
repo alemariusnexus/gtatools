@@ -21,11 +21,14 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 PROJECT(prj-gtaformats C CXX)
 
+INCLUDE(TestBigEndian)
+
 
 SET(GTAFORMATS_ENABLE_PVRTEXLIB OFF CACHE BOOL "Whether we use the proprietary PVRTexLib for PVRTC-compressed textures.")
 SET(GTAFORMATS_ENABLE_SQUISH ON CACHE BOOL "Whether we use libsquish for DXT-compressed textures. If false, those textures are not supported directly by the library")
 SET(EXCEPTION_POSITION_INFO OFF CACHE BOOL "If true, exception messages will include the full path to the source file and the line in which the exception was thrown.")
 
+TEST_BIG_ENDIAN(GTAFORMATS_BIG_ENDIAN)
 
 ADD_SUBDIRECTORY(gtaformats)
 

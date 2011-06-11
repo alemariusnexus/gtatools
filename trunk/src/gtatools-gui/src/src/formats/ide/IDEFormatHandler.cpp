@@ -25,6 +25,7 @@
 #include "IDEFileFinder.h"
 #include "../../gui/GUI.h"
 #include "../../System.h"
+#include "../../DefaultDisplayedFile.h"
 
 
 
@@ -35,10 +36,11 @@ IDEFormatHandler::IDEFormatHandler()
 }
 
 
-QWidget* IDEFormatHandler::createWidgetForFile(const FileOpenRequest& request, QWidget* parent)
+DisplayedFile* IDEFormatHandler::openFile(const FileOpenRequest& request)
 {
-	IDEWidget* widget = new IDEWidget(parent, request);
-	return widget;
+	IDEWidget* widget = new IDEWidget(NULL, request);
+	DefaultDisplayedFile* file = new DefaultDisplayedFile(*request.getFile(), this, widget);
+	return file;
 }
 
 

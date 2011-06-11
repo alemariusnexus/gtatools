@@ -21,12 +21,14 @@
  */
 
 #include "System.h"
+#include "formats/FormatManager.h"
 #include <QtGui/QMessageBox>
 #include <QtCore/QFile>
 #include <QtCore/QDateTime>
 #include <QtCore/QThread>
 #include <QtGui/QInputDialog>
 #include <QtGui/QMessageBox>
+#include "DefaultDisplayedFile.h"
 
 
 
@@ -76,40 +78,37 @@ bool System::openFile(const FileOpenRequest& request)
 		return false;
 	}
 
-	openFiles << new File(*request.getFile());
+	FormatManager* fmgr = FormatManager::getInstance();
+	FormatHandler* handler = fmgr->getHandler(*request.getFile());
+
+	if (!handler) {
+		return false;
+	}
+
+	DisplayedFile* dfile = handler->openFile(request);
+
+	if (!dfile) {
+		return false;
+	}
+
+	openFiles << dfile;
 
 	try {
-		emit fileOpened(request);
+		emit fileOpened(request, dfile);
 	} catch (...) {
 		closeFile(*request.getFile());
 		return false;
 	}
 
-	changeCurrentFile(request.getFile());
+	changeCurrentFile(dfile);
 	return true;
-}
-
-
-bool System::isOpenFile(const File& file)
-{
-	QLinkedList<File*>::iterator it;
-
-	for (it = openFiles.begin() ; it != openFiles.end() ; it++) {
-		File* ofile = *it;
-
-		if (*ofile == file) {
-			return true;
-		}
-	}
-
-	return false;
 }
 
 
 void System::closeCurrentFile()
 {
 	if (currentFile != NULL) {
-		closeFile(*currentFile);
+		closeFile(currentFile);
 	}
 }
 
@@ -165,49 +164,53 @@ void System::emitConfigurationChange()
 }
 
 
-void System::changeCurrentFile(const File* file)
+void System::changeCurrentFile(DisplayedFile* file)
 {
 	if (file) {
-		QLinkedList<File*>::iterator it;
-
-		for (it = openFiles.begin() ; it != openFiles.end() ; it++) {
-			File* ofile = *it;
-
-			if (*ofile == *file) {
-				File* prev = currentFile;
-				currentFile = ofile;
-				emit currentFileChanged(ofile, prev);
-				break;
-			}
-		}
+		DisplayedFile* prev = currentFile;
+		currentFile = file;
+		emit currentFileChanged(file, prev);
 	} else {
 		emit currentFileChanged(NULL, currentFile);
 	}
 }
 
 
-void System::closeFile(const File& file)
+DisplayedFile* System::findOpenFile(const File& file)
 {
-	QLinkedList<File*>::iterator it;
+	QLinkedList<DisplayedFile*>::iterator it;
 
 	for (it = openFiles.begin() ; it != openFiles.end() ; it++) {
-		File* ofile = *it;
+		DisplayedFile* dfile = *it;
 
-		if (*ofile == file) {
-			openFiles.removeOne(ofile);
-
-			if (currentFile == ofile) {
-				if (openFiles.size() > 0) {
-					changeCurrentFile(openFiles.first());
-				} else {
-					changeCurrentFile(NULL);
-				}
-			}
-
-			emit fileClosed(ofile);
-			break;
+		if (dfile->getFile() == file) {
+			return dfile;
 		}
 	}
+
+	return NULL;
+}
+
+
+void System::closeFile(DisplayedFile* file)
+{
+	if (!file) {
+		return;
+	}
+
+	openFiles.removeOne(file);
+
+	if (currentFile == file) {
+		if (openFiles.size() > 0) {
+			changeCurrentFile(openFiles.first());
+		} else {
+			changeCurrentFile(NULL);
+		}
+	}
+
+	emit fileClosed(file);
+
+	delete file;
 }
 
 

@@ -39,6 +39,7 @@
 #include "FileViewWidget.h"
 #include "FileTree.h"
 #include <QtGui/QAction>
+#include "../DisplayedFile.h"
 
 
 class MainWindow : public QMainWindow {
@@ -63,9 +64,11 @@ public:
 	void removeDockWidget(QDockWidget* widget);
 
 private slots:
-	void openFile(const FileOpenRequest& request);
-	void currentFileChanged(File* file, File* prev);
-	void closeFile(File* file);
+	void openFile(const FileOpenRequest& request, DisplayedFile* file);
+	void currentFileChanged(DisplayedFile* file, DisplayedFile* prev);
+	void closeFile(DisplayedFile* file);
+	void fileSaved(const File& file);
+	void fileChangeStatusChanged();
 	void configurationChanged();
 	void currentFileTabChanged(int index);
 	void fileTabClosed(int index);
@@ -78,7 +81,7 @@ public slots:
 private:
 	QList<QDockWidget*> dockWidgets;
 	QList<QAction*> dockViewActions;
-	QMap<File, FileViewWidget*> fileWidgets;
+	QMap<DisplayedFile*, FileViewWidget*> fileWidgets;
 	Ui_MainWindow ui;
 	QLabel* taskLabel;
 	QProgressBar* progressBar;

@@ -71,6 +71,8 @@ DFFWidget::DFFWidget(const File& file, QWidget* parent, QGLWidget* shareWidget)
 
 	updateLayoutType();
 
+	ui.rwbsWidget->loadFile(file);
+
 	ui.mainTabber->setCurrentIndex(mainTabberIndex);
 	ui.geometryTabber->setCurrentIndex(geometryTabberIndex);
 	ui.geometryPartTabber->setCurrentIndex(geometryPartTabberIndex);
@@ -268,7 +270,7 @@ void DFFWidget::frameSelected(const QModelIndex& index, const QModelIndex& previ
 		ui.frameParentLabel->setText(index.parent().data(Qt::DisplayRole).toString());
 	}
 
-	ui.frameFlagsLabel->setText(QString("%1").arg(frame->getFlags()));
+	ui.frameFlagsLabel->setText(QString("%1b").arg(frame->getFlags(), 0, 2));
 }
 
 
@@ -294,7 +296,7 @@ void DFFWidget::geometrySelected(int row)
 	ui.geometryNameLabel->setText(ui.geometryList->item(row)->text());
 	ui.geometryFaceFormatLabel->setText(geom->isTriangleStripFormat()
 			? tr("Triangle Strips") : tr("Triangle List"));
-	ui.geometryFlagsLabel->setText(QString("%1").arg(geom->getFlags()));
+	ui.geometryFlagsLabel->setText(QString("%1b").arg(geom->getFlags(), 0, 2));
 	ui.geometryUVSetCountLabel->setText(QString("%1").arg(geom->getUVSetCount()));
 	ui.geometryVertexCountLabel->setText(QString("%1").arg(geom->getVertexCount()));
 	ui.geometryFrameCountLabel->setText(QString("%1").arg(geom->getFrameCount()));

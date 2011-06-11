@@ -41,7 +41,7 @@ public:
 	virtual QString getFormatName(const File* file = NULL) const { return tr("DFF Mesh"); }
 	virtual QLinkedList<QString> getFileFormatExtensions() const { return QLinkedList<QString>() << "dff"; }
 	virtual bool hasFileFormat(const File& file) const { return file.guessContentType() == CONTENT_TYPE_DFF; }
-	virtual QWidget* createWidgetForFile(const FileOpenRequest& request, QWidget* parent);
+	virtual DisplayedFile* openFile(const FileOpenRequest& request);
 
 	void xmlDumpDialog(const DFFMesh& mesh, QWidget* parent);
 

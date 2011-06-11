@@ -107,12 +107,18 @@
            <property name="text">
             <string>&amp;Animations</string>
            </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
           </widget>
          </item>
          <item>
           <widget class="QCheckBox" name="pedBox">
            <property name="text">
             <string>&amp;Pedestrians</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -121,6 +127,9 @@
            <property name="text">
             <string>Stati&amp;c Objects</string>
            </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
           </widget>
          </item>
          <item>
@@ -128,12 +137,18 @@
            <property name="text">
             <string>&amp;Timed Objects</string>
            </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
           </widget>
          </item>
          <item>
           <widget class="QCheckBox" name="weaponBox">
            <property name="text">
             <string>&amp;Weapons</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
            </property>
           </widget>
          </item>

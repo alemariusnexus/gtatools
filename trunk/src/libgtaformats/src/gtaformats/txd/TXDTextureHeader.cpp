@@ -27,6 +27,7 @@
 #include <cstdio>
 #include <cmath>
 #include <algorithm>
+#include <cassert>
 
 using std::min;
 
@@ -66,6 +67,8 @@ void TxdGetRasterFormatName(char* dest, int32_t rasterFormat) {
 	case RasterFormatDefault:
 		strcpy(dest, "DEFAULT");
 		break;
+	default:
+		assert(false);
 	}
 }
 
@@ -165,6 +168,8 @@ void TXDTextureHeader::getColorMasks(int32_t& redMask, int32_t& greenMask, int32
 			blueMask = 0xFF;
 			alphaMask = 0xFF;
 			break;
+		default:
+			assert(false);
 		}
 	}
 }
@@ -191,6 +196,8 @@ void TXDTextureHeader::getFormat(char* dest) const
 	case PVRTC4:
 		strcpy(compStr, "PVRTC4-");
 		break;
+	default:
+		assert(false);
 	}
 
 	char palStr[16];

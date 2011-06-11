@@ -57,8 +57,12 @@ private slots:
 	void onVersionInfo(bool checked);
 	void onFileOpen(bool checked);
 	void onFileClose(bool checked);
-	void fileOpened(const FileOpenRequest& request);
-	void fileClosed(File* file);
+	void onFileSave(bool checked);
+	void onFileSaveAs(bool checked);
+	void fileOpened(const FileOpenRequest& request, DisplayedFile* file);
+	void fileClosed(DisplayedFile* file);
+	void currentFileChanged(DisplayedFile* current, DisplayedFile* prev);
+	void fileChangeStatusChanged();
 	void onSearchFile(bool checked);
 	void profileAdded(Profile* profile);
 	void profileRemoved(Profile* profile);
@@ -72,6 +76,8 @@ private:
 	QActionGroup* profileSwitchGroup;
 	QAction* fileOpenAction;
 	QAction* fileCloseAction;
+	QAction* fileSaveAction;
+	QAction* fileSaveAsAction;
 	QAction* settingsAction;
 	QAction* aboutQtAction;
 	QAction* aboutAction;

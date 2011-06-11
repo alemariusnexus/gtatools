@@ -22,10 +22,20 @@
 
 #include "TextureCacheEntry.h"
 #include <utility>
+#include "../../Engine.h"
+#include "../ResourceCache.h"
 
 using std::pair;
 
 
+
+TextureCacheEntry::TextureCacheEntry(TextureArchive* archive)
+		: size(0), parent(0)
+{
+	if (archive->getParent()) {
+		parent = archive->getParent()->getName();
+	}
+}
 
 
 TextureCacheEntry::~TextureCacheEntry()
@@ -49,6 +59,14 @@ GLuint TextureCacheEntry::getTexture(hash_t texName) const
 	TextureMap::const_iterator it = texMap.find(texName);
 
 	if (it == texMap.end()) {
+		if (parent != 0) {
+			TextureCacheEntry* entry = (TextureCacheEntry*)
+					Engine::getInstance()->getTextureCache()->getEntry(parent);
+
+			if (entry) {
+				return entry->getTexture(texName);
+			}
+		}
 		return 0;
 	}
 

@@ -60,6 +60,16 @@ DefaultGUIModule::DefaultGUIModule()
 	connect(fileCloseAction, SIGNAL(triggered(bool)), this, SLOT(onFileClose(bool)));
 	fileCloseAction->setEnabled(false);
 
+	fileSaveAction = new QAction(tr("Save"), NULL);
+	fileSaveAction->setShortcut(QKeySequence::Save);
+	connect(fileSaveAction, SIGNAL(triggered(bool)), this, SLOT(onFileSave(bool)));
+	fileSaveAction->setEnabled(false);
+
+	fileSaveAsAction = new QAction(tr("Save As..."), NULL);
+	fileSaveAsAction->setShortcut(QKeySequence::SaveAs);
+	connect(fileSaveAsAction, SIGNAL(triggered(bool)), this, SLOT(onFileSaveAs(bool)));
+	fileSaveAsAction->setEnabled(false);
+
 	searchFileAction = new QAction(tr("Search File..."), NULL);
 	searchFileAction->setShortcut(QKeySequence::Find);
 	connect(searchFileAction, SIGNAL(triggered(bool)), this, SLOT(onSearchFile(bool)));
@@ -83,8 +93,11 @@ DefaultGUIModule::DefaultGUIModule()
 	pvsGenAction = new QAction(tr("Generate PVS Data"), NULL);
 	connect(pvsGenAction, SIGNAL(triggered(bool)), this, SLOT(onPVSGeneration(bool)));
 
-	connect(sys, SIGNAL(fileOpened(const FileOpenRequest&)), this, SLOT(fileOpened(const FileOpenRequest&)));
-	connect(sys, SIGNAL(fileClosed(File*)), this, SLOT(fileClosed(File*)));
+	connect(sys, SIGNAL(fileOpened(const FileOpenRequest&, DisplayedFile*)), this,
+			SLOT(fileOpened(const FileOpenRequest&, DisplayedFile*)));
+	connect(sys, SIGNAL(fileClosed(DisplayedFile*)), this, SLOT(fileClosed(DisplayedFile*)));
+	connect(sys, SIGNAL(currentFileChanged(DisplayedFile*, DisplayedFile*)), this,
+			SLOT(currentFileChanged(DisplayedFile*, DisplayedFile*)));
 }
 
 
@@ -95,6 +108,8 @@ DefaultGUIModule::~DefaultGUIModule()
 
 	delete fileOpenAction;
 	delete fileCloseAction;
+	delete fileSaveAction;
+	delete fileSaveAsAction;
 	delete searchFileAction;
 	delete settingsAction;
 	delete aboutQtAction;
@@ -125,6 +140,8 @@ void DefaultGUIModule::doInstall()
 
 	fileOpenAction->setParent(mainWindow);
 	fileCloseAction->setParent(mainWindow);
+	fileSaveAction->setParent(mainWindow);
+	fileSaveAsAction->setParent(mainWindow);
 	searchFileAction->setParent(mainWindow);
 	settingsAction->setParent(mainWindow);
 	aboutQtAction->setParent(mainWindow);
@@ -135,6 +152,8 @@ void DefaultGUIModule::doInstall()
 
 	fileMenu->addAction(fileOpenAction);
 	fileMenu->addAction(fileCloseAction);
+	fileMenu->addAction(fileSaveAction);
+	fileMenu->addAction(fileSaveAsAction);
 	editMenu->addAction(searchFileAction);
 	settingsMenu->addAction(settingsAction);
 	helpMenu->addAction(aboutQtAction);
@@ -219,6 +238,8 @@ void DefaultGUIModule::doUninstall()
 
 	fileOpenAction->setParent(NULL);
 	fileCloseAction->setParent(NULL);
+	fileSaveAction->setParent(NULL);
+	fileSaveAsAction->setParent(NULL);
 	searchFileAction->setParent(NULL);
 	settingsAction->setParent(NULL);
 	aboutQtAction->setParent(NULL);
@@ -228,6 +249,8 @@ void DefaultGUIModule::doUninstall()
 
 	fileMenu->removeAction(fileOpenAction);
 	fileMenu->removeAction(fileCloseAction);
+	fileMenu->removeAction(fileSaveAction);
+	fileMenu->removeAction(fileSaveAsAction);
 	editMenu->removeAction(searchFileAction);
 	settingsMenu->removeAction(settingsAction);
 	helpMenu->removeAction(aboutQtAction);
@@ -320,6 +343,30 @@ void DefaultGUIModule::onFileClose(bool checked)
 }
 
 
+void DefaultGUIModule::onFileSave(bool checked)
+{
+	DisplayedFile* dfile = System::getInstance()->getCurrentFile();
+	File file = dfile->getFile();
+	dfile->saveTo(file);
+}
+
+
+void DefaultGUIModule::onFileSaveAs(bool checked)
+{
+	DisplayedFile* dfile = System::getInstance()->getCurrentFile();
+
+	QString filter = dfile->getFormatHandler()->buildFileDialogFilter();
+
+	QString fname = QFileDialog::getSaveFileName(mainWindow, tr("Select file"),
+			dfile->getFile().getPath()->toString(), filter);
+
+	if (!fname.isNull()) {
+		File file(fname.toLocal8Bit().constData());
+		dfile->saveTo(file);
+	}
+}
+
+
 void DefaultGUIModule::onPVSGeneration(bool checked)
 {
 	PVSDialog dialog(mainWindow);
@@ -327,19 +374,36 @@ void DefaultGUIModule::onPVSGeneration(bool checked)
 }
 
 
-void DefaultGUIModule::fileOpened(const FileOpenRequest& request)
+void DefaultGUIModule::fileOpened(const FileOpenRequest& request, DisplayedFile* file)
 {
 	fileCloseAction->setEnabled(true);
+	connect(file, SIGNAL(changeStatusChanged()), this, SLOT(fileChangeStatusChanged()));
 }
 
 
-void DefaultGUIModule::fileClosed(File* file)
+void DefaultGUIModule::fileClosed(DisplayedFile* file)
 {
 	System* sys = System::getInstance();
 
 	if (!sys->hasOpenFile()) {
 		fileCloseAction->setEnabled(false);
 	}
+
+	disconnect(file, NULL, this, NULL);
+}
+
+
+void DefaultGUIModule::currentFileChanged(DisplayedFile* current, DisplayedFile* prev)
+{
+	fileSaveAction->setEnabled(current  &&  current->canSave()  &&  current->hasChanges());
+	fileSaveAsAction->setEnabled(current  &&  current->canSave());
+}
+
+
+void DefaultGUIModule::fileChangeStatusChanged()
+{
+	DisplayedFile* dfile = (DisplayedFile*) sender();
+	fileSaveAction->setEnabled(dfile->hasChanges());
 }
 
 

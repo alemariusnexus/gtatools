@@ -57,9 +57,9 @@ int32_t TXDConverter::convert(const TXDTextureHeader& from, const TXDTextureHead
 		mipEnd = to.getMipmapCount()-1;
 	}
 
-	char fromFormatDesc[128];
+	char fromFormatDesc[256];
 	from.getFormat(fromFormatDesc);
-	char toFormatDesc[128];
+	char toFormatDesc[256];
 	to.getFormat(toFormatDesc);
 
 	int16_t mipW = from.getWidth() / pow(2.0f, mipStart);

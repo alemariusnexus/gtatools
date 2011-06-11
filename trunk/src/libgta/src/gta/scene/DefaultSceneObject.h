@@ -10,17 +10,17 @@
 
 #include <gtaformats/util/math/Matrix4.h>
 #include <gtaformats/gtaipl.h>
-#include "../ItemDefinition.h"
+#include "../MapItemDefinition.h"
 #include <btBulletDynamicsCommon.h>
 
 
 class DefaultSceneObject {
 public:
-	DefaultSceneObject(ItemDefinition* def, const Matrix4& modelMatrix = Matrix4(),
+	DefaultSceneObject(MapItemDefinition* def, const Matrix4& modelMatrix = Matrix4(),
 			DefaultSceneObject* lodParent = NULL);
 	DefaultSceneObject(const DefaultSceneObject& other);
-	ItemDefinition* getDefinition() { return def; }
-	const ItemDefinition* getDefinition() const { return def; }
+	MapItemDefinition* getDefinition() { return def; }
+	const MapItemDefinition* getDefinition() const { return def; }
 	Matrix4& getModelMatrix() { return modelMatrix; }
 	const Matrix4& getModelMatrix() const { return modelMatrix; }
 	void setModelMatrix(const Matrix4& matrix);
@@ -32,10 +32,11 @@ public:
 	void setID(int id) { this->id = id; }
 	btRigidBody* getRigidBody() { return rigidBody; }
 	void render(Matrix4& vpMatrix, GLuint mvpMatrixUniform);
+	virtual bool isVisible() const { return def->isVisible(); }
 
 private:
 	int id;
-	ItemDefinition* def;
+	MapItemDefinition* def;
 	Matrix4 modelMatrix;
 	DefaultSceneObject* lodParent;
 	btRigidBody* rigidBody;

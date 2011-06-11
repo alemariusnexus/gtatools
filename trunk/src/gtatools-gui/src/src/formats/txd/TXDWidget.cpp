@@ -33,12 +33,15 @@
 
 
 
-TXDWidget::TXDWidget(const File& file, const QString& selectedTex, QWidget* parent)
-		: QWidget(parent), compactTab(NULL)
+TXDWidget::TXDWidget(DisplayedFile* dfile, const QString& selectedTex, QWidget* parent)
+		: QWidget(parent), dfile(dfile), compactTab(NULL)
 {
+	File file = dfile->getFile();
+
 	ui.setupUi(this);
 	ui.mainSplitter->setSizes(QList<int>() << width()/4 << width()/4*3);
 
+	ui.rwbsWidget->loadFile(file);
 
 	QWidget* displayContainer = ui.renderArea->takeWidget();
 	displayContainer->layout()->removeWidget(ui.displayLabel);
@@ -80,6 +83,7 @@ TXDWidget::TXDWidget(const File& file, const QString& selectedTex, QWidget* pare
 	connect(ui.textureList, SIGNAL(customContextMenuRequested(const QPoint&)), this,
 			SLOT(textureListContextMenuRequested(const QPoint&)));
 	connect(sys, SIGNAL(configurationChanged()), this, SLOT(loadConfigUiSettings()));
+	connect(ui.rwbsWidget, SIGNAL(sectionChanged(RWSection*)), this, SLOT(sectionChanged(RWSection*)));
 
 	openGUIModule = new OpenTXDGUIModule(this);
 
@@ -102,6 +106,12 @@ TXDWidget::~TXDWidget()
 	delete openGUIModule;
 
 	delete txd;
+}
+
+
+void TXDWidget::saveTo(const File& file)
+{
+	ui.rwbsWidget->save(file);
 }
 
 
@@ -196,6 +206,44 @@ void TXDWidget::textureActivated(QListWidgetItem* item, QListWidgetItem* previou
 		ui.bppField->setText(QString("%1").arg(texture->getBytesPerPixel()*8));
 		ui.mipmapCountField->setText(QString("%1").arg(texture->getMipmapCount()));
 		ui.alphaField->setText(texture->hasAlphaChannel() ? tr("yes") : tr("no"));
+
+		QString uWrapStr = QString("%1 [").arg(texture->getUWrapFlags());
+		QString vWrapStr = QString("%1 [").arg(texture->getVWrapFlags());
+
+		switch (texture->getUWrapFlags()) {
+		case WrapClamp:
+			uWrapStr.append(tr("Clamp"));
+			break;
+		case WrapMirror:
+			uWrapStr.append(tr("Mirror"));
+			break;
+		case WrapNone:
+			uWrapStr.append(tr("None"));
+			break;
+		case WrapWrap:
+			uWrapStr.append(tr("Wrap"));
+			break;
+		}
+
+		switch (texture->getVWrapFlags()) {
+		case WrapClamp:
+			vWrapStr.append(tr("Clamp"));
+			break;
+		case WrapMirror:
+			vWrapStr.append(tr("Mirror"));
+			break;
+		case WrapNone:
+			vWrapStr.append(tr("None"));
+			break;
+		case WrapWrap:
+			vWrapStr.append(tr("Wrap"));
+			break;
+		}
+
+		uWrapStr.append("]");
+		vWrapStr.append("]");
+
+		ui.wrapFlagsLabel->setText(uWrapStr.append("; ").append(vWrapStr));
 	}
 }
 

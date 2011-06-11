@@ -66,7 +66,7 @@ TXDArchive::TXDArchive()
 
 
 TXDArchive::TXDArchive(istream* stream)
-		: texDict(new RWSection(stream))
+		: texDict(RWSection::readSection(stream))
 {
 	init(stream);
 }
@@ -75,7 +75,7 @@ TXDArchive::TXDArchive(istream* stream)
 TXDArchive::TXDArchive(const File& file)
 {
 	istream* stream = file.openInputStream(istream::binary);
-	texDict = new RWSection(stream);
+	texDict = RWSection::readSection(stream);
 	init(stream);
 	delete stream;
 }

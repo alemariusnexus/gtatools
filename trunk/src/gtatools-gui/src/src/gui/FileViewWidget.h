@@ -26,6 +26,7 @@
 #include <ui_FileViewWidget.h>
 #include <QtGui/QWidget>
 #include "../FileOpenRequest.h"
+#include "../DisplayedFile.h"
 
 
 
@@ -33,10 +34,17 @@ class FileViewWidget : public QWidget {
 	Q_OBJECT
 
 public:
-	FileViewWidget(const FileOpenRequest& request);
+	FileViewWidget(DisplayedFile* dfile);
 	~FileViewWidget();
 
 private:
+	void updateFile();
+
+private slots:
+	void saved(const File& file);
+
+private:
+	DisplayedFile* dfile;
 	Ui_FileViewWidget ui;
 	QWidget* displayWidget;
 };

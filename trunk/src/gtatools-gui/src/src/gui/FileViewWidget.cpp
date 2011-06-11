@@ -27,8 +27,8 @@
 
 
 
-FileViewWidget::FileViewWidget(const FileOpenRequest& request)
-		: displayWidget(NULL)
+FileViewWidget::FileViewWidget(DisplayedFile* dfile)
+		: dfile(dfile), displayWidget(NULL)
 {
 	ui.setupUi(this);
 
@@ -37,15 +37,41 @@ FileViewWidget::FileViewWidget(const FileOpenRequest& request)
 	ui.fileNameLabel->setVisible(!compact);
 	ui.fileInfoWidget->setVisible(!compact);
 
-	File* file = request.getFile();
+	File file = dfile->getFile();
 
-	ui.fileNameLabel->setText(QString(file->getPath()->getFileName()));
+	updateFile();
 
-	if (file->isDirectory()) {
+	if (!file.isDirectory()) {
+		displayWidget = dfile->getWidget();
+
+		if (displayWidget) {
+			ui.contentPluginWidget->layout()->addWidget(displayWidget);
+		}
+	}
+
+	connect(dfile, SIGNAL(saved(const File&)), this, SLOT(saved(const File&)));
+}
+
+
+FileViewWidget::~FileViewWidget()
+{
+	// It is DisplayedFile's responsibility to delete the widget.
+	ui.contentPluginWidget->layout()->removeWidget(displayWidget);
+	displayWidget->setParent(NULL);
+}
+
+
+void FileViewWidget::updateFile()
+{
+	File file = dfile->getFile();
+
+	ui.fileNameLabel->setText(QString(file.getPath()->getFileName()));
+
+	if (file.isDirectory()) {
 		ui.fileTypeLabel->setText(QString(tr("Directory")));
-		ui.fileSizeLabel->setText(QString(tr("%1 files")).arg(file->getChildCount()));
+		ui.fileSizeLabel->setText(QString(tr("%1 files")).arg(file.getChildCount()));
 	} else {
-		File::filesize size = file->getSize();
+		File::filesize size = file.getSize();
 
 		if (size > 1000000) {
 			ui.fileSizeLabel->setText(QString(tr("%1MB")).arg(size/1000000.0f));
@@ -55,37 +81,12 @@ FileViewWidget::FileViewWidget(const FileOpenRequest& request)
 			ui.fileSizeLabel->setText(QString(tr("%1B")).arg(size));
 		}
 
-		QLinkedList<FormatHandler*> handlers = FormatManager::getInstance()->getHandlers(*file);
-
-		if (handlers.size() == 0) {
-			ui.fileTypeLabel->setText(QString(tr("Unrecognized File")));
-		} else {
-			ui.fileTypeLabel->setText((*handlers.begin())->getFormatName(file));
-		}
-
-		QLinkedList<FormatHandler*>::iterator it;
-
-		for (it = handlers.begin() ; it != handlers.end() ; it++) {
-			FormatHandler* handler = *it;
-
-			displayWidget = handler->createWidgetForFile(request, ui.contentPluginWidget);
-
-			if (displayWidget) {
-				ui.contentPluginWidget->layout()->addWidget(displayWidget);
-				break;
-			}
-		}
-
-		/*if (contentTabCompact) {
-			contentTabCompact->setTabEnabled(1, currentDisplayWidget != NULL);
-		}*/
+		ui.fileTypeLabel->setText(dfile->getFormatName());
 	}
 }
 
 
-FileViewWidget::~FileViewWidget()
+void FileViewWidget::saved(const File& file)
 {
-	if (displayWidget) {
-		delete displayWidget;
-	}
+	updateFile();
 }

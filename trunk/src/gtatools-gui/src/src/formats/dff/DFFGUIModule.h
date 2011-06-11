@@ -36,7 +36,7 @@ class DFFGUIModule : public GUIModule {
 	Q_OBJECT
 
 public:
-	static DFFGUIModule* getInstance() { static DFFGUIModule inst; return &inst; }
+	static DFFGUIModule* getInstance() { static DFFGUIModule* inst = new DFFGUIModule; return inst; }
 
 signals:
 	void dumpRequested();

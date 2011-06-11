@@ -50,6 +50,14 @@ void TextureIndexer::resourceAdded(const File& file)
 
 		hash_t txdHash = Hash(txdName);
 
+#ifndef NDEBUG
+		if (archives.find(txdHash) != archives.end()) {
+			char* oldPath = dbgArchivePaths.find(txdHash)->second;
+			fprintf(stderr, "WARNING: Conflicting resources: A TXD archive with the same name as %s was "
+					"already added! Previous resource: %s\n", file.getPath()->toString(), oldPath);
+		}
+#endif
+
 		TXDArchive txd(file);
 
 		TextureArchive* archive = new TextureArchive(txdHash, file);
@@ -62,7 +70,13 @@ void TextureIndexer::resourceAdded(const File& file)
 			archive->addTexture(Hash(texName));
 		}
 
-		archives.insert(pair<hash_t, TextureArchive*>(txdHash, archive));
+		archives[txdHash] = archive;
+
+#ifndef NDEBUG
+		char* path = new char[strlen(file.getPath()->toString()) + 1];
+		strcpy(path, file.getPath()->toString());
+		dbgArchivePaths.insert(pair<hash_t, char*>(txdHash, path));
+#endif
 
 		delete[] txdName;
 	}
@@ -78,6 +92,16 @@ void TextureIndexer::resourcesCleared()
 	}
 
 	archives.clear();
+
+#ifndef NDEBUG
+	map<hash_t, char*>::iterator it;
+
+	for (it = dbgArchivePaths.begin() ; it != dbgArchivePaths.end() ; it++) {
+		delete[] it->second;
+	}
+
+	dbgArchivePaths.clear();
+#endif
 }
 
 

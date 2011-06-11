@@ -38,10 +38,11 @@ using std::exception;
 class Exception : public exception {
 public:
 	Exception(const char* message, const char* srcFile = NULL, int srcLine = -1,
-			Exception* nestedException = NULL, const char* exceptionName = "Exception");
+			const Exception* nestedException = NULL, const char* exceptionName = "Exception");
 	Exception(const Exception& ex);
 	virtual ~Exception() throw();
 	virtual const char* what() const throw() { return fullMessage; };
+	virtual Exception* copy() const throw() { return new Exception(*this); }
 	const char* getMessage() const throw() { return message; }
 	const char* getBacktrace() const throw();
 

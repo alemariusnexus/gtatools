@@ -100,8 +100,6 @@ void PVSData::build()
 	for (i = 0 ; i < numSects ; i++) {
 		PVSSection* sect = sections[i];
 
-		//printf("    Calculating PVS data for section %d/%d...\n", i+1, numSects);
-
 		for (it = scene->getSceneObjectBegin() ; it != scene->getSceneObjectEnd() ; it++) {
 			DefaultSceneObject* obj = *it;
 			DefaultSceneObject* baseObj = obj;

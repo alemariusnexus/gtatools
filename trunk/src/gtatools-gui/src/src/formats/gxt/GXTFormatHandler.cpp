@@ -26,6 +26,7 @@
 #include <QtCore/QTextStream>
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
+#include "../../DefaultDisplayedFile.h"
 
 
 
@@ -42,10 +43,11 @@ bool GXTFormatHandler::hasFileFormat(const File& file) const
 }
 
 
-QWidget* GXTFormatHandler::createWidgetForFile(const FileOpenRequest& request, QWidget* parent)
+DisplayedFile* GXTFormatHandler::openFile(const FileOpenRequest& request)
 {
-	GXTWidget* widget = new GXTWidget(request, parent);
-	return widget;
+	GXTWidget* widget = new GXTWidget(request, NULL);
+	DefaultDisplayedFile* file = new DefaultDisplayedFile(*request.getFile(), this, widget);
+	return file;
 }
 
 

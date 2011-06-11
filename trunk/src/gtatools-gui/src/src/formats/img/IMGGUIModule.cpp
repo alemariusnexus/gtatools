@@ -38,7 +38,8 @@ IMGGUIModule::IMGGUIModule()
 	contextExtractAction = new QAction(tr("Extract File(s)"), NULL);
 	connect(contextExtractAction, SIGNAL(triggered(bool)), this, SLOT(onContextExtract(bool)));
 
-	connect(sys, SIGNAL(currentFileChanged(File*, File*)), this, SLOT(currentFileChanged(File*, File*)));
+	connect(sys, SIGNAL(currentFileChanged(DisplayedFile*, DisplayedFile*)), this,
+			SLOT(currentFileChanged(DisplayedFile*, DisplayedFile*)));
 }
 
 
@@ -74,7 +75,7 @@ void IMGGUIModule::doUninstall()
 void IMGGUIModule::buildFileTreeMenu(const QLinkedList<File*>& files, QMenu& menu)
 {
 	QLinkedList<File*>::const_iterator it;
-	QLinkedList<File*> toBeExtracted;
+	QLinkedList<File> toBeExtracted;
 	bool allExtractable = true;
 
 	for (it = files.begin() ; it != files.end() ; it++) {
@@ -85,12 +86,13 @@ void IMGGUIModule::buildFileTreeMenu(const QLinkedList<File*>& files, QMenu& men
 			File* child;
 
 			while ((child = it->next())  !=  NULL) {
-				toBeExtracted << child;
+				toBeExtracted << *child;
+				delete child;
 			}
 
 			delete it;
 		} else if (file->getPath()->isIMGPath()) {
-			toBeExtracted << new File(*file);
+			toBeExtracted << *file;
 		} else {
 			allExtractable = false;
 			break;
@@ -107,11 +109,11 @@ void IMGGUIModule::buildFileTreeMenu(const QLinkedList<File*>& files, QMenu& men
 }
 
 
-void IMGGUIModule::currentFileChanged(File* file, File* prev)
+void IMGGUIModule::currentFileChanged(DisplayedFile* dfile, DisplayedFile* prev)
 {
 	QMenu* fileMenu = mainWindow->getFileMenu();
 
-	if (file  &&  (file->getPath()->isIMGPath()  ||  file->isArchiveFile())) {
+	if (dfile  &&  (dfile->getFile().getPath()->isIMGPath()  ||  dfile->getFile().isArchiveFile())) {
 		if (!menuExists) {
 			fileMenu->addAction(extractAction);
 			menuExists = true;
@@ -127,27 +129,23 @@ void IMGGUIModule::currentFileChanged(File* file, File* prev)
 
 void IMGGUIModule::deleteCurrentContextFiles()
 {
-	QLinkedList<File*>::iterator it;
-
-	for (it = currentContextFiles.begin() ; it != currentContextFiles.end() ; it++) {
-		delete *it;
-	}
+	currentContextFiles.clear();
 }
 
 
-void IMGGUIModule::extract(const QLinkedList<File*>& files)
+void IMGGUIModule::extract(const QLinkedList<File>& files)
 {
 	if (files.size() > 0) {
 		if (files.size() == 1) {
-			File* file = files.first();
+			File file = files.first();
 			QString fname = QFileDialog::getSaveFileName(mainWindow, tr("Choose a destination file"),
-					file->getPath()->getFileName());
+					file.getPath()->getFileName());
 
 			if (!fname.isEmpty()) {
 				QFile dfile(fname);
 
 				if (dfile.open(QFile::WriteOnly | QFile::Truncate)) {
-					istream* stream = file->openInputStream(istream::binary);
+					istream* stream = file.openInputStream(istream::binary);
 
 					char buf[2048];
 
@@ -168,7 +166,7 @@ void IMGGUIModule::extract(const QLinkedList<File*>& files)
 			QString dname = QFileDialog::getExistingDirectory(mainWindow, tr("Choose a destination directory"));
 
 			if (!dname.isEmpty()) {
-				QLinkedList<File*>::const_iterator it;
+				QLinkedList<File>::const_iterator it;
 
 				System* sys = System::getInstance();
 				Task* task = sys->createTask();
@@ -176,13 +174,13 @@ void IMGGUIModule::extract(const QLinkedList<File*>& files)
 				int i = 0;
 
 				for (it = files.begin() ; it != files.end() ; it++) {
-					File* file = *it;
+					File file = *it;
 					QString fname = dname;
-					fname.append("/").append(file->getPath()->getFileName());
+					fname.append("/").append(file.getPath()->getFileName());
 					QFile dfile(fname);
 
 					if (dfile.open(QFile::WriteOnly | QFile::Truncate)) {
-						istream* stream = file->openInputStream(istream::binary);
+						istream* stream = file.openInputStream(istream::binary);
 
 						char buf[2048];
 
@@ -215,17 +213,19 @@ void IMGGUIModule::onExtract(bool)
 {
 	System* sys = System::getInstance();
 
-	File* file = sys->getCurrentFile();
+	DisplayedFile* dfile = sys->getCurrentFile();
 
-	if (file) {
-		QLinkedList<File*> files;
+	if (dfile) {
+		File file = dfile->getFile();
+		QLinkedList<File> files;
 
-		if (file->isArchiveFile()) {
-			FileIterator* it = file->getIterator();
+		if (file.isArchiveFile()) {
+			FileIterator* it = file.getIterator();
 			File* child;
 
 			while ((child = it->next())  !=  NULL) {
-				files << child;
+				files << *child;
+				delete child;
 			}
 
 			delete it;
@@ -234,14 +234,6 @@ void IMGGUIModule::onExtract(bool)
 		}
 
 		extract(files);
-
-		if (file->isArchiveFile()) {
-			QLinkedList<File*>::iterator it;
-
-			for (it = files.begin() ; it != files.end() ; it++) {
-				delete *it;
-			}
-		}
 	}
 }
 

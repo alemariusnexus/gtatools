@@ -54,3 +54,17 @@ bool RandomBool()
 {
 	return rand() <= RAND_MAX/2;
 }
+
+
+bool IsTimeBetween(int8_t timeH, int8_t timeM, int8_t startH, int8_t startM, int8_t endH, int8_t endM)
+{
+	int16_t timeAbsM = timeH*60 + timeM;
+	int16_t startAbsM = startH*60 + startM;
+	int16_t endAbsM = endH*60 + endM;
+
+	if (endAbsM >= startAbsM) {
+		return timeAbsM >= startAbsM  &&  timeAbsM < endAbsM;
+	} else {
+		return timeAbsM >= startAbsM  ||  timeAbsM < endAbsM;
+	}
+}

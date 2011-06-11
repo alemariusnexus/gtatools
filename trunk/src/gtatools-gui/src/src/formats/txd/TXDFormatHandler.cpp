@@ -32,6 +32,7 @@
 #include "../../ProfileManager.h"
 #include "TextureSearchDialog.h"
 #include <gtaformats/txd/TXDConverter.h>
+#include "../../DefaultDisplayedFile.h"
 
 
 
@@ -50,7 +51,7 @@ TXDFormatHandler::TXDFormatHandler()
 }
 
 
-QWidget* TXDFormatHandler::createWidgetForFile(const FileOpenRequest& request, QWidget* parent)
+DisplayedFile* TXDFormatHandler::openFile(const FileOpenRequest& request)
 {
 	QString texName;
 
@@ -59,7 +60,14 @@ QWidget* TXDFormatHandler::createWidgetForFile(const FileOpenRequest& request, Q
 		texName = tn.toString();
 	}
 
-	return new TXDWidget(*request.getFile(), texName, parent);
+	DefaultDisplayedFile* file = new DefaultDisplayedFile(*request.getFile(), this, NULL);
+	TXDWidget* widget = new TXDWidget(file, texName, NULL);
+	file->setWidget(widget);
+	file->setSavable(true);
+
+	connect(file, SIGNAL(saved(const File&)), widget, SLOT(saveTo(const File&)));
+
+	return file;
 }
 
 

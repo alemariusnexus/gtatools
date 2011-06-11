@@ -21,6 +21,8 @@
  */
 
 #include "ItemManager.h"
+#include "StaticMapItemDefinition.h"
+#include "TimedMapItemDefinition.h"
 #include <gtaformats/gtaide.h>
 #include <utility>
 
@@ -43,13 +45,16 @@ void ItemManager::resourceAdded(const File& file)
 		IDEStatement* stmt;
 
 		while ((stmt = ide.readStatement())  !=  NULL) {
-			switch (stmt->getType()) {
-			case IDETypeStaticObject:
+			idetype_t type = stmt->getType();
+
+			if (type == IDETypeStaticObject) {
 				IDEStaticObject* sobj = (IDEStaticObject*) stmt;
-				ItemDefinition* item = new ItemDefinition(*sobj);
-				item->setIDEID(sobj->getId());
+				StaticMapItemDefinition* item = new StaticMapItemDefinition(*sobj);
 				defineItem(sobj->getId(), item);
-				break;
+			} else if (type == IDETypeTimedObject) {
+				IDETimedObject* tobj = (IDETimedObject*) stmt;
+				TimedMapItemDefinition* item = new TimedMapItemDefinition(*tobj);
+				defineItem(tobj->getId(), item);
 			}
 
 			delete stmt;

@@ -67,7 +67,7 @@ MainWindow::MainWindow()
 
 	sys->installGUIModule(new DefaultGUIModule);
 	sys->installGUIModule(new TXDGUIModule);
-	sys->installGUIModule(new IDEGUIModule);
+	sys->installGUIModule(IDEGUIModule::getInstance());
 }
 
 
@@ -75,10 +75,11 @@ void MainWindow::initialize()
 {
 	System* sys = System::getInstance();
 
-	connect(sys, SIGNAL(fileOpened(const FileOpenRequest&)), this,
-			SLOT(openFile(const FileOpenRequest&)));
-	connect(sys, SIGNAL(fileClosed(File*)), this, SLOT(closeFile(File*)));
-	connect(sys, SIGNAL(currentFileChanged(File*, File*)), this, SLOT(currentFileChanged(File*, File*)));
+	connect(sys, SIGNAL(fileOpened(const FileOpenRequest&, DisplayedFile*)), this,
+			SLOT(openFile(const FileOpenRequest&, DisplayedFile*)));
+	connect(sys, SIGNAL(fileClosed(DisplayedFile*)), this, SLOT(closeFile(DisplayedFile*)));
+	connect(sys, SIGNAL(currentFileChanged(DisplayedFile*, DisplayedFile*)), this,
+			SLOT(currentFileChanged(DisplayedFile*, DisplayedFile*)));
 	connect(sys, SIGNAL(configurationChanged()), this, SLOT(configurationChanged()));
 	connect(ui.contentTabber, SIGNAL(currentChanged(int)), this, SLOT(currentFileTabChanged(int)));
 	connect(ui.contentTabber, SIGNAL(tabCloseRequested(int)), this, SLOT(fileTabClosed(int)));
@@ -94,17 +95,15 @@ void MainWindow::initialize()
 
 MainWindow::~MainWindow()
 {
-	QMap<File, FileViewWidget*>::iterator fit;
-
-	for (fit = fileWidgets.begin() ; fit != fileWidgets.end() ; fit++) {
-		delete fit.value();
-	}
-
 	QSettings settings;
 	settings.setValue("gui/mainwindow_size", size());
 	settings.setValue("gui/mainwindow_state", saveState());
 
 	System* sys = System::getInstance();
+
+	while (sys->hasOpenFile())
+		sys->closeCurrentFile();
+
 	QLinkedList<GUIModule*> modules = sys->getInstalledGUIModules();
 	QLinkedList<GUIModule*>::iterator it;
 
@@ -186,27 +185,51 @@ void MainWindow::dockWidgetVisibilityChanged(bool visible)
 }
 
 
-void MainWindow::openFile(const FileOpenRequest& request)
+void MainWindow::openFile(const FileOpenRequest& request, DisplayedFile* file)
 {
-	FileViewWidget* widget = new FileViewWidget(request);
-	fileWidgets[*request.getFile()] = widget;
-	ui.contentTabber->addTab(widget, QString(request.getFile()->getPath()->getFileName()));
+	FileViewWidget* widget = new FileViewWidget(file);
+	fileWidgets[file] = widget;
+	ui.contentTabber->addTab(widget, QString(file->getFile().getPath()->getFileName()));
+	connect(file, SIGNAL(saved(const File&)), this, SLOT(fileSaved(const File&)));
+	connect(file, SIGNAL(changeStatusChanged()), this, SLOT(fileChangeStatusChanged()));
 }
 
 
-void MainWindow::currentFileChanged(File* file, File* prev)
+void MainWindow::currentFileChanged(DisplayedFile* file, DisplayedFile* prev)
 {
 	if (file)
-		ui.contentTabber->setCurrentWidget(fileWidgets[*file]);
+		ui.contentTabber->setCurrentWidget(fileWidgets[file]);
 }
 
 
-void MainWindow::closeFile(File* file)
+void MainWindow::closeFile(DisplayedFile* file)
 {
-	FileViewWidget* widget = fileWidgets[*file];
-	fileWidgets.remove(*file);
+	FileViewWidget* widget = fileWidgets[file];
+	fileWidgets.remove(file);
 	ui.contentTabber->removeTab(ui.contentTabber->indexOf(widget));
+	disconnect(file, NULL, this, NULL);
 	delete widget;
+}
+
+
+void MainWindow::fileSaved(const File& file)
+{
+	DisplayedFile* dfile = (DisplayedFile*) sender();
+	FileViewWidget* widget = fileWidgets[dfile];
+	ui.contentTabber->setTabText(ui.contentTabber->indexOf(widget), file.getPath()->getFileName());
+}
+
+
+void MainWindow::fileChangeStatusChanged()
+{
+	DisplayedFile* dfile = (DisplayedFile*) sender();
+	FileViewWidget* widget = fileWidgets[dfile];
+	QString text = dfile->getFile().getPath()->getFileName();
+
+	if (dfile->hasChanges())
+		text += "*";
+
+	ui.contentTabber->setTabText(ui.contentTabber->indexOf(widget), text);
 }
 
 
@@ -223,14 +246,14 @@ void MainWindow::taskLabelShouldAdjust()
 
 void MainWindow::currentFileTabChanged(int index)
 {
-	QMap<File, FileViewWidget*>::iterator it;
+	QMap<DisplayedFile*, FileViewWidget*>::iterator it;
 	QWidget* widget = ui.contentTabber->widget(index);
 
 	for (it = fileWidgets.begin() ; it != fileWidgets.end() ; it++) {
 		if (widget == it.value()) {
 			System* sys = System::getInstance();
-			const File& file = it.key();
-			sys->changeCurrentFile(&file);
+			DisplayedFile* file = it.key();
+			sys->changeCurrentFile(file);
 			break;
 		}
 	}
@@ -239,7 +262,7 @@ void MainWindow::currentFileTabChanged(int index)
 
 void MainWindow::fileTabClosed(int index)
 {
-	QMap<File, FileViewWidget*>::iterator it;
+	QMap<DisplayedFile*, FileViewWidget*>::iterator it;
 	QWidget* widget = ui.contentTabber->widget(index);
 
 	for (it = fileWidgets.begin() ; it != fileWidgets.end() ; it++) {
