@@ -120,15 +120,11 @@ void DFFRenderWidget::initializeGL()
 		gtaglInit();
 
 		if (
-#ifdef GTATOOLS_GUI_USE_OPENGL_ES
 			!gtaglIsVersionSupported(2, 0)
-#else
-			!gtaglIsVersionSupported(2, 1)
-#endif
 		) {
 			renderingEnabled = false;
 			QMessageBox::critical(this, tr("OpenGL Too Old"),
-					tr("This program needs at least OpenGL version 2.1 or OpenGL ES version 2.0! "
+					tr("This program needs at least OpenGL version 2.0 or OpenGL ES version 2.0! "
 					"Rendering will be disabled."));
 		} else {
 			renderingEnabled = true;

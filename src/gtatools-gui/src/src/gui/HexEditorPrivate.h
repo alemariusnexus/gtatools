@@ -128,7 +128,7 @@ private:
 private:
 	int enabledParts;
 	QTimer cursorBlinkTimer;
-	int charW, charH, charAsc, charDesc;
+	float charW, charH, charAsc, charDesc;
 	QByteArray data;
 	int addrHexGapSize;
 	int hexAsciiGapSize;

@@ -42,7 +42,10 @@ HexEditorPrivate::HexEditorPrivate(QWidget* parent)
 		  temporaryOverwriteMode(false), cursorBlink(false), cursorAscii(false), numLines(0), bytesPerLine(0),
 		  lineDisplayOffset(0), currentByteEdited(false)
 {
-	setFont(QFont("Mono", 12));
+	QFont font("", 12);
+	font.setStyleHint(QFont::TypeWriter);
+	setFont(font);
+
 	setAddressColor(QColor(Qt::lightGray).lighter(100));
 	setEvenColumnColor(palette().color(QPalette::Text));
 	setOddColumnColor(QColor(Qt::blue).lighter(125));
@@ -76,7 +79,7 @@ void HexEditorPrivate::setFont(const QFont& font)
 {
 	QWidget::setFont(font);
 
-	QFontMetrics fm(font);
+	QFontMetricsF fm(font);
 
 	charW = fm.width('F');
 	charH = fm.height();
@@ -601,7 +604,7 @@ void HexEditorPrivate::paintEvent(QPaintEvent* evt)
 	// Note: When the very last line is to be redrawn and if it is completely full, we will append an empty
 	// line, so that the cursor can be placed there to add new values (?: operator in second min() argument).
 	int startLine = rect.y() / charH + lineDisplayOffset;
-	int endLine = min((rect.y() + rect.height()) / charH + 1 + lineDisplayOffset,
+	int endLine = min((int) ((rect.y() + rect.height()) / charH + 1 + lineDisplayOffset),
 			(data.size() % bytesPerLine) == 0 ? numLines : numLines-1);
 
 	if (data.size() == 0)
