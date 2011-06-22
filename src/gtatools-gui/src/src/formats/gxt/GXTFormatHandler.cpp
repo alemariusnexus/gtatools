@@ -27,6 +27,8 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
 #include "../../DefaultDisplayedFile.h"
+#include <gtaformats/util/Exception.h>
+#include "../../System.h"
 
 
 
@@ -45,7 +47,16 @@ bool GXTFormatHandler::hasFileFormat(const File& file) const
 
 DisplayedFile* GXTFormatHandler::openFile(const FileOpenRequest& request)
 {
-	GXTWidget* widget = new GXTWidget(request, NULL);
+	GXTWidget* widget;
+
+	try {
+		widget = new GXTWidget(request, NULL);
+	} catch (Exception& ex) {
+		System::getInstance()->log(LogEntry::error(tr("Error opening GXT file: %1").arg(ex.getMessage()),
+				&ex));
+		return NULL;
+	}
+
 	DefaultDisplayedFile* file = new DefaultDisplayedFile(*request.getFile(), this, widget);
 	return file;
 }

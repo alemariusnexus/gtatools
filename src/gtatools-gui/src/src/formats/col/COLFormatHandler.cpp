@@ -23,12 +23,22 @@
 #include "COLFormatHandler.h"
 #include "COLWidget.h"
 #include "../../DefaultDisplayedFile.h"
+#include "../../System.h"
 
 
 
 DisplayedFile* COLFormatHandler::openFile(const FileOpenRequest& request)
 {
-	COLWidget* widget = new COLWidget(*request.getFile(), NULL);
+	COLWidget* widget;
+
+	try {
+		widget = new COLWidget(*request.getFile(), NULL);
+	} catch (Exception& ex) {
+		System::getInstance()->log(LogEntry::error(QString(tr("Error opening COL file: %1"))
+				.arg(ex.getMessage()), &ex));
+		return NULL;
+	}
+
 	DefaultDisplayedFile* file = new DefaultDisplayedFile(*request.getFile(), this, widget);
 	return file;
 }

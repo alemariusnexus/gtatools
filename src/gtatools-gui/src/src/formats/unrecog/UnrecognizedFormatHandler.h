@@ -29,6 +29,8 @@
 
 
 class UnrecognizedFormatHandler : public FormatHandler {
+	Q_OBJECT
+
 public:
 	virtual QString getFormatName(const File* file = NULL) const { return tr("Unrecognized File"); }
 	virtual QLinkedList<QString> getFileFormatExtensions() const { return QLinkedList<QString>(); }

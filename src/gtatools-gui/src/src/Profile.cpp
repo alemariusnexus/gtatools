@@ -113,10 +113,40 @@ void Profile::loadResourceIndex()
 
 	for (it = resources.begin() ; it != resources.end() ; it++) {
 		File* resFile = *it;
-		engine->addResource(*resFile, _UiUpdateCallback);
+		loadResourceRecurse(*resFile);
 	}
 
 	delete task;
+}
+
+
+void Profile::loadResourceRecurse(const File& file)
+{
+	Engine* engine = Engine::getInstance();
+	System* sys = System::getInstance();
+
+	if (file.isDirectory()  ||  file.isArchiveFile()) {
+		FileIterator* it = file.getIterator();
+
+		File* child;
+		while ((child = it->next())  !=  NULL) {
+			if (child->guessContentType() != CONTENT_TYPE_DIR) {
+				loadResourceRecurse(*child);
+			}
+
+			delete child;
+		}
+
+		delete it;
+	} else {
+		try {
+			engine->addResource(file, _UiUpdateCallback);
+		} catch (Exception& ex) {
+			sys->log(LogEntry::warning(tr("Error loading resource file %1: %2. The resource file will not be "
+					"used for certain operations.").arg(file.getPath()->toString()).arg(ex.getMessage()),
+					&ex));
+		}
+	}
 }
 
 

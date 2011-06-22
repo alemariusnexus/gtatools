@@ -205,10 +205,10 @@ IPLWidget::IPLWidget(QWidget* parent, const File& file)
 		System* sys = System::getInstance();
 		char* elem;
 
-		sys->logError(tr("Parsing errors in IPL file %1:").arg(file.getPath()->getFileName()));
+		sys->log(LogEntry::error(tr("Parsing errors in IPL file %1:").arg(file.getPath()->getFileName())));
 
 		while ((elem = log->nextMessage())  !=  NULL) {
-			sys->logError(QString("\t%1").arg(elem));
+			sys->log(LogEntry::error(QString("\t%1").arg(elem)));
 			delete[] elem;
 		}
 	}

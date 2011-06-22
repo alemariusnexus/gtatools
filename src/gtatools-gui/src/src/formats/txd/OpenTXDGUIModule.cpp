@@ -41,6 +41,7 @@ OpenTXDGUIModule::OpenTXDGUIModule(TXDWidget* txdWidget)
 {
 	extractAction = new QAction(tr("Extract textures..."), NULL);
 	extractAction->setShortcut(Qt::CTRL + Qt::Key_E);
+	extractAction->setEnabled(txdWidget->getArchive() != NULL);
 	connect(extractAction, SIGNAL(triggered(bool)), this, SLOT(onExtract(bool)));
 }
 

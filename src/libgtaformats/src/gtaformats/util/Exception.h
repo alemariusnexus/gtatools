@@ -45,6 +45,7 @@ public:
 	virtual Exception* copy() const throw() { return new Exception(*this); }
 	const char* getMessage() const throw() { return message; }
 	const char* getBacktrace() const throw();
+	const char* getName() const throw() { return exceptionName; }
 
 protected:
 	void setMessage(const char* message);

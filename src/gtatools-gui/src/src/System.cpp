@@ -105,11 +105,13 @@ bool System::openFile(const FileOpenRequest& request)
 }
 
 
-void System::closeCurrentFile()
+bool System::closeCurrentFile(bool force)
 {
 	if (currentFile != NULL) {
-		closeFile(currentFile);
+		return closeFile(currentFile, force);
 	}
+
+	return false;
 }
 
 
@@ -192,10 +194,23 @@ DisplayedFile* System::findOpenFile(const File& file)
 }
 
 
-void System::closeFile(DisplayedFile* file)
+bool System::closeFile(DisplayedFile* file, bool force)
 {
 	if (!file) {
-		return;
+		return false;
+	}
+
+	if (file->hasChanges()  &&  !force) {
+		QMessageBox::StandardButton res = QMessageBox::question(mainWindow, tr("Save changes?"),
+				tr("This file has unsaved changes. Do you want to save it before closing?"),
+				QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Yes);
+
+		if (res == QMessageBox::Yes) {
+			file->saveTo(file->getFile());
+		} else if (res == QMessageBox::No) {
+		} else {
+			return false;
+		}
 	}
 
 	openFiles.removeOne(file);
@@ -214,9 +229,9 @@ void System::closeFile(DisplayedFile* file)
 }
 
 
-void System::logError(const QString& errmsg)
+void System::log(const LogEntry& entry)
 {
-	emit errorLogged(errmsg);
+	emit entryLogged(entry);
 }
 
 

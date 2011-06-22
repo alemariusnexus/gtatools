@@ -21,6 +21,7 @@
  */
 
 #include "TXDArchive.h"
+#include "TXDException.h"
 #include <utility>
 #include "../util/strutil.h"
 #include <algorithm>
@@ -93,6 +94,11 @@ TXDArchive::~TXDArchive()
 
 void TXDArchive::init(istream* stream)
 {
+	if (texDict->getID() != RW_SECTION_TEXTUREDICTIONARY) {
+		throw TXDException("TXD file doesn't start with RW_SECTION_TEXTUREDICTIONARY. Is it really TXD?",
+				__FILE__, __LINE__);
+	}
+
 	RWSection::ChildIterator it = texDict->getChildBegin();
 
 	while ((it = texDict->nextChild(RW_SECTION_TEXTURENATIVE, it))  !=  texDict->getChildEnd()) {

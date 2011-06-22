@@ -88,10 +88,11 @@ DFFWidget::DFFWidget(const File& file, QWidget* parent, QGLWidget* shareWidget)
 	try {
 		mesh = dff.loadMesh(file);
 	} catch (DFFException ex) {
-		System::getInstance()->logError(ex.what());
-		QMessageBox::critical(this, tr("Error opening DFF file"), tr("The following error occurred "
-				"opening the DFF file:\n\n%1\n\nSee the error log for more details.").arg(ex.getMessage()));
-		throw;
+		System::getInstance()->log(LogEntry::error(QString(tr("Error opening the DFF file: %1"))
+				.arg(ex.getMessage()), &ex));
+		mesh = NULL;
+		ui.hlWidget->setEnabled(false);
+		ui.tabWidget->setTabEnabled(ui.tabWidget->indexOf(ui.hlWidget), false);
 	}
 
 	frameModel = new DFFFrameItemModel(mesh);
@@ -101,10 +102,12 @@ DFFWidget::DFFWidget(const File& file, QWidget* parent, QGLWidget* shareWidget)
 
 	DFFMesh::GeometryIterator git;
 
-	int i = 0;
-	for (git = mesh->getGeometryBegin() ; git != mesh->getGeometryEnd() ; git++, i++) {
-		QListWidgetItem* item = new QListWidgetItem(tr("Geometry %1").arg(i+1));
-		ui.geometryList->addItem(item);
+	if (mesh) {
+		int i = 0;
+		for (git = mesh->getGeometryBegin() ; git != mesh->getGeometryEnd() ; git++, i++) {
+			QListWidgetItem* item = new QListWidgetItem(tr("Geometry %1").arg(i+1));
+			ui.geometryList->addItem(item);
+		}
 	}
 
 	DFFGUIModule* guiModule = DFFGUIModule::getInstance();
@@ -165,7 +168,8 @@ DFFWidget::~DFFWidget()
 		delete ui.geometryList->takeItem(0);
 	}
 
-	delete mesh;
+	if (mesh)
+		delete mesh;
 
 	delete frameModel;
 
@@ -191,7 +195,6 @@ void DFFWidget::updateLayoutType()
 		}
 	} else {
 		if (ui.mainTabber->indexOf(ui.texSourceWidget) != -1) {
-			printf("Non-compact\n");
 			ui.mainTabber->removeTab(ui.mainTabber->indexOf(ui.texSourceWidget));
 			ui.texSourceWidget->setParent(this);
 			ui.mainLayout->addWidget(ui.texSourceWidget);
@@ -452,7 +455,8 @@ void DFFWidget::wireframePropertyChanged(bool wireframe)
 
 void DFFWidget::xmlDumpRequested()
 {
-	DFFFormatHandler::getInstance()->xmlDumpDialog(*mesh, this);
+	if (mesh)
+		DFFFormatHandler::getInstance()->xmlDumpDialog(*mesh, this);
 }
 
 

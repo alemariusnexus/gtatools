@@ -112,16 +112,7 @@ void Engine::addResource(const File& file, void (*callback)())
 
 		for (it = resObservers.begin() ; it != resObservers.end() ; it++) {
 			ResourceObserver* observer = *it;
-			try {
-				observer->resourceAdded(file);
-			} catch (Exception& ex) {
-				char* errmsg = new char[strlen(file.getPath()->toString())+64];
-				sprintf(errmsg, "Exception thrown upon loading of resource file %s.",
-						file.getPath()->toString());
-				EngineException nex(errmsg, __FILE__, __LINE__, &ex);
-				delete[] errmsg;
-				throw nex;
-			}
+			observer->resourceAdded(file);
 		}
 
 		if (callback) {

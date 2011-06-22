@@ -26,6 +26,7 @@
 #include <QtGui/QWidget>
 #include <ui_LogConsole.h>
 #include <QtCore/QString>
+#include "../LogEntry.h"
 
 
 
@@ -36,7 +37,7 @@ public:
 	LogConsole(QWidget* parent = NULL);
 
 private slots:
-	void errorLogged(const QString& errmsg);
+	void entryLogged(const LogEntry& entry);
 	void buttonBoxClicked(QAbstractButton* button);
 
 private:

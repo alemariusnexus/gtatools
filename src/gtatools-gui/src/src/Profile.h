@@ -83,6 +83,7 @@ private:
 	void loadResourceIndex();
 	void addResourceRecurse(const File& file);
 	void removeResourceRecurse(const File& file);
+	void loadResourceRecurse(const File& file);
 
 private slots:
 	void currentProfileChanged(Profile* oldProfile, Profile* newProfile);

@@ -55,21 +55,26 @@ TXDWidget::TXDWidget(DisplayedFile* dfile, const QString& selectedTex, QWidget* 
 	try {
 		txd = new TXDArchive(file);
 	} catch (TXDException ex) {
-		System::getInstance()->logError(ex.what());
-		QMessageBox::critical(this, tr("Error opening TXD file"), tr("The following error occurred "
-				"opening the TXD file:\n\n%1\n\nSee the error log fore more details.").arg(ex.getMessage()));
-		throw;
+		/*QString errmsg = tr("The following error occurred "
+				"opening the TXD file:\n\n%1\n\nSee the error log fore more details.").arg(ex.getMessage());*/
+		QString errmsg = tr("Error opening the TXD file: %1").arg(ex.getMessage());
+		System::getInstance()->log(LogEntry::error(errmsg, &ex));
+		txd = NULL;
+		ui.hlWidget->setEnabled(false);
+		ui.tabWidget->setTabEnabled(ui.tabWidget->indexOf(ui.hlWidget), false);
 	}
 
 	int currentRow = 0;
 
-	int i = 0;
-	for (TXDArchive::TextureIterator it = txd->getHeaderBegin() ; it != txd->getHeaderEnd() ; it++, i++) {
-		TXDTextureHeader* texture = *it;
-		ui.textureList->addItem(texture->getDiffuseName());
+	if (txd) {
+		int i = 0;
+		for (TXDArchive::TextureIterator it = txd->getHeaderBegin() ; it != txd->getHeaderEnd() ; it++, i++) {
+			TXDTextureHeader* texture = *it;
+			ui.textureList->addItem(texture->getDiffuseName());
 
-		if (!selectedTex.isNull()  &&  selectedTex == QString(texture->getDiffuseName())) {
-			currentRow = i;
+			if (!selectedTex.isNull()  &&  selectedTex == QString(texture->getDiffuseName())) {
+				currentRow = i;
+			}
 		}
 	}
 
@@ -89,7 +94,7 @@ TXDWidget::TXDWidget(DisplayedFile* dfile, const QString& selectedTex, QWidget* 
 
 	sys->installGUIModule(openGUIModule);
 
-	if (txd->getTextureCount() != 0) {
+	if (txd  &&  txd->getTextureCount() != 0) {
 		ui.textureList->setCurrentRow(currentRow);
 	}
 }
@@ -105,7 +110,8 @@ TXDWidget::~TXDWidget()
 	sys->uninstallGUIModule(openGUIModule);
 	delete openGUIModule;
 
-	delete txd;
+	if (txd)
+		delete txd;
 }
 
 
@@ -154,9 +160,11 @@ QLinkedList<TXDTextureHeader*> TXDWidget::getSelectedTextures()
 {
 	QLinkedList<TXDTextureHeader*> list;
 
-	for (int i = 0 ; i < ui.textureList->count() ; i++) {
-		if (ui.textureList->item(i)->isSelected()) {
-			list << txd->getHeader(i);
+	if (txd) {
+		for (int i = 0 ; i < ui.textureList->count() ; i++) {
+			if (ui.textureList->item(i)->isSelected()) {
+				list << txd->getHeader(i);
+			}
 		}
 	}
 

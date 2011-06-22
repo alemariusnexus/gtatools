@@ -40,6 +40,7 @@
 #include "DisplayedFile.h"
 #include <gtaformats/util/FileFinder.h>
 #include <QtGui/QImage>
+#include "LogEntry.h"
 
 
 class System : public QObject {
@@ -51,9 +52,9 @@ public:
 public:
 	void initializeGL();
 	bool openFile(const FileOpenRequest& request);
-	void closeFile(const File& file) { closeFile(findOpenFile(file)); }
-	void closeFile(DisplayedFile* file);
-	void closeCurrentFile();
+	bool closeFile(const File& file, bool force = false) { return closeFile(findOpenFile(file), force); }
+	bool closeFile(DisplayedFile* file, bool force = false);
+	bool closeCurrentFile(bool force = false);
 	void changeCurrentFile(DisplayedFile* file);
 	void changeCurrentFile(const File& file) { changeCurrentFile(findOpenFile(file)); }
 	DisplayedFile* findOpenFile(const File& file);
@@ -65,7 +66,7 @@ public:
 	void emitConfigurationChange();
 	QLinkedList<GUIModule*> getInstalledGUIModules() { return installedGUIModules; }
 	bool isGUIModuleInstalled(GUIModule* module) { return installedGUIModules.contains(module); }
-	void logError(const QString& errmsg);
+	void log(const LogEntry& entry);
 	void showStatusMessage(const QString& message, int timeout = 4000);
 	Task* createTask();
 	void installGUIModule(GUIModule* module);
@@ -83,7 +84,7 @@ signals:
 	void configurationChanged();
 	void installedGUIModule(GUIModule* module);
 	void uninstalledGUIModule(GUIModule* module);
-	void errorLogged(const QString& errmsg);
+	void entryLogged(const LogEntry& entry);
 	void systemQuerySent(const SystemQuery& query, SystemQueryResult& result);
 
 private:

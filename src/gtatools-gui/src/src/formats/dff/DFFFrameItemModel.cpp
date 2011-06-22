@@ -78,7 +78,10 @@ int DFFFrameItemModel::rowCount(const QModelIndex& index) const
 	}
 
 	if (!index.isValid()) {
-		return mesh->getRootFrame()->getChildCount();
+		if (mesh)
+			return mesh->getRootFrame()->getChildCount();
+		else
+			return 0;
 	} else {
 		DFFFrame* frame = (DFFFrame*) index.internalPointer();
 		return frame->getChildCount();

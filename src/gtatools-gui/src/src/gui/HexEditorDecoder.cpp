@@ -79,6 +79,10 @@ void HexEditorDecoder::editorSelDataChanged()
 	HexEditor* editor = (HexEditor*) sender();
 	setData(editor->getData().mid(editor->getCursorPosition(), 8));
 	display();
+
+	ui.offsetLabel->setText(QString("0x%1").arg(QString("%1").arg(editor->getCursorPosition(), 0, 16).toUpper()));
+	ui.selectionLabel->setText(QString("0x%1 - 0x%2").arg(QString("%1").arg(editor->getCursorAnchor(), 0, 16).toUpper())
+			.arg(QString("%1").arg(editor->getCursorPosition(), 0, 16).toUpper()));
 }
 
 
