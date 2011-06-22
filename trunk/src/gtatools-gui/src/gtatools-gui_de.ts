@@ -8,6 +8,11 @@
         <source>Collision File (COL)</source>
         <translation>Kollisionsdatei (COL)</translation>
     </message>
+    <message>
+        <location filename="src/formats/col/COLFormatHandler.cpp" line="37"/>
+        <source>Error opening COL file: %1</source>
+        <translation>Fehler beim Öffnen der COL-Datei: %1</translation>
+    </message>
 </context>
 <context>
     <name>COLGUIModule</name>
@@ -380,12 +385,12 @@
         <translation>DFF-Mesh</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFFormatHandler.cpp" line="60"/>
+        <location filename="src/formats/dff/DFFFormatHandler.cpp" line="67"/>
         <source>Choose a destination file</source>
         <translation>Wähle eine Zieldatei</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFFormatHandler.cpp" line="62"/>
+        <location filename="src/formats/dff/DFFFormatHandler.cpp" line="69"/>
         <source>XML Files (*.xml)</source>
         <translation>XML-Dateien (*.xml)</translation>
     </message>
@@ -434,14 +439,18 @@
 <context>
     <name>DFFRenderWidget</name>
     <message>
-        <location filename="src/formats/dff/DFFRenderWidget.cpp" line="130"/>
+        <location filename="src/formats/dff/DFFRenderWidget.cpp" line="126"/>
         <source>OpenGL Too Old</source>
         <translation>OpenGL Zu Alt</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFRenderWidget.cpp" line="131"/>
-        <source>This program needs at least OpenGL version 2.1 or OpenGL ES version 2.0! Rendering will be disabled.</source>
+        <location filename="src/formats/dff/DFFRenderWidget.cpp" line="127"/>
+        <source>This program needs at least OpenGL version 2.0 or OpenGL ES version 2.0! Rendering will be disabled.</source>
         <translation>Dieses Programm benötigt mindestens OpenGL Version 2.1 oder OpenGL ES Version 2.0! Rendering wird deaktiviert.</translation>
+    </message>
+    <message>
+        <source>This program needs at least OpenGL version 2.1 or OpenGL ES version 2.0! Rendering will be disabled.</source>
+        <translation type="obsolete">Dieses Programm benötigt mindestens OpenGL Version 2.1 oder OpenGL ES Version 2.0! Rendering wird deaktiviert.</translation>
     </message>
     <message>
         <source>This program needs at least OpenGL version 2.1! Rendering will be disabled.</source>
@@ -547,7 +556,7 @@
         <translation type="obsolete">Vertexfarben</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="292"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="295"/>
         <source>Normals</source>
         <translation>Normals</translation>
     </message>
@@ -558,7 +567,7 @@
     </message>
     <message>
         <location filename="src/formats/dff/DFFWidget.ui" line="707"/>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="190"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="194"/>
         <source>Texture Source</source>
         <translation>Texturquelle</translation>
     </message>
@@ -655,35 +664,38 @@
         <translation type="obsolete">Unbenannt %1</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="92"/>
         <source>Error opening DFF file</source>
-        <translation>Fehler beim Öffnen der DFF-Datei</translation>
+        <translation type="obsolete">Fehler beim Öffnen der DFF-Datei</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="92"/>
         <source>The following error occurred opening the DFF file:
 
 %1
 
 See the error log for more details.</source>
-        <translation>Der folgende Fehler trat beim Öffnen der DFF-Datei auf:
+        <translation type="obsolete">Der folgende Fehler trat beim Öffnen der DFF-Datei auf:
 
 %1
 
 Siehe im Fehlerlog für weitere Details nach.</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="106"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="91"/>
+        <source>Error opening the DFF file: %1</source>
+        <translation>Fehler beim Öffnen der DFF-Datei: %1</translation>
+    </message>
+    <message>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="108"/>
         <source>Geometry %1</source>
         <translation>Geometrie %1</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="260"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="263"/>
         <source>(%1, %2, %3)</source>
         <translation>(%1, %2, %3)</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="262"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="265"/>
         <source>(%1, %2, %3) (%4, %5, %6) (%7, %8, %9)</source>
         <oldsource>(%1, %2, %3)
 (%4, %5, %6)
@@ -693,34 +705,34 @@ Siehe im Fehlerlog für weitere Details nach.</translation>
 (%7, %8, %9)</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="268"/>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="332"/>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="423"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="271"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="335"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="426"/>
         <source>None</source>
         <translation>Keine</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="288"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="291"/>
         <source>Vertices</source>
         <translation>Vertices</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="290"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="293"/>
         <source>Colors</source>
         <translation>Farben</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="294"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="297"/>
         <source>UV Coordinates</source>
         <translation>UV-Koordinaten</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="298"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="301"/>
         <source>Triangle Strips</source>
         <translation>Triangle Strips</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="298"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="301"/>
         <source>Triangle List</source>
         <translation>Triangle List</translation>
     </message>
@@ -733,32 +745,32 @@ Siehe im Fehlerlog für weitere Details nach.</translation>
         <translation type="obsolete">ja</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="309"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="312"/>
         <source>(%1, %2, %3 : %4)</source>
         <translation>(%1, %2, %3 : %4)</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="344"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="347"/>
         <source>Material %1</source>
         <translation>Material %1</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="352"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="355"/>
         <source>Part %1</source>
         <translation>Teil %1</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="376"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="379"/>
         <source>(%1, %2, %3, %4)</source>
         <translation>(%1, %2, %3, %4)</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="473"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="477"/>
         <source>Enter the TXD name</source>
         <translation>TXD-Name angeben</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="474"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="478"/>
         <source>Enter the name of the TXD you want to add (without extension):</source>
         <translation>Gebe den Namen der TXD an, die hinzugefügt werden soll (ohne Endung):</translation>
     </message>
@@ -1138,12 +1150,17 @@ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem Prog
         <translation>GXT Textdatei</translation>
     </message>
     <message>
-        <location filename="src/formats/gxt/GXTFormatHandler.cpp" line="121"/>
+        <location filename="src/formats/gxt/GXTFormatHandler.cpp" line="55"/>
+        <source>Error opening GXT file: %1</source>
+        <translation>Fehler beim Öffnen der GXT-Datei: %1</translation>
+    </message>
+    <message>
+        <location filename="src/formats/gxt/GXTFormatHandler.cpp" line="132"/>
         <source>Syntax Error</source>
         <translation>Syntaxfehler</translation>
     </message>
     <message>
-        <location filename="src/formats/gxt/GXTFormatHandler.cpp" line="122"/>
+        <location filename="src/formats/gxt/GXTFormatHandler.cpp" line="133"/>
         <source>Syntax Error: Key name definition is not in a table!</source>
         <translation>Syntaxfehler: Schlüsselnamensdefinition außerhalb eines Tables!</translation>
     </message>
@@ -1289,19 +1306,53 @@ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem Prog
         <translation>Dekodieren als Little-Endian</translation>
     </message>
     <message>
-        <location filename="src/gui/HexEditorDecoder.cpp" line="110"/>
-        <location filename="src/gui/HexEditorDecoder.cpp" line="111"/>
-        <location filename="src/gui/HexEditorDecoder.cpp" line="112"/>
-        <location filename="src/gui/HexEditorDecoder.cpp" line="113"/>
+        <location filename="src/gui/HexEditorDecoder.ui" line="195"/>
+        <source>Offset:</source>
+        <translation>Offset:</translation>
+    </message>
+    <message>
+        <location filename="src/gui/HexEditorDecoder.ui" line="225"/>
+        <source>Selection:</source>
+        <translation>Auswahl:</translation>
+    </message>
+    <message>
+        <location filename="src/gui/HexEditorDecoder.cpp" line="114"/>
         <location filename="src/gui/HexEditorDecoder.cpp" line="115"/>
         <location filename="src/gui/HexEditorDecoder.cpp" line="116"/>
         <location filename="src/gui/HexEditorDecoder.cpp" line="117"/>
-        <location filename="src/gui/HexEditorDecoder.cpp" line="118"/>
+        <location filename="src/gui/HexEditorDecoder.cpp" line="119"/>
         <location filename="src/gui/HexEditorDecoder.cpp" line="120"/>
         <location filename="src/gui/HexEditorDecoder.cpp" line="121"/>
+        <location filename="src/gui/HexEditorDecoder.cpp" line="122"/>
+        <location filename="src/gui/HexEditorDecoder.cpp" line="124"/>
         <location filename="src/gui/HexEditorDecoder.cpp" line="125"/>
+        <location filename="src/gui/HexEditorDecoder.cpp" line="129"/>
         <source>-</source>
         <translation>-</translation>
+    </message>
+</context>
+<context>
+    <name>HexEditorGotoDialog</name>
+    <message>
+        <location filename="src/gui/HexEditorGotoDialog.ui" line="14"/>
+        <source>Go To Offset</source>
+        <translation>Gehe Zu Offset</translation>
+    </message>
+    <message>
+        <location filename="src/gui/HexEditorGotoDialog.ui" line="23"/>
+        <source>&amp;Offset</source>
+        <oldsource>Offset</oldsource>
+        <translation>&amp;Offset</translation>
+    </message>
+    <message>
+        <location filename="src/gui/HexEditorGotoDialog.ui" line="42"/>
+        <source>From &amp;Cursor Position</source>
+        <translation>Ab &amp;Cursorposition</translation>
+    </message>
+    <message>
+        <location filename="src/gui/HexEditorGotoDialog.ui" line="49"/>
+        <source>&amp;Backwards</source>
+        <translation>&amp;Rückwärts</translation>
     </message>
 </context>
 <context>
@@ -1824,9 +1875,29 @@ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem Prog
 <context>
     <name>LogConsole</name>
     <message>
-        <location filename="src/gui/LogConsole.cpp" line="47"/>
+        <location filename="src/gui/LogConsole.cpp" line="55"/>
+        <source>DEBUG</source>
+        <translation>DEBUG</translation>
+    </message>
+    <message>
+        <location filename="src/gui/LogConsole.cpp" line="59"/>
+        <source>INFO</source>
+        <translation>INFO</translation>
+    </message>
+    <message>
+        <location filename="src/gui/LogConsole.cpp" line="63"/>
+        <source>WARNING</source>
+        <translation>WARNUNG</translation>
+    </message>
+    <message>
+        <location filename="src/gui/LogConsole.cpp" line="67"/>
         <source>ERROR</source>
         <translation>FEHLER</translation>
+    </message>
+    <message>
+        <location filename="src/gui/LogConsole.cpp" line="77"/>
+        <source> (caused by %1)</source>
+        <translation> (ausgelöst durch %1)</translation>
     </message>
     <message>
         <location filename="src/gui/LogConsole.ui" line="14"/>
@@ -2019,6 +2090,15 @@ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem Prog
         <source>Building resource index...</source>
         <translation>Erstelle Ressourcenindex...</translation>
     </message>
+    <message>
+        <location filename="src/Profile.cpp" line="145"/>
+        <source>Error loading resource file %1: %2. The resource file will not be used for certain operations.</source>
+        <translation>Fehler beim Laden der Ressourcendatei %1: %2 - Die Ressourcendatei wird für bestimmte Operationen nicht verwendet.</translation>
+    </message>
+    <message>
+        <source>Error loading resource file %1: %2</source>
+        <translation type="obsolete">Fehler beim Laden der Ressourcendatei %1: %2</translation>
+    </message>
 </context>
 <context>
     <name>ProfileConfigWidget</name>
@@ -2128,6 +2208,19 @@ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem Prog
     </message>
 </context>
 <context>
+    <name>RWBSGUIModule</name>
+    <message>
+        <location filename="src/formats/rwbs/RWBSGUIModule.cpp" line="16"/>
+        <source>Goto Offset...</source>
+        <translation>Gehe Zu Offset...</translation>
+    </message>
+    <message>
+        <location filename="src/formats/rwbs/RWBSGUIModule.cpp" line="17"/>
+        <source>Ctrl+G</source>
+        <translation>Ctrl+G</translation>
+    </message>
+</context>
+<context>
     <name>RWBSSectionModel</name>
     <message>
         <location filename="src/formats/rwbs/RWBSSectionModel.cpp" line="56"/>
@@ -2147,12 +2240,22 @@ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem Prog
         <translation type="obsolete">Datei geschlossen!</translation>
     </message>
     <message>
-        <location filename="src/System.cpp" line="153"/>
+        <location filename="src/System.cpp" line="155"/>
         <source>Unhandeled Exception</source>
         <translation>Unbehandelte Ausnahme</translation>
     </message>
     <message>
-        <location filename="src/System.cpp" line="150"/>
+        <location filename="src/System.cpp" line="204"/>
+        <source>Save changes?</source>
+        <translation>Ändrungen speichern?</translation>
+    </message>
+    <message>
+        <location filename="src/System.cpp" line="205"/>
+        <source>This file has unsaved changes. Do you want to save it before closing?</source>
+        <translation>Die Datei hat ungespeicherte Änderungen. Soll sie vor dem Schließen gespeichert werden?</translation>
+    </message>
+    <message>
+        <location filename="src/System.cpp" line="152"/>
         <source>Unhandeled Exception %1%2</source>
         <translation>Eine unbehandelte Ausnahme ist aufgetreten. Das Programm könnte weiter laufen, aber Stabilität kann nicht garantiert werden. Eine genaue Beschreibung der Ausnahme wurde in die Datei %2 geschrieben.
 Der Ausnahmetext:
@@ -2174,12 +2277,12 @@ Der Ausnahmetext:
         <translation>Texture Dictionary (TXD)</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDFormatHandler.cpp" line="80"/>
+        <location filename="src/formats/txd/TXDFormatHandler.cpp" line="88"/>
         <source>Select the file to save to</source>
         <translation>Wähle die zu speichernde Datei aus</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDFormatHandler.cpp" line="100"/>
+        <location filename="src/formats/txd/TXDFormatHandler.cpp" line="108"/>
         <source>Select the destination directory</source>
         <translation>Wähle das Zielverzeichnis aus</translation>
     </message>
@@ -2196,99 +2299,102 @@ Der Ausnahmetext:
 <context>
     <name>TXDWidget</name>
     <message>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="59"/>
         <source>Error opening TXD file</source>
-        <translation>Fehler beim Öffnen der TXD-Datei</translation>
+        <translation type="obsolete">Fehler beim Öffnen der TXD-Datei</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="59"/>
         <source>The following error occurred opening the TXD file:
 
 %1
 
 See the error log fore more details.</source>
-        <translation>Der folgende Fehler trat beim Öffnen der TXD-Datei auf:
+        <translation type="obsolete">Der folgende Fehler trat beim Öffnen der TXD-Datei auf:
 
 %1
 
 Siehe im Fehlerlog nach für weitere Details.</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="76"/>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="60"/>
+        <source>Error opening the TXD file: %1</source>
+        <translation>Fehler beim Öffnen der TXD-Datei: %1</translation>
+    </message>
+    <message>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="81"/>
         <source>Extract textures...</source>
         <translation>Texturen extrahieren...</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="128"/>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="134"/>
         <source>&amp;Information</source>
         <oldsource>Information</oldsource>
         <translatorcomment>Das &apos;I&apos; als Accelerator wird schon für &quot;Inhalt&quot; verwendet</translatorcomment>
         <translation>Infor&amp;mationen</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="129"/>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="135"/>
         <source>&amp;Display</source>
         <oldsource>Display</oldsource>
         <translatorcomment>Das &apos;A&apos; als Accelerator wird schon für &quot;Allgemeine Informationen&quot; verwendet</translatorcomment>
         <translation>An&amp;zeige</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="189"/>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="197"/>
         <source>DXT1</source>
         <translation>DXT1</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="192"/>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="200"/>
         <source>DXT3</source>
         <translation>DXT3</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="195"/>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="203"/>
         <source>PVRTC2</source>
         <translation>PVRTC2</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="198"/>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="206"/>
         <source>PVRTC4</source>
         <translation>PVRTC4</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="201"/>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="221"/>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="236"/>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="209"/>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="229"/>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="244"/>
         <source>None</source>
         <translation>Keine</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="205"/>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="213"/>
         <source>%1x%2</source>
         <translation>%1x%2</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="208"/>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="216"/>
         <source>yes</source>
         <translation>ja</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="208"/>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="216"/>
         <source>no</source>
         <translation>nein</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="215"/>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="230"/>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="223"/>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="238"/>
         <source>Clamp</source>
         <translation>Clamp</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="218"/>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="233"/>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="226"/>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="241"/>
         <source>Mirror</source>
         <translation>Mirror</translation>
     </message>
     <message>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="224"/>
-        <location filename="src/formats/txd/TXDWidget.cpp" line="239"/>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="232"/>
+        <location filename="src/formats/txd/TXDWidget.cpp" line="247"/>
         <source>Wrap</source>
         <translation>Wrap</translation>
     </message>
@@ -2432,7 +2538,7 @@ Siehe im Fehlerlog nach für weitere Details.</translation>
 <context>
     <name>UnrecognizedFormatHandler</name>
     <message>
-        <location filename="src/formats/unrecog/UnrecognizedFormatHandler.h" line="33"/>
+        <location filename="src/formats/unrecog/UnrecognizedFormatHandler.h" line="35"/>
         <source>Unrecognized File</source>
         <translation>Nicht erkannte Datei</translation>
     </message>

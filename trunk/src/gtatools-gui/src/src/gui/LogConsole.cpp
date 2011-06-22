@@ -24,6 +24,7 @@
 #include <gtatools-gui/config.h>
 #include "../System.h"
 #include <QtCore/QSettings>
+#include <cassert>
 
 
 
@@ -33,18 +34,51 @@ LogConsole::LogConsole(QWidget* parent)
 	ui.setupUi(this);
 
 	System* sys = System::getInstance();
-	connect(sys, SIGNAL(errorLogged(const QString&)), this, SLOT(errorLogged(const QString&)));
+	connect(sys, SIGNAL(entryLogged(const LogEntry&)), this, SLOT(entryLogged(const LogEntry&)));
 	connect(ui.buttonBox, SIGNAL(clicked(QAbstractButton*)), this, SLOT(buttonBoxClicked(QAbstractButton*)));
 }
 
 
-void LogConsole::errorLogged(const QString& errmsg)
+void LogConsole::entryLogged(const LogEntry& entry)
 {
-	QString richMsg = errmsg;
+	QString richMsg = entry.getMessage();
+
+
 	richMsg.replace("\t", "    ");
 	richMsg.replace(" ", "&nbsp;");
 
-	ui.logTextEdit->append(QString("<font color=\"red\"><b>%1:</b> %2</font>").arg(tr("ERROR")).arg(richMsg));
+	QString typeStr;
+	QString colorStr;
+
+	switch (entry.getType()) {
+	case LogEntry::Debug:
+		typeStr = tr("DEBUG");
+		colorStr = "green";
+		break;
+	case LogEntry::Info:
+		typeStr = tr("INFO");
+		colorStr = "blue";
+		break;
+	case LogEntry::Warning:
+		typeStr = tr("WARNING");
+		colorStr = "orange";
+		break;
+	case LogEntry::Error:
+		typeStr = tr("ERROR");
+		colorStr = "red";
+		break;
+	default:
+		assert(false);
+	}
+
+	const Exception* ex = entry.getException();
+
+	if (ex) {
+		richMsg.append(QString(tr(" (caused by %1)")).arg(ex->getName()));
+	}
+
+	ui.logTextEdit->append(QString("<font color=\"%1\"><b>%2:</b> %3</font>").arg(colorStr).arg(typeStr)
+			.arg(richMsg));
 }
 
 

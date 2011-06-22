@@ -61,7 +61,15 @@ DisplayedFile* TXDFormatHandler::openFile(const FileOpenRequest& request)
 	}
 
 	DefaultDisplayedFile* file = new DefaultDisplayedFile(*request.getFile(), this, NULL);
-	TXDWidget* widget = new TXDWidget(file, texName, NULL);
+	TXDWidget* widget;
+
+	try {
+		widget = new TXDWidget(file, texName, NULL);
+	} catch (Exception& ex) {
+		delete file;
+		return NULL;
+	}
+
 	file->setWidget(widget);
 	file->setSavable(true);
 

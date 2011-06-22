@@ -42,8 +42,9 @@ HexEditorPrivate::HexEditorPrivate(QWidget* parent)
 		  temporaryOverwriteMode(false), cursorBlink(false), cursorAscii(false), numLines(0), bytesPerLine(0),
 		  lineDisplayOffset(0), currentByteEdited(false)
 {
-	QFont font("", 12);
-	font.setStyleHint(QFont::TypeWriter);
+	QFont font("", 10);
+	font.setFixedPitch(true);
+	font.setKerning(false);
 	setFont(font);
 
 	setAddressColor(QColor(Qt::lightGray).lighter(100));

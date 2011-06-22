@@ -52,6 +52,10 @@ public:
 	ConstSectIterator getRootSectionEnd() const { return rootSects.end(); }
 	int getRootSectionCount() const { return rootSects.size(); }
 
+protected:
+	void showEvent(QShowEvent* evt);
+	void hideEvent(QHideEvent* evt);
+
 private:
 	void applyChanges();
 

@@ -47,7 +47,14 @@ DFFFormatHandler::DFFFormatHandler()
 
 DisplayedFile* DFFFormatHandler::openFile(const FileOpenRequest& request)
 {
-	DFFWidget* widget = new DFFWidget(*request.getFile(), NULL, shareWidget);
+	DFFWidget* widget;
+
+	try {
+		widget = new DFFWidget(*request.getFile(), NULL, shareWidget);
+	} catch (Exception& ex) {
+		return NULL;
+	}
+
 	DefaultDisplayedFile* file = new DefaultDisplayedFile(*request.getFile(), this, widget);
 	return file;
 }

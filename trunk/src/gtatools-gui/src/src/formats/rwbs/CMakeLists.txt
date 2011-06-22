@@ -18,7 +18,13 @@
 # Additional permissions are granted, which are listed in the file
 # GPLADDITIONS.
 
-SET(SRCS ${SRCS} src/formats/rwbs/RWBSWidget.cpp src/formats/rwbs/RWBSSectionModel.cpp PARENT_SCOPE)
-SET(MOC_SRCS ${MOC_SRCS} src/formats/rwbs/RWBSWidget.h src/formats/rwbs/RWBSSectionModel.h PARENT_SCOPE)
-SET(UIC_SRCS ${UIC_SRCS} src/formats/rwbs/RWBSWidget.ui PARENT_SCOPE)
+SET(SRCS ${SRCS}
+    src/formats/rwbs/RWBSWidget.cpp src/formats/rwbs/RWBSSectionModel.cpp src/formats/rwbs/RWBSGUIModule.cpp
+    PARENT_SCOPE)
+SET(MOC_SRCS ${MOC_SRCS}
+    src/formats/rwbs/RWBSWidget.h src/formats/rwbs/RWBSSectionModel.h src/formats/rwbs/RWBSGUIModule.h
+    PARENT_SCOPE)
+SET(UIC_SRCS ${UIC_SRCS}
+    src/formats/rwbs/RWBSWidget.ui
+    PARENT_SCOPE)
 SET(INCS ${INCS} src/formats/rwbs PARENT_SCOPE)

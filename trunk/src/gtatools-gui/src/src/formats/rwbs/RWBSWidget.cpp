@@ -21,6 +21,8 @@
  */
 
 #include "RWBSWidget.h"
+#include "RWBSGUIModule.h"
+#include "../../System.h"
 
 
 
@@ -39,6 +41,22 @@ RWBSWidget::RWBSWidget(QWidget* parent)
 			SLOT(sectionActivated(const QModelIndex&)));
 	connect(ui.editor, SIGNAL(dataChanged(const QByteArray&)), this,
 			SLOT(sectionDataChanged(const QByteArray&)));
+}
+
+
+void RWBSWidget::showEvent(QShowEvent* evt)
+{
+	RWBSGUIModule* guiModule = RWBSGUIModule::getInstance();
+	guiModule->setEditor(ui.editor);
+	System::getInstance()->installGUIModule(guiModule);
+}
+
+
+void RWBSWidget::hideEvent(QHideEvent* evt)
+{
+	RWBSGUIModule* guiModule = RWBSGUIModule::getInstance();
+	guiModule->setEditor(NULL);
+	System::getInstance()->uninstallGUIModule(guiModule);
 }
 
 
