@@ -35,6 +35,9 @@ public:
 
 public:
 	static ProfileManager* getInstance();
+	static void destroy();
+
+public:
 	void loadProfiles();
 	ProfileIterator getProfileBegin();
 	ProfileIterator getProfileEnd();
@@ -62,6 +65,9 @@ signals:
 private slots:
 	void currentProfileChangedSlot(Profile* oldProfile, Profile* newProfile);
 	void eventLoopStarted();
+
+private:
+	static ProfileManager* instance;
 
 private:
 	QList<Profile*> profiles;

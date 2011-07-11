@@ -49,14 +49,25 @@ DisplayedFile* DFFFormatHandler::openFile(const FileOpenRequest& request)
 {
 	DFFWidget* widget;
 
+	DefaultDisplayedFile* file = new DefaultDisplayedFile(*request.getFile(), this, NULL);
+
 	try {
-		widget = new DFFWidget(*request.getFile(), NULL, shareWidget);
+		widget = new DFFWidget(file, NULL);
 	} catch (Exception& ex) {
+		delete file;
 		return NULL;
 	}
 
-	DefaultDisplayedFile* file = new DefaultDisplayedFile(*request.getFile(), this, widget);
+	file->setWidget(widget);
+
 	return file;
+}
+
+
+void DFFFormatHandler::saveFile(DisplayedFile* file, const File& destFile)
+{
+	DFFWidget* widget = (DFFWidget*) file->getWidget();
+	widget->saveTo(destFile);
 }
 
 
@@ -242,7 +253,7 @@ void DFFFormatHandler::xmlDumpDialog(const DFFMesh& mesh, QWidget* parent)
 										<< endl;
 
 								if (bindices) {
-									int32_t* indices = part->getIndices();
+									uint32_t* indices = part->getIndices();
 
 									xml << "          <indices count=\"" << part->getIndexCount() << "\">"
 											<< endl;

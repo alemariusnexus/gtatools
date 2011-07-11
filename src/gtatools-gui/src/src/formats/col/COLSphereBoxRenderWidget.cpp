@@ -30,7 +30,7 @@
 
 
 COLSphereBoxRenderWidget::COLSphereBoxRenderWidget(QWidget* parent)
-		: GLBaseWidget(parent), wireframe(false)
+		: GLBaseWidget(parent)
 {
 }
 
@@ -65,10 +65,6 @@ void COLSphereBoxRenderWidget::paintGL()
 		GLBaseWidget::paintGL();
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-#ifndef GTATOOLS_GUI_USE_OPENGL_ES
-		glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
-#endif
 
 		QLinkedList<ItemDefinition*>::iterator it;
 	

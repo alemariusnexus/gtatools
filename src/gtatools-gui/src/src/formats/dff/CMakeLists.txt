@@ -21,10 +21,16 @@
 SET(SRCS ${SRCS}
     src/formats/dff/DFFFormatHandler.cpp src/formats/dff/DFFWidget.cpp src/formats/dff/DFFRenderWidget.cpp
     src/formats/dff/DFFGUIModule.cpp src/formats/dff/DFFFrameItemModel.cpp
-    src/formats/dff/DFFXMLDumpDialog.cpp
+    src/formats/dff/DFFXMLDumpDialog.cpp src/formats/dff/DFFGeometryItemModel.cpp
+    src/formats/dff/DFFTextureSourceSelectDialog.cpp src/formats/dff/DFFTextureSourceDialog.cpp
     PARENT_SCOPE)
 SET(MOC_SRCS ${MOC_SRCS}
     src/formats/dff/DFFFormatHandler.h src/formats/dff/DFFWidget.h src/formats/dff/DFFRenderWidget.h
     src/formats/dff/DFFGUIModule.h src/formats/dff/DFFFrameItemModel.h src/formats/dff/DFFXMLDumpDialog.h
+    src/formats/dff/DFFGeometryItemModel.h src/formats/dff/DFFTextureSourceSelectDialog.h
+    src/formats/dff/DFFTextureSourceDialog.h
     PARENT_SCOPE)
-SET(UIC_SRCS ${UIC_SRCS} src/formats/dff/DFFWidget.ui src/formats/dff/DFFXMLDumpDialog.ui PARENT_SCOPE)
+SET(UIC_SRCS ${UIC_SRCS}
+	src/formats/dff/DFFWidget.ui src/formats/dff/DFFXMLDumpDialog.ui
+	src/formats/dff/DFFTextureSourceSelectDialog.ui src/formats/dff/DFFTextureSourceDialog.ui
+	PARENT_SCOPE)

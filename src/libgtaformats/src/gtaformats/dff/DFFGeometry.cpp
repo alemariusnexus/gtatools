@@ -28,8 +28,8 @@
 
 
 
-DFFGeometry::DFFGeometry(int32_t numVertices, float* vertices, float* normals, float* uvCoords,
-			int8_t uvSetCount, uint8_t* vertexColors)
+DFFGeometry::DFFGeometry(uint32_t numVertices, float* vertices, float* normals, float* uvCoords,
+			uint8_t uvSetCount, uint8_t* vertexColors)
 		: flags(0), uvSetCount(0), vertexCount(numVertices), frameCount(0), ambientLight(0.0f),
 		  diffuseLight(0.0f), specularLight(0.0f), bounds(NULL), associatedFrame(NULL), mesh(NULL)
 {
@@ -117,8 +117,8 @@ DFFGeometry::~DFFGeometry()
 }
 
 
-void DFFGeometry::setVertices(int32_t numVertices, float* vertices, float* normals, float* uvCoords,
-		int8_t uvSetCount, uint8_t* vertexColors)
+void DFFGeometry::setVertices(uint32_t numVertices, float* vertices, float* normals, float* uvCoords,
+		uint8_t uvSetCount, uint8_t* vertexColors)
 {
 	if (uvCoords != NULL  &&  uvSetCount == 0) {
 		throw DFFException("DFFGeometry::setVertices(): UV coordinates given even though UV set count is 0!",
@@ -140,7 +140,7 @@ void DFFGeometry::mirrorYZ()
 		return;
 	}
 
-	for (int32_t i = 0 ; i < vertexCount ; i++) {
+	for (uint32_t i = 0 ; i < vertexCount ; i++) {
 		if (vertices != NULL) {
 			float y = vertices[(i*3) + 1];
 			float z = vertices[(i*3) + 2];
@@ -160,7 +160,7 @@ void DFFGeometry::mirrorYZ()
 
 void DFFGeometry::scale(float x, float y, float z)
 {
-	for (int32_t i = 0 ; i < vertexCount ; i++) {
+	for (uint32_t i = 0 ; i < vertexCount ; i++) {
 		vertices[(i*3) + 0] *= x;
 		vertices[(i*3) + 1] *= y;
 		vertices[(i*3) + 2] *= z;
@@ -170,9 +170,9 @@ void DFFGeometry::scale(float x, float y, float z)
 
 void DFFGeometry::mirrorUVHorizontal()
 {
-	int numCoords = uvSetCount*vertexCount;
+	uint32_t numCoords = uvSetCount*vertexCount;
 
-	for (int i = 0 ; i < numCoords ; i++) {
+	for (uint32_t i = 0 ; i < numCoords ; i++) {
 		uvCoordSets[i*2] = 1.0f - uvCoordSets[i*2];
 	}
 
@@ -266,7 +266,7 @@ void DFFGeometry::removeParts()
 
 float* DFFGeometry::getUVCoordSet(uint8_t idx)
 {
-	if (idx < 0  ||  idx >= uvSetCount) {
+	if (idx >= uvSetCount) {
 		throw OutOfBoundsException(idx, __FILE__, __LINE__);
 	}
 
@@ -276,7 +276,7 @@ float* DFFGeometry::getUVCoordSet(uint8_t idx)
 
 const float* DFFGeometry::getUVCoordSet(uint8_t idx) const
 {
-	if (idx < 0  ||  idx >= uvSetCount) {
+	if (idx >= uvSetCount) {
 		throw OutOfBoundsException(idx, __FILE__, __LINE__);
 	}
 
@@ -284,9 +284,9 @@ const float* DFFGeometry::getUVCoordSet(uint8_t idx) const
 }
 
 
-DFFMaterial* DFFGeometry::getMaterial(unsigned int index)
+DFFMaterial* DFFGeometry::getMaterial(uint32_t index)
 {
-	if (index < 0  ||  index >= materials.size()) {
+	if (index >= materials.size()) {
 		throw OutOfBoundsException(index, __FILE__, __LINE__);
 	}
 
@@ -294,9 +294,9 @@ DFFMaterial* DFFGeometry::getMaterial(unsigned int index)
 }
 
 
-const DFFMaterial* DFFGeometry::getMaterial(unsigned int index) const
+const DFFMaterial* DFFGeometry::getMaterial(uint32_t index) const
 {
-	if (index < 0  ||  index >= materials.size()) {
+	if (index >= materials.size()) {
 		throw OutOfBoundsException(index, __FILE__, __LINE__);
 	}
 
@@ -304,9 +304,9 @@ const DFFMaterial* DFFGeometry::getMaterial(unsigned int index) const
 }
 
 
-DFFGeometryPart* DFFGeometry::getPart(unsigned int index)
+DFFGeometryPart* DFFGeometry::getPart(uint32_t index)
 {
-	if (index < 0  ||  index >= parts.size()) {
+	if (index >= parts.size()) {
 		throw OutOfBoundsException(index, __FILE__, __LINE__);
 	}
 
@@ -314,9 +314,9 @@ DFFGeometryPart* DFFGeometry::getPart(unsigned int index)
 }
 
 
-const DFFGeometryPart* DFFGeometry::getPart(unsigned int index) const
+const DFFGeometryPart* DFFGeometry::getPart(uint32_t index) const
 {
-	if (index < 0  ||  index >= parts.size()) {
+	if (index >= parts.size()) {
 		throw OutOfBoundsException(index, __FILE__, __LINE__);
 	}
 

@@ -26,7 +26,7 @@
 #include <cstring>
 
 
-DFFGeometryPart::DFFGeometryPart(int32_t ic, int32_t* indices)
+DFFGeometryPart::DFFGeometryPart(uint32_t ic, uint32_t* indices)
 		: indexCount(ic), indices(indices), material(NULL), geometry(NULL)
 {
 
@@ -34,7 +34,7 @@ DFFGeometryPart::DFFGeometryPart(int32_t ic, int32_t* indices)
 
 
 DFFGeometryPart::DFFGeometryPart(const DFFGeometryPart& other)
-		: indexCount(other.indexCount), indices(new int32_t[indexCount]),
+		: indexCount(other.indexCount), indices(new uint32_t[indexCount]),
 		  material(new DFFMaterial(*other.material)), geometry(NULL)
 {
 	memcpy(indices, other.indices, 4*indexCount);

@@ -25,7 +25,7 @@
 
 
 
-Submesh::Submesh(Mesh* mesh, int indexCount, int32_t* indices)
+Submesh::Submesh(Mesh* mesh, int indexCount, uint32_t* indices)
 		: mesh(mesh), material(NULL), indexCount(indexCount)
 {
 	init(indices);
@@ -52,7 +52,7 @@ Submesh::~Submesh()
 }
 
 
-void Submesh::init(int32_t* indices)
+void Submesh::init(uint32_t* indices)
 {
 	glGenBuffers(1, &indexBuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);

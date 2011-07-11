@@ -52,32 +52,6 @@ TXDWidget::TXDWidget(DisplayedFile* dfile, const QString& selectedTex, QWidget* 
 
 	loadConfigUiSettings();
 
-	try {
-		txd = new TXDArchive(file);
-	} catch (TXDException ex) {
-		/*QString errmsg = tr("The following error occurred "
-				"opening the TXD file:\n\n%1\n\nSee the error log fore more details.").arg(ex.getMessage());*/
-		QString errmsg = tr("Error opening the TXD file: %1").arg(ex.getMessage());
-		System::getInstance()->log(LogEntry::error(errmsg, &ex));
-		txd = NULL;
-		ui.hlWidget->setEnabled(false);
-		ui.tabWidget->setTabEnabled(ui.tabWidget->indexOf(ui.hlWidget), false);
-	}
-
-	int currentRow = 0;
-
-	if (txd) {
-		int i = 0;
-		for (TXDArchive::TextureIterator it = txd->getHeaderBegin() ; it != txd->getHeaderEnd() ; it++, i++) {
-			TXDTextureHeader* texture = *it;
-			ui.textureList->addItem(texture->getDiffuseName());
-
-			if (!selectedTex.isNull()  &&  selectedTex == QString(texture->getDiffuseName())) {
-				currentRow = i;
-			}
-		}
-	}
-
 	extractAction = new QAction(tr("Extract textures..."), NULL);
 	connect(extractAction, SIGNAL(triggered(bool)), this, SLOT(textureExtractionRequested(bool)));
 
@@ -88,11 +62,33 @@ TXDWidget::TXDWidget(DisplayedFile* dfile, const QString& selectedTex, QWidget* 
 	connect(ui.textureList, SIGNAL(customContextMenuRequested(const QPoint&)), this,
 			SLOT(textureListContextMenuRequested(const QPoint&)));
 	connect(sys, SIGNAL(configurationChanged()), this, SLOT(loadConfigUiSettings()));
-	connect(ui.rwbsWidget, SIGNAL(sectionChanged(RWSection*)), this, SLOT(sectionChanged(RWSection*)));
+
+	connect(ui.rwbsWidget, SIGNAL(sectionChanged(RWSection*)), this, SLOT(sectionStructureChanged()));
+	connect(ui.rwbsWidget, SIGNAL(sectionInserted(RWSection*)), this, SLOT(sectionStructureChanged()));
+	connect(ui.rwbsWidget, SIGNAL(sectionRemoved(RWSection*, RWSection*)), this,
+			SLOT(sectionStructureChanged()));
+
+	connect(dfile, SIGNAL(saved(const File&)), this, SLOT(reloadHighLevelFile()));
+
+	reloadHighLevelFile();
 
 	openGUIModule = new OpenTXDGUIModule(this);
 
 	sys->installGUIModule(openGUIModule);
+
+	int currentRow = 0;
+
+	if (txd) {
+		int i = 0;
+		for (TXDArchive::TextureIterator it = txd->getHeaderBegin() ; it != txd->getHeaderEnd() ; it++, i++) {
+			TXDTextureHeader* texture = *it;
+
+			if (!selectedTex.isNull()  &&  selectedTex == QString(texture->getDiffuseName())) {
+				currentRow = i;
+				break;
+			}
+		}
+	}
 
 	if (txd  &&  txd->getTextureCount() != 0) {
 		ui.textureList->setCurrentRow(currentRow);
@@ -112,6 +108,46 @@ TXDWidget::~TXDWidget()
 
 	if (txd)
 		delete txd;
+}
+
+
+void TXDWidget::reloadHighLevelFile()
+{
+	QListWidgetItem* curItem = ui.textureList->currentItem();
+	QString curTexName = curItem ? curItem->text().toLower() : QString();
+
+	try {
+		txd = new TXDArchive(dfile->getFile());
+	} catch (TXDException ex) {
+		QString errmsg = tr("Error opening the TXD file: %1").arg(ex.getMessage());
+		System::getInstance()->log(LogEntry::error(errmsg, &ex));
+		txd = NULL;
+		ui.hlWidget->setEnabled(false);
+		ui.tabWidget->setTabEnabled(ui.tabWidget->indexOf(ui.hlWidget), false);
+	}
+
+	ui.textureList->clear();
+
+	int currentRow = -1;
+
+	if (txd) {
+		int i = 0;
+		for (TXDArchive::TextureIterator it = txd->getHeaderBegin() ; it != txd->getHeaderEnd() ; it++, i++) {
+			TXDTextureHeader* texture = *it;
+			ui.textureList->addItem(texture->getDiffuseName());
+
+			if (	!curTexName.isNull()
+					&&  curTexName.toLower() == QString(texture->getDiffuseName()).toLower()
+			) {
+				currentRow = i;
+			}
+		}
+	}
+
+	if (txd  &&  txd->getTextureCount() > 0  &&  currentRow != -1)
+		ui.textureList->setCurrentRow(currentRow);
+	else
+		setDisplayedTexture(NULL);
 }
 
 
@@ -172,12 +208,9 @@ QLinkedList<TXDTextureHeader*> TXDWidget::getSelectedTextures()
 }
 
 
-void TXDWidget::textureActivated(QListWidgetItem* item, QListWidgetItem* previous)
+void TXDWidget::setDisplayedTexture(TXDTextureHeader* texture)
 {
-	int row = ui.textureList->currentRow();
-
-	if (row >= 0) {
-		TXDTextureHeader* texture = txd->getHeader(row);
+	if (texture) {
 		uint8_t* rawData = txd->getTextureData(texture);
 		ui.displayLabel->display(texture, rawData);
 		delete[] rawData;
@@ -252,6 +285,30 @@ void TXDWidget::textureActivated(QListWidgetItem* item, QListWidgetItem* previou
 		vWrapStr.append("]");
 
 		ui.wrapFlagsLabel->setText(uWrapStr.append("; ").append(vWrapStr));
+	} else {
+		ui.displayLabel->display(NULL, NULL);
+		ui.formatLabel->setText("-");
+		ui.diffuseNameField->setText("-");
+		ui.alphaNameField->setText("-");
+		ui.compressionField->setText("-");
+		ui.dimensionsField->setText("-");
+		ui.bppField->setText("-");
+		ui.mipmapCountField->setText("-");
+		ui.alphaField->setText("-");
+		ui.wrapFlagsLabel->setText("-");
+	}
+}
+
+
+void TXDWidget::textureActivated(QListWidgetItem* item, QListWidgetItem* previous)
+{
+	int row = ui.textureList->currentRow();
+
+	if (row >= 0) {
+		TXDTextureHeader* texture = txd->getHeader(row);
+		setDisplayedTexture(texture);
+	} else {
+		setDisplayedTexture(NULL);
 	}
 }
 

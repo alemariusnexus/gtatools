@@ -112,7 +112,7 @@ public:
 	 *		DFF Frame List section discussion</a> on gtamodding.com
 	 *	@return The frame flags.
 	 */
-	int32_t getFlags() const { return flags; }
+	uint32_t getFlags() const { return flags; }
 
 	/**	\brief Returns the name of this frame.
 	 *
@@ -124,7 +124,7 @@ public:
 	 *
 	 * 	@return The number of child frames.
 	 */
-	int32_t getChildCount() const { return children.size(); }
+	uint32_t getChildCount() const { return children.size(); }
 
 	/**	\brief Returns an iterator to the begin of the child frame list.
 	 *
@@ -214,7 +214,7 @@ public:
 	 * 	@param flags The flags.
 	 * 	@see getFlags()
 	 */
-	void setFlags(int32_t flags) { this->flags = flags; }
+	void setFlags(uint32_t flags) { this->flags = flags; }
 
 	/**	\brief Sets the name of this frame.
 	 *
@@ -309,7 +309,7 @@ private:
 	Matrix3* rotation;
 	DFFFrame* parent;
 	vector<DFFFrame*> children;
-	int32_t flags;
+	uint32_t flags;
 };
 
 #endif /* DFFFRAME_H_ */

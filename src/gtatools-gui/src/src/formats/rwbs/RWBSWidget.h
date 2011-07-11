@@ -46,11 +46,11 @@ public:
 	void addRootSection(RWSection* sect);
 	void loadFile(const File& file);
 	void save(const File& file);
-	SectIterator getRootSectionBegin() { return rootSects.begin(); }
-	SectIterator getRootSectionEnd() { return rootSects.end(); }
-	ConstSectIterator getRootSectionBegin() const { return rootSects.begin(); }
-	ConstSectIterator getRootSectionEnd() const { return rootSects.end(); }
-	int getRootSectionCount() const { return rootSects.size(); }
+	SectIterator getRootSectionBegin() { return ui.sectionTree->getModel()->getRootSectionBegin(); }
+	SectIterator getRootSectionEnd() { return ui.sectionTree->getModel()->getRootSectionEnd(); }
+	ConstSectIterator getRootSectionBegin() const { return ui.sectionTree->getModel()->getRootSectionBegin(); }
+	ConstSectIterator getRootSectionEnd() const { return ui.sectionTree->getModel()->getRootSectionEnd(); }
+	int getRootSectionCount() const { return ui.sectionTree->getModel()->getRootSectionCount(); }
 
 protected:
 	void showEvent(QShowEvent* evt);
@@ -61,15 +61,16 @@ private:
 
 signals:
 	void sectionChanged(RWSection* sect);
+	void sectionInserted(RWSection* sect);
+	void sectionRemoved(RWSection* sect, RWSection* oldParent);
 
 private slots:
 	void sectionActivated(const QModelIndex& index);
 	void sectionDataChanged(const QByteArray& data);
+	void sectionRemovedSlot(RWSection* sect);
 
 private:
 	Ui_RWBSWidget ui;
-	SectList rootSects;
-	RWBSSectionModel sectModel;
 	RWSection* currentSection;
 	bool openingSection;
 };

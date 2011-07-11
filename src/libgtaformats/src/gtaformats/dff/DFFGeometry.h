@@ -28,8 +28,10 @@
 #include "DFFMaterial.h"
 #include "DFFFrame.h"
 #include <vector>
+#include <algorithm>
 
 using std::vector;
+using std::find;
 
 
 #define GEOMETRY_FLAG_TRISTRIP (1<<0)
@@ -87,8 +89,8 @@ public:
 	 * 	@param uvSetCount The number of independent texture coordinate sets.
 	 * 	@param vertexColors The vertex colors.
 	 */
-	DFFGeometry(int32_t numVertices, float* vertices, float* normals = NULL, float* uvCoords = NULL,
-			int8_t uvSetCount = 0, uint8_t* vertexColors = NULL);
+	DFFGeometry(uint32_t numVertices, float* vertices, float* normals = NULL, float* uvCoords = NULL,
+			uint8_t uvSetCount = 0, uint8_t* vertexColors = NULL);
 
 	/**	\brief Copy constructor.
 	 */
@@ -110,26 +112,26 @@ public:
 	 *
 	 *	@return The geometry flags.
 	 */
-	int16_t getFlags() const { return flags; }
+	uint16_t getFlags() const { return flags; }
 
 	/**	\brief Returns the number of independent UV coord sets.
 	 *
 	 * 	@return The number of UV coord sets.
 	 */
-	int8_t getUVSetCount() const { return uvSetCount; }
+	uint8_t getUVSetCount() const { return uvSetCount; }
 
 	/**	\brief Returns the number of vertices.
 	 *
 	 * 	@return The number of vertices.
 	 */
-	int32_t getVertexCount() const { return vertexCount; }
+	uint32_t getVertexCount() const { return vertexCount; }
 
 	/**	\brief Returns the number of frames.
 	 *
 	 * 	@return The number of frames.
 	 * 	@todo Actually, a geometry only stores one (root) frame, so what is this value for?
 	 */
-	int32_t getFrameCount() const { return frameCount; }
+	uint32_t getFrameCount() const { return frameCount; }
 
 	/**	\brief Returns the ambient light propery.
 	 *
@@ -241,13 +243,13 @@ public:
 	 *
 	 * 	@return The number of materials.
 	 */
-	int32_t getMaterialCount() const { return materials.size(); }
+	uint32_t getMaterialCount() const { return materials.size(); }
 
 	/**	\brief Returns the number of parts.
 	 *
 	 * 	 @return The number of parts.
 	 */
-	int32_t getPartCount() const { return parts.size(); }
+	uint32_t getPartCount() const { return parts.size(); }
 
 	/**	\brief Returns the index of the given material.
 	 *
@@ -255,6 +257,12 @@ public:
 	 * 	@return The index or -1 if the material is not registered in this geometry.
 	 */
 	int32_t indexOf(DFFMaterial* mat) const;
+
+	int32_t indexOf(DFFGeometryPart* part) const
+	{
+		ConstPartIterator it = find(parts.begin(), parts.end(), part);
+		return it == parts.end() ? -1 : it-parts.begin();
+	}
 
 	/**	\brief Returns the frame associated with this geometry.
 	 *
@@ -272,14 +280,14 @@ public:
 	 *
 	 * 	@param flags The geometry flags.
 	 */
-	void setFlags(int16_t flags) { this->flags = flags; }
+	void setFlags(uint16_t flags) { this->flags = flags; }
 
 	/**	\brief Assigns the number of frames.
 	 *
 	 * 	@param fc The number of frames.
 	 * 	@see getFrameCount()
 	 */
-	void setFrameCount(int32_t fc) { frameCount = fc; }
+	void setFrameCount(uint32_t fc) { frameCount = fc; }
 
 	/**	\brief Assigns the amount of ambient light.
 	 *
@@ -324,8 +332,8 @@ public:
 	 * 	@param uvSetCount The number of independent UV coordinate sets.
 	 * 	@param vertexColors The vertex color array.
 	 */
-	void setVertices(int32_t numVertices, float* vertices, float* normals = NULL, float* uvCoords = NULL,
-			int8_t uvSetCount = 0, uint8_t* vertexColors = NULL);
+	void setVertices(uint32_t numVertices, float* vertices, float* normals = NULL, float* uvCoords = NULL,
+			uint8_t uvSetCount = 0, uint8_t* vertexColors = NULL);
 
 	/**	\brief Returns the material list begin iterator.
 	 *
@@ -356,14 +364,14 @@ public:
 	 * 	@param index The material index.
 	 * 	@return The material at the given index.
 	 */
-	DFFMaterial* getMaterial(unsigned int index);
+	DFFMaterial* getMaterial(uint32_t index);
 
 	/**	\brief Returns the material at the given index.
 	 *
 	 * 	@param index The material index.
 	 * 	@return The material at the given index.
 	 */
-	const DFFMaterial* getMaterial(unsigned int index) const;
+	const DFFMaterial* getMaterial(uint32_t index) const;
 
 	/**	\brief Add a material.
 	 *
@@ -379,7 +387,7 @@ public:
 	 *
 	 * 	@param index The material index.
 	 */
-	void removeMaterial(unsigned int index) { removeMaterial(getMaterial(index)); }
+	void removeMaterial(uint32_t index) { removeMaterial(getMaterial(index)); }
 
 	/**	\brief Removes the given material.
 	 *
@@ -436,10 +444,10 @@ private:
 	void reparent(DFFMesh* mesh);
 
 private:
-	int16_t flags;
-	int8_t uvSetCount;
-	int32_t vertexCount;
-	int32_t frameCount;
+	uint16_t flags;
+	uint8_t uvSetCount;
+	uint32_t vertexCount;
+	uint32_t frameCount;
 
 	float ambientLight;
 	float diffuseLight;

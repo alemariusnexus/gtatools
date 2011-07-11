@@ -44,6 +44,9 @@ public:
 	TXDArchive* getArchive() { return txd; }
 	QLinkedList<TXDTextureHeader*> getSelectedTextures();
 
+private:
+	void setDisplayedTexture(TXDTextureHeader* texture);
+
 public slots:
 	void saveTo(const File& file);
 
@@ -52,7 +55,8 @@ private slots:
 	void textureListContextMenuRequested(const QPoint& pos);
 	void textureExtractionRequested(bool checked);
 	void loadConfigUiSettings();
-	void sectionChanged(RWSection* sect) { dfile->setHasChanges(true); }
+	void sectionStructureChanged() { dfile->setHasChanges(true); }
+	void reloadHighLevelFile();
 
 private:
 	DisplayedFile* dfile;

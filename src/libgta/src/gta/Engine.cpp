@@ -48,6 +48,8 @@ using std::set;
 using std::map;
 
 
+Engine* Engine::instance = NULL;
+
 
 
 struct IndexedSceneObject
@@ -62,8 +64,19 @@ struct IndexedSceneObject
 
 Engine* Engine::getInstance()
 {
-	static Engine inst;
-	return &inst;
+	if (!instance)
+		instance = new Engine;
+
+	return instance;
+}
+
+
+void Engine::destroy()
+{
+	if (instance) {
+		delete instance;
+		instance = NULL;
+	}
 }
 
 

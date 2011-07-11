@@ -27,8 +27,10 @@
 #include "DFFGeometry.h"
 #include "DFFFrame.h"
 #include <vector>
+#include <algorithm>
 
 using std::vector;
+using std::find;
 
 
 
@@ -78,6 +80,11 @@ public:
 	void removeGeometries();
 	DFFFrame* getRootFrame() { return &rootFrame; }
 	const DFFFrame* getRootFrame() const { return &rootFrame; }
+	int32_t indexOf(DFFGeometry* geom) const
+	{
+		ConstGeometryIterator it = find(geometries.begin(), geometries.end(), geom);
+		return it == geometries.end() ? -1 : it-geometries.begin();
+	}
 
 	void mirrorYZ();
 	void scale(float x, float y, float z);

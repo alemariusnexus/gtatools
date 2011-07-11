@@ -33,20 +33,10 @@ class COLGUIModule : public GUIModule {
 public:
 	static COLGUIModule* getInstance() { static COLGUIModule* inst = new COLGUIModule; return inst; }
 
-signals:
-	void wireframePropertyChanged(bool wireframe);
-
-private slots:
-	void wireframePropertyChangedSlot(bool wireframe);
-
 private:
 	COLGUIModule();
 	virtual void doInstall();
 	virtual void doUninstall();
-
-private:
-	QMenu* viewSubMenu;
-	QAction* wireframeAction;
 };
 
 #endif /* COLGUIMODULE_H_ */

@@ -20,11 +20,13 @@
 
 SET(SRCS ${SRCS}
     src/formats/rwbs/RWBSWidget.cpp src/formats/rwbs/RWBSSectionModel.cpp src/formats/rwbs/RWBSGUIModule.cpp
+    src/formats/rwbs/RWBSSectionTree.cpp src/formats/rwbs/RWBSSectionDialog.cpp
     PARENT_SCOPE)
 SET(MOC_SRCS ${MOC_SRCS}
     src/formats/rwbs/RWBSWidget.h src/formats/rwbs/RWBSSectionModel.h src/formats/rwbs/RWBSGUIModule.h
+    src/formats/rwbs/RWBSSectionTree.h src/formats/rwbs/RWBSSectionDialog.h
     PARENT_SCOPE)
 SET(UIC_SRCS ${UIC_SRCS}
-    src/formats/rwbs/RWBSWidget.ui
+    src/formats/rwbs/RWBSWidget.ui src/formats/rwbs/RWBSSectionDialog.ui
     PARENT_SCOPE)
 SET(INCS ${INCS} src/formats/rwbs PARENT_SCOPE)

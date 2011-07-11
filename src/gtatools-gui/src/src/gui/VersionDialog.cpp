@@ -39,7 +39,6 @@ VersionDialog::VersionDialog(QWidget* parent)
 	QGLWidget glw;
 	glw.makeCurrent();
 
-	printf("%s\n", GTATOOLS_VERSION);
 	ui.gtatoolsVersionLabel->setText(GTATOOLS_VERSION);
 	ui.qtVersionLabel->setText(qVersion());
 	ui.qtLinkVersionLabel->setText(QT_VERSION_STR);

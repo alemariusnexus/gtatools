@@ -33,7 +33,7 @@
 
 class Submesh {
 public:
-	Submesh(Mesh* mesh, int indexCount, int32_t* indices);
+	Submesh(Mesh* mesh, int indexCount, uint32_t* indices);
 	Submesh(Mesh* mesh, const DFFGeometryPart& part);
 	~Submesh();
 	Material* getMaterial() { return material; }
@@ -44,7 +44,7 @@ public:
 	int guessSize() const { return indexCount*4 + sizeof(Submesh); }
 
 private:
-	void init(int32_t* indices);
+	void init(uint32_t* indices);
 
 private:
 	Mesh* mesh;

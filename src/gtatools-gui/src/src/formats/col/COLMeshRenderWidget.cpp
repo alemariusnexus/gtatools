@@ -38,7 +38,7 @@ using std::ofstream;
 
 
 COLMeshRenderWidget::COLMeshRenderWidget(QWidget* parent)
-		: GLBaseWidget(parent), item(NULL), pickItem(NULL), pickedFace(-1), wireframe(false)
+		: GLBaseWidget(parent), item(NULL), pickItem(NULL), pickedFace(-1)
 {
 
 }
@@ -58,7 +58,7 @@ void COLMeshRenderWidget::render(const float* vertices, int32_t vertexCount, con
 		int modelVertexCount, modelIndexCount;
 		float* modelVertices;
 		uint8_t* modelColors;
-		int32_t* modelIndices;
+		uint32_t* modelIndices;
 		conv.convertVertexModel(vertices, vertexCount, faces, faceCount, modelVertexCount, modelVertices, modelColors,
 				modelIndices, modelIndexCount);
 
@@ -130,10 +130,6 @@ void COLMeshRenderWidget::paintGL()
 	GLBaseWidget::paintGL();
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-#ifndef GTATOOLS_GUI_USE_OPENGL_ES
-	glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
-#endif
 
 	if (item) {
 		item->render();

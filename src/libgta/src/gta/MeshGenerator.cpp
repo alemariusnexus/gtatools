@@ -25,7 +25,7 @@
 #include "Submesh.h"
 
 
-void MeshGenerator::createBox(float*& vertices, int& vertexCount, int32_t*& indices, int& indexCount,
+void MeshGenerator::createBox(float*& vertices, int& vertexCount, uint32_t*& indices, int& indexCount,
 		const Vector3& min, const Vector3& max)
 {
     float minx = min.getX();
@@ -49,8 +49,8 @@ void MeshGenerator::createBox(float*& vertices, int& vertexCount, int32_t*& indi
 	memcpy(vertices, localVertices, 8*3*4);
 	vertexCount = 8;
 
-	indices = new int32_t[6*6];
-	int32_t localIndices[] = {
+	indices = new uint32_t[6*6];
+	uint32_t localIndices[] = {
 			0, 1, 2, 2, 3, 0,	// Front
 			4, 5, 6, 6, 7, 4,	// Back
 			3, 2, 6, 6, 7, 3,	// Top
@@ -67,7 +67,7 @@ Mesh* MeshGenerator::createBox(const Vector3& min, const Vector3& max)
 {
 	float* vertices;
 	int vcount;
-	int32_t* indices;
+	uint32_t* indices;
 	int indCount;
 	createBox(vertices, vcount, indices, indCount, min, max);
 	Mesh* mesh = new Mesh(vcount, VertexFormatTriangles, 0, vertices);
@@ -79,7 +79,7 @@ Mesh* MeshGenerator::createBox(const Vector3& min, const Vector3& max)
 }
 
 
-void MeshGenerator::createSphere(float*& vertices, int& vertexCount, int32_t*& indices, int& indexCount,
+void MeshGenerator::createSphere(float*& vertices, int& vertexCount, uint32_t*& indices, int& indexCount,
 		float radius, int slices, int stacks)
 {
     int numVertices = (stacks-1)*slices+2;
@@ -118,7 +118,7 @@ void MeshGenerator::createSphere(float*& vertices, int& vertexCount, int32_t*& i
 	indexCount = numIndices;
 	int indexOffset = 0;
 
-	indices = new int32_t[numIndices];
+	indices = new uint32_t[numIndices];
 
 	for (int i = 0 ; i < slices-1 ; i++) {
 		indices[indexOffset++] = 0;
@@ -164,7 +164,7 @@ Mesh* MeshGenerator::createSphere(float radius, int slices, int stacks)
 {
 	float* vertices;
 	int vcount;
-	int32_t* indices;
+	uint32_t* indices;
 	int indCount;
 	createSphere(vertices, vcount, indices, indCount, radius, slices, stacks);
 	Mesh* mesh = new Mesh(vcount, VertexFormatTriangles, 0, vertices);

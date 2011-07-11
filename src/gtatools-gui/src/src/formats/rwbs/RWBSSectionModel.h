@@ -38,7 +38,22 @@ private:
 	typedef QList<RWSection*> SectList;
 
 public:
+	typedef SectList::iterator SectIterator;
+	typedef SectList::const_iterator ConstSectIterator;
+
+public:
 	void addRootSection(RWSection* sect);
+	void removeRootSection(RWSection* sect);
+	void insertSection(RWSection* sect, RWSection* parent = NULL, int index = -1);
+	void applySectionChanges(RWSection* sect)
+			{ QModelIndex idx = getSectionIndex(sect); emit dataChanged(idx, idx); }
+	int removeSection(RWSection* sect);
+	SectIterator getRootSectionBegin() { return rootSects.begin(); }
+	SectIterator getRootSectionEnd() { return rootSects.end(); }
+	ConstSectIterator getRootSectionBegin() const { return rootSects.begin(); }
+	ConstSectIterator getRootSectionEnd() const { return rootSects.end(); }
+	int getRootSectionCount() const { return rootSects.size(); }
+	QModelIndex getSectionIndex(RWSection* sect);
 	virtual Qt::ItemFlags flags(const QModelIndex& index) const;
 	virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
 	virtual QVariant headerData(int section, Qt::Orientation orient, int role = Qt::DisplayRole) const;
@@ -47,7 +62,11 @@ public:
 	virtual QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const;
 	virtual QModelIndex parent(const QModelIndex& index) const;
 
-private:
+signals:
+	void sectionRemoved(RWSection* sect, RWSection* oldParent);
+	void sectionInserted(RWSection* sect);
+
+public:
 	SectList rootSects;
 };
 

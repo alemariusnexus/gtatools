@@ -69,7 +69,6 @@ void listRecurse(File* file, int ind = 0)
 }
 
 
-
 int main(int argc, char** argv)
 {
 	try {
@@ -87,28 +86,7 @@ int main(int argc, char** argv)
 		trans.load(":/gtatools-gui_" + QLocale::system().name());
 		app.installTranslator(&trans);
 
-		Engine* engine = Engine::getInstance();
-
-		engine->getMeshCache()->resize(10 * 1000000); // 10MB
-		engine->getTextureCache()->resize(25 * 1000000); // 25MB
-
-		MainWindow win;
-		win.show();
-
-		win.initialize();
-
-		System::getInstance()->initializeGL();
-
-		argc--;
-		argv++;
-
-		for (int i = 0 ; i < argc ; i++) {
-			File file(argv[i]);
-			FileOpenRequest req(file);
-			System::getInstance()->openFile(req);
-		}
-
-		ProfileManager::getInstance()->loadProfiles();
+		System::initialize();
 
 		try {
 			return app.exec();

@@ -101,16 +101,11 @@ MainWindow::~MainWindow()
 
 	System* sys = System::getInstance();
 
-	while (sys->hasOpenFile())
-		sys->closeCurrentFile();
+	QLinkedList<GUIModule*> guiModules = sys->getInstalledGUIModules();
 
-	QLinkedList<GUIModule*> modules = sys->getInstalledGUIModules();
-	QLinkedList<GUIModule*>::iterator it;
-
-	for (it = modules.begin() ; it != modules.end() ; it++) {
+	for (QLinkedList<GUIModule*>::iterator it = guiModules.begin() ; it != guiModules.end() ; it++) {
 		GUIModule* module = *it;
-		sys->uninstallGUIModule(module);
-		delete module;
+		sys->forceUninstallGUIModule(module);
 	}
 
 	while (dockWidgets.size() != 0) {
@@ -271,6 +266,16 @@ void MainWindow::fileTabClosed(int index)
 			sys->closeFile(it.key());
 			break;
 		}
+	}
+}
+
+
+void MainWindow::closeEvent(QCloseEvent* evt)
+{
+	System* sys = System::getInstance();
+
+	if (!System::getInstance()->quit()) {
+		evt->ignore();
 	}
 }
 

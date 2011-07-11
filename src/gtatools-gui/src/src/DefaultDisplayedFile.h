@@ -34,20 +34,17 @@ class DefaultDisplayedFile : public DisplayedFile {
 
 public:
 	DefaultDisplayedFile(const File& file, FormatHandler* handler, QWidget* widget = NULL)
-			: DisplayedFile(handler), file(file), widget(widget), savable(false) {}
+			: DisplayedFile(handler), file(file), widget(widget) {}
 	~DefaultDisplayedFile();
 	virtual QWidget* getWidget() const { return widget; }
 	void setWidget(QWidget* widget) { this->widget = widget; }
 	virtual File getFile() const { return file; }
 	virtual QString getName() const { return file.getPath()->getFileName(); }
-	virtual bool canSave() const { return savable; }
-	virtual void saveTo(const File& file) { if (savable) this->file = file; DisplayedFile::saveTo(file); }
-	void setSavable(bool savable) { this->savable = savable; }
+	virtual void saveTo(const File& file) { DisplayedFile::saveTo(file); this->file = file; }
 
 private:
 	File file;
 	QWidget* widget;
-	bool savable;
 };
 
 #endif /* DEFAULTDISPLAYEDFILE_H_ */

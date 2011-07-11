@@ -34,11 +34,10 @@
 #include <gta/ManagedTextureSource.h>
 #include <QtGui/QMessageBox>
 #include <QtGui/QInputDialog>
+#include "../../gui/GLContainerWidget.h"
+#include <gtaformats/rwbs/RWBSException.h>
+#include "DFFTextureSourceDialog.h"
 
-
-int mainTabberIndex = 0;
-int geometryTabberIndex = 0;
-int geometryPartTabberIndex = 0;
 
 
 void frameRecurse(DFFFrame* parent, int numInd)
@@ -64,26 +63,105 @@ void frameRecurse(DFFFrame* parent, int numInd)
 
 
 
-DFFWidget::DFFWidget(const File& file, QWidget* parent, QGLWidget* shareWidget)
-		: QWidget(parent), texSource(NULL)
+DFFWidget::DFFWidget(DisplayedFile* dfile, QWidget* parent)
+		: QWidget(parent), dfile(dfile), mesh(NULL), frameModel(NULL), geomModel(NULL), texSource(NULL),
+		  currentGeom(NULL), currentGeomPart(NULL), currentMaterial(NULL), currentTexture(NULL)
 {
 	ui.setupUi(this);
 
+	File file = dfile->getFile();
+
+	try {
+		ui.rwbsWidget->loadFile(file);
+	} catch (RWBSException ex) {
+		System::getInstance()->log(LogEntry::error(QString(tr("Error opening the DFF file: %1"))
+				.arg(ex.getMessage()), &ex));
+		mesh = NULL;
+		ui.llWidget->setEnabled(false);
+		ui.tabWidget->setTabEnabled(ui.tabWidget->indexOf(ui.llWidget), false);
+	}
+
+	renderContainerWidget = new GLContainerWidget(ui.renderContainerWidget);
+	renderContainerWidget->setWindowTitle(tr("%1 - DFF Rendering")
+			.arg(file.getPath()->getFileName()));
+	ui.renderContainerWidget->layout()->addWidget(renderContainerWidget);
+	renderWidget = new DFFRenderWidget(renderContainerWidget);
+	renderContainerWidget->setGLWidget(renderWidget);
+
 	updateLayoutType();
 
-	ui.rwbsWidget->loadFile(file);
+	reloadHighLevelFile();
 
-	ui.mainTabber->setCurrentIndex(mainTabberIndex);
-	ui.geometryTabber->setCurrentIndex(geometryTabberIndex);
-	ui.geometryPartTabber->setCurrentIndex(geometryPartTabberIndex);
+	System* sys = System::getInstance();
+	DFFGUIModule* guiModule = DFFGUIModule::getInstance();
+	sys->installGUIModule(guiModule);
 
-	geometryRenderWidget = new DFFRenderWidget(ui.geometryRenderContainerWidget, shareWidget);
-	ui.geometryRenderContainerWidget->layout()->addWidget(geometryRenderWidget);
+	connect(ui.editTexSrcButton, SIGNAL(pressed()), this, SLOT(texSrcEditRequested()));
+	connect(ui.texSourceBox, SIGNAL(currentIndexChanged(int)), this, SLOT(texSrcChanged(int)));
 
-	geometryPartRenderWidget = new DFFRenderWidget(ui.geometryPartRenderContainerWidget, shareWidget);
-	ui.geometryPartRenderContainerWidget->layout()->addWidget(geometryPartRenderWidget);
+	connect(ui.materialList, SIGNAL(currentRowChanged(int)), this, SLOT(materialSelected(int)));
+	connect(ui.textureList, SIGNAL(currentRowChanged(int)), this, SLOT(textureSelected(int)));
+
+	connect(ui.geometryFrameLabel, SIGNAL(linkActivated(const QString&)), this,
+			SLOT(geometryFrameLinkActivated(const QString&)));
+	connect(ui.geometryPartMaterialLabel, SIGNAL(linkActivated(const QString&)), this,
+			SLOT(geometryPartMaterialLinkActivated(const QString&)));
+
+	connect(ui.textureOpenButton, SIGNAL(pressed()), this, SLOT(textureOpenRequested()));
+
+
+	connect(guiModule, SIGNAL(dumpRequested()), this, SLOT(xmlDumpRequested()));
+	connect(System::getInstance(), SIGNAL(configurationChanged()), this, SLOT(updateLayoutType()));
+
+	connect(ui.rwbsWidget, SIGNAL(sectionChanged(RWSection*)), this, SLOT(sectionStructureChanged()));
+	connect(ui.rwbsWidget, SIGNAL(sectionInserted(RWSection*)), this, SLOT(sectionStructureChanged()));
+	connect(ui.rwbsWidget, SIGNAL(sectionRemoved(RWSection*, RWSection*)), this,
+			SLOT(sectionStructureChanged()));
+
+	connect(dfile, SIGNAL(saved(const File&)), this, SLOT(reloadHighLevelFile()));
+}
+
+
+DFFWidget::~DFFWidget()
+{
+	DFFGUIModule::getInstance()->disconnect(this);
+	System::getInstance()->uninstallGUIModule(DFFGUIModule::getInstance());
+
+	clearMaterialList();
+
+	if (frameModel)
+		delete frameModel;
+	if (geomModel)
+		delete geomModel;
+	if (mesh)
+		delete mesh;
+}
+
+
+void DFFWidget::updateLayoutType()
+{
+	QSettings settings;
+
+	bool compact = settings.value("gui/compact_mode", false).toBool();
+}
+
+
+void DFFWidget::reloadHighLevelFile()
+{
+	setCurrentGeometry(NULL);
+
+	renderWidget->clearGeometries();
+
+	if (frameModel)
+		delete frameModel;
+	if (geomModel)
+		delete geomModel;
+	if (mesh)
+		delete mesh;
 
 	DFFLoader dff;
+
+	File file = dfile->getFile();
 
 	try {
 		mesh = dff.loadMesh(file);
@@ -95,111 +173,48 @@ DFFWidget::DFFWidget(const File& file, QWidget* parent, QGLWidget* shareWidget)
 		ui.tabWidget->setTabEnabled(ui.tabWidget->indexOf(ui.hlWidget), false);
 	}
 
+	// Load the frame tree
 	frameModel = new DFFFrameItemModel(mesh);
 	ui.frameTree->setModel(frameModel);
+
+	connect(ui.frameTree->selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
+			this, SLOT(frameSelected(const QModelIndex&, const QModelIndex&)));
 
 	System* sys = System::getInstance();
 
 	DFFMesh::GeometryIterator git;
 
 	if (mesh) {
-		int i = 0;
-		for (git = mesh->getGeometryBegin() ; git != mesh->getGeometryEnd() ; git++, i++) {
-			QListWidgetItem* item = new QListWidgetItem(tr("Geometry %1").arg(i+1));
-			ui.geometryList->addItem(item);
+		geomModel = new DFFGeometryItemModel(mesh);
+		ui.geometryTree->setModel(geomModel);
+
+		connect(ui.geometryTree->selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
+				this, SLOT(geometryTreeItemSelected(const QModelIndex&, const QModelIndex&)));
+
+		connect(geomModel, SIGNAL(geometryDisplayStateChanged(DFFGeometry*, bool)), this,
+				SLOT(geometryDisplayStateChanged(DFFGeometry*, bool)));
+		connect(geomModel, SIGNAL(geometryPartDisplayStateChanged(DFFGeometryPart*, bool)), this,
+				SLOT(geometryPartDisplayStateChanged(DFFGeometryPart*, bool)));
+
+		// Search for the mesh texture
+		char* meshName = new char[strlen(file.getPath()->getFileName())+1];
+		strtolower(meshName, file.getPath()->getFileName());
+		meshName[strlen(meshName)-4] = '\0';
+
+		SystemQuery query("FindMeshTextures");
+		query["meshName"] = meshName;
+
+		SystemQueryResult result = sys->sendSystemQuery(query);
+		QStringList texes = result["textures"].toStringList();
+
+		if (result.isSuccessful()) {
+			for (QStringList::iterator it = texes.begin() ; it != texes.end() ; it++) {
+				QString tex = *it;
+				ui.texSourceBox->addItem(tex, false);
+			}
 		}
-	}
 
-	DFFGUIModule* guiModule = DFFGUIModule::getInstance();
-	sys->installGUIModule(guiModule);
-
-	connect(ui.texSourceBox, SIGNAL(currentIndexChanged(int)), this, SLOT(texSourceSelected(int)));
-
-	// Search for the mesh texture
-	char* meshName = new char[strlen(file.getPath()->getFileName())+1];
-	strtolower(meshName, file.getPath()->getFileName());
-	meshName[strlen(meshName)-4] = '\0';
-
-	SystemQuery query("FindMeshTextures");
-	query["meshName"] = meshName;
-
-	SystemQueryResult result = sys->sendSystemQuery(query);
-
-	if (result.isSuccessful()) {
-		ui.texSourceBox->addItems(result["textures"].toStringList());
-	}
-
-	delete[] meshName;
-
-	connect(ui.frameTree->selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
-			this, SLOT(frameSelected(const QModelIndex&, const QModelIndex&)));
-	connect(ui.geometryList, SIGNAL(currentRowChanged(int)), this, SLOT(geometrySelected(int)));
-	connect(ui.materialList, SIGNAL(currentRowChanged(int)), this, SLOT(materialSelected(int)));
-	connect(ui.textureList, SIGNAL(currentRowChanged(int)), this, SLOT(textureSelected(int)));
-	connect(ui.geometryPartList, SIGNAL(currentRowChanged(int)), this, SLOT(geometryPartSelected(int)));
-	connect(ui.otherTexSrcButton, SIGNAL(clicked(bool)), this, SLOT(otherTexSourceRequested(bool)));
-	connect(guiModule, SIGNAL(dumpRequested()), this, SLOT(xmlDumpRequested()));
-	connect(guiModule, SIGNAL(texturedPropertyChanged(bool)), this, SLOT(texturedPropertyChanged(bool)));
-	connect(guiModule, SIGNAL(wireframePropertyChanged(bool)), this, SLOT(wireframePropertyChanged(bool)));
-	connect(System::getInstance(), SIGNAL(configurationChanged()), this, SLOT(updateLayoutType()));
-
-	geometryRenderWidget->updateGL();
-	geometryPartRenderWidget->updateGL();
-
-	ui.geometryList->setCurrentRow(0);
-}
-
-
-DFFWidget::~DFFWidget()
-{
-	mainTabberIndex = ui.mainTabber->currentIndex();
-	geometryTabberIndex = ui.geometryTabber->currentIndex();
-	geometryPartTabberIndex = ui.geometryPartTabber->currentIndex();
-
-	DFFGUIModule::getInstance()->disconnect(this);
-	System::getInstance()->uninstallGUIModule(DFFGUIModule::getInstance());
-
-	clearGeometryPartList();
-	clearMaterialList();
-
-	int count = ui.geometryList->count();
-
-	for (int i = 0 ; i < count ; i++) {
-		delete ui.geometryList->takeItem(0);
-	}
-
-	if (mesh)
-		delete mesh;
-
-	delete frameModel;
-
-	delete geometryRenderWidget;
-	delete geometryPartRenderWidget;
-}
-
-
-void DFFWidget::updateLayoutType()
-{
-	QSettings settings;
-
-	bool compact = settings.value("gui/compact_mode", false).toBool();
-
-	ui.geometryNameLabel->setVisible(!compact);
-	ui.materialNameLabel->setVisible(!compact);
-	ui.geometryPartNameLabel->setVisible(!compact);
-
-	if (compact) {
-		if (ui.texSourceWidget->parentWidget() == this) {
-			ui.mainLayout->removeWidget(ui.texSourceWidget);
-			ui.mainTabber->addTab(ui.texSourceWidget, tr("Texture Source"));
-		}
-	} else {
-		if (ui.mainTabber->indexOf(ui.texSourceWidget) != -1) {
-			ui.mainTabber->removeTab(ui.mainTabber->indexOf(ui.texSourceWidget));
-			ui.texSourceWidget->setParent(this);
-			ui.mainLayout->addWidget(ui.texSourceWidget);
-			ui.texSourceWidget->show();
-		}
+		delete[] meshName;
 	}
 }
 
@@ -221,21 +236,6 @@ void DFFWidget::clearMaterialList()
 }
 
 
-void DFFWidget::clearGeometryPartList()
-{
-	// Otherwise the slots might be called in an invalid state
-	disconnect(ui.geometryPartList, SIGNAL(currentRowChanged(int)), this, SLOT(geometryPartSelected(int)));
-
-	int count = ui.geometryPartList->count();
-
-	for (int i = 0 ; i < count ; i++) {
-		delete ui.geometryPartList->takeItem(0);
-	}
-
-	connect(ui.geometryPartList, SIGNAL(currentRowChanged(int)), this, SLOT(geometryPartSelected(int)));
-}
-
-
 void DFFWidget::clearTextureList()
 {
 	// Otherwise the slots might be called in an invalid state
@@ -251,205 +251,307 @@ void DFFWidget::clearTextureList()
 }
 
 
+void DFFWidget::setDisplayedFrame(DFFFrame* frame)
+{
+	if (frame) {
+		Vector3 trans = frame->getTranslation();
+		Matrix3 rot = frame->getRotation();
+		const float* arot = rot.toArray();
+
+		ui.frameTranslationLabel->setText(tr("(%1, %2, %3)").arg(trans[0], 0, 'f').arg(trans[1], 0, 'f')
+				.arg(trans[2], 0, 'f'));
+		ui.frameRotationLabel->setText(tr("(%1, %2, %3) (%4, %5, %6) (%7, %8, %9)")
+				.arg(arot[0], -10, 'f').arg(arot[1], -10, 'f').arg(arot[2], -10, 'f').arg(arot[3], -10, 'f')
+				.arg(arot[4], -10, 'f').arg(arot[5], -10, 'f').arg(arot[6], -10, 'f').arg(arot[7], -10, 'f')
+				.arg(arot[8], -10, 'f'));
+
+		ui.frameFlagsLabel->setText(QString("%1b").arg(frame->getFlags(), 0, 2));
+	} else {
+		ui.frameTranslationLabel->setText("-");
+		ui.frameRotationLabel->setText("-");
+		ui.frameFlagsLabel->setText("-");
+	}
+}
+
+
+void DFFWidget::setCurrentGeometry(DFFGeometry* geom)
+{
+	currentGeom = geom;
+	setCurrentGeometryPart(NULL);
+	setCurrentMaterial(NULL);
+
+	if (geom) {
+		ui.geometryFaceFormatLabel->setText(geom->isTriangleStripFormat()
+				? tr("Triangle Strips") : tr("Triangle List"));
+
+		QStringList vdata;
+
+		if (geom->getVertices())
+			vdata << "V";
+		if (geom->getNormals())
+			vdata << "N";
+		if (geom->getUVSetCount() > 0)
+			vdata << QString("TC (%1)").arg(geom->getUVSetCount());
+		if (geom->getVertexColors())
+			vdata << "C";
+
+		ui.geometryVdataLabel->setText(vdata.join(", "));
+		ui.geometryFlagsLabel->setText(QString("%1b").arg(geom->getFlags(), 0, 2));
+		ui.geometryVertexCountLabel->setText(QString("%1").arg(geom->getVertexCount()));
+		ui.geometryFrameCountLabel->setText(QString("%1").arg(geom->getFrameCount()));
+		ui.geometryAmbientLightLabel->setText(QString("%1").arg(geom->getAmbientLight()));
+		ui.geometryDiffuseLightLabel->setText(QString("%1").arg(geom->getDiffuseLight()));
+		ui.geometrySpecularLightLabel->setText(QString("%1").arg(geom->getSpecularLight()));
+
+		const DFFBoundingSphere* bounds = geom->getBounds();
+		ui.geometryBoundsLabel->setText(QString(tr("(%1, %2, %3  :  %4)"))
+				.arg(bounds->x).arg(bounds->y).arg(bounds->z).arg(bounds->radius));
+
+		DFFFrame* frame = geom->getAssociatedFrame();
+		QString frameName;
+
+		if (frame)
+			frameName = frame->getName();
+		else
+			frameName = QString(tr("Unnamed %1")).arg(frame->getParent()->indexOf(frame) + 1);
+
+		ui.geometryFrameLabel->setText(QString("<a href=\"dummy\">%1</a>").arg(frameName));
+
+		clearMaterialList();
+
+		DFFGeometry::MaterialIterator it;
+		int i = 0;
+		for (it = geom->getMaterialBegin() ; it != geom->getMaterialEnd() ; it++, i++) {
+			DFFMaterial* mat = *it;
+
+			ui.materialList->addItem(QString(tr("Material %1")).arg(i+1));
+		}
+	} else {
+		ui.geometryFaceFormatLabel->setText("-");
+		ui.geometryVdataLabel->setText("-");
+		ui.geometryFlagsLabel->setText("-");
+		ui.geometryVertexCountLabel->setText("-");
+		ui.geometryFrameCountLabel->setText("-");
+		ui.geometryAmbientLightLabel->setText("-");
+		ui.geometryDiffuseLightLabel->setText("-");
+		ui.geometrySpecularLightLabel->setText("-");
+		ui.geometryBoundsLabel->setText("-");
+		ui.geometryFrameLabel->setText("-");
+
+		clearMaterialList();
+	}
+}
+
+
+void DFFWidget::setCurrentGeometryPart(DFFGeometryPart* part)
+{
+	if (part) {
+		DFFGeometry* geom = part->getGeometry();
+		setCurrentGeometry(geom);
+
+		currentGeomPart = part;
+
+		ui.geometryPartIndexCountLabel->setText(QString("%1").arg(part->getIndexCount()));
+
+		if (part->getMaterial()) {
+			ui.geometryPartMaterialLabel->setText(QString("<a href=\"dummy\">Material %1</a>")
+					.arg(geom->indexOf(part->getMaterial()) + 1));
+		} else {
+			ui.geometryPartMaterialLabel->setText(tr("None"));
+		}
+	} else {
+		currentGeomPart = part;
+
+		ui.geometryPartIndexCountLabel->setText("-");
+		ui.geometryPartMaterialLabel->setText("-");
+	}
+}
+
+
+void DFFWidget::setCurrentMaterial(DFFMaterial* mat)
+{
+	currentMaterial = mat;
+	setCurrentTexture(NULL);
+
+	if (mat) {
+		uint8_t r, g, b, a;
+		mat->getColor(r, g, b, a);
+		ui.materialColorLabel->setText(tr("(%1, %2, %3, %4)").arg(r).arg(g).arg(b).arg(a));
+
+		clearTextureList();
+
+		DFFMaterial::TextureIterator it;
+		int i = 0;
+		for (it = mat->getTextureBegin() ; it != mat->getTextureEnd() ; it++, i++) {
+			DFFTexture* tex = *it;
+
+			QString texName = QString("Texture %1").arg(i+1);
+
+			if (tex->getDiffuseName()) {
+				texName += QString(" [%1]").arg(tex->getDiffuseName());
+			}
+
+			ui.textureList->addItem(texName);
+		}
+	} else {
+		ui.materialColorLabel->setText("-");
+
+		clearTextureList();
+	}
+}
+
+
+void DFFWidget::setCurrentTexture(DFFTexture* tex)
+{
+	currentTexture = tex;
+
+	if (tex) {
+		ui.textureOpenButton->setEnabled(true);
+		ui.textureDiffuseNameLabel->setText(tex->getDiffuseName());
+		ui.textureAlphaNameLabel->setText(tex->getAlphaName() ? tex->getAlphaName() : "-");
+		ui.textureFilterFlagsLabel->setText(QString("%1b").arg(tex->getFilterModeFlags(), 0, 2));
+	} else {
+		ui.textureOpenButton->setEnabled(false);
+		ui.textureDiffuseNameLabel->setText("-");
+		ui.textureAlphaNameLabel->setText("-");
+		ui.textureFilterFlagsLabel->setText("-");
+	}
+}
+
+
+void DFFWidget::textureOpenRequested()
+{
+	const char* dname = currentTexture->getDiffuseName();
+
+	SystemQuery query("FindAndOpenTexture");
+	query["texture"] = QString(dname);
+	System::getInstance()->sendSystemQuery(query);
+}
+
+
+void DFFWidget::texSrcEditRequested()
+{
+	DFFTextureSourceDialog dlg(this);
+
+	for (int i = 0 ; i < ui.texSourceBox->count() ; i++) {
+		QString source = ui.texSourceBox->itemText(i);
+		bool path = ui.texSourceBox->itemData(i).toBool();
+		dlg.addTextureSource(source, path);
+	}
+
+	if (dlg.exec() == QDialog::Accepted) {
+		ui.texSourceBox->clear();
+
+		for (int i = 0 ; i < dlg.getTextureSourceCount() ; i++) {
+			bool path;
+			QString source = dlg.getTextureSource(i, path);
+			ui.texSourceBox->addItem(source, path);
+		}
+	}
+}
+
+
+void DFFWidget::texSrcChanged(int index)
+{
+	if (index == -1) {
+		renderWidget->setTextureSource(NULL);
+		return;
+	}
+
+	QString source = ui.texSourceBox->itemText(index);
+	bool path = ui.texSourceBox->itemData(index).toBool();
+
+	TextureSource* texSrc;
+
+	if (path) {
+		// TODO
+	} else {
+		texSrc = new ManagedTextureSource(source.toAscii().constData());
+	}
+
+	renderWidget->setTextureSource(texSrc);
+}
+
+
+void DFFWidget::geometryFrameLinkActivated(const QString& link)
+{
+	DFFFrame* frame = currentGeom->getAssociatedFrame();
+	QModelIndex idx = frameModel->getFrameIndex(frame);
+	ui.mainTabber->setCurrentWidget(ui.frameTabWidget);
+	ui.frameTree->setCurrentIndex(idx);
+}
+
+
+void DFFWidget::geometryPartMaterialLinkActivated(const QString& link)
+{
+	DFFMaterial* mat = currentGeomPart->getMaterial();
+	int idx = currentGeom->indexOf(mat);
+	ui.geometryTabber->setCurrentWidget(ui.geometryMaterialTabWidget);
+	ui.materialList->setCurrentRow(idx);
+}
+
+
 void DFFWidget::frameSelected(const QModelIndex& index, const QModelIndex& previous)
 {
 	DFFFrame* frame = (DFFFrame*) index.internalPointer();
+	setDisplayedFrame(frame);
+}
 
-	Vector3 trans = frame->getTranslation();
-	Matrix3 rot = frame->getRotation();
-	const float* arot = rot.toArray();
 
-	ui.frameNameLabel->setText(index.data(Qt::DisplayRole).toString());
-	ui.frameTranslationLabel->setText(tr("(%1, %2, %3)").arg(trans[0], 0, 'f').arg(trans[1], 0, 'f')
-			.arg(trans[2], 0, 'f'));
-	ui.frameRotationLabel->setText(tr("(%1, %2, %3) (%4, %5, %6) (%7, %8, %9)")
-			.arg(arot[0], -10, 'f').arg(arot[1], -10, 'f').arg(arot[2], -10, 'f').arg(arot[3], -10, 'f')
-			.arg(arot[4], -10, 'f').arg(arot[5], -10, 'f').arg(arot[6], -10, 'f').arg(arot[7], -10, 'f')
-			.arg(arot[8], -10, 'f'));
+void DFFWidget::geometryTreeItemSelected(const QModelIndex& index, const QModelIndex& previous)
+{
+	DFFGeometryItemModel::Item* item = (DFFGeometryItemModel::Item*) index.internalPointer();
 
-	if (frame->getParent() == NULL) {
-		ui.frameParentLabel->setText(tr("None"));
+	if (item->isPart()) {
+		DFFGeometryItemModel::InternalDFFGeometryPart* ipart
+				= (DFFGeometryItemModel::InternalDFFGeometryPart*) item;
+		DFFGeometryPart* part = ipart->getPart();
+		setCurrentGeometry(part->getGeometry());
+		setCurrentGeometryPart(part);
 	} else {
-		ui.frameParentLabel->setText(index.parent().data(Qt::DisplayRole).toString());
+		DFFGeometryItemModel::InternalDFFGeometry* igeom = (DFFGeometryItemModel::InternalDFFGeometry*) item;
+		DFFGeometry* geom = igeom->getGeometry();
+		setCurrentGeometry(geom);
 	}
-
-	ui.frameFlagsLabel->setText(QString("%1b").arg(frame->getFlags(), 0, 2));
 }
 
 
-void DFFWidget::geometrySelected(int row)
+void DFFWidget::materialSelected(int index)
 {
-	if (row == -1)
-		return;
+	DFFMaterial* mat = currentGeom->getMaterial(index);
+	setCurrentMaterial(mat);
+}
 
-	DFFGeometry* geom = mesh->getGeometry(row);
 
-	const DFFBoundingSphere* bounds = geom->getBounds();
+void DFFWidget::textureSelected(int index)
+{
+	DFFTexture* tex = currentMaterial->getTexture(index);
+	setCurrentTexture(tex);
+}
 
-	QStringList vdataComponents;
 
-	vdataComponents << tr("Vertices");
-	if (geom->getVertexColors())
-		vdataComponents << tr("Colors");
-	if (geom->getNormals())
-		vdataComponents << tr("Normals");
-	if (geom->getUVCoordSets())
-		vdataComponents << tr("UV Coordinates");
-
-	ui.geometryNameLabel->setText(ui.geometryList->item(row)->text());
-	ui.geometryFaceFormatLabel->setText(geom->isTriangleStripFormat()
-			? tr("Triangle Strips") : tr("Triangle List"));
-	ui.geometryFlagsLabel->setText(QString("%1b").arg(geom->getFlags(), 0, 2));
-	ui.geometryUVSetCountLabel->setText(QString("%1").arg(geom->getUVSetCount()));
-	ui.geometryVertexCountLabel->setText(QString("%1").arg(geom->getVertexCount()));
-	ui.geometryFrameCountLabel->setText(QString("%1").arg(geom->getFrameCount()));
-	ui.geometryAmbientLightLabel->setText(QString("%1").arg(geom->getAmbientLight()));
-	ui.geometryDiffuseLightLabel->setText(QString("%1").arg(geom->getDiffuseLight()));
-	ui.geometrySpecularLightLabel->setText(QString("%1").arg(geom->getSpecularLight()));
-	ui.geometryVdataLabel->setText(vdataComponents.join(", "));
-	//ui.geometryVertexColorsLabel->setText(geom->getVertexColors() == NULL ? tr("no") : tr("yes"));
-	//ui.geometryNormalsLabel->setText(geom->getNormals() == NULL ? tr("no") : tr("yes"));
-	ui.geometryBoundsLabel->setText(tr("(%1, %2, %3 : %4)")
-			.arg(bounds->x).arg(bounds->y).arg(bounds->z).arg(bounds->radius));
-	//ui.geometryMaterialCountLabel->setText(QString("%1").arg(geom->getMaterialCount()));
-	//ui.geometryPartCountLabel->setText(QString("%1").arg(geom->getPartCount()));
-
-	DFFFrame* frame = geom->getAssociatedFrame();
-
-	QStringList framePath;
-
-	if (frame) {
-		do {
-			if (frame->getName()) {
-				framePath.insert(0, frame->getName());
-			} else {
-				if (!frame->isRoot()) {
-					framePath.insert(0, QString("%1")
-							.arg(frame->getParent()->indexOf(frame)));
-				}/* else {
-					framePath.insert(0, QString("%1").arg(mesh->indexOf(frame)));
-				}*/
-			}
-		} while ((frame = frame->getParent())  !=  NULL);
+void DFFWidget::geometryDisplayStateChanged(DFFGeometry* geom, bool displayed)
+{
+	if (displayed) {
+		QLinkedList<const DFFGeometryPart*> displayedParts;
+		geomModel->getDisplayedGeometryParts(geom, displayedParts);
+		renderWidget->addGeometry(geom, displayedParts);
 	} else {
-		framePath << tr("None");
+		renderWidget->removeGeometry(geom);
 	}
 
-	ui.geometryFrameLabel->setText(framePath.join("/"));
-
-	clearGeometryPartList();
-	clearMaterialList();
-
-	DFFGeometry::MaterialIterator mit;
-
-	int i = 0;
-	for (mit = geom->getMaterialBegin() ; mit != geom->getMaterialEnd() ; mit++, i++) {
-		QListWidgetItem* item = new QListWidgetItem(tr("Material %1").arg(i+1));
-		ui.materialList->addItem(item);
-	}
-
-	DFFGeometry::PartIterator pit;
-
-	i = 0;
-	for (pit = geom->getPartBegin() ; pit != geom->getPartEnd() ; pit++, i++) {
-		QListWidgetItem* item = new QListWidgetItem(tr("Part %1").arg(i+1));
-		ui.geometryPartList->addItem(item);
-	}
-
-	ui.materialList->setCurrentRow(0);
-	ui.geometryPartList->setCurrentRow(0);
-
-	geometryRenderWidget->renderGeometry(geom);
-	geometryRenderWidget->updateGL();
+	renderWidget->updateGL();
 }
 
 
-void DFFWidget::materialSelected(int row)
+void DFFWidget::geometryPartDisplayStateChanged(DFFGeometryPart* part, bool displayed)
 {
-	if (row == -1)
-		return;
-
-	DFFGeometry* geom = mesh->getGeometry(ui.geometryList->currentRow());
-	DFFMaterial* mat = geom->getMaterial(row);
-
-	uint8_t r, g, b, a;
-	mat->getColor(r, g, b, a);
-
-	ui.materialNameLabel->setText(ui.materialList->item(row)->text());
-	ui.materialColorLabel->setText(tr("(%1, %2, %3, %4)").arg(r).arg(g).arg(b).arg(a));
-
-	clearTextureList();
-
-	DFFMaterial::TextureIterator it;
-
-	for (it = mat->getTextureBegin() ; it != mat->getTextureEnd() ; it++) {
-		DFFTexture* tex = *it;
-		QListWidgetItem* item = new QListWidgetItem(tex->getDiffuseName());
-		ui.textureList->addItem(item);
+	if (renderWidget->isGeometryRendered(part->getGeometry())) {
+		QLinkedList<const DFFGeometryPart*> displayedParts;
+		geomModel->getDisplayedGeometryParts(part->getGeometry(), displayedParts);
+		renderWidget->setGeometryParts(part->getGeometry(), displayedParts);
+		renderWidget->updateGL();
 	}
-
-	ui.textureList->setCurrentRow(0);
-}
-
-
-void DFFWidget::textureSelected(int row)
-{
-	if (row == -1)
-		return;
-
-	DFFGeometry* geom = mesh->getGeometry(ui.geometryList->currentRow());
-	DFFMaterial* mat = geom->getMaterial(ui.materialList->currentRow());
-	DFFTexture* tex = mat->getTexture(row);
-
-	ui.textureNameLabel->setText(ui.textureList->item(row)->text());
-	ui.textureDiffuseNameLabel->setText(tex->getDiffuseName());
-	ui.textureAlphaNameLabel->setText(tex->getAlphaName());
-	ui.textureFilterFlagsLabel->setText(QString("%1").arg(tex->getFilterModeFlags()));
-}
-
-
-void DFFWidget::geometryPartSelected(int row)
-{
-	if (row == -1)
-		return;
-
-	DFFGeometry* geom = mesh->getGeometry(ui.geometryList->currentRow());
-	DFFGeometryPart* part = geom->getPart(row);
-	DFFMaterial* mat = part->getMaterial();
-
-	ui.geometryPartNameLabel->setText(ui.geometryPartList->item(row)->text());
-	ui.geometryPartIndexCountLabel->setText(QString("%1").arg(part->getIndexCount()));
-
-	if (mat) {
-		ui.geometryPartMaterialLabel->setText(ui.materialList->item(geom->indexOf(mat))->text());
-	} else {
-		ui.geometryPartMaterialLabel->setText(tr("None"));
-	}
-
-	geometryPartRenderWidget->renderGeometryPart(geom, part);
-	geometryPartRenderWidget->updateGL();
-}
-
-
-void DFFWidget::texturedPropertyChanged(bool textured)
-{
-	//geometryRenderWidget->setShowTextures(textured);
-	//geometryPartRenderWidget->setShowTextures(textured);
-
-	if (textured  &&  texSource) {
-		geometryRenderWidget->setTextureSource(new ManagedTextureSource(*texSource));
-		geometryPartRenderWidget->setTextureSource(new ManagedTextureSource(*texSource));
-	} else {
-		geometryRenderWidget->setTextureSource(NULL);
-		geometryPartRenderWidget->setTextureSource(NULL);
-	}
-}
-
-
-void DFFWidget::wireframePropertyChanged(bool wireframe)
-{
-	geometryRenderWidget->setShowWireframe(wireframe);
-	geometryPartRenderWidget->setShowWireframe(wireframe);
 }
 
 
@@ -458,26 +560,3 @@ void DFFWidget::xmlDumpRequested()
 	if (mesh)
 		DFFFormatHandler::getInstance()->xmlDumpDialog(*mesh, this);
 }
-
-
-void DFFWidget::texSourceSelected(int index)
-{
-	if (texSource)
-		delete texSource;
-
-	QString texName = ui.texSourceBox->itemText(index);
-	texSource = new ManagedTextureSource(texName.toAscii().constData());
-	geometryRenderWidget->setTextureSource(new ManagedTextureSource(*texSource));
-	geometryPartRenderWidget->setTextureSource(new ManagedTextureSource(*texSource));
-}
-
-
-void DFFWidget::otherTexSourceRequested(bool)
-{
-	QString txdName = QInputDialog::getText(this, tr("Enter the TXD name"),
-			tr("Enter the name of the TXD you want to add (without extension):"));
-
-	if (!txdName.isNull())
-		ui.texSourceBox->addItem(txdName, txdName);
-}
-

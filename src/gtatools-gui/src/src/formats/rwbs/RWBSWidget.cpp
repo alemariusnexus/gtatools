@@ -33,14 +33,21 @@ RWBSWidget::RWBSWidget(QWidget* parent)
 
 	ui.splitter->setSizes(QList<int>() << width()/4 << width()/4 * 3);
 
-	ui.sectionTree->setModel(&sectModel);
-
 	ui.decoder->connectToEditor(ui.editor);
 
 	connect(ui.sectionTree, SIGNAL(activated(const QModelIndex&)), this,
 			SLOT(sectionActivated(const QModelIndex&)));
 	connect(ui.editor, SIGNAL(dataChanged(const QByteArray&)), this,
 			SLOT(sectionDataChanged(const QByteArray&)));
+
+	connect(ui.sectionTree, SIGNAL(sectionChanged(RWSection*)), this, SIGNAL(sectionChanged(RWSection*)));
+
+	connect(ui.sectionTree, SIGNAL(sectionRemoved(RWSection*, RWSection*)), this,
+			SLOT(sectionRemovedSlot(RWSection*)));
+	connect(ui.sectionTree, SIGNAL(sectionRemoved(RWSection*, RWSection*)), this,
+			SIGNAL(sectionRemoved(RWSection*, RWSection*)));
+
+	connect(ui.sectionTree, SIGNAL(sectionInserted(RWSection*)), this, SIGNAL(sectionInserted(RWSection*)));
 }
 
 
@@ -79,8 +86,7 @@ void RWBSWidget::loadFile(const File& file)
 
 void RWBSWidget::addRootSection(RWSection* sect)
 {
-	rootSects << sect;
-	sectModel.addRootSection(sect);
+	ui.sectionTree->getModel()->addRootSection(sect);
 }
 
 
@@ -90,8 +96,8 @@ void RWBSWidget::save(const File& file)
 
 	ostream* stream = file.openOutputStream(ostream::binary);
 
-	for (int i = 0 ; i < rootSects.size() ; i++) {
-		RWSection* sect = rootSects[i];
+	for (SectIterator it = getRootSectionBegin() ; it != getRootSectionEnd() ; it++) {
+		RWSection* sect = *it;
 		sect->write(stream);
 	}
 
@@ -143,4 +149,14 @@ void RWBSWidget::sectionDataChanged(const QByteArray& data)
 {
 	if (!openingSection)
 		emit sectionChanged(currentSection);
+}
+
+
+void RWBSWidget::sectionRemovedSlot(RWSection* sect)
+{
+	if (currentSection == sect) {
+		ui.editor->setData(QByteArray());
+		ui.editor->setEnabled(false);
+		currentSection = NULL;
+	}
 }

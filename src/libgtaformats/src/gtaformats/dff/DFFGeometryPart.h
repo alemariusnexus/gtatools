@@ -48,13 +48,13 @@ public:
 	 * 	@param ic The number of indices.
 	 * 	@param indices The index array.
 	 */
-	DFFGeometryPart(int32_t ic, int32_t* indices);
+	DFFGeometryPart(uint32_t ic, uint32_t* indices);
 
 	/**	\brief Creates an empty DFFGeometryPart with 0 indices.
 	 *
 	 * 	It is then not bound to any geometry, use DFFGeometry::addPart() to attach this part to a geometry.
 	 */
-	DFFGeometryPart() : indexCount(0), indices(new int32_t[0]), material(NULL), geometry(NULL) {}
+	DFFGeometryPart() : indexCount(0), indices(new uint32_t[0]), material(NULL), geometry(NULL) {}
 
 	/**	\brief Copy constructor.
 	 *
@@ -73,13 +73,13 @@ public:
 	 *
 	 *	@return The number of indices.
 	 */
-	int32_t getIndexCount() const { return indexCount; }
+	uint32_t getIndexCount() const { return indexCount; }
 
 	/**	\brief Returns the index data.
 	 *
 	 * 	@return The indices.
 	 */
-	int32_t* getIndices() const { return indices; }
+	uint32_t* getIndices() const { return indices; }
 
 	/**	\brief Returns the associated material.
 	 *
@@ -95,7 +95,7 @@ public:
 	 * 	@param count The number of indices.
 	 * 	@param indices The indices.
 	 */
-	void setIndices(int32_t count, int32_t* indices)
+	void setIndices(uint32_t count, uint32_t* indices)
 			{ delete[] indices; this->indices = indices; indexCount = count; }
 
 	/**	\brief Assigns a material.
@@ -131,8 +131,8 @@ private:
 	void reparent(DFFGeometry* geom);
 
 private:
-	int32_t indexCount;
-	int32_t* indices;
+	uint32_t indexCount;
+	uint32_t* indices;
 	DFFMaterial* material;
 	DFFGeometry* geometry;
 };

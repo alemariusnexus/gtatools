@@ -29,12 +29,17 @@
 #include <QtGui/QInputDialog>
 #include <QtGui/QMessageBox>
 #include "DefaultDisplayedFile.h"
+#include "ProfileManager.h"
+#include <gta/resource/ResourceCache.h>
 
+
+
+System* System::instance = NULL;
 
 
 
 System::System()
-		: mainWindow(NULL), currentFile(NULL)
+		: mainWindow(NULL), currentFile(NULL), initializing(true), shuttingDown(false)
 {
 	int dummyTexW = 16;
 	int dummyTexH = 16;
@@ -61,8 +66,49 @@ System::System()
 
 System* System::getInstance()
 {
-	static System* inst = new System;
-	return inst;
+	return instance;
+}
+
+
+void System::initialize()
+{
+	instance = new System;
+	instance->initializeInstance();
+}
+
+
+void System::initializeInstance()
+{
+	initializeGL();
+
+	Engine* engine = Engine::getInstance();
+
+	engine->getMeshCache()->resize(10 * 1000000); // 10MB
+	engine->getTextureCache()->resize(25 * 1000000); // 25MB
+
+	ProfileManager::getInstance()->loadProfiles();
+
+	MainWindow* win = new MainWindow;
+	win->show();
+
+	win->initialize();
+
+	connect(qApp, SIGNAL(lastWindowClosed()), this, SLOT(destroyInstance()));
+
+	initializing = false;
+
+	emit initializationDone();
+}
+
+
+void System::destroyInstance()
+{
+	emit aboutToQuit();
+
+	shuttingDown = true;
+
+	ProfileManager::destroy();
+	Engine::destroy();
 }
 
 
@@ -173,6 +219,7 @@ void System::changeCurrentFile(DisplayedFile* file)
 		currentFile = file;
 		emit currentFileChanged(file, prev);
 	} else {
+		currentFile = NULL;
 		emit currentFileChanged(NULL, currentFile);
 	}
 }
@@ -226,6 +273,8 @@ bool System::closeFile(DisplayedFile* file, bool force)
 	emit fileClosed(file);
 
 	delete file;
+
+	return true;
 }
 
 
@@ -283,6 +332,21 @@ SystemQueryResult System::sendSystemQuery(const SystemQuery& query)
 	SystemQueryResult result(false);
 	emit systemQuerySent(query, result);
 	return result;
+}
+
+
+bool System::quit()
+{
+	while (hasOpenFile()) {
+		if (!closeCurrentFile()) {
+			return false;
+		}
+	}
+
+	// This will trigger signal qApp::lastWindowClosed(), which is connected to System::destroyInstance()
+	mainWindow->close();
+
+	return true;
 }
 
 

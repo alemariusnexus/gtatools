@@ -25,6 +25,21 @@
 
 
 
+QModelIndex DFFFrameItemModel::getFrameIndex(const DFFFrame* frame) const
+{
+	const DFFFrame* parent = frame->getParent();
+
+	if (parent) {
+		QModelIndex parentIdx = getFrameIndex(parent);
+		int row = parent->indexOf(frame);
+		QModelIndex idx = index(row, 0, parentIdx);
+		return idx;
+	} else {
+		return QModelIndex();
+	}
+}
+
+
 Qt::ItemFlags DFFFrameItemModel::flags(const QModelIndex& index) const
 {
 	if (!index.isValid()) {

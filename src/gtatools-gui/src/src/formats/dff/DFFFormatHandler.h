@@ -42,6 +42,8 @@ public:
 	virtual QLinkedList<QString> getFileFormatExtensions() const { return QLinkedList<QString>() << "dff"; }
 	virtual bool hasFileFormat(const File& file) const { return file.guessContentType() == CONTENT_TYPE_DFF; }
 	virtual DisplayedFile* openFile(const FileOpenRequest& request);
+	virtual bool canSave(const DisplayedFile* file) const { return true; }
+	virtual void saveFile(DisplayedFile* file, const File& destFile);
 
 	void xmlDumpDialog(const DFFMesh& mesh, QWidget* parent);
 

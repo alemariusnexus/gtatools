@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>271</width>
+    <width>410</width>
     <height>104</height>
    </rect>
   </property>
@@ -47,6 +47,13 @@
        <widget class="QCheckBox" name="backwardsBox">
         <property name="text">
          <string>&amp;Backwards</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="expandBox">
+        <property name="text">
+         <string>E&amp;xpand Selection</string>
         </property>
        </widget>
       </item>

@@ -19,7 +19,7 @@
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
-     <widget class="QTreeView" name="sectionTree">
+     <widget class="RWBSSectionTree" name="sectionTree">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>1</horstretch>
@@ -66,6 +66,11 @@
    <extends>QWidget</extends>
    <header location="global">HexEditorDecoder.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>RWBSSectionTree</class>
+   <extends>QTreeView</extends>
+   <header location="global">RWBSSectionTree.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

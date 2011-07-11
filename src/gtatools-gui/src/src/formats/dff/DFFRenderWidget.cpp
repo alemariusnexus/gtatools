@@ -37,9 +37,8 @@
 
 
 
-DFFRenderWidget::DFFRenderWidget(QWidget* parent, QGLWidget* shareWidget)
-		: QGLWidget(parent, shareWidget), wireframe(false), lastX(-1), lastY(-1), mesh(NULL), item(NULL),
-		  moveFactor(1.0f), renderingEnabled(true), texSource(NULL)
+DFFRenderWidget::DFFRenderWidget(QWidget* parent)
+		: GLBaseWidget(parent), texSource(NULL)
 {
 	setFocusPolicy(Qt::ClickFocus);
 
@@ -53,61 +52,86 @@ DFFRenderWidget::DFFRenderWidget(QWidget* parent, QGLWidget* shareWidget)
 		connect(currentProfile, SIGNAL(resourceIndexInitialized()), this,
 				SLOT(currentProfileResourceIndexInitialized()));
 	}
+
+	connect(this, SIGNAL(texturedPropertyChanged(bool)), this, SLOT(texturedPropertyWasChanged(bool)));
 }
 
 
 DFFRenderWidget::~DFFRenderWidget()
 {
-	if (mesh)
-		delete mesh;
+	clearGeometries();
+
 	if (texSource)
 		delete texSource;
 }
 
 
-void DFFRenderWidget::renderGeometry(DFFGeometry* geometry)
+StaticMapItemDefinition* DFFRenderWidget::createItemDefinition(const DFFGeometry* geom,
+		QLinkedList<const DFFGeometryPart*> parts)
 {
-	if (renderingEnabled) {
-		makeCurrent();
-		program->makeCurrent();
+	makeCurrent();
 
-		if (mesh) {
-			delete mesh;
-		}
+	TextureSource* texSrc = texSource;
 
-		TextureSource* texSrc = texSource;
+	if (!textured)
+		texSrc = NULL;
 
-		if (texSrc)
-			texSrc = texSrc->clone();
+	if (texSrc)
+		texSrc = texSrc->clone();
 
-		mesh = new Mesh(*geometry);
-		item = new StaticMapItemDefinition(new StaticMeshPointer(mesh), texSrc, 5000.0f);
+	Mesh* mesh;
 
-		updateGL();
+	mesh = new Mesh(*geom, false);
+
+	for (QLinkedList<const DFFGeometryPart*>::iterator it = parts.begin() ; it != parts.end() ; it++) {
+		Submesh* submesh = new Submesh(mesh, **it);
+		mesh->addSubmesh(submesh);
+	}
+
+	StaticMapItemDefinition* item = new StaticMapItemDefinition(new StaticMeshPointer(mesh), texSrc, 5000.0f);
+
+	return item;
+}
+
+
+void DFFRenderWidget::addGeometry(const DFFGeometry* geom, QLinkedList<const DFFGeometryPart*> parts)
+{
+	makeCurrent();
+	StaticMapItemDefinition* item = createItemDefinition(geom, parts);
+	items[geom] = item;
+}
+
+
+void DFFRenderWidget::removeGeometry(const DFFGeometry* geom)
+{
+	makeCurrent();
+	QMap<const DFFGeometry*, ItemDefinition*>::iterator it = items.find(geom);
+
+	if (it != items.end()) {
+		ItemDefinition* item = it.value();
+		Mesh* mesh = **item->getMeshPointer();
+		delete item;
+		delete mesh;
+		items.erase(it);
 	}
 }
 
 
-void DFFRenderWidget::renderGeometryPart(DFFGeometry* geometry, DFFGeometryPart* part)
+void DFFRenderWidget::setGeometryParts(const DFFGeometry* geom,
+			QLinkedList<const DFFGeometryPart*> parts)
 {
-	if (renderingEnabled) {
-		makeCurrent();
-		program->makeCurrent();
+	makeCurrent();
+	removeGeometry(geom);
+	addGeometry(geom, parts);
+}
 
-		if (mesh) {
-			delete mesh;
-		}
 
-		TextureSource* texSrc = texSource;
-
-		if (texSrc)
-			texSrc = texSrc->clone();
-
-		mesh = new Mesh(*geometry, false);
-		mesh->addSubmesh(new Submesh(mesh, *part));
-		item = new StaticMapItemDefinition(new StaticMeshPointer(mesh), texSrc, 5000.0f);
-
-		updateGL();
+void DFFRenderWidget::clearGeometries()
+{
+	makeCurrent();
+	while (items.size() != 0) {
+		const DFFGeometry* geom = items.begin().key();
+		removeGeometry(geom);
 	}
 }
 
@@ -117,58 +141,28 @@ void DFFRenderWidget::initializeGL()
 	try {
 		makeCurrent();
 
-		gtaglInit();
+		GLBaseWidget::initializeGL();
 
-		if (
-			!gtaglIsVersionSupported(2, 0)
-		) {
-			renderingEnabled = false;
-			QMessageBox::critical(this, tr("OpenGL Too Old"),
-					tr("This program needs at least OpenGL version 2.0 or OpenGL ES version 2.0! "
-					"Rendering will be disabled."));
-		} else {
-			renderingEnabled = true;
-		}
-
-		if (renderingEnabled) {
-			cam.move(-2.0f);
+		cam.move(-2.0f);
 
 #ifdef GTATOOLS_GUI_USE_OPENGL_ES
-			QFile vfile(":/src/shader/vertex_es.glsl");
-			QFile ffile(":/src/shader/fragment_es.glsl");
+		QFile vfile(":/src/shader/vertex_es.glsl");
+		QFile ffile(":/src/shader/fragment_es.glsl");
 #else
-			QFile vfile(":/src/shader/vertex.glsl");
-			QFile ffile(":/src/shader/fragment.glsl");
+		QFile vfile(":/src/shader/vertex.glsl");
+		QFile ffile(":/src/shader/fragment.glsl");
 #endif
 
-			vfile.open(QFile::ReadOnly);
-			QByteArray vsrc = vfile.readAll();
+		initializeShaders(vfile, ffile);
 
-			ffile.open(QFile::ReadOnly);
-			QByteArray fsrc = ffile.readAll();
+		glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
 
-			vertexShader = new Shader(GL_VERTEX_SHADER);
-			vertexShader->loadSourceCode(vsrc.constData(), vsrc.length());
-			vertexShader->compile();
+		glEnable(GL_DEPTH_TEST);
 
-			fragmentShader = new Shader(GL_FRAGMENT_SHADER);
-			fragmentShader->loadSourceCode(fsrc.constData(), fsrc.length());
-			fragmentShader->compile();
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-			program = new ShaderProgram;
-			program->attachShader(vertexShader);
-			program->attachShader(fragmentShader);
-			program->link();
-
-			glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
-
-			glEnable(GL_DEPTH_TEST);
-
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-			GLException::checkError();
-		}
+		GLException::checkError();
 	} catch (Exception& ex) {
 		System::getInstance()->unhandeledException(ex);
 	}
@@ -177,139 +171,26 @@ void DFFRenderWidget::initializeGL()
 
 void DFFRenderWidget::resizeGL(int w, int h)
 {
-	if (renderingEnabled) {
-		float aspect = (float) w / (float) h;
-		glViewport(0, 0, w, h);
-
-		float l = aspect*0.035;
-		float r = aspect*-0.035;
-		float b = -0.035;
-		float t = 0.035;
-		float n = 0.05;
-		float f = 3000.0;
-
-		// glFrustum(l, r, b, t, n, f):
-		pMatrix = Matrix4 (
-			2*n/(r-l),	0,		0,			0,
-			0,		2*n/(t-b),	0, 			0,
-			(r+l)/(r-l),	(t+b)/(t-b),	(-(f+n))/(f-n),		-1,
-			0,		0,		(-2*f*n)/(f-n),		0
-		);
-	}
+	GLBaseWidget::resizeGL(w, h);
 }
 
 
 void DFFRenderWidget::paintGL()
 {
 	try {
-		if (renderingEnabled) {
-			Engine::getInstance()->setCurrentShaderProgram(program);
+		GLBaseWidget::paintGL();
 
-			// TODO Is this really not necessary?
-			/*if (texSource) {
-				glEnable(GL_TEXTURE_2D);
-			} else {
-				glDisable(GL_TEXTURE_2D);
-			}*/
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-#ifndef GTATOOLS_GUI_USE_OPENGL_ES
-			glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
-#endif
-
-			Matrix4 mvpMatrix = pMatrix;
-			mvpMatrix *= Matrix4::lookAt(cam.getTarget(), cam.getUp());
-			mvpMatrix.translate(-cam.getPosition());
-
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-			GLint mvpMatrixUniform = program->getUniformLocation("MVPMatrix");
-
-			if (item) {
-				glUniformMatrix4fv(mvpMatrixUniform, 1, GL_FALSE, mvpMatrix.toArray());
-				item->render();
-			}
-
-			GLException::checkError();
-
-			// TODO See above
-			//glDisable(GL_TEXTURE_2D);
+		QMap<const DFFGeometry*, ItemDefinition*>::iterator it;
+		for (it = items.begin() ; it != items.end() ; it++) {
+			ItemDefinition* item = it.value();
+			item->render();
 		}
+
+		GLException::checkError();
 	} catch (Exception& ex) {
 		System::getInstance()->unhandeledException(ex);
-	}
-}
-
-
-void DFFRenderWidget::mousePressEvent(QMouseEvent* evt)
-{
-	if (evt->button() == Qt::LeftButton) {
-		lastX = evt->pos().x();
-		lastY = evt->pos().y();
-	}
-}
-
-
-void DFFRenderWidget::mouseMoveEvent(QMouseEvent* evt)
-{
-	if (renderingEnabled) {
-		makeCurrent();
-
-		QPoint newPos = evt->pos();
-
-		int xo = newPos.x() - lastX;
-		int yo = newPos.y() - lastY;
-
-		lastX = newPos.x();
-		lastY = newPos.y();
-
-		if (lastX != -1  &&  lastY != -1) {
-			cam.rotateHorizontal(xo*0.005f);
-			cam.rotateVertical(yo*0.005f);
-		}
-
-		updateGL();
-	}
-}
-
-
-void DFFRenderWidget::keyPressEvent(QKeyEvent* evt)
-{
-	if (renderingEnabled) {
-		bool glKey = true;
-
-		switch (evt->key()) {
-		case Qt::Key_W:
-			cam.move(0.05f*moveFactor);
-			break;
-		case Qt::Key_S:
-			cam.move(-0.05f*moveFactor);
-			break;
-		case Qt::Key_A:
-			cam.moveSideways(-0.05f*moveFactor);
-			break;
-		case Qt::Key_D:
-			cam.moveSideways(0.05f*moveFactor);
-			break;
-		case Qt::Key_Q:
-			cam.moveUp(0.05f*moveFactor);
-			break;
-		case Qt::Key_Y:
-			cam.moveUp(-0.05f*moveFactor);
-			break;
-		case Qt::Key_Plus:
-			moveFactor *= 2.0f;
-			break;
-		case Qt::Key_Minus:
-			moveFactor /= 2.0f;
-			break;
-		default:
-			glKey = false;
-			break;
-		}
-
-		if (glKey) {
-			updateGL();
-		}
 	}
 }
 
@@ -321,22 +202,18 @@ void DFFRenderWidget::setTextureSource(TextureSource* source)
 
 	texSource = source;
 
-	if (item) {
-		if (texSource)
-			item->setTextureSource(texSource->clone());
-		else
+	QMap<const DFFGeometry*, ItemDefinition*>::iterator it;
+	for (it = items.begin() ; it != items.end() ; it++) {
+		ItemDefinition* item = it.value();
+
+		if (textured) {
+			if (texSource)
+				item->setTextureSource(texSource->clone());
+			else
+				item->setTextureSource(NULL);
+		} else {
 			item->setTextureSource(NULL);
-	}
-
-	updateGL();
-}
-
-
-void DFFRenderWidget::setShowWireframe(bool wireframe)
-{
-	if (renderingEnabled) {
-		this->wireframe = wireframe;
-		updateGL();
+		}
 	}
 }
 
@@ -357,16 +234,12 @@ void DFFRenderWidget::currentProfileChanged(Profile* oldProfile, Profile* newPro
 
 void DFFRenderWidget::currentProfileResourceIndexInitialized()
 {
-	if (renderingEnabled) {
-		updateGL();
+	updateGL();
+}
 
-		// TODO Reimplement
-		/*if (currentGeometry) {
-			if (currentPart) {
-				renderGeometryPart(currentGeometry, currentPart);
-			} else {
-				renderGeometry(currentGeometry);
-			}
-		}*/
-	}
+
+void DFFRenderWidget::texturedPropertyWasChanged(bool textured)
+{
+	setTextureSource(texSource ? texSource->clone() : NULL);
+	updateGL();
 }

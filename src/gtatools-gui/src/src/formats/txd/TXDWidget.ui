@@ -23,7 +23,7 @@
       </sizepolicy>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="hlWidget">
       <attribute name="title">
@@ -249,15 +249,15 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>TextureDisplayer</class>
-   <extends>QLabel</extends>
-   <header location="global">TextureDisplayer.h</header>
-  </customwidget>
-  <customwidget>
    <class>RWBSWidget</class>
    <extends>QWidget</extends>
    <header location="global">RWBSWidget.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>TextureDisplayer</class>
+   <extends>QLabel</extends>
+   <header location="global">TextureDisplayer.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

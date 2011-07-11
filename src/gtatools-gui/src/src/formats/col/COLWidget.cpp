@@ -45,14 +45,20 @@ COLWidget::COLWidget(const File& file, QWidget *parent)
 	smeshTabber->setParent(ui.smeshTab);
 	ui.smeshTabLayout->addWidget(smeshTabber);
 
-	sphereBoxRenderer = new COLSphereBoxRenderWidget(ui.sphereBoxRenderWidgetContainer);
-	ui.sphereBoxRenderWidgetContainer->layout()->addWidget(sphereBoxRenderer);
+	sphereBoxRendererContainer = new GLContainerWidget(ui.sphereBoxRenderWidgetContainer);
+	ui.sphereBoxRenderWidgetContainer->layout()->addWidget(sphereBoxRendererContainer);
+	sphereBoxRenderer = new COLSphereBoxRenderWidget(sphereBoxRendererContainer);
+	sphereBoxRendererContainer->setGLWidget(sphereBoxRenderer);
 
-	shadowMeshRenderer = new COLMeshRenderWidget(ui.smeshRenderWidgetContainer);
-	ui.smeshRenderWidgetContainer->layout()->addWidget(shadowMeshRenderer);
+	shadowMeshRendererContainer = new GLContainerWidget(ui.smeshRenderWidgetContainer);
+	ui.smeshRenderWidgetContainer->layout()->addWidget(shadowMeshRendererContainer);
+	shadowMeshRenderer = new COLMeshRenderWidget(shadowMeshRendererContainer);
+	shadowMeshRendererContainer->setGLWidget(shadowMeshRenderer);
 
-	meshRenderer = new COLMeshRenderWidget(ui.vmeshRenderWidgetContainer);
-	ui.vmeshRenderWidgetContainer->layout()->addWidget(meshRenderer);
+	meshRendererContainer = new GLContainerWidget(ui.vmeshRenderWidgetContainer);
+	ui.vmeshRenderWidgetContainer->layout()->addWidget(meshRendererContainer);
+	meshRenderer = new COLMeshRenderWidget(meshRendererContainer);
+	meshRendererContainer->setGLWidget(meshRenderer);
 
 	COLLoader col;
 	istream* stream = file.openInputStream(istream::binary);
@@ -72,8 +78,6 @@ COLWidget::COLWidget(const File& file, QWidget *parent)
 	connect(ui.faceGroupBox, SIGNAL(toggled(bool)), this, SLOT(faceGroupsToggled(bool)));
 	connect(ui.faceGroupList, SIGNAL(itemSelectionChanged()), this, SLOT(faceGroupSelectionChanged()));
 	connect(ui.meshList, SIGNAL(currentRowChanged(int)), this, SLOT(currentMeshChanged(int)));
-	connect(COLGUIModule::getInstance(), SIGNAL(wireframePropertyChanged(bool)), this,
-			SLOT(wireframePropertyChanged(bool)));
 	connect(shadowMeshRenderer, SIGNAL(faceSelectionChanged(int, int)), this,
 			SLOT(shadowMeshFaceSelectionChanged(int, int)));
 	connect(meshRenderer, SIGNAL(faceSelectionChanged(int, int)), this,
@@ -366,14 +370,6 @@ void COLWidget::currentMeshChanged(int index)
 		sphereBoxRenderer->addBox(box);
 		sphereBoxRenderer->updateGL();
 	}
-}
-
-
-void COLWidget::wireframePropertyChanged(bool wireframe)
-{
-	sphereBoxRenderer->setWireframe(wireframe);
-	meshRenderer->setWireframe(wireframe);
-	shadowMeshRenderer->setWireframe(wireframe);
 }
 
 

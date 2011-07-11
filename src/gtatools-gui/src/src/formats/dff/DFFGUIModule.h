@@ -40,8 +40,6 @@ public:
 
 signals:
 	void dumpRequested();
-	void texturedPropertyChanged(bool textured);
-	void wireframePropertyChanged(bool wireframe);
 
 private:
 	DFFGUIModule();
@@ -51,14 +49,9 @@ private:
 
 private slots:
 	void dumpRequestedSlot(bool) { emit dumpRequested(); }
-	void texturedPropertyChangedSlot(bool textured) { emit texturedPropertyChanged(textured); }
-	void wireframePropertyChangedSlot(bool wireframe) { emit wireframePropertyChanged(wireframe); }
 
 private:
 	QAction* dumpAction;
-	QMenu* viewSubMenu;
-	QAction* texturedAction;
-	QAction* wireframeAction;
 };
 
 #endif /* DFFGUIMODULE_H_ */

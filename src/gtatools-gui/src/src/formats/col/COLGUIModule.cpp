@@ -28,42 +28,14 @@
 
 COLGUIModule::COLGUIModule()
 {
-	viewSubMenu = new QMenu(tr("COL"));
-
-	wireframeAction = new QAction(tr("Show wireframe"), NULL);
-	wireframeAction->setCheckable(true);
-	wireframeAction->setChecked(false);
-
-#ifdef GTATOOLS_GUI_USE_OPENGL_ES
-	wireframeAction->setEnabled(false);
-	wireframeAction->setToolTip(tr("Wireframe rendering is not available in OpenGL ES!"));
-#endif
-
-	viewSubMenu->addAction(wireframeAction);
-
-	connect(wireframeAction, SIGNAL(triggered(bool)), this, SLOT(wireframePropertyChangedSlot(bool)));
-}
-
-
-void COLGUIModule::wireframePropertyChangedSlot(bool wireframe)
-{
-	emit wireframePropertyChanged(wireframe);
 }
 
 
 void COLGUIModule::doInstall()
 {
-	QMenu* viewMenu = mainWindow->getViewMenu();
-
-	viewMenu->addMenu(viewSubMenu);
-	wireframeAction->setParent(mainWindow);
 }
 
 
 void COLGUIModule::doUninstall()
 {
-	QMenu* viewMenu = mainWindow->getViewMenu();
-
-	viewMenu->removeAction(viewSubMenu->menuAction());
-	wireframeAction->setParent(NULL);
 }

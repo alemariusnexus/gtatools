@@ -58,10 +58,15 @@ void TextureDisplayer::display(TXDTextureHeader* texture, uint8_t* rawData)
 
 	this->texture = texture;
 
-	QImage image = TXDFormatHandler::getInstance()->createImageFromTexture(texture, rawData, this->data);
+	if (texture) {
+		QImage image = TXDFormatHandler::getInstance()->createImageFromTexture(texture, rawData, this->data);
 
-	QPixmap pmp = QPixmap::fromImage(image);
-	setPixmap(pmp);
+		QPixmap pmp = QPixmap::fromImage(image);
+		setPixmap(pmp);
+	} else {
+		clear();
+		data = NULL;
+	}
 }
 
 
@@ -70,7 +75,7 @@ void TextureDisplayer::mouseMoveEvent(QMouseEvent* evt)
 	// TODO Make this work...
 	const QPoint pos = evt->pos();
 
-	if (data) {
+	if (texture  &&  data) {
 		if (	pos.x() >= 0  &&  pos.y() >= 0  &&  pos.x() <= texture->getWidth()
 				&&  pos.y() <= texture->getHeight()
 		) {

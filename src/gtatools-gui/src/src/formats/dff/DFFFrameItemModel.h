@@ -35,6 +35,7 @@ class DFFFrameItemModel : public QAbstractItemModel
 
 public:
 	DFFFrameItemModel(DFFMesh* mesh) : mesh(mesh) {}
+	QModelIndex getFrameIndex(const DFFFrame* frame) const;
 	Qt::ItemFlags flags(const QModelIndex& index) const;
 	QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
 	QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;

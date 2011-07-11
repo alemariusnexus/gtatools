@@ -32,6 +32,10 @@
 #include "DFFFrameItemModel.h"
 #include <QtOpenGL/qgl.h>
 #include <gta/ManagedTextureSource.h>
+#include "../../gui/GLContainerWidget.h"
+#include <QtGui/QCloseEvent>
+#include "../../DisplayedFile.h"
+#include "DFFGeometryItemModel.h"
 
 
 
@@ -39,35 +43,53 @@ class DFFWidget : public QWidget {
 	Q_OBJECT
 
 public:
-	DFFWidget(const File& file, QWidget* parent, QGLWidget* shareWidget);
+	DFFWidget(DisplayedFile* dfile, QWidget* parent);
 	~DFFWidget();
+
+public slots:
+	void saveTo(const File& file) { ui.rwbsWidget->save(file); }
 
 private:
 	void clearMaterialList();
 	void clearGeometryPartList();
 	void clearTextureList();
 	void xmlDumpFrame(DFFFrame* frame, QTextStream& xml, int indLevel);
+	void setDisplayedFrame(DFFFrame* frame);
+	void setCurrentGeometry(DFFGeometry* geom);
+	void setCurrentGeometryPart(DFFGeometryPart* part);
+	void setCurrentMaterial(DFFMaterial* mat);
+	void setCurrentTexture(DFFTexture* tex);
 
 private slots:
+	void reloadHighLevelFile();
 	void frameSelected(const QModelIndex& index, const QModelIndex& previous);
-	void geometrySelected(int row);
-	void materialSelected(int row);
-	void textureSelected(int row);
-	void geometryPartSelected(int row);
-	void texturedPropertyChanged(bool textured);
-	void wireframePropertyChanged(bool wireframe);
+	void geometryTreeItemSelected(const QModelIndex& index, const QModelIndex& previous);
+	void materialSelected(int index);
+	void textureSelected(int index);
+	void geometryDisplayStateChanged(DFFGeometry* geom, bool displayed);
+	void geometryPartDisplayStateChanged(DFFGeometryPart* part, bool displayed);
+	void geometryFrameLinkActivated(const QString& link);
+	void geometryPartMaterialLinkActivated(const QString& link);
+	void textureOpenRequested();
+	void texSrcEditRequested();
+	void texSrcChanged(int index);
 	void xmlDumpRequested();
-	void texSourceSelected(int index);
-	void otherTexSourceRequested(bool);
 	void updateLayoutType();
+	void sectionStructureChanged() { dfile->setHasChanges(true); }
 
 private:
 	Ui_DFFWidget ui;
+	DisplayedFile* dfile;
 	DFFMesh* mesh;
-	DFFRenderWidget* geometryRenderWidget;
-	DFFRenderWidget* geometryPartRenderWidget;
+	DFFRenderWidget* renderWidget;
 	DFFFrameItemModel* frameModel;
+	DFFGeometryItemModel* geomModel;
 	ManagedTextureSource* texSource;
+	GLContainerWidget* renderContainerWidget;
+	DFFGeometry* currentGeom;
+	DFFGeometryPart* currentGeomPart;
+	DFFMaterial* currentMaterial;
+	DFFTexture* currentTexture;
 };
 
 #endif /* DFFWIDGET_H_ */

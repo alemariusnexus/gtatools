@@ -48,6 +48,7 @@ class System : public QObject {
 
 public:
 	static System* getInstance();
+	static void initialize();
 
 public:
 	void initializeGL();
@@ -75,6 +76,9 @@ public:
 	SystemQueryResult sendSystemQuery(const SystemQuery& query);
 	QGLWidget* getSharedGLWidget() { return sharedWidget; }
 	QImage getDummyTextureImage() { return dummyTexImage; }
+	bool quit();
+	bool isInitializing() const { return initializing; }
+	bool isShuttingDown() const { return shuttingDown; }
 
 signals:
 	void fileOpened(const FileOpenRequest& request, DisplayedFile* file);
@@ -86,10 +90,19 @@ signals:
 	void uninstalledGUIModule(GUIModule* module);
 	void entryLogged(const LogEntry& entry);
 	void systemQuerySent(const SystemQuery& query, SystemQueryResult& result);
+	void aboutToQuit();
+	void initializationDone();
 
 private:
 	System();
 	void setMainWindow(MainWindow* mw) { mainWindow = mw; }
+	void initializeInstance();
+
+private slots:
+	void destroyInstance();
+
+private:
+	static System* instance;
 
 private:
 	MainWindow* mainWindow;
@@ -98,6 +111,7 @@ private:
 	DisplayedFile* currentFile;
 	QGLWidget* sharedWidget;
 	QImage dummyTexImage;
+	bool initializing, shuttingDown;
 
 private:
 	friend class MainWindow;

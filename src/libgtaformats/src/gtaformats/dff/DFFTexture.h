@@ -31,14 +31,14 @@ private:
 	friend class DFFLoader;
 
 public:
-	DFFTexture(char* diffuseName, char* alphaName = NULL, int16_t filterModeFlags = 0)
+	DFFTexture(char* diffuseName, char* alphaName = NULL, uint16_t filterModeFlags = 0)
 			: diffuseName(diffuseName), alphaName(alphaName), filterModeFlags(filterModeFlags) {}
 	DFFTexture(const DFFTexture& other);
 	~DFFTexture();
-	int16_t getFilterModeFlags() const { return filterModeFlags; }
+	uint16_t getFilterModeFlags() const { return filterModeFlags; }
 	const char* getDiffuseName() const { return diffuseName; }
 	const char* getAlphaName() const { return alphaName; }
-	void setFilterModeFlags(int16_t flags) { filterModeFlags = flags; }
+	void setFilterModeFlags(uint16_t flags) { filterModeFlags = flags; }
 	void setDiffuseName(char* name) { diffuseName = name; }
 	void setDiffuseName(const char* name);
 	void setAlphaName(char* name) { alphaName = name; }
@@ -47,7 +47,7 @@ public:
 private:
 	char* diffuseName;
 	char* alphaName;
-	int16_t filterModeFlags;
+	uint16_t filterModeFlags;
 };
 
 #endif /* DFFTEXTURE_H_ */
