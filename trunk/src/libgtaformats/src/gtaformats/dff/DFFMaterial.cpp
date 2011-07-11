@@ -69,9 +69,9 @@ void DFFMaterial::removeTextures()
 }
 
 
-DFFTexture* DFFMaterial::getTexture(unsigned int index)
+DFFTexture* DFFMaterial::getTexture(uint32_t index)
 {
-	if (index < 0  ||  index >= textures.size()) {
+	if (index >= textures.size()) {
 		throw OutOfBoundsException(index, __FILE__, __LINE__);
 	}
 
@@ -79,9 +79,9 @@ DFFTexture* DFFMaterial::getTexture(unsigned int index)
 }
 
 
-const DFFTexture* DFFMaterial::getTexture(unsigned int index) const
+const DFFTexture* DFFMaterial::getTexture(uint32_t index) const
 {
-	if (index < 0  ||  index >= textures.size()) {
+	if (index >= textures.size()) {
 		throw OutOfBoundsException(index, __FILE__, __LINE__);
 	}
 

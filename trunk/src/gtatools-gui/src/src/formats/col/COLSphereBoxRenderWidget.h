@@ -40,7 +40,6 @@ public:
 	void addBox(const COLBox& box);
 	void addModel(const COLModel& model);
 	void clear();
-	void setWireframe(bool wf) { wireframe = wf; updateGL(); }
 
 protected:
 	virtual void initializeGL();
@@ -49,7 +48,6 @@ protected:
 
 private:
 	QLinkedList<ItemDefinition*> items;
-	bool wireframe;
 };
 
 #endif /* SPHEREBOXRENDERWIDGET_H_ */

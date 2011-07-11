@@ -49,6 +49,8 @@ FileTree::FileTree(QWidget* parent)
 			SLOT(currentProfileChanged(Profile*, Profile*)));
 	connect(sys, SIGNAL(fileOpened(const FileOpenRequest&, DisplayedFile*)), this,
 			SLOT(fileOpened(const FileOpenRequest&, DisplayedFile*)));
+
+	showProfile(pm->getCurrentProfile());
 }
 
 

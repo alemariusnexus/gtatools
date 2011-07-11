@@ -14,6 +14,9 @@
    <string notr="true">Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="margin">
+    <number>0</number>
+   </property>
    <item>
     <widget class="QWidget" name="contentWidget" native="true">
      <property name="sizePolicy">
@@ -35,6 +38,9 @@
       </size>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0">
+      <property name="margin">
+       <number>0</number>
+      </property>
       <item>
        <widget class="QLabel" name="fileNameLabel">
         <property name="font">
@@ -112,7 +118,11 @@
           <verstretch>1</verstretch>
          </sizepolicy>
         </property>
-        <layout class="QHBoxLayout" name="horizontalLayout"/>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <property name="margin">
+          <number>0</number>
+         </property>
+        </layout>
        </widget>
       </item>
      </layout>

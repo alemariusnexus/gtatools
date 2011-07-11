@@ -19,7 +19,7 @@
 # GPLADDITIONS.
 
 
-SET(FILES RWSection)
+SET(FILES RWSection rwbs)
 
 FOREACH(FILE ${FILES})
     SET(SRCS ${SRCS} "gtaformats/rwbs/${FILE}")

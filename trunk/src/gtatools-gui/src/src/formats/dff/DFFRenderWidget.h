@@ -25,12 +25,15 @@
 
 #include <gtatools-gui/config.h>
 #include <gta/gl.h>
+#include <QtCore/QLinkedList>
+#include <QtCore/QMap>
 #include <QtOpenGL/qgl.h>
 #include <QtGui/QWidget>
 #include <gtaformats/gtadff.h>
 #include <gtaformats/util/math/Matrix4.h>
 #include <gta/Mesh.h>
 #include <gta/ItemDefinition.h>
+#include <gta/StaticMapItemDefinition.h>
 #include <gta/Shader.h>
 #include <gta/ShaderProgram.h>
 #include <gta/Camera.h>
@@ -40,18 +43,21 @@
 #include <QtCore/QPoint>
 #include "../../Profile.h"
 #include "../../ProfileManager.h"
+#include "../../gui/GLBaseWidget.h"
 
 
 
-class DFFRenderWidget : public QGLWidget {
+class DFFRenderWidget : public GLBaseWidget {
 	Q_OBJECT
 
 public:
-	DFFRenderWidget(QWidget* parent, QGLWidget* shareWidget = NULL);
+	DFFRenderWidget(QWidget* parent);
 	virtual ~DFFRenderWidget();
-	void renderGeometry(DFFGeometry* geometry);
-	void renderGeometryPart(DFFGeometry* geometry, DFFGeometryPart* part);
-	void setShowWireframe(bool wireframe);
+	void addGeometry(const DFFGeometry* geom, QLinkedList<const DFFGeometryPart*> parts);
+	void removeGeometry(const DFFGeometry* geom);
+	void setGeometryParts(const DFFGeometry* geom, QLinkedList<const DFFGeometryPart*> parts);
+	void clearGeometries();
+	bool isGeometryRendered(const DFFGeometry* geom) const { return items.contains(geom); }
 	void setTextureSource(TextureSource* source);
 	TextureSource* getTextureSource() const { return texSource; }
 
@@ -59,27 +65,18 @@ protected:
 	virtual void initializeGL();
 	virtual void resizeGL(int w, int h);
 	virtual void paintGL();
-	void mousePressEvent(QMouseEvent* evt);
-	void mouseMoveEvent(QMouseEvent* evt);
-	void keyPressEvent(QKeyEvent* evt);
+
+private:
+	StaticMapItemDefinition* createItemDefinition(const DFFGeometry* geom,
+			QLinkedList<const DFFGeometryPart*> parts);
 
 private slots:
 	void currentProfileChanged(Profile* oldProfile, Profile* newProfile);
 	void currentProfileResourceIndexInitialized();
+	void texturedPropertyWasChanged(bool textured);
 
 private:
-	bool wireframe;
-	int lastX;
-	int lastY;
-	Mesh* mesh;
-	ItemDefinition* item;
-	Shader* vertexShader;
-	Shader* fragmentShader;
-	ShaderProgram* program;
-	Matrix4 pMatrix;
-	Camera cam;
-	float moveFactor;
-	bool renderingEnabled;
+	QMap<const DFFGeometry*, ItemDefinition*> items;
 	TextureSource* texSource;
 
 	GLint vertexAttrib, normalAttrib, texCoordAttrib, colorAttrib;

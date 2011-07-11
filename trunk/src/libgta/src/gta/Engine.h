@@ -63,6 +63,7 @@ public:
 
 public:
 	static Engine* getInstance();
+	static void destroy();
 
 public:
 	void addResource(const File& file, void (*callback)() = NULL);
@@ -101,6 +102,9 @@ public:
 private:
 	Engine();
 	void iplRecurse(File* file, const File& rootDir);
+
+private:
+	static Engine* instance;
 
 private:
 	VersionMode verMode;

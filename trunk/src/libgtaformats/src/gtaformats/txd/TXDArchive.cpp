@@ -94,6 +94,10 @@ TXDArchive::~TXDArchive()
 
 void TXDArchive::init(istream* stream)
 {
+	if (!texDict) {
+		throw TXDException("TXD file does not contain any valid section. Is it really TXD?",
+				__FILE__, __LINE__);
+	}
 	if (texDict->getID() != RW_SECTION_TEXTUREDICTIONARY) {
 		throw TXDException("TXD file doesn't start with RW_SECTION_TEXTUREDICTIONARY. Is it really TXD?",
 				__FILE__, __LINE__);

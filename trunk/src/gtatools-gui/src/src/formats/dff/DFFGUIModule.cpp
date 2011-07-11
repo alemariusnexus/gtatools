@@ -31,55 +31,20 @@
 
 DFFGUIModule::DFFGUIModule()
 {
-	viewSubMenu = new QMenu(tr("DFF"));
-
-	texturedAction = new QAction(tr("Show textured"), NULL);
-	texturedAction->setCheckable(true);
-	texturedAction->setChecked(true);
-	viewSubMenu->addAction(texturedAction);
-
-	wireframeAction = new QAction(tr("Show wireframe"), NULL);
-	wireframeAction->setCheckable(true);
-	wireframeAction->setChecked(false);
-
-#ifdef GTATOOLS_GUI_USE_OPENGL_ES
-	wireframeAction->setEnabled(false);
-	wireframeAction->setToolTip(tr("Wireframe rendering is not available in OpenGL ES!"));
-#endif
-
-	viewSubMenu->addAction(wireframeAction);
-
 	dumpAction = new QAction(tr("Dump XML"), NULL);
-
-	connect(texturedAction, SIGNAL(triggered(bool)), this, SLOT(texturedPropertyChangedSlot(bool)));
-	connect(wireframeAction, SIGNAL(triggered(bool)), this, SLOT(wireframePropertyChangedSlot(bool)));
 	connect(dumpAction, SIGNAL(triggered(bool)), this, SLOT(dumpRequestedSlot(bool)));
 }
 
 
 DFFGUIModule::~DFFGUIModule()
 {
-	delete texturedAction;
-	delete wireframeAction;
 	delete dumpAction;
-	delete viewSubMenu;
 }
 
 
 void DFFGUIModule::doInstall()
 {
-	QMenu* viewMenu = mainWindow->getViewMenu();
 	QMenu* fileMenu = mainWindow->getFileMenu();
-
-	/*viewMenu->addAction(texturedAction);
-	texturedAction->setParent(mainWindow);
-
-	viewMenu->addAction(wireframeAction);
-	wireframeAction->setParent(mainWindow);*/
-
-	viewMenu->addMenu(viewSubMenu);
-	texturedAction->setParent(mainWindow);
-	wireframeAction->setParent(mainWindow);
 
 	fileMenu->addAction(dumpAction);
 	dumpAction->setParent(mainWindow);
@@ -88,18 +53,7 @@ void DFFGUIModule::doInstall()
 
 void DFFGUIModule::doUninstall()
 {
-	QMenu* viewMenu = mainWindow->getViewMenu();
 	QMenu* fileMenu = mainWindow->getFileMenu();
-
-	/*viewMenu->removeAction(texturedAction);
-	texturedAction->setParent(NULL);
-
-	viewMenu->removeAction(wireframeAction);
-	wireframeAction->setParent(NULL);*/
-
-	viewMenu->removeAction(viewSubMenu->menuAction());
-	texturedAction->setParent(NULL);
-	wireframeAction->setParent(NULL);
 
 	fileMenu->removeAction(dumpAction);
 	dumpAction->setParent(NULL);

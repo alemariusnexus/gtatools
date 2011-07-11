@@ -96,6 +96,7 @@ ConfigWidget::~ConfigWidget()
 
 void ConfigWidget::selectedProfileChanged(int index)
 {
+	ui.profileBox->setCurrentIndex(index);
 	ui.profileStackedWidget->setCurrentIndex(index);
 	ui.removeProfileButton->setEnabled(ui.profileBox->count() > 0);
 }

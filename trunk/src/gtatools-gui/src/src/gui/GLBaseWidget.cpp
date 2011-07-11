@@ -31,10 +31,19 @@
 
 
 GLBaseWidget::GLBaseWidget(QWidget* parent)
-		: QGLWidget(parent, System::getInstance()->getSharedGLWidget()), lastX(-1), lastY(-1),
-		  moveFactor(1.0f), initialized(false)
+		: QGLWidget(parent, System::getInstance()->getSharedGLWidget()), wireframe(false), textured(true),
+		  vertexShader(NULL), fragmentShader(NULL), program(NULL), lastX(-1), lastY(-1), moveFactor(1.0f),
+		  initialized(false)
 {
 	setFocusPolicy(Qt::ClickFocus);
+}
+
+
+GLBaseWidget::~GLBaseWidget()
+{
+	delete program;
+	delete vertexShader;
+	delete fragmentShader;
 }
 
 
@@ -111,6 +120,10 @@ void GLBaseWidget::paintGL()
 	if (mvpMatrixUniform != -1) {
 		glUniformMatrix4fv(mvpMatrixUniform, 1, GL_FALSE, mvpMatrix.toArray());
 	}
+
+#ifndef GTATOOLS_GUI_USE_OPENGL_ES
+	glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
+#endif
 }
 
 

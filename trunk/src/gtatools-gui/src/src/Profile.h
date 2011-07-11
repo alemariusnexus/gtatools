@@ -28,6 +28,7 @@
 #include <QtCore/QString>
 #include <QtCore/QFile>
 #include <QtCore/QMetaType>
+#include <QtCore/QQueue>
 #include <gtaformats/util/File.h>
 #include <gta/resource/ResourceObserver.h>
 #include <gta/Engine.h>
@@ -84,8 +85,11 @@ private:
 	void addResourceRecurse(const File& file);
 	void removeResourceRecurse(const File& file);
 	void loadResourceRecurse(const File& file);
+	void interruptResourceLoading();
 
 private slots:
+	void doLoadResourceIndex();
+	void loadSingleResource();
 	void currentProfileChanged(Profile* oldProfile, Profile* newProfile);
 	void resourcesInitialized();
 	void systemQuerySent(const SystemQuery& query, SystemQueryResult& result);
@@ -106,21 +110,9 @@ private:
 	MeshTexMap meshTextures;
 	QString datRoot;
 	QLinkedList<File*> datFiles;
-
-
-
-public:
-	/**	\brief Just here for compatibility with Qt's meta type system and QVariant.
-	 *
-	 * 	NEVER EVER CALL THIS CONSTRUCTOR!
-	 */
-	Profile();
-
-	/**	\brief Just here for compatibility with Qt's meta type system and QVariant.
-	 *
-	 * 	NEVER EVER CALL THIS CONSTRUCTOR!
-	 */
-	Profile(const Profile& other);
+	QQueue<File*> resourceLoadingQueue;
+	Task* resourceLoadingTask;
+	bool stopResourceLoading;
 };
 
 //Q_DECLARE_METATYPE(Profile)

@@ -23,6 +23,7 @@
 #ifndef RWSECTION_H_
 #define RWSECTION_H_
 
+#include "rwbs.h"
 #include <vector>
 #include <istream>
 #include <ostream>
@@ -35,34 +36,6 @@ using std::istream;
 using std::ostream;
 
 
-#define RW_SECTION_INVALID 0
-#define RW_SECTION_STRUCT 1				// Alias Data
-#define RW_SECTION_STRING 2
-#define RW_SECTION_EXTENSION 3
-#define RW_SECTION_TEXTURE 6
-#define RW_SECTION_MATERIAL 7
-#define RW_SECTION_MATERIALLIST 8
-#define RW_SECTION_FRAMELIST 14
-#define RW_SECTION_GEOMETRY 15
-#define RW_SECTION_CLUMP 16
-#define RW_SECTION_ATOMIC 20
-#define RW_SECTION_GEOMETRYLIST 26
-#define RW_SECTION_MATERIALSPLIT 1294	// Alias Bin Mesh PLG
-#define RW_SECTION_FRAME 39056126
-
-#define RW_SECTION_HANIM_PLG 0x011E
-#define RW_SECTION_SKY_MIPMAP_VAL 0x0110
-#define RW_SECTION_MATERIAL_EFFECTS_PLG 0x0120
-#define RW_SECTION_SPECULAR_MATERIAL 0x0253F2F6
-#define RW_SECTION_NIGHT_VERTEX_COLORS 0x0253F2F9
-#define RW_SECTION_REFLECTION_MATERIAL 0x0253F2FC
-#define RW_SECTION_2DFX 0x0253F2F8
-#define RW_SECTION_MESH_EXTENSION 0x0253F2FD
-#define RW_SECTION_RIGHT_TO_RENDER 0x001F
-#define RW_SECTION_COLLISION_MODEL 0x0253F2FA
-
-#define RW_SECTION_TEXTUREDICTIONARY 0x16
-#define RW_SECTION_TEXTURENATIVE 0x15
 
 
 class RWSection {
@@ -74,11 +47,24 @@ public:
 	typedef ChildList::const_iterator ConstChildIterator;
 
 public:
-	static RWSection* readSection(istream* stream, RWSection* lastRead = NULL);
+	static RWSection* readSection(istream* stream, RWSection* lastRead = NULL, int i = 0);
+
+private:
+	static bool isContainerSection(int32_t id)
+	{
+		return (
+			id == RW_SECTION_CLUMP  ||  id == RW_SECTION_FRAMELIST  ||  id == RW_SECTION_EXTENSION
+			||  id == RW_SECTION_GEOMETRYLIST  ||  id == RW_SECTION_GEOMETRY
+			||  id == RW_SECTION_MATERIALLIST  ||  id == RW_SECTION_MATERIAL  ||  id == RW_SECTION_TEXTURE
+			||  id == RW_SECTION_ATOMIC ||  id == RW_SECTION_TEXTUREDICTIONARY
+			||  id == RW_SECTION_TEXTURENATIVE
+		);
+	}
 
 public:
 	RWSection(int32_t id, int32_t version);
 	RWSection(int32_t id, RWSection* parent);
+	RWSection(uint8_t* rawData);
 	~RWSection();
 
 	int32_t getID() const { return id; }
@@ -87,11 +73,12 @@ public:
 	uint64_t getAbsoluteOffset() const { return offset; }
 	void setAbsoluteOffset(uint64_t offset) { this->offset = offset; }
 	RWSection* getParent() { return parent; }
-	uint8_t* getData() { return data; }
+	uint8_t* getData() { ensureData(); return data; }
 	bool isDataSection() const { return data != NULL; }
 
 	void computeAbsoluteOffsets(uint64_t offset = 0);
 
+	void setID(int32_t id) { this->id = id; }
 	void setVersion(int32_t version) { this->version = version; }
 	void setData(uint8_t* data, int32_t size);
 
@@ -99,20 +86,22 @@ public:
 	void insertChild(ChildIterator it, RWSection* sect);
 	void removeChild(RWSection* child);
 
-	ChildIterator getChildBegin() { return children.begin(); }
-	ConstChildIterator getChildBegin() const { return children.begin(); }
-	ChildIterator getChildEnd() { return children.end(); }
-	ConstChildIterator getChildEnd() const { return children.end(); }
+	ChildIterator getChildBegin() { ensureContainer(); return children.begin(); }
+	ChildIterator getChildEnd() { ensureContainer(); return children.end(); }
 	ChildIterator nextChild(int32_t id, ChildIterator it);
 	ChildIterator getChildIterator(int32_t id);
 	ChildIterator getLastChildIterator(int32_t id);
-	int getChildCount() const { return children.size(); }
+	int getChildCount() { ensureContainer(); return children.size(); }
 	RWSection* getChild(int32_t id);
 	RWSection* getLastChild(int32_t id);
 	RWSection& operator[](int32_t id) { return *getChild(id); }
-	int indexOf(const RWSection* child) const
-			{ return find(children.begin(), children.end(), child) - children.begin(); }
+	int indexOf(const RWSection* child)
+			{ ensureContainer(); return find(children.begin(), children.end(), child) - children.begin(); }
 
+	void setDataSection(bool ds) { if (ds) ensureData(); else ensureContainer(); }
+
+	void toRawData(uint8_t* data);
+	uint8_t* toRawData() { uint8_t* data = new uint8_t[size+12]; toRawData(data); return data; }
 	void write(ostream* stream);
 	void write(const File& file);
 
@@ -121,6 +110,9 @@ public:
 private:
 	RWSection() : parent(NULL), data(NULL) {}
 	void childResized(int32_t change) { size += change; if (parent) parent->childResized(change); }
+	void ensureContainer();
+	void ensureData();
+	void clearChildren();
 
 private:
 	int32_t id;

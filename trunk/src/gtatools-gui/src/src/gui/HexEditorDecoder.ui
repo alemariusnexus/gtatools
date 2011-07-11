@@ -199,7 +199,7 @@
       <item>
        <widget class="QLabel" name="offsetLabel">
         <property name="text">
-         <string notr="true">0xFF</string>
+         <string notr="true">-</string>
         </property>
        </widget>
       </item>
@@ -229,7 +229,7 @@
       <item>
        <widget class="QLabel" name="selectionLabel">
         <property name="text">
-         <string notr="true">0x00 - 0xFF</string>
+         <string notr="true">-</string>
         </property>
        </widget>
       </item>

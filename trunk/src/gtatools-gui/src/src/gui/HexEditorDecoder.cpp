@@ -80,9 +80,13 @@ void HexEditorDecoder::editorSelDataChanged()
 	setData(editor->getData().mid(editor->getCursorPosition(), 8));
 	display();
 
+	int numBytes = abs(editor->getCursorPosition() - editor->getCursorAnchor());
+
 	ui.offsetLabel->setText(QString("0x%1").arg(QString("%1").arg(editor->getCursorPosition(), 0, 16).toUpper()));
-	ui.selectionLabel->setText(QString("0x%1 - 0x%2").arg(QString("%1").arg(editor->getCursorAnchor(), 0, 16).toUpper())
-			.arg(QString("%1").arg(editor->getCursorPosition(), 0, 16).toUpper()));
+	ui.selectionLabel->setText(tr("0x%1 - 0x%2 (%3 bytes)").arg(QString("%1")
+			.arg(editor->getCursorAnchor(), 0, 16).toUpper())
+			.arg(QString("%1").arg(editor->getCursorPosition(), 0, 16).toUpper())
+			.arg(numBytes));
 }
 
 

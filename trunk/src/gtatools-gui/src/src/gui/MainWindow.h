@@ -40,6 +40,7 @@
 #include "FileTree.h"
 #include <QtGui/QAction>
 #include "../DisplayedFile.h"
+#include <QtGui/QCloseEvent>
 
 
 class MainWindow : public QMainWindow {
@@ -57,11 +58,15 @@ public:
 	QMenu* getFileMenu() { return ui.menuFile; }
 	QMenu* getViewMenu() { return ui.menuView; }
 	QMenu* getToolsMenu() { return ui.menuTools; }
+	QToolBar* getToolBar() { return ui.toolBar; }
 	QProgressBar* getProgressBar() { return progressBar; }
 	QStatusBar* getStatusBar() { return ui.statusbar; }
 	QLabel* getTaskLabel() { return taskLabel; }
 	void addDockWidget(Qt::DockWidgetArea area, QDockWidget* widget);
 	void removeDockWidget(QDockWidget* widget);
+
+protected:
+	virtual void closeEvent(QCloseEvent* evt);
 
 private slots:
 	void openFile(const FileOpenRequest& request, DisplayedFile* file);

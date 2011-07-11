@@ -32,7 +32,9 @@
 #include <QtCore/QHash>
 #include <QtCore/QVariant>
 #include "../FileOpenRequest.h"
-#include "../DisplayedFile.h"
+
+
+class DisplayedFile;
 
 
 
@@ -47,6 +49,8 @@ public:
 	virtual bool hasFileFormat(const File& file) const = 0;
 	virtual DisplayedFile* openFile(const FileOpenRequest& request) { return NULL; }
 	virtual int getSuitability(const File& file) const { return 10000; }
+	virtual bool canSaveFile(const DisplayedFile* file) const { return false; }
+	virtual void saveFile(DisplayedFile* file, const File& destFile) {}
 
 	virtual QString buildFileDialogFilter() const;
 };

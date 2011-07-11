@@ -10,5 +10,11 @@
         <file>src/shader/fragment_es.glsl</file>
         <file>src/shader/vertex_col_es.glsl</file>
         <file>src/shader/fragment_col_es.glsl</file>
+        <file>src/resource/wireframe.png</file>
+        <file>src/resource/texture.png</file>
+        <file>src/resource/document-open.png</file>
+        <file>src/resource/document-save.png</file>
+        <file>src/resource/document-save-as.png</file>
+        <file>src/resource/view-fullscreen.png</file>
     </qresource>
 </RCC>

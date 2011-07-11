@@ -135,7 +135,7 @@ int32_t DFFFrame::indexOf(const DFFFrame* child) const
 
 DFFFrame* DFFFrame::getChild(uint32_t index)
 {
-	if (index < 0  ||  index >= children.size()) {
+	if (index >= children.size()) {
 		throw OutOfBoundsException(index, __FILE__, __LINE__);
 	}
 
@@ -145,7 +145,7 @@ DFFFrame* DFFFrame::getChild(uint32_t index)
 
 const DFFFrame* DFFFrame::getChild(uint32_t index) const
 {
-	if (index < 0  ||  index >= children.size()) {
+	if (index >= children.size()) {
 		throw OutOfBoundsException(index, __FILE__, __LINE__);
 	}
 

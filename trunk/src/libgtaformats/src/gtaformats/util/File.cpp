@@ -427,6 +427,7 @@ File& File::operator=(const File& other)
 	path = new FilePath(*other.path);
 	autoDeletePath = true;
 	archivePtr = other.archivePtr;
+	return *this;
 }
 
 

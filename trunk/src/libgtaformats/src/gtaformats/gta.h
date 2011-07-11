@@ -68,7 +68,6 @@ inline int RwSkipSectionBody(istream* stream, RwSectionHeader& header) {
 }
 
 
-void RwGetSectionName(uint32_t id, char* dest);
 void RwGetVersionName(uint32_t version, char* dest);
 
 

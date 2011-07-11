@@ -36,7 +36,7 @@ public:
 	Mesh* convert(const COLBox& box);
 	void convertVertexModel(const float* inVertices, int32_t inVertexCount, const COLFace* inFaces,
 			int32_t inFaceCount, int& outVertexCount, float*& outVertices, uint8_t*& outColors,
-			int32_t*& outIndices, int32_t& outIndexCount);
+			uint32_t*& outIndices, int32_t& outIndexCount);
 
 private:
 	void getMaterialColors(uint8_t mat, uint8_t& r, uint8_t& g, uint8_t& b);

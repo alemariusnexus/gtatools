@@ -30,6 +30,9 @@
 #include "System.h"
 
 
+ProfileManager* ProfileManager::instance = NULL;
+
+
 
 ProfileManager::ProfileManager(QObject* parent)
 		: QObject(parent), currentProfile(NULL)
@@ -46,14 +49,26 @@ ProfileManager::~ProfileManager()
 
 ProfileManager* ProfileManager::getInstance()
 {
-	static ProfileManager* inst = new ProfileManager;
-	return inst;
+	if (!instance)
+		instance = new ProfileManager;
+
+	return instance;
+}
+
+
+void ProfileManager::destroy()
+{
+	if (instance) {
+		delete instance;
+		instance = NULL;
+	}
 }
 
 
 void ProfileManager::loadProfiles()
 {
-	QTimer::singleShot(0, this, SLOT(eventLoopStarted()));
+	//QTimer::singleShot(0, this, SLOT(eventLoopStarted()));
+	eventLoopStarted();
 }
 
 

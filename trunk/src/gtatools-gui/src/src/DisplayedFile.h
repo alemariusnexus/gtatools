@@ -26,8 +26,7 @@
 #include <QtCore/QString>
 #include <QtGui/QWidget>
 #include <gtaformats/util/File.h>
-
-class FormatHandler;
+#include "formats/FormatHandler.h"
 
 
 class DisplayedFile : public QObject {
@@ -41,11 +40,12 @@ public:
 	virtual File getFile() const = 0;
 	virtual QString getName() const = 0;
 	virtual QString getFormatName() const;
-	virtual bool canSave() const { return false; }
+	virtual bool canSave() const { return handler->canSaveFile(this); }
 	virtual bool hasChanges() const { return changes; }
 	virtual void setHasChanges(bool ch)
 			{ bool old = changes; changes = ch; if (old != ch) emit changeStatusChanged(); }
-	virtual void saveTo(const File& file) { if (canSave()) { emit saved(file); setHasChanges(false); } }
+	virtual void saveTo(const File& file)
+			{ handler->saveFile(this, file); emit saved(file); setHasChanges(false); }
 
 protected:
 	void emitChangedStatusChanged() { emit changeStatusChanged(); }

@@ -28,21 +28,17 @@
 #include <utility>
 #include <gtaformats/gtaide.h>
 #include <gtaformats/util/strutil.h>
+#include <QtCore/QTimer>
 
 using std::pair;
 using std::distance;
 
 
 
-void _UiUpdateCallback()
-{
-	qApp->processEvents();
-}
-
 
 
 Profile::Profile(const QString& name)
-		: name(QString(name))
+		: name(QString(name)), stopResourceLoading(false)
 {
 	connect(ProfileManager::getInstance(), SIGNAL(currentProfileChanged(Profile*, Profile*)), this,
 			SLOT(currentProfileChanged(Profile*, Profile*)));
@@ -99,24 +95,49 @@ Profile::ResourceIterator Profile::getResourceEnd()
 }
 
 
+void Profile::interruptResourceLoading()
+{
+	stopResourceLoading = true;
+
+	while (resourceLoadingQueue.size() != 0) {
+		delete resourceLoadingQueue.dequeue();
+	}
+}
+
+
 void Profile::loadResourceIndex()
+{
+	stopResourceLoading = false;
+
+	System* sys = System::getInstance();
+
+	if (sys->isInitializing()) {
+		connect(sys, SIGNAL(initializationDone()), this, SLOT(doLoadResourceIndex()));
+	} else {
+		doLoadResourceIndex();
+	}
+}
+
+
+void Profile::doLoadResourceIndex()
 {
 	Engine* engine = Engine::getInstance();
 	System* sys = System::getInstance();
 
 	ResourceIterator it;
 
-	Task* task = sys->createTask();
-	task->start(tr("Building resource index..."));
-
 	engine->clearResources();
 
-	for (it = resources.begin() ; it != resources.end() ; it++) {
+	for (it = resources.begin() ; it != resources.end()  &&  !stopResourceLoading ; it++) {
 		File* resFile = *it;
 		loadResourceRecurse(*resFile);
 	}
 
-	delete task;
+
+	resourceLoadingTask = sys->createTask();
+	resourceLoadingTask->start(0, resourceLoadingQueue.size(), tr("Building resource index..."));
+
+	QTimer::singleShot(0, this, SLOT(loadSingleResource()));
 }
 
 
@@ -129,7 +150,7 @@ void Profile::loadResourceRecurse(const File& file)
 		FileIterator* it = file.getIterator();
 
 		File* child;
-		while ((child = it->next())  !=  NULL) {
+		while ((child = it->next())  !=  NULL  &&  !stopResourceLoading) {
 			if (child->guessContentType() != CONTENT_TYPE_DIR) {
 				loadResourceRecurse(*child);
 			}
@@ -140,7 +161,7 @@ void Profile::loadResourceRecurse(const File& file)
 		delete it;
 	} else {
 		try {
-			engine->addResource(file, _UiUpdateCallback);
+			resourceLoadingQueue.enqueue(new File(file));
 		} catch (Exception& ex) {
 			sys->log(LogEntry::warning(tr("Error loading resource file %1: %2. The resource file will not be "
 					"used for certain operations.").arg(file.getPath()->toString()).arg(ex.getMessage()),
@@ -150,12 +171,38 @@ void Profile::loadResourceRecurse(const File& file)
 }
 
 
+void Profile::loadSingleResource()
+{
+	if (resourceLoadingQueue.size() != 0) {
+		System* sys = System::getInstance();
+		File* file = resourceLoadingQueue.dequeue();
+		Engine* engine = Engine::getInstance();
+
+		try {
+			engine->addResource(*file);
+		} catch (Exception& ex) {
+			sys->log(LogEntry::warning(tr("Error loading resource file %1: %2. The resource file will not be "
+					"used for certain operations.").arg(file->getPath()->toString()).arg(ex.getMessage()),
+					&ex));
+		}
+
+		delete file;
+
+		resourceLoadingTask->update(resourceLoadingTask->getValue() + 1);
+
+		QTimer::singleShot(0, this, SLOT(loadSingleResource()));
+	} else {
+		delete resourceLoadingTask;
+	}
+}
+
+
 void Profile::currentProfileChanged(Profile* oldProfile, Profile* newProfile)
 {
 	Engine* engine = Engine::getInstance();
 
 	if (oldProfile == this  &&  newProfile != this) {
-		//disconnect(this, SIGNAL(resourceAdded(const File&)), this, SLOT(resourceAddedSlot(const File&)));
+		interruptResourceLoading();
 		disconnect(System::getInstance(), SIGNAL(systemQuerySent(const SystemQuery&, SystemQueryResult&)),
 				this, SLOT(systemQuerySent(const SystemQuery&, SystemQueryResult&)));
 		engine->removeResourceObserver(this);
@@ -392,29 +439,3 @@ void Profile::systemQuerySent(const SystemQuery& query, SystemQueryResult& resul
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-Profile::Profile()
-{
-	fprintf(stderr, "UUUUUUUAAAAAARRRGGGHHH! Profile::Profile() should NEVER EVER be called. It's just here "
-			"for compatibility with QVariant and Qt's meta type system! Program will exit now!");
-	exit(1);
-}
-
-
-Profile::Profile(const Profile& other)
-{
-	fprintf(stderr, "UUUUUUUAAAAAARRRGGGHHH! Profile::Profile(const Profile&) should NEVER EVER be called. It's "
-				"just here for compatibility with QVariant and Qt's meta type system! Program will exit now!");
-	exit(1);
-}

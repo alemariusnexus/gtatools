@@ -51,7 +51,8 @@ DefaultGUIModule::DefaultGUIModule()
 	fileTree = new FileTree(fileTreeDock);
 	fileTreeDock->setWidget(fileTree);
 
-	fileOpenAction = new QAction(tr("Open..."), NULL);
+	fileOpenAction = new QAction(QIcon::fromTheme("document-open", QIcon(":/src/resource/document-open.png")),
+			tr("Open..."), NULL);
 	fileOpenAction->setShortcut(QKeySequence::Open);
 	connect(fileOpenAction, SIGNAL(triggered(bool)), this, SLOT(onFileOpen(bool)));
 
@@ -60,12 +61,14 @@ DefaultGUIModule::DefaultGUIModule()
 	connect(fileCloseAction, SIGNAL(triggered(bool)), this, SLOT(onFileClose(bool)));
 	fileCloseAction->setEnabled(false);
 
-	fileSaveAction = new QAction(tr("Save"), NULL);
+	fileSaveAction = new QAction(QIcon::fromTheme("document-save", QIcon(":/src/resource/document-save.png")),
+			tr("Save"), NULL);
 	fileSaveAction->setShortcut(QKeySequence::Save);
 	connect(fileSaveAction, SIGNAL(triggered(bool)), this, SLOT(onFileSave(bool)));
 	fileSaveAction->setEnabled(false);
 
-	fileSaveAsAction = new QAction(tr("Save As..."), NULL);
+	fileSaveAsAction = new QAction(QIcon::fromTheme("document-save-as",
+			QIcon(":/src/resource/document-save-as.png")), tr("Save As..."), NULL);
 	fileSaveAsAction->setShortcut(QKeySequence::SaveAs);
 	connect(fileSaveAsAction, SIGNAL(triggered(bool)), this, SLOT(onFileSaveAs(bool)));
 	fileSaveAsAction->setEnabled(false);
@@ -103,6 +106,8 @@ DefaultGUIModule::DefaultGUIModule()
 
 DefaultGUIModule::~DefaultGUIModule()
 {
+	printf("Deleting DefaultGUIModule\n");
+
 	delete logConsoleDock;
 	delete fileTreeDock;
 
@@ -134,6 +139,7 @@ void DefaultGUIModule::doInstall()
 	QMenu* profileMenu = mainWindow->getProfileMenu();
 	QMenu* helpMenu = mainWindow->getHelpMenu();
 	QMenu* toolsMenu = mainWindow->getToolsMenu();
+	QToolBar* toolBar = mainWindow->getToolBar();
 
 	mainWindow->addDockWidget(Qt::BottomDockWidgetArea, logConsoleDock);
 	mainWindow->addDockWidget(Qt::LeftDockWidgetArea, fileTreeDock);
@@ -161,6 +167,10 @@ void DefaultGUIModule::doInstall()
 	helpMenu->addAction(versionInfoAction);
 	toolsMenu->addAction(pvsGenAction);
 
+	toolBar->addAction(fileOpenAction);
+	toolBar->addAction(fileSaveAction);
+	toolBar->addAction(fileSaveAsAction);
+
 	profileSwitchMenu = new QMenu(tr("Switch"), profileMenu);
 	profileMenu->addMenu(profileSwitchMenu);
 
@@ -171,9 +181,11 @@ void DefaultGUIModule::doInstall()
 	connect(profileSwitchGroup, SIGNAL(triggered(QAction*)), this, SLOT(profileSwitchRequested(QAction*)));
 	connect(pm, SIGNAL(profileAdded(Profile*)), this, SLOT(profileAdded(Profile*)));
 	connect(pm, SIGNAL(profileRemoved(Profile*)), this, SLOT(profileRemoved(Profile*)));
-	connect(pm, SIGNAL(profilesLoaded()), this, SLOT(profilesLoaded()));
+	//connect(pm, SIGNAL(profilesLoaded()), this, SLOT(profilesLoaded()));
 	connect(pm, SIGNAL(currentProfileChanged(Profile*, Profile*)), this,
 			SLOT(currentProfileChanged(Profile*, Profile*)));
+
+	profilesLoaded();
 }
 
 
@@ -232,6 +244,7 @@ void DefaultGUIModule::doUninstall()
 	//QMenu* profileMenu = mainWindow->getProfileMenu();
 	QMenu* helpMenu = mainWindow->getHelpMenu();
 	QMenu* toolsMenu = mainWindow->getToolsMenu();
+	QToolBar* toolBar = mainWindow->getToolBar();
 
 	mainWindow->removeDockWidget(fileTreeDock);
 	mainWindow->removeDockWidget(logConsoleDock);
@@ -257,6 +270,11 @@ void DefaultGUIModule::doUninstall()
 	helpMenu->removeAction(aboutAction);
 	helpMenu->removeAction(versionInfoAction);
 	toolsMenu->removeAction(pvsGenAction);
+
+	toolBar->removeAction(fileOpenAction);
+	toolBar->removeAction(fileSaveAction);
+	toolBar->removeAction(fileSaveAsAction);
+
 
 	ProfileManager* pm = ProfileManager::getInstance();
 

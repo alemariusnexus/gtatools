@@ -39,6 +39,12 @@ class GLBaseWidget : public QGLWidget {
 
 public:
 	GLBaseWidget(QWidget* parent);
+	virtual ~GLBaseWidget();
+	void setShowWireframe(bool wire) { wireframe = wire; updateGL(); }
+	void setTexturingEnabled(bool enabled)
+			{ textured = enabled; emit texturedPropertyChanged(enabled); updateGL(); }
+	bool isShowWireframe() const { return wireframe; }
+	bool isTexturingEnabled() const { return textured; }
 
 protected:
 	void initializeShaders(QFile& vfile, QFile& ffile);
@@ -49,12 +55,18 @@ protected:
 	void mouseMoveEvent(QMouseEvent* evt);
 	void keyPressEvent(QKeyEvent* evt);
 
-private:
+signals:
+	void texturedPropertyChanged(bool textured);
+
+protected:
+	bool wireframe, textured;
 	Shader* vertexShader;
 	Shader* fragmentShader;
 	ShaderProgram* program;
 	Matrix4 pMatrix;
 	Camera cam;
+
+private:
 	int lastX, lastY;
 	float moveFactor;
 	bool initialized;

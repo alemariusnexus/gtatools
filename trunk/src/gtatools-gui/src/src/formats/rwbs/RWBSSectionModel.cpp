@@ -31,6 +31,82 @@ void RWBSSectionModel::addRootSection(RWSection* sect)
 }
 
 
+void RWBSSectionModel::removeRootSection(RWSection* sect)
+{
+	rootSects.removeOne(sect);
+}
+
+
+void RWBSSectionModel::insertSection(RWSection* sect, RWSection* parent, int index)
+{
+	QModelIndex parentIdx = getSectionIndex(parent);
+
+	if (index == -1) {
+		if (parent)
+			index = parent->getChildCount();
+		else
+			index = rootSects.count();
+	}
+
+	beginInsertRows(parentIdx, index, index);
+
+	if (parent)
+		parent->insertChild(parent->getChildBegin() + index, sect);
+	else
+		rootSects.insert(index, sect);
+
+	endInsertRows();
+
+	emit sectionInserted(sect);
+}
+
+
+int RWBSSectionModel::removeSection(RWSection* sect)
+{
+	RWSection* parent = sect->getParent();
+
+	int index;
+
+	if (parent)
+		index = parent->indexOf(sect);
+	else
+		index = rootSects.indexOf(sect);
+
+	QModelIndex parentIdx = getSectionIndex(parent);
+
+	beginRemoveRows(parentIdx, index, index);
+
+	if (parent)
+		parent->removeChild(sect);
+	else
+		rootSects.removeOne(sect);
+
+	endRemoveRows();
+
+	emit sectionRemoved(sect, parent);
+
+	return index;
+}
+
+
+QModelIndex RWBSSectionModel::getSectionIndex(RWSection* sect)
+{
+	if (!sect)
+		return QModelIndex();
+
+	RWSection* parent = sect->getParent();
+
+	if (parent) {
+		QModelIndex parentIdx = getSectionIndex(parent);
+		QModelIndex idx = index(parent->indexOf(sect), 0, parentIdx);
+		return idx;
+	} else {
+		QModelIndex idx = index(rootSects.indexOf(sect), 0);
+		return idx;
+	}
+}
+
+
 Qt::ItemFlags RWBSSectionModel::flags(const QModelIndex& index) const
 {
 	if (!index.isValid()) {
@@ -51,8 +127,8 @@ QVariant RWBSSectionModel::data(const QModelIndex& index, int role) const
 
 	if (role == Qt::DisplayRole) {
 		if (index.column() == 0) {
-			char sectName[64];
-			RwGetSectionName(sect->getID(), sectName);
+			char sectName[RW_MAX_SECTION_NAME];
+			RWGetSectionName(sect->getID(), sectName);
 			return QString(tr("%1 [0x%2, %3 bytes @ 0x%4]"))
 					.arg((strncmp(sectName, "RW_", 3) == 0) ? sectName+11 : sectName) // Without RW_SECTION_
 					.arg(QString("%1").arg(sect->getID(), 0, 16, QChar('0')).toUpper())
@@ -76,7 +152,7 @@ int RWBSSectionModel::rowCount(const QModelIndex& parent) const
 	if (parent.isValid()) {
 		if (parent.column() == 0) {
 			RWSection* sect = (RWSection*) parent.internalPointer();
-			return sect->getChildCount();
+			return sect->isDataSection() ? 0 : sect->getChildCount();
 		}
 	} else {
 		return rootSects.size();
@@ -100,9 +176,11 @@ QModelIndex RWBSSectionModel::index(int row, int column, const QModelIndex& pare
 
 	if (parent.isValid()) {
 		RWSection* sect = (RWSection*) parent.internalPointer();
-		return createIndex(row, column, *(sect->getChildBegin() + row));
+		QModelIndex index = createIndex(row, column, *(sect->getChildBegin() + row));
+		return index;
 	} else {
-		return createIndex(row, column, rootSects[row]);
+		QModelIndex index = createIndex(row, column, rootSects[row]);
+		return index;
 	}
 }
 

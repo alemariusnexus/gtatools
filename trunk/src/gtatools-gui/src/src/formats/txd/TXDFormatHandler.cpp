@@ -33,6 +33,9 @@
 #include "TextureSearchDialog.h"
 #include <gtaformats/txd/TXDConverter.h>
 #include "../../DefaultDisplayedFile.h"
+#include <gtaformats/util/DefaultFileFinder.h>
+#include "TextureFileFinder.h"
+#include "../../gui/GUI.h"
 
 
 
@@ -71,11 +74,15 @@ DisplayedFile* TXDFormatHandler::openFile(const FileOpenRequest& request)
 	}
 
 	file->setWidget(widget);
-	file->setSavable(true);
-
-	connect(file, SIGNAL(saved(const File&)), widget, SLOT(saveTo(const File&)));
 
 	return file;
+}
+
+
+void TXDFormatHandler::saveFile(DisplayedFile* file, const File& destFile)
+{
+	TXDWidget* widget = (TXDWidget*) file->getWidget();
+	widget->saveTo(destFile);
 }
 
 
@@ -167,5 +174,35 @@ QImage TXDFormatHandler::createImageFromTexture(TXDTextureHeader* tex, uint8_t* 
 
 void TXDFormatHandler::systemQuerySent(const SystemQuery& query, SystemQueryResult& result)
 {
-	// Currently does nothing
+	if (!result.isSuccessful()) {
+		if (query.getName() == "FindAndOpenTexture") {
+			QString tex = query["texture"].toString();
+			QString txdName = query["txdName"].toString();
+
+			QString txdFileName = QString(txdName).append(".txd");
+
+			FileFinder* txdFinder = NULL;
+
+			if (!txdName.isNull())
+				txdFinder = new DefaultFileFinder(txdFileName.toAscii().constData(), false);
+
+			DefaultFileFinder texFinder(tex.toAscii().constData(), false);
+
+			TextureFileFinder finder(&texFinder, txdFinder);
+
+			File* file = GUI::getInstance()->findFile(&finder, NULL);
+
+			if (file) {
+				result["txdFile"] = QString(file->getPath()->toString());
+
+				System* sys = System::getInstance();
+				FileOpenRequest req(*file);
+				req.setAttribute("texture", finder.getMatchedTexture(*file));
+				delete file;
+				sys->openFile(req);
+
+				result.setSuccessful(true);
+			}
+		}
+	}
 }

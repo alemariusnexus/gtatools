@@ -30,6 +30,7 @@
 #include <QtCore/QList>
 #include "COLSphereBoxRenderWidget.h"
 #include "COLMeshRenderWidget.h"
+#include "../../gui/GLContainerWidget.h"
 
 class COLWidget : public QWidget
 {
@@ -47,7 +48,6 @@ private slots:
     void faceGroupsToggled(bool status);
     void faceGroupSelectionChanged();
     void currentMeshChanged(int index);
-    void wireframePropertyChanged(bool wireframe);
 	void shadowMeshFaceSelectionChanged(int prevIdx, int idx);
 	void vertexMeshFaceSelectionChanged(int prevIdx, int idx);
 	void updateLayoutType();
@@ -64,6 +64,10 @@ private:
     QTabWidget* sphereBoxTabber;
     QTabWidget* vmeshTabber;
     QTabWidget* smeshTabber;
+
+    GLContainerWidget* sphereBoxRendererContainer;
+    GLContainerWidget* meshRendererContainer;
+    GLContainerWidget* shadowMeshRendererContainer;
 };
 
 #endif // COLWIDGET_H

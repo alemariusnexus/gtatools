@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>921</width>
-    <height>537</height>
+    <height>432</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="hlWidget">
       <attribute name="title">
@@ -33,129 +33,9 @@
           </sizepolicy>
          </property>
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
-         <widget class="QWidget" name="tab_3">
-          <attribute name="title">
-           <string>Frames</string>
-          </attribute>
-          <layout class="QHBoxLayout" name="horizontalLayout">
-           <item>
-            <widget class="QSplitter" name="splitter">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <widget class="QTreeView" name="frameTree"/>
-             <widget class="QWidget" name="widget" native="true">
-              <layout class="QVBoxLayout" name="verticalLayout_2">
-               <item>
-                <widget class="QLabel" name="frameNameLabel">
-                 <property name="font">
-                  <font>
-                   <pointsize>16</pointsize>
-                   <weight>75</weight>
-                   <bold>true</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>[No Frame Selected]</string>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignCenter</set>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QWidget" name="widget_2" native="true">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>1</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <layout class="QFormLayout" name="formLayout">
-                  <property name="fieldGrowthPolicy">
-                   <enum>QFormLayout::ExpandingFieldsGrow</enum>
-                  </property>
-                  <property name="horizontalSpacing">
-                   <number>15</number>
-                  </property>
-                  <item row="0" column="0">
-                   <widget class="QLabel" name="label_2">
-                    <property name="text">
-                     <string>Translation</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="1">
-                   <widget class="QLabel" name="frameTranslationLabel">
-                    <property name="font">
-                     <font>
-                      <family>Monospace</family>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string notr="true">-</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="0">
-                   <widget class="QLabel" name="label_4">
-                    <property name="text">
-                     <string>Rotation</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="1">
-                   <widget class="QLabel" name="frameRotationLabel">
-                    <property name="font">
-                     <font>
-                      <family>Monospace</family>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string notr="true">-</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="0">
-                   <widget class="QLabel" name="label_6">
-                    <property name="text">
-                     <string>Parent Frame</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="1">
-                   <widget class="QLabel" name="frameParentLabel">
-                    <property name="text">
-                     <string notr="true">-</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="0">
-                   <widget class="QLabel" name="label_7">
-                    <property name="text">
-                     <string>Flags</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="1">
-                   <widget class="QLabel" name="frameFlagsLabel">
-                    <property name="text">
-                     <string notr="true">-</string>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-         <widget class="QWidget" name="tab_4">
+         <widget class="QWidget" name="geometryTabWidget">
           <attribute name="title">
            <string>Geometries</string>
           </attribute>
@@ -165,13 +45,12 @@
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
              </property>
-             <widget class="QListWidget" name="geometryList">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                <horstretch>1</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
+             <widget class="QWidget" name="widget_6" native="true">
+              <layout class="QVBoxLayout" name="verticalLayout_7">
+               <item>
+                <widget class="QTreeView" name="geometryTree"/>
+               </item>
+              </layout>
              </widget>
              <widget class="QWidget" name="widget_3" native="true">
               <property name="sizePolicy">
@@ -182,195 +61,222 @@
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_4">
                <item>
-                <widget class="QLabel" name="geometryNameLabel">
-                 <property name="font">
-                  <font>
-                   <pointsize>16</pointsize>
-                   <weight>75</weight>
-                   <bold>true</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>[No Geometry Selected]</string>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignCenter</set>
-                 </property>
-                </widget>
-               </item>
-               <item>
                 <widget class="QTabWidget" name="geometryTabber">
                  <property name="currentIndex">
-                  <number>1</number>
+                  <number>0</number>
                  </property>
-                 <widget class="QWidget" name="tab_5">
+                 <widget class="QWidget" name="geometryGeneralInfoTabWidget">
                   <attribute name="title">
                    <string>General Information</string>
                   </attribute>
-                  <layout class="QFormLayout" name="formLayout_2">
-                   <property name="fieldGrowthPolicy">
-                    <enum>QFormLayout::ExpandingFieldsGrow</enum>
-                   </property>
-                   <property name="horizontalSpacing">
-                    <number>15</number>
-                   </property>
-                   <item row="0" column="0">
-                    <widget class="QLabel" name="label">
-                     <property name="text">
-                      <string>Face Format</string>
+                  <layout class="QHBoxLayout" name="horizontalLayout_7">
+                   <item>
+                    <widget class="QGroupBox" name="groupBox">
+                     <property name="title">
+                      <string>Geometry</string>
                      </property>
+                     <layout class="QFormLayout" name="formLayout_2">
+                      <property name="fieldGrowthPolicy">
+                       <enum>QFormLayout::ExpandingFieldsGrow</enum>
+                      </property>
+                      <property name="horizontalSpacing">
+                       <number>20</number>
+                      </property>
+                      <item row="0" column="0">
+                       <widget class="QLabel" name="label">
+                        <property name="text">
+                         <string>Face Format</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="0" column="1">
+                       <widget class="QLabel" name="geometryFaceFormatLabel">
+                        <property name="text">
+                         <string notr="true">-</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="0">
+                       <widget class="QLabel" name="label_20">
+                        <property name="text">
+                         <string>Vertex Data</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="1">
+                       <widget class="QLabel" name="geometryVdataLabel">
+                        <property name="toolTip">
+                         <string>V = Vertices
+N = Normals
+TC (x) = Texture Coordinates (x = numer of coordinate sets)
+C = Vertex Colors</string>
+                        </property>
+                        <property name="text">
+                         <string notr="true">-</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="2" column="0">
+                       <widget class="QLabel" name="label_3">
+                        <property name="text">
+                         <string>Flags</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="2" column="1">
+                       <widget class="QLabel" name="geometryFlagsLabel">
+                        <property name="text">
+                         <string notr="true">-</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="3" column="0">
+                       <widget class="QLabel" name="label_10">
+                        <property name="text">
+                         <string>Vertex Count</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="3" column="1">
+                       <widget class="QLabel" name="geometryVertexCountLabel">
+                        <property name="text">
+                         <string notr="true">-</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="4" column="0">
+                       <widget class="QLabel" name="label_12">
+                        <property name="text">
+                         <string>Frame Count</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="4" column="1">
+                       <widget class="QLabel" name="geometryFrameCountLabel">
+                        <property name="text">
+                         <string notr="true">-</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="5" column="0">
+                       <widget class="QLabel" name="label_14">
+                        <property name="text">
+                         <string>Ambient Light</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="5" column="1">
+                       <widget class="QLabel" name="geometryAmbientLightLabel">
+                        <property name="text">
+                         <string notr="true">-</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="6" column="0">
+                       <widget class="QLabel" name="label_16">
+                        <property name="text">
+                         <string>Diffuse Light</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="6" column="1">
+                       <widget class="QLabel" name="geometryDiffuseLightLabel">
+                        <property name="text">
+                         <string notr="true">-</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="7" column="0">
+                       <widget class="QLabel" name="label_18">
+                        <property name="text">
+                         <string>Specular Light</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="7" column="1">
+                       <widget class="QLabel" name="geometrySpecularLightLabel">
+                        <property name="text">
+                         <string notr="true">-</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="8" column="0">
+                       <widget class="QLabel" name="label_24">
+                        <property name="text">
+                         <string>Bounds</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="8" column="1">
+                       <widget class="QLabel" name="geometryBoundsLabel">
+                        <property name="text">
+                         <string notr="true">-</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="9" column="0">
+                       <widget class="QLabel" name="label_30">
+                        <property name="text">
+                         <string>Associated Frame</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="9" column="1">
+                       <widget class="QLabel" name="geometryFrameLabel">
+                        <property name="text">
+                         <string notr="true">-</string>
+                        </property>
+                        <property name="wordWrap">
+                         <bool>false</bool>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
                     </widget>
                    </item>
-                   <item row="0" column="1">
-                    <widget class="QLabel" name="geometryFaceFormatLabel">
-                     <property name="text">
-                      <string notr="true">-</string>
+                   <item>
+                    <widget class="QGroupBox" name="groupBox_2">
+                     <property name="title">
+                      <string>Geometry Part</string>
                      </property>
-                    </widget>
-                   </item>
-                   <item row="2" column="0">
-                    <widget class="QLabel" name="label_3">
-                     <property name="text">
-                      <string>Flags</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="2" column="1">
-                    <widget class="QLabel" name="geometryFlagsLabel">
-                     <property name="text">
-                      <string notr="true">-</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="3" column="0">
-                    <widget class="QLabel" name="label_8">
-                     <property name="text">
-                      <string>UV Set Count</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="3" column="1">
-                    <widget class="QLabel" name="geometryUVSetCountLabel">
-                     <property name="text">
-                      <string notr="true">-</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="4" column="0">
-                    <widget class="QLabel" name="label_10">
-                     <property name="text">
-                      <string>Vertex Count</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="4" column="1">
-                    <widget class="QLabel" name="geometryVertexCountLabel">
-                     <property name="text">
-                      <string notr="true">-</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="5" column="0">
-                    <widget class="QLabel" name="label_12">
-                     <property name="text">
-                      <string>Frame Count</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="5" column="1">
-                    <widget class="QLabel" name="geometryFrameCountLabel">
-                     <property name="text">
-                      <string notr="true">-</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="6" column="0">
-                    <widget class="QLabel" name="label_14">
-                     <property name="text">
-                      <string>Ambient Light</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="6" column="1">
-                    <widget class="QLabel" name="geometryAmbientLightLabel">
-                     <property name="text">
-                      <string notr="true">-</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="7" column="0">
-                    <widget class="QLabel" name="label_16">
-                     <property name="text">
-                      <string>Diffuse Light</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="7" column="1">
-                    <widget class="QLabel" name="geometryDiffuseLightLabel">
-                     <property name="text">
-                      <string notr="true">-</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="8" column="0">
-                    <widget class="QLabel" name="label_18">
-                     <property name="text">
-                      <string>Specular Light</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="8" column="1">
-                    <widget class="QLabel" name="geometrySpecularLightLabel">
-                     <property name="text">
-                      <string notr="true">-</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="9" column="0">
-                    <widget class="QLabel" name="label_24">
-                     <property name="text">
-                      <string>Bounds</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="9" column="1">
-                    <widget class="QLabel" name="geometryBoundsLabel">
-                     <property name="text">
-                      <string notr="true">-</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="10" column="0">
-                    <widget class="QLabel" name="label_30">
-                     <property name="text">
-                      <string>Associated Frame</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="10" column="1">
-                    <widget class="QLabel" name="geometryFrameLabel">
-                     <property name="text">
-                      <string notr="true">-</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="0">
-                    <widget class="QLabel" name="label_20">
-                     <property name="text">
-                      <string>Vertex Data</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="1">
-                    <widget class="QLabel" name="geometryVdataLabel">
-                     <property name="text">
-                      <string notr="true">-</string>
-                     </property>
+                     <layout class="QFormLayout" name="formLayout_5">
+                      <property name="horizontalSpacing">
+                       <number>20</number>
+                      </property>
+                      <item row="0" column="0">
+                       <widget class="QLabel" name="label_11">
+                        <property name="text">
+                         <string>Index Count</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="0" column="1">
+                       <widget class="QLabel" name="geometryPartIndexCountLabel">
+                        <property name="text">
+                         <string notr="true">-</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="0">
+                       <widget class="QLabel" name="label_21">
+                        <property name="text">
+                         <string>Material</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="1">
+                       <widget class="QLabel" name="geometryPartMaterialLabel">
+                        <property name="text">
+                         <string notr="true">-</string>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
                     </widget>
                    </item>
                   </layout>
                  </widget>
-                 <widget class="QWidget" name="tab_6">
+                 <widget class="QWidget" name="geometryMaterialTabWidget">
                   <attribute name="title">
                    <string>Materials</string>
                   </attribute>
@@ -397,23 +303,6 @@
                       </property>
                       <layout class="QVBoxLayout" name="verticalLayout_3">
                        <item>
-                        <widget class="QLabel" name="materialNameLabel">
-                         <property name="font">
-                          <font>
-                           <pointsize>14</pointsize>
-                           <weight>75</weight>
-                           <bold>true</bold>
-                          </font>
-                         </property>
-                         <property name="text">
-                          <string>[No Material Selected]</string>
-                         </property>
-                         <property name="alignment">
-                          <set>Qt::AlignCenter</set>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
                         <widget class="QWidget" name="widget_5" native="true">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -426,7 +315,7 @@
                            <enum>QFormLayout::ExpandingFieldsGrow</enum>
                           </property>
                           <property name="horizontalSpacing">
-                           <number>15</number>
+                           <number>20</number>
                           </property>
                           <item row="0" column="0">
                            <widget class="QLabel" name="label_5">
@@ -446,12 +335,15 @@
                         </widget>
                        </item>
                        <item>
-                        <widget class="QWidget" name="textureWidget" native="true">
+                        <widget class="QGroupBox" name="textureGroupBox">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                            <horstretch>0</horstretch>
                            <verstretch>1</verstretch>
                           </sizepolicy>
+                         </property>
+                         <property name="title">
+                          <string>Textures</string>
                          </property>
                          <layout class="QVBoxLayout" name="verticalLayout_6">
                           <item>
@@ -463,28 +355,11 @@
                             <widget class="QWidget" name="widget_9" native="true">
                              <layout class="QVBoxLayout" name="verticalLayout_5">
                               <item>
-                               <widget class="QLabel" name="textureNameLabel">
-                                <property name="font">
-                                 <font>
-                                  <pointsize>12</pointsize>
-                                  <weight>75</weight>
-                                  <bold>true</bold>
-                                 </font>
-                                </property>
-                                <property name="text">
-                                 <string>[No Texture Selected]</string>
-                                </property>
-                                <property name="alignment">
-                                 <set>Qt::AlignCenter</set>
-                                </property>
-                               </widget>
-                              </item>
-                              <item>
                                <widget class="QWidget" name="widget_7" native="true">
                                 <property name="sizePolicy">
                                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                                   <horstretch>0</horstretch>
-                                  <verstretch>1</verstretch>
+                                  <verstretch>0</verstretch>
                                  </sizepolicy>
                                 </property>
                                 <layout class="QFormLayout" name="formLayout_4">
@@ -492,7 +367,7 @@
                                   <enum>QFormLayout::ExpandingFieldsGrow</enum>
                                  </property>
                                  <property name="horizontalSpacing">
-                                  <number>15</number>
+                                  <number>20</number>
                                  </property>
                                  <item row="0" column="0">
                                   <widget class="QLabel" name="label_9">
@@ -539,6 +414,32 @@
                                 </layout>
                                </widget>
                               </item>
+                              <item>
+                               <widget class="QPushButton" name="textureOpenButton">
+                                <property name="enabled">
+                                 <bool>false</bool>
+                                </property>
+                                <property name="text">
+                                 <string>Open</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <spacer name="verticalSpacer_2">
+                                <property name="orientation">
+                                 <enum>Qt::Vertical</enum>
+                                </property>
+                                <property name="sizeType">
+                                 <enum>QSizePolicy::Expanding</enum>
+                                </property>
+                                <property name="sizeHint" stdset="0">
+                                 <size>
+                                  <width>0</width>
+                                  <height>0</height>
+                                 </size>
+                                </property>
+                               </spacer>
+                              </item>
                              </layout>
                             </widget>
                            </widget>
@@ -552,130 +453,107 @@
                    </item>
                   </layout>
                  </widget>
-                 <widget class="QWidget" name="tab_7">
-                  <attribute name="title">
-                   <string>Parts</string>
-                  </attribute>
-                  <layout class="QVBoxLayout" name="verticalLayout_8">
-                   <item>
-                    <widget class="QSplitter" name="splitter_5">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <widget class="QListWidget" name="geometryPartList">
-                      <property name="maximumSize">
-                       <size>
-                        <width>200</width>
-                        <height>16777215</height>
-                       </size>
-                      </property>
-                     </widget>
-                     <widget class="QWidget" name="widget_10" native="true">
-                      <layout class="QVBoxLayout" name="verticalLayout_7">
-                       <item>
-                        <widget class="QLabel" name="geometryPartNameLabel">
-                         <property name="font">
-                          <font>
-                           <pointsize>14</pointsize>
-                           <weight>75</weight>
-                           <bold>true</bold>
-                          </font>
-                         </property>
-                         <property name="text">
-                          <string>[No Part Selected]</string>
-                         </property>
-                         <property name="alignment">
-                          <set>Qt::AlignCenter</set>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QTabWidget" name="geometryPartTabber">
-                         <property name="currentIndex">
-                          <number>0</number>
-                         </property>
-                         <widget class="QWidget" name="tab_8">
-                          <attribute name="title">
-                           <string>General Information</string>
-                          </attribute>
-                          <layout class="QHBoxLayout" name="horizontalLayout_6">
-                           <item>
-                            <widget class="QWidget" name="widget_8" native="true">
-                             <property name="sizePolicy">
-                              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                               <horstretch>0</horstretch>
-                               <verstretch>1</verstretch>
-                              </sizepolicy>
-                             </property>
-                             <layout class="QFormLayout" name="formLayout_5">
-                              <property name="horizontalSpacing">
-                               <number>15</number>
-                              </property>
-                              <item row="0" column="0">
-                               <widget class="QLabel" name="label_11">
-                                <property name="text">
-                                 <string>Index Count</string>
-                                </property>
-                               </widget>
-                              </item>
-                              <item row="0" column="1">
-                               <widget class="QLabel" name="geometryPartIndexCountLabel">
-                                <property name="text">
-                                 <string notr="true">-</string>
-                                </property>
-                               </widget>
-                              </item>
-                              <item row="1" column="0">
-                               <widget class="QLabel" name="label_17">
-                                <property name="text">
-                                 <string>Material</string>
-                                </property>
-                               </widget>
-                              </item>
-                              <item row="1" column="1">
-                               <widget class="QLabel" name="geometryPartMaterialLabel">
-                                <property name="text">
-                                 <string notr="true">-</string>
-                                </property>
-                               </widget>
-                              </item>
-                             </layout>
-                            </widget>
-                           </item>
-                          </layout>
-                         </widget>
-                         <widget class="QWidget" name="tab_9">
-                          <attribute name="title">
-                           <string>Rendering</string>
-                          </attribute>
-                          <layout class="QHBoxLayout" name="horizontalLayout_7">
-                           <item>
-                            <widget class="QWidget" name="geometryPartRenderContainerWidget" native="true">
-                             <layout class="QVBoxLayout" name="verticalLayout_9"/>
-                            </widget>
-                           </item>
-                          </layout>
-                         </widget>
-                        </widget>
-                       </item>
-                      </layout>
-                     </widget>
-                    </widget>
-                   </item>
-                  </layout>
-                 </widget>
-                 <widget class="QWidget" name="tab_10">
+                 <widget class="QWidget" name="geometryRenderTabWidget">
                   <attribute name="title">
                    <string>Rendering</string>
                   </attribute>
                   <layout class="QHBoxLayout" name="horizontalLayout_3">
                    <item>
-                    <widget class="QWidget" name="geometryRenderContainerWidget" native="true">
+                    <widget class="QWidget" name="renderContainerWidget" native="true">
                      <layout class="QHBoxLayout" name="horizontalLayout_5"/>
                     </widget>
                    </item>
                   </layout>
                  </widget>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="frameTabWidget">
+          <attribute name="title">
+           <string>Frames</string>
+          </attribute>
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <item>
+            <widget class="QSplitter" name="splitter">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <widget class="QTreeView" name="frameTree"/>
+             <widget class="QWidget" name="widget" native="true">
+              <layout class="QVBoxLayout" name="verticalLayout_2">
+               <item>
+                <widget class="QWidget" name="widget_2" native="true">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>1</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <layout class="QFormLayout" name="formLayout">
+                  <property name="fieldGrowthPolicy">
+                   <enum>QFormLayout::ExpandingFieldsGrow</enum>
+                  </property>
+                  <property name="horizontalSpacing">
+                   <number>20</number>
+                  </property>
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="label_2">
+                    <property name="text">
+                     <string>Translation</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="QLabel" name="frameTranslationLabel">
+                    <property name="font">
+                     <font>
+                      <family>Monospace</family>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string notr="true">-</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="label_4">
+                    <property name="text">
+                     <string>Rotation</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QLabel" name="frameRotationLabel">
+                    <property name="font">
+                     <font>
+                      <family>Monospace</family>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string notr="true">-</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="0">
+                   <widget class="QLabel" name="label_7">
+                    <property name="text">
+                     <string>Flags</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="1">
+                   <widget class="QLabel" name="frameFlagsLabel">
+                    <property name="text">
+                     <string notr="true">-</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
                 </widget>
                </item>
               </layout>
@@ -719,9 +597,9 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="otherTexSrcButton">
+              <widget class="QPushButton" name="editTexSrcButton">
                <property name="text">
-                <string>Other...</string>
+                <string>Edit Sources</string>
                </property>
               </widget>
              </item>

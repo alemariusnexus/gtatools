@@ -43,7 +43,32 @@ RWSection::RWSection(int32_t id, RWSection* parent)
 }
 
 
-RWSection* RWSection::readSection(istream* stream, RWSection* lastRead)
+RWSection::RWSection(uint8_t* rawData)
+		: id(*((int32_t*) rawData)), size(*((int32_t*) (rawData+4))), version(*((int32_t*) (rawData+8))),
+		  offset(0), parent(NULL), data(NULL)
+{
+	bool dataSect = !isContainerSection(id);
+
+	if (dataSect) {
+		data = new uint8_t[size];
+		memcpy(data, rawData+12, size);
+	} else {
+		int32_t numRead = 0;
+		rawData += 12;
+
+		while (numRead < size) {
+			RWSection* child = new RWSection(rawData);
+			child->parent = this;
+			children.push_back(child);
+
+			numRead += child->size + 12;
+			rawData += child->size + 12;
+		}
+	}
+}
+
+
+RWSection* RWSection::readSection(istream* stream, RWSection* lastRead, int i)
 {
 	// Check if there is data to read
 	stream->peek();
@@ -68,25 +93,7 @@ RWSection* RWSection::readSection(istream* stream, RWSection* lastRead)
 
 	sect->offset = 0;
 
-	bool dataSect;
-
-	if (	sect->id == RW_SECTION_CLUMP
-		||  sect->id == RW_SECTION_FRAMELIST
-		||  sect->id == RW_SECTION_EXTENSION
-		||  sect->id == RW_SECTION_GEOMETRYLIST
-		||  sect->id == RW_SECTION_GEOMETRY
-		||  sect->id == RW_SECTION_MATERIALLIST
-		||  sect->id == RW_SECTION_MATERIAL
-		||  sect->id == RW_SECTION_TEXTURE
-		||  sect->id == RW_SECTION_MATERIAL_EFFECTS_PLG
-		||  sect->id == RW_SECTION_ATOMIC
-		||  sect->id == RW_SECTION_TEXTUREDICTIONARY
-		||  sect->id == RW_SECTION_TEXTURENATIVE
-	) {
-		dataSect = false;
-	} else {
-		dataSect = true;
-	}
+	bool dataSect = !isContainerSection(sect->id);
 
 	if (dataSect) {
 		sect->data = new uint8_t[sect->size];
@@ -97,9 +104,7 @@ RWSection* RWSection::readSection(istream* stream, RWSection* lastRead)
 
 		while (numRead < sect->size) {
 			// Using NULL disables the end-of-file check. We know that there has to be another section.
-			RWSection* child = RWSection::readSection(stream, NULL);
-
-
+			RWSection* child = RWSection::readSection(stream, NULL, i+1);
 
 			if (!child) {
 				throw RWBSException("Premature end of RWBS file (wrong section size)", __FILE__, __LINE__);
@@ -112,6 +117,60 @@ RWSection* RWSection::readSection(istream* stream, RWSection* lastRead)
 	}
 
 	return sect;
+}
+
+
+void RWSection::ensureContainer()
+{
+	if (!data)
+		return;
+
+	int32_t numRead = 0;
+	uint8_t* data = this->data;
+
+	while (numRead < size) {
+		RWSection* child = new RWSection(data);
+		child->parent = this;
+		children.push_back(child);
+
+		numRead += 12 + child->size;
+		data += 12 + child->size;
+	}
+
+	delete[] this->data;
+	this->data = NULL;
+}
+
+
+void RWSection::ensureData()
+{
+	if (data)
+		return;
+
+	data = new uint8_t[size+12];
+	uint8_t* offsetData = data;
+
+	for (ChildIterator it = children.begin() ; it != children.end() ; it++) {
+		RWSection* child = *it;
+		child->toRawData(offsetData);
+		offsetData += child->size + 12;
+		delete child;
+	}
+
+	children.clear();
+}
+
+
+void RWSection::clearChildren()
+{
+	if (!data) {
+		for (ChildIterator it = children.begin() ; it != children.end() ; it++) {
+			RWSection* child = *it;
+			delete child;
+		}
+
+		children.clear();
+	}
 }
 
 
@@ -145,6 +204,8 @@ RWSection::~RWSection()
 
 void RWSection::setData(uint8_t* data, int32_t size)
 {
+	clearChildren();
+
 	if (this->data)
 		delete[] this->data;
 
@@ -159,6 +220,8 @@ void RWSection::setData(uint8_t* data, int32_t size)
 
 void RWSection::addChild(RWSection* child)
 {
+	ensureContainer();
+
 	children.push_back(child);
 	size += child->size + 12;
 
@@ -171,6 +234,8 @@ void RWSection::addChild(RWSection* child)
 
 void RWSection::insertChild(ChildIterator it, RWSection* sect)
 {
+	ensureContainer();
+
 	children.insert(it, sect);
 	size += sect->size + 12;
 
@@ -183,16 +248,23 @@ void RWSection::insertChild(ChildIterator it, RWSection* sect)
 
 void RWSection::removeChild(RWSection* child)
 {
+	ensureContainer();
+
 	children.erase(find(children.begin(), children.end(), child));
 	size -= child->size + 12;
 
 	if (parent)
 		parent->childResized(-child->size - 12);
+
+	child->parent = NULL;
 }
 
 
 RWSection::ChildIterator RWSection::nextChild(int32_t id, ChildIterator it)
 {
+	// Not needed, because if the caller has got a valid iterator, it must already be a container section:
+	// ensureContainer();
+
 	while (it != children.end()) {
 		RWSection* sect = *it;
 
@@ -209,12 +281,14 @@ RWSection::ChildIterator RWSection::nextChild(int32_t id, ChildIterator it)
 
 RWSection::ChildIterator RWSection::getChildIterator(int32_t id)
 {
+	ensureContainer();
 	return nextChild(id, children.begin());
 }
 
 
 RWSection::ChildIterator RWSection::getLastChildIterator(int32_t id)
 {
+	ensureContainer();
 	ChildIterator it = children.end();
 
 	do {
@@ -232,6 +306,7 @@ RWSection::ChildIterator RWSection::getLastChildIterator(int32_t id)
 
 RWSection* RWSection::getLastChild(int32_t id)
 {
+	ensureContainer();
 	ChildIterator it = getLastChildIterator(id);
 
 	if (it == children.end()) {
@@ -244,12 +319,31 @@ RWSection* RWSection::getLastChild(int32_t id)
 
 RWSection* RWSection::getChild(int32_t id)
 {
+	ensureContainer();
 	ChildIterator it = getChildIterator(id);
 
 	if (it == children.end()) {
 		return NULL;
 	} else {
 		return *it;
+	}
+}
+
+
+void RWSection::toRawData(uint8_t* data)
+{
+	memcpy(data, this, 12);
+
+	int32_t offset = 12;
+
+	if (isDataSection()) {
+		memcpy(data+offset, this->data, size);
+	} else {
+		for (ChildIterator it = children.begin() ; it != children.end() ; it++) {
+			RWSection* child = *it;
+			child->toRawData(data+offset);
+			offset += child->size + 12;
+		}
 	}
 }
 
@@ -283,8 +377,8 @@ void RWSection::printDebug(int ind)
 		printf("  ");
 	}
 
-	char name[64];
-	RwGetSectionName(id, name);
+	char name[RW_MAX_SECTION_NAME];
+	RWGetSectionName(id, name);
 	printf("%s (%d Bytes)\n", name, size);
 
 	if (!data) {

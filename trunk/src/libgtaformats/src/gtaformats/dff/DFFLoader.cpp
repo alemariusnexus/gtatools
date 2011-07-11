@@ -21,431 +21,48 @@
  */
 
 #include "DFFLoader.h"
-#include "DFFGeometry.h"
-#include "DFFGeometryPart.h"
-#include "DFFFrame.h"
-#include "DFFMaterial.h"
-#include "DFFTexture.h"
-#include <cstdlib>
+#include "DFFException.h"
+#include "../util/math/Matrix3.h"
+#include "../util/math/Vector3.h"
+#include "../gta.h"
 #include <cstdio>
-#include <utility>
-
-using std::pair;
+#include <cstdlib>
 
 
-DFFLoader::DFFLoader()
-		: verbose(false)
+
+struct IndexedDFFFrame
 {
-
-}
-
-DFFLoader::~DFFLoader() {
-
-}
+	DFFFrame* frame;
+	uint32_t parentIdx;
+};
 
 
-int DFFLoader::parseSection(istream* stream, RwSectionHeader* parent, DFFLoadContext* context)
+
+
+
+DFFMesh* DFFLoader::loadMesh(istream* stream)
 {
-	int readCount = 0;
+	RWSection* sect = NULL;
 
-	while (readCount < parent->size) {
-		RwSectionHeader header;
-		stream->read((char*) &header, sizeof(RwSectionHeader));
-		readCount += 12;
-
-		int readBefore = readCount;
-
-		context->depth++;
-
-		switch (header.id) {
-		case RW_SECTION_CLUMP:
-			readCount += parseSection(stream, &header, context);
-			break;
-		case RW_SECTION_FRAMELIST:
-			readCount += parseSection(stream, &header, context);
-			break;
-		case RW_SECTION_EXTENSION:
-			readCount += parseSection(stream, &header, context);
-			break;
-		case RW_SECTION_GEOMETRYLIST:
-			readCount += parseSection(stream, &header, context);
-			break;
-		case RW_SECTION_GEOMETRY:
-			readCount += parseSection(stream, &header, context);
-			break;
-		case RW_SECTION_MATERIALLIST:
-			readCount += parseSection(stream, &header, context);
-			break;
-		case RW_SECTION_MATERIAL:
-			readCount += parseSection(stream, &header, context);
-			break;
-		case RW_SECTION_TEXTURE:
-			readCount += parseSection(stream, &header, context);
-			break;
-		case RW_SECTION_ATOMIC:
-			readCount += parseSection(stream, &header, context);
-			break;
-
-
-		case RW_SECTION_STRING:
-			readCount += parseString(stream, header, parent, context);
-			break;
-		case RW_SECTION_STRUCT:
-			readCount += parseStruct(stream, header, parent, context);
-			break;
-		case RW_SECTION_FRAME:
-			readCount += parseFrame(stream, header, parent, context);
-			break;
-		case RW_SECTION_MATERIALSPLIT:
-			readCount += parseMaterialSplit(stream, header, parent, context);
+	while ((sect = RWSection::readSection(stream, NULL))  !=  NULL) {
+		if (sect->getID() == RW_SECTION_CLUMP) {
 			break;
 		}
 
-		context->depth--;
-
-		int skipSize = header.size - (readCount - readBefore);
-		char* skipBuf = new char[skipSize];
-		stream->read(skipBuf, skipSize);
-		delete[] skipBuf;
-		readCount += skipSize;
+		delete sect;
 	}
 
-	return parent->size;
+	if (!sect)
+		return NULL;
+
+	DFFMesh* mesh = loadMesh(sect);
+	delete sect;
+	return mesh;
 }
-
-
-int DFFLoader::parseStruct(istream* stream, RwSectionHeader& structHeader, RwSectionHeader* parent,
-		DFFLoadContext* context)
-{
-	char skipBuf[1024];
-
-	int rc = 0;
-
-	DFFMesh* mesh = context->mesh;
-
-	if (parent->id == RW_SECTION_FRAMELIST) {
-		int32_t numFrames;
-		stream->read((char*) &numFrames, 4);
-		rc += 4;
-
-		if (verbose) {
-			printf("  Frames[%d] :\n", numFrames);
-		}
-
-		DFFFrame** frames = new DFFFrame*[numFrames];
-		int32_t* parentIndices = new int32_t[numFrames];
-
-		for (int32_t i = 0 ; i < numFrames ; i++) {
-			DFFFrame* frame = new DFFFrame;
-			int32_t parentIdx;
-
-			context->frameInternalIndexMap.insert(pair<int32_t, DFFFrame*>(i, frame));
-
-			float rotData[9];
-			float transData[3];
-
-			stream->read((char*) rotData, 36);
-			stream->read((char*) transData, 12);
-			stream->read((char*) &parentIdx, 4);
-			stream->read((char*) &frame->flags, 4);
-
-			Matrix3* rot = new Matrix3(rotData);
-			Vector3* trans = new Vector3(transData);
-
-			frame->setRotation(rot);
-			frame->setTranslation(trans);
-
-			frames[i] = frame;
-			parentIndices[i] = parentIdx;
-			rc += 56;
-		}
-
-		for (int32_t i = 0 ; i < numFrames ; i++) {
-			int pidx = parentIndices[i];
-
-			if (pidx != -1) {
-				frames[pidx]->addChild(frames[i]);
-			} else {
-				mesh->getRootFrame()->addChild(frames[i]);
-			}
-		}
-
-		delete[] parentIndices;
-		delete[] frames;
-	} else if (parent->id == RW_SECTION_GEOMETRYLIST) {
-		int32_t geometryCount;
-		stream->read((char*) &geometryCount, 4);
-		rc += 4;
-
-		if (verbose) {
-			printf("  Geometries[%d] :\n", geometryCount);
-		}
-	} else if (parent->id == RW_SECTION_GEOMETRY) {
-		//DFFGeometry* geom = new DFFGeometry;
-		//mesh->geometries[context->nextGeometryIndex++] = geom;
-
-		if (verbose) {
-			printf("    Geometry %d :\n", mesh->getGeometryCount());
-		}
-
-		DFFGeometryStructHeader header;
-		stream->read((char*) &header, sizeof(DFFGeometryStructHeader));
-		rc += sizeof(DFFGeometryStructHeader);
-
-		int32_t vertexCount = header.vertexCount;
-		float* vertices = new float[vertexCount*3];
-		int8_t uvSetCount = 0;
-		uint8_t* vertexColors = NULL;
-		float* uvCoordSets = NULL;
-		DFFBoundingSphere* bounds = new DFFBoundingSphere;
-		float* normals = NULL;
-
-		//DFFGeometry* geom = new DFFGeometry(header.vertexCount, vertices);
-
-		if (	(header.flags & GEOMETRY_FLAG_TEXCOORDS) != 0
-				||  (header.flags & GEOMETRY_FLAG_MULTIPLEUVSETS) != 0
-		) {
-			uvSetCount = header.uvSetCount;
-		}
-
-		if (verbose) {
-			printHeaderInfo(header, context);
-		}
-
-		if (context->version < DFF_VERSION_GTAVC_2) {
-			stream->read(skipBuf, 12);
-		}
-
-		if ((header.flags & GEOMETRY_FLAG_COLORS) != 0) {
-			int size = vertexCount * 4;
-			vertexColors = new uint8_t[size];
-			stream->read((char*) vertexColors, size);
-			rc += size;
-		}
-
-		if (	(header.flags & GEOMETRY_FLAG_TEXCOORDS) != 0
-				||  (header.flags & GEOMETRY_FLAG_MULTIPLEUVSETS) != 0
-		) {
-			int size = uvSetCount * vertexCount * 2 * sizeof(float);
-			uvCoordSets = new float[size];
-			stream->read((char*) uvCoordSets, size);
-			rc += size;
-		}
-
-		char* tmpSkipBuf = new char[header.faceCount*sizeof(int16_t)*4];
-		stream->read(tmpSkipBuf, header.faceCount * sizeof(int16_t) * 4);
-		delete[] tmpSkipBuf;
-		rc += header.faceCount * sizeof(int16_t) * 4;
-
-		/*int readCount = 0;
-
-		mesh->faceIndexCount = header.faceCount*3;
-		mesh->faceIndices = new int32_t[mesh->faceIndexCount];
-
-		for (int32_t i = 0 ; i < header.faceCount ; i++) {
-			int16_t face[4];
-			//readCount += ReadBytes(stream, face, sizeof(face));
-			stream->read((char*) face, sizeof(face));
-			readCount += sizeof(face);
-
-			mesh->faceIndices[i*3] = face[1];
-			mesh->faceIndices[i*3 + 1] = face[0];
-			mesh->faceIndices[i*3 + 2] = face[3];
-		}*/
-
-		stream->read((char*) bounds, 16);
-		rc += 16;
-
-		stream->read(skipBuf, 8);
-		rc += 8;
-
-		if ((header.flags & GEOMETRY_FLAG_POSITIONS) != 0) {
-			int size = sizeof(float) * vertexCount * 3;
-			stream->read((char*) vertices, size);
-			rc += size;
-		} else {
-			throw DFFException("This geometry states it doesn't have any vertices. How is that possible?",
-					__FILE__, __LINE__);
-		}
-
-		if ((header.flags & GEOMETRY_FLAG_NORMALS) != 0) {
-			normals = new float[vertexCount * 3];
-			int size = sizeof(float) * vertexCount * 3;
-			stream->read((char*) normals, size);
-			rc += size;
-		}
-
-		DFFGeometry* geom = new DFFGeometry(vertexCount, vertices, normals, uvCoordSets, uvSetCount,
-				vertexColors);
-		geom->setFlags(header.flags);
-		geom->setFrameCount(header.frameCount);
-		geom->setBounds(bounds);
-		mesh->addGeometry(geom);
-	} else if (parent->id == RW_SECTION_MATERIALLIST) {
-		//DFFGeometry* geom = mesh->getGeometry(mesh->getGeometryCount()-1);
-		int32_t materialCount;
-		stream->read((char*) &materialCount, 4);
-		rc += 4;
-
-		if (verbose) {
-			printf("      Materials[%d] :\n", materialCount);
-		}
-	} else if (parent->id == RW_SECTION_MATERIAL) {
-		DFFGeometry* geom = mesh->getGeometry(mesh->getGeometryCount()-1);
-		DFFMaterial* mat = new DFFMaterial;
-
-		int32_t textureCount;
-
-		uint8_t* color = mat->getColor();
-
-		stream->read(skipBuf, 4);
-		stream->read((char*) color, 4);
-		stream->read(skipBuf, 4);
-		stream->read((char*) &textureCount, 4);
-		rc += 16;
-
-		geom->addMaterial(mat);
-
-		if (verbose) {
-			printf("        Material %d :\n", geom->getMaterialCount());
-			printf("          Color: #%02X%02X%02X%02X\n", color[0], color[1], color[2], color[3]);
-			printf("          Textures[%d] :\n", textureCount);
-		}
-	} else if (parent->id == RW_SECTION_TEXTURE) {
-		DFFGeometry* geom = mesh->getGeometry(mesh->getGeometryCount()-1);
-		DFFMaterial* mat = geom->getMaterial(geom->getMaterialCount()-1);
-		DFFTexture* tex = new DFFTexture(NULL);
-		stream->read((char*) &tex->filterModeFlags, 2);
-		mat->addTexture(tex);
-		rc += 2;
-
-		if (verbose) {
-			printf("            Texture %d :\n", mat->getTextureCount());
-			printf("              Filter flags: %d\n", tex->filterModeFlags);
-		}
-	} else if (parent->id == RW_SECTION_ATOMIC) {
-		int32_t frameIdx, geomIdx;
-		stream->read((char*) &frameIdx, 4);
-		stream->read((char*) &geomIdx, 4);
-		rc += 8;
-		mesh->getGeometry(geomIdx)->setAssociatedFrame(context->frameInternalIndexMap.find(frameIdx)->second);
-	}
-
-	return rc;
-}
-
-
-int DFFLoader::parseString(istream* stream, RwSectionHeader& stringHeader, RwSectionHeader* parent,
-		DFFLoadContext* context)
-{
-	char* str = new char[stringHeader.size];
-	stream->read(str, stringHeader.size);
-
-	if (parent->id == RW_SECTION_TEXTURE) {
-		DFFMesh* mesh = context->mesh;
-		DFFGeometry* geom = mesh->getGeometry(mesh->getGeometryCount()-1);
-		DFFMaterial* mat = geom->getMaterial(geom->getMaterialCount()-1);
-		DFFTexture* tex = mat->getTexture(mat->getTextureCount()-1);
-
-		if (tex->getDiffuseName() == NULL) {
-			tex->setDiffuseName(str);
-
-			if (verbose) {
-				printf("              Diffuse name: %s\n", str);
-			}
-		} else {
-			tex->setAlphaName(str);
-
-			if (verbose) {
-				printf("              Alpha name: %s\n", str);
-			}
-		}
-	} else {
-		delete[] str;
-	}
-
-	return stringHeader.size;
-}
-
-
-int DFFLoader::parseFrame(istream* stream, RwSectionHeader& frameHeader, RwSectionHeader* parent,
-		DFFLoadContext* context)
-{
-	DFFFrame* frame = context->frameInternalIndexMap[context->frameCurrentIndex++];
-	char* name = new char[frameHeader.size+1];
-	stream->read(name, frameHeader.size);
-	name[frameHeader.size] = '\0';
-	frame->setName(name);
-
-	if (verbose) {
-		printf("    Frame :\n");
-		printf("      Name : %s\n", name == NULL ? "[none]" : name);
-	}
-
-	return frameHeader.size;
-}
-
-
-int DFFLoader::parseMaterialSplit(istream* stream, RwSectionHeader& matsplitHeader, RwSectionHeader* parent,
-			DFFLoadContext* context)
-{
-	DFFGeometry* geom = context->mesh->getGeometry(context->mesh->getGeometryCount()-1);
-
-	int readCount = 0;
-
-	int32_t triangleStrip, splitCount, faceCount;
-
-	stream->read((char*) &triangleStrip, 4);
-	stream->read((char*) &splitCount, 4);
-	stream->read((char*) &faceCount, 4);
-	readCount += 12;
-
-	if (triangleStrip == 1) {
-		geom->setFlags(geom->getFlags() | GEOMETRY_FLAG_TRISTRIP);
-	} else {
-		geom->setFlags(geom->getFlags() & ~GEOMETRY_FLAG_TRISTRIP);
-	}
-
-	if (verbose) {
-		printf("      Face format: triangle %s\n", triangleStrip == 1 ? "strip" : "list");
-		printf("      Submesh count (material splits): %d\n", splitCount);
-		printf("      Face index count: %d\n", faceCount);
-	}
-
-
-	for (int32_t i = 0 ; i < splitCount ; i++) {
-		int32_t faceIdx, matIdx;
-
-		stream->read((char*) &faceIdx, 4);
-		stream->read((char*) &matIdx, 4);
-		readCount += 8;
-
-		int size = faceIdx * 4;
-		int32_t* indices = new int32_t[faceIdx];
-		stream->read((char*) indices, size);
-		readCount += size;
-
-		DFFGeometryPart* part = new DFFGeometryPart(faceIdx, indices);
-		geom->addPart(part);
-
-		part->setMaterial(geom->getMaterial(matIdx));
-	}
-
-	return readCount;
-}
-
-
-
-
-
-
-
-
 
 
 DFFMesh* DFFLoader::loadMesh(const File& file)
 {
-	//InputStream* stream = file.openStream(STREAM_BINARY);
 	istream* stream = file.openInputStream(istream::binary);
 	DFFMesh* mesh = loadMesh(stream);
 	delete stream;
@@ -453,79 +70,293 @@ DFFMesh* DFFLoader::loadMesh(const File& file)
 }
 
 
-DFFMesh* DFFLoader::loadMesh(istream* stream) {
-	/*if (stream->fail()) {
-		throw DFFException(DFFException::IOError, "failbit was set in the given DFF stream");
-	}*/
-
-	//istream::iostate exState = stream->exceptions();
-
+DFFMesh* DFFLoader::loadMesh(RWSection* clump)
+{
 	DFFMesh* mesh = new DFFMesh;
-	DFFLoadContext context;
-	context.mesh = mesh;
-	context.depth = 0;
-	context.frameCurrentIndex = 0;
 
-	RwSectionHeader clump;
+	// **************************************************
+	// *				LOAD THE FRAMES					*
+	// **************************************************
 
-	while (!stream->eof()) {
-		RwReadSectionHeader(stream, clump);
+	RWSection* frameList = clump->getChild(RW_SECTION_FRAMELIST);
 
-		if (clump.id != RW_SECTION_CLUMP) {
-			char expected[64], found[64];
-			RwGetSectionName(RW_SECTION_CLUMP, expected);
-			RwGetSectionName(clump.id, found);
-			char* errmsg = new char[256];
-			sprintf(errmsg, "Found section with type %s where %s was expected (is it really a DFF file?)",
-					found, expected);
-			DFFException ex(errmsg, __FILE__, __LINE__);
-			delete[] errmsg;
-			throw ex;
-			/*char* skipBuf = new char[clump.size];
-			stream->read(skipBuf, clump.size);
-			delete[] skipBuf;*/
-		} else {
-			context.version = clump.version;
-			break;
+	RWSection* frameListStruct = frameList->getChild(RW_SECTION_STRUCT);
+	uint8_t* frameListStructData = frameListStruct->getData();
+
+	uint32_t numFrames = *((uint32_t*) frameListStructData);
+
+	// In DFF, the frames are stored and indexed as a flat data structure, so at first we keep them flat.
+	IndexedDFFFrame* indexedFrames = new IndexedDFFFrame[numFrames];
+
+	for (uint32_t i = 0 ; i < numFrames ; i++) {
+		IndexedDFFFrame& indexedFrame = indexedFrames[i];
+		uint8_t* offData = frameListStructData + 4 + i*56;
+
+		Matrix3* rotMatrix = new Matrix3((float*) offData);
+		Vector3* posVector = new Vector3((float*) (offData + 9*4));
+		indexedFrame.parentIdx = *((uint32_t*) (offData + 12*4));
+		DFFFrame* frame = new DFFFrame(posVector, rotMatrix);
+		frame->flags = *((uint32_t*) (offData + 13*4));
+		indexedFrame.frame = frame;
+	}
+
+	// Now we read the frame names.
+	uint32_t i = 0;
+	RWSection::ChildIterator it = frameList->getChildBegin();
+	while ((it = frameList->nextChild(RW_SECTION_EXTENSION, it))  !=  frameList->getChildEnd()) {
+		if (i >= numFrames) {
+			throw DFFException("Too many frame list extensions", __FILE__, __LINE__);
 		}
+
+		DFFFrame* frame = indexedFrames[i].frame;
+
+		RWSection* frameListExt = *it;
+
+		RWSection* frameSect = frameListExt->getChild(RW_SECTION_FRAME);
+
+		if (frameSect) {
+			char* frameName = new char[frameSect->getSize() + 1];
+			frameName[frameSect->getSize()] = '\0';
+			memcpy(frameName, frameSect->getData(), frameSect->getSize());
+			frame->setName(frameName);
+		}
+
+		i++;
+		it++;
 	}
 
-	if (verbose) {
-		printf("===== DFF Mesh version 0x%X =====\n", clump.version);
+	// And now we will actually build the frame hierarchy.
+	// We still keep the flat structure (indexedFrames), because we will need this later when we read the
+	// ATOMIC sections, which link frames and geometries.
+
+	DFFFrame* rootFrame = mesh->getRootFrame();
+
+	for (i = 0 ; i < numFrames ; i++) {
+		IndexedDFFFrame& indexedFrame = indexedFrames[i];
+
+		if (indexedFrame.parentIdx != -1)
+			indexedFrames[indexedFrame.parentIdx].frame->addChild(indexedFrame.frame);
+		else
+			rootFrame->addChild(indexedFrame.frame);
 	}
 
-	parseSection(stream, &clump, &context);
 
-	//stream->exceptions(exState);
+
+	// ******************************************************
+	// *				LOAD THE GEOMETRIES					*
+	// ******************************************************
+
+	RWSection* geomList = clump->getChild(RW_SECTION_GEOMETRYLIST);
+	RWSection* geomListStruct = geomList->getChild(RW_SECTION_STRUCT);
+
+	uint32_t numGeoms = *((uint32_t*) geomListStruct->getData());
+
+	RWSection::ChildIterator geomIt = geomList->getChildBegin();
+	while ((geomIt = geomList->nextChild(RW_SECTION_GEOMETRY, geomIt))  !=  geomList->getChildEnd()) {
+		RWSection* geomSect = *geomIt;
+
+
+		// ********** LOAD THE GEOMETRY STRUCT **********
+
+		// This is most notably the vertex data.
+
+		RWSection* geomStruct = geomSect->getChild(RW_SECTION_STRUCT);
+		uint8_t* geomData = geomStruct->getData();
+
+		uint16_t flags = *((uint16_t*) geomData);
+		uint8_t uvSetCount = *(geomData+2);
+		// uint8_t unknown = *(geomData+3);
+		uint32_t triCount = *((uint32_t*) (geomData+4));
+		uint32_t vertexCount = *((uint32_t*) (geomData+8));
+		uint32_t frameCount = *((uint32_t*) (geomData+12));
+
+		// Check if the flags are correct.
+		/*assert (
+					(flags & GEOMETRY_FLAG_MULTIPLEUVSETS) != 0
+				||	(
+							(flags & GEOMETRY_FLAG_TEXCOORDS) != 0
+						&&	uvSetCount == 1
+					)
+				||	uvSetCount == 0
+		);*/
+
+		float ambientColor = 0.0f;
+		float diffuseColor = 0.0f;
+		float specularColor = 0.0f;
+
+		uint8_t* vertexColors = NULL;
+		float* uvCoords = NULL;
+		float* vertices = NULL;
+		float* normals = NULL;
+
+		geomData += 16;
+
+		if (geomStruct->getVersion() < RW_VERSION_GTAVC_2) {
+			ambientColor = *((float*) geomData);
+			diffuseColor = *((float*) (geomData + 4));
+			specularColor = *((float*) (geomData + 8));
+			geomData += 12;
+		}
+
+		if ((flags & GEOMETRY_FLAG_COLORS)  !=  0) {
+			vertexColors = new uint8_t[vertexCount*4];
+			memcpy(vertexColors, geomData, vertexCount*4);
+			geomData += vertexCount*4;
+		}
+
+		if ((flags & (GEOMETRY_FLAG_TEXCOORDS | GEOMETRY_FLAG_MULTIPLEUVSETS))  !=  0) {
+			uvCoords = new float[uvSetCount * vertexCount * 2];
+			memcpy(uvCoords, geomData, uvSetCount*vertexCount*2*4);
+			geomData += uvSetCount*vertexCount*2*4;
+		}
+
+		// Skip the indices, we'll use the ones from the material split section
+		geomData += triCount * 8;
+
+		DFFBoundingSphere* bounds = new DFFBoundingSphere;
+		memcpy(bounds, geomData, 4*4);
+		// uint32_t hasPositions = *((uint32_t*) (geomData+16));
+		// uint32_t hasNormals = *((uint32_t*) (geomData+20));
+		geomData += 6*4;
+
+		if ((flags & GEOMETRY_FLAG_POSITIONS)  !=  0) {
+			vertices = new float[vertexCount*3];
+			memcpy(vertices, geomData, vertexCount*3*4);
+			geomData += vertexCount*3*4;
+		}
+
+		if ((flags & GEOMETRY_FLAG_NORMALS)  !=  0) {
+			normals = new float[vertexCount*3];
+			memcpy(normals, geomData, vertexCount*3*4);
+			geomData += vertexCount*3*4;
+		}
+
+		DFFGeometry* geom = new DFFGeometry(vertexCount, vertices, normals, uvCoords, uvSetCount,
+				vertexColors);
+		geom->setFlags(flags);
+		geom->setFrameCount(frameCount);
+		geom->setBounds(bounds);
+
+		if (geomStruct->getVersion() < RW_VERSION_GTAVC_2) {
+			geom->setAmbientLight(ambientColor);
+			geom->setDiffuseLight(diffuseColor);
+			geom->setSpecularLight(specularColor);
+		}
+
+
+		// ********** LOAD THE MATERIALS **********
+
+		RWSection* materialList = geomSect->getChild(RW_SECTION_MATERIALLIST);
+
+		RWSection* materialListStruct = materialList->getChild(RW_SECTION_STRUCT);
+
+		uint32_t numMaterials = *((uint32_t*) materialListStruct->getData());
+
+		RWSection::ChildIterator matIt = materialList->getChildBegin();
+		while ((matIt = materialList->nextChild(RW_SECTION_MATERIAL, matIt))
+				!=  materialList->getChildEnd())
+		{
+			RWSection* matSect = *matIt;
+
+			RWSection* matStruct = matSect->getChild(RW_SECTION_STRUCT);
+			uint8_t* matData = matStruct->getData();
+
+			DFFMaterial* mat = new DFFMaterial;
+
+			// uint32_t unknown = *((uint32_t*) matData);
+			memcpy(mat->color, matData+4, 4);
+			// uint32_t unknown = *((uint32_t*) (matData+8));
+			uint32_t texCount = *((uint32_t*) (matData+12));
+
+			// Load the textures
+
+			RWSection::ChildIterator texIt = matSect->getChildBegin();
+			while ((texIt = matSect->nextChild(RW_SECTION_TEXTURE, texIt))  !=  matSect->getChildEnd()) {
+				RWSection* texSect = *texIt;
+
+				RWSection* texStruct = texSect->getChild(RW_SECTION_STRUCT);
+				uint16_t filterFlags = *((uint16_t*) texStruct->getData());
+
+				RWSection::ChildIterator it = texSect->getChildBegin();
+
+				it = texSect->nextChild(RW_SECTION_STRING, it);
+				RWSection* diffNameSect = *it;
+				char* diffuseName = new char[diffNameSect->getSize()];
+				memcpy(diffuseName, diffNameSect->getData(), diffNameSect->getSize());
+
+				it = texSect->nextChild(RW_SECTION_STRING, it);
+				RWSection* alphaNameSect = *it;
+				char* alphaName = new char[alphaNameSect->getSize()];
+				memcpy(alphaName, alphaNameSect->getData(), alphaNameSect->getSize());
+
+				DFFTexture* tex = new DFFTexture(diffuseName, alphaName, filterFlags);
+
+				mat->addTexture(tex);
+
+				texIt++;
+			}
+
+			geom->addMaterial(mat);
+
+			matIt++;
+		}
+
+
+		// ********** Load the material split data **********
+
+		RWSection* geomExt = geomSect->getChild(RW_SECTION_EXTENSION);
+
+		RWSection* materialSplit = geomExt->getChild(RW_SECTION_MATERIALSPLIT);
+		uint8_t* msData = materialSplit->getData();
+
+		// uint32_t faceType = *((uint32_t*) msData);
+		uint32_t splitCount = *((uint32_t*) (msData+4));
+		// uint32_t numFaces = *((uint32_t*) (msData+8));
+		msData += 12;
+
+		for (uint32_t j = 0 ; j < splitCount ; j++) {
+			uint32_t idxCount = *((uint32_t*) msData);
+			uint32_t materialIdx = *((uint32_t*) (msData+4));
+			msData += 8;
+
+			uint32_t* indices = new uint32_t[idxCount];
+			memcpy(indices, msData, idxCount*4);
+			msData += idxCount*4;
+
+			DFFGeometryPart* part = new DFFGeometryPart(idxCount, indices);
+
+			geom->addPart(part);
+			part->setMaterial(geom->getMaterial(materialIdx));
+		}
+
+		mesh->addGeometry(geom);
+
+		geomIt++;
+	}
+
+
+	// **********************************************************************
+	// *				LOAD THE GEOMETRY <-> FRAME LINKS					*
+	// **********************************************************************
+
+	RWSection::ChildIterator atomicIt = clump->getChildBegin();
+	while ((atomicIt = clump->nextChild(RW_SECTION_ATOMIC, atomicIt))  !=  clump->getChildEnd()) {
+		RWSection* atomic = *atomicIt;
+
+		RWSection* atomicStruct = atomic->getChild(RW_SECTION_STRUCT);
+		uint8_t* asData = atomicStruct->getData();
+
+		uint32_t frameIdx = *((uint32_t*) asData);
+		uint32_t geomIdx = *((uint32_t*) (asData+4));
+
+		mesh->getGeometry(geomIdx)->setAssociatedFrame(indexedFrames[frameIdx].frame);
+
+		atomicIt++;
+	}
+
+
+	// Delete the flat frame structure.
+	delete[] indexedFrames;
 
 	return mesh;
 }
-
-
-
-
-
-void DFFLoader::printHeaderInfo(DFFGeometryStructHeader& header, DFFLoadContext* context)
-{
-	printf("      Flags: %d\n", header.flags);
-	printf("      Vertex positions: %s\n", ((header.flags & GEOMETRY_FLAG_POSITIONS) != 0)
-			? "yes" : "no");
-	printf("      Texture coordinates: ");
-
-	if ((header.flags & GEOMETRY_FLAG_TEXCOORDS) != 0) {
-		printf("yes\n");
-	} else if ((header.flags & GEOMETRY_FLAG_MULTIPLEUVSETS) != 0) {
-		printf("yes (%d sets)\n", header.uvSetCount);
-	}
-
-	printf("      Normals: %s\n", ((header.flags & GEOMETRY_FLAG_NORMALS) != 0)
-			? "yes" : "no");
-	printf("      Vertex colors: %s\n", ((header.flags & GEOMETRY_FLAG_COLORS) != 0)
-			? "yes" : "no");
-	printf("      Vertex count: %d\n", header.vertexCount);
-	printf("      Texture coordinate sets: %d\n", header.uvSetCount);
-}
-
-
-
-
