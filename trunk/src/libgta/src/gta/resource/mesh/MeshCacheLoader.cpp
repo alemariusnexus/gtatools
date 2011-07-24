@@ -25,7 +25,7 @@
 #include <gtaformats/dff/DFFMesh.h>
 #include <gtaformats/dff/DFFLoader.h>
 #include <gtaformats/dff/DFFGeometry.h>
-#include "../../Mesh.h"
+#include "Mesh.h"
 #include "../../EngineException.h"
 
 
@@ -44,12 +44,19 @@ CacheEntry* MeshCacheLoader::load(hash_t key)
 	try {
 		dffMesh = dff.loadMesh(*file);
 	} catch (Exception ex) {
-		char errmsg[64];
-		sprintf(errmsg, "Exception thrown during loading of DFF mesh %d.", key);
-		throw EngineException(errmsg, __FILE__, __LINE__, &ex);
+		char* errmsg = new char[64 + strlen(file->getPath()->toString())];
+		sprintf(errmsg, "Exception thrown during loading of DFF mesh %s.", file->getPath()->toString());
+		EngineException eex(errmsg, __FILE__, __LINE__, &ex);
+		delete[] errmsg;
+		throw eex;
 	}
 
-	Mesh* mesh = new Mesh(*dffMesh->getGeometry((uint32_t) 0));
+	Mesh* mesh = NULL;
+
+	if (dffMesh->getGeometryCount() > 0) {
+		mesh = new Mesh(*dffMesh->getGeometry(dffMesh->getGeometryCount() - 1));
+	}
+
 	delete dffMesh;
 	MeshCacheEntry* entry = new MeshCacheEntry(mesh);
 	return entry;

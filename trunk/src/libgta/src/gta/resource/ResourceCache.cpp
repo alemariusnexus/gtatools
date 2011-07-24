@@ -22,6 +22,8 @@
 
 #include "ResourceCache.h"
 #include "CacheEntry.h"
+#include "SharedCachePointer.h"
+#include "CachePointer.h"
 #include <gtaformats/util/InvalidStateException.h>
 #include <cstdio>
 #include <gtaformats/util/util.h>
@@ -34,9 +36,6 @@ using std::find;
 
 ResourceCache::ResourceCache(CacheEntryLoader* loader, cachesize_t capacity)
 		: cache(EntryCache(capacity)), loader(loader)
-#ifndef NDEBUG
-		  , numHits(0), numMisses(0), sizeUsed(0)
-#endif
 {
 }
 
@@ -52,20 +51,37 @@ ResourceCache::~ResourceCache()
 }
 
 
+CachePointer ResourceCache::getEntryPointer(hash_t key)
+{
+	return CachePointer(getSharedPointer(key));
+}
+
+
+SharedCachePointer* ResourceCache::getSharedPointer(hash_t key)
+{
+	pair<SharedPtrMap::iterator, bool> res = sharedPtrs.insert(pair<hash_t, SharedCachePointer*>(key, NULL));
+
+	if (res.second) {
+		res.first->second = new SharedCachePointer(this, key);
+	}
+
+	return res.first->second;
+}
+
+
+void ResourceCache::removeSharedPointer(hash_t key)
+{
+	sharedPtrs.erase(key);
+}
+
+
 CacheEntry* ResourceCache::doCache(hash_t key, bool lock)
 {
-#ifndef NDEBUG
-	numMisses++;
-#endif
 	CacheEntry* entry = loader->load(key);
 
 	if (!entry  ||  !cache.insert(key, entry, entry->getSize(), lock)) {
 		return NULL;
 	}
-
-#ifndef NDEBUG
-	entryAccessed(entry);
-#endif
 
 	return entry;
 }
@@ -74,9 +90,6 @@ CacheEntry* ResourceCache::doCache(hash_t key, bool lock)
 CacheEntry* ResourceCache::getEntryIfCached(hash_t key, bool lock)
 {
 	CacheEntry* entry = cache.lock(key, lock);
-#ifndef NDEBUG
-	entryAccessed(entry);
-#endif
 	return entry;
 }
 
@@ -89,11 +102,6 @@ CacheEntry* ResourceCache::getEntry(hash_t key, bool lock)
 		CacheEntry* entry = doCache(key, lock);
 		return entry;
 	}
-
-#ifndef NDEBUG
-	entryAccessed(entry);
-	numHits++;
-#endif
 
 	return entry;
 }
@@ -115,27 +123,3 @@ bool ResourceCache::clear()
 {
 	return cache.clear();
 }
-
-
-#ifndef NDEBUG
-void ResourceCache::resetStatistics()
-{
-	numHits = 0;
-	numMisses = 0;
-	sizeUsed = 0;
-	entriesUsed.clear();
-}
-#endif
-
-
-#ifndef NDEBUG
-void ResourceCache::entryAccessed(CacheEntry* entry)
-{
-	vector<CacheEntry*>::iterator it = find(entriesUsed.begin(), entriesUsed.end(), entry);
-
-	if (it == entriesUsed.end()) {
-		sizeUsed += entry->getSize();
-		entriesUsed.push_back(entry);
-	}
-}
-#endif

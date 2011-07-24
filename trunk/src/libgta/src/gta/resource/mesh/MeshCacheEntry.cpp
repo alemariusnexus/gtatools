@@ -38,5 +38,5 @@ MeshCacheEntry::~MeshCacheEntry()
 
 cachesize_t MeshCacheEntry::getSize() const
 {
-	return mesh->guessSize();
+	return mesh ? mesh->guessSize() : 0;
 }

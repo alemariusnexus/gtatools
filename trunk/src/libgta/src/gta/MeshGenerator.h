@@ -25,7 +25,7 @@
 
 #include <gta/config.h>
 #include <gtaformats/util/math/Vector3.h>
-#include "Mesh.h"
+#include "resource/mesh/Mesh.h"
 
 
 class MeshGenerator {

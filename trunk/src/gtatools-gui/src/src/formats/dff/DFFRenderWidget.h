@@ -31,13 +31,13 @@
 #include <QtGui/QWidget>
 #include <gtaformats/gtadff.h>
 #include <gtaformats/util/math/Matrix4.h>
-#include <gta/Mesh.h>
+#include <gta/resource/mesh/Mesh.h>
 #include <gta/ItemDefinition.h>
 #include <gta/StaticMapItemDefinition.h>
 #include <gta/Shader.h>
 #include <gta/ShaderProgram.h>
 #include <gta/Camera.h>
-#include <gta/TextureSource.h>
+#include <gta/resource/texture/TextureSource.h>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QKeyEvent>
 #include <QtCore/QPoint>

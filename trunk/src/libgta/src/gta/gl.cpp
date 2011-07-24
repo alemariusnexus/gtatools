@@ -83,7 +83,7 @@ bool gtaglIsExtensionSupported(const char* extension)
 
 bool gtaglIsVersionSupported(int major, int minor)
 {
-	return majorVersion >= major  &&  minorVersion >= minor;
+	return majorVersion > major  ||  (majorVersion == major  &&  minorVersion >= minor);
 }
 
 

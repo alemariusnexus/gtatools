@@ -19,7 +19,9 @@
 # GPLADDITIONS.
 
 
-SET(FILES TextureIndexer TextureCacheLoader TextureArchive TextureCacheEntry)
+SET(FILES
+    TextureIndexer TextureCacheLoader TextureArchive TextureCacheEntry ManagedTextureSource
+    StaticTextureSource TextureSource Texture)
 
 FOREACH(FILE ${FILES})
     SET(SRCS ${SRCS} "gta/resource/texture/${FILE}")

@@ -23,7 +23,12 @@
 #ifndef CACHEENTRY_H_
 #define CACHEENTRY_H_
 
+#include <gta/config.h>
+#include <cstdlib>
+
+
 class ResourceCache;
+class SharedCachePointer;
 
 
 typedef unsigned int cachesize_t;
@@ -31,18 +36,19 @@ typedef unsigned int cachesize_t;
 
 class CacheEntry {
 public:
-#ifndef NDEBUG
-	CacheEntry() : usedInFrame(false) {}
-#endif
-	virtual ~CacheEntry() {}
+	CacheEntry() : sharedPtr(NULL) {}
+	virtual ~CacheEntry();
 	virtual cachesize_t getSize() const = 0;
 
 private:
-#ifndef NDEBUG
-	bool usedInFrame;
-#endif
+	void registerPointer(SharedCachePointer* pointer) { sharedPtr = pointer; }
+	void unregisterPointer() { sharedPtr = NULL; }
+
+private:
+	SharedCachePointer* sharedPtr;
 
 	friend class ResourceCache;
+	friend class SharedCachePointer;
 };
 
 #endif /* CACHEENTRY_H_ */

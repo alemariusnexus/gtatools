@@ -26,10 +26,13 @@
 #include <cstdio>
 
 
+static int _NextProgramID = 0;
+
+
 
 
 ShaderProgram::ShaderProgram()
-		: program(glCreateProgram())
+		: program(glCreateProgram()), id(_NextProgramID++)
 {
 }
 

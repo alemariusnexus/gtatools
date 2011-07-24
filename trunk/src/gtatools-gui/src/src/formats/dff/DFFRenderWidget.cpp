@@ -30,8 +30,8 @@
 #include <gta/GLException.h>
 #include <QtCore/QFile>
 #include <QtGui/QMessageBox>
-#include <gta/StaticMeshPointer.h>
-#include <gta/Submesh.h>
+#include <gta/resource/mesh/StaticMeshPointer.h>
+#include <gta/resource/mesh/Submesh.h>
 #include <gta/StaticMapItemDefinition.h>
 
 

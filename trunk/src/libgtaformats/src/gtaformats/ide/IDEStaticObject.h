@@ -31,6 +31,34 @@
 class IDEStaticObject : public IDEEntity
 {
 public:
+	enum Flags
+	{
+		WetEffect = (1 << 0),
+		NightObject = (1 << 1),
+		AlphaTransparency1 = (1 << 2),
+		AlphaTransparency2 = (1 << 3),
+		DayObject = (1 << 4),
+		InteriorObject = (1 << 5),
+		DisableShadowMesh = (1 << 6),
+		DisableCulling = (1 << 7),
+		DisableDrawDistance = (1 << 8),
+		Breakable = (1 << 9),
+		StagedBreakable = (1 << 10),
+		GarageDoor = (1 << 11),
+		Multiclump = (1 << 12),
+		Unknown1 = (1 << 13),
+		Unknown2 = (1 << 14),
+		WeatherBrightness = (1 << 15),
+		Explosive = (1 << 16),
+		Unknown3 = (1 << 17),
+		Unknown4 = (1 << 18),
+		Unknown5 = (1 << 19),
+		GraffityClumpSwitch = (1 << 20),
+		DisableBackfaceCulling = (1 << 21),
+		Unknown6 = (1 << 22)
+	};
+
+public:
 	IDEStaticObject(int32_t id, const char* modelName, const char* textureName, int32_t numSubObjects,
 			float* drawDistances, int32_t flags);
 	virtual ~IDEStaticObject();

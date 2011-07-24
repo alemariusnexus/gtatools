@@ -29,8 +29,8 @@
 
 class TimedMapItemDefinition : public StaticMapItemDefinition {
 public:
-	TimedMapItemDefinition(MeshPointer* meshPtr, TextureSource* texSrc, float drawDist, int8_t timeOn,
-			int8_t timeOff);
+	TimedMapItemDefinition(MeshPointer* meshPtr, TextureSource* texSrc, CollisionShapePointer* colPtr,
+			float drawDist, int8_t timeOn, int8_t timeOff);
 	TimedMapItemDefinition(IDETimedObject& object);
 	virtual bool isVisible() const;
 

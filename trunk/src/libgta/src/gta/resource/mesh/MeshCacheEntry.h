@@ -24,7 +24,7 @@
 #define MESHCACHEENTRY_H_
 
 #include "../CacheEntry.h"
-#include "../../Mesh.h"
+#include "Mesh.h"
 
 
 class MeshCacheEntry : public CacheEntry {

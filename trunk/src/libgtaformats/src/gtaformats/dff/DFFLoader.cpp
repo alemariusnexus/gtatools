@@ -170,6 +170,12 @@ DFFMesh* DFFLoader::loadMesh(RWSection* clump)
 		uint32_t vertexCount = *((uint32_t*) (geomData+8));
 		uint32_t frameCount = *((uint32_t*) (geomData+12));
 
+		if ((flags & GEOMETRY_FLAG_TEXCOORDS)  !=  0  &&  (flags & GEOMETRY_FLAG_MULTIPLEUVSETS) == 0) {
+			// At least some meshes in GTA 3 have the UV set count set to 0 although GEOMETRY_FLAG_TEXCOORDS
+			// is set.
+			uvSetCount = 1;
+		}
+
 		// Check if the flags are correct.
 		/*assert (
 					(flags & GEOMETRY_FLAG_MULTIPLEUVSETS) != 0
@@ -219,11 +225,11 @@ DFFMesh* DFFLoader::loadMesh(RWSection* clump)
 		// uint32_t hasNormals = *((uint32_t*) (geomData+20));
 		geomData += 6*4;
 
-		if ((flags & GEOMETRY_FLAG_POSITIONS)  !=  0) {
-			vertices = new float[vertexCount*3];
-			memcpy(vertices, geomData, vertexCount*3*4);
-			geomData += vertexCount*3*4;
-		}
+		// We ignore the setting of GEOMETRY_FLAG_POSITIONS. There are some meshes in GTA 3 where this flag
+		// is not set but which have vertex positions nonetheless. The engine seems to ignore the flag.
+		vertices = new float[vertexCount*3];
+		memcpy(vertices, geomData, vertexCount*3*4);
+		geomData += vertexCount*3*4;
 
 		if ((flags & GEOMETRY_FLAG_NORMALS)  !=  0) {
 			normals = new float[vertexCount*3];

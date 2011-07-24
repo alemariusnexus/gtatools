@@ -31,7 +31,7 @@
 #include "DFFGUIModule.h"
 #include "DFFFrameItemModel.h"
 #include <QtOpenGL/qgl.h>
-#include <gta/ManagedTextureSource.h>
+#include <gta/resource/texture/ManagedTextureSource.h>
 #include "../../gui/GLContainerWidget.h"
 #include <QtGui/QCloseEvent>
 #include "../../DisplayedFile.h"
