@@ -24,13 +24,14 @@
 #define ENGINE_H_
 
 #include <gta/config.h>
-#include "ShaderProgram.h"
 #include "Camera.h"
+#include "Renderer.h"
 #include <locale>
 #include <cstring>
 #include <vector>
 #include <gtaformats/util/math/Matrix4.h>
 #include <gtaformats/util/strutil.h>
+#include <gtaformats/util/File.h>
 #include <btBulletDynamicsCommon.h>
 
 using std::locale;
@@ -52,6 +53,7 @@ class Scene;
 
 
 
+
 class Engine {
 public:
 	enum VersionMode
@@ -68,8 +70,6 @@ public:
 public:
 	void addResource(const File& file, void (*callback)() = NULL);
 	void clearResources();
-	ShaderProgram* getCurrentShaderProgram() { return currentShader; }
-	void setCurrentShaderProgram(ShaderProgram* program);
 	ResourceCache* getMeshCache();
 	ResourceCache* getTextureCache();
 	ResourceCache* getCollisionMeshCache() { return colCache; }
@@ -98,6 +98,11 @@ public:
 	void advanceGameTime(int8_t h, int8_t m);
 	void setVersionMode(VersionMode mode) { verMode = mode; }
 	VersionMode getVersionMode() const { return verMode; }
+	void setRenderer(Renderer* renderer) { this->renderer = renderer; }
+	Renderer* getRenderer() { return renderer; }
+	void setViewportSize(int w, int h) { viewWidth = w; viewHeight = h; }
+	int getViewportWidth() const { return viewWidth; }
+	int getViewportHeight() const { return viewHeight; }
 
 private:
 	Engine();
@@ -109,7 +114,6 @@ private:
 private:
 	VersionMode verMode;
 
-	ShaderProgram* currentShader;
 	vector<ResourceObserver*> resObservers;
 	Camera* camera;
 	Matrix4 projectionMatrix;
@@ -132,6 +136,10 @@ private:
 	bool enableDrawing;
 
 	int8_t gameHours, gameMinutes;
+
+	Renderer* renderer;
+
+	int viewWidth, viewHeight;
 };
 
 #endif /* ENGINE_H_ */

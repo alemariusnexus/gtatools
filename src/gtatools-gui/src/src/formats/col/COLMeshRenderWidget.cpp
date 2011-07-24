@@ -21,10 +21,10 @@
  */
 
 #include "COLMeshRenderWidget.h"
-#include <gta/COLMeshConverter.h>
-#include <gta/StaticMeshPointer.h>
-#include <gta/NullTextureSource.h>
-#include <gta/Submesh.h>
+#include <gta/resource/collision/COLMeshConverter.h>
+#include <gta/resource/mesh/StaticMeshPointer.h>
+#include <gta/resource/texture/NullTextureSource.h>
+#include <gta/resource/mesh/Submesh.h>
 #include <gta/StaticMapItemDefinition.h>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QImage>

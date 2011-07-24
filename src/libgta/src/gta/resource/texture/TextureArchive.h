@@ -25,6 +25,7 @@
 
 #include <set>
 #include "../../Engine.h"
+#include "../CachePointer.h"
 
 using std::set;
 
@@ -32,17 +33,18 @@ using std::set;
 class TextureArchive {
 public:
 	TextureArchive(hash_t name, const File& file, TextureArchive* parent = NULL)
-			: name(name), parent(parent), file(file) {}
+			: cachePtr(Engine::getInstance()->getTextureCache()->getEntryPointer(name)), parent(parent),
+			  file(file) {}
 	void addTexture(hash_t name) { textures.insert(name); }
+	CachePointer getCachePointer() const { return cachePtr; }
 	const File& getFile() const { return file; }
-	hash_t getName() const { return name; }
 	void setParent(TextureArchive* parent) { this->parent = parent; }
 	TextureArchive* getParent() { return parent; }
 	bool contains(hash_t tex) const { return textures.find(tex) != textures.end(); }
 	TextureArchive* findTextureArchive(hash_t tex);
 
 private:
-	hash_t name;
+	CachePointer cachePtr;
 	TextureArchive* parent;
 	set<hash_t> textures;
 	File file;

@@ -18,7 +18,7 @@
 # Additional permissions are granted, which are listed in the file
 # GPLADDITIONS.
 
-SET(FILES DefaultSceneObject Scene)
+SET(FILES StaticSceneObject Scene SceneObject)
 
 ADD_SUBDIRECTORY(visibility)
 

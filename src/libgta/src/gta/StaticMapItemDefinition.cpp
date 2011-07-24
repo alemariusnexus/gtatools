@@ -21,28 +21,38 @@
  */
 
 #include "StaticMapItemDefinition.h"
-#include "ManagedMeshPointer.h"
-#include "ManagedTextureSource.h"
-#include "ManagedCollisionShapePointer.h"
+#include "resource/mesh/ManagedMeshPointer.h"
+#include "resource/texture/ManagedTextureSource.h"
+#include "resource/collision/ManagedCollisionShapePointer.h"
+#include "gl.h"
+#include "GLException.h"
 
 
 
-StaticMapItemDefinition::StaticMapItemDefinition(MeshPointer* meshPtr, TextureSource* texSrc, float drawDist)
-		: MapItemDefinition(meshPtr, texSrc, drawDist)
+StaticMapItemDefinition::StaticMapItemDefinition(MeshPointer* meshPtr, TextureSource* texSrc,
+		CollisionShapePointer* colPtr, float drawDist)
+		: MapItemDefinition(meshPtr, texSrc, colPtr, drawDist, 0), initedProgram(NULL)
 {
 }
 
 
 StaticMapItemDefinition::StaticMapItemDefinition(IDEStaticObject& object)
+		: initedProgram(NULL)
 {
-	setDrawDistance(object.getDrawDistances()[0]);
+	drawDist = object.getDrawDistances()[object.getNumSubObjects() - 1];
 	char* lMeshName = new char[strlen(object.getModelName())+1];
 	char* lTexName = new char[strlen(object.getTextureName())+1];
 	strtolower(lMeshName, object.getModelName());
 	strtolower(lTexName, object.getTextureName());
 	meshPtr = new ManagedMeshPointer(Hash(lMeshName));
 	texSrc = new ManagedTextureSource(Hash(lTexName));
-	colShapePtr = new ManagedCollisionShapePointer(lMeshName);
+	colPtr = new ManagedCollisionShapePointer(lMeshName);
 	delete[] lMeshName;
 	delete[] lTexName;
+
+	if (	(object.getFlags() & (IDEStaticObject::AlphaTransparency1 | IDEStaticObject::AlphaTransparency2))
+			!= 0
+	) {
+		flags |= AlphaTransparency;
+	}
 }

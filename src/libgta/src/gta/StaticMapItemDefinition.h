@@ -23,16 +23,24 @@
 #define STATICMAPITEMDEFINITION_H_
 
 #include "MapItemDefinition.h"
+#include "ShaderProgram.h"
 #include <gtaformats/ide/IDEStaticObject.h>
 
 
 class StaticMapItemDefinition : public MapItemDefinition {
 public:
-	StaticMapItemDefinition(MeshPointer* meshPtr, TextureSource* texSrc, float drawDist);
+	StaticMapItemDefinition(MeshPointer* meshPtr, TextureSource* texSrc, CollisionShapePointer* colPtr,
+			float drawDist);
 	StaticMapItemDefinition(IDEStaticObject& object);
 
 private:
+	void initShaderLocations();
 
+private:
+	ShaderProgram* initedProgram;
+	GLint texturedUniform, materialColorUniform, vertexColorsUniform;
+	GLint textureUniform;
+	GLint vertexAttrib, normalAttrib, colorAttrib, texCoordAttrib;
 };
 
 #endif /* STATICMAPITEMDEFINITION_H_ */

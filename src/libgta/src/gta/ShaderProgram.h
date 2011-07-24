@@ -41,9 +41,12 @@ public:
 	void makeCurrent();
 	GLint getAttributeLocation(const char* name) const;
 	GLint getUniformLocation(const char* name) const;
+	bool operator==(const ShaderProgram& other) const { return id == other.id; }
+	bool operator!=(const ShaderProgram& other) const { return !(*this == other); }
 
 private:
 	GLuint program;
+	unsigned int id;
 };
 
 #endif /* SHADERPROGRAM_H_ */

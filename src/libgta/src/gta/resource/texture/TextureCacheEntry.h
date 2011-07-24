@@ -26,6 +26,7 @@
 #include <gta/config.h>
 #include "../CacheEntry.h"
 #include "TextureArchive.h"
+#include "Texture.h"
 #include <map>
 
 #ifdef CXX0X_AVAILABLE
@@ -40,23 +41,23 @@ using std::map;
 class TextureCacheEntry : public CacheEntry {
 private:
 #ifdef CXX0X_AVAILABLE
-	typedef unordered_map<hash_t, GLuint> TextureMap;
+	typedef unordered_map<hash_t, Texture*> TextureMap;
 #else
-	typedef map<hash_t, GLuint> TextureMap;
+	typedef map<hash_t, Texture*> TextureMap;
 #endif
 
 public:
 	TextureCacheEntry(TextureArchive* archive);
 	virtual ~TextureCacheEntry();
-	void addTexture(hash_t name, GLuint tex, cachesize_t size);
+	void addTexture(hash_t name, Texture* tex);
 	virtual cachesize_t getSize() const { return size; }
-	GLuint getTexture(hash_t texName) const;
-	GLuint operator[](hash_t texName) const { return getTexture(texName); }
+	Texture* getTexture(hash_t texName);
+	Texture* operator[](hash_t texName) { return getTexture(texName); }
 
 private:
 	TextureMap texMap;
 	cachesize_t size;
-	hash_t parent;
+	CachePointer parentPtr;
 };
 
 #endif /* TEXTURECACHEENTRY_H_ */

@@ -68,22 +68,22 @@ void GLException::checkError(const char* msg)
 			sprintf(errname, "invalid enumerant");
 			break;
 		case GL_INVALID_VALUE:
-			sprintf(errname, "invalid enumerant");
+			sprintf(errname, "invalid value");
 			break;
 		case GL_INVALID_OPERATION:
-			sprintf(errname, "invalid enumerant");
+			sprintf(errname, "invalid operation");
 			break;
 		case GL_STACK_OVERFLOW:
-			sprintf(errname, "invalid enumerant");
+			sprintf(errname, "stack overflow");
 			break;
 		case GL_STACK_UNDERFLOW:
-			sprintf(errname, "invalid enumerant");
+			sprintf(errname, "stack underflow");
 			break;
 		case GL_OUT_OF_MEMORY:
-			sprintf(errname, "invalid enumerant");
+			sprintf(errname, "out of memory");
 			break;
 		case GL_TABLE_TOO_LARGE:
-			sprintf(errname, "invalid enumerant");
+			sprintf(errname, "table too large");
 			break;
 		default:
 			sprintf(errname, "[UNKNOWN]");

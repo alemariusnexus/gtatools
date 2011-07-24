@@ -31,7 +31,8 @@
 #include "DFFFormatHandler.h"
 #include <QtCore/QSettings>
 #include <gtaformats/util/strutil.h>
-#include <gta/ManagedTextureSource.h>
+#include <gta/resource/texture/ManagedTextureSource.h>
+#include <gta/resource/texture/StaticTextureSource.h>
 #include <QtGui/QMessageBox>
 #include <QtGui/QInputDialog>
 #include "../../gui/GLContainerWidget.h"
@@ -212,6 +213,9 @@ void DFFWidget::reloadHighLevelFile()
 				QString tex = *it;
 				ui.texSourceBox->addItem(tex, false);
 			}
+
+			if (texes.size() > 0)
+				texSrcChanged(0);
 		}
 
 		delete[] meshName;
@@ -464,7 +468,12 @@ void DFFWidget::texSrcChanged(int index)
 	TextureSource* texSrc;
 
 	if (path) {
-		// TODO
+		File file(source.toLocal8Bit().constData());
+
+		if (file.exists()) {
+			TXDArchive txd(file);
+			texSrc = new StaticTextureSource(&txd);
+		}
 	} else {
 		texSrc = new ManagedTextureSource(source.toAscii().constData());
 	}

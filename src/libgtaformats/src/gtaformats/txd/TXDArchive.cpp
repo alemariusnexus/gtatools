@@ -113,7 +113,10 @@ void TXDArchive::init(istream* stream)
 		TXDCompression compr = NONE;
 		bool alpha;
 
-		if (header.platform == 9) {
+		if (header.platform == 0x325350) {
+			// 0x325350 = "PS2"
+			throw TXDException("PS2 format of TXD is currently not supported!");
+		} else if (header.platform == 9) {
 			char* fourCC = (char*) &header.alphaOrCompression;
 			if (fourCC[0] == 'D'  &&  fourCC[1] == 'X'  &&  fourCC[2] == 'T') {
 				if (fourCC[3] == '1') {
@@ -181,9 +184,11 @@ uint8_t* TXDArchive::getTextureData(TXDTextureHeader* header)
 	if ((header->getRasterFormatExtension() & RasterFormatEXTPAL4)  !=  0) {
 		memcpy(texData, inData, 16*4);
 		texData += 16*4;
-	} else if ((header->getRasterFormatExtension() & RasterFormatEXTPAL4)  !=  0) {
+		inData += 16*4;
+	} else if ((header->getRasterFormatExtension() & RasterFormatEXTPAL8)  !=  0) {
 		memcpy(texData, inData, 256*4);
 		texData += 256*4;
+		inData += 256*4;
 	}
 
 	for (int i = 0 ; i < header->getMipmapCount() ; i++) {

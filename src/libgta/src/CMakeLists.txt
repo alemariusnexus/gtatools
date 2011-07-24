@@ -23,6 +23,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 PROJECT(prj-gta C CXX)
 
 INCLUDE(CheckSymbolExists)
+INCLUDE(ResourceCompiler.cmake)
 
 ADD_SUBDIRECTORY(gta)
 
@@ -124,6 +125,27 @@ ENDIF(APPLE)
 SET(INCLUDES ${INCLUDES} "${CMAKE_CURRENT_BINARY_DIR}")
 
 INCLUDE_DIRECTORIES(${INCLUDES})
+
+CREATE_RESOURCE(gta/shaders/glsl140/vertex_default.glsl vertex_default_shader)
+CREATE_RESOURCE(gta/shaders/glsl140/fragment_default.glsl fragment_default_shader)
+
+CREATE_RESOURCE(gta/shaders/glsl140/vertex_dc.glsl vertex_dc_shader)
+CREATE_RESOURCE(gta/shaders/glsl140/fragment_dc.glsl fragment_dc_shader)
+
+CREATE_RESOURCE(gta/shaders/glsl140/shade_vertex.glsl shade_vertex_shader)
+CREATE_RESOURCE(gta/shaders/glsl140/shade_fragment.glsl shade_fragment_shader)
+
+CREATE_RESOURCE(gta/shaders/glsl140/dp_blend_layer_vertex.glsl dp_blend_layer_vertex_shader)
+CREATE_RESOURCE(gta/shaders/glsl140/dp_blend_layer_fragment.glsl dp_blend_layer_fragment_shader)
+
+CREATE_RESOURCE(gta/shaders/glsl140/dp_blend_final_vertex.glsl dp_blend_final_vertex_shader)
+CREATE_RESOURCE(gta/shaders/glsl140/dp_blend_final_fragment.glsl dp_blend_final_fragment_shader)
+
+CREATE_RESOURCE(gta/shaders/glsl140/wavg_vertex.glsl wavg_vertex_shader)
+CREATE_RESOURCE(gta/shaders/glsl140/wavg_fragment.glsl wavg_fragment_shader)
+
+CREATE_RESOURCE(gta/shaders/glsl140/wavg_final_vertex.glsl wavg_final_vertex_shader)
+CREATE_RESOURCE(gta/shaders/glsl140/wavg_final_fragment.glsl wavg_final_fragment_shader)
 
 ADD_LIBRARY(gta STATIC ${SRCS})
 TARGET_LINK_LIBRARIES(gta ${LIBRARIES})

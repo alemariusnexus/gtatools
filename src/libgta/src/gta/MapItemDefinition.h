@@ -24,13 +24,37 @@
 #define MAPITEMDEFINITION_H_
 
 #include "ItemDefinition.h"
+#include "resource/mesh/MeshPointer.h"
+#include "resource/texture/TextureSource.h"
+#include "resource/collision/CollisionShapePointer.h"
+#include "resource/mesh/Submesh.h"
 
 
 class MapItemDefinition : public ItemDefinition {
+public:
+	enum Flags
+	{
+		AlphaTransparency = (1 << 0)
+	};
+
+public:
+	MapItemDefinition(MeshPointer* mptr, TextureSource* tsrc, CollisionShapePointer* cptr, float dd,
+			unsigned int flags)
+			: meshPtr(mptr), texSrc(tsrc), colPtr(cptr), drawDist(dd), flags(flags) {}
+	MapItemDefinition() : meshPtr(NULL), texSrc(NULL), colPtr(NULL), drawDist(0.0f), flags(0) {}
+	MeshPointer* getMeshPointer() { return meshPtr; }
+	TextureSource* getTextureSource() { return texSrc; }
+	CollisionShapePointer* getCollisionShapePointer() { return colPtr; }
+	float getDrawDistance() const { return drawDist; }
+	unsigned int getFlags() const { return flags; }
+	bool hasAlphaTransparency() const { return (flags & AlphaTransparency) != 0; }
+
 protected:
-	MapItemDefinition() : ItemDefinition() {}
-	MapItemDefinition(MeshPointer* meshPtr, TextureSource* texSrc, float drawDistance)
-			: ItemDefinition(meshPtr, texSrc, drawDistance) {}
+	MeshPointer* meshPtr;
+	TextureSource* texSrc;
+	CollisionShapePointer* colPtr;
+	float drawDist;
+	unsigned int flags;
 };
 
 #endif /* MAPITEMDEFINITION_H_ */

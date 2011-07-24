@@ -23,7 +23,7 @@ ADD_SUBDIRECTORY(mesh)
 ADD_SUBDIRECTORY(texture)
 ADD_SUBDIRECTORY(collision)
 
-SET(FILES ResourceCache)
+SET(FILES ResourceCache CacheEntry CachePointer SharedCachePointer)
 
 FOREACH(FILE ${FILES})
     SET(SRCS ${SRCS} "gta/resource/${FILE}")

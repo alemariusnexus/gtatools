@@ -38,6 +38,7 @@
 #endif
 
 
+
 void gtaglInit();
 bool gtaglIsExtensionSupported(const char* extension);
 bool gtaglIsVersionSupported(int major, int minor);

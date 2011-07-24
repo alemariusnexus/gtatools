@@ -40,7 +40,7 @@ ItemManager::~ItemManager()
 
 void ItemManager::resourceAdded(const File& file)
 {
-	if (file.guessContentType() == CONTENT_TYPE_IDE) {
+	if (file.guessContentType() == CONTENT_TYPE_IDE) {;
 		IDEReader ide(file);
 		IDEStatement* stmt;
 

@@ -19,7 +19,9 @@
 # GPLADDITIONS.
 
 
-SET(FILES MeshIndexer MeshCacheEntry MeshCacheLoader)
+SET(FILES
+    MeshIndexer MeshCacheEntry MeshCacheLoader ManagedMeshPointer Mesh MeshPointer StaticMeshPointer Submesh
+    Material)
 
 FOREACH(FILE ${FILES})
     SET(SRCS ${SRCS} "gta/resource/mesh/${FILE}")

@@ -33,7 +33,6 @@
 #include <gtaformats/config.h>
 #include "FileSearchDialog.h"
 #include "VersionDialog.h"
-#include "PVSDialog.h"
 
 
 
@@ -93,9 +92,6 @@ DefaultGUIModule::DefaultGUIModule()
 	systemOpenAction = new QAction(tr("Execute System Program"), NULL);
 	connect(systemOpenAction, SIGNAL(triggered(bool)), this, SLOT(onOpenSystemProgram(bool)));
 
-	pvsGenAction = new QAction(tr("Generate PVS Data"), NULL);
-	connect(pvsGenAction, SIGNAL(triggered(bool)), this, SLOT(onPVSGeneration(bool)));
-
 	connect(sys, SIGNAL(fileOpened(const FileOpenRequest&, DisplayedFile*)), this,
 			SLOT(fileOpened(const FileOpenRequest&, DisplayedFile*)));
 	connect(sys, SIGNAL(fileClosed(DisplayedFile*)), this, SLOT(fileClosed(DisplayedFile*)));
@@ -106,8 +102,6 @@ DefaultGUIModule::DefaultGUIModule()
 
 DefaultGUIModule::~DefaultGUIModule()
 {
-	printf("Deleting DefaultGUIModule\n");
-
 	delete logConsoleDock;
 	delete fileTreeDock;
 
@@ -154,7 +148,6 @@ void DefaultGUIModule::doInstall()
 	aboutAction->setParent(mainWindow);
 	versionInfoAction->setParent(mainWindow);
 	systemOpenAction->setParent(mainWindow);
-	pvsGenAction->setParent(mainWindow);
 
 	fileMenu->addAction(fileOpenAction);
 	fileMenu->addAction(fileCloseAction);
@@ -165,7 +158,6 @@ void DefaultGUIModule::doInstall()
 	helpMenu->addAction(aboutQtAction);
 	helpMenu->addAction(aboutAction);
 	helpMenu->addAction(versionInfoAction);
-	toolsMenu->addAction(pvsGenAction);
 
 	toolBar->addAction(fileOpenAction);
 	toolBar->addAction(fileSaveAction);
@@ -258,7 +250,6 @@ void DefaultGUIModule::doUninstall()
 	aboutQtAction->setParent(NULL);
 	aboutAction->setParent(NULL);
 	versionInfoAction->setParent(NULL);
-	pvsGenAction->setParent(NULL);
 
 	fileMenu->removeAction(fileOpenAction);
 	fileMenu->removeAction(fileCloseAction);
@@ -269,7 +260,6 @@ void DefaultGUIModule::doUninstall()
 	helpMenu->removeAction(aboutQtAction);
 	helpMenu->removeAction(aboutAction);
 	helpMenu->removeAction(versionInfoAction);
-	toolsMenu->removeAction(pvsGenAction);
 
 	toolBar->removeAction(fileOpenAction);
 	toolBar->removeAction(fileSaveAction);
@@ -382,13 +372,6 @@ void DefaultGUIModule::onFileSaveAs(bool checked)
 		File file(fname.toLocal8Bit().constData());
 		dfile->saveTo(file);
 	}
-}
-
-
-void DefaultGUIModule::onPVSGeneration(bool checked)
-{
-	PVSDialog dialog(mainWindow);
-	dialog.exec();
 }
 
 

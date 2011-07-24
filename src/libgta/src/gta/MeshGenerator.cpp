@@ -22,7 +22,7 @@
 
 #include "MeshGenerator.h"
 #include <cmath>
-#include "Submesh.h"
+#include "resource/mesh/Submesh.h"
 
 
 void MeshGenerator::createBox(float*& vertices, int& vertexCount, uint32_t*& indices, int& indexCount,

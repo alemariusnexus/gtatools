@@ -19,7 +19,9 @@
 # GPLADDITIONS.
 
 
-SET(FILES CollisionMeshIndexer CollisionMeshCacheEntry CollisionMeshCacheLoader)
+SET(FILES
+    CollisionMeshIndexer CollisionMeshCacheEntry CollisionMeshCacheLoader COLBulletConverter
+    CollisionShapePointer COLMeshConverter ManagedCollisionShapePointer)
 
 FOREACH(FILE ${FILES})
     SET(SRCS ${SRCS} "gta/resource/collision/${FILE}")

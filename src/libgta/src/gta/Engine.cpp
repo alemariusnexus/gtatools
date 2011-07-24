@@ -33,6 +33,7 @@
 #include "scene/Scene.h"
 #include "GLException.h"
 #include "EngineException.h"
+#include "DefaultRenderer.h"
 #include <gtaformats/util/File.h>
 #include <gtaformats/util/strutil.h>
 #include <gtaformats/util/util.h>
@@ -46,6 +47,7 @@ using std::streamoff;
 using std::find;
 using std::set;
 using std::map;
+using std::multimap;
 
 
 Engine* Engine::instance = NULL;
@@ -54,7 +56,7 @@ Engine* Engine::instance = NULL;
 
 struct IndexedSceneObject
 {
-	DefaultSceneObject* obj;
+	StaticSceneObject* obj;
 	bool topLevel;
 	int32_t saLodIndex;
 	char* vcModelName;
@@ -81,7 +83,7 @@ void Engine::destroy()
 
 
 Engine::Engine()
-		: verMode(GTASA), currentShader(NULL), enableDrawing(true), gameHours(8), gameMinutes(0)
+		: verMode(GTASA), enableDrawing(true), gameHours(8), gameMinutes(0), renderer(NULL)
 {
 	meshIndexer = new MeshIndexer;
 	texIndexer = TextureIndexer::getInstance();
@@ -150,18 +152,6 @@ void Engine::clearResources()
 }
 
 
-void Engine::setCurrentShaderProgram(ShaderProgram* program)
-{
-	currentShader = program;
-
-	if (program) {
-		program->makeCurrent();
-	} else {
-		ShaderProgram::disableShaders();
-	}
-}
-
-
 void Engine::addResourceObserver(ResourceObserver* observer)
 {
 	resObservers.push_back(observer);
@@ -185,39 +175,35 @@ void Engine::render()
 {
 	GLException::checkError();
 
-	Matrix4 mvpMatrix = projectionMatrix;
-	mvpMatrix *= Matrix4::lookAt(camera->getTarget(), camera->getUp());
-	const Vector3& cpos = camera->getPosition();
-	mvpMatrix.translate(-cpos);
-
 	Scene::ObjectList visibleObjects;
 	scene->buildVisibleSceneObjectList(visibleObjects);
-
-	GLuint mvpMatrixUniform = currentShader->getUniformLocation("MVPMatrix");
 
 	Scene::ObjectIterator it;
 	Scene::ObjectIterator begin = visibleObjects.begin();
 	Scene::ObjectIterator end = visibleObjects.end();
 
 	for (it = begin ; it != end ; it++) {
-		DefaultSceneObject* obj = *it;
+		StaticSceneObject* obj = *it;
 
 		if (obj->isVisible()) {
-			obj->render(mvpMatrix, mvpMatrixUniform);
-			physicsWorld->addRigidBody(obj->getRigidBody());
+			renderer->enqueueForRendering(obj);
+			//obj->render(mvpMatrix, mvpMatrixUniform);
+			//physicsWorld->addRigidBody(obj->getRigidBody());
 		}
 	}
 
-	physicsWorld->stepSimulation(1.0f/60.0f, 10);
-	physicsWorld->debugDrawWorld();
+	renderer->render();
 
-	for (it = begin ; it != end ; it++) {
+	//physicsWorld->stepSimulation(1.0f/60.0f, 10);
+	//physicsWorld->debugDrawWorld();
+
+	/*for (it = begin ; it != end ; it++) {
 		DefaultSceneObject* obj = *it;
 
 		if (obj->isVisible()) {
 			physicsWorld->removeRigidBody(obj->getRigidBody());
 		}
-	}
+	}*/
 }
 
 
@@ -315,7 +301,7 @@ void Engine::iplRecurse(File* file, const File& rootDir)
 				delete[] baseName;
 			}
 
-			map<hash_t, IndexedSceneObject*> vcLocalObjs;
+			multimap<hash_t, IndexedSceneObject*> vcLocalObjs;
 			vector<IndexedSceneObject*> saLocalObjs;
 			int iplIdx = 0;
 
@@ -332,6 +318,17 @@ void Engine::iplRecurse(File* file, const File& rootDir)
 					switch (iplStmt->getType()) {
 					case IPL_TYPE_INSTANCE:
 						IPLInstance* inst = (IPLInstance*) iplStmt;
+
+						if (	inst->getInterior() != 0
+								&&  inst->getInterior() != 13
+								&&  (verMode != GTASA  ||  inst->getInterior() < 256)
+						) {
+							if (verMode == GTASA) {
+								saLocalObjs.push_back(NULL);
+							}
+							break;
+						}
+
 						int32_t id = inst->getID();
 						ItemManager* itemMgr = ItemManager::getInstance();
 						MapItemDefinition* def = (MapItemDefinition*) itemMgr->getItem(id);
@@ -372,7 +369,7 @@ void Engine::iplRecurse(File* file, const File& rootDir)
 
 								IndexedSceneObject* iobj = new IndexedSceneObject;
 								iobj->topLevel = true;
-								DefaultSceneObject* obj = new DefaultSceneObject(def, modelMatrix, NULL);
+								StaticSceneObject* obj = new StaticSceneObject(def, modelMatrix, NULL);
 								iobj->obj = obj;
 
 								if (verMode == GTASA) {
@@ -380,7 +377,11 @@ void Engine::iplRecurse(File* file, const File& rootDir)
 									saLocalObjs.push_back(iobj);
 								} else if (verMode == GTAVC) {
 									iobj->vcModelName = lModelName;
-									vcLocalObjs[Hash(iobj->vcModelName)] = iobj;
+									//vcLocalObjs[Hash(iobj->vcModelName)] = iobj;
+
+									vcLocalObjs.insert(pair<hash_t, IndexedSceneObject*>(
+											Hash(iobj->vcModelName), iobj));
+
 									if (
 												iobj->vcModelName[0] == 'l'
 											&&  iobj->vcModelName[1] == 'o'
@@ -418,7 +419,7 @@ void Engine::iplRecurse(File* file, const File& rootDir)
 					IndexedSceneObject* iobj = *it;
 
 					if (iobj) {
-						DefaultSceneObject* obj = iobj->obj;
+						StaticSceneObject* obj = iobj->obj;
 						if (iobj->saLodIndex != -1) {
 							if ((uint32_t) iobj->saLodIndex >= saLocalObjs.size()) {
 								printf("ERROR: LOD index out of bounds: %d\n", iobj->saLodIndex);
@@ -431,7 +432,7 @@ void Engine::iplRecurse(File* file, const File& rootDir)
 									// It is possible that two IPL objects point to the same (yes, the SAME, not
 									// two equal ones) LOD parent. We'll handle this by making a copy of the
 									// parent (having the same object rendered twice confuses the engine).
-									DefaultSceneObject* lodParentCopy = new DefaultSceneObject(*lodParent->obj);
+									StaticSceneObject* lodParentCopy = new StaticSceneObject(*lodParent->obj);
 									lodParentCopy->setModelMatrix(obj->getModelMatrix());
 									obj->setLODParent(lodParentCopy);
 								} else {
@@ -461,13 +462,49 @@ void Engine::iplRecurse(File* file, const File& rootDir)
 					IndexedSceneObject* iobj = it->second;
 
 					if (iobj  &&  iobj->topLevel) {
-						DefaultSceneObject* obj = iobj->obj;
+						StaticSceneObject* obj = iobj->obj;
 						iobj->vcModelName[0] = 'l';
 						iobj->vcModelName[1] = 'o';
 						iobj->vcModelName[2] = 'd';
 
-						map<hash_t, IndexedSceneObject*>::iterator parentIt
-								= vcLocalObjs.find(Hash(iobj->vcModelName));
+						pair<map<hash_t, IndexedSceneObject*>::iterator,
+								map<hash_t, IndexedSceneObject*>::iterator > parentRange
+								= vcLocalObjs.equal_range(Hash(iobj->vcModelName));
+
+						map<hash_t, IndexedSceneObject*>::iterator nearestParentIt = vcLocalObjs.end();
+						map<hash_t, IndexedSceneObject*>::iterator parentIt;
+
+						if (parentRange.first != parentRange.second) {
+							parentIt = parentRange.first;
+
+							if (++parentIt == parentRange.second) {
+								// Only one possible parent
+								nearestParentIt = parentRange.first;
+							} else {
+								// Multiple possible parents. This happens when there are multiple IPL entries
+								// using the same mesh name. We'll choose the right parent as being the one
+								// which is nearest to the child.
+
+								float nearestDist;
+								parentIt = parentRange.first;
+								for (; parentIt != parentRange.second ; parentIt++) {
+									IndexedSceneObject* piobj = parentIt->second;
+									const float* mmat = obj->getModelMatrix().toArray();
+									const float* pmmat = piobj->obj->getModelMatrix().toArray();
+									float xd = pmmat[12] - mmat[12];
+									float yd = pmmat[13] - mmat[13];
+									float zd = pmmat[14] - mmat[14];
+									float dist = sqrtf(xd*xd + yd*yd + zd*zd);
+
+									if (parentIt == parentRange.first  ||  dist < nearestDist) {
+										nearestDist = dist;
+										nearestParentIt = parentIt;
+									}
+								}
+							}
+						}
+
+						parentIt = nearestParentIt;
 
 						if (parentIt != vcLocalObjs.end()) {
 							IndexedSceneObject* lodParent = parentIt->second;
@@ -477,8 +514,8 @@ void Engine::iplRecurse(File* file, const File& rootDir)
 									// It is possible that two IPL objects point to the same (yes, the SAME, not
 									// two equal ones) LOD parent. We'll handle this by making a copy of the
 									// parent (having the same object rendered twice confuses the engine).
-									DefaultSceneObject* lodParentCopy = new DefaultSceneObject(*lodParent->obj);
-									lodParentCopy->setModelMatrix(obj->getModelMatrix());
+									StaticSceneObject* lodParentCopy = new StaticSceneObject(*lodParent->obj);
+									//lodParentCopy->setModelMatrix(obj->getModelMatrix());
 									obj->setLODParent(lodParentCopy);
 								} else {
 									obj->setLODParent(lodParent->obj);

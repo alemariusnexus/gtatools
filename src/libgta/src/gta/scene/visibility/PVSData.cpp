@@ -1,8 +1,23 @@
 /*
- * PVSData.cpp
- *
- *  Created on: 20.03.2011
- *      Author: alemariusnexus
+	Copyright 2010-2011 David "Alemarius Nexus" Lerch
+
+	This file is part of libgta.
+
+	libgta is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	libgta is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with libgta.  If not, see <http://www.gnu.org/licenses/>.
+
+	Additional permissions are granted, which are listed in the file
+	GPLADDITIONS.
  */
 
 #include "PVSData.h"
@@ -20,8 +35,7 @@ using std::find;
 
 
 PVSData::PVSData(Scene* scene)
-		//: scene(scene), sectSizeX(250.0f), sectSizeY(250.0f), sectSizeZ(2000.0f)
-		: scene(scene), sectSizeX(500.0f), sectSizeY(500.0f), sectSizeZ(2000.0f)
+		: scene(scene), sectSizeX(250.0f), sectSizeY(250.0f), sectSizeZ(2000.0f)
 {
 }
 
@@ -43,7 +57,7 @@ void PVSData::build()
 	Scene::ObjectIterator it;
 
 	for (it = scene->getSceneObjectBegin() ; it != scene->getSceneObjectEnd() ; it++) {
-		DefaultSceneObject* object = *it;
+		StaticSceneObject* object = *it;
 		const float* mat = object->getModelMatrix().toArray();
 
 		float ox = mat[12];
@@ -101,8 +115,8 @@ void PVSData::build()
 		PVSSection* sect = sections[i];
 
 		for (it = scene->getSceneObjectBegin() ; it != scene->getSceneObjectEnd() ; it++) {
-			DefaultSceneObject* obj = *it;
-			DefaultSceneObject* baseObj = obj;
+			StaticSceneObject* obj = *it;
+			StaticSceneObject* baseObj = obj;
 
 			while (obj) {
 				const float* mat = obj->getModelMatrix().toArray();
@@ -150,7 +164,7 @@ PVSSection* PVSData::findSection(float x, float y, float z)
 }
 
 
-void PVSData::queryPVS(float x, float y, float z, vector<DefaultSceneObject*>& pvs)
+void PVSData::queryPVS(float x, float y, float z, list<StaticSceneObject*>& pvs)
 {
 	PVSSection* sect = findSection(x, y, z);
 
@@ -160,117 +174,6 @@ void PVSData::queryPVS(float x, float y, float z, vector<DefaultSceneObject*>& p
 		pvs.resize(sect->getPVSObjectCount());
 		copy(sect->getPVSObjectBegin(), sect->getPVSObjectEnd(), pvs.begin());
 	}
-}
-
-
-void PVSData::serialize(ostream* out)
-{
-	uint32_t version = PVS_VERSION_DEVELOPMENT;
-
-	char header[] = "GPVS";
-	out->write(header, 4);
-	out->write((char*) &version, 4);
-	out->write((char*) &numSects, 4);
-
-	uint64_t hash = scene->getSceneObjectCount();
-
-	out->write((char*) &hash, 8);
-
-	for (int i = 0 ; i < numSects ; i++) {
-		PVSSection* sect = sections[i];
-
-		float x1, y1, z1, x2, y2, z2;
-		sect->getFirstCorner(x1, y1, z1);
-		sect->getSecondCorner(x2, y2, z2);
-		out->write((char*) &x1, 4);
-		out->write((char*) &y1, 4);
-		out->write((char*) &z1, 4);
-		out->write((char*) &x2, 4);
-		out->write((char*) &y2, 4);
-		out->write((char*) &z2, 4);
-		size_type numObjs = sect->getPVSObjectCount();
-		out->write((char*) &numObjs, 4);
-
-		PVSSection::ObjectIterator it;
-
-		for (it = sect->getPVSObjectBegin() ; it != sect->getPVSObjectEnd() ; it++) {
-			DefaultSceneObject* obj = *it;
-			int id = obj->getID();
-			out->write((char*) &id, 4);
-		}
-	}
-}
-
-
-void PVSData::serialize(const File& file)
-{
-	ofstream out(file.getPath()->toString(), ofstream::binary);
-	serialize(&out);
-}
-
-
-bool PVSData::unserialize(istream* in)
-{
-	char header[4];
-	in->read(header, 4);
-
-	if (strncmp(header, "GPVS", 4) != 0) {
-		return false;
-	}
-
-	uint32_t version;
-	in->read((char*) &version, 4);
-
-	if (version != PVS_VERSION_DEVELOPMENT) {
-		return false;
-	}
-
-	in->read((char*) &numSects, 4);
-
-	uint64_t hash = scene->getSceneObjectCount();
-
-	uint64_t savedHash;
-	in->read((char*) &savedHash, 8);
-
-	if (hash != savedHash) {
-		return false;
-	}
-
-	sections = new PVSSection*[numSects];
-
-	for (int i = 0 ; i < numSects ; i++) {
-		float x1, y1, z1, x2, y2, z2;
-		in->read((char*) &x1, 4);
-		in->read((char*) &y1, 4);
-		in->read((char*) &z1, 4);
-		in->read((char*) &x2, 4);
-		in->read((char*) &y2, 4);
-		in->read((char*) &z2, 4);
-
-		PVSSection* sect = new PVSSection(x1, y1, z1, x2, y2, z2);
-		sections[i] = sect;
-
-		int numObjs;
-		in->read((char*) &numObjs, 4);
-
-		for (int j = 0 ; j < numObjs ; j++) {
-			int id;
-			in->read((char*) &id, 4);
-			DefaultSceneObject* obj = scene->getObjectByID(id);
-			sect->addPotentiallyVisibleObject(obj);
-		}
-	}
-
-	return true;
-}
-
-
-bool PVSData::unserialize(const File& file)
-{
-	istream* in = file.openInputStream(istream::binary);
-	bool retval = unserialize(in);
-	delete in;
-	return retval;
 }
 
 

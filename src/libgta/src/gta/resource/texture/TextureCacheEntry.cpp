@@ -30,10 +30,10 @@ using std::pair;
 
 
 TextureCacheEntry::TextureCacheEntry(TextureArchive* archive)
-		: size(0), parent(0)
+		: size(0)
 {
 	if (archive->getParent()) {
-		parent = archive->getParent()->getName();
+		parentPtr = archive->getParent()->getCachePointer();
 	}
 }
 
@@ -42,32 +42,31 @@ TextureCacheEntry::~TextureCacheEntry()
 {
 	TextureMap::iterator it;
 	for (it = texMap.begin() ; it != texMap.end() ; it++) {
-		glDeleteTextures(1, &it->second);
+		delete it->second;
 	}
 }
 
 
-void TextureCacheEntry::addTexture(hash_t name, GLuint tex, cachesize_t size)
+void TextureCacheEntry::addTexture(hash_t name, Texture* tex)
 {
-	texMap.insert(pair<hash_t, GLuint>(name, tex));
-	this->size += size;
+	texMap.insert(pair<hash_t, Texture*>(name, tex));
+	this->size += tex->getSize();
 }
 
 
-GLuint TextureCacheEntry::getTexture(hash_t texName) const
+Texture* TextureCacheEntry::getTexture(hash_t texName)
 {
 	TextureMap::const_iterator it = texMap.find(texName);
 
 	if (it == texMap.end()) {
-		if (parent != 0) {
-			TextureCacheEntry* entry = (TextureCacheEntry*)
-					Engine::getInstance()->getTextureCache()->getEntry(parent);
+		if (parentPtr.isValid()) {
+			TextureCacheEntry* entry = (TextureCacheEntry*) parentPtr.getEntry();
 
 			if (entry) {
 				return entry->getTexture(texName);
 			}
 		}
-		return 0;
+		return NULL;
 	}
 
 	return it->second;
