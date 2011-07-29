@@ -27,9 +27,15 @@
 #include "Shader.h"
 #include "ShaderProgram.h"
 #include "scene/StaticSceneObject.h"
+#include "GLException.h"
+#include "gl.h"
 #include <list>
 
 using std::list;
+
+
+
+
 
 
 

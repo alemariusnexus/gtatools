@@ -1,0 +1,12 @@
+Here are the dependencies for gtatools-test:
+
+
+Required:
+	- OpenGL: At least version 2.1 including GLU is needed
+	- GLEW: The OpenGL Extension Wrangler library
+	- libgtaformats from the gtatools project
+	- libgta from the gtatools project
+	- SDL: Version 1.2 is needed
+
+Optional:
+	- libsquish: See dependencies of libgta for more information

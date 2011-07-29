@@ -43,5 +43,6 @@ void gtaglInit();
 bool gtaglIsExtensionSupported(const char* extension);
 bool gtaglIsVersionSupported(int major, int minor);
 void gtaglGetVersion(int& major, int& minor);
+const char* gtaglGetSupportedExtensions();
 
 #endif /* GL_H_ */

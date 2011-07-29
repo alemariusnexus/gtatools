@@ -23,7 +23,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 PROJECT(prj-gta C CXX)
 
 INCLUDE(CheckSymbolExists)
-INCLUDE(ResourceCompiler.cmake)
+INCLUDE(../../ResourceCompiler.cmake)
 
 ADD_SUBDIRECTORY(gta)
 
@@ -124,28 +124,31 @@ ENDIF(APPLE)
 
 SET(INCLUDES ${INCLUDES} "${CMAKE_CURRENT_BINARY_DIR}")
 
+MESSAGE("${INCLUDES}")
+
 INCLUDE_DIRECTORIES(${INCLUDES})
-
-CREATE_RESOURCE(gta/shaders/glsl140/vertex_default.glsl vertex_default_shader)
-CREATE_RESOURCE(gta/shaders/glsl140/fragment_default.glsl fragment_default_shader)
-
-CREATE_RESOURCE(gta/shaders/glsl140/vertex_dc.glsl vertex_dc_shader)
-CREATE_RESOURCE(gta/shaders/glsl140/fragment_dc.glsl fragment_dc_shader)
-
-CREATE_RESOURCE(gta/shaders/glsl140/shade_vertex.glsl shade_vertex_shader)
-CREATE_RESOURCE(gta/shaders/glsl140/shade_fragment.glsl shade_fragment_shader)
-
-CREATE_RESOURCE(gta/shaders/glsl140/dp_blend_layer_vertex.glsl dp_blend_layer_vertex_shader)
-CREATE_RESOURCE(gta/shaders/glsl140/dp_blend_layer_fragment.glsl dp_blend_layer_fragment_shader)
-
-CREATE_RESOURCE(gta/shaders/glsl140/dp_blend_final_vertex.glsl dp_blend_final_vertex_shader)
-CREATE_RESOURCE(gta/shaders/glsl140/dp_blend_final_fragment.glsl dp_blend_final_fragment_shader)
-
-CREATE_RESOURCE(gta/shaders/glsl140/wavg_vertex.glsl wavg_vertex_shader)
-CREATE_RESOURCE(gta/shaders/glsl140/wavg_fragment.glsl wavg_fragment_shader)
-
-CREATE_RESOURCE(gta/shaders/glsl140/wavg_final_vertex.glsl wavg_final_vertex_shader)
-CREATE_RESOURCE(gta/shaders/glsl140/wavg_final_fragment.glsl wavg_final_fragment_shader)
+FOREACH(_GLSL_VER glsl110 glsl140)
+    CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/vertex_default.glsl ${_GLSL_VER}_vertex_default_shader)
+    CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/fragment_default.glsl ${_GLSL_VER}_fragment_default_shader)
+    
+    CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/shade_vertex.glsl ${_GLSL_VER}_shade_vertex_shader)
+    CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/shade_fragment.glsl ${_GLSL_VER}_shade_fragment_shader)
+    
+    CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/depth_peeling/peel_layer_vertex.glsl ${_GLSL_VER}_dp_peel_layer_vertex_shader)
+    CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/depth_peeling/peel_layer_fragment.glsl ${_GLSL_VER}_dp_peel_layer_fragment_shader)
+    
+    CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/depth_peeling/blend_layer_vertex.glsl ${_GLSL_VER}_dp_blend_layer_vertex_shader)
+    CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/depth_peeling/blend_layer_fragment.glsl ${_GLSL_VER}_dp_blend_layer_fragment_shader)
+    
+    CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/depth_peeling/blend_final_vertex.glsl ${_GLSL_VER}_dp_blend_final_vertex_shader)
+    CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/depth_peeling/blend_final_fragment.glsl ${_GLSL_VER}_dp_blend_final_fragment_shader)
+    
+    CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/weighted_average/vertex.glsl ${_GLSL_VER}_wavg_vertex_shader)
+    CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/weighted_average/fragment.glsl ${_GLSL_VER}_wavg_fragment_shader)
+    
+    CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/weighted_average/final_vertex.glsl ${_GLSL_VER}_wavg_final_vertex_shader)
+    CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/weighted_average/final_fragment.glsl ${_GLSL_VER}_wavg_final_fragment_shader)
+ENDFOREACH(_GLSL_VER glsl110 glsl140)
 
 ADD_LIBRARY(gta STATIC ${SRCS})
 TARGET_LINK_LIBRARIES(gta ${LIBRARIES})
