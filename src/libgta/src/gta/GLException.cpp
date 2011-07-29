@@ -52,7 +52,7 @@ void GLException::checkError(const char* msg)
 			sprintf(errname, "GL_OUT_OF_MEMORY");
 			break;
 		default:
-			sprintf(errname, "[UNKNOWN]");
+			sprintf(errname, "[UNKNOWN: 0x%X]", error);
 		}
 
 		char* errmsg = new char[128+strlen(msg)];
@@ -86,7 +86,7 @@ void GLException::checkError(const char* msg)
 			sprintf(errname, "table too large");
 			break;
 		default:
-			sprintf(errname, "[UNKNOWN]");
+			sprintf(errname, "[UNKNOWN: 0x%X]", error);
 		}
 		
 

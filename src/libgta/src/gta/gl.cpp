@@ -92,3 +92,9 @@ void gtaglGetVersion(int& major, int& minor)
 	major = majorVersion;
 	minor = minorVersion;
 }
+
+
+const char* gtaglGetSupportedExtensions()
+{
+	return (const char*) glGetString(GL_EXTENSIONS);
+}
