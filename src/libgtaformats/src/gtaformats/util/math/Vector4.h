@@ -58,6 +58,11 @@ struct Vec4I32
 
 class Vector4
 {
+public:
+	static const Vector4 Zero;
+	static const Vector4 UnitX, UnitY, UnitZ;
+	static const Vector4 NegativeUnitX, NegativeUnitY, NegativeUnitZ;
+
 private:
 	friend class Vector3;
 

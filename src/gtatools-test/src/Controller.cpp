@@ -35,14 +35,76 @@
 #include <cstdio>
 #include <btBulletDynamicsCommon.h>
 #include <gtaformats/gtadff.h>
+#include <gta/resource/mesh/ManagedMeshPointer.h>
 #include <gta/resource/texture/ManagedTextureSource.h>
+#include <gta/resource/texture/NullTextureSource.h>
 #include <gta/resource/mesh/StaticMeshPointer.h>
+#include <gta/scene/StaticSceneObject.h>
+#include <gta/StaticMapItemDefinition.h>
 #include <gta/ItemManager.h>
 #include <gta/DefaultRenderer.h>
 #include <gta/resource/texture/TextureIndexer.h>
 #include <gta/resource/texture/TextureArchive.h>
+#include <gtaformats/util/math/Quaternion.h>
+#include <gta/MeshGenerator.h>
+#include <gtaformats/ifp/IFPAnimation.h>
+#include <gtaformats/ifp/IFPFrame.h>
+#include <gtaformats/ifp/IFPLoader.h>
+#include <gtaformats/ifp/IFPObject.h>
+#include <gtaformats/ifp/IFPRootFrame.h>
+#include <gtaformats/util/Exception.h>
+#include <CEGUI/CEGUI.h>
+#include <gta/ceguigl2/CEGUIGL2Renderer.h>
+
+using CEGUI::UDim;
+using CEGUI::UVector2;
 
 
+
+struct SDLCEGUIKeyMapping
+{
+	SDLKey sk;
+	uint ck;
+};
+
+struct SDLCEGUIMouseButtonMapping
+{
+	Uint8 sb;
+	CEGUI::MouseButton cb;
+};
+
+
+const SDLCEGUIKeyMapping SDLCEGUIKeyMap[] = {
+		{SDLK_LSHIFT, CEGUI::Key::LeftShift},
+		{SDLK_RSHIFT, CEGUI::Key::RightShift},
+		{SDLK_LCTRL, CEGUI::Key::LeftControl},
+		{SDLK_RCTRL, CEGUI::Key::RightControl},
+		{SDLK_LALT, CEGUI::Key::LeftAlt},
+		{SDLK_RALT, CEGUI::Key::RightAlt},
+		{SDLK_CAPSLOCK, CEGUI::Key::Capital},
+		//{SDLK_MODE, CEGUI::Key::},		???
+		{SDLK_MENU, CEGUI::Key::AppMenu},
+		{SDLK_RETURN, CEGUI::Key::Return},
+		{SDLK_BACKSPACE, CEGUI::Key::Backspace},
+		{SDLK_DELETE, CEGUI::Key::Delete},
+		{SDLK_INSERT, CEGUI::Key::Insert},
+		{SDLK_HOME, CEGUI::Key::Home},
+		{SDLK_END, CEGUI::Key::End},
+		{SDLK_PAGEUP, CEGUI::Key::PageUp},
+		{SDLK_PAGEDOWN, CEGUI::Key::PageDown},
+		{SDLK_LEFT, CEGUI::Key::ArrowLeft},
+		{SDLK_RIGHT, CEGUI::Key::ArrowRight},
+		{SDLK_UP, CEGUI::Key::ArrowUp},
+		{SDLK_DOWN, CEGUI::Key::ArrowDown},
+		{SDLK_TAB, CEGUI::Key::Tab},
+		{SDLK_SPACE, CEGUI::Key::Space}
+};
+
+const SDLCEGUIMouseButtonMapping SDLCEGUIMouseButtonMap[] = {
+		{SDL_BUTTON_LEFT, CEGUI::LeftButton},
+		{SDL_BUTTON_RIGHT, CEGUI::RightButton},
+		{SDL_BUTTON_MIDDLE, CEGUI::MiddleButton}
+};
 
 
 
@@ -54,6 +116,109 @@
 
 
 
+struct FrameMesh
+{
+	int vcount, icount;
+	float* vertices;
+	uint32_t* indices;
+};
+
+
+StaticSceneObject* generateFrameMesh(DFFFrame* frame, Matrix4 mm)
+{
+	if (!frame->getBone())
+		return NULL;
+
+	MeshGenerator gen;
+
+	FrameMesh fmesh;
+	gen.createSphere(fmesh.vertices, fmesh.vcount, fmesh.indices, fmesh.icount, 1.0f, 4, 3);
+
+	Mesh* mesh = new Mesh(fmesh.vcount, VertexFormatTriangles, 0, fmesh.vertices);
+
+	Submesh* submesh = new Submesh(mesh, fmesh.icount, fmesh.indices);
+	Material* mat = new Material;
+	mat->setColor(255, 0, 0, 255);
+	mesh->addMaterial(mat);
+	submesh->setMaterial(mat);
+	mesh->addSubmesh(submesh);
+
+	StaticMeshPointer* meshPtr = new StaticMeshPointer(mesh);
+	NullTextureSource* texSrc = new NullTextureSource;
+
+	StaticMapItemDefinition* def = new StaticMapItemDefinition(meshPtr, texSrc, NULL, 100.0f);
+
+	StaticSceneObject* obj = new StaticSceneObject(def, mm, NULL);
+
+	return obj;
+}
+
+
+struct BoneObject
+{
+	StaticSceneObject* obj;
+	Matrix4 mm;
+	int32_t frameCount;
+	bool rootFrames;
+	IFPFrame** frames;
+};
+
+
+map<int32_t, BoneObject> BoneObjs;
+
+
+void frameRecurse(DFFFrame* frame, Matrix4 mm = Matrix4())
+{
+	Scene* scene = Engine::getInstance()->getScene();
+
+	for (DFFFrame::ChildIterator it = frame->getChildBegin() ; it != frame->getChildEnd() ; it++) {
+		DFFFrame* cframe = *it;
+
+		Matrix4 cmm = mm * Matrix4::translation(frame->getTranslation() * 20.0f) * frame->getRotation();
+
+		StaticSceneObject* obj = generateFrameMesh(cframe, cmm);
+
+		if (obj) {
+			if (frame->getBone()) {
+				BoneObject bobj;
+				bobj.obj = obj;
+				bobj.mm = cmm;
+				bobj.frameCount = 0;
+				bobj.frames = NULL;
+				bobj.rootFrames = false;
+				BoneObjs[frame->getBone()->getIndex()] = bobj;
+			}
+
+			scene->addSceneObject(obj);
+		}
+
+		frameRecurse(cframe, cmm);
+	}
+}
+
+
+void debugFrame(DFFFrame* frame, int depth)
+{
+	for (int i = 0 ; i < depth ; i++)
+		printf("  ");
+
+	printf("%s", frame->getName() ? frame->getName() : "[Unnamed]");
+
+	if (frame->getBone()) {
+		DFFBone* bone = frame->getBone();
+		printf(" [Bone Index %d]", bone->getIndex());
+	} else {
+		printf(" [Boneless]");
+	}
+
+	printf("\n");
+
+	for (DFFFrame::ChildIterator it = frame->getChildBegin() ; it != frame->getChildEnd() ; it++) {
+		DFFFrame* child = *it;
+		debugFrame(child, depth+1);
+	}
+}
+
 
 
 Controller::Controller()
@@ -63,6 +228,8 @@ Controller::Controller()
 		  forceStatisticsUpdate(false)
 {
 }
+
+
 
 
 void Controller::init()
@@ -89,24 +256,75 @@ void Controller::init()
 #endif
 	glLineWidth(2.0f);
 
-
-	printf("Initializing scene...\n");
-
 	gtaglInit();
 
-	const char* exts = gtaglGetSupportedExtensions();
-	char* extCpy = new char[strlen(exts)+1];
-	strcpy(extCpy, exts);
 
-	printf("***** SUPPORTED EXTENSIONS *****\n");
+	printf("Initializing CEGUI...\n");
 
-	char* ext = strtok(extCpy, " ");
-	while (ext) {
-		printf("%s\n", ext);
-		ext = strtok(NULL, " ");
-	}
+	//CEGUI::OpenGLRenderer& ceguiRenderer = CEGUI::OpenGLRenderer::bootstrapSystem();
+	CEGUIGL2Renderer& ceguiRenderer = CEGUIGL2Renderer::bootstrapSystem();
 
-	printf("***** END SUPPORTED EXTENSIONS *****\n");
+	printf("CEGUI Renderer: %s\n", ceguiRenderer.getIdentifierString().c_str());
+
+	CEGUI::DefaultResourceProvider* resProv = (CEGUI::DefaultResourceProvider*)
+			CEGUI::System::getSingleton().getResourceProvider();
+
+	resProv->setResourceGroupDirectory("schemes", "./CEGUI/schemes");
+	resProv->setResourceGroupDirectory("imagesets", "./CEGUI/imagesets");
+	resProv->setResourceGroupDirectory("fonts", "./CEGUI/fonts");
+	resProv->setResourceGroupDirectory("layouts", "./CEGUI/layouts");
+	resProv->setResourceGroupDirectory("looknfeels", "./CEGUI/looknfeel");
+	resProv->setResourceGroupDirectory("lua_scripts", "./CEGUI/lua_scripts");
+
+	CEGUI::Scheme::setDefaultResourceGroup("schemes");
+	CEGUI::Imageset::setDefaultResourceGroup("imagesets");
+	CEGUI::Font::setDefaultResourceGroup("fonts");
+	CEGUI::WindowManager::setDefaultResourceGroup("layouts");
+	CEGUI::WidgetLookManager::setDefaultResourceGroup("looknfeels");
+	CEGUI::ScriptModule::setDefaultResourceGroup("lua_scripts");
+
+	CEGUI::SchemeManager::getSingleton().create("TaharezLook.scheme");
+
+	CEGUI::System::getSingleton().setDefaultMouseCursor("TaharezLook", "MouseArrow");
+
+	lastCEGUITime = GetTickcount();
+
+
+	CEGUI::WindowManager& wmgr = CEGUI::WindowManager::getSingleton();
+
+	CEGUI::Window* rootWin = wmgr.loadWindowLayout("Demo8.layout");
+	rootWin->setMousePassThroughEnabled(true);
+	CEGUI::System::getSingleton().setGUISheet(rootWin);
+
+	CEGUI::Window* win = wmgr.getWindow("Demo8");
+	win->setMousePassThroughEnabled(true);
+
+	/*CEGUI::Window* rootWin = wmgr.createWindow("DefaultWindow", "root");
+	rootWin->setMousePassThroughEnabled(true);
+	CEGUI::System::getSingleton().setGUISheet(rootWin);
+
+
+	CEGUI::FrameWindow* navWindow = (CEGUI::FrameWindow*)
+			wmgr.createWindow("TaharezLook/FrameWindow", "navWindow");
+	navWindow->setText("Hallo Welt!");
+	navWindow->setPosition(UVector2(UDim(0.59f, 0), UDim(0.01f, 0)));
+	navWindow->setSize(UVector2(UDim(0.4f, 0), UDim(0.3f, 0)));
+	rootWin->addChildWindow(navWindow);*/
+
+	/*CEGUI::Window* moveText = wmgr.createWindow("TaharezLook/StaticText");
+	moveText->setText("Move Factor");
+	moveText->setPosition(UVector2(UDim(0.0f, 0), UDim(0.0f, 0)));
+	moveText->setSize(UVector2(UDim(0.5f, 0), UDim(0, 50)));
+	moveText->setProperty("FrameEnabled", "False");
+	moveText->setProperty("BackgroundEnabled", "False");
+	navWindow->addChildWindow(moveText);*/
+
+	//CEGUI::Spinner* moveSpinner = (CEGUI::Spinner*) wmgr.createWindow("TaharezLook/Spinner");
+	//navWindowLayout->addChildWindow(moveSpinner);
+
+
+
+	printf("Initializing scene...\n");
 
 	Scene* scene = new Scene;
 
@@ -122,13 +340,8 @@ void Controller::init()
 
 	GLException::checkError();
 
-	// TODO Seems to be unnecessary
-	//glEnable(GL_TEXTURE_2D);
-
-	GLException::checkError();
-
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ZERO, GL_ONE);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ZERO, GL_ONE);
 
 	GLException::checkError();
 
@@ -136,8 +349,9 @@ void Controller::init()
 	engine->getTextureCache()->resize(150 * 1000000); // 150MB
 	engine->getCollisionMeshCache()->resize(30 * 1000000);
 
+
 	printf("Loading resources...\n");
-	addResource(File(GTASA_PATH "/models/gta3.img"));
+	//addResource(File(GTASA_PATH "/models/gta3.img"));
 	//addResource(File(GTASA_PATH "/models/gta_int.img"));
 	//engine->addResource(File(GTASA_PATH ""));
 	//engine->addResource(File(GTASA_PATH "/models/generic/vehicle.txd"));
@@ -149,10 +363,103 @@ void Controller::init()
 	//debugDrawer->setDebugMode(BulletGLDebugDraw::DBG_DrawWireframe);
 
 
+	/*DFFFrame* rootFrame = new DFFFrame(new Vector3(), new Matrix3);
+
+	DFFFrame* childFrame = new DFFFrame(new Vector3(0.0f, 0.0f, 0.25f), new Matrix3);
+	rootFrame->addChild(childFrame);
+
+	DFFBone* bone = new DFFBone;
+	bone->setIndex(0);
+
+	DFFBone* cbone = new DFFBone;
+	cbone->setIndex(1);
+
+	rootFrame->setBone(bone);
+	childFrame->setBone(cbone);
+
+	IFPAnimation* anim = new IFPAnimation;
+
+	IFPObject* obj = new IFPObject;
+	obj->setFrameType(IFPObject::RootFrame);
+	obj->setBoneID(0);
+
+	IFPRootFrame* aframe1 = new IFPRootFrame(Vector3(0.0f, 0.0f, 0.0f), Quaternion(1.0f, 0.0f, 0.0f, 0.0f), 5.0f);
+	IFPRootFrame* aframe2 = new IFPRootFrame(Vector3(1.0f, 0.0f, 0.0f),
+			Quaternion::fromAxisAngle(Vector3(0.0f, -1.0f, 0.0f), M_PI_2), 5.0f);
+
+	obj->addFrame(aframe1);
+	obj->addFrame(aframe2);
+
+	anim->addObject(obj);
+
+	IFPObject* cobj = new IFPObject;
+	cobj->setFrameType(IFPObject::RootFrame);
+	cobj->setBoneID(1);
+
+	IFPRootFrame* caframe1 = new IFPRootFrame(Vector3(0.0f, 0.0f, 0.0f), Quaternion(1.0f, 0.0f, 0.0f, 0.0f), 5.0f);
+	IFPRootFrame* caframe2 = new IFPRootFrame(Vector3(0.0f, 0.0f, 1.0f), Quaternion(1.0f, 0.0f, 0.0f, 0.0f), 5.0f);
+
+	cobj->addFrame(caframe1);
+	cobj->addFrame(caframe2);
+
+	anim->addObject(cobj);
+
+	animBone = new AnimatedBone(rootFrame, anim);
+
+	cam->setPosition(0.0f, 15.0f, 2.5f);*/
+
+
+	/*DFFLoader dff;
+	//DFFMesh* mesh = dff.loadMesh(File("/home/alemariusnexus/anim/des_ufosign.dff"));
+	DFFMesh* mesh = dff.loadMesh(File("/home/alemariusnexus/anim/nt_noddonkbase.dff"));
+	//DFFMesh* mesh = dff.loadMesh(File("/home/alemariusnexus/anim/vrockpole.dff"));
+
+	debugFrame(mesh->getRootFrame(), 0);
+
+	hash_t meshHash = Hash("player");
+
+	//frameRecurse(mesh->getRootFrame(), Matrix4::rotationX(M_PI_2));
+
+	//IFPLoader ifp(File("/home/alemariusnexus/anim/countn2.ifp"));
+	IFPLoader ifp(File("/home/alemariusnexus/anim/counxref.ifp"));
+	//IFPLoader ifp(File("/home/alemariusnexus/anim/vegasn.ifp"));
+
+	IFPAnimation* anim;
+
+	while ((anim = ifp.readAnimation())  !=  NULL) {
+		//if (LowerHash(anim->getName()) == LowerHash("des_ufosign")) {
+		if (LowerHash(anim->getName()) == LowerHash("nt_noddonkbase")) {
+		//if (LowerHash(anim->getName()) == LowerHash("vrockpole")) {
+			//IFPAnimation::ObjectIterator it;
+
+			int32_t i = 0;
+			for (IFPAnimation::ObjectIterator it = anim->getObjectBegin() ; it != anim->getObjectEnd() ; it++) {
+				IFPObject* obj = *it;
+
+				float ad = 0.0f;
+
+				for (IFPObject::FrameIterator fit = obj->getFrameBegin() ; fit != obj->getFrameEnd() ; fit++) {
+					IFPFrame* frame = *fit;
+					ad += frame->getTime();
+				}
+
+				animDuration = std::max(animDuration, ad);
+			}
+
+			animBone = new AnimatedBone(mesh->getRootFrame(), anim);
+			break;
+		}
+
+		delete anim;
+	}*/
+
+	//exit(0);
+
+
 	printf("Loading DAT files...\n");
-	engine->loadDAT(File(GTASA_PATH "/data/default.dat"), File(GTASA_PATH));
+	//engine->loadDAT(File(GTASA_PATH "/data/default.dat"), File(GTASA_PATH));
 	//engine->loadDAT(File(GTASA_PATH "/data/gta.dat"), File(GTASA_PATH));
-	engine->loadDAT(File(GTASA_PATH "/data/gta_vc.dat"), File(GTASA_PATH));
+	//engine->loadDAT(File(GTASA_PATH "/data/gta_vc.dat"), File(GTASA_PATH));
 	//engine->loadDAT(File(GTASA_PATH "/data/gta3.dat"), File(GTASA_PATH));
 	//engine->loadDAT(File(GTASA_PATH "/data/test.dat"), File(GTASA_PATH));
 
@@ -179,9 +486,9 @@ void Controller::init()
 		//rigidBody->setLinearVelocity(btVector3(RandomFloat(-20.0, 20.0f), RandomFloat(-20.0f, 20.0f), RandomFloat(-20.0f, 20.0f)));
 	}
 
-	cam->setPosition(-1013.983215f, -869.982971f, 14.407437f);
+	//cam->setPosition(-1013.983215f, -869.982971f, 14.407437f);
 	//cam->setPosition(-97.538010f, -442.834442f, 0.799672f);
-	//cam->setPosition(0.0f, 0.0f, 0.0f);
+	cam->setPosition(0.0f, 0.0f, 0.0f);
 }
 
 
@@ -195,11 +502,11 @@ void Controller::reshape(int w, int h)
 	glViewport(0, 0, w, h);
 
 	if (!engine->getRenderer()) {
-		DefaultRenderer* renderer = new DefaultRenderer;
+		//DefaultRenderer* renderer = new DefaultRenderer;
 
-		renderer->setTransparencyMode(DefaultRenderer::DepthPeeling);
+		//renderer->setTransparencyMode(DefaultRenderer::DepthPeeling);
 
-		engine->setRenderer(renderer);
+		//engine->setRenderer(renderer);
 	}
 
 	float l = aspect*-0.7;
@@ -218,9 +525,14 @@ void Controller::reshape(int w, int h)
 	));
 }
 
+uint64_t animStart = 0;
+
 
 bool Controller::paint()
 {
+	uint64_t absS, absE;
+	absS = GetTickcount();
+
 	uint64_t time = GetTickcount();
 
 	Engine* engine = Engine::getInstance();
@@ -240,7 +552,44 @@ bool Controller::paint()
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	engine->render();
+
+	/*map<int32_t, BoneObject>::iterator it;
+
+	uint64_t animTime;
+	if (animStart == 0) {
+		animStart = GetTickcount();
+		animTime = animStart;
+	} else {
+		animTime = GetTickcount();
+	}
+
+	int64_t relTimeInt = animTime-animStart;
+	float relTime = (float) (relTimeInt % (int64_t) ((float) animDuration * 1000.0f)) / 1000.0f;*/
+
+	//printf("%f/%f\n", relTime, animDuration);
+
+	//animBone->render(0.0f, Matrix4::rotationX(M_PI_2));
+	//animBone->render((float) (animTime-animStart) / 1000.0f, Matrix4::rotationX(M_PI_2));
+	//animBone->render(relTime);
+
+	//engine->render();
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	glUseProgram(0);
+
+	uint64_t ceguiTime = GetTickcount();
+	CEGUI::System::getSingleton().injectTimePulse((ceguiTime-lastCEGUITime) / 1000.0f);
+	lastCEGUITime = ceguiTime;
+
+	//renderer->drawDebug();
+
+	//glFrameTerminatorGREMEDY();
+
+	CEGUI::System::getSingleton().renderGUI();
+
+	//glFrameTerminatorGREMEDY();
+
 
 	lastFrameStart = time;
 
@@ -271,14 +620,15 @@ bool Controller::paint()
 
 		char transMode[64];
 
-		switch (renderer->getTransparencyMode()) {
+		/*switch (renderer->getTransparencyMode()) {
 		case DefaultRenderer::WeightedAverage:
 			strcpy(transMode, "Weighted Average");
 			break;
 		case DefaultRenderer::DepthPeeling:
 			sprintf(transMode, "Depth Peeling (%d passes/frame)", renderer->getTransparencyPassCount());
 			break;
-		}
+		}*/
+		strcpy(transMode, "[Disabled]");
 
 		char title[128];
 		sprintf(title, WINDOW_BASE_TITLE " - %.2f FPS - MC: %.2f%% - TC: %.2f%% - %.2d:%.2d - Transparency Mode: %s",
@@ -290,6 +640,10 @@ bool Controller::paint()
 
 		forceStatisticsUpdate = false;
 	}
+
+	absE = GetTickcount();
+
+	//printf("Absolute time: %dms\n", (int) (absE-absS));
 
 	return programRunning;
 }
@@ -321,9 +675,30 @@ void Controller::addResource(const File& file)
 
 void Controller::keyPressed(SDL_keysym key)
 {
+	CEGUI::System& ceguiSys = CEGUI::System::getSingleton();
+
+	if (key.unicode != 0) {
+		if (ceguiSys.injectChar(key.unicode)) {
+			return;
+		}
+	}
+
 	Engine* engine = Engine::getInstance();
 
 	SDLKey k = key.sym;
+
+	bool consumed = false;
+
+	unsigned int keyMapSize = sizeof(SDLCEGUIKeyMap) / sizeof(SDLCEGUIKeyMap[0]);
+	for (unsigned int i = 0 ; i < keyMapSize ; i++) {
+		if (SDLCEGUIKeyMap[i].sk == k) {
+			consumed = ceguiSys.injectKeyDown(SDLCEGUIKeyMap[i].ck);
+			break;
+		}
+	}
+
+	if (consumed)
+		return;
 
 	if (k == SDLK_PLUS  ||  k == SDLK_KP_PLUS) {
 		moveFactor *= 2.0f;
@@ -388,7 +763,23 @@ void Controller::keyPressed(SDL_keysym key)
 
 void Controller::keyReleased(SDL_keysym key)
 {
-	switch (key.sym) {
+	CEGUI::System& ceguiSys = CEGUI::System::getSingleton();
+	SDLKey k = key.sym;
+
+	bool consumed = false;
+
+	unsigned int keyMapSize = sizeof(SDLCEGUIKeyMap) / sizeof(SDLCEGUIKeyMap[0]);
+	for (unsigned int i = 0 ; i < keyMapSize ; i++) {
+		if (SDLCEGUIKeyMap[i].sk == k) {
+			consumed = ceguiSys.injectKeyUp(SDLCEGUIKeyMap[i].ck);
+			break;
+		}
+	}
+
+	if (consumed)
+		return;
+
+	switch (k) {
 	case SDLK_w:
 	case SDLK_s:
 		moveForwardFactor = 0.0f;
@@ -410,6 +801,23 @@ void Controller::keyReleased(SDL_keysym key)
 
 void Controller::mouseButtonPressed(Uint8 button, Uint16 x, Uint16 y)
 {
+	CEGUI::System& ceguiSys = CEGUI::System::getSingleton();
+
+	bool consumed = false;
+
+	unsigned int buttonMapSize = sizeof(SDLCEGUIMouseButtonMap) / sizeof(SDLCEGUIMouseButtonMap[0]);
+	for (unsigned int i = 0 ; i < buttonMapSize ; i++) {
+		if (SDLCEGUIMouseButtonMap[i].sb == button) {
+			consumed = ceguiSys.injectMouseButtonDown(SDLCEGUIMouseButtonMap[i].cb);
+			break;
+		}
+	}
+
+	if (consumed)
+		return;
+
+	CEGUI::WindowManager::getSingleton().getWindow("root")->deactivate();
+
 	if (button == SDL_BUTTON_LEFT) {
 		lastMouseX = x;
 		lastMouseY = y;
@@ -419,6 +827,21 @@ void Controller::mouseButtonPressed(Uint8 button, Uint16 x, Uint16 y)
 
 void Controller::mouseButtonReleased(Uint8 button, Uint16 x, Uint16 y)
 {
+	CEGUI::System& ceguiSys = CEGUI::System::getSingleton();
+
+	bool consumed = false;
+
+	unsigned int buttonMapSize = sizeof(SDLCEGUIMouseButtonMap) / sizeof(SDLCEGUIMouseButtonMap[0]);
+	for (unsigned int i = 0 ; i < buttonMapSize ; i++) {
+		if (SDLCEGUIMouseButtonMap[i].sb == button) {
+			consumed = ceguiSys.injectMouseButtonUp(SDLCEGUIMouseButtonMap[i].cb);
+			break;
+		}
+	}
+
+	if (consumed)
+		return;
+
 	if (button == SDL_BUTTON_LEFT) {
 		lastMouseX = -1;
 		lastMouseY = -1;
@@ -428,6 +851,10 @@ void Controller::mouseButtonReleased(Uint8 button, Uint16 x, Uint16 y)
 
 void Controller::mouseMotion(Uint16 x, Uint16 y)
 {
+	CEGUI::System& ceguiSys = CEGUI::System::getSingleton();
+
+	ceguiSys.injectMousePosition(x, y);
+
 	Engine* engine = Engine::getInstance();
 	Camera* cam = engine->getCamera();
 

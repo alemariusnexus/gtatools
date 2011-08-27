@@ -134,17 +134,15 @@ void initWindowSystem(int w, int h)
 		return;
 	}
 
-	EGLint redSize, greenSize, blueSize, depthSize;
+	EGLint redSize, greenSize, blueSize, alphaSize, depthSize;
 
 	eglGetConfigAttrib(eglDisplay, config, EGL_RED_SIZE, &redSize);
 	eglGetConfigAttrib(eglDisplay, config, EGL_GREEN_SIZE, &greenSize);
 	eglGetConfigAttrib(eglDisplay, config, EGL_BLUE_SIZE, &blueSize);
+	eglGetConfigAttrib(eglDisplay, config, EGL_ALPHA_SIZE, &alphaSize);
 	eglGetConfigAttrib(eglDisplay, config, EGL_DEPTH_SIZE, &depthSize);
 
-	printf("Red: %d bits\n", redSize);
-	printf("Green: %d bits\n", greenSize);
-	printf("Blue: %d bits\n", blueSize);
-	printf("Depth: %d bits\n", depthSize);
+	printf("Framebuffer: R%d G%d B%d A%d D%d\n", redSize, greenSize, blueSize, alphaSize, depthSize);
 
 	eglSurface = eglCreateWindowSurface(eglDisplay, config, (EGLNativeWindowType) wmInfo.info.x11.window, NULL);
 
@@ -182,8 +180,7 @@ void initWindowSystem(int w, int h)
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-	//surface = SDL_SetVideoMode(w, h, info->vfmt->BitsPerPixel, videoMode | SDL_OPENGL);
-	surface = SDL_SetVideoMode(w, h, info->vfmt->BitsPerPixel, SDL_HWSURFACE | SDL_OPENGL);
+	surface = SDL_SetVideoMode(w, h, info->vfmt->BitsPerPixel, videoMode | SDL_OPENGL);
 
 	int dsize;
 	int r, g, b, a;
@@ -204,15 +201,14 @@ int main(int argc, char** argv)
 		printf("ERROR Initializing SDL\n");
 	}
 
+	SDL_EnableUNICODE(1);
+	SDL_ShowCursor(SDL_DISABLE); // We'll use the CEGUI cursor
+
 	initWindowSystem(WINDOW_WIDTH, WINDOW_HEIGHT);
 
 	SDL_WM_SetCaption(WINDOW_BASE_TITLE, NULL);
 
 	Controller renderer;
-
-	printf("Vendor: %s\n", glGetString(GL_VENDOR));
-	printf("Renderer: %s\n", glGetString(GL_RENDERER));
-	printf("Version: %s\n", glGetString(GL_VERSION));
 
 	renderer.init();
 	renderer.reshape(WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -229,8 +225,16 @@ int main(int argc, char** argv)
 		SDL_GL_SwapBuffers();
 #endif
 
+		SDL_PumpEvents();
+
+		uint64_t s, e;
+
+		SDL_Event lastMMEvt;
+		bool hasMMEvt = false;
+
 		SDL_Event evt;
-		while (SDL_PollEvent(&evt) != 0) {
+		//while (SDL_PollEvent(&evt) != 0) {
+		while (SDL_PeepEvents(&evt, 1, SDL_GETEVENT, SDL_ALLEVENTS) > 0) {
 			switch (evt.type) {
 			case SDL_KEYDOWN:
 				if (evt.key.keysym.sym == SDLK_q  &&  (evt.key.keysym.mod & KMOD_CTRL) != 0) {
@@ -250,7 +254,8 @@ int main(int argc, char** argv)
 				renderer.mouseButtonReleased(evt.button.button, evt.button.x, evt.button.y);
 				break;
 			case SDL_MOUSEMOTION:
-				renderer.mouseMotion(evt.motion.x, evt.motion.y);
+				lastMMEvt = evt;
+				hasMMEvt = true;
 				break;
 			case SDL_QUIT:
 				running = false;
@@ -265,6 +270,10 @@ int main(int argc, char** argv)
 				renderer.reshape(evt.resize.w, evt.resize.h);
 				break;
 			}
+		}
+
+		if (hasMMEvt) {
+			renderer.mouseMotion(lastMMEvt.motion.x, lastMMEvt.motion.y);
 		}
 	}
 

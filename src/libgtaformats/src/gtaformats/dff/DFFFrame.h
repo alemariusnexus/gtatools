@@ -27,6 +27,7 @@
 #include <cstdlib>
 #include "../util/math/Matrix3.h"
 #include "../util/math/Vector3.h"
+#include "DFFBone.h"
 #include <vector>
 
 using std::vector;
@@ -53,11 +54,12 @@ public:
 	 * 	@param rot The rotation vector.
 	 */
 	DFFFrame(Vector3* trans, Matrix3* rot)
-			: name(NULL), translation(trans), rotation(rot), parent(NULL), flags(0) {}
+			: name(NULL), translation(trans), rotation(rot), parent(NULL), flags(0), bone(NULL) {}
 
 	/**	\brief Creates a new DFFFrame with identity transformation and no name.
 	 */
-	DFFFrame() : name(NULL), translation(new Vector3), rotation(new Matrix3), parent(NULL), flags(0) {}
+	DFFFrame() : name(NULL), translation(new Vector3), rotation(new Matrix3), parent(NULL), flags(0),
+			bone(NULL) {}
 
 	/**	\brief Copy constructor.
 	 */
@@ -178,6 +180,8 @@ public:
 	 */
 	const DFFFrame* getChild(const char* name) const;
 
+	DFFFrame* getChildByBoneID(int32_t id, bool recurse = false);
+
 	/**	\brief Returns the index of the given child frame.
 	 *
 	 *	@param child The child you want to know the index of.
@@ -293,6 +297,10 @@ public:
 	 */
 	void scale(float x, float y, float z);
 
+	DFFBone* getBone() { return bone; }
+
+	void setBone(DFFBone* bone) { this->bone = bone; }
+
 private:
 	/**	\brief Internal.
 	 *
@@ -310,6 +318,7 @@ private:
 	DFFFrame* parent;
 	vector<DFFFrame*> children;
 	uint32_t flags;
+	DFFBone* bone;
 };
 
 #endif /* DFFFRAME_H_ */

@@ -19,7 +19,7 @@
 # GPLADDITIONS.
 
 
-SET(FILES Vector3 Vector4 Matrix3 Matrix4 intersection)
+SET(FILES Vector3 Vector4 Matrix3 Matrix4 intersection Quaternion project)
 
 FOREACH(FILE ${FILES})
     SET(SRCS ${SRCS} "gtaformats/util/math/${FILE}")

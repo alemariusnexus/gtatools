@@ -55,35 +55,43 @@
 #include <res_glsl140_wavg_final_vertex_shader.h>
 #include <res_glsl140_wavg_final_fragment_shader.h>
 
+#include <res_glsles2_vertex_default_shader.h>
+#include <res_glsles2_fragment_default_shader.h>
+#include <res_glsles2_shade_vertex_shader.h>
+#include <res_glsles2_shade_fragment_shader.h>
+#include <res_glsles2_dp_peel_layer_vertex_shader.h>
+#include <res_glsles2_dp_peel_layer_fragment_shader.h>
+#include <res_glsles2_dp_blend_layer_vertex_shader.h>
+#include <res_glsles2_dp_blend_layer_fragment_shader.h>
+#include <res_glsles2_dp_blend_final_vertex_shader.h>
+#include <res_glsles2_dp_blend_final_fragment_shader.h>
+#include <res_glsles2_wavg_vertex_shader.h>
+#include <res_glsles2_wavg_fragment_shader.h>
+#include <res_glsles2_wavg_final_vertex_shader.h>
+#include <res_glsles2_wavg_final_fragment_shader.h>
 
 
+
+#ifndef GTA_USE_OPENGL_ES
 
 inline void gtaglGenFramebuffersCORE(GLsizei p1, GLuint* p2) { glGenFramebuffers(p1, p2); }
 inline void gtaglBindFramebufferCORE(GLenum p1, GLuint p2) { glBindFramebuffer(p1, p2); }
 inline void gtaglFramebufferTexture2DCORE(GLenum p1, GLenum p2, GLenum p3, GLuint p4, GLint p5)
 		{ glFramebufferTexture2D(p1, p2, p3, p4, p5); }
-inline void gtaglBlitFramebufferCORE(GLint p1, GLint p2, GLint p3, GLint p4, GLint p5, GLint p6, GLint p7,
-		GLint p8, GLbitfield p9, GLenum p10)
-		{ glBlitFramebuffer(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10); }
 
 inline void gtaglGenFramebuffersEXT(GLsizei p1, GLuint* p2) { glGenFramebuffersEXT(p1, p2); }
 inline void gtaglBindFramebufferEXT(GLenum p1, GLuint p2) { glBindFramebufferEXT(p1, p2); }
 inline void gtaglFramebufferTexture2DEXT(GLenum p1, GLenum p2, GLenum p3, GLuint p4, GLint p5)
 		{ glFramebufferTexture2DEXT(p1, p2, p3, p4, p5); }
-inline void gtaglBlitFramebufferEXT(GLint p1, GLint p2, GLint p3, GLint p4, GLint p5, GLint p6, GLint p7,
-		GLint p8, GLbitfield p9, GLenum p10)
-		{ glBlitFramebufferEXT(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10); }
+
+#endif
 
 
 void (*gtaglGenFramebuffers)(GLsizei, GLuint*);
 void (*gtaglBindFramebuffer)(GLenum, GLuint);
 void (*gtaglFramebufferTexture2D)(GLenum, GLenum, GLenum, GLuint, GLint);
-void (*gtaglBlitFramebuffer)(GLint, GLint, GLint, GLint, GLint, GLint, GLint, GLint, GLbitfield, GLenum);
-void (*gtaglGetFramebufferAttachmentParameter)(GLenum, GLenum, GLenum, GLint*);
 
 GLenum GTAGL_FRAMEBUFFER;
-GLenum GTAGL_READ_FRAMEBUFFER;
-GLenum GTAGL_DRAW_FRAMEBUFFER;
 GLenum GTAGL_COLOR_ATTACHMENT0;
 GLenum GTAGL_COLOR_ATTACHMENT1;
 GLenum GTAGL_COLOR_ATTACHMENT2;
@@ -133,6 +141,48 @@ DefaultRenderer::DefaultRenderer()
 	int wavgFinalVertexShaderDataLen;
 	int wavgFinalFragmentShaderDataLen;
 
+#ifdef GTA_USE_OPENGL_ES
+	vertexDefaultShaderData				= (const char*) res_glsles2_vertex_default_shader_data;
+	fragmentDefaultShaderData			= (const char*) res_glsles2_fragment_default_shader_data;
+	shadeVertexShaderData				= (const char*) res_glsles2_shade_vertex_shader_data;
+	shadeFragmentShaderData				= (const char*) res_glsles2_shade_fragment_shader_data;
+	dpPeelLayerVertexShaderData			= (const char*) res_glsles2_dp_peel_layer_vertex_shader_data;
+	dpPeelLayerFragmentShaderData		= (const char*) res_glsles2_dp_peel_layer_fragment_shader_data;
+	dpBlendLayerVertexShaderData		= (const char*) res_glsles2_dp_blend_layer_vertex_shader_data;
+	dpBlendLayerFragmentShaderData		= (const char*) res_glsles2_dp_blend_layer_fragment_shader_data;
+	dpBlendFinalVertexShaderData		= (const char*) res_glsles2_dp_blend_final_vertex_shader_data;
+	dpBlendFinalFragmentShaderData		= (const char*) res_glsles2_dp_blend_final_fragment_shader_data;
+	wavgVertexShaderData				= (const char*) res_glsles2_wavg_vertex_shader_data;
+	wavgFragmentShaderData				= (const char*) res_glsles2_wavg_fragment_shader_data;
+	wavgFinalVertexShaderData			= (const char*) res_glsles2_wavg_final_vertex_shader_data;
+	wavgFinalFragmentShaderData			= (const char*) res_glsles2_wavg_final_fragment_shader_data;
+
+	vertexDefaultShaderDataLen				= sizeof(res_glsles2_vertex_default_shader_data);
+	fragmentDefaultShaderDataLen			= sizeof(res_glsles2_fragment_default_shader_data);
+	shadeVertexShaderDataLen				= sizeof(res_glsles2_shade_vertex_shader_data);
+	shadeFragmentShaderDataLen				= sizeof(res_glsles2_shade_fragment_shader_data);
+	dpPeelLayerVertexShaderDataLen			= sizeof(res_glsles2_dp_peel_layer_vertex_shader_data);
+	dpPeelLayerFragmentShaderDataLen		= sizeof(res_glsles2_dp_peel_layer_fragment_shader_data);
+	dpBlendLayerVertexShaderDataLen			= sizeof(res_glsles2_dp_blend_layer_vertex_shader_data);
+	dpBlendLayerFragmentShaderDataLen		= sizeof(res_glsles2_dp_blend_layer_fragment_shader_data);
+	dpBlendFinalVertexShaderDataLen			= sizeof(res_glsles2_dp_blend_final_vertex_shader_data);
+	dpBlendFinalFragmentShaderDataLen		= sizeof(res_glsles2_dp_blend_final_fragment_shader_data);
+	wavgVertexShaderDataLen					= sizeof(res_glsles2_wavg_vertex_shader_data);
+	wavgFragmentShaderDataLen				= sizeof(res_glsles2_wavg_fragment_shader_data);
+	wavgFinalVertexShaderDataLen			= sizeof(res_glsles2_wavg_final_vertex_shader_data);
+	wavgFinalFragmentShaderDataLen			= sizeof(res_glsles2_wavg_final_fragment_shader_data);
+
+	gtaglGenFramebuffers = &glGenFramebuffers;
+	gtaglBindFramebuffer = &glBindFramebuffer;
+	gtaglFramebufferTexture2D = &glFramebufferTexture2D;
+
+	GTAGL_FRAMEBUFFER = GL_FRAMEBUFFER;
+	GTAGL_COLOR_ATTACHMENT0 = GL_COLOR_ATTACHMENT0;
+	GTAGL_COLOR_ATTACHMENT1 = GL_COLOR_ATTACHMENT0;
+	GTAGL_COLOR_ATTACHMENT2 = GL_COLOR_ATTACHMENT0;
+	GTAGL_COLOR_ATTACHMENT3 = GL_COLOR_ATTACHMENT0;
+	GTAGL_DEPTH_ATTACHMENT = GL_DEPTH_ATTACHMENT;
+#else
 	if (gtaglIsVersionSupported(3, 1)) {
 		vertexDefaultShaderData				= (const char*) res_glsl140_vertex_default_shader_data;
 		fragmentDefaultShaderData			= (const char*) res_glsl140_fragment_default_shader_data;
@@ -167,11 +217,8 @@ DefaultRenderer::DefaultRenderer()
 		gtaglGenFramebuffers = &gtaglGenFramebuffersCORE;
 		gtaglBindFramebuffer = &gtaglBindFramebufferCORE;
 		gtaglFramebufferTexture2D = &gtaglFramebufferTexture2DCORE;
-		gtaglBlitFramebuffer = &gtaglBlitFramebufferCORE;
 
 		GTAGL_FRAMEBUFFER = GL_FRAMEBUFFER;
-		GTAGL_READ_FRAMEBUFFER = GL_READ_FRAMEBUFFER;
-		GTAGL_DRAW_FRAMEBUFFER = GL_DRAW_FRAMEBUFFER;
 		GTAGL_COLOR_ATTACHMENT0 = GL_COLOR_ATTACHMENT0;
 		GTAGL_COLOR_ATTACHMENT1 = GL_COLOR_ATTACHMENT1;
 		GTAGL_COLOR_ATTACHMENT2 = GL_COLOR_ATTACHMENT2;
@@ -211,17 +258,15 @@ DefaultRenderer::DefaultRenderer()
 		gtaglGenFramebuffers = &gtaglGenFramebuffersEXT;
 		gtaglBindFramebuffer = &gtaglBindFramebufferEXT;
 		gtaglFramebufferTexture2D = &gtaglFramebufferTexture2DEXT;
-		gtaglBlitFramebuffer = &gtaglBlitFramebufferEXT;
 
 		GTAGL_FRAMEBUFFER = GL_FRAMEBUFFER_EXT;
-		GTAGL_READ_FRAMEBUFFER = GL_READ_FRAMEBUFFER_EXT;
-		GTAGL_DRAW_FRAMEBUFFER = GL_DRAW_FRAMEBUFFER_EXT;
 		GTAGL_COLOR_ATTACHMENT0 = GL_COLOR_ATTACHMENT0_EXT;
 		GTAGL_COLOR_ATTACHMENT1 = GL_COLOR_ATTACHMENT1_EXT;
 		GTAGL_COLOR_ATTACHMENT2 = GL_COLOR_ATTACHMENT2_EXT;
 		GTAGL_COLOR_ATTACHMENT3 = GL_COLOR_ATTACHMENT3_EXT;
 		GTAGL_DEPTH_ATTACHMENT = GL_DEPTH_ATTACHMENT_EXT;
 	}
+#endif
 
 	Shader* vertexDefaultShader = new Shader(GL_VERTEX_SHADER);
 	vertexDefaultShader->loadSourceCode((const char*) vertexDefaultShaderData,
@@ -270,6 +315,7 @@ DefaultRenderer::DefaultRenderer()
 			dpBlendFinalFragmentShaderDataLen);
 	dpBlendFinalFragmentShader->compile();
 
+#ifndef GTA_USE_OPENGL_ES
 	Shader* wavgVertexShader = new Shader(GL_VERTEX_SHADER);
 	wavgVertexShader->loadSourceCode(wavgVertexShaderData, wavgVertexShaderDataLen);
 	wavgVertexShader->compile();
@@ -285,6 +331,7 @@ DefaultRenderer::DefaultRenderer()
 	Shader* wavgFinalFragmentShader = new Shader(GL_FRAGMENT_SHADER);
 	wavgFinalFragmentShader->loadSourceCode(wavgFinalFragmentShaderData, wavgFinalFragmentShaderDataLen);
 	wavgFinalFragmentShader->compile();
+#endif
 
 	defaultProgram = new ShaderProgram;
 	defaultProgram->attachShader(vertexDefaultShader);
@@ -310,6 +357,7 @@ DefaultRenderer::DefaultRenderer()
 	dpBlendFinalProgram->attachShader(dpBlendFinalFragmentShader);
 	dpBlendFinalProgram->link();
 
+#ifndef GTA_USE_OPENGL_ES
 	wavgProgram = new ShaderProgram;
 	wavgProgram->attachShader(wavgVertexShader);
 	wavgProgram->attachShader(wavgFragmentShader);
@@ -321,6 +369,7 @@ DefaultRenderer::DefaultRenderer()
 	wavgBlendFinalProgram->attachShader(wavgFinalVertexShader);
 	wavgBlendFinalProgram->attachShader(wavgFinalFragmentShader);
 	wavgBlendFinalProgram->link();
+#endif
 
 	gtaglGenFramebuffers(2, dpFBOs);
 	gtaglGenFramebuffers(1, &dpBlendFBO);
@@ -338,8 +387,11 @@ DefaultRenderer::DefaultRenderer()
 	int viewH = engine->getViewportHeight();
 
 
+#ifndef GTA_USE_OPENGL_ES
 	if (gtaglIsVersionSupported(3, 1)) {
-		gtaglBindFramebuffer(GTAGL_DRAW_FRAMEBUFFER, dpFBOs[0]);
+		gtaglBindFramebuffer(GTAGL_FRAMEBUFFER, dpFBOs[0]);
+
+		dpDepthFormat = GL_DEPTH_COMPONENT32;
 
 		// Initialize the depth texture for FBO 0
 		glBindTexture(GL_TEXTURE_RECTANGLE, dpDepthTexes[0]);
@@ -347,7 +399,7 @@ DefaultRenderer::DefaultRenderer()
 		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_DEPTH_COMPONENT32, viewW, viewH, 0, GL_DEPTH_COMPONENT, GL_FLOAT,
 				NULL);
-		gtaglFramebufferTexture2D(GTAGL_DRAW_FRAMEBUFFER, GTAGL_DEPTH_ATTACHMENT, GL_TEXTURE_RECTANGLE,
+		gtaglFramebufferTexture2D(GTAGL_FRAMEBUFFER, GTAGL_DEPTH_ATTACHMENT, GL_TEXTURE_RECTANGLE,
 				dpDepthTexes[0], 0);
 
 		// Initialize the color texture for FBO 0
@@ -355,11 +407,11 @@ DefaultRenderer::DefaultRenderer()
 		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGBA, viewW, viewH, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-		gtaglFramebufferTexture2D(GTAGL_DRAW_FRAMEBUFFER, GTAGL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE, dpColorTexes[0], 0);
+		gtaglFramebufferTexture2D(GTAGL_FRAMEBUFFER, GTAGL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE, dpColorTexes[0], 0);
 
 
 
-		gtaglBindFramebuffer(GTAGL_DRAW_FRAMEBUFFER, dpFBOs[1]);
+		gtaglBindFramebuffer(GTAGL_FRAMEBUFFER, dpFBOs[1]);
 
 		// Initialize the depth texture for FBO 1
 		glBindTexture(GL_TEXTURE_RECTANGLE, dpDepthTexes[1]);
@@ -367,7 +419,7 @@ DefaultRenderer::DefaultRenderer()
 		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_DEPTH_COMPONENT32, viewW, viewH, 0, GL_DEPTH_COMPONENT, GL_FLOAT,
 				NULL);
-		gtaglFramebufferTexture2D(GTAGL_DRAW_FRAMEBUFFER, GTAGL_DEPTH_ATTACHMENT, GL_TEXTURE_RECTANGLE,
+		gtaglFramebufferTexture2D(GTAGL_FRAMEBUFFER, GTAGL_DEPTH_ATTACHMENT, GL_TEXTURE_RECTANGLE,
 				dpDepthTexes[1], 0);
 
 		// Initialize the color texture for FBO 1
@@ -375,18 +427,18 @@ DefaultRenderer::DefaultRenderer()
 		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGBA, viewW, viewH, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-		gtaglFramebufferTexture2D(GTAGL_DRAW_FRAMEBUFFER, GTAGL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE, dpColorTexes[1], 0);
+		gtaglFramebufferTexture2D(GTAGL_FRAMEBUFFER, GTAGL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE, dpColorTexes[1], 0);
 
 
 
-		gtaglBindFramebuffer(GTAGL_DRAW_FRAMEBUFFER, dpBlendFBO);
+		gtaglBindFramebuffer(GTAGL_FRAMEBUFFER, dpBlendFBO);
 
 		// Initialize the color texture for the blending FBO
 		glBindTexture(GL_TEXTURE_RECTANGLE, dpBlendTex);
 		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGBA, viewW, viewH, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-		gtaglFramebufferTexture2D(GTAGL_DRAW_FRAMEBUFFER, GTAGL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE, dpBlendTex, 0);
+		gtaglFramebufferTexture2D(GTAGL_FRAMEBUFFER, GTAGL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE, dpBlendTex, 0);
 	} else {
 		// Query the size of the window-system depth buffer and try to choose the same format for the FBO
 		// depth buffers. This is needed because glBlitFramebufferEXT generates an error if the source and
@@ -400,20 +452,34 @@ DefaultRenderer::DefaultRenderer()
 		case 16:
 			depthFormat = GL_DEPTH_COMPONENT16;
 			break;
+#if !defined(GTA_USE_OPENGL_ES)
 		case 24:
 			depthFormat = GL_DEPTH_COMPONENT24;
 			break;
+#elif defined(GL_OES_depth24)
+		case 24:
+			depthFormat = GL_DEPTH_COMPONENT24_OES;
+			break;
+#endif
+#if !defined(GTA_USE_OPENGL_ES)
 		case 32:
 			depthFormat = GL_DEPTH_COMPONENT32;
 			break;
+#elif defined(GL_OES_depth32)
+		case 32:
+			depthFormat = GL_DEPTH_COMPONENT32_OES;
+			break;
+#endif
 		default:
 			fprintf(stderr, "WARNING: Window-system depth buffer size is unsupported for depth peeling: %d",
 					depthSize);
 			depthFormat = GL_DEPTH_COMPONENT;
 		}
 
+		dpDepthFormat = depthFormat;
 
-		gtaglBindFramebuffer(GTAGL_DRAW_FRAMEBUFFER, dpFBOs[0]);
+
+		gtaglBindFramebuffer(GTAGL_FRAMEBUFFER, dpFBOs[0]);
 
 		// Initialize the depth texture for FBO 0
 		glBindTexture(GL_TEXTURE_2D, dpDepthTexes[0]);
@@ -421,7 +487,7 @@ DefaultRenderer::DefaultRenderer()
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexImage2D(GL_TEXTURE_2D, 0, depthFormat, viewW, viewH, 0, GL_DEPTH_COMPONENT, GL_FLOAT,
 				NULL);
-		gtaglFramebufferTexture2D(GTAGL_DRAW_FRAMEBUFFER, GTAGL_DEPTH_ATTACHMENT, GL_TEXTURE_2D,
+		gtaglFramebufferTexture2D(GTAGL_FRAMEBUFFER, GTAGL_DEPTH_ATTACHMENT, GL_TEXTURE_2D,
 				dpDepthTexes[0], 0);
 
 		// Initialize the color texture for FBO 0
@@ -429,11 +495,11 @@ DefaultRenderer::DefaultRenderer()
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, viewW, viewH, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-		gtaglFramebufferTexture2D(GTAGL_DRAW_FRAMEBUFFER, GTAGL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, dpColorTexes[0], 0);
+		gtaglFramebufferTexture2D(GTAGL_FRAMEBUFFER, GTAGL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, dpColorTexes[0], 0);
 
 
 
-		gtaglBindFramebuffer(GTAGL_DRAW_FRAMEBUFFER, dpFBOs[1]);
+		gtaglBindFramebuffer(GTAGL_FRAMEBUFFER, dpFBOs[1]);
 
 		// Initialize the depth texture for FBO 1
 		glBindTexture(GL_TEXTURE_2D, dpDepthTexes[1]);
@@ -441,7 +507,7 @@ DefaultRenderer::DefaultRenderer()
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexImage2D(GL_TEXTURE_2D, 0, depthFormat, viewW, viewH, 0, GL_DEPTH_COMPONENT, GL_FLOAT,
 				NULL);
-		gtaglFramebufferTexture2D(GTAGL_DRAW_FRAMEBUFFER, GTAGL_DEPTH_ATTACHMENT, GL_TEXTURE_2D,
+		gtaglFramebufferTexture2D(GTAGL_FRAMEBUFFER, GTAGL_DEPTH_ATTACHMENT, GL_TEXTURE_2D,
 				dpDepthTexes[1], 0);
 
 		// Initialize the color texture for FBO 1
@@ -449,36 +515,36 @@ DefaultRenderer::DefaultRenderer()
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, viewW, viewH, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-		gtaglFramebufferTexture2D(GTAGL_DRAW_FRAMEBUFFER, GTAGL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, dpColorTexes[1], 0);
+		gtaglFramebufferTexture2D(GTAGL_FRAMEBUFFER, GTAGL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, dpColorTexes[1], 0);
 
 
 
-		gtaglBindFramebuffer(GTAGL_DRAW_FRAMEBUFFER, dpBlendFBO);
+		gtaglBindFramebuffer(GTAGL_FRAMEBUFFER, dpBlendFBO);
 
 		// Initialize the color texture for the blending FBO
 		glBindTexture(GL_TEXTURE_2D, dpBlendTex);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, viewW, viewH, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-		gtaglFramebufferTexture2D(GTAGL_DRAW_FRAMEBUFFER, GTAGL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, dpBlendTex, 0);
+		gtaglFramebufferTexture2D(GTAGL_FRAMEBUFFER, GTAGL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, dpBlendTex, 0);
 	}
 
 
 
 	if (gtaglIsVersionSupported(3, 1)) {
-		gtaglBindFramebuffer(GTAGL_DRAW_FRAMEBUFFER, wavgFBO);
+		gtaglBindFramebuffer(GTAGL_FRAMEBUFFER, wavgFBO);
 
 		glBindTexture(GL_TEXTURE_RECTANGLE, wavgColorTex);
 		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGBA16F, viewW, viewH, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-		gtaglFramebufferTexture2D(GTAGL_DRAW_FRAMEBUFFER, GTAGL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE, wavgColorTex, 0);
+		gtaglFramebufferTexture2D(GTAGL_FRAMEBUFFER, GTAGL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE, wavgColorTex, 0);
 
 		glBindTexture(GL_TEXTURE_RECTANGLE, wavgDepthComplexityTex);
 		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGBA16F, viewW, viewH, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-		gtaglFramebufferTexture2D(GTAGL_DRAW_FRAMEBUFFER, GTAGL_COLOR_ATTACHMENT1, GL_TEXTURE_RECTANGLE,
+		gtaglFramebufferTexture2D(GTAGL_FRAMEBUFFER, GTAGL_COLOR_ATTACHMENT1, GL_TEXTURE_RECTANGLE,
 				wavgDepthComplexityTex, 0);
 
 		glBindTexture(GL_TEXTURE_RECTANGLE, wavgDepthBufferTex);
@@ -486,7 +552,7 @@ DefaultRenderer::DefaultRenderer()
 		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_DEPTH_COMPONENT32, viewW, viewH, 0, GL_DEPTH_COMPONENT, GL_FLOAT,
 				NULL);
-		gtaglFramebufferTexture2D(GTAGL_DRAW_FRAMEBUFFER, GTAGL_DEPTH_ATTACHMENT, GL_TEXTURE_RECTANGLE,
+		gtaglFramebufferTexture2D(GTAGL_FRAMEBUFFER, GTAGL_DEPTH_ATTACHMENT, GL_TEXTURE_RECTANGLE,
 				wavgDepthBufferTex, 0);
 	} else {
 		gtaglBindFramebuffer(GTAGL_FRAMEBUFFER, 0);
@@ -516,7 +582,7 @@ DefaultRenderer::DefaultRenderer()
 		}
 
 
-		gtaglBindFramebuffer(GTAGL_DRAW_FRAMEBUFFER, wavgFBO);
+		gtaglBindFramebuffer(GTAGL_FRAMEBUFFER, wavgFBO);
 
 		glBindTexture(GL_TEXTURE_2D, wavgDepthBufferTex);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -525,7 +591,7 @@ DefaultRenderer::DefaultRenderer()
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexImage2D(GL_TEXTURE_2D, 0, depthFormat, viewW, viewH, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT,
 				NULL);
-		gtaglFramebufferTexture2D(GTAGL_DRAW_FRAMEBUFFER, GTAGL_DEPTH_ATTACHMENT, GL_TEXTURE_2D,
+		gtaglFramebufferTexture2D(GTAGL_FRAMEBUFFER, GTAGL_DEPTH_ATTACHMENT, GL_TEXTURE_2D,
 				wavgDepthBufferTex, 0);
 
 		glBindTexture(GL_TEXTURE_2D, wavgColorTex);
@@ -534,7 +600,7 @@ DefaultRenderer::DefaultRenderer()
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, viewW, viewH, 0, GL_RGBA, GL_FLOAT, NULL);
-		gtaglFramebufferTexture2D(GTAGL_DRAW_FRAMEBUFFER, GTAGL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, wavgColorTex, 0);
+		gtaglFramebufferTexture2D(GTAGL_FRAMEBUFFER, GTAGL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, wavgColorTex, 0);
 
 		glBindTexture(GL_TEXTURE_2D, wavgDepthComplexityTex);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -542,9 +608,10 @@ DefaultRenderer::DefaultRenderer()
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, viewW, viewH, 0, GL_RGBA, GL_FLOAT, NULL);
-		gtaglFramebufferTexture2D(GTAGL_DRAW_FRAMEBUFFER, GTAGL_COLOR_ATTACHMENT1, GL_TEXTURE_2D,
+		gtaglFramebufferTexture2D(GTAGL_FRAMEBUFFER, GTAGL_COLOR_ATTACHMENT1, GL_TEXTURE_2D,
 				wavgDepthComplexityTex, 0);
 	}
+#endif
 
 
 	gtaglBindFramebuffer(GTAGL_FRAMEBUFFER, 0);
@@ -629,6 +696,19 @@ void DefaultRenderer::render()
 	}
 
 
+#ifdef GTA_USE_OPENGL_ES
+	/*for (it = alphaBegin ; it != end ; it++) {
+		SceneObject* obj = *it;
+
+		int type = obj->getType();
+
+		if (type == SceneObjectStatic) {
+			GLException::checkError("Frankophilia RadioTV 1");
+			renderStaticSceneObject((StaticSceneObject*) obj, mvpMatrix);
+			GLException::checkError("Frankophilia RadioTV 2");
+		}
+	}*/
+#else
 	if (transMode == DepthPeeling) {
 		mvpMatrixUniform = dpProgram->getUniformLocation("MVPMatrix");
 		texturedUniform = dpProgram->getUniformLocation("Textured");
@@ -651,12 +731,13 @@ void DefaultRenderer::render()
 		GLint texDimensionsUniform = dpProgram->getUniformLocation("TexDimensions");
 
 		// Clear the blending FBO to (0, 0, 0, 1). Exactly this value is needed for the blending equations
-		gtaglBindFramebuffer(GTAGL_DRAW_FRAMEBUFFER, dpBlendFBO);
+		gtaglBindFramebuffer(GTAGL_FRAMEBUFFER, dpBlendFBO);
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		// Clear input depth buffer to 0 (so that no fragment will be initially peeled away)
-		gtaglBindFramebuffer(GTAGL_DRAW_FRAMEBUFFER, dpFBOs[1]);
+		gtaglBindFramebuffer(GTAGL_FRAMEBUFFER, dpFBOs[1]);
+
 		glClearDepth(0.0);
 		glClear(GL_DEPTH_BUFFER_BIT);
 		glClearDepth(1.0);
@@ -686,15 +767,19 @@ void DefaultRenderer::render()
 			if (!gtaglIsVersionSupported(3, 1))
 				glUniform2i(texDimensionsUniform, viewW, viewH);
 
-			gtaglBindFramebuffer(GTAGL_READ_FRAMEBUFFER, 0);
-			gtaglBindFramebuffer(GTAGL_DRAW_FRAMEBUFFER, dpFBOs[outputIdx]);
+			gtaglBindFramebuffer(GTAGL_FRAMEBUFFER, 0);
 
 			glBindTexture(texTarget, dpDepthTexes[outputIdx]);
 
+			GLint msize;
+			glGetIntegerv(GL_MAX_TEXTURE_SIZE, &msize);
+
 			// Clear the output color buffer and copy the opaque depth buffer to the output depth buffer
-			glClear(GL_COLOR_BUFFER_BIT);
-			glCopyTexImage2D(texTarget, 0, GL_DEPTH_COMPONENT24, 0, 0, viewW, viewH, 0);
+			glCopyTexImage2D(texTarget, 0, dpDepthFormat, 0, 0, viewW, viewH, 0);
 			//gtaglBlitFramebuffer(0, 0, viewW, viewH, 0, 0, viewW, viewH, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+
+			gtaglBindFramebuffer(GTAGL_FRAMEBUFFER, dpFBOs[outputIdx]);
+			glClear(GL_COLOR_BUFFER_BIT);
 
 			// Bind the input depth texture to texture unit 1 (unit 0 is used by the render* methods)
 			glActiveTexture(GL_TEXTURE1);
@@ -723,7 +808,7 @@ void DefaultRenderer::render()
 			glEnable(GL_BLEND);
 			glDisable(GL_DEPTH_TEST);
 
-			gtaglBindFramebuffer(GTAGL_DRAW_FRAMEBUFFER, dpBlendFBO);
+			gtaglBindFramebuffer(GTAGL_FRAMEBUFFER, dpBlendFBO);
 
 			// Render a screen-size plane with the contents of the output color buffer
 			glBindBuffer(GL_ARRAY_BUFFER, planeDataBuf);
@@ -744,7 +829,7 @@ void DefaultRenderer::render()
 		// We use GL_ONE as source factor because the values in dpBlendFBO are already premultiplied by alpha
 		glBlendFunc(GL_ONE, GL_SRC_ALPHA);
 
-		gtaglBindFramebuffer(GTAGL_DRAW_FRAMEBUFFER, 0);
+		gtaglBindFramebuffer(GTAGL_FRAMEBUFFER, 0);
 
 		glBindBuffer(GL_ARRAY_BUFFER, planeDataBuf);
 		glEnableVertexAttribArray(dpBlendFinalVertexAttrib);
@@ -761,8 +846,6 @@ void DefaultRenderer::render()
 	} else if (transMode == WeightedAverage) {
 		GLenum texTarget = gtaglIsVersionSupported(3, 1) ? GL_TEXTURE_RECTANGLE : GL_TEXTURE_2D;
 
-		gtaglBindFramebuffer(GTAGL_DRAW_FRAMEBUFFER, wavgFBO);
-
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_ONE, GL_ONE);
 
@@ -771,6 +854,8 @@ void DefaultRenderer::render()
 		glBindTexture(texTarget, wavgDepthBufferTex);
 
 		glCopyTexImage2D(texTarget, 0, GL_DEPTH_COMPONENT24, 0, 0, viewW, viewH, 0);
+
+		gtaglBindFramebuffer(GTAGL_FRAMEBUFFER, wavgFBO);
 
 		glDepthMask(GL_FALSE);
 
@@ -838,6 +923,18 @@ void DefaultRenderer::render()
 		glEnable(GL_DEPTH_TEST);
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	}
+#endif
+
+	glDisableVertexAttribArray(vertexAttrib);
+
+	if (normalAttrib != -1)
+		glDisableVertexAttribArray(normalAttrib);
+	if (colorAttrib != -1)
+		glDisableVertexAttribArray(colorAttrib);
+	if (texCoordAttrib != -1)
+		glDisableVertexAttribArray(texCoordAttrib);
+
+	gtaglBindFramebuffer(GTAGL_FRAMEBUFFER, 0);
 
 	objs.clear();
 

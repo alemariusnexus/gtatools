@@ -27,13 +27,10 @@
 #include <cstdlib>
 #include <cstdio>
 
+#define GET_RC(r,c) data[(c)*4+(r)]
 
-/*const Matrix4 Matrix4::IDENTITY = Matrix4 (
-		1.0f,	0.0f,	0.0f,	0.0f,
-		0.0f,	1.0f,	0.0f,	0.0f,
-		0.0f,	0.0f,	1.0f,	0.0f,
-		0.0f,	0.0f,	0.0f,	1.0f
-);*/
+
+const Matrix4 Matrix4::Identity = Matrix4();
 
 
 
@@ -348,5 +345,171 @@ Matrix4 Matrix4::fromQuaternion(float x, float y, float z, float w)
 			2.0f * (xy+zw),			1.0f - 2.0f * (x2-z2),	2.0f * (yz-xw),			0.0f,
 			2.0f * (xz-yw),			2.0f * (yz+xw),			1.0f - 2.0f * (x2-y2),	0.0f,
 			0.0f,					0.0f,					0.0f,					1.0f
+	);
+}
+
+
+void Matrix4::transpose()
+{
+	float odata[16];
+	memcpy(odata, data, 16*sizeof(float));
+
+	data[0] = odata[0];
+	data[1] = odata[4];
+	data[2] = odata[8];
+	data[3] = odata[12];
+	data[4] = odata[1];
+	data[5] = odata[5];
+	data[6] = odata[9];
+	data[7] = odata[13];
+	data[8] = odata[2];
+	data[9] = odata[6];
+	data[10] = odata[10];
+	data[11] = odata[14];
+	data[12] = odata[3];
+	data[13] = odata[7];
+	data[14] = odata[11];
+	data[15] = odata[15];
+}
+
+
+float Matrix4::determinant() const
+{
+	return	  GET_RC(0,3) * GET_RC(1,2) * GET_RC(2,1) * GET_RC(3,0)
+			- GET_RC(0,2) * GET_RC(1,3) * GET_RC(2,1) * GET_RC(3,0)
+			- GET_RC(0,3) * GET_RC(1,1) * GET_RC(2,2) * GET_RC(3,0)
+			+ GET_RC(0,1) * GET_RC(1,3) * GET_RC(2,2) * GET_RC(3,0)
+			+ GET_RC(0,2) * GET_RC(1,1) * GET_RC(2,3) * GET_RC(3,0)
+			- GET_RC(0,1) * GET_RC(1,2) * GET_RC(2,3) * GET_RC(3,0)
+			- GET_RC(0,3) * GET_RC(1,2) * GET_RC(2,0) * GET_RC(3,1)
+			+ GET_RC(0,2) * GET_RC(1,3) * GET_RC(2,0) * GET_RC(3,1)
+			+ GET_RC(0,3) * GET_RC(1,0) * GET_RC(2,2) * GET_RC(3,1)
+			- GET_RC(0,0) * GET_RC(1,3) * GET_RC(2,2) * GET_RC(3,1)
+			- GET_RC(0,2) * GET_RC(1,0) * GET_RC(2,3) * GET_RC(3,1)
+			+ GET_RC(0,0) * GET_RC(1,2) * GET_RC(2,3) * GET_RC(3,1)
+			+ GET_RC(0,3) * GET_RC(1,1) * GET_RC(2,0) * GET_RC(3,2)
+			- GET_RC(0,1) * GET_RC(1,3) * GET_RC(2,0) * GET_RC(3,2)
+			- GET_RC(0,3) * GET_RC(1,0) * GET_RC(2,1) * GET_RC(3,2)
+			+ GET_RC(0,0) * GET_RC(1,3) * GET_RC(2,1) * GET_RC(3,2)
+			+ GET_RC(0,1) * GET_RC(1,0) * GET_RC(2,3) * GET_RC(3,2)
+			- GET_RC(0,0) * GET_RC(1,1) * GET_RC(2,3) * GET_RC(3,2)
+			- GET_RC(0,2) * GET_RC(1,1) * GET_RC(2,0) * GET_RC(3,3)
+			+ GET_RC(0,1) * GET_RC(1,2) * GET_RC(2,0) * GET_RC(3,3)
+			+ GET_RC(0,2) * GET_RC(1,0) * GET_RC(2,1) * GET_RC(3,3)
+			- GET_RC(0,0) * GET_RC(1,2) * GET_RC(2,1) * GET_RC(3,3)
+			- GET_RC(0,1) * GET_RC(1,0) * GET_RC(2,2) * GET_RC(3,3)
+			+ GET_RC(0,0) * GET_RC(1,1) * GET_RC(2,2) * GET_RC(3,3);
+}
+
+
+void Matrix4::invert()
+{
+	float data[16];
+	memcpy(data, this->data, 16*sizeof(float));
+
+	this->GET_RC(0,0) =		  GET_RC(1,2)*GET_RC(2,3)*GET_RC(3,1) - GET_RC(1,3)*GET_RC(2,2)*GET_RC(3,1)
+							+ GET_RC(1,3)*GET_RC(2,1)*GET_RC(3,2) - GET_RC(1,1)*GET_RC(2,3)*GET_RC(3,2)
+							- GET_RC(1,2)*GET_RC(2,1)*GET_RC(3,3) + GET_RC(1,1)*GET_RC(2,2)*GET_RC(3,3);
+	this->GET_RC(0,1) =		  GET_RC(0,3)*GET_RC(2,2)*GET_RC(3,1) - GET_RC(0,2)*GET_RC(2,3)*GET_RC(3,1)
+							- GET_RC(0,3)*GET_RC(2,1)*GET_RC(3,2) + GET_RC(0,1)*GET_RC(2,3)*GET_RC(3,2)
+							+ GET_RC(0,2)*GET_RC(2,1)*GET_RC(3,3) - GET_RC(0,1)*GET_RC(2,2)*GET_RC(3,3);
+	this->GET_RC(0,2) =		  GET_RC(0,2)*GET_RC(1,3)*GET_RC(3,1) - GET_RC(0,3)*GET_RC(1,2)*GET_RC(3,1)
+							+ GET_RC(0,3)*GET_RC(1,1)*GET_RC(3,2) - GET_RC(0,1)*GET_RC(1,3)*GET_RC(3,2)
+							- GET_RC(0,2)*GET_RC(1,1)*GET_RC(3,3) + GET_RC(0,1)*GET_RC(1,2)*GET_RC(3,3);
+	this->GET_RC(0,3) =		  GET_RC(0,3)*GET_RC(1,2)*GET_RC(2,1) - GET_RC(0,2)*GET_RC(1,3)*GET_RC(2,1)
+							- GET_RC(0,3)*GET_RC(1,1)*GET_RC(2,2) + GET_RC(0,1)*GET_RC(1,3)*GET_RC(2,2)
+							+ GET_RC(0,2)*GET_RC(1,1)*GET_RC(2,3) - GET_RC(0,1)*GET_RC(1,2)*GET_RC(2,3);
+	this->GET_RC(1,0) =		  GET_RC(1,3)*GET_RC(2,2)*GET_RC(3,0) - GET_RC(1,2)*GET_RC(2,3)*GET_RC(3,0)
+							- GET_RC(1,3)*GET_RC(2,0)*GET_RC(3,2) + GET_RC(1,0)*GET_RC(2,3)*GET_RC(3,2)
+							+ GET_RC(1,2)*GET_RC(2,0)*GET_RC(3,3) - GET_RC(1,0)*GET_RC(2,2)*GET_RC(3,3);
+	this->GET_RC(1,1) =		  GET_RC(0,2)*GET_RC(2,3)*GET_RC(3,0) - GET_RC(0,3)*GET_RC(2,2)*GET_RC(3,0)
+							+ GET_RC(0,3)*GET_RC(2,0)*GET_RC(3,2) - GET_RC(0,0)*GET_RC(2,3)*GET_RC(3,2)
+							- GET_RC(0,2)*GET_RC(2,0)*GET_RC(3,3) + GET_RC(0,0)*GET_RC(2,2)*GET_RC(3,3);
+	this->GET_RC(1,2) =		  GET_RC(0,3)*GET_RC(1,2)*GET_RC(3,0) - GET_RC(0,2)*GET_RC(1,3)*GET_RC(3,0)
+							- GET_RC(0,3)*GET_RC(1,0)*GET_RC(3,2) + GET_RC(0,0)*GET_RC(1,3)*GET_RC(3,2)
+							+ GET_RC(0,2)*GET_RC(1,0)*GET_RC(3,3) - GET_RC(0,0)*GET_RC(1,2)*GET_RC(3,3);
+	this->GET_RC(1,3) =		  GET_RC(0,2)*GET_RC(1,3)*GET_RC(2,0) - GET_RC(0,3)*GET_RC(1,2)*GET_RC(2,0)
+							+ GET_RC(0,3)*GET_RC(1,0)*GET_RC(2,2) - GET_RC(0,0)*GET_RC(1,3)*GET_RC(2,2)
+							- GET_RC(0,2)*GET_RC(1,0)*GET_RC(2,3) + GET_RC(0,0)*GET_RC(1,2)*GET_RC(2,3);
+	this->GET_RC(2,0) =		  GET_RC(1,1)*GET_RC(2,3)*GET_RC(3,0) - GET_RC(1,3)*GET_RC(2,1)*GET_RC(3,0)
+							+ GET_RC(1,3)*GET_RC(2,0)*GET_RC(3,1) - GET_RC(1,0)*GET_RC(2,3)*GET_RC(3,1)
+							- GET_RC(1,1)*GET_RC(2,0)*GET_RC(3,3) + GET_RC(1,0)*GET_RC(2,1)*GET_RC(3,3);
+	this->GET_RC(2,1) =		  GET_RC(0,3)*GET_RC(2,1)*GET_RC(3,0) - GET_RC(0,1)*GET_RC(2,3)*GET_RC(3,0)
+							- GET_RC(0,3)*GET_RC(2,0)*GET_RC(3,1) + GET_RC(0,0)*GET_RC(2,3)*GET_RC(3,1)
+							+ GET_RC(0,1)*GET_RC(2,0)*GET_RC(3,3) - GET_RC(0,0)*GET_RC(2,1)*GET_RC(3,3);
+	this->GET_RC(2,2) =		  GET_RC(0,1)*GET_RC(1,3)*GET_RC(3,0) - GET_RC(0,3)*GET_RC(1,1)*GET_RC(3,0)
+							+ GET_RC(0,3)*GET_RC(1,0)*GET_RC(3,1) - GET_RC(0,0)*GET_RC(1,3)*GET_RC(3,1)
+							- GET_RC(0,1)*GET_RC(1,0)*GET_RC(3,3) + GET_RC(0,0)*GET_RC(1,1)*GET_RC(3,3);
+	this->GET_RC(2,3) =		  GET_RC(0,3)*GET_RC(1,1)*GET_RC(2,0) - GET_RC(0,1)*GET_RC(1,3)*GET_RC(2,0)
+							- GET_RC(0,3)*GET_RC(1,0)*GET_RC(2,1) + GET_RC(0,0)*GET_RC(1,3)*GET_RC(2,1)
+							+ GET_RC(0,1)*GET_RC(1,0)*GET_RC(2,3) - GET_RC(0,0)*GET_RC(1,1)*GET_RC(2,3);
+	this->GET_RC(3,0) =		  GET_RC(1,2)*GET_RC(2,1)*GET_RC(3,0) - GET_RC(1,1)*GET_RC(2,2)*GET_RC(3,0)
+							- GET_RC(1,2)*GET_RC(2,0)*GET_RC(3,1) + GET_RC(1,0)*GET_RC(2,2)*GET_RC(3,1)
+							+ GET_RC(1,1)*GET_RC(2,0)*GET_RC(3,2) - GET_RC(1,0)*GET_RC(2,1)*GET_RC(3,2);
+	this->GET_RC(3,1) =		  GET_RC(0,1)*GET_RC(2,2)*GET_RC(3,0) - GET_RC(0,2)*GET_RC(2,1)*GET_RC(3,0)
+							+ GET_RC(0,2)*GET_RC(2,0)*GET_RC(3,1) - GET_RC(0,0)*GET_RC(2,2)*GET_RC(3,1)
+							- GET_RC(0,1)*GET_RC(2,0)*GET_RC(3,2) + GET_RC(0,0)*GET_RC(2,1)*GET_RC(3,2);
+	this->GET_RC(3,2) =		  GET_RC(0,2)*GET_RC(1,1)*GET_RC(3,0) - GET_RC(0,1)*GET_RC(1,2)*GET_RC(3,0)
+							- GET_RC(0,2)*GET_RC(1,0)*GET_RC(3,1) + GET_RC(0,0)*GET_RC(1,2)*GET_RC(3,1)
+							+ GET_RC(0,1)*GET_RC(1,0)*GET_RC(3,2) - GET_RC(0,0)*GET_RC(1,1)*GET_RC(3,2);
+	this->GET_RC(3,3) =		  GET_RC(0,1)*GET_RC(1,2)*GET_RC(2,0) - GET_RC(0,2)*GET_RC(1,1)*GET_RC(2,0)
+							+ GET_RC(0,2)*GET_RC(1,0)*GET_RC(2,1) - GET_RC(0,0)*GET_RC(1,2)*GET_RC(2,1)
+							- GET_RC(0,1)*GET_RC(1,0)*GET_RC(2,2) + GET_RC(0,0)*GET_RC(1,1)*GET_RC(2,2);
+
+	*this *= (1.0f / determinant());
+}
+
+
+void Matrix4::toEuler(float& x, float& y, float& z) // b, h, a
+{
+	if (GET_RC(1, 0) > 0.998f) {
+		y = atan2f(GET_RC(0, 2), GET_RC(2, 2));
+		z = M_PI_2;
+		x = 0.0f;
+		return;
+	} else if (GET_RC(1, 0) < -0.998f) {
+		y = atan2f(GET_RC(0, 2), GET_RC(2, 2));
+		z = -M_PI_2;
+		x = 0.0f;
+		return;
+	}
+
+	y = atan2f(-GET_RC(2, 0), GET_RC(0, 0)); // -20, 00
+	x = atan2f(-GET_RC(1, 2), GET_RC(1, 1)); // -12 11
+	z = asinf(GET_RC(1, 0));
+}
+
+
+Matrix4 Matrix4::frustum(float l, float r, float b, float t, float n, float f)
+{
+	return Matrix4 (
+			2*n / (r-l),		0,					0,					0,
+			0,					2*n / (t-b),		0,					0,
+			(r+l) / (r-l),		(t+b) / (t-b),		(-(f+n)) / (f-n),	-1,
+			0,					0,					(-2*f*n) / (f-n),	0
+	);
+}
+
+
+Matrix4 Matrix4::perspective(float fovy, float aspect, float n, float f)
+{
+	float fc = 1.0f / tanf(fovy / 2.0f);
+
+	return Matrix4 (
+			fc / aspect,		0,					0,					0,
+			0,					fc,					0,					0,
+			0,					0,					(f+n) / (n-f),		-1,
+			0,					0,					(2*f*n) / (n-f),	0
+	);
+}
+
+
+Matrix4 Matrix4::ortho(float l, float r, float b, float t, float n, float f)
+{
+	return Matrix4 (
+			2.0f / (r-l),		0,					0,					0,
+			0,					2.0f / (t-b),		0,					0,
+			0,					0,					-2.0f / (f-n),		0,
+			-((r+l) / (r-l)),	-((t+b) / (t-b)),	-((f+n) / (f-n)),	1
 	);
 }

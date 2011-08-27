@@ -25,6 +25,7 @@
 
 #include <SDL.h>
 #include <gtaformats/util/File.h>
+#include <CEGUI/CEGUI.h>
 
 
 class Controller {
@@ -43,7 +44,7 @@ private:
 	void addResource(const File& file);
 
 private:
-	uint64_t lastFrameStart, lastMeasuredFrameStart;
+	uint64_t lastFrameStart, lastMeasuredFrameStart, lastCEGUITime;
 	float moveFactor;
 	float moveForwardFactor, moveSidewardFactor, moveUpFactor;
 	bool firstFrame;

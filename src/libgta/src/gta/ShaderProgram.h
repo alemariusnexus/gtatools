@@ -24,11 +24,17 @@
 #define SHADERPROGRAM_H_
 
 #include <gta/config.h>
+#include <vector>
 #include "gl.h"
 #include "Shader.h"
 
 
 class ShaderProgram {
+private:
+	typedef vector<Shader*> ShaderList;
+	typedef ShaderList::iterator ShaderIterator;
+	typedef ShaderList::const_iterator ConstShaderIterator;
+
 public:
 	static void disableShaders();
 
@@ -45,8 +51,19 @@ public:
 	bool operator!=(const ShaderProgram& other) const { return !(*this == other); }
 
 private:
+#ifdef GTA_USE_OPENGL_ES
+	void glesForceAttachShader(Shader* shader);
+	void glesForceDetachShader(Shader* shader);
+#endif
+
+private:
 	GLuint program;
 	unsigned int id;
+	ShaderList shaders;
+#ifdef GTA_USE_OPENGL_ES
+	Shader* combinedVShader;
+	Shader* combinedFShader;
+#endif
 };
 
 #endif /* SHADERPROGRAM_H_ */
