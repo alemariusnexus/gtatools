@@ -29,7 +29,7 @@
 
 DFFFrame::DFFFrame(const DFFFrame& other)
 		: name(new char[strlen(other.name)+1]), translation(new Vector3(*other.translation)),
-		  rotation(new Matrix3(*other.rotation)), flags(other.flags)
+		  rotation(new Matrix3(*other.rotation)), flags(other.flags), bone(new DFFBone(*other.bone))
 {
 	strcpy(name, other.name);
 }
@@ -150,6 +150,26 @@ const DFFFrame* DFFFrame::getChild(uint32_t index) const
 	}
 
 	return children[index];
+}
+
+
+DFFFrame* DFFFrame::getChildByBoneID(int32_t id, bool recurse)
+{
+	for (ChildIterator it = children.begin() ; it != children.end() ; it++) {
+		DFFFrame* child = *it;
+
+		if (child->getBone()  &&  child->getBone()->getIndex() == id)
+			return child;
+
+		if (recurse) {
+			child = child->getChildByBoneID(id, true);
+
+			if (child)
+				return child;
+		}
+	}
+
+	return NULL;
 }
 
 

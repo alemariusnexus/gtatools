@@ -36,13 +36,21 @@ public:
 	void loadSourceCode(const char* code, int length = -1);
 	void loadSourceCode(const File& file);
 	void compile();
+	GLenum getType() const { return type; }
 
 private:
+#ifdef GTA_USE_OPENGL_ES
+	void glesForceCompile();
+	const char* glesGetCode() const { return code; }
+#endif
 	GLuint getGLIdentifier() { return shader; }
 
 private:
-	GLuint shader;
 	GLenum type;
+#ifdef GTA_USE_OPENGL_ES
+	char* code;
+#endif
+	GLuint shader;
 };
 
 #endif /* SHADER_H_ */

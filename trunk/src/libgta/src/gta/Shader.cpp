@@ -30,7 +30,12 @@ using std::streamoff;
 
 
 Shader::Shader(GLenum type)
-		: shader(glCreateShader(type)), type(type)
+		: type(type),
+#ifdef GTA_USE_OPENGL_ES
+		  code(NULL), shader(0)
+#else
+		  shader(glCreateShader(type))
+#endif
 {
 }
 
@@ -41,7 +46,13 @@ void Shader::loadSourceCode(const char* code, int length)
 		length = strlen(code);
 	}
 
+#ifdef GTA_USE_OPENGL_ES
+	this->code = new char[length+1];
+	strncpy(this->code, code, length);
+	this->code[length] = '\0';
+#else
 	glShaderSource(shader, 1, &code, &length);
+#endif
 }
 
 
@@ -59,11 +70,35 @@ void Shader::loadSourceCode(const File& file)
 }
 
 
+#ifdef GTA_USE_OPENGL_ES
+void Shader::compile() {}
+#endif
+
+
+#ifdef GTA_USE_OPENGL_ES
+void Shader::glesForceCompile()
+#else
 void Shader::compile()
+#endif
 {
+	GLException::checkError("Error 0");
+#ifdef GTA_USE_OPENGL_ES
+	if (shader == 0) {
+		shader = glCreateShader(type);
+	}
+	GLException::checkError("Error 0.1");
+
+	int len = strlen(code);
+	const char* ccode = code;
+	glShaderSource(shader, 1, &ccode, &len);
+	GLException::checkError("Error 0.2");
+#endif
+
 	glCompileShader(shader);
 	GLint status;
+	GLException::checkError("Error 1");
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
+	GLException::checkError("Error 2");
 
 	if (status == GL_FALSE) {
 		GLint maxLength;

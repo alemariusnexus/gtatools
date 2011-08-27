@@ -45,6 +45,10 @@ FIND_LIBRARY(SQUISH_LIB_PATH NAMES squish libsquish)
 FIND_PATH(PVRTEXLIB_INCLUDE_PATH PVRTexLib.h)
 FIND_LIBRARY(PVRTEXLIB_LIB_PATH NAMES PVRTexLib libPVRTexLib)
 
+FIND_PATH(CEGUI_INCLUDE_PATH CEGUI/CEGUI.h)
+FIND_LIBRARY(CEGUI_BASE_LIB_PATH NAMES CEGUIBase libCEGUIBase)
+#FIND_LIBRARY(CEGUI_OPENGL_RENDERER_LIB_PATH NAMES CEGUIOpenGLRenderer libCEGUIOpenGLRenderer)
+
 FIND_PACKAGE(Boost)
 FIND_PACKAGE(Bullet COMPONENTS BulletCollision BulletDynamics LinearMath)
 FIND_PACKAGE(SDL)
@@ -134,6 +138,9 @@ ENDIF(GTA_USE_OPENGL_ES)
 
 SET(INCLUDES ${INCLUDES} "${Boost_INCLUDE_DIRS}")
 
+SET(LIBRARIES ${LIBRARIES} ${CEGUI_BASE_LIB_PATH})
+SET(INCLUDES ${INCLUDES} ${CEGUI_INCLUDE_PATH})
+
 SET(LIBRARIES ${LIBRARIES} ${BULLET_LIBRARIES})
 SET(INCLUDES ${INCLUDES} ${BULLET_INCLUDE_DIRS})
 
@@ -146,21 +153,10 @@ SET(INCLUDES ${INCLUDES} "${CMAKE_BINARY_DIR}/config")
 SET(ADDITIONAL_INSTALL_FILES "" CACHE STRING "Paths to files which will be additionally installed to the bin subdirectory.")
 SET(ADDITIONAL_INSTALL_FILES_ENABLED OFF CACHE BOOL "Set true to enable ADDITIONAL_INSTALL_FILES")
 
-SET(SRCS main.cpp Controller.cpp)
+SET(SRCS main.cpp Controller.cpp AnimatedBone)
 
 FILE(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/config/gtatools-test")
 CONFIGURE_FILE(config.cmake.h "${CMAKE_BINARY_DIR}/config/gtatools-test/config.h")
-
-IF(GTA_USE_OPENGL_ES)
-    #CREATE_RESOURCE(shaders/es_vertex.glsl vertex_shader)
-    #CREATE_RESOURCE(shaders/es_fragment.glsl fragment_shader)
-ELSE(GTA_USE_OPENGL_ES)
-    #CREATE_RESOURCE(shaders/glsl110/vertex.glsl vertex_shader_glsl110)
-    #CREATE_RESOURCE(shaders/glsl110/fragment.glsl fragment_shader_glsl110)
-    
-    #CREATE_RESOURCE(shaders/glsl140/vertex.glsl vertex_shader_glsl140)
-    #CREATE_RESOURCE(shaders/glsl140/fragment.glsl fragment_shader_glsl140)
-ENDIF(GTA_USE_OPENGL_ES)
 
 CREATE_RESOURCE(shaders/btgldebugdraw_vertex.glsl btgldebugdraw_vertex_shader)
 CREATE_RESOURCE(shaders/btgldebugdraw_fragment.glsl btgldebugdraw_fragment_shader)

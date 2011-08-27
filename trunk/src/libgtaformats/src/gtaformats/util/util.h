@@ -26,6 +26,10 @@
 #include <gtaformats/config.h>
 
 
+#define PS() uint64_t psS = GetTickcount();
+#define PE(n) uint64_t psE = GetTickcount(); printf("%s took %d\n", (n), (int) (psE-psS));
+
+
 #ifdef __GNUC__
 
 #define SwapEndianness16(v) ((((v) >> 8) & 0xFF)  |  (((v) << 8) & 0xFF00))
@@ -108,7 +112,17 @@ inline double SwapEndiannessF64(double val)
 uint64_t GetTickcount();
 
 float RandomFloat(float min, float max);
+
 bool RandomBool();
+
 bool IsTimeBetween(int8_t timeH, int8_t timeM, int8_t startH, int8_t startM, int8_t endH, int8_t endM);
+
+inline unsigned int GetNextPowerOfTwo(unsigned int v)
+{
+	v--;
+	for (unsigned int i = 1 ; i < sizeof(unsigned int) * 8 ; i <<= 1)
+		v |= v >> i;
+	return v+1;
+}
 
 #endif /* UTIL_H_ */

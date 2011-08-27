@@ -29,8 +29,10 @@ libgta
 -------------------------
 
 Required:
-	- OpenGL: At least OpenGL 2.1 with GLU is needed
+	- OpenGL: At least OpenGL 2.0 is needed. You will NOT need GLU!
 	- GLEW: The OpenGL Extension Wrangler library
+	- CEGUI: You'll need version 0.7 of Crazy Eddie's GUI System (CEGUI), without any renderer (gtatools has
+	  it's own CEGUI renderer)
 	- libgtaformats: You should use the same libgtaformats version as for libgta
 	
 Optional:
@@ -49,7 +51,7 @@ Optional:
 gtatools-gui
 -------------------------
 Required:
-	- OpenGL: At least OpenGL 2.1 with GLU is needed
+	- OpenGL: At least OpenGL 2.0 is needed. You will NOT need GLU!
 	- GLEW: The OpenGL Extension Wrangler library
 	- libgtaformats: You should use the same libgtaformats version as for gtatools-gui
 	- libgta: You should use the same libgta version as for gtatools-gui

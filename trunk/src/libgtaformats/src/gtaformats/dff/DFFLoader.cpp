@@ -34,6 +34,7 @@ struct IndexedDFFFrame
 {
 	DFFFrame* frame;
 	uint32_t parentIdx;
+	int32_t boneID;
 };
 
 
@@ -88,8 +89,11 @@ DFFMesh* DFFLoader::loadMesh(RWSection* clump)
 	// In DFF, the frames are stored and indexed as a flat data structure, so at first we keep them flat.
 	IndexedDFFFrame* indexedFrames = new IndexedDFFFrame[numFrames];
 
+	map<int32_t, DFFBone*> bones;
+
 	for (uint32_t i = 0 ; i < numFrames ; i++) {
 		IndexedDFFFrame& indexedFrame = indexedFrames[i];
+		indexedFrame.boneID = -1;
 		uint8_t* offData = frameListStructData + 4 + i*56;
 
 		Matrix3* rotMatrix = new Matrix3((float*) offData);
@@ -114,15 +118,57 @@ DFFMesh* DFFLoader::loadMesh(RWSection* clump)
 
 		RWSection* frameSect = frameListExt->getChild(RW_SECTION_FRAME);
 
+		//printf("Frame #%d", i);
+
 		if (frameSect) {
 			char* frameName = new char[frameSect->getSize() + 1];
 			frameName[frameSect->getSize()] = '\0';
 			memcpy(frameName, frameSect->getData(), frameSect->getSize());
 			frame->setName(frameName);
+			//printf(" \"%s\"", frameName);
+		} else {
+			//printf(" [unnamed]");
+		}
+
+		RWSection* hAnimPlg = frameListExt->getChild(RW_SECTION_HANIM_PLG);
+
+		if (hAnimPlg) {
+			uint8_t* adata = hAnimPlg->getData();
+			int32_t boneID = *((int32_t*) (adata+4));
+			int32_t boneCount = *((int32_t*) (adata+8));
+			adata += 12;
+
+			indexedFrames[i].boneID = boneID;
+
+			if (boneCount != 0) {
+				adata += 8;
+
+				for (map<int32_t, DFFBone*>::iterator it = bones.begin() ; it != bones.end() ; it++)
+					delete it->second;
+				bones.clear();
+
+				for (int32_t i = 0 ; i < boneCount ; i++) {
+					DFFBone* bone = new DFFBone;
+					memcpy(bone, adata, 12);
+
+					bones[bone->getIndex()] = bone;
+
+					adata += 12;
+				}
+			}
 		}
 
 		i++;
 		it++;
+	}
+
+	// Associate frames with bones
+	if (bones.size() != 0) {
+		for (uint32_t i = 0 ; i < numFrames ; i++) {
+			if (indexedFrames[i].boneID != -1) {
+				indexedFrames[i].frame->bone = bones[indexedFrames[i].boneID];
+			}
+		}
 	}
 
 	// And now we will actually build the frame hierarchy.

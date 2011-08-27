@@ -44,6 +44,9 @@ FIND_LIBRARY(SQUISH_LIB_PATH NAMES squish libsquish)
 FIND_PATH(PVRTEXLIB_INCLUDE_PATH PVRTexLib.h)
 FIND_LIBRARY(PVRTEXLIB_LIB_PATH NAMES PVRTexLib libPVRTexLib)
 
+FIND_PATH(CEGUI_INCLUDE_PATH CEGUI/CEGUI.h)
+FIND_LIBRARY(CEGUI_BASE_LIB_PATH NAMES CEGUIBase libCEGUIBase)
+
 FIND_PACKAGE(Boost)
 FIND_PACKAGE(Bullet COMPONENTS BulletCollision BulletDynamics LinearMath)
 
@@ -114,6 +117,9 @@ SET(INCLUDES ${INCLUDES} "${Boost_INCLUDE_DIRS}")
 SET(LIBRARIES ${LIBRARIES} ${BULLET_LIBRARIES})
 SET(INCLUDES ${INCLUDES} ${BULLET_INCLUDE_DIRS})
 
+SET(LIBRARIES ${LIBRARIES} "${CEGUI_BASE_LIB_PATH}")
+SET(INCLUDES ${INCLUDES} "${CEGUI_INCLUDE_PATH}")
+
 SET(LIBRARIES ${LIBRARIES} "${OPENGL_gl_LIBRARY}")
 SET(INCLUDES ${INCLUDES} "${OPENGL_INCLUDE_DIR}")
 
@@ -127,7 +133,7 @@ SET(INCLUDES ${INCLUDES} "${CMAKE_CURRENT_BINARY_DIR}")
 MESSAGE("${INCLUDES}")
 
 INCLUDE_DIRECTORIES(${INCLUDES})
-FOREACH(_GLSL_VER glsl110 glsl140)
+FOREACH(_GLSL_VER glsl110 glsl140 glsles2)
     CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/vertex_default.glsl ${_GLSL_VER}_vertex_default_shader)
     CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/fragment_default.glsl ${_GLSL_VER}_fragment_default_shader)
     
@@ -148,6 +154,9 @@ FOREACH(_GLSL_VER glsl110 glsl140)
     
     CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/weighted_average/final_vertex.glsl ${_GLSL_VER}_wavg_final_vertex_shader)
     CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/weighted_average/final_fragment.glsl ${_GLSL_VER}_wavg_final_fragment_shader)
+    
+    CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/cegui_vertex.glsl ${_GLSL_VER}_cegui_vertex_shader)
+    CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/cegui_fragment.glsl ${_GLSL_VER}_cegui_fragment_shader)
 ENDFOREACH(_GLSL_VER glsl110 glsl140)
 
 ADD_LIBRARY(gta STATIC ${SRCS})

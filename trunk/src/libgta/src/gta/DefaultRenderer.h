@@ -82,6 +82,8 @@ private:
 			textureUniform;
 	GLint vertexAttrib, normalAttrib, colorAttrib, texCoordAttrib;
 
+	GLint dpDepthFormat;
+
 	GLuint dpFBOs[2];
 	GLuint dpBlendFBO;
 	GLuint dpDepthTexes[2];

@@ -33,6 +33,9 @@ static int _NextProgramID = 0;
 
 ShaderProgram::ShaderProgram()
 		: program(glCreateProgram()), id(_NextProgramID++)
+#ifdef GTA_USE_OPENGL_ES
+		 , combinedVShader(NULL), combinedFShader(NULL)
+#endif
 {
 }
 
@@ -41,11 +44,80 @@ ShaderProgram::~ShaderProgram()
 {
 	glUseProgram(0);
 	glDeleteProgram(program);
+
+#ifdef GTA_USE_OPENGL_ES
+	if (combinedVShader)
+		delete combinedVShader;
+	if (combinedFShader)
+		delete combinedFShader;
+#endif
 }
 
 
 void ShaderProgram::link()
 {
+#ifdef GTA_USE_OPENGL_ES
+	if (combinedVShader) {
+		glesForceDetachShader(combinedVShader);
+		delete combinedVShader;
+	}
+	if (combinedFShader) {
+		glesForceDetachShader(combinedFShader);
+		delete combinedFShader;
+	}
+
+	int vTotalLen = 0;
+	int fTotalLen = 0;
+
+	for (ShaderIterator it = shaders.begin() ; it != shaders.end() ; it++) {
+		Shader* shader = *it;
+
+		if (shader->getType() == GL_VERTEX_SHADER)
+			vTotalLen += strlen(shader->glesGetCode()) + 20;
+		else
+			fTotalLen += strlen(shader->glesGetCode()) + 20;
+	}
+
+	char* vCombinedCode = new char[vTotalLen+1];
+	char* fCombinedCode = new char[fTotalLen+1];
+
+	char* vCombinedCodePtr = vCombinedCode;
+	char* fCombinedCodePtr = fCombinedCode;
+
+	for (ShaderIterator it = shaders.begin() ; it != shaders.end() ; it++) {
+		Shader* shader = *it;
+
+		if (shader->getType() == GL_VERTEX_SHADER) {
+			strcpy(vCombinedCodePtr, shader->glesGetCode());
+			vCombinedCodePtr += strlen(shader->glesGetCode());
+			const char* lineCode = "\n#line 0\n";
+			strcpy(vCombinedCodePtr, lineCode);
+			vCombinedCodePtr += strlen(lineCode);
+		} else {
+			strcpy(fCombinedCodePtr, shader->glesGetCode());
+			fCombinedCodePtr += strlen(shader->glesGetCode());
+			const char* lineCode = "\n#line 0\n";
+			strcpy(fCombinedCodePtr, lineCode);
+			fCombinedCodePtr += strlen(lineCode);
+		}
+	}
+
+	combinedVShader = new Shader(GL_VERTEX_SHADER);
+	combinedFShader = new Shader(GL_FRAGMENT_SHADER);
+
+	combinedVShader->loadSourceCode(vCombinedCode);
+	combinedFShader->loadSourceCode(fCombinedCode);
+
+	delete[] vCombinedCode;
+	delete[] fCombinedCode;
+
+	combinedVShader->glesForceCompile();
+	combinedFShader->glesForceCompile();
+
+	glesForceAttachShader(combinedVShader);
+	glesForceAttachShader(combinedFShader);
+#endif
+
 	glLinkProgram(program);
 
 	GLint status;
@@ -83,15 +155,40 @@ void ShaderProgram::link()
 }
 
 
-void ShaderProgram::attachShader(Shader* shader)
+#ifdef GTA_USE_OPENGL_ES
+void ShaderProgram::glesForceAttachShader(Shader* shader)
 {
 	glAttachShader(program, shader->getGLIdentifier());
 }
 
 
-void ShaderProgram::detachShader(Shader* shader)
+void ShaderProgram::glesForceDetachShader(Shader* shader)
 {
 	glDetachShader(program, shader->getGLIdentifier());
+}
+#endif
+
+
+void ShaderProgram::attachShader(Shader* shader)
+{
+#ifndef GTA_USE_OPENGL_ES
+	glAttachShader(program, shader->getGLIdentifier());
+#endif
+	shaders.push_back(shader);
+}
+
+
+void ShaderProgram::detachShader(Shader* shader)
+{
+#ifndef GTA_USE_OPENGL_ES
+	glDetachShader(program, shader->getGLIdentifier());
+#endif
+
+	for (ShaderIterator it = shaders.begin() ; it != shaders.end() ; it++) {
+		if (*it == shader) {
+			shaders.erase(it);
+		}
+	}
 }
 
 

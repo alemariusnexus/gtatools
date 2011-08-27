@@ -25,11 +25,7 @@
 #include <cstdio>
 
 
-/*const Matrix3 Matrix3::IDENTITY = Matrix3 (
-		1.0f,	0.0f,	0.0f,
-		0.0f,	1.0f,	0.0f,
-		0.0f,	0.0f,	1.0f
-);*/
+const Matrix3 Matrix3::Identity = Matrix3();
 
 
 
@@ -67,6 +63,23 @@ Matrix3::Matrix3(	float m00, float m10, float m20,
 	data[6] = m02;
 	data[7] = m12;
 	data[8] = m22;
+}
+
+
+Matrix3 Matrix3::fromEulerYZX(float x, float y, float z)
+{
+	float sx = sinf(x);
+	float cx = cosf(x);
+	float sy = sinf(y);
+	float cy = cosf(y);
+	float sz = sinf(z);
+	float cz = cosf(z);
+
+	return Matrix3 (
+			cy*cz,				sz,				-sy*cz,
+			-cy*sz*cx + sy*sx,	cz*cx,			sy*sz*cx + cy*sx,
+			cy*sz*sx + sy*cx,	-cz*cx,			-sy*sz*sx + cy*cx
+	);
 }
 
 
@@ -146,6 +159,20 @@ Matrix3& Matrix3::operator*=(const Matrix3& rhv)
 	data[7] = r1.dot(c2);
 	data[8] = r2.dot(c2);
 	return *this;
+}
+
+
+const Vector3 Matrix3::operator*(const Vector3& rhv) const
+{
+	float x = rhv.getX();
+	float y = rhv.getY();
+	float z = rhv.getZ();
+
+	return Vector3 (
+			data[0]*x + data[3]*y + data[6]*z,
+			data[1]*x + data[4]*y + data[7]*z,
+			data[2]*x + data[5]*y + data[8]*z
+	);
 }
 
 
