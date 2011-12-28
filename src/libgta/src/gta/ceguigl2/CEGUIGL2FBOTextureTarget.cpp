@@ -112,8 +112,10 @@ void CEGUIGL2FBOTextureTarget::clear()
 	}
 #endif
 
+	glDisable(GL_SCISSOR_TEST);
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
+	glEnable(GL_SCISSOR_TEST);
 
 #ifndef GTA_USE_OPENGL_ES
 	if (gtaglIsVersionSupported(3, 0)) {

@@ -24,6 +24,7 @@
 #define TEXTUREINDEXER_H_
 
 #include <gta/config.h>
+#include <gtaformats/util/cxx0xhash.h>
 #include "../ResourceObserver.h"
 #include "TextureArchive.h"
 #include "../../Engine.h"
@@ -47,9 +48,9 @@ struct TextureIndexEntry
 class TextureIndexer : public ResourceObserver {
 private:
 #ifdef CXX0X_AVAILABLE
-	typedef unordered_map<hash_t, TextureArchive*> ArchiveMap;
+	typedef unordered_map<CString, TextureArchive*, CXX0XHash<CString> > ArchiveMap;
 #else
-	typedef map<hash_t, TextureArchive*> ArchiveMap;
+	typedef map<CString, TextureArchive*> ArchiveMap;
 #endif
 
 public:
@@ -63,7 +64,7 @@ public:
 	~TextureIndexer();
 	virtual void resourceAdded(const File& file);
 	virtual void resourcesCleared();
-	TextureArchive* findArchive(hash_t name);
+	TextureArchive* findArchive(const CString& name);
 
 private:
 	TextureIndexer() {}
@@ -72,7 +73,7 @@ private:
 	ArchiveMap archives;
 
 #ifndef NDEBUG
-	map<hash_t, char*> dbgArchivePaths;
+	map<CString, char*> dbgArchivePaths;
 #endif
 };
 

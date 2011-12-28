@@ -39,7 +39,7 @@ public:
 	static void disableShaders();
 
 public:
-	ShaderProgram();
+	ShaderProgram(const char* name = NULL);
 	~ShaderProgram();
 	void link();
 	void attachShader(Shader* shader);
@@ -64,6 +64,7 @@ private:
 	Shader* combinedVShader;
 	Shader* combinedFShader;
 #endif
+	char* name;
 };
 
 #endif /* SHADERPROGRAM_H_ */

@@ -48,7 +48,7 @@ public:
 	IPLReader(const File& file);
 	~IPLReader();
 	IPLStatement* readStatement();
-	bool isBinary() { return binaryReadCount != -1; }
+	bool isBinary() const { return binaryReadCount != -1; }
 
 private:
 	void init();

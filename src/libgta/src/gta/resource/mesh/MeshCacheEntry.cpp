@@ -24,7 +24,7 @@
 
 
 
-MeshCacheEntry::MeshCacheEntry(Mesh* mesh)
+MeshCacheEntry::MeshCacheEntry(MeshClump* mesh)
 		: mesh(mesh)
 {
 }

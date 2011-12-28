@@ -24,24 +24,23 @@
 #define MANAGEDTEXTURESOURCE_H_
 
 #include <gta/config.h>
+#include <gtaformats/util/CString.h>
 #include "TextureSource.h"
 #include "../../Engine.h"
-#include "../CachePointer.h"
+#include "../ResourceCache.h"
 
 
 class ManagedTextureSource : public TextureSource {
 public:
-	ManagedTextureSource(hash_t txdHash)
-			: pointer(Engine::getInstance()->getTextureCache()->getEntryPointer(txdHash)) {}
-	ManagedTextureSource(const char* txdName)
-			: pointer(Engine::getInstance()->getTextureCache()->getEntryPointer(Hash(txdName))) {}
+	ManagedTextureSource(const CString& txdName)
+			: pointer(Engine::getInstance()->getTextureCache()->getEntryPointer(txdName)) {}
 	ManagedTextureSource(const ManagedTextureSource& other) : pointer(other.pointer) {}
-	virtual Texture* getTexture(hash_t txdHash);
+	virtual Texture* getTexture(const CString& txdName);
 	virtual TextureSource* clone() const { return new ManagedTextureSource(*this); }
 	virtual void release() {}
 
 private:
-	CachePointer pointer;
+	Engine::StringResourceCache::Pointer pointer;
 };
 
 #endif /* MANAGEDTEXTURESOURCE_H_ */

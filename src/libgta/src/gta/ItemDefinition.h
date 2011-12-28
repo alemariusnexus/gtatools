@@ -35,6 +35,7 @@
 
 class ItemDefinition {
 public:
+	virtual ~ItemDefinition() {}
 	virtual bool isVisible() const { return true; }
 };
 

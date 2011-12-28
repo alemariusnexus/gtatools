@@ -21,7 +21,9 @@
  */
 
 #include "Scene.h"
+#include "AnimatedSceneObject.h"
 #include "../Engine.h"
+#include "visibility/PVSDatabase.h"
 #include <fstream>
 #include <utility>
 #include <gtaformats/util/util.h>
@@ -34,13 +36,15 @@ using std::min;
 using std::set;
 using std::map;
 using std::sort;
+using std::copy;
+using std::pair;
 
 
 struct SortableSceneObject
 {
-	SortableSceneObject(StaticSceneObject* obj, float dist) : obj(obj), dist(dist) {}
+	SortableSceneObject(SceneObject* obj, float dist) : obj(obj), dist(dist) {}
 	bool operator<(const SortableSceneObject& other) const { return dist > other.dist; }
-	StaticSceneObject* obj;
+	SceneObject* obj;
 	float dist;
 };
 
@@ -48,37 +52,36 @@ struct SortableSceneObject
 
 
 Scene::Scene()
-		: alphaObjBegin(objects.begin()), pvs(PVSData(this)), pvsValid(false), pvObjCount(0),
-		  visibleObjCount(0), ddMultiplier(1.0f)
+		: pvs(NULL), pvObjCount(0), visibleObjCount(0), ddMultiplier(1.0f)
 {
 }
 
 
-void Scene::addSceneObject(StaticSceneObject* obj)
+Scene::~Scene()
 {
-	int id = objects.size();
-	obj->setID(id);
+	delete pvs;
+}
 
-	if (obj->getDefinition()->hasAlphaTransparency()) {
-		objects.push_back(obj);
-	} else {
-		objects.insert(alphaObjBegin, obj);
+
+void Scene::addSceneObject(SceneObject* obj)
+{
+	objects.push_back(obj);
+
+	if (obj->getType() != SceneObjectStatic) {
+		dynamicObjs.push_back(obj);
 	}
+}
 
-	if (id == 0)
-		alphaObjBegin = objects.begin();
 
-	pvsValid = false;
+void Scene::clear()
+{
+	objects.clear();
+	dynamicObjs.clear();
 }
 
 
 void Scene::buildVisibleSceneObjectList(ObjectList& list)
 {
-	if (!pvsValid) {
-		pvs.build();
-		pvsValid = true;
-	}
-
 	Engine* engine = Engine::getInstance();
 
 	Camera* cam = engine->getCamera();
@@ -88,12 +91,14 @@ void Scene::buildVisibleSceneObjectList(ObjectList& list)
 	float cy = cpos.getY();
 	float cz = cpos.getZ();
 
-#ifdef GTA_VISIBILITY_PVS
-	ObjectList pvObjects;
-	pvs.queryPVS(cx, cy, cz, pvObjects);
-#else
 	ObjectList& pvObjects = objects;
-#endif
+
+	if (pvs) {
+		ObjectList realPVObjects;
+		pvObjects = realPVObjects;
+		pvs->queryPVS(cx, cy, cz, pvObjects);
+		pvObjects.insert(pvObjects.end(), dynamicObjs.begin(), dynamicObjs.end());
+	}
 
 	pvObjCount = pvObjects.size();
 
@@ -104,22 +109,18 @@ void Scene::buildVisibleSceneObjectList(ObjectList& list)
 	int actuallyRendered = 0;
 
 	for (it = begin ; it != end ; it++) {
-		StaticSceneObject* obj = *it;
+		SceneObject* obj = *it;
 
-		const float* mat = obj->getModelMatrix().toArray();
-		float ox = mat[12];
-		float oy = mat[13];
-		float oz = mat[14];
+		Vector3 pos = obj->getPosition();
 
-		float dx = cx - ox;
-		float dy = cy - oy;
-		float dz = cz - oz;
+		float dx = cx - pos.getX();
+		float dy = cy - pos.getY();
+		float dz = cz - pos.getZ();
 
 		float distSq = dx*dx + dy*dy + dz*dz;
 
 		while (obj) {
-			MapItemDefinition* def = obj->getDefinition();
-			float dd = def->getDrawDistance();
+			float dd = obj->getDrawDistance();
 			float distDiff = dd*dd - distSq;
 
 			if (distDiff > 0.0f) {
@@ -133,4 +134,35 @@ void Scene::buildVisibleSceneObjectList(ObjectList& list)
 	}
 
 	visibleObjCount = actuallyRendered;
+}
+
+
+void Scene::update(uint64_t timePassed)
+{
+	for (ObjectIterator it = objects.begin() ; it != objects.end() ; it++) {
+		SceneObject* obj = *it;
+
+		if (obj->getType() == SceneObjectAnimated) {
+			AnimatedSceneObject* aobj = (AnimatedSceneObject*) obj;
+			aobj->increaseAnimationTime(timePassed / 1000.0f);
+		}
+	}
+}
+
+
+void Scene::present()
+{
+	ObjectList visObjs;
+	buildVisibleSceneObjectList(visObjs);
+
+	for (ObjectIterator it = visObjs.begin() ; it != visObjs.end() ; it++) {
+		SceneObject* obj = *it;
+		int type = obj->getType();
+
+		if (type == SceneObjectStatic  ||  type == SceneObjectAnimated) {
+			renderer->enqueueForRendering((VisualSceneObject*) obj);
+		}
+	}
+
+	renderer->render();
 }

@@ -26,6 +26,11 @@
 #include "IPLInstance.h"
 #include "IPLCar.h"
 #include <cstdio>
+#include "../util/stream/StreamReader.h"
+#include "../util/stream/EndianSwappingStreamReader.h"
+#include "../util/stream/StreamWriter.h"
+#include "../util/stream/EndianSwappingStreamWriter.h"
+
 
 using std::string;
 
@@ -56,23 +61,28 @@ void IPLReader::init()
 	char firstBytes[4];
 	stream->read(firstBytes, 4);
 
-	if (strncmp(firstBytes, "bnry", 4) == 0) {
-		stream->read((char*) &binaryInstanceCount, 4);
-		stream->read(skipBuf, 3*4);
-		stream->read((char*) &binaryCarCount, 4);
-		stream->read(skipBuf, 4);
-		stream->read((char*) &binaryInstanceOffset, 4);
-		stream->read(skipBuf, 7*4);
-		stream->read((char*) &binaryCarOffset, 4);
-		stream->read(skipBuf, 3*4);
+	if (!stream->eof()  &&  strncmp(firstBytes, "bnry", 4) == 0) {
+#ifdef GTAFORMATS_LITTLE_ENDIAN
+		StreamReader reader(stream);
+#else
+		EndianSwappingStreamReader reader(stream);
+#endif
+
+		reader.read32(&binaryInstanceCount);
+		stream->ignore(3*4);
+		reader.read32(&binaryCarCount);
+		stream->ignore(4);
+		reader.read32(&binaryInstanceOffset);
+		stream->ignore(7*4);
+		reader.read32(&binaryCarOffset);
+		stream->ignore(3*4);
 		binaryReadCount = 0;
 
-		char* tmpSkipBuf = new char[binaryInstanceOffset - 0x4C];
-		stream->read(tmpSkipBuf, binaryInstanceOffset - 0x4C);
-		delete[] tmpSkipBuf;
+		stream->ignore(binaryInstanceOffset - 0x4C);
 	} else {
 		binaryReadCount = -1;
-		stream->seekg(-4, istream::cur);
+		stream->clear();
+		stream->seekg(-stream->gcount(), istream::cur);
 	}
 }
 
@@ -209,6 +219,12 @@ IPLStatement* IPLReader::readStatement()
 	} else {
 		// Binary IPL file
 
+#ifdef GTAFORMATS_LITTLE_ENDIAN
+		StreamReader reader(stream);
+#else
+		EndianSwappingStreamReader reader(stream);
+#endif
+
 		IPLStatement* stmt;
 
 		if (binaryReadCount >= binaryInstanceCount+binaryCarCount) {
@@ -217,9 +233,7 @@ IPLStatement* IPLReader::readStatement()
 
 		if (binaryReadCount == binaryInstanceCount) {
 			unsigned int skipCount = (unsigned int) (binaryCarOffset-stream->tellg());
-			char* tmpSkipBuf = new char[skipCount];
-			stream->read(tmpSkipBuf, skipCount);
-			delete[] tmpSkipBuf;
+			stream->ignore(skipCount);
 		}
 
 		if (binaryReadCount < binaryInstanceCount) {
@@ -227,11 +241,11 @@ IPLStatement* IPLReader::readStatement()
 			float rot[4];
 			int32_t id, interior, lod;
 
-			stream->read((char*) pos, 3*4);
-			stream->read((char*) rot, 4*4);
-			stream->read((char*) &id, 4);
-			stream->read((char*) &interior, 4);
-			stream->read((char*) &lod, 4);
+			reader.readArrayFloat(pos, 3);
+			reader.readArrayFloat(rot, 4);
+			reader.read32(&id);
+			reader.read32(&interior);
+			reader.read32(&lod);
 
 			stmt = new IPLInstance (
 					id, NULL,
@@ -251,16 +265,16 @@ IPLStatement* IPLReader::readStatement()
 			int32_t unknown1;
 			int32_t unknown2;
 
-			stream->read((char*) pos, 3*4);
-			stream->read((char*) &angle, 4);
-			stream->read((char*) &carId, 4);
-			stream->read((char*) &primaryColor, 4);
-			stream->read((char*) &secondaryColor, 4);
-			stream->read((char*) &forceSpawn, 4);
-			stream->read((char*) &alarmProb, 4);
-			stream->read((char*) &doorLockProb, 4);
-			stream->read((char*) &unknown1, 4);
-			stream->read((char*) &unknown2, 4);
+			reader.readArrayFloat(pos, 3);
+			reader.readFloat(&angle);
+			reader.read32(&carId);
+			reader.read32(&primaryColor);
+			reader.read32(&secondaryColor);
+			reader.read32(&forceSpawn);
+			reader.read32(&alarmProb);
+			reader.read32(&doorLockProb);
+			reader.read32(&unknown1);
+			reader.read32(&unknown2);
 
 			stmt = new IPLCar (
 					pos[0], pos[1], pos[2], angle, carId, primaryColor, secondaryColor, (forceSpawn == 1),
@@ -271,7 +285,5 @@ IPLStatement* IPLReader::readStatement()
 		binaryReadCount++;
 		return stmt;
 	}
-
-	printf("OH GOTT, NEIN!\n");
 }
 

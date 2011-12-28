@@ -90,7 +90,8 @@ public:
 	 * 	@param vertexColors The vertex colors.
 	 */
 	DFFGeometry(uint32_t numVertices, float* vertices, float* normals = NULL, float* uvCoords = NULL,
-			uint8_t uvSetCount = 0, uint8_t* vertexColors = NULL);
+			uint8_t uvSetCount = 0, uint8_t* vertexColors = NULL, uint8_t* boneIndices = NULL,
+			float* boneWeights = NULL);
 
 	/**	\brief Copy constructor.
 	 */
@@ -239,6 +240,12 @@ public:
 	 */
 	const float* getNormals() const { return normals; }
 
+	uint8_t* getBoneIndices() { return boneIndices; }
+	const uint8_t* getBoneIndices() const { return boneIndices; }
+
+	float* getBoneWeights() { return boneWeights; }
+	const float* getBoneWeights() const { return boneWeights; }
+
 	/**	\brief Returns the number of materials.
 	 *
 	 * 	@return The number of materials.
@@ -333,7 +340,8 @@ public:
 	 * 	@param vertexColors The vertex color array.
 	 */
 	void setVertices(uint32_t numVertices, float* vertices, float* normals = NULL, float* uvCoords = NULL,
-			uint8_t uvSetCount = 0, uint8_t* vertexColors = NULL);
+			uint8_t uvSetCount = 0, uint8_t* vertexColors = NULL, uint8_t* boneIndices = NULL,
+			float* boneWeights = NULL);
 
 	/**	\brief Returns the material list begin iterator.
 	 *
@@ -457,6 +465,8 @@ private:
 	DFFBoundingSphere* bounds;
 	float* vertices;
 	float* normals;
+	uint8_t* boneIndices;
+	float* boneWeights;
 
 	vector<DFFMaterial*> materials;
 	vector<DFFGeometryPart*> parts;

@@ -32,12 +32,12 @@
 <context>
     <name>COLWidget</name>
     <message>
-        <location filename="src/formats/col/COLWidget.cpp" line="277"/>
+        <location filename="src/formats/col/COLWidget.cpp" line="279"/>
         <source>no</source>
         <translation>nein</translation>
     </message>
     <message>
-        <location filename="src/formats/col/COLWidget.cpp" line="277"/>
+        <location filename="src/formats/col/COLWidget.cpp" line="279"/>
         <source>yes</source>
         <translation>ja</translation>
     </message>
@@ -330,7 +330,7 @@
     </message>
     <message>
         <location filename="src/gui/ConfigWidget.ui" line="98"/>
-        <location filename="src/gui/ConfigWidget.cpp" line="189"/>
+        <location filename="src/gui/ConfigWidget.cpp" line="206"/>
         <source>New Profile</source>
         <translation>Neues Profil</translation>
     </message>
@@ -432,12 +432,12 @@
 <context>
     <name>DFFGeometryItemModel</name>
     <message>
-        <location filename="src/formats/dff/DFFGeometryItemModel.cpp" line="88"/>
+        <location filename="src/formats/dff/DFFGeometryItemModel.cpp" line="103"/>
         <source>Part %1</source>
         <translation>Teil %1</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFGeometryItemModel.cpp" line="98"/>
+        <location filename="src/formats/dff/DFFGeometryItemModel.cpp" line="113"/>
         <source>Geometry %1</source>
         <translation>Geometrie %1</translation>
     </message>
@@ -539,12 +539,12 @@
 <context>
     <name>DFFWidget</name>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="24"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="27"/>
         <source>High Level View</source>
         <translation>High-Level Anzeige</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="478"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="481"/>
         <source>Frames</source>
         <translation>Frames</translation>
     </message>
@@ -553,12 +553,12 @@
         <translation type="obsolete">[Kein Frame ausgewählt]</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="507"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="510"/>
         <source>Translation</source>
         <translation>Verschiebung</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="526"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="529"/>
         <source>Rotation</source>
         <translation>Rotation</translation>
     </message>
@@ -567,13 +567,13 @@
         <translation type="obsolete">Eltern-Frame</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="122"/>
-        <location filename="src/formats/dff/DFFWidget.ui" line="545"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="125"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="548"/>
         <source>Flags</source>
         <translation>Flags</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="40"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="43"/>
         <source>Geometries</source>
         <translation>Geometrien</translation>
     </message>
@@ -582,22 +582,22 @@
         <translation type="obsolete">[Keine Geometrie ausgewählt]</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="70"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="73"/>
         <source>General Information</source>
         <translation>Allgemeine Informationen</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="76"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="79"/>
         <source>Geometry</source>
         <translation>Geometrie</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="88"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="91"/>
         <source>Face Format</source>
         <translation>Face-Format</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="109"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="112"/>
         <source>V = Vertices
 N = Normals
 TC (x) = Texture Coordinates (x = numer of coordinate sets)
@@ -609,33 +609,33 @@ TC (x) = Texturkoordinaten (x = Anzahl der Koordinaten-Sets)
 C = Vertex Colors</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="136"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="139"/>
         <source>Vertex Count</source>
         <oldsource>UV Set Count</oldsource>
         <translation>Anzahl Vertizes</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="150"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="153"/>
         <source>Frame Count</source>
         <translation>Anzahl Frames</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="164"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="167"/>
         <source>Ambient Light</source>
         <translation>Ambient Light</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="178"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="181"/>
         <source>Diffuse Light</source>
         <translation>Diffuse Light</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="192"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="195"/>
         <source>Specular Light</source>
         <translation>Specular Light</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="240"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="243"/>
         <source>Geometry Part</source>
         <translation>Geometry Part</translation>
     </message>
@@ -644,22 +644,22 @@ C = Vertex Colors</translation>
         <translation type="obsolete">-</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="346"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="349"/>
         <source>Textures</source>
         <translation>Texturen</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="423"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="426"/>
         <source>Open</source>
         <translation>Öffnen</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="602"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="605"/>
         <source>Edit Sources</source>
         <translation>Quellen Bearbeiten</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="642"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="645"/>
         <source>Low Level View</source>
         <translation>Low-Level Anzeige</translation>
     </message>
@@ -672,12 +672,12 @@ C = Vertex Colors</translation>
         <translation type="obsolete">Normals</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="206"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="209"/>
         <source>Bounds</source>
         <translation>Bounds</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="585"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="588"/>
         <source>Texture Source</source>
         <translation>Texturquelle</translation>
     </message>
@@ -694,17 +694,17 @@ C = Vertex Colors</translation>
         <translation type="obsolete">Anzahl Teile</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="220"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="223"/>
         <source>Associated Frame</source>
         <translation>Zugewiesenes Frame</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="102"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="105"/>
         <source>Vertex Data</source>
         <translation>Vertexdaten</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="281"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="284"/>
         <source>Materials</source>
         <translation>Materiale</translation>
     </message>
@@ -713,7 +713,7 @@ C = Vertex Colors</translation>
         <translation type="obsolete">[Kein Material ausgewählt]</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="323"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="326"/>
         <source>Color</source>
         <translation>Farbe</translation>
     </message>
@@ -726,17 +726,17 @@ C = Vertex Colors</translation>
         <translation type="obsolete">[Keine Textur ausgewählt]</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="375"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="378"/>
         <source>Diffuse Name</source>
         <translation>Diffuse Name</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="389"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="392"/>
         <source>Alpha Name</source>
         <translation>Alpha Name</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="403"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="406"/>
         <source>Filter Flags</source>
         <translation>Filter-Flags</translation>
     </message>
@@ -749,22 +749,22 @@ C = Vertex Colors</translation>
         <translation type="obsolete">[Kein Teil ausgewählt]</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="249"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="252"/>
         <source>Index Count</source>
         <translation>Anzahl Indizes</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="263"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="266"/>
         <source>Material</source>
         <translation>Material</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="458"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="461"/>
         <source>Rendering</source>
         <translation>Rendering</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="316"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="320"/>
         <source>Unnamed %1</source>
         <translation>Unbenannt %1</translation>
     </message>
@@ -797,8 +797,8 @@ Siehe im Fehlerlog für weitere Details nach.</translation>
         <translation type="obsolete">%1 - DFF Geometry Part Rendering</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="77"/>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="169"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="78"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="170"/>
         <source>Error opening the DFF file: %1</source>
         <translation>Fehler beim Öffnen der DFF-Datei: %1</translation>
     </message>
@@ -807,12 +807,12 @@ Siehe im Fehlerlog für weitere Details nach.</translation>
         <translation type="obsolete">Geometrie %1</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="261"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="265"/>
         <source>(%1, %2, %3)</source>
         <translation>(%1, %2, %3)</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="263"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="267"/>
         <source>(%1, %2, %3) (%4, %5, %6) (%7, %8, %9)</source>
         <oldsource>(%1, %2, %3)
 (%4, %5, %6)
@@ -827,12 +827,12 @@ Siehe im Fehlerlog für weitere Details nach.</translation>
         <translation type="obsolete">Texturkoordinaten (%1 Sets)</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="307"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="311"/>
         <source>(%1, %2, %3  :  %4)</source>
         <translation>(%1, %2, %3  :  %4)</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="360"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="364"/>
         <source>None</source>
         <translation>Keine</translation>
     </message>
@@ -841,7 +841,7 @@ Siehe im Fehlerlog für weitere Details nach.</translation>
         <translation type="obsolete">Vertices</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="85"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="86"/>
         <source>%1 - DFF Rendering</source>
         <translation>%1 - DFF Rendering</translation>
     </message>
@@ -854,12 +854,12 @@ Siehe im Fehlerlog für weitere Details nach.</translation>
         <translation type="obsolete">UV-Koordinaten</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="285"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="289"/>
         <source>Triangle Strips</source>
         <translation>Triangle Strips</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="285"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="289"/>
         <source>Triangle List</source>
         <translation>Triangle List</translation>
     </message>
@@ -876,7 +876,7 @@ Siehe im Fehlerlog für weitere Details nach.</translation>
         <translation type="obsolete">(%1, %2, %3 : %4)</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="327"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="331"/>
         <source>Material %1</source>
         <translation>Material %1</translation>
     </message>
@@ -885,7 +885,7 @@ Siehe im Fehlerlog für weitere Details nach.</translation>
         <translation type="obsolete">Teil %1</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="379"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="383"/>
         <source>(%1, %2, %3, %4)</source>
         <translation>(%1, %2, %3, %4)</translation>
     </message>
@@ -989,7 +989,7 @@ Siehe im Fehlerlog für weitere Details nach.</translation>
     </message>
     <message>
         <location filename="src/gui/DefaultGUIModule.cpp" line="84"/>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="330"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="329"/>
         <source>About Qt</source>
         <translation>Über Qt</translation>
     </message>
@@ -1009,7 +1009,7 @@ Siehe im Fehlerlog für weitere Details nach.</translation>
         <translation>Fehlerkonsole</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="174"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="173"/>
         <source>Switch</source>
         <translation>Wechseln</translation>
     </message>
@@ -1025,21 +1025,22 @@ Siehe im Fehlerlog für weitere Details nach.</translation>
     </message>
     <message>
         <location filename="src/gui/DefaultGUIModule.cpp" line="96"/>
-        <source>Generate PVS Data</source>
+        <source>Build PVS Data</source>
+        <oldsource>Generate PVS Data</oldsource>
         <translation>PVS-Daten Generieren</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="209"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="208"/>
         <source>No Profile</source>
         <translation>Kein Profil</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="337"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="336"/>
         <source>About GTATools GUI Tool</source>
         <translation>Über GTATools GUI Tool</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="336"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="335"/>
         <source>AboutText</source>
         <translation>Dies ist gtatools-gui. Dieses Programm ist Teil der gtatools und läuft mit Version %1.
 
@@ -1050,8 +1051,8 @@ Die Veröffentlichung dieses Programms erfolgt in der Hoffnung, daß es Ihnen vo
 Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem Programm erhalten haben. Falls nicht, siehe &lt;http://www.gnu.org/licenses/&gt;.</translation>
     </message>
     <message>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="350"/>
-        <location filename="src/gui/DefaultGUIModule.cpp" line="378"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="349"/>
+        <location filename="src/gui/DefaultGUIModule.cpp" line="377"/>
         <source>Select file</source>
         <translation>Datei auswählen</translation>
     </message>
@@ -2201,12 +2202,14 @@ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem Prog
     <name>PVSDialog</name>
     <message>
         <location filename="src/gui/PVSDialog.ui" line="14"/>
-        <source>Generate PVS Data</source>
+        <source>Build PVS Data</source>
+        <oldsource>Generate PVS Data</oldsource>
         <translation>PVS-Daten Generieren</translation>
     </message>
     <message>
         <location filename="src/gui/PVSDialog.ui" line="20"/>
-        <source>Section Settings</source>
+        <source>Section Partitioning</source>
+        <oldsource>Section Settings</oldsource>
         <translation>Einstellungen für Sektionen</translation>
     </message>
     <message>
@@ -2215,27 +2218,55 @@ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem Prog
         <translation>Größe X</translation>
     </message>
     <message>
-        <location filename="src/gui/PVSDialog.ui" line="36"/>
+        <location filename="src/gui/PVSDialog.ui" line="55"/>
         <source>Size Y</source>
         <translation>Größe Y</translation>
     </message>
     <message>
-        <location filename="src/gui/PVSDialog.ui" line="43"/>
+        <location filename="src/gui/PVSDialog.ui" line="81"/>
         <source>Size Z</source>
         <translation>Größe Z</translation>
     </message>
     <message>
-        <location filename="src/gui/PVSDialog.cpp" line="73"/>
+        <location filename="src/gui/PVSDialog.ui" line="110"/>
+        <source>Algorithm</source>
+        <translation>Algorithmus</translation>
+    </message>
+    <message>
+        <location filename="src/gui/PVSDialog.ui" line="119"/>
+        <source>Threads</source>
+        <translation>Threads</translation>
+    </message>
+    <message>
+        <location filename="src/gui/PVSDialog.ui" line="145"/>
+        <source>Expert Settings</source>
+        <translation>Experteneinstellungen</translation>
+    </message>
+    <message>
+        <location filename="src/gui/PVSDialog.ui" line="151"/>
+        <source>Little Endian Format</source>
+        <translation>Little Endian Format</translation>
+    </message>
+    <message>
         <source>Generating PVS Data...</source>
+        <translation type="obsolete">Generiere PVS-Daten...</translation>
+    </message>
+    <message>
+        <source>Choose a file to store PVS data</source>
+        <translation type="obsolete">Wähle eine Datei zum Speichern der PVS-Daten</translation>
+    </message>
+    <message>
+        <location filename="src/gui/PVSDialog.cpp" line="59"/>
+        <source>Building PVS data...</source>
         <translation>Generiere PVS-Daten...</translation>
     </message>
     <message>
-        <location filename="src/gui/PVSDialog.cpp" line="77"/>
-        <source>Choose a file to store PVS data</source>
-        <translation>Wähle eine Datei zum Speichern der PVS-Daten</translation>
+        <location filename="src/gui/PVSDialog.cpp" line="67"/>
+        <source>Select destination file</source>
+        <translation>Wähle eine Zieldatei</translation>
     </message>
     <message>
-        <location filename="src/gui/PVSDialog.cpp" line="78"/>
+        <location filename="src/gui/PVSDialog.cpp" line="68"/>
         <source>PVS files (*.pvs)</source>
         <translation>PVS-Dateien (*.pvs)</translation>
     </message>
@@ -2247,13 +2278,13 @@ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem Prog
         <translation type="obsolete">Erstelle Ressourcenindex...</translation>
     </message>
     <message>
-        <location filename="src/Profile.cpp" line="138"/>
+        <location filename="src/Profile.cpp" line="133"/>
         <source>Building resource index...</source>
         <translation>Erstelle Ressourcenindex...</translation>
     </message>
     <message>
-        <location filename="src/Profile.cpp" line="166"/>
-        <location filename="src/Profile.cpp" line="184"/>
+        <location filename="src/Profile.cpp" line="161"/>
+        <location filename="src/Profile.cpp" line="180"/>
         <source>Error loading resource file %1: %2. The resource file will not be used for certain operations.</source>
         <translation>Fehler beim Laden der Ressourcendatei %1: %2 - Die Ressourcendatei wird für bestimmte Operationen nicht verwendet.</translation>
     </message>
@@ -2265,43 +2296,62 @@ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem Prog
 <context>
     <name>ProfileConfigWidget</name>
     <message>
-        <location filename="src/gui/ProfileConfigWidget.cpp" line="119"/>
+        <location filename="src/gui/ProfileConfigWidget.cpp" line="34"/>
+        <source>GTA San Andreas</source>
+        <translation>GTA San Andreas</translation>
+    </message>
+    <message>
+        <location filename="src/gui/ProfileConfigWidget.cpp" line="35"/>
+        <source>GTA Vice City</source>
+        <translation>GTA Vice City</translation>
+    </message>
+    <message>
+        <location filename="src/gui/ProfileConfigWidget.cpp" line="36"/>
+        <source>GTA III</source>
+        <translation>GTA III</translation>
+    </message>
+    <message>
+        <location filename="src/gui/ProfileConfigWidget.cpp" line="178"/>
+        <location filename="src/gui/ProfileConfigWidget.cpp" line="247"/>
         <source>Select one or more resources</source>
         <oldsource>Select resource</oldsource>
         <translation>Wähle eine oder mehrere Ressourcen aus</translation>
     </message>
     <message>
-        <location filename="src/gui/ProfileConfigWidget.cpp" line="133"/>
+        <location filename="src/gui/ProfileConfigWidget.cpp" line="190"/>
+        <location filename="src/gui/ProfileConfigWidget.cpp" line="259"/>
         <source>Select a resource directory</source>
         <translation>Wähle ein Ressourcenverzeichnis</translation>
     </message>
     <message>
-        <location filename="src/gui/ProfileConfigWidget.cpp" line="154"/>
+        <location filename="src/gui/ProfileConfigWidget.cpp" line="209"/>
+        <location filename="src/gui/ProfileConfigWidget.cpp" line="278"/>
         <source>Select the new resource directory</source>
         <translation>Wähle das neue Ressourcenverzeichnis</translation>
     </message>
     <message>
-        <location filename="src/gui/ProfileConfigWidget.cpp" line="161"/>
+        <location filename="src/gui/ProfileConfigWidget.cpp" line="216"/>
+        <location filename="src/gui/ProfileConfigWidget.cpp" line="285"/>
         <source>Select the new resource file</source>
         <translation>Wähle die neue Ressourcendatei aus</translation>
     </message>
     <message>
-        <location filename="src/gui/ProfileConfigWidget.cpp" line="187"/>
+        <location filename="src/gui/ProfileConfigWidget.cpp" line="316"/>
         <source>Select one or more DAT files</source>
         <translation>Wähle eine oder mehrere DAT-Dateien</translation>
     </message>
     <message>
-        <location filename="src/gui/ProfileConfigWidget.cpp" line="188"/>
+        <location filename="src/gui/ProfileConfigWidget.cpp" line="317"/>
         <source>DAT Files (*.dat)</source>
         <translation>DAT-Dateien (*.dat)</translation>
     </message>
     <message>
-        <location filename="src/gui/ProfileConfigWidget.cpp" line="207"/>
+        <location filename="src/gui/ProfileConfigWidget.cpp" line="336"/>
         <source>Select the new DAT file</source>
         <translation>Wähle die neue DAT-Datei aus</translation>
     </message>
     <message>
-        <location filename="src/gui/ProfileConfigWidget.cpp" line="246"/>
+        <location filename="src/gui/ProfileConfigWidget.cpp" line="366"/>
         <source>Choose a DAT root directory</source>
         <translation>Wähle ein DAT-Wurzelverzeichnis</translation>
     </message>
@@ -2315,45 +2365,71 @@ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem Prog
         <translation>Profilname</translation>
     </message>
     <message>
-        <location filename="src/gui/ProfileConfigWidget.ui" line="147"/>
         <source>DAT Root Directory</source>
-        <translation>DAT-Wurzelverzeichnis</translation>
+        <translation type="obsolete">DAT-Wurzelverzeichnis</translation>
     </message>
     <message>
-        <location filename="src/gui/ProfileConfigWidget.ui" line="166"/>
         <source>Select..</source>
-        <translation>Durchsuchen...</translation>
+        <translation type="obsolete">Durchsuchen...</translation>
     </message>
     <message>
-        <location filename="src/gui/ProfileConfigWidget.ui" line="62"/>
         <source>Resources</source>
-        <translation>Ressourcen</translation>
+        <translation type="obsolete">Ressourcen</translation>
     </message>
     <message>
-        <location filename="src/gui/ProfileConfigWidget.ui" line="87"/>
-        <location filename="src/gui/ProfileConfigWidget.ui" line="198"/>
+        <location filename="src/gui/ProfileConfigWidget.ui" line="42"/>
+        <source>Game Version</source>
+        <translation>Spieleversion</translation>
+    </message>
+    <message>
+        <location filename="src/gui/ProfileConfigWidget.ui" line="52"/>
+        <source>Root Directory</source>
+        <translation>Wurzelverzeichnis</translation>
+    </message>
+    <message>
+        <location filename="src/gui/ProfileConfigWidget.ui" line="68"/>
+        <source>Choose...</source>
+        <translation>Auswählen...</translation>
+    </message>
+    <message>
+        <location filename="src/gui/ProfileConfigWidget.ui" line="98"/>
+        <source>Engine Resources</source>
+        <translation>Engine-Ressourcen</translation>
+    </message>
+    <message>
+        <location filename="src/gui/ProfileConfigWidget.ui" line="123"/>
+        <location filename="src/gui/ProfileConfigWidget.ui" line="196"/>
+        <location filename="src/gui/ProfileConfigWidget.ui" line="269"/>
         <source>Add File</source>
         <translation>Datei hinzufügen</translation>
     </message>
     <message>
-        <location filename="src/gui/ProfileConfigWidget.ui" line="94"/>
+        <location filename="src/gui/ProfileConfigWidget.ui" line="130"/>
+        <location filename="src/gui/ProfileConfigWidget.ui" line="203"/>
         <source>Add Directory</source>
         <translation>Verzeichnis hinzufügen</translation>
     </message>
     <message>
-        <location filename="src/gui/ProfileConfigWidget.ui" line="101"/>
-        <location filename="src/gui/ProfileConfigWidget.ui" line="205"/>
+        <location filename="src/gui/ProfileConfigWidget.ui" line="137"/>
+        <location filename="src/gui/ProfileConfigWidget.ui" line="210"/>
+        <location filename="src/gui/ProfileConfigWidget.ui" line="276"/>
         <source>Edit</source>
         <translation>Bearbeiten</translation>
     </message>
     <message>
-        <location filename="src/gui/ProfileConfigWidget.ui" line="108"/>
-        <location filename="src/gui/ProfileConfigWidget.ui" line="212"/>
+        <location filename="src/gui/ProfileConfigWidget.ui" line="144"/>
+        <location filename="src/gui/ProfileConfigWidget.ui" line="217"/>
+        <location filename="src/gui/ProfileConfigWidget.ui" line="283"/>
         <source>Remove</source>
         <translation>Entfernen</translation>
     </message>
     <message>
-        <location filename="src/gui/ProfileConfigWidget.ui" line="135"/>
+        <location filename="src/gui/ProfileConfigWidget.ui" line="171"/>
+        <source>Search Resources</source>
+        <translation>Suchressourcen</translation>
+    </message>
+    <message>
+        <location filename="src/gui/ProfileConfigWidget.ui" line="244"/>
         <source>DAT Files</source>
         <translation>DAT-Dateien</translation>
     </message>
@@ -2474,22 +2550,22 @@ Sie sollten ein Exemplar der GNU General Public License zusammen mit diesem Prog
         <translation type="obsolete">Datei geschlossen!</translation>
     </message>
     <message>
-        <location filename="src/System.cpp" line="201"/>
+        <location filename="src/System.cpp" line="205"/>
         <source>Unhandeled Exception</source>
         <translation>Unbehandelte Ausnahme</translation>
     </message>
     <message>
-        <location filename="src/System.cpp" line="251"/>
+        <location filename="src/System.cpp" line="255"/>
         <source>Save changes?</source>
         <translation>Ändrungen speichern?</translation>
     </message>
     <message>
-        <location filename="src/System.cpp" line="252"/>
+        <location filename="src/System.cpp" line="256"/>
         <source>This file has unsaved changes. Do you want to save it before closing?</source>
         <translation>Die Datei hat ungespeicherte Änderungen. Soll sie vor dem Schließen gespeichert werden?</translation>
     </message>
     <message>
-        <location filename="src/System.cpp" line="198"/>
+        <location filename="src/System.cpp" line="202"/>
         <source>Unhandeled Exception %1%2</source>
         <translation>Eine unbehandelte Ausnahme ist aufgetreten. Das Programm könnte weiter laufen, aber Stabilität kann nicht garantiert werden. Eine genaue Beschreibung der Ausnahme wurde in die Datei %2 geschrieben.
 Der Ausnahmetext:

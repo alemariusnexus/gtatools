@@ -25,6 +25,10 @@
 #include <cstring>
 #include <cstdlib>
 #include <cstdio>
+#include "../util/stream/StreamReader.h"
+#include "../util/stream/EndianSwappingStreamReader.h"
+#include "../util/stream/StreamWriter.h"
+#include "../util/stream/EndianSwappingStreamWriter.h"
 
 using std::streamoff;
 
@@ -67,6 +71,12 @@ GXTLoader::GXTLoader(const File& file, Encoding encoding)
 
 void GXTLoader::init()
 {
+#ifdef GTAFORMATS_LITTLE_ENDIAN
+	StreamReader reader(stream);
+#else
+	EndianSwappingStreamReader reader(stream);
+#endif
+
 	char skipBuf[4];
 	char tov[4];
 	stream->read(tov, 4);
@@ -80,7 +90,7 @@ void GXTLoader::init()
 		cpos += 4;
 	}
 
-	stream->read((char*) &numTables, 4);
+	reader.read32(&numTables);
 
 	if (numTables < 0) {
 		char* errmsg = new char[64];
@@ -121,6 +131,11 @@ bool GXTLoader::nextTableHeader(GXTTableHeader& header)
 	}
 
 	stream->read((char*) &header, 12);
+
+#ifndef GTAFORMATS_LITTLE_ENDIAN
+	header.offset = FromLittleEndian32(header.offset);
+#endif
+
 	cpos += 12;
 	currentTable++;
 
@@ -159,6 +174,12 @@ streamoff GXTLoader::getTableOffset(const GXTTableHeader& header) const
 
 GXTTable* GXTLoader::readTableData(const GXTTableHeader& header)
 {
+#ifdef GTAFORMATS_LITTLE_ENDIAN
+	StreamReader reader(stream);
+#else
+	EndianSwappingStreamReader reader(stream);
+#endif
+
 	char skipBuf[8];
 	streamoff offset = getTableOffset(header);
 	stream->seekg(offset-cpos, istream::cur);
@@ -167,8 +188,7 @@ GXTTable* GXTLoader::readTableData(const GXTTableHeader& header)
 	stream->read(skipBuf, 4); // TKEY
 	cpos += 4;
 
-	int32_t tkeySize;
-	stream->read((char*) &tkeySize, 4);
+	int32_t tkeySize = reader.read32();
 	cpos += 4;
 
 	if (version == SAIV) {
@@ -176,9 +196,11 @@ GXTTable* GXTLoader::readTableData(const GXTTableHeader& header)
 		GXTTable* table = new GXTTable(header.name, encoding == None ? GXT8 : encoding, keepKeyNames);
 		GXTSAIVEntry* entries = new GXTSAIVEntry[numEntries];
 
-		for (int32_t i = 0 ; i < numEntries ; i++) {
+		reader.readArray32((int32_t*) entries, 2*numEntries);
+
+		/*for (int32_t i = 0 ; i < numEntries ; i++) {
 			stream->read((char*) &entries[i], 8);
-		}
+		}*/
 
 		cpos += 8*numEntries;
 
@@ -253,9 +275,16 @@ GXTTable* GXTLoader::readTableData(const GXTTableHeader& header)
 		GXTTable* table = new GXTTable(header.name, encoding == None ? GXT16 : encoding, keepKeyNames);
 		GXTVC3Entry* entries = new GXTVC3Entry[numEntries];
 
+		stream->read((char*) entries, 12*numEntries);
+
+#ifndef GTAFORMATS_LITTLE_ENDIAN
 		for (int32_t i = 0 ; i < numEntries ; i++) {
-			stream->read((char*) &entries[i], 12);
+			entries[i].offset = SwapEndianness32(entries[i].offset);
 		}
+#endif
+		/*for (int32_t i = 0 ; i < numEntries ; i++) {
+			stream->read((char*) &entries[i], 12);
+		}*/
 
 		cpos += 12*numEntries;
 
@@ -264,8 +293,7 @@ GXTTable* GXTLoader::readTableData(const GXTTableHeader& header)
 		stream->read(skipBuf, 4); // TDAT
 		cpos += 4;
 
-		int32_t tdatSize;
-		stream->read((char*) &tdatSize, 4);
+		int32_t tdatSize = reader.read32();
 		cpos += 4;
 
 		streamoff tdatRead = 0;

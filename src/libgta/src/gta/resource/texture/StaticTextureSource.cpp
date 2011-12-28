@@ -31,13 +31,7 @@ StaticTextureSource::StaticTextureSource(TXDArchive* txd)
 		TXDTextureHeader* txdTex = *it;
 		Texture* tex = new Texture(txd, txdTex);
 
-		const char* name = txdTex->getDiffuseName();
-		char* lname = new char[strlen(name)+1];
-		strtolower(lname, name);
-		hash_t texHash = Hash(lname);
-		delete[] lname;
-
-		texes[texHash] = shared_ptr<Texture>(tex);
+		texes[CString(txdTex->getDiffuseName()).lower()] = shared_ptr<Texture>(tex);
 	}
 }
 
@@ -50,7 +44,7 @@ StaticTextureSource::StaticTextureSource(const StaticTextureSource& other)
 }
 
 
-Texture* StaticTextureSource::getTexture(hash_t texHash)
+Texture* StaticTextureSource::getTexture(const CString& texHash)
 {
 	TexMap::iterator it = texes.find(texHash);
 

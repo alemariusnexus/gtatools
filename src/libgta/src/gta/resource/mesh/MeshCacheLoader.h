@@ -23,14 +23,15 @@
 #ifndef MESHCACHELOADER_H_
 #define MESHCACHELOADER_H_
 
-#include "../CacheEntryLoader.h"
+#include "../ResourceCache.h"
 #include "MeshIndexer.h"
+#include <gtaformats/util/CString.h>
 
 
-class MeshCacheLoader : public CacheEntryLoader {
+class MeshCacheLoader : public Engine::StringResourceCache::EntryLoader {
 public:
 	MeshCacheLoader(MeshIndexer* indexer) : indexer(indexer) {}
-	virtual CacheEntry* load(hash_t key);
+	virtual Engine::StringResourceCache::Entry* load(CString key);
 
 private:
 	MeshIndexer* indexer;

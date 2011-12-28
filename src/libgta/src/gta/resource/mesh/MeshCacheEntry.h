@@ -23,20 +23,20 @@
 #ifndef MESHCACHEENTRY_H_
 #define MESHCACHEENTRY_H_
 
-#include "../CacheEntry.h"
-#include "Mesh.h"
+#include "../ResourceCache.h"
+#include "MeshClump.h"
 
 
-class MeshCacheEntry : public CacheEntry {
+class MeshCacheEntry : public Engine::StringResourceCache::Entry {
 public:
-	MeshCacheEntry(Mesh* mesh);
+	MeshCacheEntry(MeshClump* mesh);
 	virtual ~MeshCacheEntry();
 	virtual cachesize_t getSize() const;
-	Mesh* getMesh() { return mesh; }
-	Mesh* operator*() { return mesh; }
+	MeshClump* getMesh() { return mesh; }
+	MeshClump* operator*() { return mesh; }
 
 private:
-	Mesh* mesh;
+	MeshClump* mesh;
 };
 
 #endif /* MESHCACHEENTRY_H_ */

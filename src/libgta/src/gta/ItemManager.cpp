@@ -23,6 +23,7 @@
 #include "ItemManager.h"
 #include "StaticMapItemDefinition.h"
 #include "TimedMapItemDefinition.h"
+#include "Engine.h"
 #include <gtaformats/gtaide.h>
 #include <utility>
 
@@ -40,7 +41,9 @@ ItemManager::~ItemManager()
 
 void ItemManager::resourceAdded(const File& file)
 {
-	if (file.guessContentType() == CONTENT_TYPE_IDE) {;
+	if (file.guessContentType() == CONTENT_TYPE_IDE) {
+		Engine* engine = Engine::getInstance();
+
 		IDEReader ide(file);
 		IDEStatement* stmt;
 

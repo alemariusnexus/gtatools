@@ -48,13 +48,12 @@ void MeshIndexer::resourceAdded(const File& file)
 		char* lMeshName = new char[strlen(fname)+1];
 		strtolower(lMeshName, fname);
 		*strrchr(lMeshName, '.') = '\0';
-		index.insert(pair<hash_t, File*>(Hash(lMeshName), new File(file)));
-		delete[] lMeshName;
+		index.insert(pair<CString, File*>(CString::from(lMeshName), new File(file)));
 	}
 }
 
 
-const File* MeshIndexer::find(hash_t name)
+const File* MeshIndexer::find(const CString& name)
 {
 	IndexMap::iterator it = index.find(name);
 

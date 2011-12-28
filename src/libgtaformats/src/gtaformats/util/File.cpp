@@ -195,14 +195,27 @@ FileContentType File::guessContentType() const
 
 istream* File::openInputStream(ifstream::openmode mode, bool testen) const
 {
-	if (testen) {
+	/*if (testen) {
 		if (physicallyExists()) {
-			if (isRegularFile()) {
-
+			return NULL;
+		} else {
+			if (path->isIMGPath()) {
+				// TODO Reimplement
+				try {
+					shared_ptr<IMGArchive> archive = getIMGArchive();
+					istream* rstream = archive->gotoEntry(path->getFileName(), false, true);
+					return NULL;
+				} catch (Exception& ex) {
+					char* errMsg = new char[strlen(path->toString()) + 64];
+					sprintf(errMsg, "Exception thrown during stream opening of IMG entry %s.", path->toString());
+					FileException fex(errMsg, __FILE__, __LINE__, &ex);
+					delete[] errMsg;
+					throw fex;
+				}
+				return NULL;
 			}
 		}
-		return NULL;
-	}
+	}*/
 
 	if (physicallyExists()) {
 		if (isRegularFile()) {
@@ -218,7 +231,6 @@ istream* File::openInputStream(ifstream::openmode mode, bool testen) const
 		if (path->isIMGPath()) {
 			// TODO Reimplement
 			try {
-				//IMGArchive archive(*parent, IMGArchive::ReadOnly | IMGArchive::KeepStreamsOpen);
 				shared_ptr<IMGArchive> archive = getIMGArchive();
 				istream* rstream = archive->gotoEntry(path->getFileName(), false);
 
@@ -451,9 +463,10 @@ bool File::operator<(const File& other) const
 
 bool File::isArchiveFile() const
 {
-	if (!isRegularFile()) {
+	// TODO I disabled this for performance reasons, though I'm not sure if this might cause problems.
+	/*if (!isRegularFile()) {
 		return false;
-	}
+	}*/
 
 	FileContentType type = guessContentType();
 	return type == CONTENT_TYPE_IMG  ||  type == CONTENT_TYPE_DIR;
@@ -746,5 +759,42 @@ void File::resize(filesize size) const
 	SetFilePointerEx(fhandle, sizeVal, 0, FILE_BEGIN);
 	SetEndOfFile(fhandle);
 	CloseHandle(fhandle);
+#endif
+}
+
+
+uint64_t File::getModifyTime() const
+{
+#ifdef _POSIX_VERSION
+	struct stat fileInfo;
+
+	if (stat(path->toString(), &fileInfo) != 0) {
+		char* errStr = strerror(errno);
+		char* errmsg = new char[64 + strlen(errStr) + strlen(path->toString())];
+		sprintf(errmsg, "Error getting modification time of file '%s': %s", path->toString(), errStr);
+		FileException ex(errmsg, __FILE__, __LINE__);
+		delete[] errmsg;
+		throw ex;
+	}
+
+	return fileInfo.st_mtime*1000;
+#else
+	HANDLE handle = CreateFile(path->toString(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE
+			| FILE_SHARE_DELETE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	FILETIME mtime;
+
+	if (GetFileTime(handle, NULL, NULL, &mtime) == 0) {
+		char* errmsg = new char[128 + strlen(path->toString())];
+		sprintf(errmsg, "Error getting modification time of file '%s'. Error code: %d", path->toString(),
+				GetLastError());
+		FileException ex(errmsg, __FILE__, __LINE__);
+		delete[] errmsg;
+		throw ex;
+	}
+
+	CloseHandle(handle);
+	uint64_t t =  (((uint64_t) mtime.dwLowDateTime | ((uint64_t) mtime.dwHighDateTime << 32))
+			- 116444736000000000) / 10000;
+	return t - (t % 1000);
 #endif
 }

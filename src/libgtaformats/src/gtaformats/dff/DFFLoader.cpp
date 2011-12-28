@@ -22,6 +22,7 @@
 
 #include "DFFLoader.h"
 #include "DFFException.h"
+#include "../util/util.h"
 #include "../util/math/Matrix3.h"
 #include "../util/math/Vector3.h"
 #include "../gta.h"
@@ -84,7 +85,7 @@ DFFMesh* DFFLoader::loadMesh(RWSection* clump)
 	RWSection* frameListStruct = frameList->getChild(RW_SECTION_STRUCT);
 	uint8_t* frameListStructData = frameListStruct->getData();
 
-	uint32_t numFrames = *((uint32_t*) frameListStructData);
+	uint32_t numFrames = FromLittleEndian32(*((uint32_t*) frameListStructData));
 
 	// In DFF, the frames are stored and indexed as a flat data structure, so at first we keep them flat.
 	IndexedDFFFrame* indexedFrames = new IndexedDFFFrame[numFrames];
@@ -96,11 +97,24 @@ DFFMesh* DFFLoader::loadMesh(RWSection* clump)
 		indexedFrame.boneID = -1;
 		uint8_t* offData = frameListStructData + 4 + i*56;
 
+#ifdef GTAFORMATS_LITTLE_ENDIAN
 		Matrix3* rotMatrix = new Matrix3((float*) offData);
 		Vector3* posVector = new Vector3((float*) (offData + 9*4));
-		indexedFrame.parentIdx = *((uint32_t*) (offData + 12*4));
+#else
+		float* rData = (float*) offData;
+		float* pData = (float*) (offData + 9*4);
+		Matrix3* rotMatrix = new Matrix3(
+				FromLittleEndianF32(rData[0]), FromLittleEndianF32(rData[1]), FromLittleEndianF32(rData[2]),
+				FromLittleEndianF32(rData[3]), FromLittleEndianF32(rData[4]), FromLittleEndianF32(rData[5]),
+				FromLittleEndianF32(rData[6]), FromLittleEndianF32(rData[7]), FromLittleEndianF32(rData[8])
+				);
+		Vector3* posVector = new Vector3(FromLittleEndianF32(pData[0]), FromLittleEndianF32(pData[1]),
+				FromLittleEndianF32(pData[2]));
+#endif
+
+		indexedFrame.parentIdx = FromLittleEndian32(*((uint32_t*) (offData + 12*4)));
 		DFFFrame* frame = new DFFFrame(posVector, rotMatrix);
-		frame->flags = *((uint32_t*) (offData + 13*4));
+		frame->flags = FromLittleEndian32(*((uint32_t*) (offData + 13*4)));
 		indexedFrame.frame = frame;
 	}
 
@@ -118,24 +132,19 @@ DFFMesh* DFFLoader::loadMesh(RWSection* clump)
 
 		RWSection* frameSect = frameListExt->getChild(RW_SECTION_FRAME);
 
-		//printf("Frame #%d", i);
-
 		if (frameSect) {
 			char* frameName = new char[frameSect->getSize() + 1];
 			frameName[frameSect->getSize()] = '\0';
 			memcpy(frameName, frameSect->getData(), frameSect->getSize());
 			frame->setName(frameName);
-			//printf(" \"%s\"", frameName);
-		} else {
-			//printf(" [unnamed]");
 		}
 
 		RWSection* hAnimPlg = frameListExt->getChild(RW_SECTION_HANIM_PLG);
 
 		if (hAnimPlg) {
 			uint8_t* adata = hAnimPlg->getData();
-			int32_t boneID = *((int32_t*) (adata+4));
-			int32_t boneCount = *((int32_t*) (adata+8));
+			int32_t boneID = FromLittleEndian32(*((int32_t*) (adata+4)));
+			int32_t boneCount = FromLittleEndian32(*((int32_t*) (adata+8)));
 			adata += 12;
 
 			indexedFrames[i].boneID = boneID;
@@ -148,8 +157,21 @@ DFFMesh* DFFLoader::loadMesh(RWSection* clump)
 				bones.clear();
 
 				for (int32_t i = 0 ; i < boneCount ; i++) {
+					// NOTE: The 'type' value might be the node topology flags. I don't know this for sure
+					// and we don't seem to need this either way, but it might be like this:
+					// 0 = NONE
+					// 1 = POP
+					// 2 = PUSH
+					// 3 = PUSH/POP
+
 					DFFBone* bone = new DFFBone;
 					memcpy(bone, adata, 12);
+
+#ifndef GTAFORMATS_LITTLE_ENDIAN
+					bone->index = FromLittleEndian32(bone->index);
+					bone->num = FromLittleEndian32(bone->num);
+					bone->type = FromLittleEndian32(bone->type);
+#endif
 
 					bones[bone->getIndex()] = bone;
 
@@ -195,7 +217,7 @@ DFFMesh* DFFLoader::loadMesh(RWSection* clump)
 	RWSection* geomList = clump->getChild(RW_SECTION_GEOMETRYLIST);
 	RWSection* geomListStruct = geomList->getChild(RW_SECTION_STRUCT);
 
-	uint32_t numGeoms = *((uint32_t*) geomListStruct->getData());
+	uint32_t numGeoms = FromLittleEndian32(*((uint32_t*) geomListStruct->getData()));
 
 	RWSection::ChildIterator geomIt = geomList->getChildBegin();
 	while ((geomIt = geomList->nextChild(RW_SECTION_GEOMETRY, geomIt))  !=  geomList->getChildEnd()) {
@@ -209,12 +231,12 @@ DFFMesh* DFFLoader::loadMesh(RWSection* clump)
 		RWSection* geomStruct = geomSect->getChild(RW_SECTION_STRUCT);
 		uint8_t* geomData = geomStruct->getData();
 
-		uint16_t flags = *((uint16_t*) geomData);
+		uint16_t flags = FromLittleEndian16(*((uint16_t*) geomData));
 		uint8_t uvSetCount = *(geomData+2);
 		// uint8_t unknown = *(geomData+3);
-		uint32_t triCount = *((uint32_t*) (geomData+4));
-		uint32_t vertexCount = *((uint32_t*) (geomData+8));
-		uint32_t frameCount = *((uint32_t*) (geomData+12));
+		uint32_t triCount = FromLittleEndian32(*((uint32_t*) (geomData+4)));
+		uint32_t vertexCount = FromLittleEndian32(*((uint32_t*) (geomData+8)));
+		uint32_t frameCount = FromLittleEndian32(*((uint32_t*) (geomData+12)));
 
 		if ((flags & GEOMETRY_FLAG_TEXCOORDS)  !=  0  &&  (flags & GEOMETRY_FLAG_MULTIPLEUVSETS) == 0) {
 			// At least some meshes in GTA 3 have the UV set count set to 0 although GEOMETRY_FLAG_TEXCOORDS
@@ -244,9 +266,9 @@ DFFMesh* DFFLoader::loadMesh(RWSection* clump)
 		geomData += 16;
 
 		if (geomStruct->getVersion() < RW_VERSION_GTAVC_2) {
-			ambientColor = *((float*) geomData);
-			diffuseColor = *((float*) (geomData + 4));
-			specularColor = *((float*) (geomData + 8));
+			ambientColor = FromLittleEndianF32(*((float*) geomData));
+			diffuseColor = FromLittleEndianF32(*((float*) (geomData + 4)));
+			specularColor = FromLittleEndianF32(*((float*) (geomData + 8)));
 			geomData += 12;
 		}
 
@@ -257,9 +279,17 @@ DFFMesh* DFFLoader::loadMesh(RWSection* clump)
 		}
 
 		if ((flags & (GEOMETRY_FLAG_TEXCOORDS | GEOMETRY_FLAG_MULTIPLEUVSETS))  !=  0) {
-			uvCoords = new float[uvSetCount * vertexCount * 2];
-			memcpy(uvCoords, geomData, uvSetCount*vertexCount*2*4);
-			geomData += uvSetCount*vertexCount*2*4;
+			size_t size = uvSetCount * vertexCount * 2;
+			uvCoords = new float[size];
+			memcpy(uvCoords, geomData, size*4);
+
+#ifndef GTAFORMATS_LITTLE_ENDIAN
+			for (size_t i = 0 ; i < size ; i++) {
+				uvCoords[i] = SwapEndiannessF32(uvCoords[i]);
+			}
+#endif
+
+			geomData += size*4;
 		}
 
 		// Skip the indices, we'll use the ones from the material split section
@@ -267,20 +297,44 @@ DFFMesh* DFFLoader::loadMesh(RWSection* clump)
 
 		DFFBoundingSphere* bounds = new DFFBoundingSphere;
 		memcpy(bounds, geomData, 4*4);
-		// uint32_t hasPositions = *((uint32_t*) (geomData+16));
-		// uint32_t hasNormals = *((uint32_t*) (geomData+20));
+
+#ifndef GTAFORMATS_LITTLE_ENDIAN
+		bounds->x = SwapEndiannessF32(bounds->x);
+		bounds->y = SwapEndiannessF32(bounds->y);
+		bounds->z = SwapEndiannessF32(bounds->z);
+		bounds->radius = SwapEndiannessF32(bounds->radius);
+#endif
+
+		// uint32_t hasPositions = FromLittleEndian32(*((uint32_t*) (geomData+16)));
+		// uint32_t hasNormals = FromLittleEndian32(*((uint32_t*) (geomData+20)));
 		geomData += 6*4;
 
 		// We ignore the setting of GEOMETRY_FLAG_POSITIONS. There are some meshes in GTA 3 where this flag
 		// is not set but which have vertex positions nonetheless. The engine seems to ignore the flag.
-		vertices = new float[vertexCount*3];
-		memcpy(vertices, geomData, vertexCount*3*4);
-		geomData += vertexCount*3*4;
+		size_t size = vertexCount*3;
+		vertices = new float[size];
+		memcpy(vertices, geomData, size*4);
+
+#ifndef GTAFORMATS_LITTLE_ENDIAN
+		for (size_t i = 0 ; i < size ; i++) {
+			vertices[i] = SwapEndiannessF32(vertices[i]);
+		}
+#endif
+
+		geomData += size*4;
 
 		if ((flags & GEOMETRY_FLAG_NORMALS)  !=  0) {
-			normals = new float[vertexCount*3];
-			memcpy(normals, geomData, vertexCount*3*4);
-			geomData += vertexCount*3*4;
+			size = vertexCount*3;
+			normals = new float[size];
+			memcpy(normals, geomData, size*4);
+
+#ifndef GTAFORMATS_LITTLE_ENDIAN
+			for (size_t i = 0 ; i < size ; i++) {
+				normals[i] = SwapEndiannessF32(normals[i]);
+			}
+#endif
+
+			geomData += size*4;
 		}
 
 		DFFGeometry* geom = new DFFGeometry(vertexCount, vertices, normals, uvCoords, uvSetCount,
@@ -302,7 +356,7 @@ DFFMesh* DFFLoader::loadMesh(RWSection* clump)
 
 		RWSection* materialListStruct = materialList->getChild(RW_SECTION_STRUCT);
 
-		uint32_t numMaterials = *((uint32_t*) materialListStruct->getData());
+		uint32_t numMaterials = FromLittleEndian32(*((uint32_t*) materialListStruct->getData()));
 
 		RWSection::ChildIterator matIt = materialList->getChildBegin();
 		while ((matIt = materialList->nextChild(RW_SECTION_MATERIAL, matIt))
@@ -318,7 +372,7 @@ DFFMesh* DFFLoader::loadMesh(RWSection* clump)
 			// uint32_t unknown = *((uint32_t*) matData);
 			memcpy(mat->color, matData+4, 4);
 			// uint32_t unknown = *((uint32_t*) (matData+8));
-			uint32_t texCount = *((uint32_t*) (matData+12));
+			uint32_t texCount = FromLittleEndian32(*((uint32_t*) (matData+12)));
 
 			// Load the textures
 
@@ -327,7 +381,7 @@ DFFMesh* DFFLoader::loadMesh(RWSection* clump)
 				RWSection* texSect = *texIt;
 
 				RWSection* texStruct = texSect->getChild(RW_SECTION_STRUCT);
-				uint16_t filterFlags = *((uint16_t*) texStruct->getData());
+				uint16_t filterFlags = FromLittleEndian16(*((uint16_t*) texStruct->getData()));
 
 				RWSection::ChildIterator it = texSect->getChildBegin();
 
@@ -354,25 +408,32 @@ DFFMesh* DFFLoader::loadMesh(RWSection* clump)
 		}
 
 
-		// ********** Load the material split data **********
-
 		RWSection* geomExt = geomSect->getChild(RW_SECTION_EXTENSION);
+
+		// ********** Load the material split data **********
 
 		RWSection* materialSplit = geomExt->getChild(RW_SECTION_MATERIALSPLIT);
 		uint8_t* msData = materialSplit->getData();
 
-		// uint32_t faceType = *((uint32_t*) msData);
-		uint32_t splitCount = *((uint32_t*) (msData+4));
-		// uint32_t numFaces = *((uint32_t*) (msData+8));
+		// uint32_t faceType = FromLittleEndian32(*((uint32_t*) msData));
+		uint32_t splitCount = FromLittleEndian32(*((uint32_t*) (msData+4)));
+		// uint32_t numFaces = FromLittleEndian32(*((uint32_t*) (msData+8)));
 		msData += 12;
 
 		for (uint32_t j = 0 ; j < splitCount ; j++) {
-			uint32_t idxCount = *((uint32_t*) msData);
-			uint32_t materialIdx = *((uint32_t*) (msData+4));
+			uint32_t idxCount = FromLittleEndian32(*((uint32_t*) msData));
+			uint32_t materialIdx = FromLittleEndian32(*((uint32_t*) (msData+4)));
 			msData += 8;
 
 			uint32_t* indices = new uint32_t[idxCount];
 			memcpy(indices, msData, idxCount*4);
+
+#ifndef GTAFORMATS_LITTLE_ENDIAN
+			for (size_t k = 0 ; k < idxCount ; k++) {
+				indices[k] = SwapEndianness32(indices[k]);
+			}
+#endif
+
 			msData += idxCount*4;
 
 			DFFGeometryPart* part = new DFFGeometryPart(idxCount, indices);
@@ -380,6 +441,40 @@ DFFMesh* DFFLoader::loadMesh(RWSection* clump)
 			geom->addPart(part);
 			part->setMaterial(geom->getMaterial(materialIdx));
 		}
+
+
+		// ********** Load the vertex skinning data **********
+
+		RWSection* skin = geomExt->getChild(RW_SECTION_SKIN_PLG);
+
+		if (skin) {
+			uint8_t* sData = skin->getData();
+
+			uint8_t boneCount = *sData;
+			uint8_t spCount = *(sData + 1);
+			//uint8_t unknown1 = *(sData + 2);
+			//uint8_t unknown2 = *(sData + 3);
+
+			sData += 4;
+			sData += spCount; // spCount times unknown3
+
+			geom->boneIndices = new uint8_t[vertexCount*4];
+			memcpy(geom->boneIndices, sData, vertexCount*4);
+			sData += vertexCount*4;
+
+			geom->boneWeights = new float[vertexCount*4];
+			memcpy(geom->boneWeights, sData, vertexCount*4*sizeof(float));
+			sData += vertexCount*4*sizeof(float);
+
+#ifndef GTAFORMATS_LITTLE_ENDIAN
+			for (size_t j = 0 ; j < vertexCount*4 ; j++) {
+				geom->boneWeights[j] = SwapEndiannessF32(geom->boneWeights[j]);
+			}
+#endif
+
+			// Inverse Bone Matrices and possibly (version dependent) some unknown data follows...
+		}
+
 
 		mesh->addGeometry(geom);
 
@@ -398,8 +493,8 @@ DFFMesh* DFFLoader::loadMesh(RWSection* clump)
 		RWSection* atomicStruct = atomic->getChild(RW_SECTION_STRUCT);
 		uint8_t* asData = atomicStruct->getData();
 
-		uint32_t frameIdx = *((uint32_t*) asData);
-		uint32_t geomIdx = *((uint32_t*) (asData+4));
+		uint32_t frameIdx = FromLittleEndian32(*((uint32_t*) asData));
+		uint32_t geomIdx = FromLittleEndian32(*((uint32_t*) (asData+4)));
 
 		mesh->getGeometry(geomIdx)->setAssociatedFrame(indexedFrames[frameIdx].frame);
 

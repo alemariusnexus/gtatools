@@ -57,7 +57,8 @@ void* __posixThreadStarter(void* param)
 #else
 DWORD WINAPI __winThreadStarter(LPVOID param)
 {
-	Thread* thread = (Thread*) param;
+	ThreadContainer* tc = (ThreadContainer*) param;
+	Thread* thread = tc->thread;
 	thread->run();
 	thread->terminated();
     return 0;

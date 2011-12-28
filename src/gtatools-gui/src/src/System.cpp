@@ -30,6 +30,7 @@
 #include <QtGui/QMessageBox>
 #include "DefaultDisplayedFile.h"
 #include "ProfileManager.h"
+#include <gta/scene/Scene.h>
 #include <gta/resource/ResourceCache.h>
 
 
@@ -94,6 +95,9 @@ void System::initializeInstance()
 	win->initialize();
 
 	connect(qApp, SIGNAL(lastWindowClosed()), this, SLOT(destroyInstance()));
+
+	Scene* scene = new Scene;
+	engine->setScene(scene);
 
 	initializing = false;
 

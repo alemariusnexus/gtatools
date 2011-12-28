@@ -23,14 +23,18 @@
 #ifndef STATICSCENEOBJECT_H_
 #define STATICSCENEOBJECT_H_
 
-#include "SceneObject.h"
+#include "VisualSceneObject.h"
 #include <gtaformats/util/math/Matrix4.h>
 #include <gtaformats/gtaipl.h>
 #include "../MapItemDefinition.h"
 #include <btBulletDynamicsCommon.h>
 
 
-class StaticSceneObject : public SceneObject {
+class SceneObjectDefinitionInfo;
+
+
+
+class StaticSceneObject : public VisualSceneObject {
 public:
 	StaticSceneObject(MapItemDefinition* def, const Matrix4& modelMatrix = Matrix4(),
 			StaticSceneObject* lodParent = NULL);
@@ -40,24 +44,28 @@ public:
 	Matrix4& getModelMatrix() { return modelMatrix; }
 	const Matrix4& getModelMatrix() const { return modelMatrix; }
 	void setModelMatrix(const Matrix4& matrix);
-	StaticSceneObject* getLODParent() { return lodParent; }
-	const StaticSceneObject* getLODParent() const { return lodParent; }
 	void setLODParent(StaticSceneObject* parent) { lodParent = parent; }
-	int getLODHierarchyDepth() const { return lodParent ? lodParent->getLODHierarchyDepth()+1 : 0; }
-	int getID() const { return id; }
-	void setID(int id) { this->id = id; }
 	btRigidBody* getRigidBody() { return rigidBody; }
+	void setHasAlphaTransparency(bool alpha) { this->alpha = alpha; }
+	void setDefinitionInfo(SceneObjectDefinitionInfo* info) { defInfo = info; }
+	SceneObjectDefinitionInfo* getDefinitionInfo() { return defInfo; }
+	virtual SceneObject* getLODParent() { return lodParent; }
 	virtual bool isVisible() const { return def->isVisible(); }
 	virtual int getType() const { return SceneObjectStatic; }
+	virtual float getDrawDistance() const { return def->getDrawDistance(); }
+	virtual Vector3 getPosition() const
+			{ const float* m = modelMatrix.toArray(); return Vector3(m[12], m[13], m[14]); }
+	virtual bool hasAlphaTransparency() const { return alpha; }
 
 private:
-	int id;
 	int flags;
+	bool alpha;
 	MapItemDefinition* def;
 	Matrix4 modelMatrix;
 	StaticSceneObject* lodParent;
 	btRigidBody* rigidBody;
 	btMotionState* motionState;
+	SceneObjectDefinitionInfo* defInfo;
 };
 
 #endif /* STATICSCENEOBJECT_H_ */

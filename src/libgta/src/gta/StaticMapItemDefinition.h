@@ -32,6 +32,7 @@ public:
 	StaticMapItemDefinition(MeshPointer* meshPtr, TextureSource* texSrc, CollisionShapePointer* colPtr,
 			float drawDist);
 	StaticMapItemDefinition(IDEStaticObject& object);
+	~StaticMapItemDefinition();
 
 private:
 	void initShaderLocations();

@@ -25,7 +25,8 @@
 
 #include "../../gui/GLBaseWidget.h"
 #include <gtaformats/gtacol.h>
-#include <gta/ItemDefinition.h>
+#include <gta/MapItemDefinition.h>
+#include <gta/scene/StaticSceneObject.h>
 
 
 class COLMeshRenderWidget : public GLBaseWidget {
@@ -33,6 +34,7 @@ class COLMeshRenderWidget : public GLBaseWidget {
 
 public:
 	COLMeshRenderWidget(QWidget* parent);
+	~COLMeshRenderWidget();
 	void render(const float* vertices, int32_t vertexCount, const COLFace* faces, int32_t faceCount);
 	void setSelectedFace(int faceIndex);
 
@@ -46,8 +48,9 @@ signals:
 	void faceSelectionChanged(int prevIdx, int idx);
 
 private:
-	ItemDefinition* item;
-	ItemDefinition* pickItem;
+	Scene* scene;
+	StaticSceneObject* obj;
+	StaticSceneObject* pickObj;
 	uint8_t* colors;
 	int pickedFace;
 	uint8_t pickedFaceRealColor[4];

@@ -37,27 +37,37 @@ public:
 	ProfileConfigWidget(Profile* profile, QWidget* parent = NULL);
 	~ProfileConfigWidget();
 	QString getProfileName() { return ui.nameField->text(); }
-	QString getDATRootFile() { return ui.datRootField->text(); }
-	void getFiles(QLinkedList<QString>& dest);
+	QString getRootDirectory() { return ui.rootDirField->text(); }
+	void getResourceFiles(QLinkedList<QString>& dest);
+	void getSearchResourceFiles(QLinkedList<QString>& dest);
 	void getDATFiles(QLinkedList<QString>& dest);
+	GameInfo::VersionMode getVersionMode() const
+			{ return (GameInfo::VersionMode) ui.versionBox->itemData(ui.versionBox->currentIndex()).toInt(); }
 
 private slots:
-	void fileAddButtonClicked(bool checked = false);
-	void dirAddButtonClicked(bool checked = false);
-	void fileEditButtonClicked(bool checked = false);
-	void fileRemoveButtonClicked(bool checked = false);
-	void resourceSelectionChanged();
+	void rootDirButtonClicked(bool checked);
+	void versionBoxChanged(int index);
+
+	void engineFileAddButtonClicked(bool checked = false);
+	void engineDirAddButtonClicked(bool checked = false);
+	void engineFileEditButtonClicked(bool checked = false);
+	void engineFileRemoveButtonClicked(bool checked = false);
+	void engineResourceSelectionChanged();
+
+	void searchFileAddButtonClicked(bool checked = false);
+	void searchDirAddButtonClicked(bool checked = false);
+	void searchFileEditButtonClicked(bool checked = false);
+	void searchFileRemoveButtonClicked(bool checked = false);
+	void searchResourceSelectionChanged();
 
 	void datFileAddButtonClicked(bool checked = false);
 	void datFileEditButtonClicked(bool checked = false);
 	void datFileRemoveButtonClicked(bool checked = false);
 	void datSelectionChanged();
 
-	void datRootChooseButtonClicked(bool checked);
-
 private:
 	void clearFiles();
-	void tryDATAutocomplete();
+	void tryAutocomplete();
 
 private:
 	Ui_ProfileConfigWidget ui;

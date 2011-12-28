@@ -29,7 +29,7 @@
 
 
 class COLFaceGroup {
-	friend class COLoader;
+	friend class COLLoader;
 
 public:
 	COLFaceGroup(const Vector3& vmin, const Vector3& vmax, uint16_t startFace, uint16_t endFace)

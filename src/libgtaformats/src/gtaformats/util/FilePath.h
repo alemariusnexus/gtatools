@@ -38,7 +38,8 @@ enum FileContentType {
 	CONTENT_TYPE_IDE,		//!< The file is an item definition (IDE) file.
 	CONTENT_TYPE_IPL,		//!< The file is an item placement (IPL) file.
 	CONTENT_TYPE_DAT,		//!< The file is a DAT file.
-	CONTENT_TYPE_COL		//!< The file is a Collision Mesh (COL) file.
+	CONTENT_TYPE_COL,		//!< The file is a Collision Mesh (COL) file.
+	CONTENT_TYPE_IFP		//!< The file is an animation package (IFP).
 };
 
 
@@ -126,6 +127,8 @@ public:
 	bool isIMGPath() const;
 
 	bool isChildOf(const FilePath& other) const;
+
+	FilePath* relativeTo(const FilePath& parent) const;
 
 	bool operator==(const FilePath& other) const;
 	bool operator!=(const FilePath& other) const { return !(*this == other); }

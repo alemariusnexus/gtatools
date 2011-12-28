@@ -23,12 +23,16 @@
 #include "StaticSceneObject.h"
 #include "../gl.h"
 #include "../resource/ResourceCache.h"
+#include "SceneObjectDefinitionInfo.h"
 
+
+
+// TODO When do we delete defInfo?
 
 
 StaticSceneObject::StaticSceneObject(MapItemDefinition* def, const Matrix4& modelMatrix,
 			StaticSceneObject* lodParent)
-		: id(-1), def(def), modelMatrix(modelMatrix), lodParent(lodParent)
+		: def(def), modelMatrix(modelMatrix), lodParent(lodParent), defInfo(NULL)
 {
 	setHasAlphaTransparency(def->hasAlphaTransparency());
 	const float* matData = modelMatrix.toArray();
@@ -43,7 +47,8 @@ StaticSceneObject::StaticSceneObject(MapItemDefinition* def, const Matrix4& mode
 
 
 StaticSceneObject::StaticSceneObject(const StaticSceneObject& other)
-		: id(-1), def(other.def), modelMatrix(other.modelMatrix), lodParent(other.lodParent)
+		: def(other.def), modelMatrix(other.modelMatrix), lodParent(other.lodParent),
+		  defInfo(other.defInfo ? new SceneObjectDefinitionInfo(*other.defInfo) : NULL)
 {
 	setHasAlphaTransparency(other.hasAlphaTransparency());
 	const float* matData = modelMatrix.toArray();

@@ -31,46 +31,84 @@ ProfileConfigWidget::ProfileConfigWidget(Profile* profile, QWidget* parent)
 {
 	ui.setupUi(this);
 
-	connect(ui.fileAddButton, SIGNAL(clicked(bool)), this, SLOT(fileAddButtonClicked(bool)));
-	connect(ui.dirAddButton, SIGNAL(clicked(bool)), this, SLOT(dirAddButtonClicked(bool)));
-	connect(ui.fileEditButton, SIGNAL(clicked(bool)), this, SLOT(fileEditButtonClicked(bool)));
-	connect(ui.fileRemoveButton, SIGNAL(clicked(bool)), this, SLOT(fileRemoveButtonClicked(bool)));
-	connect(ui.fileList, SIGNAL(itemSelectionChanged()), this, SLOT(resourceSelectionChanged()));
+	ui.versionBox->addItem(tr("GTA San Andreas"), GameInfo::GTASA);
+	ui.versionBox->addItem(tr("GTA Vice City"), GameInfo::GTAVC);
+	ui.versionBox->addItem(tr("GTA III"), GameInfo::GTAIII);
+
+	connect(ui.rootDirButton, SIGNAL(clicked(bool)), this, SLOT(rootDirButtonClicked(bool)));
+	connect(ui.versionBox, SIGNAL(currentIndexChanged(int)), this, SLOT(versionBoxChanged(int)));
+
+	connect(ui.engineFileAddButton, SIGNAL(clicked(bool)), this, SLOT(engineFileAddButtonClicked(bool)));
+	connect(ui.engineDirAddButton, SIGNAL(clicked(bool)), this, SLOT(engineDirAddButtonClicked(bool)));
+	connect(ui.engineFileEditButton, SIGNAL(clicked(bool)), this, SLOT(engineFileEditButtonClicked(bool)));
+	connect(ui.engineFileRemoveButton, SIGNAL(clicked(bool)), this, SLOT(engineFileRemoveButtonClicked(bool)));
+	connect(ui.engineFileList, SIGNAL(itemSelectionChanged()), this, SLOT(engineResourceSelectionChanged()));
+
+	connect(ui.searchFileAddButton, SIGNAL(clicked(bool)), this, SLOT(searchFileAddButtonClicked(bool)));
+	connect(ui.searchDirAddButton, SIGNAL(clicked(bool)), this, SLOT(searchDirAddButtonClicked(bool)));
+	connect(ui.searchFileEditButton, SIGNAL(clicked(bool)), this, SLOT(searchFileEditButtonClicked(bool)));
+	connect(ui.searchFileRemoveButton, SIGNAL(clicked(bool)), this, SLOT(searchFileRemoveButtonClicked(bool)));
+	connect(ui.searchFileList, SIGNAL(itemSelectionChanged()), this, SLOT(searchResourceSelectionChanged()));
 
 	connect(ui.datFileAddButton, SIGNAL(clicked(bool)), this, SLOT(datFileAddButtonClicked(bool)));
 	connect(ui.datFileEditButton, SIGNAL(clicked(bool)), this, SLOT(datFileEditButtonClicked(bool)));
 	connect(ui.datFileRemoveButton, SIGNAL(clicked(bool)), this, SLOT(datFileRemoveButtonClicked(bool)));
 	connect(ui.datFileList, SIGNAL(itemSelectionChanged()), this, SLOT(datSelectionChanged()));
 
-	connect(ui.datRootChooseButton, SIGNAL(clicked(bool)), this, SLOT(datRootChooseButtonClicked(bool)));
-
 	displayedProfile = profile;
 	clearFiles();
 
 	ui.nameField->setText(profile->getName());
-	ui.datRootField->setText(profile->getDATRootDirectory());
+
+	if (profile->getGameInfo())
+		ui.rootDirField->setText(profile->getGameInfo()->getRootDirectory().getPath()->toString());
+	else
+		ui.rootDirField->setText("");
+
+	if (profile->getGameInfo()) {
+		switch (profile->getGameInfo()->getVersionMode()) {
+		case GameInfo::GTASA:
+			ui.versionBox->setCurrentIndex(0);
+			break;
+		case GameInfo::GTAVC:
+			ui.versionBox->setCurrentIndex(1);
+			break;
+		case GameInfo::GTAIII:
+			ui.versionBox->setCurrentIndex(2);
+			break;
+		}
+	}
 
 	Profile::ResourceIterator it;
 
 	for (it = profile->getResourceBegin() ; it != profile->getResourceEnd() ; it++) {
-		new QListWidgetItem((*it)->getPath()->toString(), ui.fileList);
+		new QListWidgetItem((*it)->getPath()->toString(), ui.engineFileList);
+	}
+
+	for (it = profile->getSearchResourceBegin() ; it != profile->getSearchResourceEnd() ; it++) {
+		new QListWidgetItem((*it)->getPath()->toString(), ui.searchFileList);
 	}
 
 	for (it = profile->getDATFilesBegin() ; it != profile->getDATFilesEnd() ; it++) {
 		new QListWidgetItem((*it)->getPath()->toString(), ui.datFileList);
 	}
 
-	ui.fileAddButton->setEnabled(profile != NULL);
-	ui.dirAddButton->setEnabled(profile != NULL);
-	ui.fileEditButton->setEnabled(profile != NULL);
-	ui.fileRemoveButton->setEnabled(profile != NULL);
+	ui.engineFileAddButton->setEnabled(profile != NULL);
+	ui.engineDirAddButton->setEnabled(profile != NULL);
+	ui.engineFileEditButton->setEnabled(profile != NULL);
+	ui.engineFileRemoveButton->setEnabled(profile != NULL);
+
+	ui.searchFileAddButton->setEnabled(profile != NULL);
+	ui.searchDirAddButton->setEnabled(profile != NULL);
+	ui.searchFileEditButton->setEnabled(profile != NULL);
+	ui.searchFileRemoveButton->setEnabled(profile != NULL);
 
 	ui.datFileAddButton->setEnabled(profile != NULL);
 	ui.datFileEditButton->setEnabled(profile != NULL);
 	ui.datFileRemoveButton->setEnabled(profile != NULL);
 
 	if (profile)
-		tryDATAutocomplete();
+		tryAutocomplete();
 }
 
 
@@ -80,10 +118,19 @@ ProfileConfigWidget::~ProfileConfigWidget()
 }
 
 
-void ProfileConfigWidget::getFiles(QLinkedList<QString>& dest)
+void ProfileConfigWidget::getResourceFiles(QLinkedList<QString>& dest)
 {
-	for (int i = 0 ; i < ui.fileList->count() ; i++) {
-		QListWidgetItem* item = ui.fileList->item(i);
+	for (int i = 0 ; i < ui.engineFileList->count() ; i++) {
+		QListWidgetItem* item = ui.engineFileList->item(i);
+		dest << item->text();
+	}
+}
+
+
+void ProfileConfigWidget::getSearchResourceFiles(QLinkedList<QString>& dest)
+{
+	for (int i = 0 ; i < ui.searchFileList->count() ; i++) {
+		QListWidgetItem* item = ui.searchFileList->item(i);
 		dest << item->text();
 	}
 }
@@ -100,49 +147,57 @@ void ProfileConfigWidget::getDATFiles(QLinkedList<QString>& dest)
 
 void ProfileConfigWidget::clearFiles()
 {
-	int count = ui.fileList->count();
+	int count = ui.engineFileList->count();
 
 	for (int i = 0 ; i < count ; i++) {
-		delete ui.fileList->takeItem(0);
+		delete ui.engineFileList->takeItem(0);
 	}
 
-	int datCount = ui.datFileList->count();
+	count = ui.searchFileList->count();
 
-	for (int i = 0 ; i < datCount ; i++) {
+	for (int i = 0 ; i < count ; i++) {
+		delete ui.searchFileList->takeItem(0);
+	}
+
+	count = ui.datFileList->count();
+
+	for (int i = 0 ; i < count ; i++) {
 		delete ui.datFileList->takeItem(0);
 	}
 }
 
 
-void ProfileConfigWidget::fileAddButtonClicked(bool checked)
+void ProfileConfigWidget::versionBoxChanged(int index)
+{
+
+}
+
+
+void ProfileConfigWidget::engineFileAddButtonClicked(bool checked)
 {
 	QStringList files = QFileDialog::getOpenFileNames(this, tr("Select one or more resources"));
 	QStringList filesCpy = files;
 	QStringList::iterator it;
 
 	for (it = filesCpy.begin() ; it != filesCpy.end() ; it++) {
-		new QListWidgetItem(*it, ui.fileList);
+		new QListWidgetItem(*it, ui.engineFileList);
 	}
-
-	tryDATAutocomplete();
 }
 
 
-void ProfileConfigWidget::dirAddButtonClicked(bool checked)
+void ProfileConfigWidget::engineDirAddButtonClicked(bool checked)
 {
 	QString fname = QFileDialog::getExistingDirectory(this, tr("Select a resource directory"));
 
 	if (!fname.isNull()) {
-		new QListWidgetItem(fname, ui.fileList);
+		new QListWidgetItem(fname, ui.engineFileList);
 	}
-
-	tryDATAutocomplete();
 }
 
 
-void ProfileConfigWidget::fileEditButtonClicked(bool checked)
+void ProfileConfigWidget::engineFileEditButtonClicked(bool checked)
 {
-	QListWidgetItem* item = ui.fileList->currentItem();
+	QListWidgetItem* item = ui.engineFileList->currentItem();
 
 	if (!item) {
 		return;
@@ -164,21 +219,95 @@ void ProfileConfigWidget::fileEditButtonClicked(bool checked)
 			item->setText(newFname);
 		}
 	}
-
-	tryDATAutocomplete();
 }
 
 
-void ProfileConfigWidget::fileRemoveButtonClicked(bool checked)
+void ProfileConfigWidget::engineFileRemoveButtonClicked(bool checked)
 {
-	QList<QListWidgetItem*> items = ui.fileList->selectedItems();
+	QList<QListWidgetItem*> items = ui.engineFileList->selectedItems();
 
 	for (int i = 0 ; i < items.count() ; i++) {
 		QListWidgetItem* item = items[i];
 		delete item;
 	}
+}
 
-	tryDATAutocomplete();
+
+void ProfileConfigWidget::engineResourceSelectionChanged()
+{
+	int numSel = ui.engineFileList->selectedItems().count();
+
+	ui.engineFileRemoveButton->setEnabled(numSel > 0);
+	ui.engineFileEditButton->setEnabled(numSel == 1);
+}
+
+
+void ProfileConfigWidget::searchFileAddButtonClicked(bool checked)
+{
+	QStringList files = QFileDialog::getOpenFileNames(this, tr("Select one or more resources"));
+	QStringList filesCpy = files;
+	QStringList::iterator it;
+
+	for (it = filesCpy.begin() ; it != filesCpy.end() ; it++) {
+		new QListWidgetItem(*it, ui.searchFileList);
+	}
+}
+
+
+void ProfileConfigWidget::searchDirAddButtonClicked(bool checked)
+{
+	QString fname = QFileDialog::getExistingDirectory(this, tr("Select a resource directory"));
+
+	if (!fname.isNull()) {
+		new QListWidgetItem(fname, ui.searchFileList);
+	}
+}
+
+
+void ProfileConfigWidget::searchFileEditButtonClicked(bool checked)
+{
+	QListWidgetItem* item = ui.searchFileList->currentItem();
+
+	if (!item) {
+		return;
+	}
+
+	QString fname = item->text();
+
+	if (File(fname.toLocal8Bit().constData()).isDirectory()) {
+		QString newFname = QFileDialog::getExistingDirectory(this, tr("Select the new resource directory"),
+				fname);
+
+		if (!newFname.isNull()) {
+			item->setText(newFname);
+		}
+	} else {
+		QString newFname = QFileDialog::getOpenFileName(this, tr("Select the new resource file"), fname);
+
+		if (!newFname.isNull()) {
+			item->setText(newFname);
+		}
+	}
+}
+
+
+void ProfileConfigWidget::searchFileRemoveButtonClicked(bool checked)
+{
+	QList<QListWidgetItem*> items = ui.searchFileList->selectedItems();
+
+	for (int i = 0 ; i < items.count() ; i++) {
+		QListWidgetItem* item = items[i];
+		delete item;
+	}
+}
+
+
+void ProfileConfigWidget::searchResourceSelectionChanged()
+{
+	int numSel = ui.searchFileList->selectedItems().count();
+
+	ui.searchFileRemoveButton->setEnabled(numSel > 0);
+	ui.searchFileEditButton->setEnabled(numSel == 1);
 }
 
 
@@ -223,15 +352,6 @@ void ProfileConfigWidget::datFileRemoveButtonClicked(bool checked)
 }
 
 
-void ProfileConfigWidget::resourceSelectionChanged()
-{
-	int numSel = ui.fileList->selectedItems().count();
-
-	ui.fileRemoveButton->setEnabled(numSel > 0);
-	ui.fileEditButton->setEnabled(numSel == 1);
-}
-
-
 void ProfileConfigWidget::datSelectionChanged()
 {
 	int numSel = ui.datFileList->selectedItems().count();
@@ -241,54 +361,65 @@ void ProfileConfigWidget::datSelectionChanged()
 }
 
 
-void ProfileConfigWidget::datRootChooseButtonClicked(bool checked)
+void ProfileConfigWidget::rootDirButtonClicked(bool checked)
 {
 	QString dname = QFileDialog::getExistingDirectory(this, tr("Choose a DAT root directory"));
 
 	if (!dname.isNull()) {
-		ui.datRootField->setText(dname);
+		ui.rootDirField->setText(dname);
 	}
 
-	tryDATAutocomplete();
+	tryAutocomplete();
 }
 
 
-void ProfileConfigWidget::tryDATAutocomplete()
+void ProfileConfigWidget::tryAutocomplete()
 {
-	// Try to autocomplete the DAT root directory
-	if (ui.datRootField->text().isEmpty()) {
-		for (int i = 0 ; i < ui.fileList->count() ; i++) {
-			QString res = ui.fileList->item(i)->text();
+	// Try to guess the game version
+	bool verGuessed = false;
+	GameInfo::VersionMode ver;
 
-			if (File(res.toLocal8Bit().constData()).isDirectory()) {
-				ui.datRootField->setText(res);
+	File root(ui.rootDirField->text().toLocal8Bit().constData());
+
+	if (root.exists()  &&  root.isDirectory()) {
+		FileIterator* it = (root.getIterator());
+		File* child;
+
+		while ((child = it->next())  !=  NULL) {
+			if (QString(child->getPath()->getFileName()).toLower() == QString("gta_sa.exe")) {
+				ver = GameInfo::GTASA;
+				verGuessed = true;
+				delete child;
 				break;
 			}
+
+			delete child;
 		}
+
+		delete it;
 	}
 
-	// Try to autocomplete the DAT files
-	if (ui.datFileList->count() == 0) {
-		File datRoot(ui.datRootField->text().toLocal8Bit().constData());
+	if (verGuessed) {
+		switch (ver) {
+		case GameInfo::GTASA:
+			ui.versionBox->setCurrentIndex(0);
+			break;
+		case GameInfo::GTAVC:
+			ui.versionBox->setCurrentIndex(0);
+			break;
+		case GameInfo::GTAIII:
+			ui.versionBox->setCurrentIndex(0);
+			break;
+		}
 
-		if (datRoot.exists()  &&  datRoot.isDirectory()) {
-			FileIterator* it = (datRoot.getIterator());
-			File* child;
-
-			while ((child = it->next())  !=  NULL) {
-				if (QString(child->getPath()->getFileName()).toLower() == QString("gta_sa.exe")) {
-					new QListWidgetItem(File(datRoot, "data/default.dat").getPath()->toString(),
-							ui.datFileList);
-					new QListWidgetItem(File(datRoot, "data/gta.dat").getPath()->toString(),
-							ui.datFileList);
-					delete child;
-					break;
-				}
-
-				delete child;
+		// Try to autocomplete the DAT files
+		if (ui.datFileList->count() == 0) {
+			if (ver == GameInfo::GTASA) {
+				new QListWidgetItem(File(root, "data/default.dat").getPath()->toString(),
+						ui.datFileList);
+				new QListWidgetItem(File(root, "data/gta.dat").getPath()->toString(),
+						ui.datFileList);
 			}
-
-			delete it;
 		}
 	}
 }

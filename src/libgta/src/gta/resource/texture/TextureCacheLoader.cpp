@@ -40,9 +40,9 @@ TextureCacheLoader::TextureCacheLoader(TextureIndexer* indexer)
 }
 
 
-CacheEntry* TextureCacheLoader::load(hash_t hash)
+Engine::StringResourceCache::Entry* TextureCacheLoader::load(CString name)
 {
-	TextureArchive* indexArchive = indexer->findArchive(hash);
+	TextureArchive* indexArchive = indexer->findArchive(name);
 
 	if (!indexArchive) {
 		return NULL;
@@ -56,13 +56,7 @@ CacheEntry* TextureCacheLoader::load(hash_t hash)
 		TXDTextureHeader* txdTex = *it;
 		Texture* tex = new Texture(&txd, txdTex);
 
-		const char* name = txdTex->getDiffuseName();
-		char* lname = new char[strlen(name)+1];
-		strtolower(lname, name);
-		hash_t texHash = Hash(lname);
-		delete[] lname;
-
-		cacheEntry->addTexture(texHash, tex);
+		cacheEntry->addTexture(CString(txdTex->getDiffuseName()).lower(), tex);
 	}
 
 	return cacheEntry;

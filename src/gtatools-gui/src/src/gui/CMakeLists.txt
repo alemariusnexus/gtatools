@@ -24,7 +24,7 @@ SET(SRCS ${SRCS}
     src/gui/VersionDialog.cpp src/gui/FileTree.cpp src/gui/FileViewWidget.cpp src/gui/LogConsole.cpp
     src/gui/GUI.cpp src/gui/GLBaseWidget.cpp src/gui/HexEditor.cpp
     src/gui/HexEditorPrivate.cpp src/gui/HexEditorDecoder.cpp src/gui/HexEditorGotoDialog.cpp
-    src/gui/GLContainerWidget.cpp
+    src/gui/GLContainerWidget.cpp src/gui/PVSDialog.cpp
     PARENT_SCOPE)
 SET(MOC_SRCS ${MOC_SRCS}
     src/gui/FileItemModel.h src/gui/MainWindow.h src/gui/ProfileConfigWidget.h src/gui/ConfigWidget.h
@@ -32,10 +32,12 @@ SET(MOC_SRCS ${MOC_SRCS}
     src/gui/FileTree.h src/gui/FileViewWidget.h src/gui/LogConsole.h src/gui/GUI.h src/gui/GLBaseWidget.h
     src/gui/HexEditor.h src/gui/HexEditorPrivate.h src/gui/HexEditorDecoder.h
     src/gui/HexEditorGotoDialog.h src/gui/GLContainerWidget.h src/gui/GLContainerWidgetPrivate.h
+    src/gui/PVSDialog.h
     PARENT_SCOPE)
 SET(UIC_SRCS ${UIC_SRCS}
     src/gui/MainFrame.ui src/gui/ProfileConfigWidget.ui src/gui/ConfigWidget.ui src/gui/FileSearchDialog.ui
     src/gui/VersionDialog.ui src/gui/FileViewWidget.ui src/gui/LogConsole.ui
     src/gui/HexEditorDecoder.ui src/gui/HexEditorGotoDialog.ui src/gui/GLContainerWidget.ui
+    src/gui/PVSDialog.ui
     PARENT_SCOPE)
 SET(INCS ${INCS} src/gui PARENT_SCOPE)

@@ -25,30 +25,57 @@
 
 #include <gta/config.h>
 #include "Camera.h"
-#include "Renderer.h"
+#include "GameInfo.h"
+#include "resource/ResourceCache.h"
 #include <locale>
 #include <cstring>
 #include <vector>
+#include <string>
+#include <gtaformats/gta.h>
 #include <gtaformats/util/math/Matrix4.h>
 #include <gtaformats/util/strutil.h>
 #include <gtaformats/util/File.h>
+#include <gtaformats/util/cxx0xhash.h>
+#include <gtaformats/util/CString.h>
 #include <btBulletDynamicsCommon.h>
+#include <functional>
+#include <boost/shared_array.hpp>
 
 using std::locale;
 using std::collate;
 using std::use_facet;
 using std::vector;
+using std::string;
+using std::less;
+using std::equal_to;
+using boost::shared_array;
 
 
-class ResourceCache;
 class ResourceObserver;
 class MeshCacheLoader;
 class TextureCacheLoader;
 class CollisionMeshCacheLoader;
+class AnimationCacheLoader;
 class MeshIndexer;
 class TextureIndexer;
 class CollisionMeshIndexer;
+class AnimationIndexer;
 class Scene;
+class SceneObjectHandler;
+class StaticSceneObject;
+template<class K, class Compare, class MapHash, class KeyEqual> class ResourceCache;
+
+
+
+struct IndexedSceneObject
+{
+	StaticSceneObject* obj;
+	int32_t saLodIndex;
+	bool topLevel;
+	char* vcModelName;
+	IndexedSceneObject* parent;
+	vector<IndexedSceneObject*> children;
+};
 
 
 
@@ -56,12 +83,7 @@ class Scene;
 
 class Engine {
 public:
-	enum VersionMode
-	{
-		GTAIII,
-		GTAVC,
-		GTASA
-	};
+	typedef ResourceCache<CString, StringComparator, CXX0XHash<CString>, StringEqual> StringResourceCache;
 
 public:
 	static Engine* getInstance();
@@ -70,12 +92,14 @@ public:
 public:
 	void addResource(const File& file, void (*callback)() = NULL);
 	void clearResources();
-	ResourceCache* getMeshCache();
-	ResourceCache* getTextureCache();
-	ResourceCache* getCollisionMeshCache() { return colCache; }
+	StringResourceCache* getMeshCache() { return meshCache; }
+	StringResourceCache* getTextureCache() { return texCache; }
+	StringResourceCache* getCollisionMeshCache() { return colCache; }
+	StringResourceCache* getAnimationCache() { return animCache; }
 	MeshIndexer* getMeshIndexer() { return meshIndexer; }
 	TextureIndexer* getTextureIndexer() { return texIndexer; }
 	CollisionMeshIndexer* getCollisionMeshIndexer() { return colIndexer; }
+	AnimationIndexer* getAnimationIndexer() { return animIndexer; }
 	void addResourceObserver(ResourceObserver* observer);
 	void removeResourceObserver(ResourceObserver* observer);
 	void setCamera(Camera* cam) { camera = cam; }
@@ -86,7 +110,7 @@ public:
 	void setScene(Scene* scene) { this->scene = scene; }
 	Scene* getScene() { return scene; }
 	void render();
-	void loadDAT(const File& file, const File& rootDir);
+	void loadDAT(const File& file, const File& rootDir, const GameInfo* gameInfo = NULL);
 	void setPhysicsWorld(btDiscreteDynamicsWorld* world) { physicsWorld = world; }
 	btDiscreteDynamicsWorld* getPhysicsWorld() { return physicsWorld; }
 	void switchDrawing() { enableDrawing = !enableDrawing; }
@@ -96,23 +120,23 @@ public:
 	int8_t getGameMinutes() const { return gameMinutes; }
 	void getGameTime(int8_t& h, int8_t& m) const { h = gameHours; m = gameMinutes; }
 	void advanceGameTime(int8_t h, int8_t m);
-	void setVersionMode(VersionMode mode) { verMode = mode; }
-	VersionMode getVersionMode() const { return verMode; }
-	void setRenderer(Renderer* renderer) { this->renderer = renderer; }
-	Renderer* getRenderer() { return renderer; }
 	void setViewportSize(int w, int h) { viewWidth = w; viewHeight = h; }
 	int getViewportWidth() const { return viewWidth; }
 	int getViewportHeight() const { return viewHeight; }
+	void setDefaultGameInfo(GameInfo* info) { defGameInfo = info; }
+	GameInfo* getDefaultGameInfo() { return defGameInfo; }
 
 private:
 	Engine();
-	void iplRecurse(File* file, const File& rootDir);
+	void iplRecurse(File* file, const File& rootDir, const GameInfo* gameInfo = NULL);
+	void iplMakeUniqueLODHierarchy(IndexedSceneObject* node, uint32_t& nextID,
+			vector<IndexedSceneObject*>& newObjs);
 
 private:
 	static Engine* instance;
 
 private:
-	VersionMode verMode;
+	GameInfo* defGameInfo;
 
 	vector<ResourceObserver*> resObservers;
 	Camera* camera;
@@ -122,14 +146,17 @@ private:
 	MeshIndexer* meshIndexer;
 	TextureIndexer* texIndexer;
 	CollisionMeshIndexer* colIndexer;
+	AnimationIndexer* animIndexer;
 
 	MeshCacheLoader* meshCacheLoader;
 	TextureCacheLoader* texCacheLoader;
 	CollisionMeshCacheLoader* colCacheLoader;
+	AnimationCacheLoader* animCacheLoader;
 
-	ResourceCache* meshCache;
-	ResourceCache* texCache;
-	ResourceCache* colCache;
+	StringResourceCache* meshCache;
+	StringResourceCache* texCache;
+	StringResourceCache* colCache;
+	StringResourceCache* animCache;
 
 	btDiscreteDynamicsWorld* physicsWorld;
 
@@ -137,9 +164,9 @@ private:
 
 	int8_t gameHours, gameMinutes;
 
-	Renderer* renderer;
-
 	int viewWidth, viewHeight;
+
+	uint64_t updateTime;
 };
 
 #endif /* ENGINE_H_ */

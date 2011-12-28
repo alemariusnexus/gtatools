@@ -26,21 +26,22 @@
 #include <gta/config.h>
 #include "MeshPointer.h"
 #include <gtaformats/config.h>
+#include <gtaformats/util/CString.h>
 #include "../../Engine.h"
-#include "../CachePointer.h"
+#include "../ResourceCache.h"
 
 
 class ManagedMeshPointer : public MeshPointer {
 public:
-	ManagedMeshPointer(hash_t meshHash)
-			: pointer(Engine::getInstance()->getMeshCache()->getEntryPointer(meshHash)) {}
+	ManagedMeshPointer(const CString& meshName)
+			: pointer(Engine::getInstance()->getMeshCache()->getEntryPointer(meshName)) {}
 	ManagedMeshPointer(const ManagedMeshPointer& other) : pointer(other.pointer) {}
-	virtual Mesh* operator*();
+	virtual MeshClump* operator*();
 	virtual MeshPointer* clone() const { return new ManagedMeshPointer(*this); }
 	virtual void release();
 
 private:
-	CachePointer pointer;
+	Engine::StringResourceCache::Pointer pointer;
 };
 
 #endif /* MANAGEDMESHPOINTER_H_ */

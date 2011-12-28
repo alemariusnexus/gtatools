@@ -76,7 +76,10 @@ void RwGetVersionName(uint32_t version, char* dest);
  * 	@param value The string to hash.
  * 	@return The CRC32 hash.
  */
-crc32_t Crc32(const char value[]);
+crc32_t Crc32(const char* value, size_t len);
+
+inline crc32_t Crc32(const char* value) { return Crc32(value, strlen(value)); }
+
 
 #endif	/* _GTA_H */
 

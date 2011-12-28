@@ -30,14 +30,14 @@
 
 
 
-Texture* ManagedTextureSource::getTexture(hash_t texHash)
+Texture* ManagedTextureSource::getTexture(const CString& texName)
 {
 	TextureCacheEntry* entry = (TextureCacheEntry*) pointer.getEntry();
 
 	if (!entry)
 		return NULL;
 
-	return entry->getTexture(texHash);
+	return entry->getTexture(texName);
 	/*ResourceCache* cache = Engine::getInstance()->getTextureCache();
 
 	TextureCacheEntry* entry = (TextureCacheEntry*) cache->getEntry(txdHash, true);

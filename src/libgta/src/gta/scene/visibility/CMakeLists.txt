@@ -18,7 +18,7 @@
 # Additional permissions are granted, which are listed in the file
 # GPLADDITIONS.
 
-SET(FILES PVSData PVSSection)
+SET(FILES PVSDatabase PVSSection)
 
 FOREACH(FILE ${FILES})
     SET(SRCS ${SRCS} "gta/scene/visibility/${FILE}")

@@ -25,7 +25,7 @@
 
 #include <gta/config.h>
 #include "MeshPointer.h"
-#include "Mesh.h"
+#include "MeshClump.h"
 #include <boost/shared_ptr.hpp>
 
 using boost::shared_ptr;
@@ -33,13 +33,13 @@ using boost::shared_ptr;
 
 class StaticMeshPointer : public MeshPointer {
 public:
-	StaticMeshPointer(Mesh* mesh) : mesh(shared_ptr<Mesh>(mesh)) {}
+	StaticMeshPointer(MeshClump* mesh) : mesh(shared_ptr<MeshClump>(mesh)) {}
 	StaticMeshPointer(const StaticMeshPointer& other) : mesh(other.mesh) {}
-	virtual Mesh* operator*() { return mesh.get(); }
+	virtual MeshClump* operator*() { return mesh.get(); }
 	virtual MeshPointer* clone() const { return new StaticMeshPointer(*this); }
 
 private:
-	shared_ptr<Mesh> mesh;
+	shared_ptr<MeshClump> mesh;
 };
 
 #endif /* STATICMESHPOINTER_H_ */

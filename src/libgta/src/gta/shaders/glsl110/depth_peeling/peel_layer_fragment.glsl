@@ -1,15 +1,24 @@
 vec4 ShadeFragment();
 
 
-uniform sampler2D DepthTex;
+uniform sampler2D PeelDepthTex;
+uniform sampler2D OpaqueDepthTex;
 uniform ivec2 TexDimensions;
 
 
 void main()
 {
-	float depth = texture2D(DepthTex, vec2(gl_FragCoord.x / float(TexDimensions.x), gl_FragCoord.y / float(TexDimensions.y))).r;
+	vec2 texCoord = vec2(gl_FragCoord.x / float(TexDimensions.x), gl_FragCoord.y / float(TexDimensions.y));
+
+	float opaqueDepth = texture2D(OpaqueDepthTex, texCoord).r;
 	
-	if (gl_FragCoord.z <= depth+0.00002) {
+	if (gl_FragCoord.z >= opaqueDepth+0.00002) {
+		discard;
+	}
+	
+	float peelDepth = texture2D(PeelDepthTex, texCoord).r;
+	
+	if (gl_FragCoord.z <= peelDepth+0.00002) {
 		discard;
 	}
 	

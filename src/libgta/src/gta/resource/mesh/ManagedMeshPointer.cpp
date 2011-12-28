@@ -26,7 +26,7 @@
 
 
 
-Mesh* ManagedMeshPointer::operator*()
+MeshClump* ManagedMeshPointer::operator*()
 {
 	MeshCacheEntry* entry = (MeshCacheEntry*) pointer.getEntry();
 

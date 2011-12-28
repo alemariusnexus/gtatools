@@ -27,15 +27,20 @@
 #include <gta/gl.h>
 #include <gta/Shader.h>
 #include <gta/ShaderProgram.h>
-#include <gta/ItemDefinition.h>
+#include <gta/scene/Scene.h>
+#include <gta/MapItemDefinition.h>
+#include <gta/scene/StaticSceneObject.h>
 #include <gtaformats/util/math/Matrix4.h>
 #include <gtaformats/col/COLSphere.h>
 #include <QtCore/QLinkedList>
 
 
 class COLSphereBoxRenderWidget : public GLBaseWidget {
+	Q_OBJECT
+
 public:
 	COLSphereBoxRenderWidget(QWidget* parent);
+	~COLSphereBoxRenderWidget();
 	void addSphere(const COLSphere& sphere);
 	void addBox(const COLBox& box);
 	void addModel(const COLModel& model);
@@ -47,7 +52,8 @@ protected:
 	virtual void paintGL();
 
 private:
-	QLinkedList<ItemDefinition*> items;
+	Scene* scene;
+	QLinkedList<StaticSceneObject*> objs;
 };
 
 #endif /* SPHEREBOXRENDERWIDGET_H_ */

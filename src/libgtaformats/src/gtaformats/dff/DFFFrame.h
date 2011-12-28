@@ -26,6 +26,7 @@
 #include <gtaformats/config.h>
 #include <cstdlib>
 #include "../util/math/Matrix3.h"
+#include "../util/math/Matrix4.h"
 #include "../util/math/Vector3.h"
 #include "DFFBone.h"
 #include <vector>

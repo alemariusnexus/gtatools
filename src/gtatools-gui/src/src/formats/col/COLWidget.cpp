@@ -45,7 +45,7 @@ COLWidget::COLWidget(const File& file, QWidget *parent)
 	smeshTabber->setParent(ui.smeshTab);
 	ui.smeshTabLayout->addWidget(smeshTabber);
 
-	sphereBoxRendererContainer = new GLContainerWidget(ui.sphereBoxRenderWidgetContainer);
+	/*sphereBoxRendererContainer = new GLContainerWidget(ui.sphereBoxRenderWidgetContainer);
 	ui.sphereBoxRenderWidgetContainer->layout()->addWidget(sphereBoxRendererContainer);
 	sphereBoxRenderer = new COLSphereBoxRenderWidget(sphereBoxRendererContainer);
 	sphereBoxRendererContainer->setGLWidget(sphereBoxRenderer);
@@ -53,7 +53,7 @@ COLWidget::COLWidget(const File& file, QWidget *parent)
 	shadowMeshRendererContainer = new GLContainerWidget(ui.smeshRenderWidgetContainer);
 	ui.smeshRenderWidgetContainer->layout()->addWidget(shadowMeshRendererContainer);
 	shadowMeshRenderer = new COLMeshRenderWidget(shadowMeshRendererContainer);
-	shadowMeshRendererContainer->setGLWidget(shadowMeshRenderer);
+	shadowMeshRendererContainer->setGLWidget(shadowMeshRenderer);*/
 
 	meshRendererContainer = new GLContainerWidget(ui.vmeshRenderWidgetContainer);
 	ui.vmeshRenderWidgetContainer->layout()->addWidget(meshRendererContainer);
@@ -78,8 +78,8 @@ COLWidget::COLWidget(const File& file, QWidget *parent)
 	connect(ui.faceGroupBox, SIGNAL(toggled(bool)), this, SLOT(faceGroupsToggled(bool)));
 	connect(ui.faceGroupList, SIGNAL(itemSelectionChanged()), this, SLOT(faceGroupSelectionChanged()));
 	connect(ui.meshList, SIGNAL(currentRowChanged(int)), this, SLOT(currentMeshChanged(int)));
-	connect(shadowMeshRenderer, SIGNAL(faceSelectionChanged(int, int)), this,
-			SLOT(shadowMeshFaceSelectionChanged(int, int)));
+	/*connect(shadowMeshRenderer, SIGNAL(faceSelectionChanged(int, int)), this,
+			SLOT(shadowMeshFaceSelectionChanged(int, int)));*/
 	connect(meshRenderer, SIGNAL(faceSelectionChanged(int, int)), this,
 			SLOT(vertexMeshFaceSelectionChanged(int, int)));
 	connect(sys, SIGNAL(configurationChanged()), this, SLOT(updateLayoutType()));
@@ -265,14 +265,16 @@ void COLWidget::currentModelChanged(int index)
 	const Vector3& bbMin = bounds.getMinimum();
 	const Vector3& bbMax = bounds.getMaximum();
 
-	ui.boundingSphereLabel->setText(QString("(%1, %2, %3 ; %4)").arg(bsCenter[0]).arg(bsCenter[1])
-			.arg(bsCenter[2]).arg(bsRadius));
-	ui.boundingBoxLabel->setText(QString("(%1, %2, %3)\n(%4, %5, %6)").arg(bbMin[0]).arg(bbMin[1])
-			.arg(bbMin[2]).arg(bbMax[0]).arg(bbMax[1]).arg(bbMax[2]));
+	/*ui.boundingSphereLabel->setText(QString("(%1, %2, %3 ; %4)").arg(bsCenter[0]).arg(bsCenter[1])
+			.arg(bsCenter[2]).arg(bsRadius));*/
+	ui.boundingSphereLabel->setText("Abrakadabra");
+	/*ui.boundingBoxLabel->setText(QString("(%1, %2, %3)\n(%4, %5, %6)").arg(bbMin[0]).arg(bbMin[1])
+			.arg(bbMin[2]).arg(bbMax[0]).arg(bbMax[1]).arg(bbMax[2]));*/
+	ui.boundingBoxLabel->setText(QString("AAAAAA BBBBBBBBBB CCCCCCCC DDDDDDD EEEEEEEEE FFFFFFFFFF GGGGGGGGGG"));
 	ui.sphereCountLabel->setText(QString("%1").arg(model->getSphereCount()));
 	ui.boxCountLabel->setText(QString("%1").arg(model->getBoxCount()));
 	ui.faceCountLabel->setText(QString("%1").arg(model->getFaceCount()));
-	ui.vertexCountLabel->setText(QString("%1").arg(model->getVertexCount()));
+	ui.vertexCountLabel->setText(QString("%1 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa").arg(model->getVertexCount()));
 	ui.faceGroupCountLabel->setText(QString("%1").arg(model->getFaceGroupCount()));
 	ui.shadowMeshLabel->setText(model->getShadowMesh() == NULL ? tr("no") : tr("yes"));
 
@@ -426,6 +428,7 @@ void COLWidget::vertexMeshFaceSelectionChanged(int prevIdx, int idx)
 
 void COLWidget::updateVertexMesh()
 {
+	return;
 	meshRenderer->setSelectedFace(-1);
 	vmeshFaceIndexMap.clear();
 

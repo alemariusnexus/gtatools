@@ -37,6 +37,7 @@
 
 
 AnimatedBone::AnimatedBone(DFFFrame* frame, IFPAnimation* anim)
+		: name(NULL), ifpObj(NULL)
 {
 	frameMatrix = Matrix4::translation(frame->getTranslation() * SCALE) * Matrix4(frame->getRotation());
 
@@ -46,10 +47,15 @@ AnimatedBone::AnimatedBone(DFFFrame* frame, IFPAnimation* anim)
 		for (IFPAnimation::ObjectIterator it = anim->getObjectBegin() ; it != anim->getObjectEnd() ; it++) {
 			IFPObject* obj = *it;
 
+			printf("Bone ID: %d\n", obj->getBoneID());
+
 			if (
 					(obj->getBoneID() != -1  &&  frame->getBone()->getIndex() == obj->getBoneID())
-					||	obj->getName()  &&  frame->getName()  &&  (LowerHash(obj->getName()) == LowerHash(frame->getName()))
+					//||	obj->getName()  &&  frame->getName()  &&  (LowerHash(obj->getName()) == LowerHash(frame->getName()))
 			) {
+				name = new char[strlen(obj->getName())+1];
+				strcpy(name, obj->getName());
+
 				frameCount = obj->getFrameCount();
 				frames = new IFPFrame*[frameCount];
 				rootFrames = (obj->getFrameType() == IFPObject::RootFrame);
@@ -61,6 +67,10 @@ AnimatedBone::AnimatedBone(DFFFrame* frame, IFPAnimation* anim)
 				}
 
 				found = true;
+
+				ifpObj = obj;
+
+				break;
 			}
 		}
 
@@ -71,7 +81,7 @@ AnimatedBone::AnimatedBone(DFFFrame* frame, IFPAnimation* anim)
 			float* vertices;
 			uint32_t* indices;
 
-			//gen.createSphere(vertices, vcount, indices, icount, 1.0f, 4, 3);
+			//gen.createSphere(vertices, vcount, indices, icount, 0.025f, 4, 3);
 			gen.createBox(vertices, vcount, indices, icount,
 					Vector3(-1.0f, -1.0f, -0.5f), Vector3(1.0f, 1.0f, 0.5f));
 
@@ -110,13 +120,16 @@ AnimatedBone::AnimatedBone(DFFFrame* frame, IFPAnimation* anim)
 			submesh->setMaterial(mat);
 			mesh->addSubmesh(submesh);
 
-			StaticMeshPointer* meshPtr = new StaticMeshPointer(mesh);
+			MeshClump* mclump = new MeshClump;
+			mclump->addMesh(mesh);
+
+			StaticMeshPointer* meshPtr = new StaticMeshPointer(mclump);
 			NullTextureSource* texSrc = new NullTextureSource;
 
 			StaticMapItemDefinition* def = new StaticMapItemDefinition(meshPtr, texSrc, NULL, 1000.0f);
 
 			sobj = new StaticSceneObject(def, Matrix4(), NULL);
-			Engine::getInstance()->getScene()->addSceneObject(sobj);
+			//Engine::getInstance()->getScene()->addSceneObject(sobj);
 
 			printf("Added\n");
 		} else {
@@ -142,102 +155,60 @@ AnimatedBone::AnimatedBone(DFFFrame* frame, IFPAnimation* anim)
 }
 
 
+bool AnimatedBone::getFrames(float relTime, IFPFrame*& f1, IFPFrame*& f2, float& t)
+{
+	for (int32_t i = 0 ; i < frameCount ; i++) {
+		IFPFrame* frame = frames[i];
+
+		if (relTime <= frame->getTime()) {
+			f2 = frame;
+
+			if (i == 0) {
+				f1 = frames[frameCount-1];
+			} else {
+				f1 = frames[i-1];
+			}
+
+			t = (relTime - f1->getTime()) / (f2->getTime() - f1->getTime());
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
+
 void AnimatedBone::render(float relTime, const Matrix4& parentMat, const Matrix4& parentFrameMat)
 {
 	Matrix4 frameMat = parentMat * frameMatrix;
 	Matrix4 unanimatedFrameMat = parentFrameMat * frameMatrix;
 
-	float time = relTime;
+	IFPFrame* frame = NULL;
+	IFPFrame* nextFrame = NULL;
+	float t;
 
-	for (int32_t i = 0 ; i < frameCount ; i++) {
-		IFPFrame* frame = frames[i];
+	if (getFrames(relTime, frame, nextFrame, t)) {
+		Vector3 t1, t2;
+		Quaternion r1 = frame->getRotation();
+		Quaternion r2 = nextFrame->getRotation();
 
-		if (time - frame->getTime() < 0  ||  i == frameCount-1) {
-			IFPFrame* nextFrame = NULL;
-
-			if (i+1 == frameCount) {
-				nextFrame = frames[0];
-			} else {
-				nextFrame = frames[i+1];
-			}
-
-			Vector3 t1, t2;
-			Quaternion r1 = frame->getRotation();
-			Quaternion r2 = nextFrame->getRotation();
-
-			//r1.normalize();
-			//r2.normalize();
-
-			if (rootFrames) {
-				t1 = ((IFPRootFrame*) frame)->getTranslation() * SCALE;
-				t2 = ((IFPRootFrame*) nextFrame)->getTranslation() * SCALE;
-			}
-
-			float t = time / frame->getTime();
-
-			if (t > 1.0f)
-				t = 1.0f;
-
-			/*printf("%f around %f %f %f [%d:%f]   and   %f around %f %f %f [%d:%f]\n",
-					rotAngle1 * (180.0f/M_PI), rotAxis1.getX(), rotAxis1.getY(), rotAxis1.getZ(), i, frame->getTime(),
-					rotAngle2 * (180.0f/M_PI), rotAxis2.getX(), rotAxis2.getY(), rotAxis2.getZ(), i+1, nextFrame->getTime());*/
-
-			Quaternion ir;
-
-			if (fabs(r1.angle(r2) - M_PI) <= 0.0000001f) {
-				Quaternion relRot = lastRotation.conjugate() * r1;
-				Quaternion intermediateRot = r1 * relRot;
-				float intermediateAngle = r1.angle(intermediateRot);
-				float splitFactor = intermediateAngle / M_PI;
-
-				if (t <= splitFactor) {
-					ir = r1.slerp(intermediateRot, (1.0f/splitFactor) * t);
-				} else {
-					ir = intermediateRot.slerp(r2, (1.0f / (1.0f-splitFactor)) * (t-splitFactor));
-				}
-			} else {
-				ir = r1.slerp(r2, t);
-				lastRotation = r1;
-			}
-
-			//Vector3 it = t2*t + t1*(1.0f-t);
-			Vector3 it = t1 + (t2-t1) * t;
-
-			Vector3 irAxis;
-			float irAngle;
-			ir.toAxisAngle(irAxis, irAngle);
-
-			/*printf("Frame %i/%i [%f] has %f %f %f  :  %f\n", i, frameCount, t,
-					irAxis.getX(), irAxis.getY(), irAxis.getZ(), irAngle * (180.0f/M_PI));*/
-
-			Quaternion relRot = r1.conjugate() * r2;
-
-			/*printf("From (%f %f %f) : %f  to  (%f %f %f) : %f  is  (%f %f %f) : %f\n",
-					r1axis.getX(), r1axis.getY(), r1axis.getZ(), r1angle * (180.0f/M_PI),
-					r2axis.getX(), r2axis.getY(), r2axis.getZ(), r2angle * (180.0f/M_PI),
-					lastRotationAxis.getX(), lastRotationAxis.getY(), lastRotationAxis.getZ(), tmp * (180.0f/M_PI));*/
-
-			/*printf("Rotation axis: %f %f %f  :  %f\n", lastRotationAxis.getX(), lastRotationAxis.getY(), lastRotationAxis.getZ(),
-					tmp);*/
-
-			Matrix4 mat = Matrix4::translation(it) * Matrix4(ir.toMatrix());
-			//Matrix4 mat = Matrix4(ir.toMatrix()) * Matrix4::translation(it);
-
-			/*printf("Frame %d/%d [%f] slerps between (%f %f %f %f) and (%f %f %f %f) / %f   =>   (%f %f %f %f)\n",
-					i, frameCount, frame->getTime(),
-					r1.getW(), r1.getX(), r1.getY(), r1.getZ(),
-					r2.getW(), r2.getX(), r2.getY(), r2.getZ(),
-					t,
-					ir.getW(), ir.getX(), ir.getY(), ir.getZ());*/
-			//printf("Frame %d/%d [%f]   %f %f %f %f\n", i, frameCount, t, ir.getW(), ir.getX(), ir.getY(), ir.getZ());
-			//printf("Frame %d/%d [%f]   %f %f %f\n", i, frameCount, t, it.getX(), it.getY(), it.getZ());
-
-			frameMat = parentMat * frameMatrix *  mat;
-
-			break;
+		if (rootFrames) {
+			t1 = ((IFPRootFrame*) frame)->getTranslation() * SCALE;
+			t2 = ((IFPRootFrame*) nextFrame)->getTranslation() * SCALE;
 		}
 
-		time -= frame->getTime();
+		Quaternion ir = r1.slerp(r2, t);
+
+		Vector3 it = t1 + (t2-t1) * t;
+
+		Vector3 irAxis;
+		float irAngle;
+		ir.toAxisAngle(irAxis, irAngle);
+
+		Matrix4 mat = Matrix4::translation(it) * Matrix4(ir.toMatrix());
+
+		frameMat = parentMat * frameMatrix *  mat;
 	}
 
 	if (sobj)

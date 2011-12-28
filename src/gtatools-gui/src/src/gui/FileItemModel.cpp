@@ -38,7 +38,7 @@ FileItemModel::FileItemModel(Profile* profile, QWidget* parent)
 	if (profile) {
 		Profile::ResourceIterator it;
 
-		for (it = profile->getResourceBegin() ; it != profile->getResourceEnd() ; it++) {
+		for (it = profile->getSearchResourceBegin() ; it != profile->getSearchResourceEnd() ; it++) {
 			rootFiles << new StaticFile(**it);
 		}
 	}

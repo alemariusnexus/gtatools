@@ -142,7 +142,7 @@ public:
 	 *	@param header The texture to read. The actual texture is identified by diffuse name, so you do not
 	 *		have to use the same TXDTextureHeader object as stored by this class, as long as the name is the
 	 *		same.
-	 *	@return The texture data. This is a dynamically allocates memory block. Ownership is passed to the
+	 *	@return The texture data. This is a dynamically allocated memory block. Ownership is passed to the
 	 *		caller.
 	 */
 	uint8_t* getTextureData(TXDTextureHeader* header);

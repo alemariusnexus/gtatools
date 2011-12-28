@@ -25,26 +25,31 @@
 
 #include <SDL.h>
 #include <gtaformats/util/File.h>
-#include <CEGUI/CEGUI.h>
+#include <gta/scene/BasicTransparencyAlgorithm.h>
+#include <gta/scene/DepthPeelingAlgorithm.h>
+#include <QtGui/QWidget>
+#include <QtGui/QKeyEvent>
+//#include <gta/scene/WeightedAverageAlgorithm.h>
 
 
 class Controller {
 public:
-	Controller();
+	Controller(QWidget* mainWidget);
 	void init();
 	void reshape(int w, int h);
 	bool paint();
-	void keyPressed(SDL_keysym key);
-	void keyReleased(SDL_keysym key);
-	void mouseButtonPressed(Uint8 button, Uint16 x, Uint16 y);
-	void mouseButtonReleased(Uint8 button, Uint16 x, Uint16 y);
-	void mouseMotion(Uint16 x, Uint16 y);
+	void keyPressed(QKeyEvent* evt);
+	void keyReleased(QKeyEvent* evt);
+	void mouseButtonPressed(Qt::MouseButton button, int x, int y);
+	void mouseButtonReleased(Qt::MouseButton button, int x, int y);
+	void mouseMotion(int x, int y);
 
 private:
 	void addResource(const File& file);
 
 private:
-	uint64_t lastFrameStart, lastMeasuredFrameStart, lastCEGUITime;
+	QWidget* mainWidget;
+	uint64_t lastFrameStart, lastMeasuredFrameStart;
 	float moveFactor;
 	float moveForwardFactor, moveSidewardFactor, moveUpFactor;
 	bool firstFrame;
@@ -54,6 +59,10 @@ private:
 	//BulletGLDebugDraw* debugDrawer;
 	bool programRunning;
 	bool forceStatisticsUpdate;
+
+	BasicTransparencyAlgorithm* basicTransAlgo;
+	DepthPeelingAlgorithm* dpAlgo;
+	//WeightedAverageAlgorithm* wavgAlgo;
 };
 
 #endif /* CONTROLLER_H_ */

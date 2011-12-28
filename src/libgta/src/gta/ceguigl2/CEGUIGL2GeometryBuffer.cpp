@@ -29,7 +29,7 @@
 
 CEGUIGL2GeometryBuffer::CEGUIGL2GeometryBuffer(CEGUIGL2Renderer* renderer)
 		: renderer(renderer), trans(0, 0, 0), rot(0, 0, 0), pivot(0, 0, 0), activeTex(NULL),
-		  mvMatrixValid(false), effect(NULL), vertexCount(0)
+		  mvMatrixValid(false), clipRegion(-1.0f, -1.0f, -1.0f, -1.0f), effect(NULL), vertexCount(0)
 {
 }
 
@@ -45,8 +45,15 @@ void CEGUIGL2GeometryBuffer::draw() const
 	updateMVMatrix();
 
 	Rect targetArea = renderer->getActiveRenderTarget()->getArea();
-	glScissor((GLint) clipRegion.d_left, (GLint) (targetArea.getHeight() - clipRegion.d_bottom),
-			(GLint) clipRegion.getWidth(), (GLint) clipRegion.getHeight());
+
+	GLint x, y, w, h;
+
+	x = (GLint) clipRegion.d_left;
+	y = (GLint) (targetArea.getHeight() - clipRegion.d_bottom);
+	w = (GLint) clipRegion.getWidth();
+	h = (GLint) clipRegion.getHeight();
+
+	glScissor(x, y, w, h);
 
 	Matrix4 mvpMatrix = renderer->getActiveRenderTarget()->getProjectionMatrix()
 			* mvMatrix;

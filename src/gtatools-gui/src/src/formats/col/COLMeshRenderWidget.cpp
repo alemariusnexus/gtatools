@@ -25,6 +25,10 @@
 #include <gta/resource/mesh/StaticMeshPointer.h>
 #include <gta/resource/texture/NullTextureSource.h>
 #include <gta/resource/mesh/Submesh.h>
+#include <gta/scene/StaticSceneObject.h>
+#include <gta/scene/Scene.h>
+#include <gta/scene/DefaultRenderer.h>
+#include <gta/scene/DepthPeelingAlgorithm.h>
 #include <gta/StaticMapItemDefinition.h>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QImage>
@@ -38,16 +42,44 @@ using std::ofstream;
 
 
 COLMeshRenderWidget::COLMeshRenderWidget(QWidget* parent)
-		: GLBaseWidget(parent), item(NULL), pickItem(NULL), pickedFace(-1)
+		: GLBaseWidget(parent), scene(NULL), obj(NULL), pickObj(NULL), colors(NULL), pickedFace(-1)
 {
+	printf("Creating COLMeshRenderWidget\n");
+}
 
+
+COLMeshRenderWidget::~COLMeshRenderWidget()
+{
+	if (obj) {
+		MapItemDefinition* def = obj->getDefinition();
+		delete **def->getMeshPointer();
+		delete def;
+		delete obj;
+	}
+
+	if (pickObj) {
+		MapItemDefinition* def = pickObj->getDefinition();
+		delete **def->getMeshPointer();
+		delete def;
+		delete pickObj;
+	}
+
+	if (colors)
+		delete[] colors;
+
+	DefaultRenderer* renderer = (DefaultRenderer*) scene->getRenderer();
+	delete renderer->getTransparencyAlgorithm();
+	delete renderer;
+	delete scene;
 }
 
 
 void COLMeshRenderWidget::render(const float* vertices, int32_t vertexCount, const COLFace* faces,
 		int32_t faceCount)
 {
+	return;
 	try {
+		printf("1===>\n");
 		GLBaseWidget::initializeGL();
 
 		makeCurrent();
@@ -62,16 +94,32 @@ void COLMeshRenderWidget::render(const float* vertices, int32_t vertexCount, con
 		conv.convertVertexModel(vertices, vertexCount, faces, faceCount, modelVertexCount, modelVertices, modelColors,
 				modelIndices, modelIndexCount);
 
+		printf("Colors: %p\n", modelColors);
+
 		Mesh* mesh = new Mesh(modelVertexCount, VertexFormatTriangles, MeshVertexColors, modelVertices, NULL,
 				NULL, modelColors);
 		Submesh* submesh = new Submesh(mesh, modelIndexCount, modelIndices);
 		mesh->addSubmesh(submesh);
+
+		if (colors)
+			delete[] colors;
+
 		colors = modelColors;
 
-		if (item)
-			delete item;
-		item = new StaticMapItemDefinition(new StaticMeshPointer(mesh), new NullTextureSource, 5000.0f);
+		MeshClump* clump = new MeshClump;
+		clump->addMesh(mesh);
 
+		if (obj) {
+			MapItemDefinition* def = obj->getDefinition();
+			delete **def->getMeshPointer();
+			delete def;
+			delete obj;
+		}
+
+		MapItemDefinition* def = new StaticMapItemDefinition(new StaticMeshPointer(clump),
+				new NullTextureSource, NULL, 5000.0f);
+
+		obj = new StaticSceneObject(def);
 
 		// Build picking mesh
 		Mesh* pickMesh = conv.convert(vertices, vertexCount, faces, faceCount);
@@ -88,40 +136,89 @@ void COLMeshRenderWidget::render(const float* vertices, int32_t vertexCount, con
 
 		glBufferSubData(GL_ARRAY_BUFFER, colorOffs, vcount*4, pickColors);
 
-		if (pickItem)
-			delete pickItem;
+		MeshClump* pickClump = new MeshClump;
+		pickClump->addMesh(pickMesh);
 
-		pickItem = new StaticMapItemDefinition(new StaticMeshPointer(pickMesh),
-				new NullTextureSource, 5000.0f);
+		if (pickObj) {
+			MapItemDefinition* def = pickObj->getDefinition();
+			delete **def->getMeshPointer();
+			delete def;
+			delete pickObj;
+		}
 
-		updateGL();
+		MapItemDefinition* pickDef = new StaticMapItemDefinition(new StaticMeshPointer(pickClump),
+				new NullTextureSource, NULL, 5000.0f);
+
+		pickObj = new StaticSceneObject(pickDef);
+
+		printf("<====\n");
+
+		if (scene) {
+			updateGL();
+			printf("FUCKING UPDATED\n");
+		}
+
+		printf("HAHAHA\n");
 	} catch (Exception& ex) {
 		System::getInstance()->unhandeledException(ex);
 	}
 }
 
+bool inited = false;
+
 
 void COLMeshRenderWidget::initializeGL()
 {
-	GLBaseWidget::initializeGL();
+	printf("Initializing %p\n", this);
 
-#ifdef GTATOOLS_GUI_USE_OPENGL_ES
-	QFile vfile(":/src/shader/vertex_col_es.glsl");
-	QFile ffile(":/src/shader/fragment_col_es.glsl");
-#else
-	QFile vfile(":/src/shader/vertex_col.glsl");
-	QFile ffile(":/src/shader/fragment_col.glsl");
-#endif
+	//GLBaseWidget::initializeGL();
+	gtaglInit();
 
-	initializeShaders(vfile, ffile);
+	GLuint s = glCreateShader(GL_VERTEX_SHADER);
+	printf("%s\n", glIsShader(s) == GL_TRUE ? "true" : "false");
 
-	glEnable(GL_DEPTH_TEST);
+	/*if (!inited) {
+		GLuint s = glCreateShader(GL_VERTEX_SHADER);
+		printf("%u: %s (%p : %s)\n", s, glIsShader(s) == GL_TRUE ? "true" : "false", context(), context()->isValid() ? "true" : "false");
+		glDeleteShader(s);
+		inited = true;
+	} else {
+		GLuint s = glCreateShader(GL_VERTEX_SHADER);
+		printf("%u: %s (%p : %s)\n", s, glIsShader(s) == GL_TRUE ? "true" : "false", context(), context()->isValid() ? "true" : "false");
+		inited = true;
+	}*/
+
+	/*if (scene) {
+		DefaultRenderer* renderer = (DefaultRenderer*) scene->getRenderer();
+		delete renderer->getTransparencyAlgorithm();
+		delete renderer;
+		delete scene;
+	}*/
+
+	// Yes, initializeGL might be called more than once...
+	//scene = new Scene;
+
+	//DefaultRenderer* renderer = new DefaultRenderer;
+	//scene->setRenderer(renderer);
+
+	//glEnable(GL_DEPTH_TEST);
 }
 
 
 void COLMeshRenderWidget::resizeGL(int w, int h)
 {
 	GLBaseWidget::resizeGL(w, h);
+
+	return;
+
+	DefaultRenderer* renderer = (DefaultRenderer*) scene->getRenderer();
+
+	if (!renderer->getTransparencyAlgorithm()) {
+		Engine* engine = Engine::getInstance();
+		engine->setViewportSize(getViewportWidth(), getViewportHeight());
+		DepthPeelingAlgorithm* dpAlgo = new DepthPeelingAlgorithm;
+		renderer->setTransparencyAlgorithm(dpAlgo);
+	}
 }
 
 
@@ -131,15 +228,26 @@ void COLMeshRenderWidget::paintGL()
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	if (item) {
-		item->render();
+	return;
+
+	Engine* engine = Engine::getInstance();
+	engine->setScene(scene);
+
+	scene->clear();
+
+	if (obj) {
+		scene->addSceneObject(obj);
 	}
+
+	engine->render();
 }
 
 
 void COLMeshRenderWidget::mouseDoubleClickEvent(QMouseEvent* evt)
 {
-	if (pickItem) {
+	fprintf(stderr, "WARNING: COL picking is currently unsupported due to changes in the API!");
+
+	/*if (pickItem) {
 		makeCurrent();
 
 		int x = evt->x();
@@ -166,16 +274,18 @@ void COLMeshRenderWidget::mouseDoubleClickEvent(QMouseEvent* evt)
 		setSelectedFace(pixel);
 
 		updateGL();
-	}
+	}*/
 }
 
 
 void COLMeshRenderWidget::setSelectedFace(int index)
 {
-	if (item) {
+	if (obj) {
 		int prevIdx = pickedFace;
 
-		Mesh* mesh = **item->getMeshPointer();
+
+		MeshClump* clump = **obj->getDefinition()->getMeshPointer();
+		Mesh* mesh = *clump->getMeshBegin();
 
 		if (mesh->getVertexCount() != 0) {
 			mesh->bindDataBuffer();

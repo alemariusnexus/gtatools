@@ -29,11 +29,11 @@
 
 
 DFFGeometry::DFFGeometry(uint32_t numVertices, float* vertices, float* normals, float* uvCoords,
-			uint8_t uvSetCount, uint8_t* vertexColors)
+			uint8_t uvSetCount, uint8_t* vertexColors, uint8_t* boneIndices, float* boneWeights)
 		: flags(0), uvSetCount(0), vertexCount(numVertices), frameCount(0), ambientLight(0.0f),
 		  diffuseLight(0.0f), specularLight(0.0f), bounds(NULL), associatedFrame(NULL), mesh(NULL)
 {
-	setVertices(numVertices, vertices, normals, uvCoords, uvSetCount, vertexColors);
+	setVertices(numVertices, vertices, normals, uvCoords, uvSetCount, vertexColors, boneIndices, boneWeights);
 }
 
 
@@ -47,6 +47,8 @@ DFFGeometry::DFFGeometry(const DFFGeometry& other)
 		  bounds(new DFFBoundingSphere),
 		  vertices(new float[vertexCount*3]),
 		  normals(other.normals == NULL ? NULL : new float[vertexCount*3]),
+		  boneIndices(other.boneIndices == NULL ? NULL : new uint8_t[4*vertexCount]),
+		  boneWeights(other.boneWeights == NULL ? NULL : new float[4*vertexCount]),
 		  associatedFrame(other.associatedFrame), mesh(NULL)
 {
 	if (vertexColors) {
@@ -57,6 +59,12 @@ DFFGeometry::DFFGeometry(const DFFGeometry& other)
 	}
 	if (normals) {
 		memcpy(normals, other.normals, vertexCount*3*4);
+	}
+	if (boneIndices) {
+		memcpy(boneIndices, other.boneIndices, vertexCount*4);
+	}
+	if (boneWeights) {
+		memcpy(boneWeights, other.boneWeights, vertexCount*4*sizeof(float));
 	}
 
 	memcpy(vertices, other.vertices, vertexCount*3*4);
@@ -77,6 +85,8 @@ DFFGeometry::DFFGeometry(const DFFGeometry& other)
 
 DFFGeometry::~DFFGeometry()
 {
+	delete bounds;
+
 	if (vertexColors != NULL) {
 		delete[] vertexColors;
 	}
@@ -88,6 +98,12 @@ DFFGeometry::~DFFGeometry()
 	}
 	if (normals != NULL) {
 		delete[] normals;
+	}
+	if (boneIndices != NULL) {
+		delete[] boneIndices;
+	}
+	if (boneWeights != NULL) {
+		delete[] boneWeights;
 	}
 
 	MaterialIterator it;
@@ -118,7 +134,7 @@ DFFGeometry::~DFFGeometry()
 
 
 void DFFGeometry::setVertices(uint32_t numVertices, float* vertices, float* normals, float* uvCoords,
-		uint8_t uvSetCount, uint8_t* vertexColors)
+		uint8_t uvSetCount, uint8_t* vertexColors, uint8_t* boneIndices, float* boneWeights)
 {
 	if (uvCoords != NULL  &&  uvSetCount == 0) {
 		throw DFFException("DFFGeometry::setVertices(): UV coordinates given even though UV set count is 0!",
@@ -131,6 +147,8 @@ void DFFGeometry::setVertices(uint32_t numVertices, float* vertices, float* norm
 	this->uvCoordSets = uvCoords;
 	this->uvSetCount = uvSetCount;
 	this->vertexColors = vertexColors;
+	this->boneIndices = boneIndices;
+	this->boneWeights = boneWeights;
 }
 
 

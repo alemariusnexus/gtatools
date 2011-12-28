@@ -41,7 +41,7 @@ enum ListSections
 
 class ListOptions {
 public:
-	ListOptions(int sections = 0) : sections(sections) {}
+	ListOptions(int sections = 0) : sections(sections), showHeader(false), commaSeparation(false) {}
 	void setListSections(int sections) { this->sections = sections; }
 	int getListSections() const { return sections; }
 	bool isShowHeader() const { return showHeader; }

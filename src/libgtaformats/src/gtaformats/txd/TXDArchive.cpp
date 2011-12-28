@@ -24,6 +24,7 @@
 #include "TXDException.h"
 #include <utility>
 #include "../util/strutil.h"
+#include "../util/util.h"
 #include <algorithm>
 #include "../gta.h"
 
@@ -75,7 +76,7 @@ TXDArchive::TXDArchive(istream* stream)
 
 TXDArchive::TXDArchive(const File& file)
 {
-	istream* stream = file.openInputStream(istream::binary);
+	istream* stream = file.openInputStream(istream::binary, true);
 	texDict = RWSection::readSection(stream);
 	init(stream);
 	delete stream;
@@ -108,7 +109,20 @@ void TXDArchive::init(istream* stream)
 	while ((it = texDict->nextChild(RW_SECTION_TEXTURENATIVE, it))  !=  texDict->getChildEnd()) {
 		RWSection* texNative = *it;
 		RWSection* texNativeStruct = texNative->getChild(RW_SECTION_STRUCT);
+
+#ifdef GTAFORMATS_LITTLE_ENDIAN
 		TextureNativeStruct& header = *((TextureNativeStruct*) texNativeStruct->getData());
+#else
+		// Convert the header to big-endian format
+		TextureNativeStruct header;
+		memcpy(&header, texNativeStruct->getData(), sizeof(TextureNativeStruct));
+
+		header.platform = SwapEndianness32(header.platform);
+		header.filterFlags = SwapEndianness16(header.filterFlags);
+		header.rasterFormat = SwapEndianness32(header.rasterFormat);
+		header.width = SwapEndianness16(header.width);
+		header.height = SwapEndianness16(header.height);
+#endif
 
 		TXDCompression compr = NONE;
 		bool alpha;
@@ -144,7 +158,7 @@ void TXDArchive::init(istream* stream)
 				compr = PVRTC4;
 			}
 
-			alpha = (header.alphaOrCompression == 1);
+			alpha = (FromLittleEndian32(header.alphaOrCompression) == 1);
 		}
 
 		TXDTextureHeader* tex = new TXDTextureHeader(header.diffuseName, header.rasterFormat, compr,
@@ -211,20 +225,20 @@ void TXDArchive::applyTextureHeader(TXDTextureHeader* header)
 	RWSection* texNativeStruct = texNative->getChild(RW_SECTION_STRUCT);
 	TextureNativeStruct& nativeHeader = *((TextureNativeStruct*) texNativeStruct->getData());
 
-	nativeHeader.platform = 9;
-	nativeHeader.filterFlags = header->getFilterFlags();
+	nativeHeader.platform = ToLittleEndian32(9);
+	nativeHeader.filterFlags = ToLittleEndian16(header->getFilterFlags());
 	nativeHeader.vWrap = header->getVWrapFlags();
 	nativeHeader.uWrap = header->getUWrapFlags();
 	strcpy(nativeHeader.diffuseName, header->getDiffuseName());
 	strcpy(nativeHeader.alphaName, header->getAlphaName());
-	nativeHeader.rasterFormat = header->getFullRasterFormat();
-	nativeHeader.width = header->getWidth();
-	nativeHeader.height = header->getHeight();
+	nativeHeader.rasterFormat = ToLittleEndian32(header->getFullRasterFormat());
+	nativeHeader.width = ToLittleEndian16(header->getWidth());
+	nativeHeader.height = ToLittleEndian16(header->getHeight());
 	nativeHeader.bpp = header->getBytesPerPixel() * 8;
 	nativeHeader.mipmapCount = header->getMipmapCount();
 	nativeHeader.rasterType = 0x4;
 
-	if (nativeHeader.platform == 9) {
+	if (FromLittleEndian32(nativeHeader.platform) == 9) {
 		char* dxtFourCC = (char*) &nativeHeader.alphaOrCompression;
 
 		switch (header->getCompression()) {
@@ -242,9 +256,9 @@ void TXDArchive::applyTextureHeader(TXDTextureHeader* header)
 			break;
 		case NONE:
 			if (header->hasAlphaChannel()) {
-				*((int32_t*) dxtFourCC) = 21;
+				*((int32_t*) dxtFourCC) = ToLittleEndian32(21);
 			} else {
-				*((int32_t*) dxtFourCC) = 22;
+				*((int32_t*) dxtFourCC) = ToLittleEndian32(22);
 			}
 			break;
 		}
@@ -257,7 +271,7 @@ void TXDArchive::applyTextureHeader(TXDTextureHeader* header)
 			nativeHeader.compressionOrAlpha = (header->hasAlphaChannel() ? 9 : 8);
 		}
 	} else {
-		nativeHeader.alphaOrCompression = (header->hasAlphaChannel() ? 1 : 0);
+		nativeHeader.alphaOrCompression = ToLittleEndian32((header->hasAlphaChannel() ? 1 : 0));
 
 		switch (header->getCompression()) {
 		case DXT1:
@@ -304,7 +318,6 @@ void TXDArchive::setTextureData(TXDTextureHeader* header, uint8_t* data)
 		data += mipSize;
 	}
 
-	delete[] texNativeStruct->getData();
 	texNativeStruct->setData(nativeDataStart, dataSize);
 }
 
@@ -383,7 +396,7 @@ void TXDArchive::removeTexture(TXDTextureHeader* header)
 void TXDArchive::applyTextureCountChange()
 {
 	RWSection* txdStruct = texDict->getChild(RW_SECTION_STRUCT);
-	*((int16_t*) txdStruct->getData()) = texHeaders.size();
+	*((int16_t*) txdStruct->getData()) = ToLittleEndian16(texHeaders.size());
 }
 
 

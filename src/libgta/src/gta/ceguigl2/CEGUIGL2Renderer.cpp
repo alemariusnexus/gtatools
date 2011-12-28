@@ -265,7 +265,9 @@ void CEGUIGL2Renderer::beginRendering()
 
 	setupBlendMode(CEGUI::BM_NORMAL, true);
 
+	glClear(GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_SCISSOR_TEST);
+	glEnable(GL_BLEND);
 }
 
 
@@ -274,6 +276,8 @@ void CEGUIGL2Renderer::endRendering()
 	glDisableVertexAttribArray(vertexAttrib);
 	glDisableVertexAttribArray(texCoordAttrib);
 	glDisableVertexAttribArray(colorAttrib);
+
+	glDisable(GL_SCISSOR_TEST);
 
 	glUseProgram(0);
 }

@@ -127,7 +127,23 @@ void ProfileManager::saveProfiles()
 		settings.beginGroup(QString("profile%1").arg(i));
 
 		settings.setValue(QString("name"), profile->getName());
-		settings.setValue(QString("dat_root"), profile->getDATRootDirectory());
+		settings.setValue(QString("root"), profile->getGameInfo()->getRootDirectory().getPath()->toString());
+
+		QString verStr;
+
+		switch (profile->getGameInfo()->getVersionMode()) {
+		case GameInfo::GTAIII:
+			verStr = "gta3";
+			break;
+		case GameInfo::GTAVC:
+			verStr = "gtavc";
+			break;
+		case GameInfo::GTASA:
+			verStr = "gtasa";
+			break;
+		}
+
+		settings.setValue(QString("version"), verStr);
 
 		Profile::ResourceIterator rit;
 
@@ -135,6 +151,12 @@ void ProfileManager::saveProfiles()
 
 		for (rit = profile->getResourceBegin() ; rit != profile->getResourceEnd() ; rit++, j++) {
 			settings.setValue(QString("resource%2").arg(j), (*rit)->getPath()->toString());
+		}
+
+		j = 0;
+
+		for (rit = profile->getSearchResourceBegin() ; rit != profile->getSearchResourceEnd() ; rit++, j++) {
+			settings.setValue(QString("search_resource%2").arg(j), (*rit)->getPath()->toString());
 		}
 
 		j = 0;
@@ -236,7 +258,21 @@ void ProfileManager::eventLoopStarted()
 		}
 
 		Profile* profile = new Profile(settings.value(QString("profile%1/name").arg(i)).toString());
-		profile->setDATRootDirectory(settings.value(QString("profile%1/dat_root").arg(i)).toString());
+
+		GameInfo::VersionMode ver;
+
+		QString verStr = settings.value(QString("profile%1/version").arg(i)).toString();
+
+		if (verStr == "gta3")
+			ver = GameInfo::GTAIII;
+		else if (verStr == "gtavc")
+			ver = GameInfo::GTAVC;
+		else
+			ver = GameInfo::GTASA;
+
+		GameInfo* info = new GameInfo(ver,
+				File(settings.value(QString("profile%1/root").arg(i)).toString().toLocal8Bit().constData()));
+		profile->setGameInfo(info);
 
 		for (int j = 0 ; true ; j++) {
 			if (!settings.contains(QString("profile%1/resource%2").arg(i).arg(j))) {
@@ -245,6 +281,15 @@ void ProfileManager::eventLoopStarted()
 
 			QString resource = settings.value(QString("profile%1/resource%2").arg(i).arg(j)).toString();
 			profile->addResource(File(resource.toLocal8Bit().constData()));
+		}
+
+		for (int j = 0 ; true ; j++) {
+			if (!settings.contains(QString("profile%1/search_resource%2").arg(i).arg(j))) {
+				break;
+			}
+
+			QString resource = settings.value(QString("profile%1/search_resource%2").arg(i).arg(j)).toString();
+			profile->addSearchResource(File(resource.toLocal8Bit().constData()));
 		}
 
 		for (int j = 0 ; true ; j++) {

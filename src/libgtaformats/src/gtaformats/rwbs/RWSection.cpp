@@ -24,6 +24,10 @@
 #include <algorithm>
 #include "../gta.h"
 #include "RWBSException.h"
+#include "../util/stream/StreamReader.h"
+#include "../util/stream/EndianSwappingStreamReader.h"
+#include "../util/stream/StreamWriter.h"
+#include "../util/stream/EndianSwappingStreamWriter.h"
 
 using std::find;
 
@@ -44,8 +48,8 @@ RWSection::RWSection(int32_t id, RWSection* parent)
 
 
 RWSection::RWSection(uint8_t* rawData)
-		: id(*((int32_t*) rawData)), size(*((int32_t*) (rawData+4))), version(*((int32_t*) (rawData+8))),
-		  offset(0), parent(NULL), data(NULL)
+		: id(FromLittleEndian32(*((int32_t*) rawData))), size(FromLittleEndian32(*((int32_t*) (rawData+4)))),
+		  version(FromLittleEndian32(*((int32_t*) (rawData+8)))), offset(0), parent(NULL), data(NULL)
 {
 	bool dataSect = !isContainerSection(id);
 
@@ -78,6 +82,12 @@ RWSection* RWSection::readSection(istream* stream, RWSection* lastRead, int i)
 
 	RWSection* sect = new RWSection;
 	stream->read((char*) sect, 12);
+
+#ifndef GTAFORMATS_LITTLE_ENDIAN
+	sect->id = SwapEndianness32(sect->id);
+	sect->size = SwapEndianness32(sect->size);
+	sect->version = SwapEndianness32(sect->version);
+#endif
 
 	if (lastRead) {
 		// Do some heuristic checks to see if the data we read is actually a section. For files in IMG
@@ -332,7 +342,14 @@ RWSection* RWSection::getChild(int32_t id)
 
 void RWSection::toRawData(uint8_t* data)
 {
+#ifdef GTAFORMATS_LITTLE_ENDIAN
 	memcpy(data, this, 12);
+#else
+	uint32_t* data32 = (uint32_t*) data;
+	data32[0] = ToLittleEndian32(id);
+	data32[1] = ToLittleEndian32(size);
+	data32[2] = ToLittleEndian32(version);
+#endif
 
 	int32_t offset = 12;
 
@@ -350,7 +367,13 @@ void RWSection::toRawData(uint8_t* data)
 
 void RWSection::write(ostream* stream)
 {
-	stream->write((char*) this, 12);
+#ifdef GTAFORMATS_LITTLE_ENDIAN
+	StreamWriter writer(stream);
+#else
+	EndianSwappingStreamWriter writer(stream);
+#endif
+
+	writer.writeArrayCopyU32((uint32_t*) this, 3);
 
 	if (data) {
 		stream->write((char*) data, size);

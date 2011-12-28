@@ -41,7 +41,7 @@ void CollisionMeshIndexer::resourceAdded(const File& file)
 			CollisionMeshIndexEntry* entry = new CollisionMeshIndexEntry;
 			entry->file = new File(file);
 			entry->index = i++;
-			index.insert(pair<hash_t, CollisionMeshIndexEntry*>(LowerHash(name), entry));
+			index.insert(pair<CString, CollisionMeshIndexEntry*>(CString(name).lower(), entry));
 		}
 
 		delete stream;
@@ -49,7 +49,7 @@ void CollisionMeshIndexer::resourceAdded(const File& file)
 }
 
 
-CollisionMeshIndexer::CollisionMeshIndexEntry* CollisionMeshIndexer::getCollisionMesh(hash_t name)
+CollisionMeshIndexer::CollisionMeshIndexEntry* CollisionMeshIndexer::getCollisionMesh(CString name)
 {
 	IndexMap::iterator it = index.find(name);
 

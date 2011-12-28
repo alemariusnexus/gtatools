@@ -16,8 +16,23 @@
 
 SET(RES_DESTDIR "${CMAKE_CURRENT_BINARY_DIR}/resources")
 FILE(MAKE_DIRECTORY "${RES_DESTDIR}")
-MESSAGE("Including ${RES_DESTDIR}")
 INCLUDE_DIRECTORIES(${RES_DESTDIR})
+
+
+MACRO(INITIALIZE_RESOURCE_COMPILER)
+    SET(RES_CPP_COMPILER "${CMAKE_SOURCE_DIR}/rc.cpp")
+    
+    MESSAGE(STATUS "Compiling the resource compiler itself...")
+    
+    TRY_COMPILE(RES_COMPILE_RESULT ${CMAKE_BINARY_DIR} "${RES_CPP_COMPILER}"
+                OUTPUT_VARIABLE RES_COMPILE_OUTPUT
+                COPY_FILE "${CMAKE_BINARY_DIR}/rcc")
+
+    IF(NOT RES_COMPILE_RESULT)
+        MESSAGE(SEND_ERROR "Compiling the resource compiler itself failed! Will use CMake implementation instead. Compiler log:\n**********\n${RES_COMPILE_OUTPUT}\n**********")
+    ENDIF(NOT RES_COMPILE_RESULT)
+ENDMACRO(INITIALIZE_RESOURCE_COMPILER)
+
 
 MACRO(CREATE_RESOURCE RESFILE ALIAS)
 	SET(DESTFILE "${RES_DESTDIR}/res_${ALIAS}.h")
@@ -26,22 +41,28 @@ MACRO(CREATE_RESOURCE RESFILE ALIAS)
 	
 	SET(RES_CPPCOMPILER_SUCCESS OFF)
 	
+	IF(NOT EXISTS "${CMAKE_BINARY_DIR}/rcc")
+	    INITIALIZE_RESOURCE_COMPILER()
+	ENDIF(NOT EXISTS "${CMAKE_BINARY_DIR}/rcc")
+	
 	MESSAGE(STATUS "Compiling resource ${ALIAS}...")
 	
 	IF(NOT CMAKE_CROSSCOMPILING AND EXISTS "${RES_CPP_COMPILER}")
 		# Use the resource compiler written in C++.
-		TRY_RUN(RES_RUN_RESULT RES_COMPILE_RESULT ${CMAKE_BINARY_DIR} "${RES_CPP_COMPILER}"
-		        COMPILE_OUTPUT_VARIABLE RES_COMPILE_OUTPUT
-			RUN_OUTPUT_VARIABLE RES_RUN_OUTPUT
-		        ARGS "\"${SRCFILE}\"" "\"${DESTFILE}\"" "\"${ALIAS}\"")
+		#TRY_RUN(RES_RUN_RESULT RES_COMPILE_RESULT ${CMAKE_BINARY_DIR} "${RES_CPP_COMPILER}"
+		#        COMPILE_OUTPUT_VARIABLE RES_COMPILE_OUTPUT
+		#	RUN_OUTPUT_VARIABLE RES_RUN_OUTPUT
+		#        ARGS "\"${SRCFILE}\"" "\"${DESTFILE}\"" "\"${ALIAS}\"")
 		
-		IF (NOT RES_COMPILE_RESULT)
-			MESSAGE(SEND_ERROR "Compiling the resource compiler itself failed! Will use CMake implementation instead. Compiler log:\n**********\n${RES_COMPILE_OUTPUT}\n**********")
-		ELSEIF(NOT "${RES_RUN_OUTPUT}" MATCHES "^Success$")
-			MESSAGE(SEND_ERROR "Running the resource compiler on file ${RESFILE} failed. Will use CMake implementation instead. Output:\n**********\n${RES_RUN_OUTPUT}\n**********")
-		ELSE(NOT RES_COMPILE_RESULT)
+		EXECUTE_PROCESS(COMMAND "${CMAKE_BINARY_DIR}/rcc" "${SRCFILE}" "${DESTFILE}" "${ALIAS}"
+		                OUTPUT_VARIABLE RES_RUN_OUTPUT
+		                ERROR_VARIABLE RES_RUN_ERROR)
+		
+		IF(NOT "${RES_RUN_OUTPUT}" MATCHES "^Success$")
+			MESSAGE(SEND_ERROR "Running the resource compiler on file ${RESFILE} failed. Will use CMake implementation instead. Output:\n**********\n${RES_RUN_OUTPUT}\n\n\n${RES_RUN_ERROR}\n**********")
+		ELSE(NOT "${RES_RUN_OUTPUT}" MATCHES "^Success$")
 			SET(RES_CPPCOMPILER_SUCCESS ON)
-		ENDIF (NOT RES_COMPILE_RESULT)
+		ENDIF(NOT "${RES_RUN_OUTPUT}" MATCHES "^Success$")
 	ENDIF(NOT CMAKE_CROSSCOMPILING AND EXISTS "${RES_CPP_COMPILER}")
 
 	IF(NOT RES_CPPCOMPILER_SUCCESS)

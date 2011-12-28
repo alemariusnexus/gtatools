@@ -30,9 +30,8 @@
 
 class TextureSource {
 public:
-	virtual Texture* getTexture(hash_t texHash) = 0;
+	virtual Texture* getTexture(const CString& texHash) = 0;
 	virtual TextureSource* clone() const = 0;
-	Texture* getTexture(const char* txdName) { return getTexture(Hash(txdName)); }
 	virtual void release() {}
 };
 

@@ -20,25 +20,48 @@
 	GPLADDITIONS.
  */
 
+#define GL_CPP
+
 #include "gl.h"
 #include "Engine.h"
 #include <set>
 #include <cstring>
 #include <cstdio>
 #include "GLException.h"
+#include <gtaformats/util/StringComparator.h>
+#include <boost/shared_array.hpp>
 
 using std::set;
+using boost::shared_array;
+
 
 
 
 #ifdef GTA_USE_OPENGL_ES
 
-set<hash_t> supportedExtensions;
+set<const char*, StringComparator> supportedExtensions;
 
 #endif
 
 int majorVersion, minorVersion;
 bool gtaglInitialized = false;
+
+
+#ifndef GTA_USE_OPENGL_ES
+
+inline void gtaglGenFramebuffersCORE(GLsizei p1, GLuint* p2) { glGenFramebuffers(p1, p2); }
+inline void gtaglBindFramebufferCORE(GLenum p1, GLuint p2) { glBindFramebuffer(p1, p2); }
+inline void gtaglFramebufferTexture2DCORE(GLenum p1, GLenum p2, GLenum p3, GLuint p4, GLint p5)
+		{ glFramebufferTexture2D(p1, p2, p3, p4, p5); }
+
+inline void gtaglGenFramebuffersEXT(GLsizei p1, GLuint* p2) { glGenFramebuffersEXT(p1, p2); }
+inline void gtaglBindFramebufferEXT(GLenum p1, GLuint p2) { glBindFramebufferEXT(p1, p2); }
+inline void gtaglFramebufferTexture2DEXT(GLenum p1, GLenum p2, GLenum p3, GLuint p4, GLint p5)
+		{ glFramebufferTexture2DEXT(p1, p2, p3, p4, p5); }
+
+#endif
+
+
 
 
 void gtaglInit()
@@ -52,12 +75,15 @@ void gtaglInit()
 
 #ifdef GTA_USE_OPENGL_ES
 	const char* extStr = (const char*) glGetString(GL_EXTENSIONS);
+	GLException::checkError();
 	char* extStrCpy = new char[strlen(extStr)+1];
 	strcpy(extStrCpy, extStr);
 
 	char* ext = strtok(extStrCpy, " ");
 	while (ext) {
-		supportedExtensions.insert(Hash(ext));
+		char* extCpy = new char[strlen(ext)+1];
+		strcpy(extCpy, ext);
+		supportedExtensions.insert(ext);
 		ext = strtok(NULL, " ");
 	}
 	
@@ -67,6 +93,43 @@ void gtaglInit()
 	sscanf(verStr, "%d.%d", &majorVersion, &minorVersion);
 #endif
 
+#ifndef GTA_USE_OPENGL_ES
+	if (gtaglIsVersionSupported(3, 0)) {
+		gtaglGenFramebuffers = &gtaglGenFramebuffersCORE;
+		gtaglBindFramebuffer = &gtaglBindFramebufferCORE;
+		gtaglFramebufferTexture2D = &gtaglFramebufferTexture2DCORE;
+
+		GTAGL_FRAMEBUFFER = GL_FRAMEBUFFER;
+		GTAGL_COLOR_ATTACHMENT0 = GL_COLOR_ATTACHMENT0;
+		GTAGL_COLOR_ATTACHMENT1 = GL_COLOR_ATTACHMENT1;
+		GTAGL_COLOR_ATTACHMENT2 = GL_COLOR_ATTACHMENT2;
+		GTAGL_COLOR_ATTACHMENT3 = GL_COLOR_ATTACHMENT3;
+		GTAGL_DEPTH_ATTACHMENT = GL_DEPTH_ATTACHMENT;
+	} else {
+		gtaglGenFramebuffers = &gtaglGenFramebuffersEXT;
+		gtaglBindFramebuffer = &gtaglBindFramebufferEXT;
+		gtaglFramebufferTexture2D = &gtaglFramebufferTexture2DEXT;
+
+		GTAGL_FRAMEBUFFER = GL_FRAMEBUFFER_EXT;
+		GTAGL_COLOR_ATTACHMENT0 = GL_COLOR_ATTACHMENT0_EXT;
+		GTAGL_COLOR_ATTACHMENT1 = GL_COLOR_ATTACHMENT1_EXT;
+		GTAGL_COLOR_ATTACHMENT2 = GL_COLOR_ATTACHMENT2_EXT;
+		GTAGL_COLOR_ATTACHMENT3 = GL_COLOR_ATTACHMENT3_EXT;
+		GTAGL_DEPTH_ATTACHMENT = GL_DEPTH_ATTACHMENT_EXT;
+	}
+#else
+	gtaglGenFramebuffers = &glGenFramebuffers;
+	gtaglBindFramebuffer = &glBindFramebuffer;
+	gtaglFramebufferTexture2D = &glFramebufferTexture2D;
+
+	GTAGL_FRAMEBUFFER = GL_FRAMEBUFFER;
+	GTAGL_COLOR_ATTACHMENT0 = GL_COLOR_ATTACHMENT0;
+	GTAGL_COLOR_ATTACHMENT1 = GL_COLOR_ATTACHMENT0;
+	GTAGL_COLOR_ATTACHMENT2 = GL_COLOR_ATTACHMENT0;
+	GTAGL_COLOR_ATTACHMENT3 = GL_COLOR_ATTACHMENT0;
+	GTAGL_DEPTH_ATTACHMENT = GL_DEPTH_ATTACHMENT;
+#endif
+
 	gtaglInitialized = true;
 }
 
@@ -74,7 +137,7 @@ void gtaglInit()
 bool gtaglIsExtensionSupported(const char* extension)
 {
 #ifdef GTA_USE_OPENGL_ES
-	return supportedExtensions.find(Hash(extension)) != supportedExtensions.end();
+	return supportedExtensions.find(extension) != supportedExtensions.end();
 #else
 	return glewIsSupported(extension);
 #endif
@@ -98,3 +161,7 @@ const char* gtaglGetSupportedExtensions()
 {
 	return (const char*) glGetString(GL_EXTENSIONS);
 }
+
+
+
+#undef GL_CPP

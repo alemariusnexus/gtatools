@@ -24,29 +24,26 @@
 #define TEXTUREARCHIVE_H_
 
 #include <set>
+#include <gtaformats/util/CString.h>
 #include "../../Engine.h"
-#include "../CachePointer.h"
+#include "../ResourceCache.h"
 
 using std::set;
 
 
 class TextureArchive {
 public:
-	TextureArchive(hash_t name, const File& file, TextureArchive* parent = NULL)
+	TextureArchive(const CString& name, const File& file, TextureArchive* parent = NULL)
 			: cachePtr(Engine::getInstance()->getTextureCache()->getEntryPointer(name)), parent(parent),
 			  file(file) {}
-	void addTexture(hash_t name) { textures.insert(name); }
-	CachePointer getCachePointer() const { return cachePtr; }
+	Engine::StringResourceCache::Pointer getCachePointer() const { return cachePtr; }
 	const File& getFile() const { return file; }
 	void setParent(TextureArchive* parent) { this->parent = parent; }
 	TextureArchive* getParent() { return parent; }
-	bool contains(hash_t tex) const { return textures.find(tex) != textures.end(); }
-	TextureArchive* findTextureArchive(hash_t tex);
 
 private:
-	CachePointer cachePtr;
+	Engine::StringResourceCache::Pointer cachePtr;
 	TextureArchive* parent;
-	set<hash_t> textures;
 	File file;
 };
 

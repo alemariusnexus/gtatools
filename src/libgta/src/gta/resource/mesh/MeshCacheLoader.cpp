@@ -30,7 +30,7 @@
 
 
 
-CacheEntry* MeshCacheLoader::load(hash_t key)
+Engine::StringResourceCache::Entry* MeshCacheLoader::load(CString key)
 {
 	const File* file = indexer->find(key);
 
@@ -51,11 +51,7 @@ CacheEntry* MeshCacheLoader::load(hash_t key)
 		throw eex;
 	}
 
-	Mesh* mesh = NULL;
-
-	if (dffMesh->getGeometryCount() > 0) {
-		mesh = new Mesh(*dffMesh->getGeometry(dffMesh->getGeometryCount() - 1));
-	}
+	MeshClump* mesh = new MeshClump(dffMesh);
 
 	delete dffMesh;
 	MeshCacheEntry* entry = new MeshCacheEntry(mesh);

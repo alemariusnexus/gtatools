@@ -33,6 +33,7 @@
 #include <gtaformats/config.h>
 #include "FileSearchDialog.h"
 #include "VersionDialog.h"
+#include "PVSDialog.h"
 
 
 
@@ -92,6 +93,9 @@ DefaultGUIModule::DefaultGUIModule()
 	systemOpenAction = new QAction(tr("Execute System Program"), NULL);
 	connect(systemOpenAction, SIGNAL(triggered(bool)), this, SLOT(onOpenSystemProgram(bool)));
 
+	pvsAction = new QAction(tr("Build PVS Data"), NULL);
+	connect(pvsAction, SIGNAL(triggered(bool)), this, SLOT(onBuildPVS(bool)));
+
 	connect(sys, SIGNAL(fileOpened(const FileOpenRequest&, DisplayedFile*)), this,
 			SLOT(fileOpened(const FileOpenRequest&, DisplayedFile*)));
 	connect(sys, SIGNAL(fileClosed(DisplayedFile*)), this, SLOT(fileClosed(DisplayedFile*)));
@@ -115,6 +119,7 @@ DefaultGUIModule::~DefaultGUIModule()
 	delete aboutAction;
 	delete versionInfoAction;
 	delete systemOpenAction;
+	delete pvsAction;
 
 	QList<QAction*> actions = profileSwitchGroup->actions();
 	for (int i = 0 ; i < actions.size() ; i++) {
@@ -148,6 +153,7 @@ void DefaultGUIModule::doInstall()
 	aboutAction->setParent(mainWindow);
 	versionInfoAction->setParent(mainWindow);
 	systemOpenAction->setParent(mainWindow);
+	pvsAction->setParent(mainWindow);
 
 	fileMenu->addAction(fileOpenAction);
 	fileMenu->addAction(fileCloseAction);
@@ -158,6 +164,7 @@ void DefaultGUIModule::doInstall()
 	helpMenu->addAction(aboutQtAction);
 	helpMenu->addAction(aboutAction);
 	helpMenu->addAction(versionInfoAction);
+	toolsMenu->addAction(pvsAction);
 
 	toolBar->addAction(fileOpenAction);
 	toolBar->addAction(fileSaveAction);
@@ -250,6 +257,7 @@ void DefaultGUIModule::doUninstall()
 	aboutQtAction->setParent(NULL);
 	aboutAction->setParent(NULL);
 	versionInfoAction->setParent(NULL);
+	pvsAction->setParent(NULL);
 
 	fileMenu->removeAction(fileOpenAction);
 	fileMenu->removeAction(fileCloseAction);
@@ -260,6 +268,7 @@ void DefaultGUIModule::doUninstall()
 	helpMenu->removeAction(aboutQtAction);
 	helpMenu->removeAction(aboutAction);
 	helpMenu->removeAction(versionInfoAction);
+	toolsMenu->removeAction(pvsAction);
 
 	toolBar->removeAction(fileOpenAction);
 	toolBar->removeAction(fileSaveAction);
@@ -468,4 +477,11 @@ void DefaultGUIModule::currentProfileChanged(Profile* oldProfile, Profile* newPr
 
 		searchFileAction->setEnabled(false);
 	}
+}
+
+
+void DefaultGUIModule::onBuildPVS(bool checked)
+{
+	PVSDialog dlg(mainWindow);
+	dlg.exec();
 }

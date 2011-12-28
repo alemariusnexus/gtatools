@@ -29,14 +29,21 @@ using std::string;
 
 
 
-void strtolower(char* dest, const char* src)
+void strtolower(char* dest, const char* src, size_t len)
 {
-	int i;
-	for (i = 0 ; src[i] != '\0' ; i++) {
+	size_t i;
+	for (i = 0 ; i < len  &&  src[i] != '\0' ; i++) {
 		dest[i] = tolower(src[i]);
 	}
+}
 
-	dest[i] = '\0';
+
+void strtoupper(char* dest, const char* src, size_t len)
+{
+	size_t i;
+	for (i = 0 ; i < len  &&  src[i] != '\0' ; i++) {
+		dest[i] = toupper(src[i]);
+	}
 }
 
 
@@ -207,11 +214,11 @@ bool WildcardMatch(const char* pattern, const char* text)
 }
 
 
-hash_t LowerHash(const char* str)
+hash_t LowerHash(const char* str, size_t len)
 {
-	char* lStr = new char[strlen(str)+1];
-	strtolower(lStr, str);
-	hash_t hash = Hash(lStr);
+	char* lStr = new char[len];
+	strtolower(lStr, str, len);
+	hash_t hash = Hash(lStr, len);
 	delete[] lStr;
 	return hash;
 }

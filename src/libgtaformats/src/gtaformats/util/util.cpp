@@ -26,6 +26,7 @@
 #include <cstdlib>
 
 #ifdef _POSIX_VERSION
+#include <unistd.h>
 #include <sys/time.h>
 #else
 #include <windows.h>
@@ -67,4 +68,14 @@ bool IsTimeBetween(int8_t timeH, int8_t timeM, int8_t startH, int8_t startM, int
 	} else {
 		return timeAbsM >= startAbsM  ||  timeAbsM < endAbsM;
 	}
+}
+
+
+void SleepMilliseconds(unsigned int time)
+{
+#ifdef _POSIX_VERSION
+	usleep(time * 1000);
+#else
+	Sleep(time);
+#endif
 }

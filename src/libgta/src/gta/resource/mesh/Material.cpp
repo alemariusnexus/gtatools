@@ -26,9 +26,10 @@
 
 
 
-Material::Material(hash_t texture)
-		: textured(true), texture(texture)
+Material::Material(const CString& texture)
+		: textured(true)
 {
+	setTexture(texture);
 }
 
 
@@ -45,9 +46,6 @@ Material::Material(const DFFMaterial& dffMat)
 
 	if (textured) {
 		const char* texName = dffMat.getTexture(0)->getDiffuseName();
-		char* lTexName = new char[strlen(texName)+1];
-		strtolower(lTexName, texName);
-		texture = Hash(lTexName);
-		delete[] lTexName;
+		texture = CString(texName).lower();
 	}
 }

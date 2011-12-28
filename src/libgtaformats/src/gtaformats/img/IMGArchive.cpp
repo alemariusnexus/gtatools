@@ -29,6 +29,12 @@
 #include "../util/File.h"
 #include <algorithm>
 #include <cmath>
+#include <utility>
+#include <iterator>
+#include "../util/stream/StreamReader.h"
+#include "../util/stream/EndianSwappingStreamReader.h"
+#include "../util/stream/StreamWriter.h"
+#include "../util/stream/EndianSwappingStreamWriter.h"
 
 using std::iostream;
 using std::string;
@@ -37,6 +43,8 @@ using std::streamoff;
 using std::sort;
 using std::copy;
 using std::min;
+using std::pair;
+using std::distance;
 
 #define IMG_BUFFER_SIZE 4096
 
@@ -145,6 +153,10 @@ IMGArchive::~IMGArchive()
 		delete *it;
 	}
 
+	for (EntryMap::iterator it = entryMap.begin() ; it != entryMap.end() ; it++) {
+		delete[] it->first;
+	}
+
 	if ((mode & KeepStreamsOpen)  ==  0) {
 		if (imgStream != dirStream) {
 			delete imgStream;
@@ -189,11 +201,18 @@ IMGArchive::IMGVersion IMGArchive::guessIMGVersion(const File& file)
 
 IMGArchive* IMGArchive::createArchive(iostream* imgStream, int mode)
 {
-	int32_t numEntries = 0;
+#ifdef GTAFORMATS_LITTLE_ENDIAN
+	StreamWriter writer(imgStream);
+#else
+	EndianSwappingStreamWriter writer(imgStream);
+#endif
+
+	uint32_t numEntries = 0;
 	imgStream->write("VER2", 4);
-	imgStream->write((char*) &numEntries, 4);
+	writer.writeU32(numEntries);
 	imgStream->flush();
 	imgStream->seekg(-8, iostream::cur);
+
 	return new IMGArchive(imgStream, mode);
 }
 
@@ -277,33 +296,61 @@ istream* IMGArchive::gotoEntry(const char* name, bool autoCloseStream)
 
 IMGArchive::ConstEntryIterator IMGArchive::getEntryByName(const char* name) const
 {
-	for (ConstEntryIterator it = entries.begin() ; it != entries.end() ; it++) {
+	char* lname = new char[strlen(name)+1];
+	strtolower(lname, name);
+	EntryMap::const_iterator it = entryMap.find(lname);
+	delete[] lname;
+
+	if (it == entryMap.end()) {
+		return entries.end();
+	}
+
+	return it->second;
+
+	/*for (ConstEntryIterator it = entries.begin() ; it != entries.end() ; it++) {
 		IMGEntry* entry = *it;
 		if (strcmp(entry->name, name) == 0) {
 			return it;
 		}
 	}
 
-	return entries.end();
+	return entries.end();*/
 }
 
 
 IMGArchive::EntryIterator IMGArchive::getEntryByName(const char* name)
 {
-	for (EntryIterator it = entries.begin() ; it != entries.end() ; it++) {
+	char* lname = new char[strlen(name)+1];
+	strtolower(lname, name);
+	EntryMap::iterator it = entryMap.find(lname);
+	delete[] lname;
+
+	if (it == entryMap.end()) {
+		return entries.end();
+	}
+
+	return it->second;
+
+	/*for (EntryIterator it = entries.begin() ; it != entries.end() ; it++) {
 		IMGEntry* entry = *it;
 		if (strcmp(entry->name, name) == 0) {
 			return it;
 		}
 	}
 
-	return entries.end();
+	return entries.end();*/
 }
 
 
 void IMGArchive::readHeader()
 {
 	istream* stream = dirStream;
+
+#ifdef GTAFORMATS_LITTLE_ENDIAN
+	StreamReader reader(stream);
+#else
+	EndianSwappingStreamReader reader(stream);
+#endif
 
 	int32_t firstBytes;
 
@@ -328,12 +375,17 @@ void IMGArchive::readHeader()
 
 	if (fourCC[0] == 'V'  &&  fourCC[1] == 'E'  &&  fourCC[2] == 'R'  &&  fourCC[3] == '2') {
 		version = VER2;
-		int32_t numEntries;
-		stream->read((char*) &numEntries, 4);
+		int32_t numEntries = reader.readU32();
 
 		for (int32_t i = 0 ; i < numEntries ; i++) {
 			IMGEntry* entry = new IMGEntry;
 			stream->read((char*) entry, sizeof(IMGEntry));
+
+#ifndef GTAFORMATS_LITTLE_ENDIAN
+			entry->offset = SwapEndianness32(entry->offset);
+			entry->size = SwapEndianness32(entry->size);
+#endif
+
 			entryVector.push_back(entry);
 		}
 	} else {
@@ -341,13 +393,25 @@ void IMGArchive::readHeader()
 
 		// In VER1 'firstBytes' is actually part of the first entry, so we have to handle it manually.
 		IMGEntry* firstEntry = new IMGEntry;
-		firstEntry->offset = firstBytes;
+
+		firstEntry->offset = ToLittleEndian32(firstBytes);
+
 		stream->read(((char*) firstEntry)+4, sizeof(IMGEntry)-4);
+
+#ifndef GTAFORMATS_LITTLE_ENDIAN
+		firstEntry->size = SwapEndianness32(firstEntry->size);
+#endif
+
 		entryVector.push_back(firstEntry);
 
 		while (!stream->eof()) {
 			IMGEntry* entry = new IMGEntry;
 			stream->read((char*) entry, sizeof(IMGEntry));
+
+#ifndef GTAFORMATS_LITTLE_ENDIAN
+			entry->offset = SwapEndianness32(entry->offset);
+			entry->size = SwapEndianness32(entry->size);
+#endif
 
 			streamoff lrc = stream->gcount();
 
@@ -372,6 +436,21 @@ void IMGArchive::readHeader()
 	sort(entryVector.begin(), entryVector.end(), _EntrySortComparator);
 	entries = EntryList(entryVector.begin(), entryVector.end());
 
+	for (EntryIterator it = entries.begin() ; it != entries.end() ; it++) {
+		IMGEntry* entry = *it;
+
+		/*EntryMap::iterator eit = entryMap.find(LowerHash(entry->name));
+		if (eit != entryMap.end()) {
+			EntryIterator eeit = eit->second;
+			printf("NAME COLLISION between %s and %s!\n", entry->name, (*eeit)->name);
+			exit(1);
+		}*/
+
+		char* lname = new char[24];
+		strtolower(lname, entry->name);
+		entryMap.insert(pair<char*, EntryIterator>(lname, it));
+	}
+
 	if (entries.size() > 0) {
 		headerReservedSpace = (*entries.begin())->offset;
 	} else {
@@ -392,6 +471,114 @@ int32_t IMGArchive::getHeaderReservedSize() const
 			return -1;
 		}
 	}
+}
+
+
+void IMGArchive::forceMoveEntries(EntryIterator pos, EntryIterator moveBegin, EntryIterator moveEnd,
+		int32_t newOffset)
+{
+	EntryIterator lastToBeMoved = moveEnd;
+	lastToBeMoved--;
+	IMGEntry* moveBeginEntry = *moveBegin;
+	IMGEntry* lastMoveEntry = *lastToBeMoved;
+
+	iostream* outImgStream = static_cast<iostream*>(imgStream);
+
+	// Move the contents of all entries between moveBegin and moveEnd to newOffset
+	int32_t moveCount = (lastMoveEntry->offset + lastMoveEntry->size) - moveBeginEntry->offset;
+	imgStream->seekg(IMG_BLOCKS2BYTES(moveBeginEntry->offset), istream::beg);
+	char* data = new char[IMG_BLOCKS2BYTES(moveCount)];
+	imgStream->read(data, IMG_BLOCKS2BYTES(moveCount));
+
+	outImgStream->seekp(IMG_BLOCKS2BYTES(newOffset), ostream::beg);
+	outImgStream->write(data, IMG_BLOCKS2BYTES(moveCount));
+
+	delete[] data;
+
+	// The offset by which all moved entries have been moved.
+	int32_t relativeOffset = newOffset - moveBeginEntry->offset;
+
+	size_t numMoved = 0;
+
+	// Update the offsets in the header
+	for (EntryIterator it = moveBegin ; it != moveEnd ; it++) {
+		IMGEntry* entry = *it;
+		entry->offset += relativeOffset;
+		numMoved++;
+	}
+
+	// And move them in the 'entries' list
+	// Note that after calling entries.insert(), all iterators still point to the same elements they pointed
+	// to before. However, when moveEnd points to entries.end(), it should afterwards still point to the
+	// end of the moved-range, and not the end of the whole list, so we let oldMoveEnd point to the last moved
+	// entry, and afterwards increment it again to point to the old location of moveEnd.
+	EntryIterator oldMoveEnd = moveEnd;
+	oldMoveEnd--;
+	entries.insert(pos, moveBegin, moveEnd);
+	oldMoveEnd++;
+	entries.erase(moveBegin, oldMoveEnd);
+
+	// Update the entry map. Note that the only valid iterator we have here is 'pos'.
+	EntryIterator it = pos;
+	for (size_t i = 0 ; i < numMoved ; i++) {
+		it--;
+		IMGEntry* entry = *it;
+
+		char lname[24];
+		strtolower(lname, entry->name);
+		entryMap[lname] = it;
+	}
+}
+
+
+void IMGArchive::moveEntries(EntryIterator pos, EntryIterator moveBegin, EntryIterator moveEnd)
+{
+	if (moveBegin == moveEnd)
+		return;
+
+	if (pos != entries.end()) {
+		// If the entries are to be inserted somewhere in the middle of the archive, we first have to move
+		// enough entries following the insertion position to make space for the moved entries.
+
+		int32_t moveBeginOffs = (*moveBegin)->offset;
+		int32_t moveEndOffs = (*moveEnd)->offset + (*moveEnd)->size;
+		int32_t moveSize = moveEndOffs - moveBeginOffs;
+
+		EntryIterator endMoveBegin = pos;
+		EntryIterator endMoveEnd;
+		IMGEntry* endMoveBeginEntry = *endMoveBegin;
+
+		// Compute how many entries we have to move to the archive end.
+		for (	endMoveEnd = pos
+				; endMoveEnd != entries.end()
+				  &&  (*endMoveEnd)->offset+(*endMoveEnd)->size - endMoveBeginEntry->offset < moveSize
+				; endMoveEnd++)
+		{}
+
+		// Even if we move all following entries, we might still need more space, so we might have to move
+		// the entries farther than the current archive end.
+		int32_t additionalEndSpace = 0;
+
+		if (endMoveEnd == entries.end()) {
+			additionalEndSpace = moveSize - (getDataEndOffset() - endMoveBeginEntry->offset);
+		} else {
+			// If endMoveEnd is not entries.end(), then it currently points to the last entry to be moved.
+			// For forceMoveEntries, we need the iterator one PAST the last entry.
+			endMoveEnd++;
+		}
+
+		// Now move all entries between endMoveBegin and endMoveEnd to the archive end.
+		int32_t endMoveOffset = getDataEndOffset() + additionalEndSpace;
+		forceMoveEntries(entries.end(), endMoveBegin, endMoveEnd, endMoveOffset);
+	}
+
+	// Now we can be sure that there is enough space left after the insertion position.
+
+	// Finally, perform the actual requested move.
+	int32_t moveOffs = (pos == entries.end()) ? getDataEndOffset() : (*pos)->offset;
+	forceMoveEntries(pos, moveBegin, moveEnd, moveOffs);
+
+	expandSize();
 }
 
 
@@ -437,52 +624,7 @@ bool IMGArchive::reserveHeaderSpace(int32_t numHeaders)
 		}
 	}
 
-	if (moveEnd == entries.end()) {
-		// Handle the case where the new header size is greater than the size of the whole archive.
-		newOffset = ceil((float) bytesToReserve / IMG_BLOCK_SIZE);
-	} else {
-		EntryIterator last = --entries.end();
-		IMGEntry* lastEntry = *last;
-		newOffset = lastEntry->offset + lastEntry->size;
-	}
-
-	EntryIterator lastToBeMoved = moveEnd;
-	lastToBeMoved--;
-	IMGEntry* moveBeginEntry = *moveBegin;
-	IMGEntry* lastMoveEntry = *lastToBeMoved;
-
-	iostream* outImgStream = static_cast<iostream*>(imgStream);
-
-	// Move the contents of all entries between moveBegin and moveEnd to newOffset
-	int32_t moveCount = (lastMoveEntry->offset + lastMoveEntry->size) - moveBeginEntry->offset;
-	imgStream->seekg(IMG_BLOCKS2BYTES(moveBeginEntry->offset), istream::beg);
-	char* data = new char[IMG_BLOCKS2BYTES(moveCount)];
-	imgStream->read(data, IMG_BLOCKS2BYTES(moveCount));
-
-	outImgStream->seekp(IMG_BLOCKS2BYTES(newOffset), ostream::beg);
-	outImgStream->write(data, IMG_BLOCKS2BYTES(moveCount));
-
-	// The offset by which all moved entries have been moved.
-	int32_t relativeOffset = newOffset - moveBeginEntry->offset;
-
-	// Update the offsets in the header
-	for (EntryIterator it = moveBegin ; it != moveEnd ; it++) {
-		IMGEntry* entry = *it;
-		entry->offset += relativeOffset;
-	}
-
-	// And move them in the 'entries' list
-	// Note that after calling entries.insert(), all iterators still point to the same elements they pointed
-	// to before. However, when moveEnd points to entries.end(), it should afterwards still point to the
-	// end of the moved-range, and not the end of the whole list, so we let oldMoveEnd point to the last moved
-	// entry, and afterwards increment it again to point to the old location of moveEnd.
-	EntryIterator oldMoveEnd = moveEnd;
-	oldMoveEnd--;
-	entries.insert(entries.end(), moveBegin, moveEnd);
-	oldMoveEnd++;
-	entries.erase(moveBegin, oldMoveEnd);
-
-	expandSize();
+	moveEntries(entries.end(), moveBegin, moveEnd);
 
 	return true;
 }
@@ -496,18 +638,30 @@ void IMGArchive::rewriteHeaderSection()
 
 	iostream* outImgStream = static_cast<iostream*>(imgStream);
 
+#ifdef GTAFORMATS_LITTLE_ENDIAN
+	StreamWriter writer(outImgStream);
+#else
+	EndianSwappingStreamWriter writer(outImgStream);
+#endif
+
 	if (version == VER1) {
 		outImgStream->seekp(0 - outImgStream->tellp(), ostream::cur);
 	} else {
 		outImgStream->seekp(4 - outImgStream->tellp(), ostream::cur);
 		int32_t numEntries = entries.size();
-		outImgStream->write((char*) &numEntries, 4);
+
+		writer.write32(numEntries);
 	}
 
 	// Write the header section
 	EntryIterator it;
 	for (it = entries.begin() ; it != entries.end() ; it++) {
+#ifdef GTAFORMATS_LITTLE_ENDIAN
 		outImgStream->write((char*) *it, sizeof(IMGEntry));
+#else
+		writer.writeArrayCopyU32((uint32_t*) *it, 2);
+		outImgStream->write(((char*) *it) + 8, sizeof(IMGEntry)-8);
+#endif
 	}
 }
 
@@ -523,21 +677,17 @@ bool IMGArchive::addEntries(IMGEntry** newEntries, int32_t num)
 		return false;
 	}
 
-	int32_t offset;
-
-	if (entries.size() > 0) {
-		EntryIterator last = --entries.end();
-		IMGEntry* lastEntry = *last;
-		offset = lastEntry->offset + lastEntry->size;
-	} else {
-		offset = headerReservedSpace;
-	}
+	int32_t offset = getDataEndOffset();
 
 	for (int32_t i = 0 ; i < num ; i++) {
 		IMGEntry* entry = newEntries[i];
 		entry->offset = offset;
 		offset += entry->size;
 		entries.push_back(entry);
+
+		char* lname = new char[24];
+		strtolower(lname, entry->name);
+		entryMap[lname] = --entries.end();
 	}
 
 	expandSize();
@@ -580,7 +730,7 @@ void IMGArchive::resizeEntry(EntryIterator it, int32_t size)
 
 	IMGEntry* entry = *it;
 
-	ConstEntryIterator next = it;
+	EntryIterator next = it;
 	next++;
 
 	if (next == entries.end()) {
@@ -594,7 +744,7 @@ void IMGArchive::resizeEntry(EntryIterator it, int32_t size)
 
 	if (nextEntry->offset-entry->offset < size) {
 		// Too few space left, so we have to move the entry to the end
-		int32_t previousEnd = getDataEndOffset();
+		/*int32_t previousEnd = getDataEndOffset();
 		imgStream->seekg(IMG_BLOCKS2BYTES(entry->offset) - imgStream->tellg(), istream::cur);
 		char* data = new char[IMG_BLOCKS2BYTES(entry->size)];
 		imgStream->read(data, IMG_BLOCKS2BYTES(entry->size));
@@ -605,7 +755,10 @@ void IMGArchive::resizeEntry(EntryIterator it, int32_t size)
 		entries.push_back(entry);
 
 		entry->size = size;
-		entry->offset = previousEnd;
+		entry->offset = previousEnd;*/
+
+		moveEntries(entries.end(), it, next);
+		entry->size = size;
 
 		expandSize();
 	} else {
@@ -620,6 +773,13 @@ void IMGArchive::removeEntry(EntryIterator it)
 	if ((mode & ReadWrite)  ==  0) {
 		throw IMGException("Attempt to modify a read-only IMG archive!", __FILE__, __LINE__);
 	}
+
+	char lname[24];
+	strtolower(lname, (*it)->name);
+	EntryMap::iterator mit = entryMap.find(lname);
+	char* key = mit->first;
+	entryMap.erase(mit);
+	delete[] key;
 
 	delete *it;
 	entries.erase(it);
@@ -637,7 +797,19 @@ void IMGArchive::renameEntry(EntryIterator it, const char* name)
 	}
 
 	IMGEntry* entry = *it;
+
+	char lnameOld[24];
+	strtolower(lnameOld, entry->name);
+	EntryMap::iterator mit = entryMap.find(lnameOld);
+	char* key = mit->first;
+	entryMap.erase(mit);
+	delete[] key;
+
 	strcpy(entry->name, name);
+
+	char* lname = new char[24];
+	strtolower(lname, name);
+	entryMap.insert(pair<char*, EntryIterator>(lname, it));
 }
 
 
