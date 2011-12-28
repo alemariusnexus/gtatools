@@ -26,6 +26,8 @@
 #include "../ResourceObserver.h"
 #include <gta/config.h>
 #include <gtaformats/util/strutil.h>
+#include <gtaformats/util/CString.h>
+#include <gtaformats/util/cxx0xhash.h>
 
 #ifdef CXX0X_AVAILABLE
 #include <unordered_map>
@@ -47,15 +49,15 @@ public:
 
 private:
 #ifdef CXX0X_AVAILABLE
-	typedef unordered_map<hash_t, CollisionMeshIndexEntry*> IndexMap;
+	typedef unordered_map<CString, CollisionMeshIndexEntry*, CXX0XHash<CString> > IndexMap;
 #else
-	typedef map<hash_t, CollisionMeshIndexEntry*> IndexMap;
+	typedef map<CString, CollisionMeshIndexEntry*> IndexMap;
 #endif
 
 public:
 	virtual void resourceAdded(const File& file);
-	CollisionMeshIndexEntry* getCollisionMesh(hash_t name);
-	CollisionMeshIndexEntry* operator[](hash_t name) { return getCollisionMesh(name); }
+	CollisionMeshIndexEntry* getCollisionMesh(CString name);
+	CollisionMeshIndexEntry* operator[](CString name) { return getCollisionMesh(name); }
 
 private:
 	IndexMap index;

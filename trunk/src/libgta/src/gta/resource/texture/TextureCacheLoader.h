@@ -23,14 +23,14 @@
 #ifndef TEXTURECACHELOADER_H_
 #define TEXTURECACHELOADER_H_
 
-#include "../CacheEntryLoader.h"
+#include "../ResourceCache.h"
 #include "TextureIndexer.h"
 
 
-class TextureCacheLoader : public CacheEntryLoader {
+class TextureCacheLoader : public Engine::StringResourceCache::EntryLoader {
 public:
 	TextureCacheLoader(TextureIndexer* indexer);
-	virtual CacheEntry* load(hash_t hash);
+	virtual Engine::StringResourceCache::Entry* load(CString name);
 	TextureIndexer* getIndexer() { return indexer; }
 
 private:

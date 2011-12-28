@@ -30,10 +30,10 @@
 
 
 
+// TODO Reactivate
 GLBaseWidget::GLBaseWidget(QWidget* parent)
-		: QGLWidget(parent, System::getInstance()->getSharedGLWidget()), wireframe(false), textured(true),
-		  vertexShader(NULL), fragmentShader(NULL), program(NULL), lastX(-1), lastY(-1), moveFactor(1.0f),
-		  initialized(false)
+		: QGLWidget(parent/*, System::getInstance()->getSharedGLWidget()*/), wireframe(false), textured(true),
+		  viewW(-1), viewH(-1), lastX(-1), lastY(-1), moveFactor(1.0f), initialized(false)
 {
 	setFocusPolicy(Qt::ClickFocus);
 }
@@ -41,36 +41,6 @@ GLBaseWidget::GLBaseWidget(QWidget* parent)
 
 GLBaseWidget::~GLBaseWidget()
 {
-	delete program;
-	delete vertexShader;
-	delete fragmentShader;
-}
-
-
-void GLBaseWidget::initializeShaders(QFile& vfile, QFile& ffile)
-{
-	try {
-		vfile.open(QFile::ReadOnly);
-		QByteArray vsrc = vfile.readAll();
-
-		ffile.open(QFile::ReadOnly);
-		QByteArray fsrc = ffile.readAll();
-
-		vertexShader = new Shader(GL_VERTEX_SHADER);
-		vertexShader->loadSourceCode(vsrc.constData(), vsrc.length());
-		vertexShader->compile();
-
-		fragmentShader = new Shader(GL_FRAGMENT_SHADER);
-		fragmentShader->loadSourceCode(fsrc.constData(), fsrc.length());
-		fragmentShader->compile();
-
-		program = new ShaderProgram;
-		program->attachShader(vertexShader);
-		program->attachShader(fragmentShader);
-		program->link();
-	} catch (Exception& ex) {
-		System::getInstance()->unhandeledException(ex);
-	}
 }
 
 
@@ -87,10 +57,13 @@ void GLBaseWidget::initializeGL()
 
 void GLBaseWidget::resizeGL(int w, int h)
 {
+	viewW = w;
+	viewH = h;
+
 	float aspect = (float) w / (float) h;
 	glViewport(0, 0, w, h);
 
-	float l = aspect*0.035;
+	/*float l = aspect*0.035;
 	float r = aspect*-0.035;
 	float b = -0.035;
 	float t = 0.035;
@@ -103,23 +76,32 @@ void GLBaseWidget::resizeGL(int w, int h)
 		0,		2*n/(t-b),	0, 			0,
 		(r+l)/(r-l),	(t+b)/(t-b),	(-(f+n))/(f-n),		-1,
 		0,		0,		(-2*f*n)/(f-n),		0
+	);*/
+
+	float l = aspect*-0.7;
+	float r = aspect*0.7;
+	float b = -0.7;
+	float t = 0.7;
+	float n = 1.0;
+	float f = 3000.0;
+
+	// glFrustum(l, r, b, t, n, f):
+	pMatrix = Matrix4 (
+		2*n/(r-l),		0,				0,					0,
+		0,				2*n/(t-b),		0, 					0,
+		(r+l)/(r-l),	(t+b)/(t-b),	(-(f+n))/(f-n),		-1,
+		0,				0,				(-2*f*n)/(f-n),		0
 	);
 }
 
 
 void GLBaseWidget::paintGL()
 {
-	Engine::getInstance()->setCurrentShaderProgram(program);
+	Engine* engine = Engine::getInstance();
 
-	Matrix4 mvpMatrix = pMatrix;
-	mvpMatrix *= Matrix4::lookAt(cam.getTarget(), cam.getUp());
-	mvpMatrix.translate(-cam.getPosition());
-
-	GLint mvpMatrixUniform = program->getUniformLocation("MVPMatrix");
-
-	if (mvpMatrixUniform != -1) {
-		glUniformMatrix4fv(mvpMatrixUniform, 1, GL_FALSE, mvpMatrix.toArray());
-	}
+	engine->setCamera(&cam);
+	engine->setProjectionMatrix(pMatrix);
+	engine->setViewportSize(viewW, viewH);
 
 #ifndef GTATOOLS_GUI_USE_OPENGL_ES
 	glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
@@ -149,8 +131,8 @@ void GLBaseWidget::mouseMoveEvent(QMouseEvent* evt)
 	lastY = newPos.y();
 
 	if (lastX != -1  &&  lastY != -1) {
-		cam.rotateHorizontal(xo*0.005f);
-		cam.rotateVertical(yo*0.005f);
+		cam.rotateHorizontal(xo * -0.005f);
+		cam.rotateVertical(yo * 0.005f);
 	}
 
 	updateGL();
@@ -169,10 +151,10 @@ void GLBaseWidget::keyPressEvent(QKeyEvent* evt)
 		cam.move(-0.05f*moveFactor);
 		break;
 	case Qt::Key_A:
-		cam.moveSideways(-0.05f*moveFactor);
+		cam.moveSideways(0.05f*moveFactor);
 		break;
 	case Qt::Key_D:
-		cam.moveSideways(0.05f*moveFactor);
+		cam.moveSideways(-0.05f*moveFactor);
 		break;
 	case Qt::Key_Q:
 		cam.moveUp(0.05f*moveFactor);

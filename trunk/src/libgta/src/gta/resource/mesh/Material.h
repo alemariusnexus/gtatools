@@ -24,6 +24,7 @@
 #define MATERIAL_H_
 
 #include <gta/config.h>
+#include <gtaformats/util/CString.h>
 #include "../../Engine.h"
 #include <gtaformats/dff/DFFMaterial.h>
 
@@ -31,11 +32,11 @@
 
 class Material {
 public:
-	Material(hash_t texture);
+	Material(const CString& texture);
 	Material();
 	Material(const DFFMaterial& dffMat);
-	hash_t getTextureHash() const { return texture; }
-	void setTextureHash(hash_t texHash) { texture = texHash; }
+	CString getTexture() const { return texture; }
+	void setTexture(const CString& texName) { texture = texName; }
 	bool isTextured() const { return textured; }
 	void setTextured(bool texed) { textured = texed; }
 
@@ -52,7 +53,7 @@ public:
 
 private:
 	bool textured;
-	hash_t texture;
+	CString texture;
 	uint8_t color[4];
 };
 

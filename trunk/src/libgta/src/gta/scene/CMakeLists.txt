@@ -18,7 +18,11 @@
 # Additional permissions are granted, which are listed in the file
 # GPLADDITIONS.
 
-SET(FILES StaticSceneObject Scene SceneObject)
+SET(FILES
+    StaticSceneObject Scene SceneObject AnimatedSceneObject DefaultRenderer DepthPeelingAlgorithm
+    SceneObjectDefinitionDatabase SceneObjectDefinitionInfo SceneObjectFileGroup SceneObjectGroupDependency
+    BasicTransparencyAlgorithm
+    )#WeightedAverageAlgorithm BasicTransparencyAlgorithm)
 
 ADD_SUBDIRECTORY(visibility)
 

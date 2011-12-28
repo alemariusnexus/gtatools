@@ -43,7 +43,21 @@ typedef long hash_t;
  * 	@param dest The buffer to write the lower case characters to.
  *	@param src The mixed case characters.
  */
-void strtolower(char* dest, const char* src);
+void strtolower(char* dest, const char* src, size_t len);
+void strtoupper(char* dest, const char* src, size_t len);
+
+inline void strtolower(char* dest, const char* src)
+{
+	size_t len = strlen(src);
+	strtolower(dest, src, len);
+	dest[len] = '\0';
+}
+inline void strtoupper(char* dest, const char* src)
+{
+	size_t len = strlen(src);
+	strtoupper(dest, src, len);
+	dest[len] = '\0';
+}
 
 
 /**	\brief Trims chr from the right end of str.
@@ -79,13 +93,24 @@ bool WildcardMatch(const char* pattern, const char* text);
 
 
 
-inline hash_t Hash(const char* str)
+inline hash_t Hash(const char* str, size_t len)
 {
-	return use_facet< collate<char> >(locale()).hash(str, str+strlen(str));
+	return use_facet< collate<char> >(locale()).hash(str, str+len);
 }
 
 
-hash_t LowerHash(const char* str);
+inline hash_t Hash(const char* str)
+{
+	return Hash(str, strlen(str));
+}
+
+
+hash_t LowerHash(const char* str, size_t len);
+
+inline hash_t LowerHash(const char* str)
+{
+	return LowerHash(str, strlen(str));
+}
 
 
 void FormatByteSize(char* str, uint64_t size, int precision = 3);

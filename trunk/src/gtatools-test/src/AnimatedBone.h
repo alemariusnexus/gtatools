@@ -29,6 +29,9 @@
 #include <gtaformats/util/math/Matrix4.h>
 #include <gta/scene/StaticSceneObject.h>
 #include <vector>
+#include <algorithm>
+
+using std::find;
 
 
 
@@ -41,15 +44,23 @@ public:
 public:
 	AnimatedBone(DFFFrame* frame, IFPAnimation* anim);
 	void render(float relTime, const Matrix4& parentMat = Matrix4(), const Matrix4& parentFrameMat = Matrix4());
+	bool getFrames(float relTime, IFPFrame*& f1, IFPFrame*& f2, float& t);
+	ChildIterator getChildBegin() { return children.begin(); }
+	ChildIterator getChildEnd() { return children.end(); }
+	size_t getChildCount() const { return children.size(); }
+	const char* getName() const { return name; }
+	unsigned int indexOf(IFPFrame* frame) const { return find(frames, frames+frameCount, frame) - frames; }
+	IFPObject* getIFPObject() { return ifpObj; }
 
 private:
 	Matrix4 frameMatrix;
 	int32_t frameCount;
 	bool rootFrames;
+	IFPObject* ifpObj;
 	IFPFrame** frames;
 	ChildList children;
 	StaticSceneObject* sobj;
-	Quaternion lastRotation;
+	char* name;
 };
 
 #endif /* ANIMATEDBONE_H_ */

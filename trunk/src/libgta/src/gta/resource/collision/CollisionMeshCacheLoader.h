@@ -23,15 +23,15 @@
 #ifndef COLLISIONMESHCACHELOADER_H_
 #define COLLISIONMESHCACHELOADER_H_
 
-#include "../CacheEntryLoader.h"
+#include "../ResourceCache.h"
 #include "CollisionMeshIndexer.h"
 
 
 
-class CollisionMeshCacheLoader : public CacheEntryLoader {
+class CollisionMeshCacheLoader : public Engine::StringResourceCache::EntryLoader {
 public:
 	CollisionMeshCacheLoader(CollisionMeshIndexer* indexer);
-	virtual CacheEntry* load(hash_t name);
+	virtual Engine::StringResourceCache::Entry* load(CString name);
 
 private:
 	CollisionMeshIndexer* indexer;

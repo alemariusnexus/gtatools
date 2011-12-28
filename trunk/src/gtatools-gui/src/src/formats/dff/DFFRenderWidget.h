@@ -33,11 +33,14 @@
 #include <gtaformats/util/math/Matrix4.h>
 #include <gta/resource/mesh/Mesh.h>
 #include <gta/ItemDefinition.h>
-#include <gta/StaticMapItemDefinition.h>
+#include <gta/MapItemDefinition.h>
 #include <gta/Shader.h>
 #include <gta/ShaderProgram.h>
 #include <gta/Camera.h>
 #include <gta/resource/texture/TextureSource.h>
+#include <gta/scene/StaticSceneObject.h>
+#include <gta/scene/Scene.h>
+#include <gta/scene/Renderer.h>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QKeyEvent>
 #include <QtCore/QPoint>
@@ -57,7 +60,7 @@ public:
 	void removeGeometry(const DFFGeometry* geom);
 	void setGeometryParts(const DFFGeometry* geom, QLinkedList<const DFFGeometryPart*> parts);
 	void clearGeometries();
-	bool isGeometryRendered(const DFFGeometry* geom) const { return items.contains(geom); }
+	bool isGeometryRendered(const DFFGeometry* geom) const { return objs.contains(geom); }
 	void setTextureSource(TextureSource* source);
 	TextureSource* getTextureSource() const { return texSource; }
 
@@ -67,7 +70,7 @@ protected:
 	virtual void paintGL();
 
 private:
-	StaticMapItemDefinition* createItemDefinition(const DFFGeometry* geom,
+	StaticSceneObject* createSceneObject(const DFFGeometry* geom,
 			QLinkedList<const DFFGeometryPart*> parts);
 
 private slots:
@@ -76,7 +79,8 @@ private slots:
 	void texturedPropertyWasChanged(bool textured);
 
 private:
-	QMap<const DFFGeometry*, ItemDefinition*> items;
+	Scene* scene;
+	QMap<const DFFGeometry*, StaticSceneObject*> objs;
 	TextureSource* texSource;
 
 	GLint vertexAttrib, normalAttrib, texCoordAttrib, colorAttrib;

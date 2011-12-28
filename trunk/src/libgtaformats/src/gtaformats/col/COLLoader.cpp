@@ -27,6 +27,10 @@
 #include "COLFace.h"
 #include "COLBounds.h"
 #include <cstdio>
+#include "../util/stream/StreamReader.h"
+#include "../util/stream/EndianSwappingStreamReader.h"
+#include "../util/stream/StreamWriter.h"
+#include "../util/stream/EndianSwappingStreamWriter.h"
 
 using std::streamoff;
 
@@ -34,6 +38,12 @@ using std::streamoff;
 
 COLModel* COLLoader::loadModel(istream* stream)
 {
+#ifdef GTAFORMATS_LITTLE_ENDIAN
+	StreamReader reader(stream);
+#else
+	EndianSwappingStreamReader reader(stream);
+#endif
+
 	char skipBuf[4];
 
 	streamoff colStart = stream->tellg();
@@ -47,50 +57,68 @@ COLModel* COLLoader::loadModel(istream* stream)
 
 	COLModel* model = new COLModel;
 
-	uint32_t fileSize;
-	stream->read((char*) &fileSize, 4);
+	uint32_t fileSize = reader.readU32();
 
 	stream->read(model->name, 20);
 
 	// Unknown, maybe part of the name, but IMG entry names are only 20 bytes without .col extension
+	// TODO But maybe these bytes can be used for COL files outside an IMG archive?
 	stream->read(skipBuf, 4);
 
 	if (version == COL1) {
-		stream->read((char*) &model->bounds.radius, 4);
-		stream->read((char*) &model->bounds.center, 12);
-		stream->read((char*) &model->bounds.vmin, 24); // min and max
+		model->bounds.radius = reader.readFloat();
+		reader.readArrayFloat((float*) &model->bounds.center, 3);
+		reader.readArrayFloat((float*) &model->bounds.vmin, 6); // min and max
 	} else {
-		stream->read((char*) &model->bounds, 40);
+		reader.readArrayFloat((float*) &model->bounds, 10);
 	}
 
 	if (version == COL1) {
 		uint32_t numSpheres, numUnknown1, numBoxes, numVertices, numFaces;
 
-		stream->read((char*) &numSpheres, 4);
+		reader.readU32(&numSpheres);
 		COLSphere* spheres = new COLSphere[numSpheres];
+
 		stream->read((char*) spheres, numSpheres*20);
 
 		// Unfortunately, radius and center are swapped in COL1
 		for (uint32_t i = 0 ; i < numSpheres ; i++) {
 			COLSphere& sphere = spheres[i];
 			float rad = sphere.center.getX();
-			sphere.center = Vector3(sphere.center.getY(), sphere.center.getZ(), sphere.radius);
-			sphere.radius = rad;
+			sphere.center = Vector3(FromLittleEndianF32(sphere.center.getY()),
+					FromLittleEndianF32(sphere.center.getZ()), FromLittleEndianF32(sphere.radius));
+			sphere.radius = FromLittleEndianF32(rad);
 		}
 
-		stream->read((char*) &numUnknown1, 4); // Should always be 0
+		reader.readU32(&numUnknown1); // Should always be 0
 
-		stream->read((char*) &numBoxes, 4);
+		reader.readU32(&numBoxes);
 		COLBox* boxes = new COLBox[numBoxes];
 		stream->read((char*) boxes, numBoxes*28);
 
-		stream->read((char*) &numVertices, 4);
+		reader.readU32(&numVertices);
 		float* vertices = new float[numVertices*3];
-		stream->read((char*) vertices, numVertices*12);
+		reader.readArrayFloat(vertices, numVertices*3);
 
-		stream->read((char*) &numFaces, 4);
+		reader.readU32(&numFaces);
 		COLFace* faces = new COLFace[numFaces];
 		stream->read((char*) faces, numFaces*16);
+
+#ifndef GTAFORMATS_LITTLE_ENDIAN
+		for (uint32_t i = 0 ; i < numBoxes ; i++) {
+			COLBox& box = boxes[i];
+			box.vmax = Vector3(SwapEndiannessF32(box.vmax.getX()), SwapEndiannessF32(box.vmax.getY()),
+					SwapEndiannessF32(box.vmax.getZ()));
+			box.vmin = Vector3(SwapEndiannessF32(box.vmin.getX()), SwapEndiannessF32(box.vmin.getY()),
+					SwapEndiannessF32(box.vmin.getZ()));
+		}
+		for (uint32_t i = 0 ; i < numFaces ; i++) {
+			COLFace& face = faces[i];
+			face.indices[0] = SwapEndianness32(face.indices[0]);
+			face.indices[1] = SwapEndianness32(face.indices[1]);
+			face.indices[2] = SwapEndianness32(face.indices[2]);
+		}
+#endif
 
 		model->numSpheres = numSpheres;
 		model->spheres = spheres;
@@ -115,21 +143,21 @@ COLModel* COLLoader::loadModel(istream* stream)
 		uint32_t numShadowMeshVertices = 0, numShadowMeshFaces = 0, shadowMeshVertexOffset,
 				shadowMeshFaceOffset;
 
-		stream->read((char*) &numSpheres, 2);
-		stream->read((char*) &numBoxes, 2);
-		stream->read((char*) &numFaces, 4);
-		stream->read((char*) &flags, 4);
-		stream->read((char*) &sphereOffset, 4);
-		stream->read((char*) &boxOffset, 4);
-		stream->read((char*) &unknownOffset1, 4);
-		stream->read((char*) &vertexOffset, 4);
-		stream->read((char*) &faceOffset, 4);
-		stream->read((char*) &unknownOffset2, 4);
+		reader.readU16(&numSpheres);
+		reader.readU16(&numBoxes);
+		reader.readU32(&numFaces);
+		reader.readU32(&flags);
+		reader.readU32(&sphereOffset);
+		reader.readU32(&boxOffset);
+		reader.readU32(&unknownOffset1);
+		reader.readU32(&vertexOffset);
+		reader.readU32(&faceOffset);
+		reader.readU32(&unknownOffset2);
 
 		if (version == COL3) {
-			stream->read((char*) &numShadowMeshFaces, 4);
-			stream->read((char*) &shadowMeshVertexOffset, 4);
-			stream->read((char*) &shadowMeshFaceOffset, 4);
+			reader.readU32(&numShadowMeshFaces);
+			reader.readU32(&shadowMeshVertexOffset);
+			reader.readU32(&shadowMeshFaceOffset);
 		}
 
 		stream->seekg(colStart+sphereOffset+4, istream::beg);
@@ -143,6 +171,22 @@ COLModel* COLLoader::loadModel(istream* stream)
 		stream->seekg(colStart+faceOffset+4, istream::beg);
 		COLFace* faces = new COLFace[numFaces];
 
+#ifndef GTAFORMATS_LITTLE_ENDIAN
+		for (uint32_t i = 0 ; i < numSpheres ; i++) {
+			COLSphere& sphere = spheres[i];
+			sphere.center = Vector3(SwapEndiannessF32(sphere.center.getX()),
+					SwapEndiannessF32(sphere.center.getY()), SwapEndiannessF32(sphere.center.getZ()));
+			sphere.radius = SwapEndiannessF32(sphere.radius);
+		}
+		for (uint32_t i = 0 ; i < numBoxes ; i++) {
+			COLBox& box = boxes[i];
+			box.vmax = Vector3(SwapEndiannessF32(box.vmax.getX()), SwapEndiannessF32(box.vmax.getY()),
+					SwapEndiannessF32(box.vmax.getZ()));
+			box.vmin = Vector3(SwapEndiannessF32(box.vmin.getX()), SwapEndiannessF32(box.vmin.getY()),
+					SwapEndiannessF32(box.vmin.getZ()));
+		}
+#endif
+
 		uint32_t greatestVertexIndex = 0;
 
 		for (uint32_t i = 0 ; i < numFaces ; i++) {
@@ -150,7 +194,7 @@ COLModel* COLLoader::loadModel(istream* stream)
 			face.surface.brightness = 0;
 			face.surface.flags = 0;
 			uint16_t indices[3];
-			stream->read((char*) indices, 6);
+			reader.readArrayU16(indices, 3);
 			stream->read((char*) &face.surface.material, 1);
 			stream->read((char*) &face.surface.light, 1);
 			face.indices[0] = indices[0];
@@ -169,7 +213,7 @@ COLModel* COLLoader::loadModel(istream* stream)
 
 		stream->seekg(colStart+vertexOffset+4, istream::beg);
 		int16_t* compressedVertices = new int16_t[numVertices*3];
-		stream->read((char*) compressedVertices, numVertices*6);
+		reader.readArray16(compressedVertices, numVertices*3);
 
 		float* vertices = new float[numVertices*3];
 
@@ -177,7 +221,6 @@ COLModel* COLLoader::loadModel(istream* stream)
 			vertices[i*3] = compressedVertices[i*3] / 128.0f;
 			vertices[i*3+1] = compressedVertices[i*3+1] / 128.0f;
 			vertices[i*3+2] = compressedVertices[i*3+2] / 128.0f;
-			//printf("    %f   %f   %f\n", vertices[0], vertices[1], vertices[2]);
 		}
 
 		delete[] compressedVertices;
@@ -188,10 +231,23 @@ COLModel* COLLoader::loadModel(istream* stream)
 
 		if ((flags & COLModel::FlagFaceGroups) != 0) {
 			stream->seekg(colStart+faceOffset, istream::beg);
-			stream->read((char*) &numFaceGroups, 4);
+			reader.readU32(&numFaceGroups);
+
 			faceGroups = new COLFaceGroup[numFaceGroups];
 			stream->seekg((streamoff) stream->tellg() - numFaceGroups*28, istream::beg);
 			stream->read((char*) faceGroups, numFaceGroups*28);
+
+#ifndef GTAFORMATS_LITTLE_ENDIAN
+			for (uint32_t i = 0 ; i < numFaceGroups ; i++) {
+				COLFaceGroup& group = faceGroups[i];
+				group.vmin = Vector3(SwapEndiannessF32(group.vmin.getX()),
+						SwapEndiannessF32(group.vmin.getY()), SwapEndiannessF32(group.vmin.getZ()));
+				group.vmax = Vector3(SwapEndiannessF32(group.vmax.getX()),
+						SwapEndiannessF32(group.vmax.getY()), SwapEndiannessF32(group.vmax.getZ()));
+				group.startFace = SwapEndianness16(group.startFace);
+				group.endFace = SwapEndianness16(group.endFace);
+			}
+#endif
 		}
 
 		COLShadowMesh* shadowMesh = NULL;
@@ -208,7 +264,7 @@ COLModel* COLLoader::loadModel(istream* stream)
 					face.surface.brightness = 0;
 					face.surface.flags = 0;
 					uint16_t indices[3];
-					stream->read((char*) indices, 6);
+					reader.readArrayU16(indices, 3);
 					stream->read((char*) &face.surface.material, 1);
 					stream->read((char*) &face.surface.light, 1);
 					face.indices[0] = indices[0];
@@ -227,7 +283,7 @@ COLModel* COLLoader::loadModel(istream* stream)
 
 				stream->seekg(colStart+shadowMeshVertexOffset+4, istream::beg);
 				int16_t* compressedVertices = new int16_t[numShadowMeshVertices*3];
-				stream->read((char*) compressedVertices, numShadowMeshVertices*6);
+				reader.readArray16(compressedVertices, numShadowMeshVertices*3);
 
 				float* shadowMeshVertices = new float[numShadowMeshVertices*3];
 
@@ -296,6 +352,7 @@ bool COLLoader::loadModelName(istream* stream, char* name)
 	uint32_t size;
 
 	stream->read((char*) &size, 4);
+	size = FromLittleEndian32(size);
 	stream->read(name, 20);
 
 	char* skipBuf = new char[size-20];
@@ -327,6 +384,7 @@ void COLLoader::skip(istream* stream, int numEntries)
 
 		uint32_t size;
 		stream->read((char*) &size, 4);
+		size = FromLittleEndian32(size);
 		stream->seekg(size, istream::cur);
 	}
 }

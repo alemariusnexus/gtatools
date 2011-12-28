@@ -45,9 +45,10 @@ public:
 			{ textured = enabled; emit texturedPropertyChanged(enabled); updateGL(); }
 	bool isShowWireframe() const { return wireframe; }
 	bool isTexturingEnabled() const { return textured; }
+	int getViewportWidth() const { return viewW; }
+	int getViewportHeight() const { return viewH; }
 
 protected:
-	void initializeShaders(QFile& vfile, QFile& ffile);
 	virtual void initializeGL();
 	virtual void resizeGL(int w, int h);
 	virtual void paintGL();
@@ -60,11 +61,9 @@ signals:
 
 protected:
 	bool wireframe, textured;
-	Shader* vertexShader;
-	Shader* fragmentShader;
-	ShaderProgram* program;
 	Matrix4 pMatrix;
 	Camera cam;
+	int viewW, viewH;
 
 private:
 	int lastX, lastY;

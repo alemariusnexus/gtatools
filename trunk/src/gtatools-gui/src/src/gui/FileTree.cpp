@@ -50,7 +50,8 @@ FileTree::FileTree(QWidget* parent)
 	connect(sys, SIGNAL(fileOpened(const FileOpenRequest&, DisplayedFile*)), this,
 			SLOT(fileOpened(const FileOpenRequest&, DisplayedFile*)));
 
-	showProfile(pm->getCurrentProfile());
+	//showProfile(pm->getCurrentProfile());
+	currentProfileChanged(NULL, pm->getCurrentProfile());
 }
 
 
@@ -148,18 +149,18 @@ void FileTree::contextMenuRequested(const QPoint& pos)
 void FileTree::currentProfileChanged(Profile* oldProfile, Profile* newProfile)
 {
 	if (oldProfile) {
-		disconnect(oldProfile, SIGNAL(profileResourceAdded(const File&)), this,
+		disconnect(oldProfile, SIGNAL(searchResourceAdded(const File&)), this,
 				SLOT(currentProfileResourceAdded(const File&)));
-		disconnect(oldProfile, SIGNAL(profileResourceRemoved(const File&)), this,
+		disconnect(oldProfile, SIGNAL(searchResourceRemoved(const File&)), this,
 				SLOT(currentProfileResourceRemoved(const File&)));
 	}
 
 	showProfile(newProfile);
 
 	if (newProfile) {
-		connect(newProfile, SIGNAL(profileResourceAdded(const File&)), this,
+		connect(newProfile, SIGNAL(searchResourceAdded(const File&)), this,
 				SLOT(currentProfileResourceAdded(const File&)));
-		connect(newProfile, SIGNAL(profileResourceRemoved(const File&)), this,
+		connect(newProfile, SIGNAL(searchResourceRemoved(const File&)), this,
 				SLOT(currentProfileResourceRemoved(const File&)));
 	}
 }

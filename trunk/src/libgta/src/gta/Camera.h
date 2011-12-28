@@ -30,13 +30,9 @@
 
 class Camera {
 public:
-	/*Camera(	const Vector3& position = Vector3(),
+	Camera(	const Vector3& position = Vector3(),
 			const Vector3& target = Vector3(0.0f, -1.0f, 0.0f),
 			const Vector3& up = Vector3(0.0f, 0.0f, 1.0f)
-	) : position(position), target(target), up(up) {}*/
-	Camera(	const Vector3& position = Vector3(),
-			const Vector3& target = Vector3(0.0f, 0.0f, -1.0f),
-			const Vector3& up = Vector3(0.0f, 1.0f, 0.0f)
 	) : position(position), target(target), up(up) {}
 	const Vector3& getPosition() const { return position; }
 	Vector3& getPosition() { return position; }

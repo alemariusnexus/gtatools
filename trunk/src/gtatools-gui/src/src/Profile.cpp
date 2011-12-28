@@ -38,7 +38,7 @@ using std::distance;
 
 
 Profile::Profile(const QString& name)
-		: name(QString(name)), stopResourceLoading(false)
+		: name(QString(name)), gameInfo(NULL), stopResourceLoading(false)
 {
 	connect(ProfileManager::getInstance(), SIGNAL(currentProfileChanged(Profile*, Profile*)), this,
 			SLOT(currentProfileChanged(Profile*, Profile*)));
@@ -54,25 +54,15 @@ bool Profile::isCurrent() const
 void Profile::addResource(const File& resource)
 {
 	resources << new File(resource);
-	addResourceRecurse(resource);
+	//addResourceRecurse(resource);
+	emit engineResourceAdded(resource);
 }
 
 
-void Profile::addResourceRecurse(const File& file)
+void Profile::addSearchResource(const File& resource)
 {
-	if (file.isDirectory()  ||  file.isArchiveFile()) {
-		FileIterator* it = file.getIterator();
-		File* child;
-
-		while ((child = it->next())  !=  NULL) {
-			addResourceRecurse(*child);
-			delete child;
-		}
-
-		delete it;
-	}
-
-	emit profileResourceAdded(file);
+	searchResources << new File(resource);
+	emit searchResourceAdded(resource);
 }
 
 
@@ -133,6 +123,11 @@ void Profile::doLoadResourceIndex()
 		loadResourceRecurse(*resFile);
 	}
 
+	for (it = datFiles.begin() ; it != datFiles.end() ; it++) {
+		File* file = *it;
+		datLoadingQueue.enqueue(file);
+	}
+
 
 	resourceLoadingTask = sys->createTask();
 	resourceLoadingTask->start(0, resourceLoadingQueue.size(), tr("Building resource index..."));
@@ -173,8 +168,9 @@ void Profile::loadResourceRecurse(const File& file)
 
 void Profile::loadSingleResource()
 {
+	System* sys = System::getInstance();
+
 	if (resourceLoadingQueue.size() != 0) {
-		System* sys = System::getInstance();
 		File* file = resourceLoadingQueue.dequeue();
 		Engine* engine = Engine::getInstance();
 
@@ -193,6 +189,24 @@ void Profile::loadSingleResource()
 		QTimer::singleShot(0, this, SLOT(loadSingleResource()));
 	} else {
 		delete resourceLoadingTask;
+
+		datLoadingTask = sys->createTask();
+		datLoadingTask->start("Loading DAT files...");
+
+		QTimer::singleShot(0, this, SLOT(loadSingleDAT()));
+	}
+}
+
+
+void Profile::loadSingleDAT()
+{
+	if (!datLoadingQueue.empty()) {
+		File* file = datLoadingQueue.dequeue();
+		Engine* engine = Engine::getInstance();
+		engine->loadDAT(*file, gameInfo->getRootDirectory());
+		QTimer::singleShot(0, this, SLOT(loadSingleDAT()));
+	} else {
+		delete datLoadingTask;
 	}
 }
 
@@ -210,6 +224,7 @@ void Profile::currentProfileChanged(Profile* oldProfile, Profile* newProfile)
 		//connect(this, SIGNAL(resourceAdded(const File&)), this, SLOT(resourceAddedSlot(const File&)));
 		connect(System::getInstance(), SIGNAL(systemQuerySent(const SystemQuery&, SystemQueryResult&)),
 				this, SLOT(systemQuerySent(const SystemQuery&, SystemQueryResult&)));
+		engine->setDefaultGameInfo(gameInfo);
 		engine->addResourceObserver(this);
 		loadResourceIndex();
 	}
@@ -220,27 +235,19 @@ Profile::ResourceIterator Profile::removeResource(ResourceIterator it)
 {
 	File* file = *it;
 	ResourceIterator next = resources.erase(it);
-	removeResourceRecurse(*file);
+	emit engineResourceRemoved(*file);
 	delete file;
 	return next;
 }
 
 
-void Profile::removeResourceRecurse(const File& file)
+Profile::ResourceIterator Profile::removeSearchResource(ResourceIterator it)
 {
-	if (file.isDirectory()  ||  file.isArchiveFile()) {
-		FileIterator* it = file.getIterator();
-		File* child;
-
-		while ((child = it->next())  !=  NULL) {
-			removeResourceRecurse(*child);
-			delete child;
-		}
-
-		delete it;
-	}
-
-	emit profileResourceRemoved(file);
+	File* file = *it;
+	ResourceIterator next = searchResources.erase(it);
+	emit searchResourceRemoved(*file);
+	delete file;
+	return next;
 }
 
 
@@ -261,14 +268,6 @@ void Profile::clearResources()
 	for (it = getResourceBegin() ; it != getResourceEnd() ;) {
 		it = removeResource(it);
 	}
-}
-
-
-void Profile::setDATRootDirectory(const QString& dir)
-{
-	QString oldStr = datRoot;
-	datRoot = dir;
-	emit datRootChanged(oldStr, dir);
 }
 
 
@@ -313,17 +312,37 @@ void Profile::resourceAdded(const File& file)
 		IDEStatement* stmt;
 
 		while ((stmt = ide.readStatement())  !=  NULL) {
-			if (stmt->getType() == IDETypeStaticObject  ||  stmt->getType() == IDETypeTimedObject) {
+			const char* meshName;
+			const char* texName;
+
+			idetype_t type = stmt->getType();
+
+			if (type == IDETypeStaticObject  ||  type == IDETypeTimedObject) {
 				IDEStaticObject* sobj = (IDEStaticObject*) stmt;
-				char* lMeshName = new char[strlen(sobj->getModelName())+1];
-				strtolower(lMeshName, sobj->getModelName());
-				char* lTexName = new char[strlen(sobj->getTextureName())+1];
-				strtolower(lTexName, sobj->getTextureName());
-
-				meshTextures.insert(pair<hash_t, char*>(Hash(lMeshName), lTexName));
-
-				delete[] lMeshName;
+				meshName = sobj->getModelName();
+				texName = sobj->getTextureName();
+			} else if (type == IDETypeAnimation) {
+				IDEAnimation* anim = (IDEAnimation*) stmt;
+				meshName = anim->getModelName();
+				texName = anim->getTextureName();
+			} else if (type == IDETypePedestrian) {
+				IDEPedestrian* ped = (IDEPedestrian*) stmt;
+				meshName = ped->getModelName();
+				texName = ped->getTXDName();
+			} else if (type == IDETypeWeapon) {
+				IDEWeapon* weap = (IDEWeapon*) stmt;
+				meshName = weap->getModelName();
+				texName = weap->getTXDName();
 			}
+
+			char* lMeshName = new char[strlen(meshName)+1];
+			strtolower(lMeshName, meshName);
+			char* lTexName = new char[strlen(texName)+1];
+			strtolower(lTexName, texName);
+
+			meshTextures.insert(pair<hash_t, char*>(Hash(lMeshName), lTexName));
+
+			delete[] lMeshName;
 
 			delete stmt;
 		}
@@ -374,6 +393,39 @@ bool Profile::setResources(const QLinkedList<File>& resources)
 	for (newIt = resources.begin() ; newIt != resources.end() ; newIt++) {
 		if (!oldResources.contains(*newIt)) {
 			addResource(*newIt);
+			hasChanges = true;
+		}
+	}
+
+	return hasChanges;
+}
+
+
+bool Profile::setSearchResources(const QLinkedList<File>& resources)
+{
+	bool hasChanges = false;
+
+	QLinkedList<File> oldResources;
+	ResourceIterator rit;
+	for (rit = this->searchResources.begin() ; rit != this->searchResources.end() ; rit++) {
+		oldResources << **rit;
+	}
+
+	// First, search for removed files
+	for (rit = this->searchResources.begin() ; rit != this->searchResources.end() ;) {
+		if (!resources.contains(**rit)) {
+			rit = removeSearchResource(rit);
+			hasChanges = true;
+		} else {
+			rit++;
+		}
+	}
+
+	// Then find new files
+	QLinkedList<File>::const_iterator newIt;
+	for (newIt = resources.begin() ; newIt != resources.end() ; newIt++) {
+		if (!oldResources.contains(*newIt)) {
+			addSearchResource(*newIt);
 			hasChanges = true;
 		}
 	}

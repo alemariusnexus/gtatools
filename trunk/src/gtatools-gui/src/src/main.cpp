@@ -45,6 +45,12 @@
 #include <gta/resource/ResourceCache.h>
 #include <signal.h>
 #include <gtaformats/util/util.h>
+#include "formats/dff/DFFRenderWidget.h"
+#include "gui/GLContainerWidget.h"
+#include <fstream>
+#include <gtaformats/util/util.h>
+
+using std::ofstream;
 
 
 
@@ -71,6 +77,11 @@ void listRecurse(File* file, int ind = 0)
 
 int main(int argc, char** argv)
 {
+#ifdef _WIN32
+	freopen("stdout.log", "a", stdout);
+	freopen("stderr.log", "a", stderr);
+#endif
+
 	try {
 		MainApplication app(argc, argv);
 

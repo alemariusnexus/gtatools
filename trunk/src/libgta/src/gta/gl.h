@@ -38,11 +38,30 @@
 #endif
 
 
+#ifdef GL_CPP
+#define GTAGL_EXTERN
+#else
+#define GTAGL_EXTERN extern
+#endif
+
+
+GTAGL_EXTERN GLenum GTAGL_FRAMEBUFFER;
+GTAGL_EXTERN GLenum GTAGL_COLOR_ATTACHMENT0;
+GTAGL_EXTERN GLenum GTAGL_COLOR_ATTACHMENT1;
+GTAGL_EXTERN GLenum GTAGL_COLOR_ATTACHMENT2;
+GTAGL_EXTERN GLenum GTAGL_COLOR_ATTACHMENT3;
+GTAGL_EXTERN GLenum GTAGL_DEPTH_ATTACHMENT;
+
 
 void gtaglInit();
 bool gtaglIsExtensionSupported(const char* extension);
 bool gtaglIsVersionSupported(int major, int minor);
 void gtaglGetVersion(int& major, int& minor);
 const char* gtaglGetSupportedExtensions();
+
+
+GTAGL_EXTERN void (*gtaglGenFramebuffers)(GLsizei, GLuint*);
+GTAGL_EXTERN void (*gtaglBindFramebuffer)(GLenum, GLuint);
+GTAGL_EXTERN void (*gtaglFramebufferTexture2D)(GLenum, GLenum, GLenum, GLuint, GLint);
 
 #endif /* GL_H_ */

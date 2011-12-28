@@ -105,9 +105,9 @@ IFPAnimation* IFPLoader::readAnimation()
 
 				stream->read((char*) cdata, 5*sizeof(int16_t));
 
-				frame->rot = Quaternion(cdata[0] / 4096.0f, cdata[1] / 4096.0f, cdata[2] / 4096.0f,
-						cdata[3] / 4096.0f);
-				frame->time = cdata[4] / 1024.0f;
+				frame->rot = Quaternion(cdata[3] / 4096.0f, cdata[0] / 4096.0f, cdata[1] / 4096.0f,
+						cdata[2] / 4096.0f);
+				frame->time = cdata[4] / 60.0f;
 
 				obj->frames.push_back(frame);
 			}
@@ -121,9 +121,9 @@ IFPAnimation* IFPLoader::readAnimation()
 
 				stream->read((char*) cdata, 8*sizeof(int16_t));
 
-				frame->rot = Quaternion(cdata[0] / 4096.0f, cdata[1] / 4096.0f, cdata[2] / 4096.0f,
-						cdata[3] / 4096.0f);
-				frame->time = cdata[4] / 1024.0f;
+				frame->rot = Quaternion(cdata[3] / 4096.0f, cdata[0] / 4096.0f, cdata[1] / 4096.0f,
+						cdata[2] / 4096.0f);
+				frame->time = cdata[4] / 60.0f;
 				frame->trans = Vector3(cdata[5] / 1024.0f, cdata[6] / 1024.0f, cdata[7] / 1024.0f);
 
 				obj->frames.push_back(frame);

@@ -47,14 +47,14 @@ TextureCacheEntry::~TextureCacheEntry()
 }
 
 
-void TextureCacheEntry::addTexture(hash_t name, Texture* tex)
+void TextureCacheEntry::addTexture(const CString& name, Texture* tex)
 {
-	texMap.insert(pair<hash_t, Texture*>(name, tex));
+	texMap.insert(pair<CString, Texture*>(name, tex));
 	this->size += tex->getSize();
 }
 
 
-Texture* TextureCacheEntry::getTexture(hash_t texName)
+Texture* TextureCacheEntry::getTexture(const CString& texName)
 {
 	TextureMap::const_iterator it = texMap.find(texName);
 

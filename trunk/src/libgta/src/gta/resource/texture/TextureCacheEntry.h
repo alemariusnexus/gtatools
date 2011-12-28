@@ -24,7 +24,9 @@
 #define TEXTURECACHEENTRY_H_
 
 #include <gta/config.h>
-#include "../CacheEntry.h"
+#include <gtaformats/util/cxx0xhash.h>
+#include <gtaformats/util/CString.h>
+#include "../ResourceCache.h"
 #include "TextureArchive.h"
 #include "Texture.h"
 #include <map>
@@ -38,26 +40,26 @@ using std::map;
 #endif
 
 
-class TextureCacheEntry : public CacheEntry {
+class TextureCacheEntry : public Engine::StringResourceCache::Entry {
 private:
 #ifdef CXX0X_AVAILABLE
-	typedef unordered_map<hash_t, Texture*> TextureMap;
+	typedef unordered_map<CString, Texture*, CXX0XHash<CString> > TextureMap;
 #else
-	typedef map<hash_t, Texture*> TextureMap;
+	typedef map<CString, Texture*> TextureMap;
 #endif
 
 public:
 	TextureCacheEntry(TextureArchive* archive);
 	virtual ~TextureCacheEntry();
-	void addTexture(hash_t name, Texture* tex);
+	void addTexture(const CString&, Texture* tex);
 	virtual cachesize_t getSize() const { return size; }
-	Texture* getTexture(hash_t texName);
-	Texture* operator[](hash_t texName) { return getTexture(texName); }
+	Texture* getTexture(const CString& texName);
+	Texture* operator[](const CString& texName) { return getTexture(texName); }
 
 private:
 	TextureMap texMap;
 	cachesize_t size;
-	CachePointer parentPtr;
+	Engine::StringResourceCache::Pointer parentPtr;
 };
 
 #endif /* TEXTURECACHEENTRY_H_ */

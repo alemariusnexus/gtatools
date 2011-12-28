@@ -24,22 +24,35 @@
 #define SCENE_H_
 
 #include "StaticSceneObject.h"
+#include "SceneObjectDefinitionDatabase.h"
+#include "Renderer.h"
+#include <gtaformats/util/StringComparator.h>
 #include "../ShaderProgram.h"
-#include "visibility/PVSData.h"
 #include <list>
+#include <map>
 
 using std::list;
+using std::map;
+
+
+class PVSDatabase;
+
 
 
 class Scene {
+private:
+	typedef map<const char*, SceneObjectFileGroup*, StringComparator> FileGroupMap;
+
 public:
-	typedef list<StaticSceneObject*> ObjectList;
+	typedef list<SceneObject*> ObjectList;
 	typedef ObjectList::iterator ObjectIterator;
 	typedef ObjectList::const_iterator ConstObjectIterator;
 
 public:
 	Scene();
-	void addSceneObject(StaticSceneObject* obj);
+	~Scene();
+	void addSceneObject(SceneObject* obj);
+	void clear();
 	ObjectIterator getSceneObjectBegin() { return objects.begin(); }
 	ObjectIterator getSceneObjectEnd() { return objects.end(); }
 	ConstObjectIterator getSceneObjectBegin() const { return objects.begin(); }
@@ -51,14 +64,22 @@ public:
 	int getLastVisibleObjectCount() const { return visibleObjCount; }
 	void setDrawDistanceMultiplier(float ddm) { ddMultiplier = ddm; }
 	float getDrawDistanceMultiplier() const { return ddMultiplier; }
+	Renderer* getRenderer() { return renderer; }
+	void setRenderer(Renderer* r) { renderer = r; }
+	void update(uint64_t timePassed);
+	void present();
+	SceneObjectDefinitionDatabase* getDefinitionDatabase() { return &defDB; }
+	void setPVSDatabase(PVSDatabase* pvs) { this->pvs = pvs; }
 
 private:
 	ObjectList objects;
-	ObjectIterator alphaObjBegin;
-	PVSData pvs;
-	bool pvsValid;
+	ObjectList dynamicObjs;
+	PVSDatabase* pvs;
 	int pvObjCount, visibleObjCount;
 	float ddMultiplier;
+	Renderer* renderer;
+	int nextStaticObjID;
+	SceneObjectDefinitionDatabase defDB;
 };
 
 #endif /* SCENE_H_ */

@@ -101,7 +101,7 @@ const Quaternion Quaternion::slerp(const Quaternion& other, float t) const
 
 	if (fabs(sinTheta) < 0.0000001f) {
 		// When theta is very near to 180 degrees, slerp does not work as expected. 180 degrees in quaternion
-		// math means rotation by 360 degrees, so we'll interpolate using axis-angle along the fallback axis.
+		// math means rotation by 360 degrees. This is commonly interpreted as not rotating at all.
 		return *this;
 	}
 
@@ -109,14 +109,7 @@ const Quaternion Quaternion::slerp(const Quaternion& other, float t) const
 	float f1 = sinf((1.0-t) * theta);
 	float f2 = sinf(t * theta);
 
-	return Quaternion (
-			(data[0]*f1 + other.data[0]*f2) * rs,
-			(data[1]*f1 + other.data[1]*f2) * rs,
-			(data[2]*f1 + other.data[2]*f2) * rs,
-			(data[3]*f1 + other.data[3]*f2) * rs
-	);
-
-	/*if (dot(other) < 0.0f) {
+	if (dot(other) < 0.0f) {
 		return Quaternion (
 				(data[0]*f1 - other.data[0]*f2) * rs,
 				(data[1]*f1 - other.data[1]*f2) * rs,
@@ -130,7 +123,7 @@ const Quaternion Quaternion::slerp(const Quaternion& other, float t) const
 				(data[2]*f1 + other.data[2]*f2) * rs,
 				(data[3]*f1 + other.data[3]*f2) * rs
 		);
-	}*/
+	}
 }
 
 

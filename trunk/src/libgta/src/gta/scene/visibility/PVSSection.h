@@ -51,9 +51,15 @@ public:
 	size_type getPVSObjectCount() { return pvs.size(); }
 
 private:
+	PVSSection() {}
+
+private:
 	float x1, y1, z1;
 	float x2, y2, z2;
 	vector<StaticSceneObject*> pvs;
+
+private:
+	friend class PVSDatabase;
 };
 
 #endif /* PVSSECTION_H_ */

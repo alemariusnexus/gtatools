@@ -92,6 +92,18 @@ inline double SwapEndiannessF64(double val)
 #define ToBigEndianF32(v) (SwapEndiannessF32((v)))
 #define ToBigEndianF64(v) (SwapEndiannessF64((v)))
 
+#define FromLittleEndian16(v) (v)
+#define FromLittleEndian32(v) (v)
+#define FromLittleEndian64(v) (v)
+#define FromLittleEndianF32(v) (v)
+#define FromLittleEndianF64(v) (v)
+
+#define FromBigEndian16(v) (SwapEndianness16((v)))
+#define FromBigEndian32(v) (SwapEndianness32((v)))
+#define FromBigEndian64(v) (SwapEndianness32((v)))
+#define FromBigEndianF32(v) (SwapEndiannessF32((v)))
+#define FromBigEndianF64(v) (SwapEndiannessF64((v)))
+
 #else
 
 #define ToLittleEndian16(v) (SwapEndianness16((v)))
@@ -106,7 +118,20 @@ inline double SwapEndiannessF64(double val)
 #define ToBigEndianF32(v) (v)
 #define ToBigEndianF64(v) (v)
 
+#define FromLittleEndian16(v) (SwapEndianness16((v)))
+#define FromLittleEndian32(v) (SwapEndianness32((v)))
+#define FromLittleEndian64(v) (SwapEndianness32((v)))
+#define FromLittleEndianF32(v) (SwapEndiannessF32((v)))
+#define FromLittleEndianF64(v) (SwapEndiannessF64((v)))
+
+#define FromBigEndian16(v) (v)
+#define FromBigEndian32(v) (v)
+#define FromBigEndian64(v) (v)
+#define FromBigEndianF32(v) (v)
+#define FromBigEndianF64(v) (v)
+
 #endif
+
 
 
 uint64_t GetTickcount();
@@ -124,5 +149,7 @@ inline unsigned int GetNextPowerOfTwo(unsigned int v)
 		v |= v >> i;
 	return v+1;
 }
+
+void SleepMilliseconds(unsigned int time);
 
 #endif /* UTIL_H_ */

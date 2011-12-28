@@ -25,6 +25,8 @@
 
 #include <gta/config.h>
 #include <gtaformats/util/File.h>
+#include <gtaformats/util/cxx0xhash.h>
+#include <gtaformats/util/CString.h>
 #include "../../Engine.h"
 #include "../ResourceObserver.h"
 
@@ -40,16 +42,16 @@ using std::map;
 class MeshIndexer : public ResourceObserver {
 private:
 #ifdef CXX0X_AVAILABLE
-	typedef unordered_map<hash_t, File*> IndexMap;
+	typedef unordered_map<CString, File*, CXX0XHash<CString> > IndexMap;
 #else
-	typedef map<hash_t, File*> IndexMap;
+	typedef map<CString, File*> IndexMap;
 #endif
 
 public:
 	~MeshIndexer();
 	virtual void resourceAdded(const File& file);
-	const File* find(hash_t name);
-	const File* operator[](hash_t name) { return find(name); }
+	const File* find(const CString& name);
+	const File* operator[](const CString& name) { return find(name); }
 
 private:
 	IndexMap index;

@@ -138,11 +138,16 @@ void ConfigWidget::apply()
 		ProfileConfigWidget* profileWidget = (ProfileConfigWidget*) ui.profileStackedWidget->widget(i);
 
 		profile->setName(profileWidget->getProfileName());
-		profile->setDATRootDirectory(profileWidget->getDATRootFile());
-		//profile->clearResources();
+
+		GameInfo* info = new GameInfo(profileWidget->getVersionMode(),
+				File(profileWidget->getRootDirectory().toAscii().constData()));
+		delete profile->getGameInfo();
+		profile->setGameInfo(info);
+
+		// ********** Set the new engine resources **********
 
 		QLinkedList<QString> newResources;
-		profileWidget->getFiles(newResources);
+		profileWidget->getResourceFiles(newResources);
 		QLinkedList<QString>::iterator it;
 
 		QLinkedList<File> newResFiles;
@@ -151,6 +156,18 @@ void ConfigWidget::apply()
 		}
 
 		bool hasChanges = profile->setResources(newResFiles);
+
+		// ********** Set the new engine resources **********
+
+		newResources.clear();
+		profileWidget->getSearchResourceFiles(newResources);
+
+		newResFiles.clear();
+		for (it = newResources.begin() ; it != newResources.end() ; it++) {
+			newResFiles << File(it->toLocal8Bit().constData());
+		}
+
+		hasChanges = profile->setSearchResources(newResFiles) ? true : hasChanges;
 
 		QLinkedList<QString> datFiles;
 		profileWidget->getDATFiles(datFiles);

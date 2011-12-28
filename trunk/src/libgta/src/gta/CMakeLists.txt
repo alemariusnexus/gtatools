@@ -21,11 +21,12 @@
 
 SET(FILES
     gl Camera Shader ShaderProgram ItemDefinition GLException Engine MeshGenerator ItemManager
-    MapItemDefinition StaticMapItemDefinition TimedMapItemDefinition Renderer DefaultRenderer)
+    MapItemDefinition StaticMapItemDefinition TimedMapItemDefinition GameInfo
+    Animation AnimationBone AnimationFrame AnimatedMapItemDefinition Animator gldebug)
     
 ADD_SUBDIRECTORY(resource)
 ADD_SUBDIRECTORY(scene)
-ADD_SUBDIRECTORY(ceguigl2)
+#ADD_SUBDIRECTORY(ceguigl2)
     
 #CONFIGURE_FILE(config.cmake.h "${CMAKE_CURRENT_SOURCE_DIR}/config.h")
 CONFIGURE_FILE(config.cmake.h "${CMAKE_CURRENT_BINARY_DIR}/config.h")

@@ -23,6 +23,7 @@
 #ifndef SYSTEM_H_
 #define SYSTEM_H_
 
+#include <gta/gl.h>
 #include <QtCore/QObject>
 #include <gtaformats/util/File.h>
 #include <gtaformats/util/Exception.h>

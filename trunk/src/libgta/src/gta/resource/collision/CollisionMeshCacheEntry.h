@@ -23,11 +23,12 @@
 #ifndef COLLISIONMESHCACHEENTRY_H_
 #define COLLISIONMESHCACHEENTRY_H_
 
-#include "../CacheEntry.h"
+#include "../ResourceCache.h"
+#include <gtaformats/util/strutil.h>
 #include <btBulletDynamicsCommon.h>
 
 
-class CollisionMeshCacheEntry : public CacheEntry {
+class CollisionMeshCacheEntry : public Engine::StringResourceCache::Entry {
 public:
 	CollisionMeshCacheEntry(btCollisionShape* shape, cachesize_t size) : shape(shape), size(size) {}
 	virtual ~CollisionMeshCacheEntry() { delete shape; }

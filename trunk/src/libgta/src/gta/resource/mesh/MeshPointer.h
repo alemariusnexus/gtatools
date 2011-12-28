@@ -24,12 +24,12 @@
 #define MESHPOINTER_H_
 
 #include <gta/config.h>
-#include "Mesh.h"
+#include "MeshClump.h"
 
 
 class MeshPointer {
 public:
-	virtual Mesh* operator*() = 0;
+	virtual MeshClump* operator*() = 0;
 	virtual MeshPointer* clone() const = 0;
 	virtual void release() {}
 };

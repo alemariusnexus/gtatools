@@ -29,14 +29,27 @@ using std::streamoff;
 
 
 
-Shader::Shader(GLenum type)
+Shader::Shader(GLenum type, const char* name)
 		: type(type),
 #ifdef GTA_USE_OPENGL_ES
-		  code(NULL), shader(0)
+		  code(NULL), shader(0),
 #else
-		  shader(glCreateShader(type))
+		  shader(glCreateShader(type)),
 #endif
+		  name(NULL)
 {
+	if (name) {
+		this->name = new char[strlen(name) + 1];
+		strcpy(this->name, name);
+	}
+}
+
+
+Shader::~Shader()
+{
+	if (name)
+		delete[] name;
+	glDeleteShader(shader);
 }
 
 
@@ -107,8 +120,10 @@ void Shader::compile()
 		char* log = new char[maxLength];
 		glGetShaderInfoLog(shader, maxLength, &actualLength, log);
 
-		char* errmsg = new char[actualLength + 64];
-		sprintf(errmsg, "Error compiling shader %d. Info log:\n\n%s", shader, log);
+		size_t nameLen = name ? strlen(name) : 16;
+		char* errmsg = new char[actualLength + nameLen + 64];
+		sprintf(errmsg, "Error compiling shader \"%s\" [#%d]. Info log:\n\n%s", name ? name : "[UNNAMED]",
+				shader, log);
 		delete[] log;
 		GLException ex(errmsg, __FILE__, __LINE__);
 		delete[] errmsg;
@@ -122,11 +137,13 @@ void Shader::compile()
 			char* log = new char[maxLength];
 			glGetShaderInfoLog(shader, maxLength, &actualLength, log);
 
-			printf("Shader compilation successful. Build log:\n==========\n%s\n==========\n", log);
+			printf("Successfully compiled shader \"%s\" [#%d]. Build log:\n==========\n%s\n==========\n\n",
+					name ? name : "[UNNAMED]", shader, log);
 
 			delete[] log;
 		} else {
-			printf("Shader compilation successful. Build log is empty\n");
+			printf("Successfully compiled shader \"%s\" [#%d]. Build log is empty\n\n",
+					name ? name : "[UNNAMED]", shader);
 		}
 	}
 }

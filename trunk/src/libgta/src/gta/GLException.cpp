@@ -110,3 +110,71 @@ void GLException::checkError(const char* msg)
 #endif
 	}
 }
+
+
+void GLException::checkFramebufferStatus(GLenum target, const char* msg)
+{
+	GLenum status;
+
+#ifndef GTA_USE_OPENGL_ES
+	if (gtaglIsVersionSupported(3, 0)) {
+		status = glCheckFramebufferStatus(target);
+	} else {
+		status = glCheckFramebufferStatusEXT(target);
+	}
+#else
+	status = glCheckFramebufferStatus(target);
+#endif
+
+	if (status != GL_FRAMEBUFFER_COMPLETE) {
+		char* errmsg = new char[256 + strlen(msg)];
+		strcpy(errmsg, "Error: OpenGL Framebuffer is incomplete. glCheckFramebufferStatus returned ");
+
+		switch (status) {
+		case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+			strcat(errmsg, "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT");
+			break;
+		case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+			strcat(errmsg, "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT");
+			break;
+		case GL_FRAMEBUFFER_UNSUPPORTED:
+			strcat(errmsg, "GL_FRAMEBUFFER_UNSUPPORTED");
+			break;
+#ifndef GTA_USE_OPENGL_ES
+		case GL_FRAMEBUFFER_UNDEFINED:
+			strcat(errmsg, "GL_FRAMEBUFFER_UNDEFINED");
+			break;
+		case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
+			strcat(errmsg, "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER");
+			break;
+		case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
+			strcat(errmsg, "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER");
+			break;
+		case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
+			strcat(errmsg, "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE");
+			break;
+		case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
+			strcat(errmsg, "GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS");
+			break;
+#else
+		case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS:
+			strcat(errmsg, "GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS");
+			break;
+#endif
+		default:
+			char submsg[64];
+			sprintf(submsg, "[UNKNOWN: 0x%X]", status);
+			strcat(errmsg, submsg);
+		}
+
+		char* submsg = new char[8 + strlen(msg)];
+		sprintf(submsg, " [%s]!", msg);
+		strcat(errmsg, submsg);
+		delete[] submsg;
+
+		GLException ex(errmsg, __FILE__, __LINE__);
+		delete[] errmsg;
+
+		throw ex;
+	}
+}

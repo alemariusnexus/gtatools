@@ -25,15 +25,25 @@
 
 #include <gtaformats/config.h>
 #include <cstring>
+#include <boost/shared_array.hpp>
+#include "CString.h"
 
 
 class StringComparator
 {
 public:
-	bool operator()(const char* s1, const char* s2) const
-	{
-		return strcmp(s1, s2) < 0;
-	}
+	bool operator()(const char* s1, const char* s2) const { return strcmp(s1, s2) < 0; }
+	bool operator()(boost::shared_array<const char> s1, boost::shared_array<const char> s2) const { return (*this)(s1.get(), s2.get()); }
+	bool operator()(const CString& s1, const CString& s2) const { return s1 < s2; }
+};
+
+
+class StringEqual
+{
+public:
+	bool operator()(const char* s1, const char* s2) const { return strcmp(s1, s2) == 0; }
+	bool operator()(boost::shared_array<const char> s1, boost::shared_array<const char> s2) const { return (*this)(s1.get(), s2.get()); }
+	bool operator()(const CString& s1, const CString& s2) const { return s1 == s2; }
 };
 
 #endif /* STRINGCOMPARATOR_H_ */

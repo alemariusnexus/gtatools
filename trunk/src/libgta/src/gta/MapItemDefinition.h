@@ -45,6 +45,9 @@ public:
 	MeshPointer* getMeshPointer() { return meshPtr; }
 	TextureSource* getTextureSource() { return texSrc; }
 	CollisionShapePointer* getCollisionShapePointer() { return colPtr; }
+	void setMeshPointer(MeshPointer* p) { meshPtr = p; }
+	void setTextureSource(TextureSource* s) { texSrc = s; }
+	void setCollisionShapePointer(CollisionShapePointer* p) { colPtr = p; }
 	float getDrawDistance() const { return drawDist; }
 	unsigned int getFlags() const { return flags; }
 	bool hasAlphaTransparency() const { return (flags & AlphaTransparency) != 0; }

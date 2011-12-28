@@ -55,21 +55,28 @@ public:
 	Profile(const QString& name);
 
 	void addResource(const File& resource);
+	void addSearchResource(const File& resource);
 	void addDATFile(const File& file);
 	bool setResources(const QLinkedList<File>& resources);
+	bool setSearchResources(const QLinkedList<File>& resources);
 	bool setDATFiles(const QLinkedList<File>& files);
 	ResourceIterator getResourceBegin();
 	ResourceIterator getResourceEnd();
+	ResourceIterator getSearchResourceBegin() { return searchResources.begin(); }
+	ResourceIterator getSearchResourceEnd() { return searchResources.end(); }
 	ResourceIterator getDATFilesBegin() { return datFiles.begin(); }
 	ResourceIterator getDATFilesEnd() { return datFiles.end(); }
 	QLinkedList<File*>& getResources() { return resources; }
+	QLinkedList<File*>& getSearchResources() { return searchResources; }
 	int getResourceCount() const { return resources.size(); }
+	int getSearchResourceCount() const { return searchResources.size(); }
 	int getDATFileCount() const { return datFiles.size(); }
-	QString getDATRootDirectory() const { return datRoot; }
-	void setDATRootDirectory(const QString& dir);
+	void setGameInfo(GameInfo* info) { gameInfo = info; }
+	GameInfo* getGameInfo() { return gameInfo; }
 	QLinkedList<File*> getResources() const { return resources; }
 	QString getName() const { return name; }
 	ResourceIterator removeResource(ResourceIterator it);
+	ResourceIterator removeSearchResource(ResourceIterator it);
 	ResourceIterator removeDATFile(ResourceIterator it);
 	void clearResources();
 	void setName(const QString& name);
@@ -90,6 +97,7 @@ private:
 private slots:
 	void doLoadResourceIndex();
 	void loadSingleResource();
+	void loadSingleDAT();
 	void currentProfileChanged(Profile* oldProfile, Profile* newProfile);
 	void resourcesInitialized();
 	void systemQuerySent(const SystemQuery& query, SystemQueryResult& result);
@@ -100,18 +108,23 @@ signals:
 	void datRootChanged(const QString& oldRoot, const QString& newRoot);
 	void datFileAdded(const File& file);
 	void datFileRemoved(const File& file);
-	void profileResourceAdded(const File& file);
-	void profileResourceRemoved(const File& file);
+	void engineResourceAdded(const File& file);
+	void engineResourceRemoved(const File& file);
 	void resourceIndexInitialized();
+	void searchResourceAdded(const File& file);
+	void searchResourceRemoved(const File& file);
 
 private:
+	QLinkedList<File*> searchResources;
 	QLinkedList<File*> resources;
 	QString name;
 	MeshTexMap meshTextures;
-	QString datRoot;
+	GameInfo* gameInfo;
 	QLinkedList<File*> datFiles;
 	QQueue<File*> resourceLoadingQueue;
+	QQueue<File*> datLoadingQueue;
 	Task* resourceLoadingTask;
+	Task* datLoadingTask;
 	bool stopResourceLoading;
 };
 

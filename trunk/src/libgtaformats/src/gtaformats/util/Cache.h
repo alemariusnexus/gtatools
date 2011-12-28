@@ -24,10 +24,12 @@
 #define CACHE_H_
 
 #include <gtaformats/config.h>
+#include <gtaformats/util/cxx0xhash.h>
 #include <utility>
 
 #ifdef CXX0X_AVAILABLE
 #include <unordered_map>
+
 using std::unordered_map;
 #else
 #include <map>
@@ -35,10 +37,16 @@ using std::map;
 #endif
 
 using std::pair;
+using std::less;
+using std::equal_to;
 
 
 
-template<class K, class V>
+
+
+template<class K, class V, class Compare = less<K>,
+		class MapHash = CXX0XHash<K>,
+		class KeyEqual = equal_to<K> >
 class Cache {
 public:
 	typedef unsigned int cachesize_t;
@@ -57,9 +65,9 @@ private:
 	};
 
 #ifdef CXX0X_AVAILABLE
-	typedef unordered_map<K, Entry> EntryMap;
+	typedef unordered_map<K, Entry, MapHash, KeyEqual> EntryMap;
 #else
-	typedef map<K, Entry> EntryMap;
+	typedef map<K, Entry, Compare> EntryMap;
 #endif
 
 public:
@@ -94,8 +102,8 @@ private:
 };
 
 
-template<class K, class V>
-V* Cache<K, V>::access(const K& key)
+template<class K, class V, class Compare, class MapHash, class KeyEqual>
+V* Cache<K, V, Compare, MapHash, KeyEqual>::access(const K& key)
 {
 	typename EntryMap::iterator it = entries.find(key);
 
@@ -124,8 +132,8 @@ V* Cache<K, V>::access(const K& key)
 }
 
 
-template<class K, class V>
-bool Cache<K, V>::remove(Entry& entry)
+template<class K, class V, class Compare, class MapHash, class KeyEqual>
+bool Cache<K, V, Compare, MapHash, KeyEqual>::remove(Entry& entry)
 {
 	if (entry.locked) {
 		return false;
@@ -150,8 +158,8 @@ bool Cache<K, V>::remove(Entry& entry)
 }
 
 
-template<class K, class V>
-bool Cache<K, V>::insert(const K& key, V* value, cachesize_t size, bool locked)
+template<class K, class V, class Compare, class MapHash, class KeyEqual>
+bool Cache<K, V, Compare, MapHash, KeyEqual>::insert(const K& key, V* value, cachesize_t size, bool locked)
 {
 	if (size > capacity  &&  !locked) {
 		delete value;
@@ -175,8 +183,8 @@ bool Cache<K, V>::insert(const K& key, V* value, cachesize_t size, bool locked)
 }
 
 
-template<class K, class V>
-bool Cache<K, V>::free(cachesize_t size)
+template<class K, class V, class Compare, class MapHash, class KeyEqual>
+bool Cache<K, V, Compare, MapHash, KeyEqual>::free(cachesize_t size)
 {
 	Entry* entry = last;
 	while (entry  &&  occupied > size) {
@@ -189,8 +197,8 @@ bool Cache<K, V>::free(cachesize_t size)
 }
 
 
-template<class K, class V>
-bool Cache<K, V>::clear()
+template<class K, class V, class Compare, class MapHash, class KeyEqual>
+bool Cache<K, V, Compare, MapHash, KeyEqual>::clear()
 {
 	/*while (first) {
 		delete first->vPtr;
@@ -204,16 +212,16 @@ bool Cache<K, V>::clear()
 }
 
 
-template<class K, class V>
-bool Cache<K, V>::remove(const K& key)
+template<class K, class V, class Compare, class MapHash, class KeyEqual>
+bool Cache<K, V, Compare, MapHash, KeyEqual>::remove(const K& key)
 {
 	typename EntryMap::iterator it = entries.find(key);
 	return remove(it->second);
 }
 
 
-template<class K, class V>
-V* Cache<K, V>::lock(const K& key, bool locked)
+template<class K, class V, class Compare, class MapHash, class KeyEqual>
+V* Cache<K, V, Compare, MapHash, KeyEqual>::lock(const K& key, bool locked)
 {
 	typename EntryMap::iterator it = entries.find(key);
 

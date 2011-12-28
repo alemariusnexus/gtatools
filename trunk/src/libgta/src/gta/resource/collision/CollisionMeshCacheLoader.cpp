@@ -33,7 +33,7 @@ CollisionMeshCacheLoader::CollisionMeshCacheLoader(CollisionMeshIndexer* indexer
 }
 
 
-CacheEntry* CollisionMeshCacheLoader::load(hash_t name)
+Engine::StringResourceCache::Entry* CollisionMeshCacheLoader::load(CString name)
 {
 	CollisionMeshIndexer::CollisionMeshIndexEntry* entry = indexer->getCollisionMesh(name);
 

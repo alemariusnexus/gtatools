@@ -24,15 +24,14 @@
 #define MANAGEDCOLLISIONSHAPEPOINTER_H_
 
 #include "CollisionShapePointer.h"
+#include <gtaformats/util/CString.h>
 #include "../../Engine.h"
-#include "../CachePointer.h"
+#include "../ResourceCache.h"
 
 
 class ManagedCollisionShapePointer : public CollisionShapePointer {
 public:
-	ManagedCollisionShapePointer(const char* name)
-			: pointer(Engine::getInstance()->getCollisionMeshCache()->getEntryPointer(LowerHash(name))) {}
-	ManagedCollisionShapePointer(hash_t name)
+	ManagedCollisionShapePointer(const CString& name)
 			: pointer(Engine::getInstance()->getCollisionMeshCache()->getEntryPointer(name)) {}
 	ManagedCollisionShapePointer(const ManagedCollisionShapePointer& other) : pointer(other.pointer) {}
 	~ManagedCollisionShapePointer();
@@ -40,7 +39,7 @@ public:
 	virtual btCollisionShape* operator*();
 
 private:
-	CachePointer pointer;
+	Engine::StringResourceCache::Pointer pointer;
 };
 
 #endif /* MANAGEDCOLLISIONSHAPEPOINTER_H_ */

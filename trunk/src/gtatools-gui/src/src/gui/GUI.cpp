@@ -110,7 +110,7 @@ File* GUI::findFile(FileFinder* finder, QWidget* parent)
 		QLinkedList<File*> rootFiles;
 		Profile::ResourceIterator it;
 
-		for (it = profile->getResourceBegin() ; it != profile->getResourceEnd() ; it++) {
+		for (it = profile->getSearchResourceBegin() ; it != profile->getSearchResourceEnd() ; it++) {
 			rootFiles << *it;
 		}
 
@@ -144,7 +144,7 @@ bool GUI::findAndOpenFile(FileFinder* finder, QWidget* parent)
 		QLinkedList<File*> rootFiles;
 		Profile::ResourceIterator it;
 
-		for (it = profile->getResourceBegin() ; it != profile->getResourceEnd() ; it++) {
+		for (it = profile->getSearchResourceBegin() ; it != profile->getSearchResourceEnd() ; it++) {
 			rootFiles << *it;
 		}
 

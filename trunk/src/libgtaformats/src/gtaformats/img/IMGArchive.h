@@ -24,6 +24,8 @@
 #define IMGARCHIVE_H_
 
 #include <gtaformats/config.h>
+#include "../util/strutil.h"
+#include "../util/StringComparator.h"
 #include <string>
 #include <algorithm>
 #include <cctype>
@@ -32,6 +34,8 @@
 #include <ostream>
 #include <iostream>
 #include <list>
+#include <map>
+#include <cmath>
 
 class File;
 
@@ -39,6 +43,7 @@ using std::istream;
 using std::ostream;
 using std::iostream;
 using std::list;
+using std::map;
 
 
 /**	\brief The size of a block in IMG files in bytes.
@@ -46,6 +51,8 @@ using std::list;
 #define IMG_BLOCK_SIZE 2048L
 
 #define IMG_BLOCKS2BYTES(n) ((n) * (uint64_t) (2048))
+//#define IMG_BYTES2BLOCKS(n) (((n) + (2048L - (((uint64_t)(n))%2048L) == 0 ? 2048L : (((uint64_t)(n))%2048L))) / 2048L)
+#define IMG_BYTES2BLOCKS(n) ((uint32_t) ceil((n) / 2048.0f))
 
 
 
@@ -95,6 +102,7 @@ struct IMGEntry {
 class IMGArchive {
 private:
 	typedef list<IMGEntry*> EntryList;
+	typedef map<char*, EntryList::iterator, StringComparator> EntryMap;
 
 public:
 	typedef EntryList::iterator EntryIterator;
@@ -510,6 +518,8 @@ public:
 	 */
 	void renameEntry(EntryIterator it, const char* name);
 
+	void moveEntries(EntryIterator pos, EntryIterator moveBegin, EntryIterator moveEnd);
+
 	/**	\brief Writes out changes to the header section.
 	 *
 	 * 	You can use this to explicitly flush your changes. However, this method will automatically be called
@@ -575,6 +585,10 @@ private:
 	}
 
 
+	void forceMoveEntries(EntryIterator pos, EntryIterator moveBegin, EntryIterator moveEnd,
+			int32_t newOffset);
+
+
 	/**	\brief Fills up the archive with zeroes in the end until it is size IMG blocks big.
 	 *
 	 * 	@param size The new size of the archive, in IMG blocks.
@@ -595,6 +609,7 @@ private:
 	istream* dirStream;
 
 	EntryList entries;
+	EntryMap entryMap;
 	IMGVersion version;
 
 	// Only used to keep the setting for empty archives.

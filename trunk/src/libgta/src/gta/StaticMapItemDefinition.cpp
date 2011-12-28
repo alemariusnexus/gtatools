@@ -40,19 +40,23 @@ StaticMapItemDefinition::StaticMapItemDefinition(IDEStaticObject& object)
 		: initedProgram(NULL)
 {
 	drawDist = object.getDrawDistances()[object.getNumSubObjects() - 1];
-	char* lMeshName = new char[strlen(object.getModelName())+1];
-	char* lTexName = new char[strlen(object.getTextureName())+1];
-	strtolower(lMeshName, object.getModelName());
-	strtolower(lTexName, object.getTextureName());
-	meshPtr = new ManagedMeshPointer(Hash(lMeshName));
-	texSrc = new ManagedTextureSource(Hash(lTexName));
+	CString lMeshName(object.getModelName());
+	lMeshName.lower();
+	meshPtr = new ManagedMeshPointer(lMeshName);
+	texSrc = new ManagedTextureSource(CString(object.getTextureName()).lower());
 	colPtr = new ManagedCollisionShapePointer(lMeshName);
-	delete[] lMeshName;
-	delete[] lTexName;
 
 	if (	(object.getFlags() & (IDEStaticObject::AlphaTransparency1 | IDEStaticObject::AlphaTransparency2))
 			!= 0
 	) {
 		flags |= AlphaTransparency;
 	}
+}
+
+
+StaticMapItemDefinition::~StaticMapItemDefinition()
+{
+	delete meshPtr;
+	delete texSrc;
+	delete colPtr;
 }

@@ -158,6 +158,8 @@ FileContentType FilePath::guessContentType() const
 		retval = CONTENT_TYPE_DAT;
 	} else if (strcmp(ext, "col") == 0) {
 		retval = CONTENT_TYPE_COL;
+	} else if (strcmp(ext, "ifp") == 0) {
+		retval = CONTENT_TYPE_IFP;
 	} else {
 		retval = CONTENT_TYPE_UNKNOWN;
 	}
@@ -207,6 +209,13 @@ bool FilePath::isChildOf(const FilePath& other) const
 		delete parent;
 		return ret;
 	}
+}
+
+
+FilePath* FilePath::relativeTo(const FilePath& parent) const
+{
+	size_t len = strlen(parent.toString())+1;
+	return new FilePath(path + len);
 }
 
 

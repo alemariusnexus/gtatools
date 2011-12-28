@@ -23,27 +23,29 @@
 #ifndef SCENEOBJECT_H_
 #define SCENEOBJECT_H_
 
+#include <gtaformats/util/math/Vector3.h>
+
 
 
 enum SceneObjectType
 {
-	SceneObjectStatic
+	SceneObjectInvalid,
+	SceneObjectStatic,
+	SceneObjectAnimated
 };
 
 
 class SceneObject {
 public:
+	virtual ~SceneObject() {}
 	virtual int getType() const = 0;
 	virtual bool isVisible() const { return true; }
-
-public:
-	bool hasAlphaTransparency() const { return alpha; }
-
-protected:
-	void setHasAlphaTransparency(bool alpha) { this->alpha = alpha; }
-
-private:
-	bool alpha;
+	virtual float getDrawDistance() const = 0;
+	virtual Vector3 getPosition() const = 0;
+	virtual SceneObject* getLODParent() = 0;
+	virtual int getLODHierarchyDepth() const
+			{ SceneObject* p = getLODParent(); return p ? p->getLODHierarchyDepth()+1 : 0; }
+	SceneObject* getLODParent() const { return const_cast<SceneObject*>(this)->getLODParent(); }
 };
 
 #endif /* SCENEOBJECT_H_ */

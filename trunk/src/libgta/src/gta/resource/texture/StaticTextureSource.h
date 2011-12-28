@@ -25,6 +25,7 @@
 #define STATICTEXTURESOURCE_H_
 
 #include "TextureSource.h"
+#include <gtaformats/util/CString.h>
 #include <gtaformats/txd/TXDArchive.h>
 #include <map>
 #include <boost/shared_ptr.hpp>
@@ -35,12 +36,12 @@ using boost::shared_ptr;
 
 class StaticTextureSource : public TextureSource {
 private:
-	typedef map<hash_t, shared_ptr<Texture> > TexMap;
+	typedef map<CString, shared_ptr<Texture> > TexMap;
 
 public:
 	StaticTextureSource(TXDArchive* txd);
 	StaticTextureSource(const StaticTextureSource& other);
-	virtual Texture* getTexture(hash_t texHash);
+	virtual Texture* getTexture(const CString& texName);
 	virtual TextureSource* clone() const { return new StaticTextureSource(*this); }
 
 private:

@@ -32,11 +32,13 @@ class Shader {
 	friend class ShaderProgram;
 
 public:
-	Shader(GLenum type);
+	Shader(GLenum type, const char* name = NULL);
+	~Shader();
 	void loadSourceCode(const char* code, int length = -1);
 	void loadSourceCode(const File& file);
 	void compile();
 	GLenum getType() const { return type; }
+	const char* getName() const { return name; }
 
 private:
 #ifdef GTA_USE_OPENGL_ES
@@ -51,6 +53,7 @@ private:
 	char* code;
 #endif
 	GLuint shader;
+	char* name;
 };
 
 #endif /* SHADER_H_ */

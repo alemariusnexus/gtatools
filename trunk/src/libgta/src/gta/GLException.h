@@ -25,12 +25,14 @@
 
 #include <gta/config.h>
 #include <gtaformats/util/Exception.h>
+#include "gl.h"
 
 
 
 class GLException : public Exception {
 public:
 	static void checkError(const char* msg = NULL);
+	static void checkFramebufferStatus(GLenum target, const char* msg = NULL);
 
 public:
 	GLException(const char* message, const char* srcFile = NULL, int srcLine = -1,

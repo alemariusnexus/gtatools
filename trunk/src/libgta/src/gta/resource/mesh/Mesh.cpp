@@ -29,21 +29,24 @@
 
 
 Mesh::Mesh(int vertexCount, VertexFormat vertexFormat, int flags, const float* vertices, const float* normals,
-		const float* texCoords, const uint8_t* vertexColors)
-		: flags(flags), vertexFormat(vertexFormat), vertexCount(vertexCount)
+		const float* texCoords, const uint8_t* vertexColors, const uint8_t* boneIndices,
+		const float* boneWeights)
+		: flags(flags), vertexFormat(vertexFormat), vertexCount(vertexCount), frame(NULL)
 {
-	init(flags, vertices, normals, texCoords, vertexColors);
+	init(flags, vertices, normals, texCoords, vertexColors, boneIndices, boneWeights);
 }
 
 
 Mesh::Mesh(const DFFGeometry& geometry, bool autoSubmeshes)
-		: vertexCount(geometry.getVertexCount())
+		: vertexCount(geometry.getVertexCount()), frame(NULL)
 {
 	flags = 0;
 	const float* vertices = geometry.getVertices();
 	const float* normals = geometry.getNormals();
 	const uint8_t* colors = geometry.getVertexColors();
 	const float* texCoords = NULL;
+	const uint8_t* boneIndices = geometry.getBoneIndices();
+	const float* boneWeights = geometry.getBoneWeights();
 
 	if (geometry.getUVSetCount() > 0) {
 		texCoords = geometry.getUVCoordSet(0);
@@ -64,6 +67,9 @@ Mesh::Mesh(const DFFGeometry& geometry, bool autoSubmeshes)
 	if (colors) {
 		flags |= MeshVertexColors;
 	}
+	if (boneIndices) {
+		flags |= MeshSkinData;
+	}
 
 	DFFGeometry::ConstMaterialIterator it;
 	for (it = geometry.getMaterialBegin() ; it != geometry.getMaterialEnd() ; it++) {
@@ -82,14 +88,15 @@ Mesh::Mesh(const DFFGeometry& geometry, bool autoSubmeshes)
 	const DFFBoundingSphere* b = geometry.getBounds();
 	setBounds(b->x, b->y, b->z, b->radius);
 
-	init(flags, vertices, normals, texCoords, colors);
+	init(flags, vertices, normals, texCoords, colors, boneIndices, boneWeights);
 }
 
 
 Mesh::Mesh(int vertexCount, VertexFormat vertexFormat, int flags, GLuint dataBuffer, int normalOffset,
-		int texCoordOffset, int vertexColorOffset)
+		int texCoordOffset, int vertexColorOffset, int boneIndexOffset, int boneWeightOffset)
 		: flags(flags), vertexFormat(vertexFormat), vertexCount(vertexCount), dataBuffer(dataBuffer),
-		  normalOffs(normalOffset), texCoordOffs(texCoordOffset), vertexColorOffs(vertexColorOffset)
+		  normalOffs(normalOffset), texCoordOffs(texCoordOffset), vertexColorOffs(vertexColorOffset),
+		  boneIndexOffs(boneIndexOffset), boneWeightOffs(boneWeightOffset), frame(NULL)
 {
 }
 
@@ -111,7 +118,7 @@ Mesh::~Mesh()
 
 
 void Mesh::init(int flags, const float* vertices, const float* normals, const float* texCoords,
-		const uint8_t* vertexColors)
+		const uint8_t* vertexColors, const uint8_t* boneIndices, const float* boneWeights)
 {
 	int bufferSize = 0;
 
@@ -127,6 +134,12 @@ void Mesh::init(int flags, const float* vertices, const float* normals, const fl
 	if (vertexColors) {
 		bufferSize += vertexCount*4;
 	}
+	if (boneIndices) {
+		bufferSize += vertexCount*4;
+	}
+	if (boneWeights) {
+		bufferSize += vertexCount*4*4;
+	}
 
 	glGenBuffers(1, &dataBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, dataBuffer);
@@ -135,6 +148,8 @@ void Mesh::init(int flags, const float* vertices, const float* normals, const fl
 	normalOffs = -1;
 	texCoordOffs = -1;
 	vertexColorOffs = -1;
+	boneIndexOffs = -1;
+	boneWeightOffs = -1;
 
 	int offset = 0;
 
@@ -156,6 +171,16 @@ void Mesh::init(int flags, const float* vertices, const float* normals, const fl
 		vertexColorOffs = offset;
 		glBufferSubData(GL_ARRAY_BUFFER, offset, vertexCount*4, vertexColors);
 		offset += vertexCount*4;
+	}
+	if (boneIndices) {
+		boneIndexOffs = offset;
+		glBufferSubData(GL_ARRAY_BUFFER, offset, vertexCount*4, boneIndices);
+		offset += vertexCount*4;
+	}
+	if (boneWeights) {
+		boneWeightOffs = offset;
+		glBufferSubData(GL_ARRAY_BUFFER, offset, vertexCount*4*4, boneWeights);
+		offset += vertexCount*4*4;
 	}
 }
 
@@ -190,6 +215,9 @@ int Mesh::guessSize() const
 	}
 	if ((flags & MeshVertexColors) != 0) {
 		size += vertexCount*4;
+	}
+	if ((flags & MeshSkinData) != 0) {
+		size += vertexCount*4 + vertexCount*4*4;
 	}
 
 	vector<Material*>::const_iterator mit;

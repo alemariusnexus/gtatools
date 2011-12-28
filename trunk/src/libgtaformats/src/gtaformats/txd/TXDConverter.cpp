@@ -264,13 +264,13 @@ int32_t TXDConverter::convert(const TXDTextureHeader& from, const TXDTextureHead
 
 			switch (comprHint) {
 			case CompressionHintFast:
-				pvrMode = 1;
+				pvrMode = ePVRTC_FAST;
 				break;
 			case CompressionHintSlow:
-				pvrMode = 0;
+				pvrMode = ePVRTC_HIGH;
 				break;
 			case CompressionHintVerySlow:
-				pvrMode = 0;
+				pvrMode = ePVRTC_BEST;
 				break;
 			}
 
@@ -283,7 +283,7 @@ int32_t TXDConverter::convert(const TXDTextureHeader& from, const TXDTextureHead
 			CPVRTexture pvrOutTex(mipW, mipH, 0, 1, pvrOutType);
 
 			PVRTextureUtilities pvr;
-			pvr.CompressPVR(pvrInTex, pvrOutTex, pvrMode);
+			pvr.CompressPVR(pvrInTex, pvrOutTex, false, pvrMode);
 
 			memcpy(toData, pvrOutTex.getData().getData(), pvrOutTex.getData().getDataSize());
 #endif
@@ -353,7 +353,20 @@ bool TXDConverter::canConvert(const TXDTextureHeader& from, const TXDTextureHead
 
 	if (fromCompr == PVRTC2  ||  fromCompr == PVRTC4 ||  toCompr == PVRTC2  ||  toCompr == PVRTC4) {
 		// No support for PVRTC. Only information which doesn't involve raster changes are allowed.
-#ifndef GTAFORMATS_ENABLE_PVRTEXLIB
+#ifdef GTAFORMATS_ENABLE_PVRTEXLIB
+		// PVRTC4 uses 4x4 pixel blocks to compress, so both width and height must be dividable by 4
+		if (fromCompr == PVRTC4  &&  (from.getWidth()%4 != 0  ||  from.getHeight()%4 != 0))
+			return false;
+		if (toCompr == PVRTC4  &&  (to.getWidth()%4 != 0  ||  to.getHeight()%4 != 0))
+			return false;
+
+		// PVRTC4 uses 8x4 pixel blocks to compress, so width must be dividable by 8, and height must be
+		// dividable by 4
+		if (fromCompr == PVRTC2  &&  (from.getWidth()%8 != 0  ||  from.getHeight()%4 != 0))
+			return false;
+		if (toCompr == PVRTC2  &&  (to.getWidth()%8 != 0  ||  to.getHeight()%4 != 0))
+			return false;
+#else
 		if (rasterFormatChanged  ||  sizeChanged  ||  comprChanged  ||  mipmapCountChanged) {
 			return false;
 		}

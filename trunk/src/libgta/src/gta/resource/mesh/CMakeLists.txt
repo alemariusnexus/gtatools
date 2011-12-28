@@ -21,7 +21,7 @@
 
 SET(FILES
     MeshIndexer MeshCacheEntry MeshCacheLoader ManagedMeshPointer Mesh MeshPointer StaticMeshPointer Submesh
-    Material)
+    Material MeshClump MeshFrame)
 
 FOREACH(FILE ${FILES})
     SET(SRCS ${SRCS} "gta/resource/mesh/${FILE}")
