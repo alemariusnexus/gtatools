@@ -20,7 +20,8 @@ MeshFrame::MeshFrame(const DFFFrame* frame)
 		name = CString(frame->getName()).lower();
 	}
 
-	modelMatrix = Matrix4::translation(frame->getTranslation()) * Matrix4(frame->getRotation());
+	//modelMatrix = Matrix4::translation(frame->getTranslation()) * Matrix4(frame->getRotation());
+	modelMatrix = frame->getModelMatrix();
 
 	for (DFFFrame::ConstChildIterator it = frame->getChildBegin() ; it != frame->getChildEnd() ; it++) {
 		const DFFFrame* cframe = *it;
@@ -99,7 +100,7 @@ const Matrix4 MeshFrame::getAbsoluteModelMatrix()
 {
 	if (!absModelMatrixValid) {
 		if (parent)
-			absModelMatrix = parent->getAbsoluteModelMatrix() * modelMatrix;
+			absModelMatrix = modelMatrix * parent->getAbsoluteModelMatrix();
 		else
 			absModelMatrix = modelMatrix;
 

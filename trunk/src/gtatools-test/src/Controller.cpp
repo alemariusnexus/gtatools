@@ -58,6 +58,7 @@
 #include <gta/resource/animation/ManagedAnimationPackagePointer.h>
 #include <gta/gldebug.h>
 #include <gta/scene/visibility/PVSDatabase.h>
+#include <gta/scene/SceneObjectDefinitionInfo.h>
 
 
 
@@ -67,7 +68,7 @@
 
 
 
-struct FrameMesh
+/*struct FrameMesh
 {
 	int vcount, icount;
 	float* vertices;
@@ -148,7 +149,7 @@ void frameRecurse(DFFFrame* frame, Matrix4 mm = Matrix4())
 
 		frameRecurse(cframe, cmm);
 	}
-}
+}*/
 
 
 void debugFrame(DFFFrame* frame, int depth)
@@ -298,6 +299,79 @@ void Controller::init()
 	//engine->loadDAT(File(GTASA_PATH "/data/test.dat"), File(GTASA_PATH));
 
 
+
+#define MESH_NAME "nt_noddonkbase"
+#define TEX_NAME "des_xoilfield"
+#define ANPK_NAME "counxref"
+#define ANIM_NAME "nt_noddonkbase"
+
+#define MESH_NAME2 "des_ufosign"
+#define TEX_NAME2 "des_ufoinn"
+#define ANPK_NAME2 "countn2"
+#define ANIM_NAME2 "des_ufosign"
+
+/*#define MESH_NAME3 "des_cockbody"
+#define TEX_NAME3 "desn2_peckers"
+#define ANPK_NAME3 "countn2"
+#define ANIM_NAME3 "des_cockbody"*/
+
+#define MESH_NAME3 "vegcandysign1"
+#define TEX_NAME3 "vgnfremntsgn"
+#define ANPK_NAME3 "vegasn"
+#define ANIM_NAME3 "vegcandysign1"
+
+
+	ManagedMeshPointer* meshPtr = new ManagedMeshPointer(MESH_NAME);
+	ManagedTextureSource* texSrc = new ManagedTextureSource(TEX_NAME);
+	ManagedAnimationPackagePointer* animPtr = new ManagedAnimationPackagePointer(ANPK_NAME);
+
+	AnimatedMapItemDefinition* def = new AnimatedMapItemDefinition(meshPtr, texSrc, NULL, animPtr, 500.0f, 0);
+
+	AnimatedSceneObject* obj = new AnimatedSceneObject(def);
+	obj->setCurrentAnimation(ANIM_NAME);
+	obj->setModelMatrix(Matrix4::rotationZ(PI/2.0f) * Matrix4::translation(0.0f, 0.0f, 10.0f));
+
+	scene->addSceneObject(obj);
+
+
+	ManagedMeshPointer* meshPtr2 = new ManagedMeshPointer(MESH_NAME2);
+	ManagedTextureSource* texSrc2 = new ManagedTextureSource(TEX_NAME2);
+	ManagedAnimationPackagePointer* animPtr2 = new ManagedAnimationPackagePointer(ANPK_NAME2);
+
+	AnimatedMapItemDefinition* def2 = new AnimatedMapItemDefinition(meshPtr2, texSrc2, NULL, animPtr2, 500.0f, 0);
+
+	AnimatedSceneObject* obj2 = new AnimatedSceneObject(def2);
+	obj2->setCurrentAnimation(ANIM_NAME2);
+	obj2->setModelMatrix(Matrix4::translation(20.0f, 0.0f, 10.0f));
+	scene->addSceneObject(obj2);
+
+
+	ManagedMeshPointer* meshPtr3 = new ManagedMeshPointer(MESH_NAME3);
+	ManagedTextureSource* texSrc3 = new ManagedTextureSource(TEX_NAME3);
+	ManagedAnimationPackagePointer* animPtr3 = new ManagedAnimationPackagePointer(ANPK_NAME3);
+
+	AnimatedMapItemDefinition* def3 = new AnimatedMapItemDefinition(meshPtr3, texSrc3, NULL, animPtr3, 500.0f, 0);
+
+	AnimatedSceneObject* obj3 = new AnimatedSceneObject(def3);
+	obj3->setCurrentAnimation(ANIM_NAME3);
+	obj3->setModelMatrix(Matrix4::translation(40.0f, 0.0f, 10.0f));
+	scene->addSceneObject(obj3);
+
+
+	/*ManagedMeshPointer* meshPtr4 = new ManagedMeshPointer(MESH_NAME4);
+	ManagedTextureSource* texSrc4 = new ManagedTextureSource(TEX_NAME4);
+	ManagedAnimationPackagePointer* animPtr4 = new ManagedAnimationPackagePointer(ANPK_NAME4);
+
+	AnimatedMapItemDefinition* def4 = new AnimatedMapItemDefinition(meshPtr4, texSrc4, NULL, animPtr4, 500.0f, 0);
+
+	AnimatedSceneObject* obj4 = new AnimatedSceneObject(def4);
+	obj4->setCurrentAnimation(ANIM_NAME4);
+	obj4->setModelMatrix(Matrix4::translation(60.0f, 0.0f, 10.0f));
+	scene->addSceneObject(obj4);*/
+
+
+
+
 	File pvsFile(GTASA_PATH "/visibility.pvs");
 
 	PVSDatabase* pvs = new PVSDatabase;
@@ -349,43 +423,6 @@ void Controller::init()
 	scene->setPVSDatabase(pvs);
 
 
-#define MESH_NAME "nt_noddonkbase"
-#define TEX_NAME "des_xoilfield"
-#define ANPK_NAME "counxref"
-#define ANIM_NAME "nt_noddonkbase"
-
-#define MESH_NAME2 "des_ufosign"
-#define TEX_NAME2 "des_ufoinn"
-#define ANPK_NAME2 "countn2"
-#define ANIM_NAME2 "des_ufosign"
-
-
-	/*ManagedMeshPointer* meshPtr = new ManagedMeshPointer(LowerHash(MESH_NAME));
-	ManagedTextureSource* texSrc = new ManagedTextureSource(TEX_NAME);
-	ManagedAnimationPackagePointer* animPtr = new ManagedAnimationPackagePointer(LowerHash(ANPK_NAME));
-
-	AnimatedMapItemDefinition* def = new AnimatedMapItemDefinition(meshPtr, texSrc, NULL, animPtr, 500.0f, 0);
-
-	AnimatedSceneObject* obj = new AnimatedSceneObject(def);
-	obj->setCurrentAnimation(LowerHash(ANIM_NAME));
-	obj->setModelMatrix(Matrix4::rotationZ(PI/2.0f) * Matrix4::translation(0.0f, 0.0f, 10.0f));
-
-	scene->addSceneObject(obj);*/
-
-
-	/*ManagedMeshPointer* meshPtr2 = new ManagedMeshPointer(LowerHash(MESH_NAME2));
-	ManagedTextureSource* texSrc2 = new ManagedTextureSource(TEX_NAME2);
-	ManagedAnimationPackagePointer* animPtr2 = new ManagedAnimationPackagePointer(LowerHash(ANPK_NAME2));
-
-	AnimatedMapItemDefinition* def2 = new AnimatedMapItemDefinition(meshPtr2, texSrc2, NULL, animPtr2, 500.0f, 0);
-
-	AnimatedSceneObject* obj2 = new AnimatedSceneObject(def2);
-	obj2->setCurrentAnimation(LowerHash(ANIM_NAME2));
-	obj2->setModelMatrix(Matrix4::translation(20.0f, 0.0f, 10.0f));
-
-	scene->addSceneObject(obj2);*/
-
-
 	for (int i = 0 ; i < 20 ; i++) {
 		btScalar mass = 100.0f;
 		btCollisionShape* shape;
@@ -411,7 +448,7 @@ void Controller::init()
 
 	//cam->setPosition(-1013.983215f, -869.982971f, 14.407437f);
 	//cam->setPosition(-97.538010f, -442.834442f, 0.799672f);
-	cam->setPosition(0.0f, 0.0f, 0.0f);
+	cam->setPosition(0.0f, 0.0f, 20.0f);
 }
 
 

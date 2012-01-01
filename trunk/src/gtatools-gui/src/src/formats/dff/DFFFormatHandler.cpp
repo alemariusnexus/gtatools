@@ -296,9 +296,8 @@ void DFFFormatHandler::xmlDumpFrame(const DFFFrame* frame, QTextStream& xml, int
 		ind.append("  ");
 	}
 
-	Vector3 t = frame->getTranslation();
-	Matrix3 r = frame->getRotation();
-	const float* ar = r.toArray();
+	Matrix4 mm = frame->getModelMatrix();
+	const float* mma = mm.toArray();
 
 	xml << ind << "<frame";
 
@@ -306,10 +305,11 @@ void DFFFormatHandler::xmlDumpFrame(const DFFFrame* frame, QTextStream& xml, int
 		xml << " name=\"" << frame->getName() << "\"";
 	}
 
-	xml << " tx=\"" << t[0] << "\" ty=\"" << t[1] << "\" tz=\"" << t[2] << "\"";
-	xml << " r00=\"" << ar[0] << "\" r01=\"" << ar[1] << "\" r02=\"" << ar[2] << "\""
-			<< " r10=\"" << ar[3] << "\" r11=\"" << ar[4] << "\" r12=\"" << ar[5] << "\""
-			<< " r20=\"" << ar[6] << "\" r21=\"" << ar[7] << "\" r22=\"" << ar[8] << "\"";
+	xml << " mm00=\"" << mma[0] << "\" mm01=\"" << mma[1] << "\" mm02=\"" << mma[2] << "\" mm03=\"" << mma[3]
+	<< "\" mm10=\"" << mma[4] << "\" mm11=\"" << mma[5] << "\" mm12=\"" << mma[6] << "\" mm13=\"" << mma[7]
+    << "\" mm20=\"" << mma[8] << "\" mm21=\"" << mma[9] << "\" mm22=\"" << mma[10] << "\" mm23=\"" << mma[11]
+    << "\" mm30=\"" << mma[12] << "\" mm31=\"" << mma[13] << "\" mm32=\"" << mma[14] << "\" mm33=\"" << mma[15]
+    << "\"";
 
 	if (frame->getChildCount() > 0) {
 		xml << ">" << endl;

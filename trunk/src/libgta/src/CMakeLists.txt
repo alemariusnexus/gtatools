@@ -138,9 +138,6 @@ FOREACH(_GLSL_VER glsl110 glsl140 glsles2)
     CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/static/shade_vertex.glsl ${_GLSL_VER}_shade_vertex_shader)
     CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/static/shade_fragment.glsl ${_GLSL_VER}_shade_fragment_shader)
     
-    #CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/anim/shade_vertex.glsl ${_GLSL_VER}_anim_shade_vertex_shader)
-    #CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/anim/shade_fragment.glsl ${_GLSL_VER}_anim_shade_fragment_shader)
-    
     CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/depth_peeling/peel_layer_vertex.glsl ${_GLSL_VER}_dp_peel_layer_vertex_shader)
     CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/depth_peeling/peel_layer_fragment.glsl ${_GLSL_VER}_dp_peel_layer_fragment_shader)
     
@@ -165,6 +162,9 @@ FOREACH(_GLSL_VER glsl110 glsl140 glsles2)
     CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/debug/render_depth_rect_vertex.glsl ${_GLSL_VER}_render_depth_rect_vertex_shader)
     CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/debug/render_depth_rect_fragment.glsl ${_GLSL_VER}_render_depth_rect_fragment_shader)
 ENDFOREACH(_GLSL_VER glsl110 glsl140 glsles2)
+
+CREATE_RESOURCE(gta/shaders/glsl140/anim/shade_vertex.glsl glsl140_anim_shade_vertex_shader)
+    CREATE_RESOURCE(gta/shaders/glsl140/anim/shade_fragment.glsl glsl140_anim_shade_fragment_shader)
 
 ADD_LIBRARY(gta STATIC ${SRCS})
 TARGET_LINK_LIBRARIES(gta ${LIBRARIES})

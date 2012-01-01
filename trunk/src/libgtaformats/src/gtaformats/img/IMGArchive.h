@@ -287,20 +287,20 @@ public:
 
 	/**	\brief Returns a ConstEntryIterator for the first entry with the given name.
 	 *
-	 * 	Searching is done case-sensitive.
+	 * 	Searching is done case-insensitive.
 	 *
 	 *	@param name The name.
-	 *	@return The entry iterator or NULL, if it's not found.
+	 *	@return The entry iterator or the end iterator, if it's not found.
 	 *	@see EntryIterator getEntryByName(const char*)
 	 */
 	ConstEntryIterator getEntryByName(const char* name) const;
 
 	/**	\brief Returns an EntryIterator for the first entry with the given name.
 	 *
-	 * 	Searching is done case-sensitive.
+	 * 	Searching is done case-insensitive.
 	 *
 	 *	@param name The name.
-	 *	@return The entry iterator or NULL, if it's not found.
+	 *	@return The entry iterator or the end iterator, if it's not found.
 	 *	@see ConstEntryIterator getEntryByName(const char*)
 	 */
 	EntryIterator getEntryByName(const char* name);
@@ -553,6 +553,8 @@ public:
 	 *		this method.
 	 */
 	int32_t pack();
+
+	int32_t getSize() const { return getDataEndOffset(); }
 
 private:
 

@@ -54,12 +54,12 @@ public:
 	 * 	@param trans The translation vector.
 	 * 	@param rot The rotation vector.
 	 */
-	DFFFrame(Vector3* trans, Matrix3* rot)
-			: name(NULL), translation(trans), rotation(rot), parent(NULL), flags(0), bone(NULL) {}
+	DFFFrame(Matrix4* modelMatrix)
+			: name(NULL), modelMatrix(modelMatrix), ltm(NULL), parent(NULL), flags(0), bone(NULL) {}
 
 	/**	\brief Creates a new DFFFrame with identity transformation and no name.
 	 */
-	DFFFrame() : name(NULL), translation(new Vector3), rotation(new Matrix3), parent(NULL), flags(0),
+	DFFFrame() : name(NULL), modelMatrix(new Matrix4), ltm(NULL), parent(NULL), flags(0),
 			bone(NULL) {}
 
 	/**	\brief Copy constructor.
@@ -70,29 +70,9 @@ public:
 	 */
 	~DFFFrame();
 
-	/**	\brief Returns a reference to the rotation matrix.
-	 *
-	 * 	@return A reference to the rotation matrix.
-	 */
-	Matrix3& getRotation() { return *rotation; }
+	const Matrix4& getModelMatrix() const { return *modelMatrix; }
 
-	/**	\brief Returns a constant reference to the rotation matrix.
-	 *
-	 * 	@return A reference to the rotation matrix.
-	 */
-	const Matrix3& getRotation() const { return *rotation; }
-
-	/**	\brief Returns a reference to the translation vector.
-	 *
-	 * 	@return A reference to the translation vector.
-	 */
-	Vector3& getTranslation() { return *translation; }
-
-	/**	\brief Returns a reference to the translation vector.
-	 *
-	 * 	@return A reference to the translation vector.
-	 */
-	const Vector3& getTranslation() const { return *translation; }
+	const Matrix4& getLocalTransformationMatrix() { ensureValidLTM(); return *ltm; }
 
 	/**	\brief Returns the parent frame.
 	 *
@@ -190,29 +170,7 @@ public:
 	 */
 	int32_t indexOf(const DFFFrame* child) const;
 
-	/**	\brief Sets the rotation matrix of this frame.
-	 *
-	 * 	@param rot The rotation matrix.
-	 */
-	void setRotation(const Matrix3& rot) { rotation = new Matrix3(rot); }
-
-	/**	\brief Sets the rotation matrix of this frame.
-	 *
-	 * 	@param rot The rotation matrix.
-	 */
-	void setRotation(Matrix3* rot) { rotation = rot; }
-
-	/**	\brief Sets the translation of this frame.
-	 *
-	 * 	@param trans The translation vector.
-	 */
-	void setTranslation(const Vector3& trans) { translation = new Vector3(trans); }
-
-	/**	\brief Sets the translation of this frame.
-	 *
-	 * 	@param trans The translation vector.
-	 */
-	void setTranslation(Vector3* trans) { translation = trans; }
+	void setModelMatrix(Matrix4* mm) { invalidateLTM(); modelMatrix = mm; }
 
 	/**	\brief Sets the flags of this frame.
 	 *
@@ -284,20 +242,6 @@ public:
 	 */
 	bool isRoot() const { return parent == NULL; }
 
-	/**	\brief Swaps X and Y coordinates of this frame.
-	 *
-	 * 	@deprecated This method does not mirror the rotation matrix.
-	 */
-	void mirrorYZ();
-
-	/**	\brief Scale this frame (i.e. the translation vector).
-	 *
-	 * 	@param x X scale factor.
-	 * 	@param y Y scale factor.
-	 * 	@param z Z scale factor.
-	 */
-	void scale(float x, float y, float z);
-
 	DFFBone* getBone() { return bone; }
 
 	void setBone(DFFBone* bone) { this->bone = bone; }
@@ -312,10 +256,13 @@ private:
 	 */
 	void reparent(DFFFrame* frame);
 
+	void ensureValidLTM();
+	void invalidateLTM();
+
 private:
 	char* name;
-	Vector3* translation;
-	Matrix3* rotation;
+	Matrix4* modelMatrix;
+	Matrix4* ltm;
 	DFFFrame* parent;
 	vector<DFFFrame*> children;
 	uint32_t flags;

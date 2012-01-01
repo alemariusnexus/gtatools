@@ -258,21 +258,30 @@ void DFFWidget::clearTextureList()
 void DFFWidget::setDisplayedFrame(DFFFrame* frame)
 {
 	if (frame) {
-		Vector3 trans = frame->getTranslation();
+		/*Vector3 trans = frame->getTranslation();
 		Matrix3 rot = frame->getRotation();
-		const float* arot = rot.toArray();
+		const float* arot = rot.toArray();*/
 
-		ui.frameTranslationLabel->setText(tr("(%1, %2, %3)").arg(trans[0], 0, 'f').arg(trans[1], 0, 'f')
+
+
+		/*ui.frameTranslationLabel->setText(tr("(%1, %2, %3)").arg(trans[0], 0, 'f').arg(trans[1], 0, 'f')
 				.arg(trans[2], 0, 'f'));
 		ui.frameRotationLabel->setText(tr("(%1, %2, %3) (%4, %5, %6) (%7, %8, %9)")
 				.arg(arot[0], -10, 'f').arg(arot[1], -10, 'f').arg(arot[2], -10, 'f').arg(arot[3], -10, 'f')
 				.arg(arot[4], -10, 'f').arg(arot[5], -10, 'f').arg(arot[6], -10, 'f').arg(arot[7], -10, 'f')
-				.arg(arot[8], -10, 'f'));
+				.arg(arot[8], -10, 'f'));*/
+
+		Matrix4 mm = frame->getModelMatrix();
+		const float* amm = mm.toArray();
+
+		ui.frameModelMatrixLabel->setText(tr("(%1, %2, %3, %4) (%5, %6, %7, %8) (%9, %10, %11, %12), "
+				"(%13, %14, %15, %16)").arg(amm[0]).arg(amm[1]).arg(amm[2]).arg(amm[3]).arg(amm[4])
+				.arg(amm[5]).arg(amm[6]).arg(amm[7]).arg(amm[8]).arg(amm[9]).arg(amm[10]).arg(amm[11])
+				.arg(amm[12]).arg(amm[13]).arg(amm[14]).arg(amm[15]));
 
 		ui.frameFlagsLabel->setText(QString("%1b").arg(frame->getFlags(), 0, 2));
 	} else {
-		ui.frameTranslationLabel->setText("-");
-		ui.frameRotationLabel->setText("-");
+		ui.frameModelMatrixLabel->setText("-");
 		ui.frameFlagsLabel->setText("-");
 	}
 }

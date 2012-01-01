@@ -39,7 +39,8 @@
 AnimatedBone::AnimatedBone(DFFFrame* frame, IFPAnimation* anim)
 		: name(NULL), ifpObj(NULL)
 {
-	frameMatrix = Matrix4::translation(frame->getTranslation() * SCALE) * Matrix4(frame->getRotation());
+	//frameMatrix = Matrix4::translation(frame->getTranslation() * SCALE) * Matrix4(frame->getRotation());
+	frameMatrix = frame->getModelMatrix();
 
 	if (frame->getBone()) {
 		bool found = false;

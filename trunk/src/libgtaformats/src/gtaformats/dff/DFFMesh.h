@@ -87,8 +87,6 @@ public:
 		return it == geometries.end() ? -1 : it-geometries.begin();
 	}
 
-	void mirrorYZ();
-	void scale(float x, float y, float z);
 	void mirrorUVHorizontal();
 
 private:

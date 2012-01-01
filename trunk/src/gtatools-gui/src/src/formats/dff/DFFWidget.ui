@@ -36,7 +36,7 @@
           </sizepolicy>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="geometryTabWidget">
           <attribute name="title">
@@ -66,7 +66,7 @@
                <item>
                 <widget class="QTabWidget" name="geometryTabber">
                  <property name="currentIndex">
-                  <number>2</number>
+                  <number>0</number>
                  </property>
                  <widget class="QWidget" name="geometryGeneralInfoTabWidget">
                   <attribute name="title">
@@ -507,12 +507,12 @@ C = Vertex Colors</string>
                   <item row="0" column="0">
                    <widget class="QLabel" name="label_2">
                     <property name="text">
-                     <string>Translation</string>
+                     <string>Model Matrix</string>
                     </property>
                    </widget>
                   </item>
                   <item row="0" column="1">
-                   <widget class="QLabel" name="frameTranslationLabel">
+                   <widget class="QLabel" name="frameModelMatrixLabel">
                     <property name="font">
                      <font>
                       <family>Monospace</family>
@@ -524,32 +524,13 @@ C = Vertex Colors</string>
                    </widget>
                   </item>
                   <item row="1" column="0">
-                   <widget class="QLabel" name="label_4">
-                    <property name="text">
-                     <string>Rotation</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="1">
-                   <widget class="QLabel" name="frameRotationLabel">
-                    <property name="font">
-                     <font>
-                      <family>Monospace</family>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string notr="true">-</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="0">
                    <widget class="QLabel" name="label_7">
                     <property name="text">
                      <string>Flags</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="2" column="1">
+                  <item row="1" column="1">
                    <widget class="QLabel" name="frameFlagsLabel">
                     <property name="text">
                      <string notr="true">-</string>
