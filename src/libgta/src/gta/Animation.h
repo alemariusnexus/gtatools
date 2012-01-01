@@ -33,7 +33,7 @@ public:
 	Animation(const Animation& other);
 	Animation(const IFPAnimation* anim);
 	~Animation();
-	AnimationBone* getBone(const CString& id) { return boneMap[id]; }
+	AnimationBone* getBone(const CString& id) { if (id.get() == NULL) return NULL; return boneMap[id]; }
 	BoneIterator getBoneBegin() { return bones.begin(); }
 	BoneIterator getBoneEnd() { return bones.end(); }
 	ConstBoneIterator getBoneBegin() const { return bones.begin(); }

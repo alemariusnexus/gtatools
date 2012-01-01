@@ -28,8 +28,8 @@
 
 
 DFFFrame::DFFFrame(const DFFFrame& other)
-		: name(new char[strlen(other.name)+1]), translation(new Vector3(*other.translation)),
-		  rotation(new Matrix3(*other.rotation)), flags(other.flags), bone(new DFFBone(*other.bone))
+		: name(new char[strlen(other.name)+1]), modelMatrix(new Matrix4(*other.modelMatrix)),
+		  ltm(other.ltm ? new Matrix4(*other.ltm) : NULL), flags(other.flags), bone(new DFFBone(*other.bone))
 {
 	strcpy(name, other.name);
 }
@@ -48,20 +48,10 @@ DFFFrame::~DFFFrame()
 		delete *it;
 	}
 
-	delete rotation;
-	delete translation;
-}
+	delete modelMatrix;
 
-
-void DFFFrame::mirrorYZ()
-{
-	translation->mirrorYZ();
-}
-
-
-void DFFFrame::scale(float x, float y, float z)
-{
-	translation->scale(x, y, z);
+	if (ltm)
+		delete ltm;
 }
 
 
@@ -181,5 +171,31 @@ void DFFFrame::reparent(DFFFrame* frame)
 	}
 
 	parent = frame;
+}
+
+
+void DFFFrame::ensureValidLTM()
+{
+	if (!ltm) {
+		if (parent) {
+			ltm = new Matrix4(*modelMatrix * parent->getLocalTransformationMatrix());
+		} else {
+			ltm = new Matrix4(*modelMatrix);
+		}
+	}
+}
+
+
+void DFFFrame::invalidateLTM()
+{
+	if (ltm) {
+		delete ltm;
+		ltm = NULL;
+	}
+
+	for (ChildIterator it = children.begin() ; it != children.end() ; it++) {
+		DFFFrame* child = *it;
+		child->invalidateLTM();
+	}
 }
 

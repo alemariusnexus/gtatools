@@ -98,6 +98,37 @@ DFFMesh* DFFLoader::loadMesh(RWSection* clump)
 		uint8_t* offData = frameListStructData + 4 + i*56;
 
 #ifdef GTAFORMATS_LITTLE_ENDIAN
+		Matrix4* mm = new Matrix4 (
+				*((float*) (offData)),		*((float*) (offData + 4)),	*((float*) (offData + 8)),	0.0f,
+				*((float*) (offData + 12)),	*((float*) (offData + 16)),	*((float*) (offData + 20)),	0.0f,
+				*((float*) (offData + 24)),	*((float*) (offData + 28)),	*((float*) (offData + 32)),	0.0f,
+				*((float*) (offData + 36)),	*((float*) (offData + 40)),	*((float*) (offData + 44)),	1.0f
+		);
+#else
+		Matrix4* mm = new Matrix4 (
+				FromLittleEndianF32(*((float*) (offData))),
+				FromLittleEndianF32(*((float*) (offData + 4))),
+				FromLittleEndianF32(*((float*) (offData + 8))),
+				0.0f,
+
+				FromLittleEndianF32(*((float*) (offData + 12))),
+				FromLittleEndianF32(*((float*) (offData + 16))),
+				FromLittleEndianF32(*((float*) (offData + 20))),
+				0.0f,
+
+				FromLittleEndianF32(*((float*) (offData + 24))),
+				FromLittleEndianF32(*((float*) (offData + 28))),
+				FromLittleEndianF32(*((float*) (offData + 32))),
+				0.0f,
+
+				FromLittleEndianF32(*((float*) (offData + 36))),
+				FromLittleEndianF32(*((float*) (offData + 40))),
+				FromLittleEndianF32(*((float*) (offData + 44))),
+				1.0f
+		);
+#endif
+
+/*#ifdef GTAFORMATS_LITTLE_ENDIAN
 		Matrix3* rotMatrix = new Matrix3((float*) offData);
 		Vector3* posVector = new Vector3((float*) (offData + 9*4));
 #else
@@ -110,10 +141,10 @@ DFFMesh* DFFLoader::loadMesh(RWSection* clump)
 				);
 		Vector3* posVector = new Vector3(FromLittleEndianF32(pData[0]), FromLittleEndianF32(pData[1]),
 				FromLittleEndianF32(pData[2]));
-#endif
+#endif*/
 
 		indexedFrame.parentIdx = FromLittleEndian32(*((uint32_t*) (offData + 12*4)));
-		DFFFrame* frame = new DFFFrame(posVector, rotMatrix);
+		DFFFrame* frame = new DFFFrame(mm);
 		frame->flags = FromLittleEndian32(*((uint32_t*) (offData + 13*4)));
 		indexedFrame.frame = frame;
 	}

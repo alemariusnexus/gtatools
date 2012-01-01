@@ -30,6 +30,7 @@ class WildcardFilter : public EntryFilter {
 public:
 	WildcardFilter(const char* pattern);
 	virtual bool process(const IMGEntry& entry);
+	const char* getPattern() const { return pattern; }
 
 private:
 	char* pattern;

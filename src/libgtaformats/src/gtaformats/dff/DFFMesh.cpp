@@ -45,28 +45,6 @@ DFFMesh::~DFFMesh() {
 }
 
 
-void DFFMesh::mirrorYZ()
-{
-	GeometryIterator git;
-	for (git = geometries.begin() ; git != geometries.end() ; git++) {
-		(*git)->mirrorYZ();
-	}
-
-	rootFrame.mirrorYZ();
-}
-
-
-void DFFMesh::scale(float x, float y, float z)
-{
-	GeometryIterator git;
-	for (git = geometries.begin() ; git != geometries.end() ; git++) {
-		(*git)->scale(x, y, z);
-	}
-
-	rootFrame.scale(x, y, z);
-}
-
-
 void DFFMesh::mirrorUVHorizontal()
 {
 	GeometryIterator git;

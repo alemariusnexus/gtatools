@@ -109,8 +109,8 @@ AnimationFrame* AnimationBone::getInterpolatedFrame(float time) const
 Matrix4 AnimationBone::getInterpolatedFrameMatrix(float time) const
 {
 	AnimationFrame* frame = getInterpolatedFrame(time);
-	Matrix4 mat =  Matrix4::translation(frame->getTranslation()) * Matrix4(frame->getRotation().toMatrix());
-	//Matrix4 mat =  Matrix4(frame->getRotation().toMatrix()) * Matrix4::translation(frame->getTranslation());
+	Matrix4 mat = Matrix4::translation(frame->getTranslation()) * Matrix4(frame->getRotation().toMatrix());
+	//Matrix4 mat = Matrix4(frame->getRotation().toMatrix());
 	delete frame;
 	return mat;
 }

@@ -37,8 +37,8 @@
 #include <res_glsl140_fragment_default_shader.h>
 #include <res_glsl140_shade_vertex_shader.h>
 #include <res_glsl140_shade_fragment_shader.h>
-//#include <res_glsl140_anim_shade_vertex_shader.h>
-//#include <res_glsl140_anim_shade_fragment_shader.h>
+#include <res_glsl140_anim_shade_vertex_shader.h>
+#include <res_glsl140_anim_shade_fragment_shader.h>
 
 #include <res_glsles2_vertex_default_shader.h>
 #include <res_glsles2_fragment_default_shader.h>
@@ -91,15 +91,15 @@ DefaultRenderer::DefaultRenderer()
 		fragmentDefaultData					= (const char*) res_glsl140_fragment_default_shader_data;
 		shadeVertexShaderData				= (const char*) res_glsl140_shade_vertex_shader_data;
 		shadeFragmentShaderData				= (const char*) res_glsl140_shade_fragment_shader_data;
-		//animShadeVertexShaderData			= (const char*) res_glsl140_anim_shade_vertex_shader_data;
-		//animShadeFragmentShaderData			= (const char*) res_glsl140_anim_shade_fragment_shader_data;
+		animShadeVertexShaderData			= (const char*) res_glsl140_anim_shade_vertex_shader_data;
+		animShadeFragmentShaderData			= (const char*) res_glsl140_anim_shade_fragment_shader_data;
 
 		vertexDefaultDataLen					= sizeof(res_glsl140_vertex_default_shader_data);
 		fragmentDefaultDataLen					= sizeof(res_glsl140_fragment_default_shader_data);
 		shadeVertexShaderDataLen				= sizeof(res_glsl140_shade_vertex_shader_data);
 		shadeFragmentShaderDataLen				= sizeof(res_glsl140_shade_fragment_shader_data);
-		//animShadeVertexShaderDataLen			= sizeof(res_glsl140_anim_shade_vertex_shader_data);
-		//animShadeFragmentShaderDataLen			= sizeof(res_glsl140_anim_shade_fragment_shader_data);
+		animShadeVertexShaderDataLen			= sizeof(res_glsl140_anim_shade_vertex_shader_data);
+		animShadeFragmentShaderDataLen			= sizeof(res_glsl140_anim_shade_fragment_shader_data);
 	} else {
 		vertexDefaultData					= (const char*) res_glsl110_vertex_default_shader_data;
 		fragmentDefaultData					= (const char*) res_glsl110_fragment_default_shader_data;
@@ -129,13 +129,13 @@ DefaultRenderer::DefaultRenderer()
 	fragmentDefaultShader->loadSourceCode(fragmentDefaultData, fragmentDefaultDataLen);
 	fragmentDefaultShader->compile();
 
-	/*animShadeVertexShader = new Shader(GL_VERTEX_SHADER, "Animated Vertex Shader");
+	animShadeVertexShader = new Shader(GL_VERTEX_SHADER, "Animated Vertex Shader");
 	animShadeVertexShader->loadSourceCode(animShadeVertexShaderData, animShadeVertexShaderDataLen);
 	animShadeVertexShader->compile();
 
 	animShadeFragmentShader = new Shader(GL_FRAGMENT_SHADER, "Animated Fragment Shader");
 	animShadeFragmentShader->loadSourceCode(animShadeFragmentShaderData, animShadeFragmentShaderDataLen);
-	animShadeFragmentShader->compile();*/
+	animShadeFragmentShader->compile();
 
 	opaqueStaticProgram = new ShaderProgram("Opaque Static Shader Program");
 	opaqueStaticProgram->attachShader(shadeVertexShader);
@@ -149,7 +149,7 @@ DefaultRenderer::DefaultRenderer()
 	transStaticProgram->attachShader(shadeFragmentShader);
 
 
-	/*opaqueAnimProgram = new ShaderProgram("Opaque Animated Shader Program");
+	opaqueAnimProgram = new ShaderProgram("Opaque Animated Shader Program");
 	opaqueAnimProgram->attachShader(animShadeVertexShader);
 	opaqueAnimProgram->attachShader(animShadeFragmentShader);
 	opaqueAnimProgram->attachShader(vertexDefaultShader);
@@ -158,7 +158,7 @@ DefaultRenderer::DefaultRenderer()
 
 	transAnimProgram = new ShaderProgram("Transparent Animated Shader Program");
 	transAnimProgram->attachShader(animShadeVertexShader);
-	transAnimProgram->attachShader(animShadeFragmentShader);*/
+	transAnimProgram->attachShader(animShadeFragmentShader);
 
 
 	GLException::checkError("Error Frank 1");
@@ -172,7 +172,7 @@ void DefaultRenderer::setTransparencyAlgorithm(TransparencyAlgorithm* algo)
 {
 	if (transAlgo) {
 		transAlgo->uninstallShaders(transStaticProgram);
-		//transAlgo->uninstallShaders(transAnimProgram);
+		transAlgo->uninstallShaders(transAnimProgram);
 
 		transAlgo->uninstall();
 	}
@@ -180,9 +180,9 @@ void DefaultRenderer::setTransparencyAlgorithm(TransparencyAlgorithm* algo)
 	algo->install();
 
 	algo->installShaders(transStaticProgram);
-	//algo->installShaders(transAnimProgram);
+	algo->installShaders(transAnimProgram);
 	transStaticProgram->link();
-	//transAnimProgram->link();
+	transAnimProgram->link();
 
 	algo->performPostLinkOperations();
 
@@ -264,7 +264,7 @@ void DefaultRenderer::render()
 	transAlgo->performOpaqueRenderFinalization();
 
 
-	/*opaqueAnimProgram->makeCurrent();
+	opaqueAnimProgram->makeCurrent();
 
 	mvpMatrixUniform = opaqueAnimProgram->getUniformLocation("MVPMatrix");
 	texturedUniform = opaqueAnimProgram->getUniformLocation("Textured");
@@ -290,7 +290,7 @@ void DefaultRenderer::render()
 
 	for (ait = abeg ; ait != animAlphaBegin ; ait++) {
 		renderAnimatedSceneObject(*ait, mvpMatrix);
-	}*/
+	}
 
 
 	if (transAlgo->performTransparentRenderInit()) {
@@ -323,7 +323,7 @@ void DefaultRenderer::render()
 
 			// ********** Animated Objects **********
 
-			/*transAnimProgram->makeCurrent();
+			transAnimProgram->makeCurrent();
 			transAlgo->setupShaderUniforms(transAnimProgram);
 
 			mvpMatrixUniform = transAnimProgram->getUniformLocation("MVPMatrix");
@@ -344,7 +344,7 @@ void DefaultRenderer::render()
 
 			for (ait = animAlphaBegin ; ait != aend ; ait++) {
 				renderAnimatedSceneObject(*ait, mvpMatrix);
-			}*/
+			}
 
 
 			running = transAlgo->performPostRenderPass();
@@ -490,7 +490,6 @@ void DefaultRenderer::renderStaticSceneObject(StaticSceneObject* obj, const Matr
 
 void DefaultRenderer::renderAnimatedSceneObject(AnimatedSceneObject* obj, const Matrix4& mvpMatrix)
 {
-
 	Matrix4 mat = mvpMatrix * obj->getModelMatrix();
 
 	AnimationPackage* apkg = **obj->getDefinition()->getAnimationPackagePointer();
@@ -502,72 +501,27 @@ void DefaultRenderer::renderAnimatedSceneObject(AnimatedSceneObject* obj, const 
 
 	Animation* anim = apkg->find(obj->getCurrentAnimation());
 
-	//vector<AnimationBone*> bones;
-
 	int32_t boneCount = anim->getBoneCount();
 	unsigned int npotBoneCount = GetNextPowerOfTwo(boneCount+1);
 	Matrix4* boneMats = new Matrix4[npotBoneCount];
 
 	Animator animator(meshClump, anim);
 	animator.setTime(obj->getAnimationTime());
-	//printf("CTime: %f\n", obj->getAnimationTime());
-	//exit(0);
 
 	boneMats[boneCount] = Matrix4::Identity;
 	memcpy(boneMats, animator.getBoneMatrices(), boneCount*sizeof(Matrix4));
 
 	int i = 0;
-	/*for (Animation::BoneIterator it = anim->getBoneBegin() ; it != anim->getBoneEnd() ; it++, i++) {
-		AnimationBone* bone = *it;
-		MeshFrame* frame = meshClump->getRootFrame()->getChildByName(bone->getID(), true);
-
-		//printf("\nBraun (%llu %llu)   %llu:\n", Hash("des_ufosign"), Hash("des_ufosignbit"), bone->getID());
-		//meshClump->getRootFrame()->dump();
-
-		if (!frame)
-			printf("NOT FRAME\n");
-
-		Matrix4 bindMat = frame->getAbsoluteModelMatrix();
-		const float* bma = bindMat.toArray();
-		Vector3 bonePos(bma[12], bma[13], bma[14]);
-		//boneMats[i] = bindMat * bone->getInterpolatedFrameMatrix(obj->getAnimationTime());
-		//boneMats[i] = Matrix4::Identity;
-		boneMats[i] = boneMats[i];
-		//boneMats[i] = Matrix4::translation(bonePos) * bone->getInterpolatedFrameMatrix(obj->getAnimationTime());
-	}*/
-
-	/*for (MeshClump::MeshIterator it = meshClump->getMeshBegin() ; it != meshClump->getMeshEnd() ; it++) {
-		Mesh* mesh = *it;
-
-		AnimationBone* bone = anim->getBone(mesh->getName());
-
-		if (bone) {
-			if (bone->getID() > highestID) {
-				highestID = bone->getID();
-			}
-
-			bones.push_back(bone);
-		}
-	}
-
-	Matrix4* boneMats = new Matrix4[highestID+1];
-
-	int i = 0;
-	for (vector<AnimationBone*>::iterator it = bones.begin() ; it != bones.end() ; it++, i++) {
-		AnimationBone* bone = *it;
-		int32_t id = i;
-		boneMats[id] = bone->getInterpolatedFrameMatrix(obj->getAnimationTime());
-	}*/
 
 	glActiveTexture(GL_TEXTURE1);
 
 	// TODO Reactivate, was deactivated because it doesn't work on GLES2.
 	GLuint boneTex;
-	/*glGenTextures(1, &boneTex);
+	glGenTextures(1, &boneTex);
 	glBindTexture(GL_TEXTURE_1D, boneTex);
 	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA32F, npotBoneCount*4, 0, GL_RGBA, GL_FLOAT, boneMats);*/
+	glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA32F, npotBoneCount*4, 0, GL_RGBA, GL_FLOAT, boneMats);
 
 	delete[] boneMats;
 
@@ -627,10 +581,10 @@ void DefaultRenderer::renderAnimatedSceneObject(AnimatedSceneObject* obj, const 
 			}
 		}
 
-		//glEnableVertexAttribArray(boneIndexAttrib);
+		glEnableVertexAttribArray(boneIndexAttrib);
 		//glEnableVertexAttribArray(boneWeightAttrib);
 
-		//glVertexAttribPointer(boneIndexAttrib, 4, GL_UNSIGNED_BYTE, GL_FALSE, 0, (void*) boneIndexOffs);
+		glVertexAttribPointer(boneIndexAttrib, 4, GL_UNSIGNED_BYTE, GL_FALSE, 0, (void*) boneIndexOffs);
 		//glVertexAttribPointer(boneWeightAttrib, 4, GL_FLOAT, GL_FALSE, 0, (void*) boneWeightOffs);
 
 		if (boneIndexOffs == -1) {

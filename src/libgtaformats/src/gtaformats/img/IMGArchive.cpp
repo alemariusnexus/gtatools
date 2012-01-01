@@ -647,8 +647,15 @@ void IMGArchive::rewriteHeaderSection()
 	if (version == VER1) {
 		outImgStream->seekp(0 - outImgStream->tellp(), ostream::cur);
 	} else {
+		istream::off_type pos = outImgStream->tellp();
 		outImgStream->seekp(4 - outImgStream->tellp(), ostream::cur);
 		int32_t numEntries = entries.size();
+
+		//printf("Writing %d to %lld (vorher %lld, daher %lld)\n", numEntries, outImgStream->tellp(), pos, 4-pos);
+
+		/*printf("We are now at %lld\n", outImgStream->tellp());
+		printf("We were at %lld before\n", pos);
+		printf("And so we moved %lld\n", 4-pos);*/
 
 		writer.write32(numEntries);
 	}
@@ -821,7 +828,7 @@ void IMGArchive::expandSize(int32_t size)
 	streamoff curSize = outImgStream->tellp();
 	int bytesToAdd = IMG_BLOCKS2BYTES(size) - curSize;
 
-	while (bytesToAdd != 0) {
+	while (bytesToAdd > 0) {
 		int numBytes = min(bytesToAdd, (int) sizeof(_DummyBuffer));
 		outImgStream->write(_DummyBuffer, numBytes);
 		bytesToAdd -= numBytes;
