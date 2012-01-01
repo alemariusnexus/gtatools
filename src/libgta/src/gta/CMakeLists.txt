@@ -1,4 +1,4 @@
-# Copyright 2010 David "Alemarius Nexus"
+# Copyright 2010-2012 David "Alemarius Nexus"
 # 
 # This file is part of gtaformats.
 #
