@@ -27,6 +27,7 @@
 #include "Camera.h"
 #include "GameInfo.h"
 #include "resource/ResourceCache.h"
+#include "scene/VisualSceneObject.h"
 #include <locale>
 #include <cstring>
 #include <vector>
@@ -69,7 +70,7 @@ template<class K, class Compare, class MapHash, class KeyEqual> class ResourceCa
 
 struct IndexedSceneObject
 {
-	StaticSceneObject* obj;
+	VisualSceneObject* obj;
 	int32_t saLodIndex;
 	bool topLevel;
 	char* vcModelName;

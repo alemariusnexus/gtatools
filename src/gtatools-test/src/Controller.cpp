@@ -68,116 +68,9 @@
 
 
 
-/*struct FrameMesh
-{
-	int vcount, icount;
-	float* vertices;
-	uint32_t* indices;
-};
 
-
-StaticSceneObject* generateFrameMesh(DFFFrame* frame, Matrix4 mm)
-{
-	if (!frame->getBone())
-		return NULL;
-
-	MeshGenerator gen;
-
-	FrameMesh fmesh;
-	gen.createSphere(fmesh.vertices, fmesh.vcount, fmesh.indices, fmesh.icount, 1.0f, 4, 3);
-
-	Mesh* mesh = new Mesh(fmesh.vcount, VertexFormatTriangles, 0, fmesh.vertices);
-
-	Submesh* submesh = new Submesh(mesh, fmesh.icount, fmesh.indices);
-	Material* mat = new Material;
-	mat->setColor(255, 0, 0, 255);
-	mesh->addMaterial(mat);
-	submesh->setMaterial(mat);
-	mesh->addSubmesh(submesh);
-
-	MeshClump* mclump = new MeshClump;
-	mclump->addMesh(mesh);
-
-	StaticMeshPointer* meshPtr = new StaticMeshPointer(mclump);
-	NullTextureSource* texSrc = new NullTextureSource;
-
-	StaticMapItemDefinition* def = new StaticMapItemDefinition(meshPtr, texSrc, NULL, 100.0f);
-
-	StaticSceneObject* obj = new StaticSceneObject(def, mm, NULL);
-
-	return obj;
-}
-
-
-struct BoneObject
-{
-	StaticSceneObject* obj;
-	Matrix4 mm;
-	int32_t frameCount;
-	bool rootFrames;
-	IFPFrame** frames;
-};
-
-
-map<int32_t, BoneObject> BoneObjs;
-
-
-void frameRecurse(DFFFrame* frame, Matrix4 mm = Matrix4())
-{
-	Scene* scene = Engine::getInstance()->getScene();
-
-	for (DFFFrame::ChildIterator it = frame->getChildBegin() ; it != frame->getChildEnd() ; it++) {
-		DFFFrame* cframe = *it;
-
-		Matrix4 cmm = mm * Matrix4::translation(frame->getTranslation() * 20.0f) * frame->getRotation();
-
-		StaticSceneObject* obj = generateFrameMesh(cframe, cmm);
-
-		if (obj) {
-			if (frame->getBone()) {
-				BoneObject bobj;
-				bobj.obj = obj;
-				bobj.mm = cmm;
-				bobj.frameCount = 0;
-				bobj.frames = NULL;
-				bobj.rootFrames = false;
-				BoneObjs[frame->getBone()->getIndex()] = bobj;
-			}
-
-			//scene->addSceneObject(obj);
-		}
-
-		frameRecurse(cframe, cmm);
-	}
-}*/
-
-
-void debugFrame(DFFFrame* frame, int depth)
-{
-	for (int i = 0 ; i < depth ; i++)
-		printf("  ");
-
-	printf("%s", frame->getName() ? frame->getName() : "[Unnamed]");
-
-	if (frame->getBone()) {
-		DFFBone* bone = frame->getBone();
-		printf(" [Bone Index %d]", bone->getIndex());
-	} else {
-		printf(" [Boneless]");
-	}
-
-	printf("\n");
-
-	for (DFFFrame::ChildIterator it = frame->getChildBegin() ; it != frame->getChildEnd() ; it++) {
-		DFFFrame* child = *it;
-		debugFrame(child, depth+1);
-	}
-}
-
-
-
-Controller::Controller(QWidget* mainWidget)
-		: mainWidget(mainWidget), lastFrameStart(0), lastMeasuredFrameStart(0), moveFactor(1.0f),
+Controller::Controller()
+		: lastFrameStart(0), lastMeasuredFrameStart(0), moveFactor(1.0f),
 		  moveForwardFactor(0.0f), moveSidewardFactor(0.0f), moveUpFactor(0.0f), firstFrame(true),
 		  framesSinceLastMeasure(0), lastMouseX(-1), lastMouseY(-1), printCacheStatistics(false),
 		  programRunning(true), forceStatisticsUpdate(false)
@@ -186,15 +79,51 @@ Controller::Controller(QWidget* mainWidget)
 
 
 
-AnimatedBone* animBone;
-float animDuration;
-float relTime;
-map<AnimatedBone*, uint> BoneRowMap;
-IFPObject* selObj = NULL;
-IFPFrame* prevF1 = NULL;
-IFPFrame* prevF2 = NULL;
-bool autoPlayEnabled = false;
 
+
+void BuildReducedMeshRecurse(MeshClump* origClump, MeshClump* newClump, MeshFrame* origFrame, MeshFrame* newParentFrame, int depth = 0)
+{
+	MeshFrame* newFrame = new MeshFrame;
+	newFrame->setModelMatrix(origFrame->getModelMatrix());
+	newFrame->setName(origFrame->getName());
+	newFrame->setBoneID(origFrame->getBoneID());
+
+	if (newParentFrame) {
+		newParentFrame->addChild(newFrame);
+	} else {
+		newClump->setRootFrame(newFrame);
+	}
+
+	MeshGenerator gen;
+	//Mesh* mesh = gen.createSphere(0.1f, 10, 10);
+	float len = 0.025f;
+	Mesh* mesh = gen.createBox(Vector3(-len, -2*len, -len), Vector3(len, 2*len, len));
+	mesh->setFrame(newFrame);
+	newClump->addMesh(mesh);
+
+	for (Mesh::SubmeshIterator it = mesh->getSubmeshBegin() ; it != mesh->getSubmeshEnd() ; it++) {
+		Submesh* submesh = *it;
+
+		Material* mat = new Material;
+		mat->setColor(255 - depth*25, 0, 0, 255);
+
+		submesh->setMaterial(mat);
+	}
+
+	for (MeshFrame::ChildIterator it = origFrame->getChildBegin() ; it != origFrame->getChildEnd() ; it++) {
+		MeshFrame* child = *it;
+		BuildReducedMeshRecurse(origClump, newClump, child, newFrame, depth+1);
+	}
+}
+
+
+MeshClump* BuildReducedMesh(MeshClump* clump)
+{
+	MeshClump* newClump = new MeshClump;
+	newClump->setBoneCount(clump->getBoneCount());
+	BuildReducedMeshRecurse(clump, newClump, clump->getRootFrame(), NULL);
+	return newClump;
+}
 
 
 
@@ -268,12 +197,7 @@ void Controller::init()
 
 	glDepthFunc(GL_LEQUAL);
 
-	GLException::checkError();
-
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	//glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ZERO, GL_ONE);
-
-	GLException::checkError();
 
 	engine->getMeshCache()->resize(40 * 1000000); // 40MB
 	engine->getTextureCache()->resize(150 * 1000000); // 150MB
@@ -285,10 +209,9 @@ void Controller::init()
 	//addResource(File(GTASA_PATH "/anim/anim.img"));
 	addResource(File(GTASA_PATH "/models/gta3.img"));
 	addResource(File(GTASA_PATH "/models/gta_int.img"));
+	addResource(File(GTASA_PATH "/anim/ped.ifp"));
 	//engine->addResource(File(GTASA_PATH ""));
 	//engine->addResource(File(GTASA_PATH "/models/generic/vehicle.txd"));
-
-	GLException::checkError();
 
 
 	printf("Loading DAT files...\n");
@@ -300,74 +223,42 @@ void Controller::init()
 
 
 
-#define MESH_NAME "nt_noddonkbase"
-#define TEX_NAME "des_xoilfield"
-#define ANPK_NAME "counxref"
-#define ANIM_NAME "nt_noddonkbase"
 
-#define MESH_NAME2 "des_ufosign"
-#define TEX_NAME2 "des_ufoinn"
-#define ANPK_NAME2 "countn2"
-#define ANIM_NAME2 "des_ufosign"
+	const char* AnimationData[] = {
+		/*	Mesh Name				TXD Name				IFP Name				Animation Name	*/
 
-/*#define MESH_NAME3 "des_cockbody"
-#define TEX_NAME3 "desn2_peckers"
-#define ANPK_NAME3 "countn2"
-#define ANIM_NAME3 "des_cockbody"*/
+			"jizzy",				"jizzy",				"ped",					"atm",
+			"jizzy",				"jizzy",				"ped",					"bike_fall_off",
+			"jizzy",				"jizzy",				"ped",					"car_getinl_lhs",
+			"jizzy",				"jizzy",				"ped",					"climb_jump",
+			"jizzy",				"jizzy",				"ped",					"drown",
+			"jizzy",				"jizzy",				"ped",					"arrestgun",
+			"jizzy",				"jizzy",				"ped",					"bomber",
+			"jizzy",				"jizzy",				"ped",					"gum_eat",
+			"jizzy",				"jizzy",				"ped",					"handsup",
+			"jizzy",				"jizzy",				"ped",					"hit_back",
+			"jizzy",				"jizzy",				"ped",					"woman_runfatold",
+			"jizzy",				"jizzy",				"ped",					"xpressscratch"
+	};
 
-#define MESH_NAME3 "vegcandysign1"
-#define TEX_NAME3 "vgnfremntsgn"
-#define ANPK_NAME3 "vegasn"
-#define ANIM_NAME3 "vegcandysign1"
-
-
-	ManagedMeshPointer* meshPtr = new ManagedMeshPointer(MESH_NAME);
-	ManagedTextureSource* texSrc = new ManagedTextureSource(TEX_NAME);
-	ManagedAnimationPackagePointer* animPtr = new ManagedAnimationPackagePointer(ANPK_NAME);
-
-	AnimatedMapItemDefinition* def = new AnimatedMapItemDefinition(meshPtr, texSrc, NULL, animPtr, 500.0f, 0);
-
-	AnimatedSceneObject* obj = new AnimatedSceneObject(def);
-	obj->setCurrentAnimation(ANIM_NAME);
-	obj->setModelMatrix(Matrix4::rotationZ(PI/2.0f) * Matrix4::translation(0.0f, 0.0f, 10.0f));
-
-	scene->addSceneObject(obj);
+	size_t numObjs = sizeof(AnimationData) / (sizeof(const char*) * 4);
 
 
-	ManagedMeshPointer* meshPtr2 = new ManagedMeshPointer(MESH_NAME2);
-	ManagedTextureSource* texSrc2 = new ManagedTextureSource(TEX_NAME2);
-	ManagedAnimationPackagePointer* animPtr2 = new ManagedAnimationPackagePointer(ANPK_NAME2);
+	for (size_t j = 0 ; j < 1 ; j++) {
+		for (size_t i = 0 ; i < numObjs ; i++) {
+			ManagedMeshPointer* meshPtr = new ManagedMeshPointer(AnimationData[i*4]);
+			ManagedTextureSource* texSrc = new ManagedTextureSource(AnimationData[i*4 + 1]);
+			ManagedAnimationPackagePointer* animPtr = new ManagedAnimationPackagePointer(AnimationData[i*4 + 2]);
 
-	AnimatedMapItemDefinition* def2 = new AnimatedMapItemDefinition(meshPtr2, texSrc2, NULL, animPtr2, 500.0f, 0);
+			AnimatedMapItemDefinition* def = new AnimatedMapItemDefinition(meshPtr, texSrc, NULL, animPtr, 500.0f, 0);
 
-	AnimatedSceneObject* obj2 = new AnimatedSceneObject(def2);
-	obj2->setCurrentAnimation(ANIM_NAME2);
-	obj2->setModelMatrix(Matrix4::translation(20.0f, 0.0f, 10.0f));
-	scene->addSceneObject(obj2);
+			AnimatedSceneObject* obj = new AnimatedSceneObject(def);
+			obj->setCurrentAnimation(AnimationData[i*4 + 3]);
+			obj->setModelMatrix(Matrix4::translation(2.0f * i, -2.0f * (j+1), 20.0f));
 
-
-	ManagedMeshPointer* meshPtr3 = new ManagedMeshPointer(MESH_NAME3);
-	ManagedTextureSource* texSrc3 = new ManagedTextureSource(TEX_NAME3);
-	ManagedAnimationPackagePointer* animPtr3 = new ManagedAnimationPackagePointer(ANPK_NAME3);
-
-	AnimatedMapItemDefinition* def3 = new AnimatedMapItemDefinition(meshPtr3, texSrc3, NULL, animPtr3, 500.0f, 0);
-
-	AnimatedSceneObject* obj3 = new AnimatedSceneObject(def3);
-	obj3->setCurrentAnimation(ANIM_NAME3);
-	obj3->setModelMatrix(Matrix4::translation(40.0f, 0.0f, 10.0f));
-	scene->addSceneObject(obj3);
-
-
-	/*ManagedMeshPointer* meshPtr4 = new ManagedMeshPointer(MESH_NAME4);
-	ManagedTextureSource* texSrc4 = new ManagedTextureSource(TEX_NAME4);
-	ManagedAnimationPackagePointer* animPtr4 = new ManagedAnimationPackagePointer(ANPK_NAME4);
-
-	AnimatedMapItemDefinition* def4 = new AnimatedMapItemDefinition(meshPtr4, texSrc4, NULL, animPtr4, 500.0f, 0);
-
-	AnimatedSceneObject* obj4 = new AnimatedSceneObject(def4);
-	obj4->setCurrentAnimation(ANIM_NAME4);
-	obj4->setModelMatrix(Matrix4::translation(60.0f, 0.0f, 10.0f));
-	scene->addSceneObject(obj4);*/
+			scene->addSceneObject(obj);
+		}
+	}
 
 
 
@@ -446,9 +337,10 @@ void Controller::init()
 		//rigidBody->setLinearVelocity(btVector3(RandomFloat(-20.0, 20.0f), RandomFloat(-20.0f, 20.0f), RandomFloat(-20.0f, 20.0f)));
 	}
 
-	//cam->setPosition(-1013.983215f, -869.982971f, 14.407437f);
-	//cam->setPosition(-97.538010f, -442.834442f, 0.799672f);
+	//cam->setPosition(475.285858f, 1377.026855f, 28.393959f);
 	cam->setPosition(0.0f, 0.0f, 20.0f);
+
+	GLException::checkError("After init");
 }
 
 
@@ -465,7 +357,6 @@ void Controller::reshape(int w, int h)
 	//renderer->setTransparencyAlgorithm(dpAlgo);
 	//dpAlgo->setPassCount(0);
 	renderer->setTransparencyAlgorithm(basicTransAlgo);
-	//renderer->setTransparencyMode(DefaultRenderer::DepthPeeling);
 	engine->getScene()->setRenderer(renderer);
 
 	float l = aspect*-0.7;
@@ -482,6 +373,8 @@ void Controller::reshape(int w, int h)
 		(r+l)/(r-l),	(t+b)/(t-b),	(-(f+n))/(f-n),		-1,
 		0,				0,				(-2*f*n)/(f-n),		0
 	));
+
+	GLException::checkError("After reshape");
 }
 
 uint64_t animStart = 0;
@@ -511,33 +404,11 @@ bool Controller::paint()
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
-	/*map<int32_t, BoneObject>::iterator it;
-
-	uint64_t animTime;
-	if (animStart == 0) {
-		animStart = GetTickcount();
-		animTime = animStart;
-	} else {
-		animTime = GetTickcount();
-	}
-
-	int64_t frameRelTimeInt = animTime-animStart;
-	float frameRelTime = (float) (frameRelTimeInt % (int64_t) ((float) animDuration * 1000.0f)) / 1000.0f;
-
-	if (autoPlayEnabled) {
-		setAnimationTime(frameRelTime);
-	}
-
-	animBone->render(relTime);*/
-
 	engine->render();
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glUseProgram(0);
-
-	//renderer->drawDebug();
 
 
 	lastFrameStart = time;
@@ -571,30 +442,12 @@ bool Controller::paint()
 
 		TransparencyAlgorithm* algo = renderer->getTransparencyAlgorithm();
 
-		/*if (algo == basicTransAlgo) {
-			strcpy(transMode, "Basic");
-		} else if (algo == wavgAlgo) {
-			strcpy(transMode, "Weighted Average");
-		} else {
-			sprintf(transMode, "Depth Peeling (%d passes/frame)", dpAlgo->getPassCount());
-		}*/
-
 		sprintf(transMode, "Depth Peeling (%d passes/frame)", dpAlgo->getPassCount());
-
-		/*switch (renderer->getTransparencyMode()) {
-		case DefaultRenderer::WeightedAverage:
-			strcpy(transMode, "Weighted Average");
-			break;
-		case DefaultRenderer::DepthPeeling:
-			sprintf(transMode, "Depth Peeling (%d passes/frame)", renderer->getTransparencyPassCount());
-			break;
-		}*/
-		//strcpy(transMode, "[Disabled]");
 
 		char title[128];
 		sprintf(title, WINDOW_BASE_TITLE " - %.2f FPS - MC: %.2f%% - TC: %.2f%% - %.2d:%.2d - Transparency Mode: %s",
 				fps, mc*100.0f, tc*100.0f, gameH, gameM, transMode);
-		mainWidget->setWindowTitle(title);
+		SDL_WM_SetCaption(title, NULL);
 
 		lastMeasuredFrameStart = time;
 		framesSinceLastMeasure = 0;
@@ -604,7 +457,7 @@ bool Controller::paint()
 
 	absE = GetTickcount();
 
-	//printf("Absolute time: %dms\n", (int) (absE-absS));
+	GLException::checkError("After paint");
 
 	return programRunning;
 }
@@ -634,57 +487,63 @@ void Controller::addResource(const File& file)
 }
 
 
-void Controller::keyPressed(QKeyEvent* evt)
+void Controller::keyPressed(SDL_keysym evt)
 {
 	Engine* engine = Engine::getInstance();
 
-	int k = evt->key();
+	SDLKey k = evt.sym;
 
-	if (k == Qt::Key_Plus) {
+	if (k == SDLK_PLUS  ||  k == SDLK_KP_PLUS) {
 		moveFactor *= 2.0f;
-	} else if (k == Qt::Key_Minus) {
+	} else if (k == SDLK_MINUS  ||  k == SDLK_KP_MINUS) {
 		moveFactor /= 2.0f;
-	} else if (k == Qt::Key_W) {
+	} else if (k == SDLK_w) {
 		moveForwardFactor = 1.0f;
-	} else if (k == Qt::Key_S) {
+	} else if (k == SDLK_s) {
 		moveForwardFactor = -1.0f;
-	} else if (k == Qt::Key_A) {
+	} else if (k == SDLK_a) {
 		moveSidewardFactor = 1.0f;
-	} else if (k == Qt::Key_D) {
+	} else if (k == SDLK_d) {
 		moveSidewardFactor = -1.0f;
-	} else if (k == Qt::Key_Q) {
+	} else if (k == SDLK_q) {
 		moveUpFactor = 1.0f;
-	} else if (k == Qt::Key_Y) {
+	} else if (k == SDLK_y) {
 		moveUpFactor = -1.0f;
-	} else if (k == Qt::Key_C) {
+	} else if (k == SDLK_c) {
 		engine->switchDrawing();
-	} else if (k == Qt::Key_P) {
+	} else if (k == SDLK_p) {
 		printf("Camera position: (%f, %f, %f)\n", engine->getCamera()->getPosition().getX(),
 				engine->getCamera()->getPosition().getY(), engine->getCamera()->getPosition().getZ());
-	} else if (k == Qt::Key_X) {
+	} else if (k == SDLK_x) {
 		programRunning = false;
-	} else if (k == Qt::Key_L) {
+	} else if (k == SDLK_l) {
 		engine->advanceGameTime(0, 30);
+	} else if (k == SDLK_m) {
+		dpAlgo->setPassCount(dpAlgo->getPassCount()+1);
+	} else if (k == SDLK_n) {
+		if (dpAlgo->getPassCount() != 0) {
+			dpAlgo->setPassCount(dpAlgo->getPassCount()-1);
+		}
 	}
 }
 
 
-void Controller::keyReleased(QKeyEvent* evt)
+void Controller::keyReleased(SDL_keysym evt)
 {
-	int k = evt->key();
+	SDLKey k = evt.sym;
 
 	switch (k) {
-	case Qt::Key_W:
-	case Qt::Key_S:
+	case SDLK_w:
+	case SDLK_s:
 		moveForwardFactor = 0.0f;
 		break;
 		break;
-	case Qt::Key_A:
-	case Qt::Key_D:
+	case SDLK_a:
+	case SDLK_d:
 		moveSidewardFactor = 0.0f;
 		break;
-	case Qt::Key_Q:
-	case Qt::Key_Y:
+	case SDLK_q:
+	case SDLK_y:
 		moveUpFactor = 0.0f;
 		break;
 	default:
@@ -693,18 +552,18 @@ void Controller::keyReleased(QKeyEvent* evt)
 }
 
 
-void Controller::mouseButtonPressed(Qt::MouseButton button, int x, int y)
+void Controller::mouseButtonPressed(Uint8 button, int x, int y)
 {
-	if (button == Qt::LeftButton) {
+	if (button == SDL_BUTTON_LEFT) {
 		lastMouseX = x;
 		lastMouseY = y;
 	}
 }
 
 
-void Controller::mouseButtonReleased(Qt::MouseButton button, int x, int y)
+void Controller::mouseButtonReleased(Uint8 button, int x, int y)
 {
-	if (button == Qt::LeftButton) {
+	if (button == SDL_BUTTON_LEFT) {
 		lastMouseX = -1;
 		lastMouseY = -1;
 	}

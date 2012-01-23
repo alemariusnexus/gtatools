@@ -61,7 +61,11 @@ public:
 	size_t length() const { return strlen(cstr.get()); }
 	CString& lower() { ensureUniqueness(); strtolower(cstr.get(), cstr.get()); return *this; }
 	CString& upper() { ensureUniqueness(); strtoupper(cstr.get(), cstr.get()); return *this; }
+	CString& ltrim(char c = ' ');
+	CString& rtrim(char c = ' ') { ensureUniqueness(); ::rtrim(cstr.get(), c); return *this; }
+	CString& trim(char c = ' ') { rtrim(c); ltrim(c); return *this; }
 	const char* get() const { return cstr.get(); }
+	void append(const CString& other);
 
 	bool operator<(const CString& other) const { return strcmp(cstr.get(), other.cstr.get()) < 0; }
 	bool operator>(const CString& other) const { return strcmp(cstr.get(), other.cstr.get()) > 0; }

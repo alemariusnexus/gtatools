@@ -24,6 +24,7 @@
 #define DFFBONE_H_
 
 #include <gtaformats/config.h>
+#include "../util/math/Matrix4.h"
 
 
 
@@ -43,6 +44,7 @@ public:
 	int32_t getNumber() const { return num; }
 	int32_t getType() const { return type; }
 	void setIndex(int32_t idx) { index = idx; }
+	Matrix4 getInverseBoneMatrix() const { return ibm; }
 
 public:
 	DFFBone() {}
@@ -51,6 +53,7 @@ private:
 	int32_t index;
 	int32_t num;
 	int32_t type;
+	Matrix4 ibm;
 
 private:
 	friend class DFFLoader;

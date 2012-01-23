@@ -25,16 +25,22 @@
 
 #include "MapItemDefinition.h"
 #include "resource/animation/AnimationPackagePointer.h"
+#include <gtaformats/ide/IDEAnimation.h>
 
 
 class AnimatedMapItemDefinition : public MapItemDefinition {
 public:
 	AnimatedMapItemDefinition(MeshPointer* mptr, TextureSource* tsrc, CollisionShapePointer* cptr,
 			AnimationPackagePointer* aptr, float dd, unsigned int flags);
+	AnimatedMapItemDefinition(const IDEAnimation& anim);
 	AnimationPackagePointer* getAnimationPackagePointer() { return animPtr; }
+	virtual int getType() const { return ItemTypeAnimatedMapItem; }
+	CString getDefaultAnimation() const { return defaultAnim; }
+	void setDefaultAnimation(const CString& anim) { defaultAnim = anim; }
 
 private:
 	AnimationPackagePointer* animPtr;
+	CString defaultAnim;
 };
 
 #endif /* ANIMATEDMAPITEMDEFINITION_H_ */

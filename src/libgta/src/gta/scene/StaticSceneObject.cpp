@@ -32,45 +32,22 @@
 
 StaticSceneObject::StaticSceneObject(MapItemDefinition* def, const Matrix4& modelMatrix,
 			StaticSceneObject* lodParent)
-		: def(def), modelMatrix(modelMatrix), lodParent(lodParent), defInfo(NULL)
+		: def(def), defInfo(NULL)
 {
+	this->modelMatrix = modelMatrix;
+	this->lodParent = lodParent;
+
 	setHasAlphaTransparency(def->hasAlphaTransparency());
-	const float* matData = modelMatrix.toArray();
-	btMatrix3x3 matrix(matData[0], matData[4], matData[8], matData[1], matData[5], matData[9], matData[2],
-			matData[6], matData[10]);
-	motionState = new btDefaultMotionState(
-			btTransform(matrix, btVector3(matData[12], matData[13], matData[14])));
-	btRigidBody::btRigidBodyConstructionInfo info(0.0f, motionState, NULL);
-	rigidBody = new btRigidBody(info);
-	rigidBody->setRestitution(0.5f);
 }
 
 
 StaticSceneObject::StaticSceneObject(const StaticSceneObject& other)
-		: def(other.def), modelMatrix(other.modelMatrix), lodParent(other.lodParent),
-		  defInfo(other.defInfo ? new SceneObjectDefinitionInfo(*other.defInfo) : NULL)
+		: def(other.def), defInfo(other.defInfo ? new SceneObjectDefinitionInfo(*other.defInfo) : NULL)
 {
+	this->modelMatrix = other.modelMatrix;
+	this->lodParent = other.lodParent;
+
 	setHasAlphaTransparency(other.hasAlphaTransparency());
-	const float* matData = modelMatrix.toArray();
-	btMatrix3x3 matrix(matData[0], matData[4], matData[8], matData[1], matData[5], matData[9], matData[2],
-			matData[6], matData[10]);
-	motionState = new btDefaultMotionState(
-			btTransform(matrix, btVector3(matData[12], matData[13], matData[14])));
-	btRigidBody::btRigidBodyConstructionInfo info(0.0f, motionState, NULL);
-	rigidBody = new btRigidBody(info);
-	rigidBody->setRestitution(1.0f);
-}
-
-
-void StaticSceneObject::setModelMatrix(const Matrix4& matrix)
-{
-	modelMatrix = matrix;
-	const float* matData = modelMatrix.toArray();
-	btMatrix3x3 btmatrix(matData[0], matData[4], matData[8], matData[1], matData[5], matData[9], matData[2],
-			matData[6], matData[10]);
-	btTransform trf(btmatrix, btVector3(matData[12], matData[13], matData[14]));
-	rigidBody->getMotionState()->setWorldTransform(trf);
-	rigidBody->setWorldTransform(trf);
 }
 
 

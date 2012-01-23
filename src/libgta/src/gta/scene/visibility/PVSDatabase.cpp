@@ -172,7 +172,9 @@ void PVSDatabase::SectionCalculatorThread::run()
 
 		mutex->unlock();
 
-		for (Scene::ObjectIterator it = beg ; it != end ; it++) {
+		unsigned int i = 0;
+
+		for (Scene::ObjectIterator it = beg ; it != end ; it++, i++) {
 			SceneObject* sobj = *it;
 
 			if (sobj->getType() == SceneObjectStatic) {

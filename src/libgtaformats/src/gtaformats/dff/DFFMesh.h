@@ -66,18 +66,19 @@ public:
 	DFFMesh(const DFFMesh& other);
 	~DFFMesh();
 	uint32_t getGeometryCount() const { return geometries.size(); }
+	int32_t getBoneCount() const { return boneCount; }
 	GeometryIterator getGeometryBegin() { return geometries.begin(); }
 	ConstGeometryIterator getGeometryBegin() const { return geometries.begin(); }
 	GeometryIterator getGeometryEnd() { return geometries.end(); }
 	ConstGeometryIterator getGeometryEnd() const { return geometries.end(); }
 	DFFGeometry* getGeometry(uint32_t idx);
 	const DFFGeometry* getGeometry(uint32_t idx) const;
-	DFFGeometry* getGeometry(const char* name);
-	const DFFGeometry* getGeometry(const char* name) const;
+	DFFGeometry* getGeometry(const CString& name);
+	const DFFGeometry* getGeometry(const CString& name) const;
 	void addGeometry(DFFGeometry* geom) { geometries.push_back(geom); geom->reparent(this); }
 	void removeGeometry(DFFGeometry* geom);
 	void removeGeometry(uint32_t index) { removeGeometry(geometries[index]); }
-	void removeGeometry(const char* name) { removeGeometry(getGeometry(name)); }
+	void removeGeometry(const CString& name) { removeGeometry(getGeometry(name)); }
 	void removeGeometries();
 	DFFFrame* getRootFrame() { return &rootFrame; }
 	const DFFFrame* getRootFrame() const { return &rootFrame; }
@@ -92,6 +93,7 @@ public:
 private:
 	DFFFrame rootFrame;
 	vector<DFFGeometry*> geometries;
+	int32_t boneCount;
 };
 
 #endif /* DFFMODEL_H_ */

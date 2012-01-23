@@ -24,11 +24,22 @@
 #define VISUALSCENEOBJECT_H_
 
 #include "SceneObject.h"
+#include <gtaformats/util/math/Matrix4.h>
 
 
 class VisualSceneObject : public SceneObject {
 public:
+	VisualSceneObject() : lodParent(NULL) {}
 	virtual bool hasAlphaTransparency() const = 0;
+	Matrix4& getModelMatrix() { return modelMatrix; }
+	const Matrix4& getModelMatrix() const { return modelMatrix; }
+	void setModelMatrix(const Matrix4& matrix);
+	void setLODParent(VisualSceneObject* parent) { lodParent = parent; }
+	virtual SceneObject* getLODParent() { return lodParent; }
+
+protected:
+	Matrix4 modelMatrix;
+	VisualSceneObject* lodParent;
 };
 
 #endif /* VISUALSCENEOBJECT_H_ */

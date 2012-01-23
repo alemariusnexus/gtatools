@@ -143,11 +143,11 @@ void GLDebugInit()
 
 
 	Shader* rdVertex2dShader = new Shader(GL_VERTEX_SHADER, "Render Depth Buffer 2D Vertex Shader");
-	rdVertex2dShader->loadSourceCode(rdVertex2dShaderData, rdVertex2dShaderDataLen);
+	rdVertex2dShader->loadSourceCode(CString(rdVertex2dShaderData, rdVertex2dShaderDataLen));
 	rdVertex2dShader->compile();
 
 	Shader* rdFragment2dShader = new Shader(GL_FRAGMENT_SHADER, "Render Depth Buffer 2D Fragment Shader");
-	rdFragment2dShader->loadSourceCode(rdFragment2dShaderData, rdFragment2dShaderDataLen);
+	rdFragment2dShader->loadSourceCode(CString(rdFragment2dShaderData, rdFragment2dShaderDataLen));
 	rdFragment2dShader->compile();
 
 	rd2dProgram = new ShaderProgram("Render Depth Buffer 2D Shader Program");
@@ -162,11 +162,11 @@ void GLDebugInit()
 #ifndef GTA_USE_OPENGL_ES
 	if (gtaglIsVersionSupported(3, 1)) {
 		Shader* rdVertexRectShader = new Shader(GL_VERTEX_SHADER, "Render Depth Buffer RECTANGLE Vertex Shader");
-		rdVertexRectShader->loadSourceCode(rdVertexRectShaderData, rdVertexRectShaderDataLen);
+		rdVertexRectShader->loadSourceCode(CString(rdVertexRectShaderData, rdVertexRectShaderDataLen));
 		rdVertexRectShader->compile();
 
 		Shader* rdFragmentRectShader = new Shader(GL_FRAGMENT_SHADER, "Render Depth Buffer RECTANGLE Fragment Shader");
-		rdFragmentRectShader->loadSourceCode(rdFragmentRectShaderData, rdFragmentRectShaderDataLen);
+		rdFragmentRectShader->loadSourceCode(CString(rdFragmentRectShaderData, rdFragmentRectShaderDataLen));
 		rdFragmentRectShader->compile();
 
 		rdRectProgram = new ShaderProgram("Render Depth Buffer RECTANGLE Shader Program");

@@ -27,23 +27,14 @@
 #include "WeightedAverageAlgorithm.h"
 #include "BasicTransparencyAlgorithm.h"
 #include "../Animator.h"
+#include "../EngineException.h"
 
-#include <res_glsl110_vertex_default_shader.h>
-#include <res_glsl110_fragment_default_shader.h>
-#include <res_glsl110_shade_vertex_shader.h>
-#include <res_glsl110_shade_fragment_shader.h>
-
-#include <res_glsl140_vertex_default_shader.h>
-#include <res_glsl140_fragment_default_shader.h>
-#include <res_glsl140_shade_vertex_shader.h>
-#include <res_glsl140_shade_fragment_shader.h>
-#include <res_glsl140_anim_shade_vertex_shader.h>
-#include <res_glsl140_anim_shade_fragment_shader.h>
-
-#include <res_glsles2_vertex_default_shader.h>
-#include <res_glsles2_fragment_default_shader.h>
-#include <res_glsles2_shade_vertex_shader.h>
-#include <res_glsles2_shade_fragment_shader.h>
+#include <res_vertex_default_shader.h>
+#include <res_fragment_default_shader.h>
+#include <res_shade_vertex_shader.h>
+#include <res_shade_fragment_shader.h>
+#include <res_anim_shade_vertex_shader.h>
+#include <res_anim_shade_fragment_shader.h>
 
 
 
@@ -75,66 +66,57 @@ DefaultRenderer::DefaultRenderer()
 	int animShadeVertexShaderDataLen;
 	int animShadeFragmentShaderDataLen;
 
+	vertexDefaultData					= (const char*) res_vertex_default_shader_data;
+	fragmentDefaultData					= (const char*) res_fragment_default_shader_data;
+	shadeVertexShaderData				= (const char*) res_shade_vertex_shader_data;
+	shadeFragmentShaderData				= (const char*) res_shade_fragment_shader_data;
+	animShadeVertexShaderData			= (const char*) res_anim_shade_vertex_shader_data;
+	animShadeFragmentShaderData			= (const char*) res_anim_shade_fragment_shader_data;
+
+	vertexDefaultDataLen					= sizeof(res_vertex_default_shader_data);
+	fragmentDefaultDataLen					= sizeof(res_fragment_default_shader_data);
+	shadeVertexShaderDataLen				= sizeof(res_shade_vertex_shader_data);
+	shadeFragmentShaderDataLen				= sizeof(res_shade_fragment_shader_data);
+	animShadeVertexShaderDataLen			= sizeof(res_anim_shade_vertex_shader_data);
+	animShadeFragmentShaderDataLen			= sizeof(res_anim_shade_fragment_shader_data);
+
+
 #ifdef GTA_USE_OPENGL_ES
-	vertexDefaultData					= (const char*) res_glsles2_vertex_default_shader_data;
-	fragmentDefaultData					= (const char*) res_glsles2_fragment_default_shader_data;
-	shadeVertexShaderData				= (const char*) res_glsles2_shade_vertex_shader_data;
-	shadeFragmentShaderData				= (const char*) res_glsles2_shade_fragment_shader_data;
-
-	vertexDefaultDataLen					= sizeof(res_glsles2_vertex_default_shader_data);
-	fragmentDefaultDataLen					= sizeof(res_glsles2_fragment_default_shader_data);
-	shadeVertexShaderDataLen				= sizeof(res_glsles2_shade_vertex_shader_data);
-	shadeFragmentShaderDataLen				= sizeof(res_glsles2_shade_fragment_shader_data);
+	glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, &maxVertexUniformComponents);
+	maxVertexUniformComponents *= 4;
 #else
-	if (gtaglIsVersionSupported(3, 1)) {
-		vertexDefaultData					= (const char*) res_glsl140_vertex_default_shader_data;
-		fragmentDefaultData					= (const char*) res_glsl140_fragment_default_shader_data;
-		shadeVertexShaderData				= (const char*) res_glsl140_shade_vertex_shader_data;
-		shadeFragmentShaderData				= (const char*) res_glsl140_shade_fragment_shader_data;
-		animShadeVertexShaderData			= (const char*) res_glsl140_anim_shade_vertex_shader_data;
-		animShadeFragmentShaderData			= (const char*) res_glsl140_anim_shade_fragment_shader_data;
-
-		vertexDefaultDataLen					= sizeof(res_glsl140_vertex_default_shader_data);
-		fragmentDefaultDataLen					= sizeof(res_glsl140_fragment_default_shader_data);
-		shadeVertexShaderDataLen				= sizeof(res_glsl140_shade_vertex_shader_data);
-		shadeFragmentShaderDataLen				= sizeof(res_glsl140_shade_fragment_shader_data);
-		animShadeVertexShaderDataLen			= sizeof(res_glsl140_anim_shade_vertex_shader_data);
-		animShadeFragmentShaderDataLen			= sizeof(res_glsl140_anim_shade_fragment_shader_data);
-	} else {
-		vertexDefaultData					= (const char*) res_glsl110_vertex_default_shader_data;
-		fragmentDefaultData					= (const char*) res_glsl110_fragment_default_shader_data;
-		shadeVertexShaderData				= (const char*) res_glsl110_shade_vertex_shader_data;
-		shadeFragmentShaderData				= (const char*) res_glsl110_shade_fragment_shader_data;
-
-		vertexDefaultDataLen					= sizeof(res_glsl110_vertex_default_shader_data);
-		fragmentDefaultDataLen					= sizeof(res_glsl110_fragment_default_shader_data);
-		shadeVertexShaderDataLen				= sizeof(res_glsl110_shade_vertex_shader_data);
-		shadeFragmentShaderDataLen				= sizeof(res_glsl110_shade_fragment_shader_data);
-	}
+	glGetIntegerv(GL_MAX_VERTEX_UNIFORM_COMPONENTS, &maxVertexUniformComponents);
 #endif
 
+
 	shadeVertexShader = new Shader(GL_VERTEX_SHADER, "Static Vertex Shader");
-	shadeVertexShader->loadSourceCode(shadeVertexShaderData, shadeVertexShaderDataLen);
+	shadeVertexShader->loadSourceCode(CString(shadeVertexShaderData, shadeVertexShaderDataLen));
 	shadeVertexShader->compile();
 
 	shadeFragmentShader = new Shader(GL_FRAGMENT_SHADER, "Static Fragment Shader");
-	shadeFragmentShader->loadSourceCode(shadeFragmentShaderData, shadeFragmentShaderDataLen);
+	shadeFragmentShader->loadSourceCode(CString(shadeFragmentShaderData, shadeFragmentShaderDataLen));
 	shadeFragmentShader->compile();
 
 	vertexDefaultShader = new Shader(GL_VERTEX_SHADER, "Default Opaque Vertex Shader");
-	vertexDefaultShader->loadSourceCode(vertexDefaultData, vertexDefaultDataLen);
+	vertexDefaultShader->loadSourceCode(CString(vertexDefaultData, vertexDefaultDataLen));
 	vertexDefaultShader->compile();
 
 	fragmentDefaultShader = new Shader(GL_FRAGMENT_SHADER, "Default Opaque Fragment Shader");
-	fragmentDefaultShader->loadSourceCode(fragmentDefaultData, fragmentDefaultDataLen);
+	fragmentDefaultShader->loadSourceCode(CString(fragmentDefaultData, fragmentDefaultDataLen));
 	fragmentDefaultShader->compile();
 
+	CString animShadeVertexShaderCode = CString("");
+	if (maxVertexUniformComponents >= 2048) {
+		animShadeVertexShaderCode.append("#define GTAGL_BONE_MATRIX_UNIFORM_ARRAY_100\n#line 0\n");
+	}
+	animShadeVertexShaderCode.append(CString(animShadeVertexShaderData, animShadeVertexShaderDataLen));
+
 	animShadeVertexShader = new Shader(GL_VERTEX_SHADER, "Animated Vertex Shader");
-	animShadeVertexShader->loadSourceCode(animShadeVertexShaderData, animShadeVertexShaderDataLen);
+	animShadeVertexShader->loadSourceCode(animShadeVertexShaderCode);
 	animShadeVertexShader->compile();
 
 	animShadeFragmentShader = new Shader(GL_FRAGMENT_SHADER, "Animated Fragment Shader");
-	animShadeFragmentShader->loadSourceCode(animShadeFragmentShaderData, animShadeFragmentShaderDataLen);
+	animShadeFragmentShader->loadSourceCode(CString(animShadeFragmentShaderData, animShadeFragmentShaderDataLen));
 	animShadeFragmentShader->compile();
 
 	opaqueStaticProgram = new ShaderProgram("Opaque Static Shader Program");
@@ -161,10 +143,32 @@ DefaultRenderer::DefaultRenderer()
 	transAnimProgram->attachShader(animShadeFragmentShader);
 
 
-	GLException::checkError("Error Frank 1");
+
+	if (maxVertexUniformComponents < 2048) {
+#ifdef GTA_USE_OPENGL_ES
+		if (!GL_OES_texture_float) {
+#else
+		if (!gtaglIsVersionSupported(3, 2)  &&  !GLEW_ARB_texture_float) {
+#endif
+			throw EngineException("ERROR: This OpenGL implementation provides neither enough (2048) vertex "
+					"uniform components, nor does it support float textures. One of these features is needed "
+					"for animation.", __FILE__, __LINE__);
+		}
+
+		glActiveTexture(GL_TEXTURE1);
+
+		glGenTextures(1, &animBoneMatrixTex);
+		glBindTexture(GL_TEXTURE_2D, animBoneMatrixTex);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+		glActiveTexture(GL_TEXTURE0);
+	}
 
 
 	gtaglBindFramebuffer(GTAGL_FRAMEBUFFER, 0);
+
+	GLException::checkError("After DefaultRenderer initialization");
 }
 
 
@@ -257,7 +261,6 @@ void DefaultRenderer::render()
 	send = staticObjs.end();
 
 	for (sit = sbeg ; sit != staticAlphaBegin ; sit++) {
-	//for (sit = staticAlphaBegin ; sit != send ; sit++) {
 		renderStaticSceneObject(*sit, mvpMatrix);
 	}
 
@@ -283,6 +286,10 @@ void DefaultRenderer::render()
 	boneUniform = opaqueAnimProgram->getUniformLocation("Bone");
 	boneWeightAttrib = opaqueAnimProgram->getAttributeLocation("BoneWeights");
 	boneIndexAttrib = opaqueAnimProgram->getAttributeLocation("BoneIndices");
+
+	if (!gtaglIsVersionSupported(3, 1)) {
+		boneMatSizeUniform = opaqueAnimProgram->getUniformLocation("TexSize");
+	}
 
 	AnimObjectList::iterator ait, abeg, aend;
 	abeg = animObjs.begin();
@@ -342,6 +349,10 @@ void DefaultRenderer::render()
 			boneWeightAttrib = transAnimProgram->getAttributeLocation("BoneWeights");
 			boneIndexAttrib = transAnimProgram->getAttributeLocation("BoneIndices");
 
+			if (!gtaglIsVersionSupported(3, 1)) {
+				boneMatSizeUniform = transAnimProgram->getUniformLocation("TexSize");
+			}
+
 			for (ait = animAlphaBegin ; ait != aend ; ait++) {
 				renderAnimatedSceneObject(*ait, mvpMatrix);
 			}
@@ -374,6 +385,8 @@ void DefaultRenderer::render()
 
 	staticAlphaBegin = staticObjs.begin();
 	animAlphaBegin = animObjs.begin();
+
+	GLException::checkError("After DefaultRenderer::render()");
 }
 
 
@@ -499,11 +512,23 @@ void DefaultRenderer::renderAnimatedSceneObject(AnimatedSceneObject* obj, const 
 	if (!meshClump  ||  meshClump->getMeshCount() == 0)
 		return;
 
-	Animation* anim = apkg->find(obj->getCurrentAnimation());
+	// Find the current animation
+	CString canimName = obj->getCurrentAnimation();
+	Animation* anim = NULL;
 
-	int32_t boneCount = anim->getBoneCount();
-	unsigned int npotBoneCount = GetNextPowerOfTwo(boneCount+1);
-	Matrix4* boneMats = new Matrix4[npotBoneCount];
+	if (canimName.get()) {
+		anim = apkg->find(canimName);
+	}
+
+	// Take a snapshot of the bone matrices for animation
+	int32_t boneCount;
+	Matrix4* boneMats;
+	unsigned int npotBoneCount;
+
+	// We use an extra identity bone matrix which is used when a bone can't be found
+	boneCount = meshClump->getBoneCount();
+	npotBoneCount = GetNextPowerOfTwo(boneCount+1);
+	boneMats = new Matrix4[npotBoneCount];
 
 	Animator animator(meshClump, anim);
 	animator.setTime(obj->getAnimationTime());
@@ -511,39 +536,40 @@ void DefaultRenderer::renderAnimatedSceneObject(AnimatedSceneObject* obj, const 
 	boneMats[boneCount] = Matrix4::Identity;
 	memcpy(boneMats, animator.getBoneMatrices(), boneCount*sizeof(Matrix4));
 
-	int i = 0;
+	if (maxVertexUniformComponents < 2048) {
+		// We store the bone matrices in a texture to access them from the vertex shader
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, animBoneMatrixTex);
 
-	glActiveTexture(GL_TEXTURE1);
+#ifdef GTA_USE_OPENGL_ES
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, npotBoneCount*4, 1, 0, GL_RGBA, GL_FLOAT, boneMats);
+#else
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, npotBoneCount*4, 1, 0, GL_RGBA, GL_FLOAT, boneMats);
+#endif
 
-	// TODO Reactivate, was deactivated because it doesn't work on GLES2.
-	GLuint boneTex;
-	glGenTextures(1, &boneTex);
-	glBindTexture(GL_TEXTURE_1D, boneTex);
-	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA32F, npotBoneCount*4, 0, GL_RGBA, GL_FLOAT, boneMats);
+		glUniform1i(boneMatUniform, 1);
 
-	delete[] boneMats;
+		if (!gtaglIsVersionSupported(3, 1)) {
+			glUniform1i(boneMatSizeUniform, npotBoneCount*4);
+		}
 
-	glUniform1i(boneMatUniform, 1);
+		glActiveTexture(GL_TEXTURE0);
+	} else {
+		int32_t maxBoneCount = 100;
 
-	glActiveTexture(GL_TEXTURE0);
+		if (boneCount+1 > maxBoneCount) {
+			char errmsg[128];
+			sprintf(errmsg, "ERROR: Too many bones in mesh: %d. Only %d are supported.", boneCount+1,
+					maxBoneCount);
+			throw EngineException(errmsg, __FILE__, __LINE__);
+		}
 
-	MeshClump::MeshIterator mit;
-	i = 0;
+		glUniformMatrix4fv(boneMatUniform, boneCount+1, GL_FALSE, (float*) boneMats);
+	}
 
-	for (mit = meshClump->getMeshBegin() ; mit != meshClump->getMeshEnd() ; mit++, i++) {
+	for (MeshClump::MeshIterator mit = meshClump->getMeshBegin() ; mit != meshClump->getMeshEnd() ; mit++) {
 		Mesh* mesh = *mit;
 		MeshFrame* frame = mesh->getFrame();
-
-		Matrix4 mvpmMatrix = mat;
-
-		/*if (anim->getBone(frame->getName()) == NULL) {
-			mvpmMatrix *= frame->getAbsoluteModelMatrix();
-		}*/
-
-		const float* matData = mvpmMatrix.toArray();
-		glUniformMatrix4fv(mvpMatrixUniform, 1, GL_FALSE, matData);
 
 		mesh->bindDataBuffer();
 
@@ -582,18 +608,29 @@ void DefaultRenderer::renderAnimatedSceneObject(AnimatedSceneObject* obj, const 
 		}
 
 		glEnableVertexAttribArray(boneIndexAttrib);
-		//glEnableVertexAttribArray(boneWeightAttrib);
+		glEnableVertexAttribArray(boneWeightAttrib);
 
 		glVertexAttribPointer(boneIndexAttrib, 4, GL_UNSIGNED_BYTE, GL_FALSE, 0, (void*) boneIndexOffs);
-		//glVertexAttribPointer(boneWeightAttrib, 4, GL_FLOAT, GL_FALSE, 0, (void*) boneWeightOffs);
+		glVertexAttribPointer(boneWeightAttrib, 4, GL_FLOAT, GL_FALSE, 0, (void*) boneWeightOffs);
+
+		Matrix4 mvpmMatrix = mat;
 
 		if (boneIndexOffs == -1) {
-			AnimationBone* bone = anim->getBone(frame->getName());
-			size_t idx = anim->indexOf(bone);
+			// This is an unskinned animation, so all vertices of this frame belong to a single bone.
+			AnimationBone* bone = anim->getBoneForFrame(frame);
+			int32_t idx = frame->getBoneNumber();
+
+			if (idx == -1)
+				idx = boneCount;
+
 			glUniform1i(boneUniform, idx);
 		} else {
+			// This animation uses skinning, so the bone index is stored on a per-vertex basis.
 			glUniform1i(boneUniform, -1);
 		}
+
+		const float* matData = mvpmMatrix.toArray();
+		glUniformMatrix4fv(mvpMatrixUniform, 1, GL_FALSE, matData);
 
 		GLenum mode;
 
@@ -657,5 +694,5 @@ void DefaultRenderer::renderAnimatedSceneObject(AnimatedSceneObject* obj, const 
 		}
 	}
 
-	glDeleteTextures(1, &boneTex);
+	delete[] boneMats;
 }

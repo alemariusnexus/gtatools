@@ -24,6 +24,7 @@
 #define IFPANIMATION_H_
 
 #include "IFPObject.h"
+#include "../util/CString.h"
 #include <vector>
 
 using std::vector;
@@ -37,9 +38,8 @@ public:
 	typedef ObjectList::const_iterator ConstObjectIterator;
 
 public:
-	void setName(const char* n) { if (name) delete[] name; name = new char[strlen(n)+1]; strcpy(name, n); }
-	char* getName() { return name; }
-	const char* getName() const { return name; }
+	void setName(const CString& n) { name = n; }
+	CString getName() const { return name; }
 	ObjectIterator getObjectBegin() { return objs.begin(); }
 	ObjectIterator getObjectEnd() { return objs.end(); }
 	ConstObjectIterator getObjectBegin() const { return objs.begin(); }
@@ -51,7 +51,7 @@ public:
 	IFPAnimation() {}
 
 private:
-	char* name;
+	CString name;
 	ObjectList objs;
 
 private:

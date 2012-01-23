@@ -553,14 +553,12 @@
         <translation type="obsolete">[No Frame selected]</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="510"/>
         <source>Translation</source>
-        <translation>Translation</translation>
+        <translation type="obsolete">Translation</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="529"/>
         <source>Rotation</source>
-        <translation>Rotation</translation>
+        <translation type="obsolete">Rotation</translation>
     </message>
     <message>
         <source>Parent Frame</source>
@@ -568,7 +566,7 @@
     </message>
     <message>
         <location filename="src/formats/dff/DFFWidget.ui" line="125"/>
-        <location filename="src/formats/dff/DFFWidget.ui" line="548"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="529"/>
         <source>Flags</source>
         <translation>Flags</translation>
     </message>
@@ -651,12 +649,17 @@ C = Vertex Colors</source>
         <translation>Open</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="605"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="510"/>
+        <source>Model Matrix</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="src/formats/dff/DFFWidget.ui" line="586"/>
         <source>Edit Sources</source>
         <translation>Edit Sources</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="645"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="626"/>
         <source>Low Level View</source>
         <translation>Low Level View</translation>
     </message>
@@ -674,7 +677,7 @@ C = Vertex Colors</source>
         <translation>Bounds</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.ui" line="588"/>
+        <location filename="src/formats/dff/DFFWidget.ui" line="569"/>
         <source>Texture Source</source>
         <translation>Texture Source</translation>
     </message>
@@ -761,7 +764,7 @@ C = Vertex Colors</source>
         <translation>Rendering</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="320"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="329"/>
         <source>Unnamed %1</source>
         <translation>Unnamed %1</translation>
     </message>
@@ -804,17 +807,15 @@ See the error log for more details.</translation>
         <translation type="obsolete">Geometry %1</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="265"/>
         <source>(%1, %2, %3)</source>
-        <translation>(%1, %2, %3)</translation>
+        <translation type="obsolete">(%1, %2, %3)</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="267"/>
         <source>(%1, %2, %3) (%4, %5, %6) (%7, %8, %9)</source>
         <oldsource>(%1, %2, %3)
 (%4, %5, %6)
 (%7, %8, %9)</oldsource>
-        <translation>(%1, %2, %3)
+        <translation type="obsolete">(%1, %2, %3)
 (%4, %5, %6)
 (%7, %8, %9)</translation>
     </message>
@@ -824,12 +825,20 @@ See the error log for more details.</translation>
         <translation type="obsolete">Texture Coordinates (%1 Sets)</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="311"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="277"/>
+        <source>(%1, %2, %3, %4) (%5, %6, %7, %8) (%9, %10, %11, %12), (%13, %14, %15, %16)</source>
+        <translation type="unfinished">(%1, %2, %3, %4)
+(%5, %6, %7, %8)
+(%9, %10, %11, %12),
+(%13, %14, %15, %16)</translation>
+    </message>
+    <message>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="320"/>
         <source>(%1, %2, %3  :  %4)</source>
         <translation>(%1, %2, %3  :  %4)</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="364"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="373"/>
         <source>None</source>
         <translation>None</translation>
     </message>
@@ -851,12 +860,12 @@ See the error log for more details.</translation>
         <translation type="obsolete">UV Coordinates</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="289"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="298"/>
         <source>Triangle Strips</source>
         <translation>Triangle Strips</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="289"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="298"/>
         <source>Triangle List</source>
         <translation>Triangle List</translation>
     </message>
@@ -873,7 +882,7 @@ See the error log for more details.</translation>
         <translation type="obsolete">(%1, %2, %3 : %4)</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="331"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="340"/>
         <source>Material %1</source>
         <translation>Material %1</translation>
     </message>
@@ -882,7 +891,7 @@ See the error log for more details.</translation>
         <translation type="obsolete">Part %1</translation>
     </message>
     <message>
-        <location filename="src/formats/dff/DFFWidget.cpp" line="383"/>
+        <location filename="src/formats/dff/DFFWidget.cpp" line="392"/>
         <source>(%1, %2, %3, %4)</source>
         <translation>(%1, %2, %3, %4)</translation>
     </message>
@@ -1793,6 +1802,84 @@ You should have received a copy of the GNU General Public License along with thi
     </message>
 </context>
 <context>
+    <name>IFPFormatHandler</name>
+    <message>
+        <location filename="src/formats/ifp/IFPFormatHandler.h" line="19"/>
+        <source>IFP Animation Package</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>IFPWidget</name>
+    <message>
+        <location filename="src/formats/ifp/IFPWidget.ui" line="50"/>
+        <source>Frame Type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="src/formats/ifp/IFPWidget.ui" line="57"/>
+        <location filename="src/formats/ifp/IFPWidget.ui" line="71"/>
+        <location filename="src/formats/ifp/IFPWidget.ui" line="156"/>
+        <location filename="src/formats/ifp/IFPWidget.ui" line="170"/>
+        <location filename="src/formats/ifp/IFPWidget.ui" line="177"/>
+        <location filename="src/formats/ifp/IFPWidget.cpp" line="76"/>
+        <location filename="src/formats/ifp/IFPWidget.cpp" line="77"/>
+        <location filename="src/formats/ifp/IFPWidget.cpp" line="145"/>
+        <source>-</source>
+        <translation type="unfinished">-</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ifp/IFPWidget.ui" line="64"/>
+        <source>Bone ID</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="src/formats/ifp/IFPWidget.ui" line="100"/>
+        <source>Frame</source>
+        <translation type="unfinished">Frame</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ifp/IFPWidget.ui" line="142"/>
+        <source>Start Time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="src/formats/ifp/IFPWidget.ui" line="149"/>
+        <source>Rotation</source>
+        <translation type="unfinished">Rotation</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ifp/IFPWidget.ui" line="163"/>
+        <source>Translation</source>
+        <translation type="unfinished">Translation</translation>
+    </message>
+    <message>
+        <location filename="src/formats/ifp/IFPWidget.cpp" line="88"/>
+        <source>Root Frames</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="src/formats/ifp/IFPWidget.cpp" line="91"/>
+        <source>Child Frames</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="src/formats/ifp/IFPWidget.cpp" line="94"/>
+        <source>Unknown (FrameType = 2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="src/formats/ifp/IFPWidget.cpp" line="134"/>
+        <source>%1, %2, %3, %4</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="src/formats/ifp/IFPWidget.cpp" line="143"/>
+        <source>%1, %2, %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>IMGFormatHandler</name>
     <message>
         <location filename="src/formats/img/IMGFormatHandler.cpp" line="52"/>
@@ -2253,17 +2340,17 @@ You should have received a copy of the GNU General Public License along with thi
         <translation type="obsolete">Choose a file to store PVS data</translation>
     </message>
     <message>
-        <location filename="src/gui/PVSDialog.cpp" line="59"/>
+        <location filename="src/gui/PVSDialog.cpp" line="74"/>
         <source>Building PVS data...</source>
         <translation>Building PVS data...</translation>
     </message>
     <message>
-        <location filename="src/gui/PVSDialog.cpp" line="67"/>
+        <location filename="src/gui/PVSDialog.cpp" line="82"/>
         <source>Select destination file</source>
         <translation>Select destination file</translation>
     </message>
     <message>
-        <location filename="src/gui/PVSDialog.cpp" line="68"/>
+        <location filename="src/gui/PVSDialog.cpp" line="83"/>
         <source>PVS files (*.pvs)</source>
         <translation>PVS files (*.pvs)</translation>
     </message>

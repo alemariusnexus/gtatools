@@ -32,11 +32,20 @@
 #include "resource/collision/CollisionShapePointer.h"
 
 
+enum ItemType
+{
+	ItemTypeStaticMapItem,
+	ItemTypeTimedMapItem,
+	ItemTypeAnimatedMapItem
+};
+
+
 
 class ItemDefinition {
 public:
 	virtual ~ItemDefinition() {}
 	virtual bool isVisible() const { return true; }
+	virtual int getType() const = 0;
 };
 
 #endif /* ITEMDEFINITION_H_ */

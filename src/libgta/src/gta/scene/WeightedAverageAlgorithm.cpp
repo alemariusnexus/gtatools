@@ -23,20 +23,10 @@
 #include "WeightedAverageAlgorithm.h"
 #include "../Engine.h"
 
-#include <res_glsl110_wavg_vertex_shader.h>
-#include <res_glsl110_wavg_fragment_shader.h>
-#include <res_glsl110_wavg_final_vertex_shader.h>
-#include <res_glsl110_wavg_final_fragment_shader.h>
-
-#include <res_glsl140_wavg_vertex_shader.h>
-#include <res_glsl140_wavg_fragment_shader.h>
-#include <res_glsl140_wavg_final_vertex_shader.h>
-#include <res_glsl140_wavg_final_fragment_shader.h>
-
-#include <res_glsles2_wavg_vertex_shader.h>
-#include <res_glsles2_wavg_fragment_shader.h>
-#include <res_glsles2_wavg_final_vertex_shader.h>
-#include <res_glsles2_wavg_final_fragment_shader.h>
+#include <res_wavg_vertex_shader.h>
+#include <res_wavg_fragment_shader.h>
+#include <res_wavg_final_vertex_shader.h>
+#include <res_wavg_final_fragment_shader.h>
 
 
 
@@ -84,72 +74,26 @@ void WeightedAverageAlgorithm::install()
 		int finalVertexShaderDataLen;
 		int finalFragmentShaderDataLen;
 
-#ifdef GTA_USE_OPENGL_ES
-		vertexShaderData				= (const char*) res_glsles2_wavg_vertex_shader_data;
-		fragmentShaderData				= (const char*) res_glsles2_wavg_fragment_shader_data;
-		finalVertexShaderData			= (const char*) res_glsles2_wavg_final_vertex_shader_data;
-		finalFragmentShaderData			= (const char*) res_glsles2_wavg_final_fragment_shader_data;
+		vertexShaderData				= (const char*) res_wavg_vertex_shader_data;
+		fragmentShaderData				= (const char*) res_wavg_fragment_shader_data;
+		finalVertexShaderData			= (const char*) res_wavg_final_vertex_shader_data;
+		finalFragmentShaderData			= (const char*) res_wavg_final_fragment_shader_data;
 
-		vertexShaderDataLen					= sizeof(res_glsles2_wavg_vertex_shader_data);
-		fragmentShaderDataLen				= sizeof(res_glsles2_wavg_fragment_shader_data);
-		finalVertexShaderDataLen			= sizeof(res_glsles2_wavg_final_vertex_shader_data);
-		finalFragmentShaderDataLen			= sizeof(res_glsles2_wavg_final_fragment_shader_data);
+		vertexShaderDataLen					= sizeof(res_wavg_vertex_shader_data);
+		fragmentShaderDataLen				= sizeof(res_wavg_fragment_shader_data);
+		finalVertexShaderDataLen			= sizeof(res_wavg_final_vertex_shader_data);
+		finalFragmentShaderDataLen			= sizeof(res_wavg_final_fragment_shader_data);
 
-		wavgglGenFramebuffers = &glGenFramebuffers;
-		wavgglBindFramebuffer = &glBindFramebuffer;
-		wavgglFramebufferTexture2D = &glFramebufferTexture2D;
+		wavgglGenFramebuffers = &wavgglGenFramebuffersCORE;
+		wavgglBindFramebuffer = &wavgglBindFramebufferCORE;
+		wavgglFramebufferTexture2D = &wavgglFramebufferTexture2DCORE;
 
 		WAVGGL_FRAMEBUFFER = GL_FRAMEBUFFER;
 		WAVGGL_COLOR_ATTACHMENT0 = GL_COLOR_ATTACHMENT0;
-		WAVGGL_COLOR_ATTACHMENT1 = GL_COLOR_ATTACHMENT0;
-		WAVGGL_COLOR_ATTACHMENT2 = GL_COLOR_ATTACHMENT0;
-		WAVGGL_COLOR_ATTACHMENT3 = GL_COLOR_ATTACHMENT0;
+		WAVGGL_COLOR_ATTACHMENT1 = GL_COLOR_ATTACHMENT1;
+		WAVGGL_COLOR_ATTACHMENT2 = GL_COLOR_ATTACHMENT2;
+		WAVGGL_COLOR_ATTACHMENT3 = GL_COLOR_ATTACHMENT3;
 		WAVGGL_DEPTH_ATTACHMENT = GL_DEPTH_ATTACHMENT;
-#else
-		if (gtaglIsVersionSupported(3, 1)) {
-			vertexShaderData				= (const char*) res_glsl140_wavg_vertex_shader_data;
-			fragmentShaderData				= (const char*) res_glsl140_wavg_fragment_shader_data;
-			finalVertexShaderData			= (const char*) res_glsl140_wavg_final_vertex_shader_data;
-			finalFragmentShaderData			= (const char*) res_glsl140_wavg_final_fragment_shader_data;
-
-			vertexShaderDataLen					= sizeof(res_glsl140_wavg_vertex_shader_data);
-			fragmentShaderDataLen				= sizeof(res_glsl140_wavg_fragment_shader_data);
-			finalVertexShaderDataLen			= sizeof(res_glsl140_wavg_final_vertex_shader_data);
-			finalFragmentShaderDataLen			= sizeof(res_glsl140_wavg_final_fragment_shader_data);
-
-			wavgglGenFramebuffers = &wavgglGenFramebuffersCORE;
-			wavgglBindFramebuffer = &wavgglBindFramebufferCORE;
-			wavgglFramebufferTexture2D = &wavgglFramebufferTexture2DCORE;
-
-			WAVGGL_FRAMEBUFFER = GL_FRAMEBUFFER;
-			WAVGGL_COLOR_ATTACHMENT0 = GL_COLOR_ATTACHMENT0;
-			WAVGGL_COLOR_ATTACHMENT1 = GL_COLOR_ATTACHMENT1;
-			WAVGGL_COLOR_ATTACHMENT2 = GL_COLOR_ATTACHMENT2;
-			WAVGGL_COLOR_ATTACHMENT3 = GL_COLOR_ATTACHMENT3;
-			WAVGGL_DEPTH_ATTACHMENT = GL_DEPTH_ATTACHMENT;
-		} else {
-			vertexShaderData				= (const char*) res_glsl110_wavg_vertex_shader_data;
-			fragmentShaderData				= (const char*) res_glsl110_wavg_fragment_shader_data;
-			finalVertexShaderData			= (const char*) res_glsl110_wavg_final_vertex_shader_data;
-			finalFragmentShaderData			= (const char*) res_glsl110_wavg_final_fragment_shader_data;
-
-			vertexShaderDataLen					= sizeof(res_glsl110_wavg_vertex_shader_data);
-			fragmentShaderDataLen				= sizeof(res_glsl110_wavg_fragment_shader_data);
-			finalVertexShaderDataLen			= sizeof(res_glsl110_wavg_final_vertex_shader_data);
-			finalFragmentShaderDataLen			= sizeof(res_glsl110_wavg_final_fragment_shader_data);
-
-			wavgglGenFramebuffers = &wavgglGenFramebuffersEXT;
-			wavgglBindFramebuffer = &wavgglBindFramebufferEXT;
-			wavgglFramebufferTexture2D = &wavgglFramebufferTexture2DEXT;
-
-			WAVGGL_FRAMEBUFFER = GL_FRAMEBUFFER;
-			WAVGGL_COLOR_ATTACHMENT0 = GL_COLOR_ATTACHMENT0;
-			WAVGGL_COLOR_ATTACHMENT1 = GL_COLOR_ATTACHMENT1;
-			WAVGGL_COLOR_ATTACHMENT2 = GL_COLOR_ATTACHMENT2;
-			WAVGGL_COLOR_ATTACHMENT3 = GL_COLOR_ATTACHMENT3;
-			WAVGGL_DEPTH_ATTACHMENT = GL_DEPTH_ATTACHMENT;
-		}
-#endif
 
 
 		vertexShader = new Shader(GL_VERTEX_SHADER,

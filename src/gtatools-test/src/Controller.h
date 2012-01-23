@@ -27,28 +27,25 @@
 #include <gtaformats/util/File.h>
 #include <gta/scene/BasicTransparencyAlgorithm.h>
 #include <gta/scene/DepthPeelingAlgorithm.h>
-#include <QtGui/QWidget>
-#include <QtGui/QKeyEvent>
 //#include <gta/scene/WeightedAverageAlgorithm.h>
 
 
 class Controller {
 public:
-	Controller(QWidget* mainWidget);
+	Controller();
 	void init();
 	void reshape(int w, int h);
 	bool paint();
-	void keyPressed(QKeyEvent* evt);
-	void keyReleased(QKeyEvent* evt);
-	void mouseButtonPressed(Qt::MouseButton button, int x, int y);
-	void mouseButtonReleased(Qt::MouseButton button, int x, int y);
+	void keyPressed(SDL_keysym evt);
+	void keyReleased(SDL_keysym evt);
+	void mouseButtonPressed(Uint8 button, int x, int y);
+	void mouseButtonReleased(Uint8 button, int x, int y);
 	void mouseMotion(int x, int y);
 
 private:
 	void addResource(const File& file);
 
 private:
-	QWidget* mainWidget;
 	uint64_t lastFrameStart, lastMeasuredFrameStart;
 	float moveFactor;
 	float moveForwardFactor, moveSidewardFactor, moveUpFactor;

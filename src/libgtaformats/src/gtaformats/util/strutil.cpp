@@ -60,6 +60,14 @@ void rtrim(char* str, char chr)
 }
 
 
+const char* ltrim(const char* str, char chr)
+{
+	int len = strlen(str);
+	while (str != str+len  &&  *str == chr) str++;
+	return str;
+}
+
+
 char* wrapText(const char* src, int cpl)
 {
 	string out;

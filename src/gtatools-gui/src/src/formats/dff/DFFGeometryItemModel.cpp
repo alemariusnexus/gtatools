@@ -115,7 +115,7 @@ QVariant DFFGeometryItemModel::data(const QModelIndex& index, int role) const
 			DFFFrame* frame = geom->getAssociatedFrame();
 
 			if (frame) {
-				text += QString(" [%1]").arg(frame->getName());
+				text += QString(" [%1]").arg(frame->getName().get());
 			}
 
 			return text;

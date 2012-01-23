@@ -24,47 +24,98 @@
 #include "GLException.h"
 #include <cstring>
 #include <cstdio>
+#include <res_global_shader.h>
+#include <res_global_vertex_shader.h>
+#include <res_global_fragment_shader.h>
 
 using std::streamoff;
 
 
 
-Shader::Shader(GLenum type, const char* name)
+Shader::Shader(GLenum type, const CString& name)
 		: type(type),
 #ifdef GTA_USE_OPENGL_ES
-		  code(NULL), shader(0),
+		  shader(0),
 #else
 		  shader(glCreateShader(type)),
 #endif
-		  name(NULL)
+		  name(name)
 {
-	if (name) {
-		this->name = new char[strlen(name) + 1];
-		strcpy(this->name, name);
-	}
 }
 
 
 Shader::~Shader()
 {
-	if (name)
-		delete[] name;
 	glDeleteShader(shader);
 }
 
 
-void Shader::loadSourceCode(const char* code, int length)
+void Shader::loadSourceCode(const CString& code)
 {
-	if (length == -1) {
-		length = strlen(code);
-	}
+	int major, minor;
+	gtaglGetVersion(major, minor);
+
+	int versionGLSL;
 
 #ifdef GTA_USE_OPENGL_ES
-	this->code = new char[length+1];
-	strncpy(this->code, code, length);
-	this->code[length] = '\0';
+	versionGLSL = 100;
 #else
-	glShaderSource(shader, 1, &code, &length);
+	if (gtaglIsVersionSupported(3, 1)) {
+		versionGLSL = 140;
+	} else {
+		versionGLSL = 110;
+	}
+#endif
+
+	char prepCode[256];
+	sprintf(prepCode,
+#ifndef GTA_USE_OPENGL_ES
+			"#version %d\n"
+			"\n"
+#endif
+			"#ifndef GTAGL_VERSION_MAJOR\n"
+			"#define GTAGL_VERSION_MAJOR %d\n"
+			"#endif\n"
+			"\n"
+			"#ifndef GTAGL_VERSION_MINOR\n"
+			"#define GTAGL_VERSION_MINOR %d\n"
+			"#endif\n"
+			"\n"
+#ifdef GTA_USE_OPENGL_ES
+			"#ifndef GTAGL_ES\n"
+			"#define GTAGL_ES\n"
+			"#endif\n"
+			"\n"
+#endif
+			"#line 0\n"
+#ifndef GTA_USE_OPENGL_ES
+			, versionGLSL
+#endif
+			, major, minor);
+
+	CString newCode(prepCode);
+
+	newCode.append(CString((const char*) res_global_shader_data, sizeof(res_global_shader_data)));
+	newCode.append("\n\n#line 0\n");
+
+	if (type == GL_VERTEX_SHADER) {
+		newCode.append(CString((const char*) res_global_vertex_shader_data,
+				sizeof(res_global_vertex_shader_data)));
+	} else {
+		newCode.append(CString((const char*) res_global_fragment_shader_data,
+				sizeof(res_global_fragment_shader_data)));
+	}
+
+	newCode.append("\n\n#line 0\n");
+
+	newCode.append(code);
+
+#ifdef GTA_USE_OPENGL_ES
+	this->code = newCode;
+#else
+	GLint len = newCode.length();
+	const char* ccode = newCode.get();
+	glShaderSource(shader, 1, &ccode, &len);
 #endif
 }
 
@@ -75,11 +126,11 @@ void Shader::loadSourceCode(const File& file)
 	stream->seekg(0, istream::end);
 	unsigned int len = (unsigned int) stream->tellg();
 	stream->seekg(0, istream::beg);
-	char* buffer = new char[len];
+	char* buffer = new char[len+1];
 	stream->read(buffer, len);
+	buffer[len] = '\0';
 	delete stream;
-	loadSourceCode(buffer, len);
-	delete[] buffer;
+	loadSourceCode(CString::from(buffer));
 }
 
 
@@ -94,24 +145,22 @@ void Shader::glesForceCompile()
 void Shader::compile()
 #endif
 {
-	GLException::checkError("Error 0");
 #ifdef GTA_USE_OPENGL_ES
 	if (shader == 0) {
 		shader = glCreateShader(type);
 	}
-	GLException::checkError("Error 0.1");
 
-	int len = strlen(code);
-	const char* ccode = code;
+	CString newCode("#version 100\n");
+	newCode.append(code);
+
+	GLint len = newCode.length();
+	const char* ccode = newCode.get();
 	glShaderSource(shader, 1, &ccode, &len);
-	GLException::checkError("Error 0.2");
 #endif
 
 	glCompileShader(shader);
 	GLint status;
-	GLException::checkError("Error 1");
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
-	GLException::checkError("Error 2");
 
 	if (status == GL_FALSE) {
 		GLint maxLength;
@@ -120,10 +169,10 @@ void Shader::compile()
 		char* log = new char[maxLength];
 		glGetShaderInfoLog(shader, maxLength, &actualLength, log);
 
-		size_t nameLen = name ? strlen(name) : 16;
+		size_t nameLen = name.get() ? name.length() : 16;
 		char* errmsg = new char[actualLength + nameLen + 64];
-		sprintf(errmsg, "Error compiling shader \"%s\" [#%d]. Info log:\n\n%s", name ? name : "[UNNAMED]",
-				shader, log);
+		sprintf(errmsg, "Error compiling shader \"%s\" [#%d]. Info log:\n\n%s",
+				name.get() ? name.get() : "[UNNAMED]", shader, log);
 		delete[] log;
 		GLException ex(errmsg, __FILE__, __LINE__);
 		delete[] errmsg;
@@ -138,12 +187,12 @@ void Shader::compile()
 			glGetShaderInfoLog(shader, maxLength, &actualLength, log);
 
 			printf("Successfully compiled shader \"%s\" [#%d]. Build log:\n==========\n%s\n==========\n\n",
-					name ? name : "[UNNAMED]", shader, log);
+					name.get() ? name.get() : "[UNNAMED]", shader, log);
 
 			delete[] log;
 		} else {
 			printf("Successfully compiled shader \"%s\" [#%d]. Build log is empty\n\n",
-					name ? name : "[UNNAMED]", shader);
+					name.get() ? name.get() : "[UNNAMED]", shader);
 		}
 	}
 }

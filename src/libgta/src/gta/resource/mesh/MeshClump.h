@@ -54,10 +54,13 @@ public:
 	MeshFrame* getRootFrame() { return rootFrame; }
 	void setRootFrame(MeshFrame* frame) { rootFrame = frame; }
 	cachesize_t guessSize() const { return size; }
+	int32_t getBoneCount() const { return boneCount; }
+	void setBoneCount(int32_t bc) { boneCount = bc; }
 
 private:
 	MeshList meshes;
 	MeshFrame* rootFrame;
+	int32_t boneCount;
 	cachesize_t size;
 };
 

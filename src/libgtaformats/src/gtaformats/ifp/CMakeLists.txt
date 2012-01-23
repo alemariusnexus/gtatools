@@ -19,7 +19,7 @@
 # GPLADDITIONS.
 
 
-SET(FILES IFPAnimation IFPFrame IFPLoader IFPObject IFPRootFrame)
+SET(FILES IFPAnimation IFPFrame IFPLoader IFPObject IFPRootFrame IFPUnknownFrame2)
 
 FOREACH(FILE ${FILES})
     SET(SRCS ${SRCS} "gtaformats/ifp/${FILE}")

@@ -45,13 +45,13 @@ void _BuildFrameConversionMap(map<const DFFFrame*, MeshFrame*>& m, const DFFFram
 
 
 MeshClump::MeshClump()
-		: rootFrame(NULL), size(0)
+		: rootFrame(NULL), boneCount(0), size(0)
 {
 }
 
 
 MeshClump::MeshClump(const DFFMesh* mesh)
-		: size(0)
+		: boneCount(mesh->getBoneCount()), size(0)
 {
 	rootFrame = new MeshFrame(mesh->getRootFrame());
 

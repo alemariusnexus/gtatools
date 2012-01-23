@@ -31,25 +31,18 @@ static int _NextProgramID = 0;
 
 
 
-ShaderProgram::ShaderProgram(const char* name)
+ShaderProgram::ShaderProgram(const CString& name)
 		: program(glCreateProgram()), id(_NextProgramID++),
 #ifdef GTA_USE_OPENGL_ES
 		 combinedVShader(NULL), combinedFShader(NULL),
 #endif
-		 name(NULL)
+		 name(name)
 {
-	if (name) {
-		this->name = new char[strlen(name) + 1];
-		strcpy(this->name, name);
-	}
 }
 
 
 ShaderProgram::~ShaderProgram()
 {
-	if (name)
-		delete[] name;
-
 	glUseProgram(0);
 	glDeleteProgram(program);
 
@@ -74,16 +67,16 @@ void ShaderProgram::link()
 		delete combinedFShader;
 	}
 
-	int vTotalLen = 0;
-	int fTotalLen = 0;
+	size_t vTotalLen = 0;
+	size_t fTotalLen = 0;
 
 	for (ShaderIterator it = shaders.begin() ; it != shaders.end() ; it++) {
 		Shader* shader = *it;
 
 		if (shader->getType() == GL_VERTEX_SHADER)
-			vTotalLen += strlen(shader->glesGetCode()) + 20;
+			vTotalLen += shader->glesGetCode().length() + 20;
 		else
-			fTotalLen += strlen(shader->glesGetCode()) + 20;
+			fTotalLen += shader->glesGetCode().length() + 20;
 	}
 
 	char* vCombinedCode = new char[vTotalLen+1];
@@ -98,12 +91,12 @@ void ShaderProgram::link()
 	for (ShaderIterator it = shaders.begin() ; it != shaders.end() ; it++) {
 		Shader* shader = *it;
 
-		const char* name = shader->getName();
+		CString name = shader->getName();
 
 		if (shader->getType() == GL_VERTEX_SHADER) {
-			combinedVShaderNameLen += (name ? strlen(name) + 32 : 16);
+			combinedVShaderNameLen += (name.get() ? name.length() + 32 : 16);
 		} else {
-			combinedFShaderNameLen += (name ? strlen(name) + 32 : 16);
+			combinedFShaderNameLen += (name.get() ? name.length() + 32 : 16);
 		}
 	}
 
@@ -120,8 +113,8 @@ void ShaderProgram::link()
 		Shader* shader = *it;
 
 		if (shader->getType() == GL_VERTEX_SHADER) {
-			strcpy(vCombinedCodePtr, shader->glesGetCode());
-			vCombinedCodePtr += strlen(shader->glesGetCode());
+			strcpy(vCombinedCodePtr, shader->glesGetCode().get());
+			vCombinedCodePtr += shader->glesGetCode().length();
 			const char* lineCode = "\n#line 0\n";
 			strcpy(vCombinedCodePtr, lineCode);
 			vCombinedCodePtr += strlen(lineCode);
@@ -129,14 +122,14 @@ void ShaderProgram::link()
 			if (!firstVShader)
 				strcat(combinedVShaderName, "; ");
 
-			if (shader->getName())
-				strcat(combinedVShaderName, shader->getName());
+			if (shader->getName().get())
+				strcat(combinedVShaderName, shader->getName().get());
 			else
 				strcat(combinedVShaderName, "[UNNAMED]");
 			firstVShader = false;
 		} else {
-			strcpy(fCombinedCodePtr, shader->glesGetCode());
-			fCombinedCodePtr += strlen(shader->glesGetCode());
+			strcpy(fCombinedCodePtr, shader->glesGetCode().get());
+			fCombinedCodePtr += shader->glesGetCode().length();
 			const char* lineCode = "\n#line 0\n";
 			strcpy(fCombinedCodePtr, lineCode);
 			fCombinedCodePtr += strlen(lineCode);
@@ -144,8 +137,8 @@ void ShaderProgram::link()
 			if (!firstFShader)
 				strcat(combinedFShaderName, "; ");
 
-			if (shader->getName())
-				strcat(combinedFShaderName, shader->getName());
+			if (shader->getName().get())
+				strcat(combinedFShaderName, shader->getName().get());
 			else
 				strcat(combinedFShaderName, "[UNNAMED]");
 			firstFShader = false;
@@ -155,17 +148,11 @@ void ShaderProgram::link()
 	strcat(combinedVShaderName, "}");
 	strcat(combinedFShaderName, "}");
 
-	combinedVShader = new Shader(GL_VERTEX_SHADER, combinedVShaderName);
-	combinedFShader = new Shader(GL_FRAGMENT_SHADER, combinedFShaderName);
+	combinedVShader = new Shader(GL_VERTEX_SHADER, CString::from(combinedVShaderName));
+	combinedFShader = new Shader(GL_FRAGMENT_SHADER, CString::from(combinedFShaderName));
 
-	delete[] combinedVShaderName;
-	delete[] combinedFShaderName;
-
-	combinedVShader->loadSourceCode(vCombinedCode);
-	combinedFShader->loadSourceCode(fCombinedCode);
-
-	delete[] vCombinedCode;
-	delete[] fCombinedCode;
+	combinedVShader->loadSourceCode(CString::from(vCombinedCode));
+	combinedFShader->loadSourceCode(CString::from(fCombinedCode));
 
 	combinedVShader->glesForceCompile();
 	combinedFShader->glesForceCompile();
@@ -186,10 +173,10 @@ void ShaderProgram::link()
 		char* log = new char[maxLength];
 		glGetProgramInfoLog(program, maxLength, &actualLength, log);
 
-		size_t nameLen = name ? strlen(name) : 16;
-		char* errmsg = new char[actualLength + 64];
-		sprintf(errmsg, "Error linking shader program \"%s\" [#%d]. Info log:\n\n%s", name ? name : "[UNNAMED]",
-				program, log);
+		size_t nameLen = name.get() ? name.length() : 16;
+		char* errmsg = new char[actualLength + 64 + nameLen];
+		sprintf(errmsg, "Error linking shader program \"%s\" [#%d]. Info log:\n\n%s",
+				name.get() ? name.get() : "[UNNAMED]", program, log);
 		GLException ex(errmsg, __FILE__, __LINE__);
 		delete[] errmsg;
 		delete[] log;
@@ -204,12 +191,12 @@ void ShaderProgram::link()
 			glGetProgramInfoLog(program, maxLength, &actualLength, log);
 
 			printf("Successfully compiled shader program \"%s\" [#%d]. Build log:\n==========\n%s\n==========\n",
-					name ? name : "[UNNAMED]", program, log);
+					name.get() ? name.get() : "[UNNAMED]", program, log);
 
 			delete[] log;
 		} else {
 			printf("Successfully compiled shader program \"%s\" [#%d]. Build log is empty\n",
-					name ? name : "[UNNAMED]", program);
+					name.get() ? name.get() : "[UNNAMED]", program);
 		}
 	}
 }
@@ -259,16 +246,16 @@ void ShaderProgram::makeCurrent()
 }
 
 
-GLint ShaderProgram::getAttributeLocation(const char* name) const
+GLint ShaderProgram::getAttributeLocation(const CString& name) const
 {
-	GLint attrib = glGetAttribLocation(program, name);
+	GLint attrib = glGetAttribLocation(program, name.get());
 	return attrib;
 }
 
 
-GLint ShaderProgram::getUniformLocation(const char* name) const
+GLint ShaderProgram::getUniformLocation(const CString& name) const
 {
-	GLint uniform = glGetUniformLocation(program, name);
+	GLint uniform = glGetUniformLocation(program, name.get());
 	return uniform;
 }
 

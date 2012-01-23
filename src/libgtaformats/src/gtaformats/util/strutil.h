@@ -67,6 +67,8 @@ inline void strtoupper(char* dest, const char* src)
  */
 void rtrim(char* str, char chr);
 
+const char* ltrim(const char* str, char chr);
+
 /**	\brief Breaks a string into multiple lines using word wrapping.
  *
  * 	This function will try to wrap words by breaking at whitespace positions. If a word is longer than the

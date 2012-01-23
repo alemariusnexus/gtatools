@@ -22,6 +22,7 @@
 
 #include "TXDConverter.h"
 #include <gtaformats/config.h>
+#include "../util/util.h"
 #include <cmath>
 #include <cstring>
 
@@ -475,6 +476,11 @@ void TXDConverter::getFormatSpecifics(int32_t rasterFormat, int32_t& rm, int32_t
 			break;
 		}
 	}
+
+	rm = FromLittleEndian32(rm);
+	gm = FromLittleEndian32(gm);
+	bm = FromLittleEndian32(bm);
+	am = FromLittleEndian32(am);
 
 	for (int i = 0 ; i < 32 ; i++) {
 		if ((rm & (1 << i)) != 0) {

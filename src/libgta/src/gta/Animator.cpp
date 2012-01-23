@@ -26,23 +26,19 @@
 
 void Animator::updateBoneMatrix(MeshFrame* frame)
 {
-	AnimationBone* bone = anim->getBone(frame->getName());
+	AnimationBone* bone = anim->getBoneForFrame(frame);
 
 	if (bone) {
-		size_t boneNum = anim->indexOf(bone);
-
-		//Matrix4 bm = bone->getInterpolatedFrameMatrix(time);
-		//Matrix4 bm = frame->getModelMatrix();
 		Matrix4 modelMat = frame->getModelMatrix();
 		Matrix4 ipFrameMatrix = bone->getInterpolatedFrameMatrix(time);
-		const float* ipfma = ipFrameMatrix.toArray();
 
-		if (ipfma[12] != 0.0f  ||  ipfma[13] != 0.0f  ||  ipfma[14] != 0.0f) {
-			modelMat.setTranslation(0.0f, 0.0f, 0.0f);
-		}
+		// IMPORTANT: IFP frames seem to OVERWRITE the local transformation of the DFF frames. Because IFP
+		// frames always have a rotation matrix, the DFF frames' rotation is basically ignored. However, only
+		// some IFP frames have translation values, and for those without, the translation of the DFF frame is
+		// used, otherwise it is ignored just as with the rotation.
 
+		// Ignore rotation, but keep translation
 		const float* mma = modelMat.toArray();
-
 		modelMat = Matrix4 (
 				1.0f, 0.0f, 0.0f, 0.0f,
 				0.0f, 1.0f, 0.0f, 0.0f,
@@ -50,21 +46,29 @@ void Animator::updateBoneMatrix(MeshFrame* frame)
 				mma[12], mma[13], mma[14], 1.0f
 		);
 
-		Matrix4 bm = modelMat * bone->getInterpolatedFrameMatrix(time);
-		//Matrix4 bm = frame->getAbsoluteModelMatrix() * bone->getInterpolatedFrameMatrix(time);
+		// If the IFP frame has translation info, the DFF frame's translation is ignored
+		if ((bone->getFlags() & AnimationBone::FrameHasTranslation)  !=  0) {
+			modelMat.setTranslation(0.0f, 0.0f, 0.0f);
+		}
 
-		if (frame->getParent()) {
-			AnimationBone* pbone = anim->getBone(frame->getParent()->getName());
+		Matrix4 bm = modelMat * ipFrameMatrix;
 
-			if (pbone) {
-				size_t pboneNum = anim->indexOf(pbone);
+		MeshFrame* parent = frame->getParent();
 
-				boneMats[boneNum] = boneMats[pboneNum] * bm;
-			} else {
-				boneMats[boneNum] = bm;
-			}
+		if (parent) {
+			Matrix4 pMat = frameMats[parent];
+			frameMats.insert(pair<MeshFrame*, Matrix4>(frame, pMat * bm));
 		} else {
-			boneMats[boneNum] = bm;
+			frameMats.insert(pair<MeshFrame*, Matrix4>(frame, bm));
+		}
+	} else {
+		MeshFrame* parent = frame->getParent();
+
+		if (parent) {
+			Matrix4 pMat = frameMats[parent];
+			frameMats.insert(pair<MeshFrame*, Matrix4>(frame, pMat * frame->getModelMatrix()));
+		} else {
+			frameMats.insert(pair<MeshFrame*, Matrix4>(frame, frame->getModelMatrix()));
 		}
 	}
 
@@ -77,11 +81,24 @@ void Animator::updateBoneMatrix(MeshFrame* frame)
 
 void Animator::updateBoneMatrices()
 {
-	boneMats = new Matrix4[anim->getBoneCount()];
+	frameMats.clear();
 
-	for (size_t i = 0 ; i < anim->getBoneCount() ; i++) {
-		boneMats[i] = Matrix4::Identity;
-	}
+	if (boneMats)
+		delete[] boneMats;
+
+	int32_t numBones = clump->getBoneCount();
 
 	updateBoneMatrix(clump->getRootFrame());
+
+	boneMats = new Matrix4[numBones];
+
+	for (FrameMatrixMap::iterator it = frameMats.begin() ; it != frameMats.end() ; it++) {
+		MeshFrame* frame = it->first;
+
+		it->second = it->second * frame->getInverseBoneMatrix();
+
+		if (frame->getBoneID() != -1) {
+			boneMats[frame->getBoneNumber()] = it->second;
+		}
+	}
 }

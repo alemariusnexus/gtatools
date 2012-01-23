@@ -21,7 +21,7 @@
 SET(FILES
     StaticSceneObject Scene SceneObject AnimatedSceneObject DefaultRenderer DepthPeelingAlgorithm
     SceneObjectDefinitionDatabase SceneObjectDefinitionInfo SceneObjectFileGroup SceneObjectGroupDependency
-    BasicTransparencyAlgorithm
+    BasicTransparencyAlgorithm VisualSceneObject
     )#WeightedAverageAlgorithm BasicTransparencyAlgorithm)
 
 ADD_SUBDIRECTORY(visibility)

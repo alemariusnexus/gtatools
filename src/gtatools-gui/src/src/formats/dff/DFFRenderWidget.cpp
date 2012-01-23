@@ -36,6 +36,7 @@
 #include <gta/scene/Scene.h>
 #include <gta/scene/DefaultRenderer.h>
 #include <gta/scene/DepthPeelingAlgorithm.h>
+#include <gta/scene/BasicTransparencyAlgorithm.h>
 
 
 
@@ -156,6 +157,8 @@ void DFFRenderWidget::initializeGL()
 	try {
 		makeCurrent();
 
+		glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+
 		GLBaseWidget::initializeGL();
 
 		if (!scene) {
@@ -190,8 +193,8 @@ void DFFRenderWidget::resizeGL(int w, int h)
 	Engine* engine = Engine::getInstance();
 	engine->setViewportSize(getViewportWidth(), getViewportHeight());
 	TransparencyAlgorithm* oldAlgo = renderer->getTransparencyAlgorithm();
-	DepthPeelingAlgorithm* dpAlgo = new DepthPeelingAlgorithm;
-	renderer->setTransparencyAlgorithm(dpAlgo);
+	BasicTransparencyAlgorithm* btAlgo = new BasicTransparencyAlgorithm;
+	renderer->setTransparencyAlgorithm(btAlgo);
 
 	if (oldAlgo)
 		delete oldAlgo;

@@ -144,6 +144,7 @@ void Scene::update(uint64_t timePassed)
 
 		if (obj->getType() == SceneObjectAnimated) {
 			AnimatedSceneObject* aobj = (AnimatedSceneObject*) obj;
+			//aobj->setAnimationTime(0.0f);
 			aobj->increaseAnimationTime(timePassed / 1000.0f);
 		}
 	}

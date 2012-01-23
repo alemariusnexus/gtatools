@@ -31,8 +31,9 @@ AnimationPackage* ManagedAnimationPackagePointer::operator*()
 {
 	AnimationCacheEntry* entry = (AnimationCacheEntry*) pointer.getEntry();
 
-	if (!entry)
+	if (!entry) {
 		return NULL;
+	}
 
 	return entry->getPackage();
 }

@@ -54,8 +54,8 @@ AnimatedBone::AnimatedBone(DFFFrame* frame, IFPAnimation* anim)
 					(obj->getBoneID() != -1  &&  frame->getBone()->getIndex() == obj->getBoneID())
 					//||	obj->getName()  &&  frame->getName()  &&  (LowerHash(obj->getName()) == LowerHash(frame->getName()))
 			) {
-				name = new char[strlen(obj->getName())+1];
-				strcpy(name, obj->getName());
+				name = new char[strlen(obj->getName().get())+1];
+				strcpy(name, obj->getName().get());
 
 				frameCount = obj->getFrameCount();
 				frames = new IFPFrame*[frameCount];
@@ -90,7 +90,7 @@ AnimatedBone::AnimatedBone(DFFFrame* frame, IFPAnimation* anim)
 
 			uint8_t r, g, b;
 
-			hash_t fnhash = LowerHash(frame->getName());
+			hash_t fnhash = LowerHash(frame->getName().get());
 
 			if (fnhash == LowerHash("Object01")) {
 				r = 255;

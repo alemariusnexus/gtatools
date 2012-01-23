@@ -762,8 +762,8 @@ void extractMipmapPNG(ostream* out, TXDTextureHeader* tex, int16_t w, int16_t h,
 	const char* commentKey = "Comment";
 	const char* commentText = "Automatically converted from a GTA TXD texture.";
 
-	char* softwareKeyCpy = new char[strlen(softwareKey)];
-	char* softwareTextCpy = new char[strlen(softwareText)];
+	char* softwareKeyCpy = new char[strlen(softwareKey)+1];
+	char* softwareTextCpy = new char[strlen(softwareText)+1];
 	strcpy(softwareKeyCpy, softwareKey);
 	strcpy(softwareTextCpy, softwareText);
 	png_text software;
@@ -772,8 +772,8 @@ void extractMipmapPNG(ostream* out, TXDTextureHeader* tex, int16_t w, int16_t h,
 	software.text_length = strlen(softwareTextCpy);
 	software.compression = PNG_TEXT_COMPRESSION_NONE;
 
-	char* commentKeyCpy = new char[strlen(commentKey)];
-	char* commentTextCpy = new char[strlen(commentText)];
+	char* commentKeyCpy = new char[strlen(commentKey)+1];
+	char* commentTextCpy = new char[strlen(commentText)+1];
 	strcpy(commentKeyCpy, commentKey);
 	strcpy(commentTextCpy, commentText);
 	png_text comment;

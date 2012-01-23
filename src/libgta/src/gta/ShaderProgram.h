@@ -39,14 +39,14 @@ public:
 	static void disableShaders();
 
 public:
-	ShaderProgram(const char* name = NULL);
+	ShaderProgram(const CString& name = CString());
 	~ShaderProgram();
 	void link();
 	void attachShader(Shader* shader);
 	void detachShader(Shader* shader);
 	void makeCurrent();
-	GLint getAttributeLocation(const char* name) const;
-	GLint getUniformLocation(const char* name) const;
+	GLint getAttributeLocation(const CString& name) const;
+	GLint getUniformLocation(const CString& name) const;
 	bool operator==(const ShaderProgram& other) const { return id == other.id; }
 	bool operator!=(const ShaderProgram& other) const { return !(*this == other); }
 
@@ -64,7 +64,7 @@ private:
 	Shader* combinedVShader;
 	Shader* combinedFShader;
 #endif
-	char* name;
+	CString name;
 };
 
 #endif /* SHADERPROGRAM_H_ */

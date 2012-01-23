@@ -52,8 +52,8 @@ void frameRecurse(DFFFrame* parent, int numInd)
 			printf("  ");
 		}
 
-		if (frame->getName()) {
-			printf("%s\n", frame->getName());
+		if (frame->getName().get()) {
+			printf("%s\n", frame->getName().get());
 		} else {
 			printf("(Unnamed)\n");
 		}
@@ -280,9 +280,45 @@ void DFFWidget::setDisplayedFrame(DFFFrame* frame)
 				.arg(amm[12]).arg(amm[13]).arg(amm[14]).arg(amm[15]));
 
 		ui.frameFlagsLabel->setText(QString("%1b").arg(frame->getFlags(), 0, 2));
+
+		DFFBone* bone = frame->getBone();
+
+		if (bone) {
+			ui.frameBoneIndexLabel->setText(QString("%1").arg(bone->getIndex()));
+			ui.frameBoneNumberLabel->setText(QString("%1").arg(bone->getNumber()));
+
+			QString boneType;
+			switch (bone->getType()) {
+			case DFFBone::Deformable:
+				boneType = tr("Deformable");
+				break;
+			case DFFBone::Nub:
+				boneType = tr("Nub");
+				break;
+			case DFFBone::Rigid:
+				boneType = tr("Rigid");
+				break;
+			case DFFBone::Unknown1:
+				boneType = tr("Unknown1");
+				break;
+			default:
+				boneType = tr("[UNKNOWN: %1]").arg(bone->getType());
+				break;
+			}
+
+			ui.frameBoneTypeLabel->setText(boneType);
+		} else {
+			ui.frameBoneIndexLabel->setText("-");
+			ui.frameBoneNumberLabel->setText("-");
+			ui.frameBoneTypeLabel->setText("-");
+		}
 	} else {
 		ui.frameModelMatrixLabel->setText("-");
 		ui.frameFlagsLabel->setText("-");
+
+		ui.frameBoneIndexLabel->setText("-");
+		ui.frameBoneNumberLabel->setText("-");
+		ui.frameBoneTypeLabel->setText("-");
 	}
 }
 
@@ -324,7 +360,7 @@ void DFFWidget::setCurrentGeometry(DFFGeometry* geom)
 		QString frameName;
 
 		if (frame)
-			frameName = frame->getName();
+			frameName = frame->getName().get();
 		else
 			frameName = QString(tr("Unnamed %1")).arg(frame->getParent()->indexOf(frame) + 1);
 
@@ -400,8 +436,8 @@ void DFFWidget::setCurrentMaterial(DFFMaterial* mat)
 
 			QString texName = QString("Texture %1").arg(i+1);
 
-			if (tex->getDiffuseName()) {
-				texName += QString(" [%1]").arg(tex->getDiffuseName());
+			if (tex->getDiffuseName().get()) {
+				texName += QString(" [%1]").arg(tex->getDiffuseName().get());
 			}
 
 			ui.textureList->addItem(texName);
@@ -420,8 +456,8 @@ void DFFWidget::setCurrentTexture(DFFTexture* tex)
 
 	if (tex) {
 		ui.textureOpenButton->setEnabled(true);
-		ui.textureDiffuseNameLabel->setText(tex->getDiffuseName());
-		ui.textureAlphaNameLabel->setText(tex->getAlphaName() ? tex->getAlphaName() : "-");
+		ui.textureDiffuseNameLabel->setText(tex->getDiffuseName().get());
+		ui.textureAlphaNameLabel->setText(tex->getAlphaName().get() ? tex->getAlphaName().get() : "-");
 		ui.textureFilterFlagsLabel->setText(QString("%1b").arg(tex->getFilterModeFlags(), 0, 2));
 	} else {
 		ui.textureOpenButton->setEnabled(false);
@@ -434,7 +470,7 @@ void DFFWidget::setCurrentTexture(DFFTexture* tex)
 
 void DFFWidget::textureOpenRequested()
 {
-	const char* dname = currentTexture->getDiffuseName();
+	const char* dname = currentTexture->getDiffuseName().get();
 
 	SystemQuery query("FindAndOpenTexture");
 	query["texture"] = QString(dname);

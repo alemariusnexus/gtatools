@@ -37,7 +37,7 @@ public:
 	IFPLoader(const File& file);
 	~IFPLoader();
 	IFPAnimation* readAnimation();
-	const char* getName() const { return ifpName; }
+	CString getName() const { return ifpName; }
 	int32_t getAnimationCount() const { return numAnims; }
 
 private:
@@ -45,7 +45,7 @@ private:
 
 private:
 	istream* stream;
-	char ifpName[25];
+	CString ifpName;
 	int32_t endOffs;
 	int32_t numAnims;
 };

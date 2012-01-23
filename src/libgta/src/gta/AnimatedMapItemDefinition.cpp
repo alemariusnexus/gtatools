@@ -21,6 +21,10 @@
  */
 
 #include "AnimatedMapItemDefinition.h"
+#include "resource/mesh/ManagedMeshPointer.h"
+#include "resource/texture/ManagedTextureSource.h"
+#include "resource/collision/ManagedCollisionShapePointer.h"
+#include "resource/animation/ManagedAnimationPackagePointer.h"
 
 
 
@@ -29,4 +33,23 @@ AnimatedMapItemDefinition::AnimatedMapItemDefinition(MeshPointer* mptr, TextureS
 		CollisionShapePointer* cptr, AnimationPackagePointer* aptr, float dd, unsigned int flags)
 		: MapItemDefinition(mptr, tsrc, cptr, dd, flags), animPtr(aptr)
 {
+}
+
+
+AnimatedMapItemDefinition::AnimatedMapItemDefinition(const IDEAnimation& anim)
+{
+	drawDist = anim.getDrawDist();
+	CString lMeshName(anim.getModelName());
+	lMeshName.lower();
+	meshPtr = new ManagedMeshPointer(lMeshName);
+	texSrc = new ManagedTextureSource(CString(anim.getTextureName()).lower());
+	colPtr = new ManagedCollisionShapePointer(lMeshName);
+	animPtr = new ManagedAnimationPackagePointer(CString(anim.getAnimationName()).lower());
+	defaultAnim = lMeshName;
+
+	if (	(anim.getFlags() & (IDEStaticObject::AlphaTransparency1 | IDEStaticObject::AlphaTransparency2))
+			!= 0
+	) {
+		flags |= AlphaTransparency;
+	}
 }

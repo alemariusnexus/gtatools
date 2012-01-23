@@ -31,7 +31,8 @@
 DFFGeometry::DFFGeometry(uint32_t numVertices, float* vertices, float* normals, float* uvCoords,
 			uint8_t uvSetCount, uint8_t* vertexColors, uint8_t* boneIndices, float* boneWeights)
 		: flags(0), uvSetCount(0), vertexCount(numVertices), frameCount(0), ambientLight(0.0f),
-		  diffuseLight(0.0f), specularLight(0.0f), bounds(NULL), associatedFrame(NULL), mesh(NULL)
+		  diffuseLight(0.0f), specularLight(0.0f), bounds(NULL), boneCount(0), inverseBoneMatrices(NULL),
+		  associatedFrame(NULL), mesh(NULL)
 {
 	setVertices(numVertices, vertices, normals, uvCoords, uvSetCount, vertexColors, boneIndices, boneWeights);
 }
@@ -49,6 +50,8 @@ DFFGeometry::DFFGeometry(const DFFGeometry& other)
 		  normals(other.normals == NULL ? NULL : new float[vertexCount*3]),
 		  boneIndices(other.boneIndices == NULL ? NULL : new uint8_t[4*vertexCount]),
 		  boneWeights(other.boneWeights == NULL ? NULL : new float[4*vertexCount]),
+		  boneCount(other.boneCount),
+		  inverseBoneMatrices(other.inverseBoneMatrices ? new Matrix4*[other.boneCount] : NULL),
 		  associatedFrame(other.associatedFrame), mesh(NULL)
 {
 	if (vertexColors) {
@@ -65,6 +68,11 @@ DFFGeometry::DFFGeometry(const DFFGeometry& other)
 	}
 	if (boneWeights) {
 		memcpy(boneWeights, other.boneWeights, vertexCount*4*sizeof(float));
+	}
+	if (inverseBoneMatrices) {
+		for (uint8_t i = 0 ; i < boneCount ; i++) {
+			inverseBoneMatrices[i] = new Matrix4(*other.inverseBoneMatrices[i]);
+		}
 	}
 
 	memcpy(vertices, other.vertices, vertexCount*3*4);
@@ -104,6 +112,14 @@ DFFGeometry::~DFFGeometry()
 	}
 	if (boneWeights != NULL) {
 		delete[] boneWeights;
+	}
+
+	if (inverseBoneMatrices != NULL) {
+		for (uint8_t i = 0 ; i < boneCount ; i++) {
+			delete inverseBoneMatrices[i];
+		}
+
+		delete[] inverseBoneMatrices;
 	}
 
 	MaterialIterator it;

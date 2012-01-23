@@ -31,3 +31,30 @@ void CString::copy()
 	strcpy(cpy.get(), cstr.get());
 	cstr = cpy;
 }
+
+
+CString& CString::ltrim(char c)
+{
+	char* s = cstr.get();
+	char* os = s;
+	int len = strlen(s);
+
+	while (s-os != len  &&  *s == c) s++;
+
+	char* nStr = new char[len - (s-os)+1];
+	strcpy(nStr, s);
+
+	cstr = shared_array<char>(nStr);
+
+	return *this;
+}
+
+
+void CString::append(const CString& other)
+{
+	size_t len = length() + other.length();
+	shared_array<char> cpy(new char[len+1]);
+	strcpy(cpy.get(), cstr.get());
+	strcat(cpy.get(), other.cstr.get());
+	cstr = cpy;
+}

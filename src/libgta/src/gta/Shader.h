@@ -26,34 +26,35 @@
 #include <gta/config.h>
 #include "gl.h"
 #include <gtaformats/util/File.h>
+#include <gtaformats/util/CString.h>
 
 
 class Shader {
 	friend class ShaderProgram;
 
 public:
-	Shader(GLenum type, const char* name = NULL);
+	Shader(GLenum type, const CString& name = CString());
 	~Shader();
-	void loadSourceCode(const char* code, int length = -1);
+	void loadSourceCode(const CString& code);
 	void loadSourceCode(const File& file);
 	void compile();
 	GLenum getType() const { return type; }
-	const char* getName() const { return name; }
+	CString getName() const { return name; }
 
 private:
 #ifdef GTA_USE_OPENGL_ES
 	void glesForceCompile();
-	const char* glesGetCode() const { return code; }
+	CString glesGetCode() const { return code; }
 #endif
 	GLuint getGLIdentifier() { return shader; }
 
 private:
 	GLenum type;
 #ifdef GTA_USE_OPENGL_ES
-	char* code;
+	CString code;
 #endif
 	GLuint shader;
-	char* name;
+	CString name;
 };
 
 #endif /* SHADER_H_ */

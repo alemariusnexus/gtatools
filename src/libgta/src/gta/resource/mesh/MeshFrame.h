@@ -40,7 +40,7 @@ public:
 	typedef ChildList::const_iterator ConstChildIterator;
 
 public:
-	MeshFrame() : absModelMatrixValid(false), parent(NULL) {}
+	MeshFrame() : absModelMatrixValid(false), boneID(-1), parent(NULL) {}
 	MeshFrame(const DFFFrame* frame);
 	~MeshFrame();
 	const Matrix4 getModelMatrix() const { return modelMatrix; }
@@ -59,6 +59,10 @@ public:
 	void setName(const CString& name) { this->name = name; }
 	MeshFrame* getChildByName(const CString& name, bool recursive = false);
 	void dump(int level = 0);
+	Matrix4 getInverseBoneMatrix() const { return ibm; }
+	int32_t getBoneID() const { return boneID; }
+	void setBoneID(int32_t id) { boneID = id; }
+	int32_t getBoneNumber() const { return boneNum; }
 
 private:
 	void reparent(MeshFrame* parent);
@@ -68,8 +72,11 @@ private:
 	Matrix4 modelMatrix;
 	Matrix4 absModelMatrix;
 	bool absModelMatrixValid;
+	Matrix4 ibm;
 
 	CString name;
+	int32_t boneID;
+	int32_t boneNum;
 
 	MeshFrame* parent;
 	ChildList children;
