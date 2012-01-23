@@ -44,8 +44,8 @@ FIND_LIBRARY(SQUISH_LIB_PATH NAMES squish libsquish)
 FIND_PATH(PVRTEXLIB_INCLUDE_PATH PVRTexLib.h)
 FIND_LIBRARY(PVRTEXLIB_LIB_PATH NAMES PVRTexLib libPVRTexLib)
 
-#FIND_PATH(CEGUI_INCLUDE_PATH CEGUI/CEGUI.h)
-#FIND_LIBRARY(CEGUI_BASE_LIB_PATH NAMES CEGUIBase libCEGUIBase)
+FIND_PATH(CEGUI_INCLUDE_PATH CEGUI/CEGUI.h)
+FIND_LIBRARY(CEGUI_BASE_LIB_PATH NAMES CEGUIBase libCEGUIBase)
 
 FIND_PACKAGE(Boost)
 FIND_PACKAGE(Bullet COMPONENTS BulletCollision BulletDynamics LinearMath)
@@ -117,8 +117,8 @@ SET(INCLUDES ${INCLUDES} "${Boost_INCLUDE_DIRS}")
 SET(LIBRARIES ${LIBRARIES} ${BULLET_LIBRARIES})
 SET(INCLUDES ${INCLUDES} ${BULLET_INCLUDE_DIRS})
 
-#SET(LIBRARIES ${LIBRARIES} "${CEGUI_BASE_LIB_PATH}")
-#SET(INCLUDES ${INCLUDES} "${CEGUI_INCLUDE_PATH}")
+SET(LIBRARIES ${LIBRARIES} "${CEGUI_BASE_LIB_PATH}")
+SET(INCLUDES ${INCLUDES} "${CEGUI_INCLUDE_PATH}")
 
 #SET(LIBRARIES ${LIBRARIES} "${OPENGL_gl_LIBRARY}")
 #SET(INCLUDES ${INCLUDES} "${OPENGL_INCLUDE_DIR}")
@@ -131,40 +131,46 @@ ENDIF(APPLE)
 SET(INCLUDES ${INCLUDES} "${CMAKE_CURRENT_BINARY_DIR}")
 
 INCLUDE_DIRECTORIES(${INCLUDES})
-FOREACH(_GLSL_VER glsl110 glsl140 glsles2)
-    CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/vertex_default.glsl ${_GLSL_VER}_vertex_default_shader)
-    CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/fragment_default.glsl ${_GLSL_VER}_fragment_default_shader)
-    
-    CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/static/shade_vertex.glsl ${_GLSL_VER}_shade_vertex_shader)
-    CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/static/shade_fragment.glsl ${_GLSL_VER}_shade_fragment_shader)
-    
-    CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/depth_peeling/peel_layer_vertex.glsl ${_GLSL_VER}_dp_peel_layer_vertex_shader)
-    CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/depth_peeling/peel_layer_fragment.glsl ${_GLSL_VER}_dp_peel_layer_fragment_shader)
-    
-    CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/depth_peeling/blend_layer_vertex.glsl ${_GLSL_VER}_dp_blend_layer_vertex_shader)
-    CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/depth_peeling/blend_layer_fragment.glsl ${_GLSL_VER}_dp_blend_layer_fragment_shader)
-    
-    CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/depth_peeling/blend_final_vertex.glsl ${_GLSL_VER}_dp_blend_final_vertex_shader)
-    CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/depth_peeling/blend_final_fragment.glsl ${_GLSL_VER}_dp_blend_final_fragment_shader)
-    
-    CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/weighted_average/vertex.glsl ${_GLSL_VER}_wavg_vertex_shader)
-    CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/weighted_average/fragment.glsl ${_GLSL_VER}_wavg_fragment_shader)
-    
-    CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/weighted_average/final_vertex.glsl ${_GLSL_VER}_wavg_final_vertex_shader)
-    CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/weighted_average/final_fragment.glsl ${_GLSL_VER}_wavg_final_fragment_shader)
-    
-    #CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/cegui/cegui_vertex.glsl ${_GLSL_VER}_cegui_vertex_shader)
-    #CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/cegui/cegui_fragment.glsl ${_GLSL_VER}_cegui_fragment_shader)
-    
-    CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/debug/render_depth_2d_vertex.glsl ${_GLSL_VER}_render_depth_2d_vertex_shader)
-    CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/debug/render_depth_2d_fragment.glsl ${_GLSL_VER}_render_depth_2d_fragment_shader)
-    
-    CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/debug/render_depth_rect_vertex.glsl ${_GLSL_VER}_render_depth_rect_vertex_shader)
-    CREATE_RESOURCE(gta/shaders/${_GLSL_VER}/debug/render_depth_rect_fragment.glsl ${_GLSL_VER}_render_depth_rect_fragment_shader)
-ENDFOREACH(_GLSL_VER glsl110 glsl140 glsles2)
 
-CREATE_RESOURCE(gta/shaders/glsl140/anim/shade_vertex.glsl glsl140_anim_shade_vertex_shader)
-    CREATE_RESOURCE(gta/shaders/glsl140/anim/shade_fragment.glsl glsl140_anim_shade_fragment_shader)
+CREATE_RESOURCE(gta/shaders/global.glsl global_shader)
+CREATE_RESOURCE(gta/shaders/global_vertex.glsl global_vertex_shader)
+CREATE_RESOURCE(gta/shaders/global_fragment.glsl global_fragment_shader)
+
+CREATE_RESOURCE(gta/shaders/vertex_default.glsl vertex_default_shader)
+CREATE_RESOURCE(gta/shaders/fragment_default.glsl fragment_default_shader)
+
+CREATE_RESOURCE(gta/shaders/static/shade_vertex.glsl shade_vertex_shader)
+CREATE_RESOURCE(gta/shaders/static/shade_fragment.glsl shade_fragment_shader)
+
+CREATE_RESOURCE(gta/shaders/depth_peeling/peel_layer_vertex.glsl dp_peel_layer_vertex_shader)
+CREATE_RESOURCE(gta/shaders/depth_peeling/peel_layer_fragment.glsl dp_peel_layer_fragment_shader)
+
+CREATE_RESOURCE(gta/shaders/depth_peeling/blend_layer_vertex.glsl dp_blend_layer_vertex_shader)
+CREATE_RESOURCE(gta/shaders/depth_peeling/blend_layer_fragment.glsl dp_blend_layer_fragment_shader)
+
+CREATE_RESOURCE(gta/shaders/depth_peeling/blend_final_vertex.glsl dp_blend_final_vertex_shader)
+CREATE_RESOURCE(gta/shaders/depth_peeling/blend_final_fragment.glsl dp_blend_final_fragment_shader)
+
+CREATE_RESOURCE(gta/shaders/weighted_average/vertex.glsl wavg_vertex_shader)
+CREATE_RESOURCE(gta/shaders/weighted_average/fragment.glsl wavg_fragment_shader)
+
+CREATE_RESOURCE(gta/shaders/weighted_average/final_vertex.glsl wavg_final_vertex_shader)
+CREATE_RESOURCE(gta/shaders/weighted_average/final_fragment.glsl wavg_final_fragment_shader)
+
+CREATE_RESOURCE(gta/shaders/cegui/cegui_vertex.glsl cegui_vertex_shader)
+CREATE_RESOURCE(gta/shaders/cegui/cegui_fragment.glsl cegui_fragment_shader)
+
+CREATE_RESOURCE(gta/shaders/debug/render_depth_2d_vertex.glsl render_depth_2d_vertex_shader)
+CREATE_RESOURCE(gta/shaders/debug/render_depth_2d_fragment.glsl render_depth_2d_fragment_shader)
+
+CREATE_RESOURCE(gta/shaders/debug/render_depth_rect_vertex.glsl render_depth_rect_vertex_shader)
+CREATE_RESOURCE(gta/shaders/debug/render_depth_rect_fragment.glsl render_depth_rect_fragment_shader)
+
+CREATE_RESOURCE(gta/shaders/anim/shade_vertex.glsl anim_shade_vertex_shader)
+CREATE_RESOURCE(gta/shaders/anim/shade_fragment.glsl anim_shade_fragment_shader)
+
+CREATE_RESOURCE(gta/shaders/anim/shade_vertex.glsl anim_shade_vertex_shader)
+CREATE_RESOURCE(gta/shaders/anim/shade_fragment.glsl anim_shade_fragment_shader)
 
 ADD_LIBRARY(gta STATIC ${SRCS})
 TARGET_LINK_LIBRARIES(gta ${LIBRARIES})

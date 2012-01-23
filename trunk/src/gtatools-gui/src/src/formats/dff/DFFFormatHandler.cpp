@@ -120,8 +120,8 @@ void DFFFormatHandler::xmlDumpDialog(const DFFMesh& mesh, QWidget* parent)
 							QStringList framePath;
 
 							do {
-								if (frame->getName()) {
-									framePath.insert(0, frame->getName());
+								if (frame->getName().get()) {
+									framePath.insert(0, frame->getName().get());
 								} else {
 									if (!frame->isRoot()) {
 										framePath.insert(0, QString("%1")
@@ -148,6 +148,8 @@ void DFFFormatHandler::xmlDumpDialog(const DFFMesh& mesh, QWidget* parent)
 							uint8_t* colors = geom->getVertexColors();
 							float* uv = geom->getUVCoordSets();
 							int32_t vc = geom->getVertexCount();
+							uint8_t* bindices = geom->getBoneIndices();
+							float* bweights = geom->getBoneWeights();
 
 							xml << "      <vertices>" << endl;
 
@@ -198,6 +200,27 @@ void DFFFormatHandler::xmlDumpDialog(const DFFMesh& mesh, QWidget* parent)
 
 								xml << "      </texcoords>" << endl;
 							}
+
+							if (bindices  ||  bweights) {
+								xml << "      <skindata>" << endl;
+
+								for (int32_t i = 0 ; i < geom->getVertexCount() ; i++) {
+									xml << "        <boneassocs>" << endl;
+
+									xml << "          <boneassoc idx=\"" << bindices[i*4] << "\" weight=\""
+											<< bweights[i*4] << "\" />" << endl;
+									xml << "          <boneassoc idx=\"" << bindices[i*4+1] << "\" weight=\""
+											<< bweights[i*4+1] << "\" />" << endl;
+									xml << "          <boneassoc idx=\"" << bindices[i*4+2] << "\" weight=\""
+											<< bweights[i*4+2] << "\" />" << endl;
+									xml << "          <boneassoc idx=\"" << bindices[i*4+3] << "\" weight=\""
+											<< bweights[i*4+3] << "\" />" << endl;
+
+									xml << "        </boneassocs>" << endl;
+								}
+
+								xml << "      </skindata>" << endl;
+							}
 						}
 
 						if (mats) {
@@ -222,11 +245,11 @@ void DFFFormatHandler::xmlDumpDialog(const DFFMesh& mesh, QWidget* parent)
 								for (tit = mat->getTextureBegin() ; tit != mat->getTextureEnd() ; tit++) {
 									DFFTexture* tex = *tit;
 
-									xml << "            <texture diffusename=\"" << tex->getDiffuseName()
-											<< "\" ";
+									xml << "            <texture diffusename=\""
+											<< tex->getDiffuseName().get() << "\" ";
 
-									if (tex->getAlphaName()) {
-										xml << "alphaname=\"" << tex->getAlphaName() << "\" ";
+									if (tex->getAlphaName().get()) {
+										xml << "alphaname=\"" << tex->getAlphaName().get() << "\" ";
 									}
 
 									xml << "/>" << endl;
@@ -301,8 +324,8 @@ void DFFFormatHandler::xmlDumpFrame(const DFFFrame* frame, QTextStream& xml, int
 
 	xml << ind << "<frame";
 
-	if (frame->getName()) {
-		xml << " name=\"" << frame->getName() << "\"";
+	if (frame->getName().get()) {
+		xml << " name=\"" << frame->getName().get() << "\"";
 	}
 
 	xml << " mm00=\"" << mma[0] << "\" mm01=\"" << mma[1] << "\" mm02=\"" << mma[2] << "\" mm03=\"" << mma[3]

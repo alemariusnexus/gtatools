@@ -25,14 +25,21 @@
 
 #include "resource/mesh/MeshClump.h"
 #include "Animation.h"
+#include <map>
+
+using std::map;
 
 
 class Animator {
+private:
+	typedef map<MeshFrame*, Matrix4> FrameMatrixMap;
+
 public:
-	Animator(MeshClump* clump, Animation* anim) : clump(clump), anim(anim) {}
+	Animator(MeshClump* clump, Animation* anim) : clump(clump), anim(anim), boneMats(NULL) {}
 	void setTime(float time) { this->time = time; updateBoneMatrices(); }
 	Matrix4* getBoneMatrices() { return boneMats; }
 	Matrix4 getBoneMatrix(size_t idx) { return boneMats[idx]; }
+	Matrix4 getFrameMatrix(MeshFrame* frame) { return frameMats[frame]; }
 
 private:
 	void updateBoneMatrices();
@@ -42,6 +49,7 @@ private:
 	MeshClump* clump;
 	Animation* anim;
 	Matrix4* boneMats;
+	FrameMatrixMap frameMats;
 	float time;
 };
 

@@ -29,10 +29,13 @@ using std::find;
 
 
 MeshFrame::MeshFrame(const DFFFrame* frame)
-		: absModelMatrixValid(false), name(0), parent(NULL)
+		: absModelMatrixValid(false),
+		  ibm(frame->getBone() ? frame->getBone()->getInverseBoneMatrix() : Matrix4::Identity), name(0),
+		  boneID(frame->getBone() ? frame->getBone()->getIndex() : -1),
+		  boneNum(frame->getBone() ? frame->getBone()->getNumber() : -1), parent(NULL)
 {
-	if (frame->getName()) {
-		name = CString(frame->getName()).lower();
+	if (frame->getName().get()) {
+		name = frame->getName().lower();
 	}
 
 	//modelMatrix = Matrix4::translation(frame->getTranslation()) * Matrix4(frame->getRotation());
@@ -96,7 +99,7 @@ MeshFrame* MeshFrame::getChildByName(const CString& name, bool recursive)
 	for (ChildIterator it = children.begin() ; it != children.end() ; it++) {
 		MeshFrame* child = *it;
 
-		if (child->name == name)
+		if (child->name.get()  &&  child->name.lower().trim() == name)
 			return child;
 
 		if (recursive) {
@@ -115,7 +118,7 @@ const Matrix4 MeshFrame::getAbsoluteModelMatrix()
 {
 	if (!absModelMatrixValid) {
 		if (parent)
-			absModelMatrix = modelMatrix * parent->getAbsoluteModelMatrix();
+			absModelMatrix = parent->getAbsoluteModelMatrix() * modelMatrix;
 		else
 			absModelMatrix = modelMatrix;
 

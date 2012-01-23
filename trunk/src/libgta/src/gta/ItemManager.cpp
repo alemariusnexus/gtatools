@@ -23,6 +23,7 @@
 #include "ItemManager.h"
 #include "StaticMapItemDefinition.h"
 #include "TimedMapItemDefinition.h"
+#include "AnimatedMapItemDefinition.h"
 #include "Engine.h"
 #include <gtaformats/gtaide.h>
 #include <utility>
@@ -58,6 +59,10 @@ void ItemManager::resourceAdded(const File& file)
 				IDETimedObject* tobj = (IDETimedObject*) stmt;
 				TimedMapItemDefinition* item = new TimedMapItemDefinition(*tobj);
 				defineItem(tobj->getId(), item);
+			} else if (type == IDETypeAnimation) {
+				IDEAnimation* anim = (IDEAnimation*) stmt;
+				AnimatedMapItemDefinition* item = new AnimatedMapItemDefinition(*anim);
+				defineItem(anim->getId(), item);
 			}
 
 			delete stmt;

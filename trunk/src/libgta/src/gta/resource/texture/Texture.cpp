@@ -28,14 +28,12 @@
 Texture::Texture(TXDArchive* txd, TXDTextureHeader* tex)
 		: size(0)
 {
-	uint8_t* data = txd->getTextureData(tex);
+	GLException::checkError("Error creating texture");
 
-	GLException::checkError("Fehler bei 5");
+	uint8_t* data = txd->getTextureData(tex);
 
 	glGenTextures(1, &glTex);
 	glBindTexture(GL_TEXTURE_2D, glTex);
-
-	GLException::checkError("Fehler bei 4");
 
 	GLint uWrap = GL_REPEAT;
 	GLint vWrap = GL_REPEAT;
@@ -115,14 +113,10 @@ Texture::Texture(TXDArchive* txd, TXDTextureHeader* tex)
 		minFilter = GL_LINEAR;
 	}
 
-	GLException::checkError("Fehler bei 3");
-
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, uWrap);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, vWrap);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
-
-	GLException::checkError("Fehler bei 2");
 
 	// TODO Can we really disable this?
 	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, tex->getMipmapCount()-1);
@@ -136,8 +130,6 @@ Texture::Texture(TXDArchive* txd, TXDTextureHeader* tex)
 		glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
 	}
 #endif
-
-	GLException::checkError("Fehler bei 1");
 
 	int16_t w = tex->getWidth();
 	int16_t h = tex->getHeight();
@@ -220,8 +212,6 @@ Texture::Texture(TXDArchive* txd, TXDTextureHeader* tex)
 			int16_t mipW = w;
 			int16_t mipH = h;
 
-			GLException::checkError("Fehler bei 2");
-
 			for (int i = 0 ; i < numIncludedMipmaps ; i++) {
 				glCompressedTexImage2D(GL_TEXTURE_2D, i, GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG,
 						mipW, mipH, 0, mipW*mipH/2, data);
@@ -230,8 +220,6 @@ Texture::Texture(TXDArchive* txd, TXDTextureHeader* tex)
 				mipW /= 2;
 				mipH /= 2;
 			}
-
-			GLException::checkError("Fehler bei 3");
 
 			delete[] dataStart;
 		}
@@ -273,8 +261,6 @@ Texture::Texture(TXDArchive* txd, TXDTextureHeader* tex)
 		delete[] dataStart;
 	}
 
-	GLException::checkError("Fehler bei 4");
-
 	if (	(tex->getRasterFormatExtension() & RasterFormatEXTAutoMipmap) != 0
 #ifndef GTA_USE_OPENGL_ES
 			&&  gtaglIsVersionSupported(3, 0)
@@ -282,6 +268,4 @@ Texture::Texture(TXDArchive* txd, TXDTextureHeader* tex)
 	) {
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
-
-	GLException::checkError("Fehler bei 5");
 }

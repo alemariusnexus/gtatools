@@ -28,19 +28,14 @@
 
 
 DFFFrame::DFFFrame(const DFFFrame& other)
-		: name(new char[strlen(other.name)+1]), modelMatrix(new Matrix4(*other.modelMatrix)),
+		: name(other.name), modelMatrix(new Matrix4(*other.modelMatrix)),
 		  ltm(other.ltm ? new Matrix4(*other.ltm) : NULL), flags(other.flags), bone(new DFFBone(*other.bone))
 {
-	strcpy(name, other.name);
 }
 
 
 DFFFrame::~DFFFrame()
 {
-	if (name != NULL) {
-		delete[] name;
-	}
-
 	ChildIterator it;
 
 	for (it = getChildBegin() ; it != getChildEnd() ; it++) {
@@ -55,12 +50,12 @@ DFFFrame::~DFFFrame()
 }
 
 
-DFFFrame* DFFFrame::getChild(const char* name)
+DFFFrame* DFFFrame::getChild(const CString& name)
 {
 	ChildIterator it;
 
 	for (it = children.begin() ; it != children.end() ; it++) {
-		if (strcmp((*it)->getName(), name) == 0) {
+		if ((*it)->getName() == name) {
 			return *it;
 		}
 	}
@@ -69,12 +64,12 @@ DFFFrame* DFFFrame::getChild(const char* name)
 }
 
 
-const DFFFrame* DFFFrame::getChild(const char* name) const
+const DFFFrame* DFFFrame::getChild(const CString& name) const
 {
 	ConstChildIterator it;
 
 	for (it = children.begin() ; it != children.end() ; it++) {
-		if (strcmp((*it)->getName(), name) == 0) {
+		if ((*it)->getName() == name) {
 			return *it;
 		}
 	}

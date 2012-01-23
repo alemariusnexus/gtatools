@@ -24,6 +24,7 @@
 #define DFFTEXTURE_H_
 
 #include <gtaformats/config.h>
+#include "../util/CString.h"
 #include <cstdlib>
 
 class DFFTexture {
@@ -31,22 +32,20 @@ private:
 	friend class DFFLoader;
 
 public:
-	DFFTexture(char* diffuseName, char* alphaName = NULL, uint16_t filterModeFlags = 0)
+	DFFTexture(const CString& diffuseName, const CString& alphaName = NULL, uint16_t filterModeFlags = 0)
 			: diffuseName(diffuseName), alphaName(alphaName), filterModeFlags(filterModeFlags) {}
 	DFFTexture(const DFFTexture& other);
 	~DFFTexture();
 	uint16_t getFilterModeFlags() const { return filterModeFlags; }
-	const char* getDiffuseName() const { return diffuseName; }
-	const char* getAlphaName() const { return alphaName; }
+	CString getDiffuseName() const { return diffuseName; }
+	CString getAlphaName() const { return alphaName; }
 	void setFilterModeFlags(uint16_t flags) { filterModeFlags = flags; }
-	void setDiffuseName(char* name) { diffuseName = name; }
-	void setDiffuseName(const char* name);
-	void setAlphaName(char* name) { alphaName = name; }
-	void setAlphaName(const char* name);
+	void setDiffuseName(const CString& name) { diffuseName = name; }
+	void setAlphaName(const CString& name) { alphaName = name; }
 
 private:
-	char* diffuseName;
-	char* alphaName;
+	CString diffuseName;
+	CString alphaName;
 	uint16_t filterModeFlags;
 };
 

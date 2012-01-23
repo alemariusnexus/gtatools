@@ -31,7 +31,10 @@
 
 class AnimatedSceneObject : public VisualSceneObject {
 public:
-	AnimatedSceneObject(AnimatedMapItemDefinition* def) : def(def), time(0.0f), currentAnimLength(1.0f) {}
+	AnimatedSceneObject(AnimatedMapItemDefinition* def)
+			: def(def), time(0.0f), currentAnimLength(1.0f) {}
+	AnimatedSceneObject(const AnimatedSceneObject& other);
+	SceneObject* clone() const { return new AnimatedSceneObject(*this); }
 	AnimatedMapItemDefinition* getDefinition() { return def; }
 	void setAnimationTime(float t) { time = t; }
 	float getAnimationTime() const { return time; }
@@ -54,6 +57,8 @@ private:
 	Matrix4 modelMatrix;
 	CString currentAnim;
 	float currentAnimLength;
+
+	friend class DefaultRenderer;
 };
 
 #endif /* ANIMATEDSCENEOBJECT_H_ */

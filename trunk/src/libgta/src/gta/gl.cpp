@@ -93,6 +93,9 @@ void gtaglInit()
 	sscanf(verStr, "%d.%d", &majorVersion, &minorVersion);
 #endif
 
+	//majorVersion = 2;
+	//minorVersion = 1;
+
 #ifndef GTA_USE_OPENGL_ES
 	if (gtaglIsVersionSupported(3, 0)) {
 		gtaglGenFramebuffers = &gtaglGenFramebuffersCORE;

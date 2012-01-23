@@ -45,7 +45,6 @@ Material::Material(const DFFMaterial& dffMat)
 	dffMat.getColor(color[0], color[1], color[2], color[3]);
 
 	if (textured) {
-		const char* texName = dffMat.getTexture(0)->getDiffuseName();
-		texture = CString(texName).lower();
+		texture = dffMat.getTexture(0)->getDiffuseName().lower();
 	}
 }

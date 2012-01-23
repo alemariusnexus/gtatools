@@ -25,26 +25,12 @@
 #include "../GLException.h"
 #include "../gldebug.h"
 
-#include <res_glsl110_dp_peel_layer_vertex_shader.h>
-#include <res_glsl110_dp_peel_layer_fragment_shader.h>
-#include <res_glsl110_dp_blend_layer_vertex_shader.h>
-#include <res_glsl110_dp_blend_layer_fragment_shader.h>
-#include <res_glsl110_dp_blend_final_vertex_shader.h>
-#include <res_glsl110_dp_blend_final_fragment_shader.h>
-
-#include <res_glsl140_dp_peel_layer_vertex_shader.h>
-#include <res_glsl140_dp_peel_layer_fragment_shader.h>
-#include <res_glsl140_dp_blend_layer_vertex_shader.h>
-#include <res_glsl140_dp_blend_layer_fragment_shader.h>
-#include <res_glsl140_dp_blend_final_vertex_shader.h>
-#include <res_glsl140_dp_blend_final_fragment_shader.h>
-
-#include <res_glsles2_dp_peel_layer_vertex_shader.h>
-#include <res_glsles2_dp_peel_layer_fragment_shader.h>
-#include <res_glsles2_dp_blend_layer_vertex_shader.h>
-#include <res_glsles2_dp_blend_layer_fragment_shader.h>
-#include <res_glsles2_dp_blend_final_vertex_shader.h>
-#include <res_glsles2_dp_blend_final_fragment_shader.h>
+#include <res_dp_peel_layer_vertex_shader.h>
+#include <res_dp_peel_layer_fragment_shader.h>
+#include <res_dp_blend_layer_vertex_shader.h>
+#include <res_dp_blend_layer_fragment_shader.h>
+#include <res_dp_blend_final_vertex_shader.h>
+#include <res_dp_blend_final_fragment_shader.h>
 
 
 
@@ -69,86 +55,54 @@ void DepthPeelingAlgorithm::install()
 		int blendFinalVertexShaderDataLen;
 		int blendFinalFragmentShaderDataLen;
 
-#ifdef GTA_USE_OPENGL_ES
-		peelLayerVertexShaderData			= (const char*) res_glsles2_dp_peel_layer_vertex_shader_data;
-		peelLayerFragmentShaderData		= (const char*) res_glsles2_dp_peel_layer_fragment_shader_data;
-		blendLayerVertexShaderData		= (const char*) res_glsles2_dp_blend_layer_vertex_shader_data;
-		blendLayerFragmentShaderData		= (const char*) res_glsles2_dp_blend_layer_fragment_shader_data;
-		blendFinalVertexShaderData		= (const char*) res_glsles2_dp_blend_final_vertex_shader_data;
-		blendFinalFragmentShaderData		= (const char*) res_glsles2_dp_blend_final_fragment_shader_data;
+		peelLayerVertexShaderData			= (const char*) res_dp_peel_layer_vertex_shader_data;
+		peelLayerFragmentShaderData		= (const char*) res_dp_peel_layer_fragment_shader_data;
+		blendLayerVertexShaderData		= (const char*) res_dp_blend_layer_vertex_shader_data;
+		blendLayerFragmentShaderData		= (const char*) res_dp_blend_layer_fragment_shader_data;
+		blendFinalVertexShaderData		= (const char*) res_dp_blend_final_vertex_shader_data;
+		blendFinalFragmentShaderData		= (const char*) res_dp_blend_final_fragment_shader_data;
 
-		peelLayerVertexShaderDataLen			= sizeof(res_glsles2_dp_peel_layer_vertex_shader_data);
-		peelLayerFragmentShaderDataLen		= sizeof(res_glsles2_dp_peel_layer_fragment_shader_data);
-		blendLayerVertexShaderDataLen			= sizeof(res_glsles2_dp_blend_layer_vertex_shader_data);
-		blendLayerFragmentShaderDataLen		= sizeof(res_glsles2_dp_blend_layer_fragment_shader_data);
-		blendFinalVertexShaderDataLen			= sizeof(res_glsles2_dp_blend_final_vertex_shader_data);
-		blendFinalFragmentShaderDataLen		= sizeof(res_glsles2_dp_blend_final_fragment_shader_data);
-#else
-		if (gtaglIsVersionSupported(3, 1)) {
-			peelLayerVertexShaderData			= (const char*) res_glsl140_dp_peel_layer_vertex_shader_data;
-			peelLayerFragmentShaderData		= (const char*) res_glsl140_dp_peel_layer_fragment_shader_data;
-			blendLayerVertexShaderData		= (const char*) res_glsl140_dp_blend_layer_vertex_shader_data;
-			blendLayerFragmentShaderData		= (const char*) res_glsl140_dp_blend_layer_fragment_shader_data;
-			blendFinalVertexShaderData		= (const char*) res_glsl140_dp_blend_final_vertex_shader_data;
-			blendFinalFragmentShaderData		= (const char*) res_glsl140_dp_blend_final_fragment_shader_data;
-
-			peelLayerVertexShaderDataLen			= sizeof(res_glsl140_dp_peel_layer_vertex_shader_data);
-			peelLayerFragmentShaderDataLen		= sizeof(res_glsl140_dp_peel_layer_fragment_shader_data);
-			blendLayerVertexShaderDataLen			= sizeof(res_glsl140_dp_blend_layer_vertex_shader_data);
-			blendLayerFragmentShaderDataLen		= sizeof(res_glsl140_dp_blend_layer_fragment_shader_data);
-			blendFinalVertexShaderDataLen			= sizeof(res_glsl140_dp_blend_final_vertex_shader_data);
-			blendFinalFragmentShaderDataLen		= sizeof(res_glsl140_dp_blend_final_fragment_shader_data);
-		} else {
-			peelLayerVertexShaderData			= (const char*) res_glsl110_dp_peel_layer_vertex_shader_data;
-			peelLayerFragmentShaderData		= (const char*) res_glsl110_dp_peel_layer_fragment_shader_data;
-			blendLayerVertexShaderData		= (const char*) res_glsl110_dp_blend_layer_vertex_shader_data;
-			blendLayerFragmentShaderData		= (const char*) res_glsl110_dp_blend_layer_fragment_shader_data;
-			blendFinalVertexShaderData		= (const char*) res_glsl110_dp_blend_final_vertex_shader_data;
-			blendFinalFragmentShaderData		= (const char*) res_glsl110_dp_blend_final_fragment_shader_data;
-
-			peelLayerVertexShaderDataLen			= sizeof(res_glsl110_dp_peel_layer_vertex_shader_data);
-			peelLayerFragmentShaderDataLen		= sizeof(res_glsl110_dp_peel_layer_fragment_shader_data);
-			blendLayerVertexShaderDataLen			= sizeof(res_glsl110_dp_blend_layer_vertex_shader_data);
-			blendLayerFragmentShaderDataLen		= sizeof(res_glsl110_dp_blend_layer_fragment_shader_data);
-			blendFinalVertexShaderDataLen			= sizeof(res_glsl110_dp_blend_final_vertex_shader_data);
-			blendFinalFragmentShaderDataLen		= sizeof(res_glsl110_dp_blend_final_fragment_shader_data);
-		}
-#endif
-
+		peelLayerVertexShaderDataLen			= sizeof(res_dp_peel_layer_vertex_shader_data);
+		peelLayerFragmentShaderDataLen		= sizeof(res_dp_peel_layer_fragment_shader_data);
+		blendLayerVertexShaderDataLen			= sizeof(res_dp_blend_layer_vertex_shader_data);
+		blendLayerFragmentShaderDataLen		= sizeof(res_dp_blend_layer_fragment_shader_data);
+		blendFinalVertexShaderDataLen			= sizeof(res_dp_blend_final_vertex_shader_data);
+		blendFinalFragmentShaderDataLen		= sizeof(res_dp_blend_final_fragment_shader_data);
 
 		peelLayerVertexShader = new Shader(GL_VERTEX_SHADER,
 				"Depth Peeling Transparency Algorithm Peel Layer Vertex Shader");
-		peelLayerVertexShader->loadSourceCode(peelLayerVertexShaderData, peelLayerVertexShaderDataLen);
+		peelLayerVertexShader->loadSourceCode(CString(peelLayerVertexShaderData,
+				peelLayerVertexShaderDataLen));
 		peelLayerVertexShader->compile();
 
 		peelLayerFragmentShader = new Shader(GL_FRAGMENT_SHADER,
 				"Depth Peeling Transparency Algorithm Peel Layer Fragment Shader");
-		peelLayerFragmentShader->loadSourceCode(peelLayerFragmentShaderData,
-				peelLayerFragmentShaderDataLen);
+		peelLayerFragmentShader->loadSourceCode(CString(peelLayerFragmentShaderData,
+				peelLayerFragmentShaderDataLen));
 		peelLayerFragmentShader->compile();
 
 		blendLayerVertexShader = new Shader(GL_VERTEX_SHADER,
 				"Depth Peeling Transparency Algorithm Blend Layer Vertex Shader");
-		blendLayerVertexShader->loadSourceCode(blendLayerVertexShaderData,
-				blendLayerVertexShaderDataLen);
+		blendLayerVertexShader->loadSourceCode(CString(blendLayerVertexShaderData,
+				blendLayerVertexShaderDataLen));
 		blendLayerVertexShader->compile();
 
 		blendLayerFragmentShader = new Shader(GL_FRAGMENT_SHADER,
 				"Depth Peeling Transparency Algorithm Blend Layer Fragment Shader");
-		blendLayerFragmentShader->loadSourceCode(blendLayerFragmentShaderData,
-				blendLayerFragmentShaderDataLen);
+		blendLayerFragmentShader->loadSourceCode(CString(blendLayerFragmentShaderData,
+				blendLayerFragmentShaderDataLen));
 		blendLayerFragmentShader->compile();
 
 		blendFinalVertexShader = new Shader(GL_VERTEX_SHADER,
 				"Depth Peeling Transparency Algorithm Blend Final Vertex Shader");
-		blendFinalVertexShader->loadSourceCode(blendFinalVertexShaderData,
-				blendFinalVertexShaderDataLen);
+		blendFinalVertexShader->loadSourceCode(CString(blendFinalVertexShaderData,
+				blendFinalVertexShaderDataLen));
 		blendFinalVertexShader->compile();
 
 		blendFinalFragmentShader = new Shader(GL_FRAGMENT_SHADER,
 				"Depth Peeling Transparency Algorithm Blend Final Fragment Shader");
-		blendFinalFragmentShader->loadSourceCode(blendFinalFragmentShaderData,
-				blendFinalFragmentShaderDataLen);
+		blendFinalFragmentShader->loadSourceCode(CString(blendFinalFragmentShaderData,
+				blendFinalFragmentShaderDataLen));
 		blendFinalFragmentShader->compile();
 
 		blendLayerProgram = new ShaderProgram(
@@ -248,8 +202,6 @@ void DepthPeelingAlgorithm::install()
 #endif
 			gtaglBindFramebuffer(GTAGL_FRAMEBUFFER, fbos[0]);
 
-			GLException::checkError("Error Frank 0.0");
-
 			// Initialize the depth texture for FBO 0
 			glBindTexture(GL_TEXTURE_2D, depthTexes[0]);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -258,8 +210,6 @@ void DepthPeelingAlgorithm::install()
 					GL_UNSIGNED_INT, NULL);
 			gtaglFramebufferTexture2D(GTAGL_FRAMEBUFFER, GTAGL_DEPTH_ATTACHMENT, GL_TEXTURE_2D,
 					depthTexes[0], 0);
-
-			GLException::checkError("Error Frank 0.1");
 
 			GLException::checkFramebufferStatus(GTAGL_FRAMEBUFFER,
 					"During initialization of depth peeling FBO 0 [1]");
@@ -270,8 +220,6 @@ void DepthPeelingAlgorithm::install()
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, viewW, viewH, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 			gtaglFramebufferTexture2D(GTAGL_FRAMEBUFFER, GTAGL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTexes[0], 0);
-
-			GLException::checkError("Error Frank 0.2");
 
 			GLException::checkFramebufferStatus(GTAGL_FRAMEBUFFER,
 					"During initialization of depth peeling FBO 0");
@@ -340,6 +288,8 @@ void DepthPeelingAlgorithm::install()
 		glBufferData(GL_ARRAY_BUFFER, 4*2*sizeof(float), planeData, GL_STATIC_DRAW);
 
 		inited = true;
+
+		GLException::checkError("After DepthPeelingAlgorithm::install()");
 	}
 }
 
@@ -380,8 +330,6 @@ void DepthPeelingAlgorithm::performOpaqueRenderInit()
 
 bool DepthPeelingAlgorithm::performTransparentRenderInit()
 {
-	GLException::checkError("Fehler Frank 2");
-
 	// Clear the blending FBO to (0, 0, 0, 1). Exactly this value is needed for the blending equations
 	/*gtaglBindFramebuffer(GTAGL_FRAMEBUFFER, mainFBO);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -447,8 +395,6 @@ void DepthPeelingAlgorithm::performPreRenderPass()
 	glDepthMask(GL_TRUE);
 
 	// ********** Peel a single layer **********
-	GLException::checkError("Fehler Frank 3.1");
-
 	gtaglBindFramebuffer(GTAGL_FRAMEBUFFER, fbos[outputIdx]);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -462,8 +408,6 @@ void DepthPeelingAlgorithm::performPreRenderPass()
 
 	// Back to texture unit 0 (the render* methods rely on it to be active)
 	glActiveTexture(GL_TEXTURE0);
-
-	GLException::checkError("Fehler Frank 4");
 }
 
 

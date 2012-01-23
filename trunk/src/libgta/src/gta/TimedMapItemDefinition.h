@@ -33,6 +33,7 @@ public:
 			float drawDist, int8_t timeOn, int8_t timeOff);
 	TimedMapItemDefinition(IDETimedObject& object);
 	virtual bool isVisible() const;
+	virtual int getType() const { return ItemTypeTimedMapItem; }
 
 private:
 	int8_t timeOn, timeOff;

@@ -47,12 +47,6 @@
 #include <gta/scene/Scene.h>
 #include <iostream>
 #include <gta/GLException.h>
-#include <QtGui/QApplication>
-#include <QtGui/QWidget>
-#include <QtGui/QVBoxLayout>
-#include <QtOpenGL/QGLWidget>
-#include "GLGraphicsView.h"
-#include "GLGraphicsScene.h"
 #include "Controller.h"
 #include <SDL.h>
 #include <SDL_video.h>
@@ -205,58 +199,7 @@ void initWindowSystem(int w, int h)
 
 int main(int argc, char** argv)
 {
-	try {
-		QApplication app(argc, argv);
-
-		QGLFormat fmt;
-
-		fmt.setRedBufferSize(8);
-		fmt.setGreenBufferSize(8);
-		fmt.setBlueBufferSize(8);
-		fmt.setAlphaBufferSize(8);
-		fmt.setAlpha(true);
-		fmt.setDepthBufferSize(16);
-		fmt.setDepth(true);
-		fmt.setDoubleBuffer(true);
-
-		QGLFormat::setDefaultFormat(fmt);
-
-		GLGraphicsView* view = new GLGraphicsView;
-
-		Controller controller(view);
-
-		QGLWidget* glWidget = new QGLWidget;
-
-		// WARNING: Do NOT move this call down! It seems to cause problems on EGL platforms when it is used after
-		// some OpenGL code was executed.
-		view->setViewport(glWidget);
-
-		fmt = glWidget->format();
-
-		printf("R%d G%d B%d A%d(%c) D%d H%c\n", fmt.redBufferSize(), fmt.greenBufferSize(), fmt.blueBufferSize(),
-				fmt.alphaBufferSize(), fmt.alpha() ? 'Y' : 'N', fmt.depthBufferSize(), fmt.directRendering() ? 'Y' : 'N');
-
-		// Yes, it's needed here
-		glWidget->makeCurrent();
-
-		controller.init();
-
-		GLGraphicsScene* scene = new GLGraphicsScene(&controller);
-
-		view->setViewportUpdateMode(GLGraphicsView::FullViewportUpdate);
-		view->setScene(scene);
-
-		view->setFrameStyle(QFrame::NoFrame);
-
-		view->resize(WINDOW_WIDTH, WINDOW_HEIGHT);
-		view->show();
-
-		return app.exec();
-	} catch (Exception& ex) {
-		printf("EXCEPTION: %s\n", ex.what());
-	}
-
-	/*if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 		printf("ERROR Initializing SDL\n");
 	}
 
@@ -336,6 +279,6 @@ int main(int argc, char** argv)
 		}
 	}
 
-	SDL_Quit();*/
+	SDL_Quit();
 }
 

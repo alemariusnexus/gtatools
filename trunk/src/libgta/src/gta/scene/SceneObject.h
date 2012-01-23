@@ -38,6 +38,7 @@ enum SceneObjectType
 class SceneObject {
 public:
 	virtual ~SceneObject() {}
+	virtual SceneObject* clone() const = 0;
 	virtual int getType() const = 0;
 	virtual bool isVisible() const { return true; }
 	virtual float getDrawDistance() const = 0;

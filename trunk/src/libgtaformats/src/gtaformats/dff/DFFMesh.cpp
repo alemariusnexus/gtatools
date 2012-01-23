@@ -54,12 +54,12 @@ void DFFMesh::mirrorUVHorizontal()
 }
 
 
-const DFFGeometry* DFFMesh::getGeometry(const char* name) const
+const DFFGeometry* DFFMesh::getGeometry(const CString& name) const
 {
 	ConstGeometryIterator it;
 
 	for (it = geometries.begin() ; it != geometries.end() ; it++) {
-		if (strcmp((*it)->getAssociatedFrame()->getName(), name) == 0) {
+		if ((*it)->getAssociatedFrame()->getName() == name) {
 			return *it;
 		}
 	}
@@ -68,12 +68,12 @@ const DFFGeometry* DFFMesh::getGeometry(const char* name) const
 }
 
 
-DFFGeometry* DFFMesh::getGeometry(const char* name)
+DFFGeometry* DFFMesh::getGeometry(const CString& name)
 {
 	GeometryIterator it;
 
 	for (it = geometries.begin() ; it != geometries.end() ; it++) {
-		if (strcmp((*it)->getAssociatedFrame()->getName(), name) == 0) {
+		if ((*it)->getAssociatedFrame()->getName() == name) {
 			return *it;
 		}
 	}

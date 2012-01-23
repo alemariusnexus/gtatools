@@ -206,7 +206,7 @@ uint8_t* TXDArchive::getTextureData(TXDTextureHeader* header)
 	}
 
 	for (int i = 0 ; i < header->getMipmapCount() ; i++) {
-		int32_t size = *((int32_t*) inData);
+		int32_t size = FromLittleEndian32(*((int32_t*) inData));
 		memcpy(texData, inData+4, size);
 		texData += size;
 		inData += size+4;

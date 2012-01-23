@@ -33,6 +33,7 @@ public:
 			float drawDist);
 	StaticMapItemDefinition(IDEStaticObject& object);
 	~StaticMapItemDefinition();
+	virtual int getType() const { return ItemTypeStaticMapItem; }
 
 private:
 	void initShaderLocations();

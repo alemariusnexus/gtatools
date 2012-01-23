@@ -27,6 +27,7 @@
 #include "DFFGeometryPart.h"
 #include "DFFMaterial.h"
 #include "DFFFrame.h"
+#include "../util/math/Matrix4.h"
 #include <vector>
 #include <algorithm>
 
@@ -435,6 +436,10 @@ public:
 	 */
 	ConstPartIterator getPartEnd() const { return parts.end(); }
 
+	Matrix4** getInverseBoneMatrices() const { return inverseBoneMatrices; }
+
+	uint8_t getBoneCount() const { return boneCount; }
+
 
 	DFFGeometryPart* getPart(unsigned int index);
 	const DFFGeometryPart* getPart(unsigned int index) const;
@@ -467,6 +472,8 @@ private:
 	float* normals;
 	uint8_t* boneIndices;
 	float* boneWeights;
+	uint8_t boneCount;
+	Matrix4** inverseBoneMatrices;
 
 	vector<DFFMaterial*> materials;
 	vector<DFFGeometryPart*> parts;

@@ -25,6 +25,7 @@
 
 #include <gtaformats/config.h>
 #include <cstdlib>
+#include "../util/CString.h"
 #include "../util/math/Matrix3.h"
 #include "../util/math/Matrix4.h"
 #include "../util/math/Vector3.h"
@@ -55,12 +56,11 @@ public:
 	 * 	@param rot The rotation vector.
 	 */
 	DFFFrame(Matrix4* modelMatrix)
-			: name(NULL), modelMatrix(modelMatrix), ltm(NULL), parent(NULL), flags(0), bone(NULL) {}
+			: modelMatrix(modelMatrix), ltm(NULL), parent(NULL), flags(0), bone(NULL) {}
 
 	/**	\brief Creates a new DFFFrame with identity transformation and no name.
 	 */
-	DFFFrame() : name(NULL), modelMatrix(new Matrix4), ltm(NULL), parent(NULL), flags(0),
-			bone(NULL) {}
+	DFFFrame() : modelMatrix(new Matrix4), ltm(NULL), parent(NULL), flags(0), bone(NULL) {}
 
 	/**	\brief Copy constructor.
 	 */
@@ -101,7 +101,7 @@ public:
 	 *
 	 * 	@return The frame name or NULL if it has no name.
 	 */
-	const char* getName() const { return name; }
+	CString getName() const { return name; }
 
 	/**	\brief Returns the number of child frames.
 	 *
@@ -152,14 +152,14 @@ public:
 	 * 	@param name The child name.
 	 * 	@return The child frame.
 	 */
-	DFFFrame* getChild(const char* name);
+	DFFFrame* getChild(const CString& name);
 
 	/**	\brief Returns a child frame by it's name.
 	 *
 	 * 	@param name The child name.
 	 * 	@return The child frame.
 	 */
-	const DFFFrame* getChild(const char* name) const;
+	const DFFFrame* getChild(const CString& name) const;
 
 	DFFFrame* getChildByBoneID(int32_t id, bool recurse = false);
 
@@ -181,21 +181,12 @@ public:
 
 	/**	\brief Sets the name of this frame.
 	 *
-	 * 	A copy of the parameter string will be used as the name.
-	 *
-	 * 	@param name The name.
-	 * 	@see setName(char*) to avoid copying the name.
-	 */
-	void setName(const char* name) { this->name = new char[strlen(name)+1]; strcpy(this->name, name); }
-
-	/**	\brief Sets the name of this frame.
-	 *
 	 * 	This frame will take ownership of the string pointer parameter and will delete it on destruction.
 	 *
 	 * 	@param name The name.
 	 * 	@see setName(const char*) if you want a copy of the string to be saved instead of the original one.
 	 */
-	void setName(char* name) { this->name = name; }
+	void setName(const CString& name) { this->name = name; }
 
 	/**	\brief Adds a new child frame.
 	 *
@@ -228,7 +219,7 @@ public:
 	 *
 	 * 	@param name The child name.
 	 */
-	void removeChild(const char* name) { removeChild(getChild(name)); }
+	void removeChild(const CString& name) { removeChild(getChild(name)); }
 
 	/**	\brief Removes all child frames.
 	 *
@@ -243,6 +234,8 @@ public:
 	bool isRoot() const { return parent == NULL; }
 
 	DFFBone* getBone() { return bone; }
+
+	const DFFBone* getBone() const { return bone; }
 
 	void setBone(DFFBone* bone) { this->bone = bone; }
 
@@ -260,7 +253,7 @@ private:
 	void invalidateLTM();
 
 private:
-	char* name;
+	CString name;
 	Matrix4* modelMatrix;
 	Matrix4* ltm;
 	DFFFrame* parent;

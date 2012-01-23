@@ -91,10 +91,14 @@ private:
 			textureUniform;
 	GLint vertexAttrib, normalAttrib, colorAttrib, texCoordAttrib;
 
-	GLint boneMatUniform, boneUniform;
+	GLint boneMatUniform, boneUniform, boneMatSizeUniform;
 	GLint boneIndexAttrib, boneWeightAttrib;
 
 	GLuint planeDataBuf;
+
+	GLuint animBoneMatrixTex;
+
+	GLint maxVertexUniformComponents;
 };
 
 #endif /* DEFAULTRENDERER_H_ */

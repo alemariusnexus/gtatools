@@ -32,10 +32,8 @@ AnimationBone::AnimationBone(int flags)
 
 
 AnimationBone::AnimationBone(const AnimationBone& other)
-		: flags(other.flags), id(new char[strlen(other.id)+1])
+		: flags(other.flags), name(other.name), id(other.id)
 {
-	strcpy(id, other.id);
-
 	for (ConstFrameIterator it = other.frames.begin() ; it != other.frames.end() ; it++) {
 		frames.push_back(new AnimationFrame(**it));
 	}
@@ -44,10 +42,8 @@ AnimationBone::AnimationBone(const AnimationBone& other)
 
 AnimationBone::AnimationBone(const IFPObject* obj)
 		: flags(obj->getFrameType() == IFPObject::RootFrame ? FrameHasTranslation : 0),
-		  id(new char[strlen(obj->getName())+1])
+		  name(obj->getName().lower()), id(obj->getBoneID())
 {
-	strtolower(id, obj->getName());
-
 	for (IFPObject::ConstFrameIterator it = obj->getFrameBegin() ; it != obj->getFrameEnd() ; it++) {
 		const IFPFrame* iframe = *it;
 
@@ -62,8 +58,6 @@ AnimationBone::AnimationBone(const IFPObject* obj)
 
 AnimationBone::~AnimationBone()
 {
-	delete[] id;
-
 	for (FrameIterator it = frames.begin() ; it != frames.end() ; it++) {
 		delete *it;
 	}
@@ -75,11 +69,15 @@ bool AnimationBone::getFrames(float time, AnimationFrame*& f1, AnimationFrame*& 
 	for (ConstFrameIterator it = frames.begin() ; it != frames.end() ; it++) {
 		AnimationFrame* frame = *it;
 
-		if (time < frame->getStart()) {
+		if (time <= frame->getStart()) {
 			f2 = frame;
 
 			if (it == frames.begin()) {
-				f1 = *(frames.end()-1);
+				if (frames.size() != 1) {
+					f1 = *(frames.end()-1);
+				} else {
+					f1 = f2;
+				}
 			} else {
 				f1 = *(it-1);
 			}
@@ -90,14 +88,21 @@ bool AnimationBone::getFrames(float time, AnimationFrame*& f1, AnimationFrame*& 
 		}
 	}
 
-	return false;
+	// Time is past the start time of the highest frame. We assume that this means fully using the last
+	// frame.
+
+	f1 = *(frames.end()-1);
+	f2 = f1;
+	t = 1.0f;
+
+	return true;
 }
 
 
 AnimationFrame* AnimationBone::getInterpolatedFrame(float time) const
 {
-	AnimationFrame* f1;
-	AnimationFrame* f2;
+	AnimationFrame* f1 = NULL;
+	AnimationFrame* f2 = NULL;
 	float t;
 
 	getFrames(time, f1, f2, t);
@@ -125,7 +130,6 @@ Matrix4 AnimationBone::getInterpolatedFrameMatrix(float time) const
 {
 	AnimationFrame* frame = getInterpolatedFrame(time);
 	Matrix4 mat = Matrix4::translation(frame->getTranslation()) * Matrix4(frame->getRotation().toMatrix());
-	//Matrix4 mat = Matrix4(frame->getRotation().toMatrix());
 	delete frame;
 	return mat;
 }

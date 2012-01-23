@@ -21,6 +21,7 @@
  */
 
 #include "IFPLoader.h"
+#include "IFPUnknownFrame2.h"
 
 
 
@@ -51,8 +52,10 @@ void IFPLoader::init()
 
 	stream->read((char*) &endOffs, sizeof(int32_t));
 
-	ifpName[24] = '\0';
-	stream->read(ifpName, 24);
+	char* name = new char[25];
+	name[24] = '\0';
+	stream->read(name, 24);
+	ifpName = CString::from(name);
 
 	stream->read((char*) &numAnims, sizeof(int32_t));
 }
@@ -65,9 +68,10 @@ IFPAnimation* IFPLoader::readAnimation()
 
 	IFPAnimation* anim = new IFPAnimation;
 
-	anim->name = new char[25];
-	anim->name[24] = '\0';
-	stream->read(anim->name, 24);
+	char* aname = new char[25];
+	aname[24] = '\0';
+	stream->read(aname, 24);
+	anim->name = CString::from(aname);
 
 	int32_t numObjs;
 	stream->read((char*) &numObjs, sizeof(int32_t));
@@ -79,13 +83,26 @@ IFPAnimation* IFPLoader::readAnimation()
 	for (int32_t j = 0 ; j < numObjs ; j++) {
 		IFPObject* obj = new IFPObject;
 
-		obj->name = new char[25];
-		obj->name[24] = '\0';
-		stream->read(obj->name, 24);
+		char* oname = new char[25];
+		oname[24] = '\0';
+		stream->read(oname, 24);
+		obj->name = CString::from(oname).trim();
 
 		int32_t frameType;
 		stream->read((char*) &frameType, sizeof(int32_t));
-		obj->frameType = (frameType == 3) ? IFPObject::ChildFrame : IFPObject::RootFrame;
+		//obj->frameType = (frameType == 4) ? IFPObject::RootFrame : IFPObject::ChildFrame;
+
+		switch (frameType) {
+		case 2:
+			obj->frameType = IFPObject::Unknown2Frame;
+			break;
+		case 3:
+			obj->frameType = IFPObject::ChildFrame;
+			break;
+		case 4:
+			obj->frameType = IFPObject::RootFrame;
+			break;
+		}
 
 		int32_t numFrames;
 		stream->read((char*) &numFrames, sizeof(int32_t));
@@ -95,7 +112,24 @@ IFPAnimation* IFPLoader::readAnimation()
 
 		obj->frames.reserve(numFrames);
 
-		if (frameType == 3) {
+		if (frameType == 4) {
+			// Root frames
+
+			for (int32_t k = 0 ; k < numFrames ; k++) {
+				IFPRootFrame* frame = new IFPRootFrame;
+
+				int16_t cdata[8];
+
+				stream->read((char*) cdata, 8*sizeof(int16_t));
+
+				frame->rot = Quaternion(cdata[3] / 4096.0f, cdata[0] / 4096.0f, cdata[1] / 4096.0f,
+						cdata[2] / 4096.0f);
+				frame->time = cdata[4] / 60.0f;
+				frame->trans = Vector3(cdata[5] / 1024.0f, cdata[6] / 1024.0f, cdata[7] / 1024.0f);
+
+				obj->frames.push_back(frame);
+			}
+		} else if (frameType == 3) {
 			// Child frames
 
 			for (int32_t k = 0 ; k < numFrames ; k++) {
@@ -111,21 +145,15 @@ IFPAnimation* IFPLoader::readAnimation()
 
 				obj->frames.push_back(frame);
 			}
-		} else {
-			// Root frames
+		} else if (frameType == 2) {
+			// Unknown, 32 bytes per frame
+
+			stream->ignore(numFrames*32);
 
 			for (int32_t k = 0 ; k < numFrames ; k++) {
-				IFPRootFrame* frame = new IFPRootFrame;
-
-				int16_t cdata[8];
-
-				stream->read((char*) cdata, 8*sizeof(int16_t));
-
-				frame->rot = Quaternion(cdata[3] / 4096.0f, cdata[0] / 4096.0f, cdata[1] / 4096.0f,
-						cdata[2] / 4096.0f);
-				frame->time = cdata[4] / 60.0f;
-				frame->trans = Vector3(cdata[5] / 1024.0f, cdata[6] / 1024.0f, cdata[7] / 1024.0f);
-
+				IFPUnknownFrame2* frame = new IFPUnknownFrame2;
+				frame->rot = Quaternion(1.0f, 0.0f, 0.0f, 0.0f);
+				frame->time = 0.0f;
 				obj->frames.push_back(frame);
 			}
 		}

@@ -34,6 +34,7 @@
 #include "ItemManager.h"
 #include "scene/Scene.h"
 #include "scene/SceneObjectDefinitionInfo.h"
+#include "scene/AnimatedSceneObject.h"
 #include "GLException.h"
 #include "EngineException.h"
 #include <gtaformats/util/File.h>
@@ -368,14 +369,38 @@ void Engine::iplRecurse(File* file, const File& rootDir, const GameInfo* gameInf
 
 								IndexedSceneObject* iobj = new IndexedSceneObject;
 								iobj->parent = NULL;
-								StaticSceneObject* obj = new StaticSceneObject(def, modelMatrix, NULL);
-								iobj->obj = obj;
+								VisualSceneObject* obj;
+
+								/*StaticSceneObject* sobj = new StaticSceneObject(def, modelMatrix, NULL);
+								obj = sobj;
 
 								SceneObjectDefinitionInfo* defInfo = new SceneObjectDefinitionInfo(group,
 										localIplIdx);
-								obj->setDefinitionInfo(defInfo);
+								sobj->setDefinitionInfo(defInfo);
 
-								group->addSceneObject(obj);
+								group->addSceneObject(sobj);*/
+
+								int type = def->getType();
+
+								if (type == ItemTypeStaticMapItem  ||  type == ItemTypeTimedMapItem) {
+									StaticSceneObject* sobj = new StaticSceneObject(def, modelMatrix, NULL);
+									obj = sobj;
+
+									SceneObjectDefinitionInfo* defInfo = new SceneObjectDefinitionInfo(group,
+											localIplIdx);
+									sobj->setDefinitionInfo(defInfo);
+
+									group->addSceneObject(sobj);
+								} else if (type == ItemTypeAnimatedMapItem) {
+									AnimatedMapItemDefinition* adef = (AnimatedMapItemDefinition*) def;
+									AnimatedSceneObject* aobj = new AnimatedSceneObject(adef);
+									aobj->setModelMatrix(modelMatrix);
+									obj = aobj;
+
+									aobj->setCurrentAnimation(adef->getDefaultAnimation());
+								}
+
+								iobj->obj = obj;
 
 								if (ver == GameInfo::GTASA) {
 									iobj->saLodIndex = inst->getLOD();
@@ -432,7 +457,6 @@ void Engine::iplRecurse(File* file, const File& rootDir, const GameInfo* gameInf
 					IndexedSceneObject* iobj = *it;
 
 					if (iobj) {
-						StaticSceneObject* obj = iobj->obj;
 						if (iobj->saLodIndex != -1) {
 							if ((uint32_t) iobj->saLodIndex >= saLocalObjs.size()) {
 								printf("ERROR: LOD index out of bounds: %d\n", iobj->saLodIndex);
@@ -442,6 +466,14 @@ void Engine::iplRecurse(File* file, const File& rootDir, const GameInfo* gameInf
 
 							if (lodParent) {
 								iobj->parent = lodParent;
+
+								if (iobj->obj == lodParent->obj) {
+									if (iobj->obj->getType() == SceneObjectStatic) {
+										printf("LOD parent is the object itself!\n");
+									}
+									exit(0);
+								}
+
 								iobj->obj->setLODParent(lodParent->obj);
 								lodParent->children.push_back(iobj);
 							}
@@ -462,7 +494,10 @@ void Engine::iplRecurse(File* file, const File& rootDir, const GameInfo* gameInf
 						if (iobj->children.empty()) {
 							iplMakeUniqueLODHierarchy(iobj, nextID, newObjs);
 							scene->addSceneObject(iobj->obj);
-							iobj->obj->getDefinitionInfo()->setLODLeaf(true);
+
+							if (iobj->obj->getType() == SceneObjectStatic)
+								((StaticSceneObject*) iobj->obj)->getDefinitionInfo()->setLODLeaf(true);
+
 							addedCount++;
 						}
 					}
@@ -502,7 +537,7 @@ void Engine::iplRecurse(File* file, const File& rootDir, const GameInfo* gameInf
 
 					if (iobj  &&  iobj->topLevel) {
 						if (strlen(iobj->vcModelName) >= 3) {
-							StaticSceneObject* obj = iobj->obj;
+							VisualSceneObject* obj = iobj->obj;
 							iobj->vcModelName[0] = 'l';
 							iobj->vcModelName[1] = 'o';
 							iobj->vcModelName[2] = 'd';
@@ -579,7 +614,9 @@ void Engine::iplRecurse(File* file, const File& rootDir, const GameInfo* gameInf
 						if (iobj->topLevel) {
 							iplMakeUniqueLODHierarchy(iobj, nextID, newObjs);
 							scene->addSceneObject(iobj->obj);
-							iobj->obj->getDefinitionInfo()->setLODLeaf(true);
+
+							if (iobj->obj->getType() == SceneObjectStatic)
+								((StaticSceneObject*) iobj->obj)->getDefinitionInfo()->setLODLeaf(true);
 						}
 					}
 				}
@@ -611,10 +648,15 @@ void Engine::iplMakeUniqueLODHierarchy(IndexedSceneObject* node, uint32_t& nextI
 		if (parent->children.size() > 1) {
 			// Copy the parent
 			IndexedSceneObject* parentCpy = new IndexedSceneObject;
-			parentCpy->obj = new StaticSceneObject(*parent->obj);
+			//parentCpy->obj = new StaticSceneObject(*parent->obj);
+			parentCpy->obj = (VisualSceneObject*) parent->obj->clone();
 			parentCpy->obj->setModelMatrix(parent->obj->getModelMatrix());
-			parentCpy->obj->getDefinitionInfo()->setID(nextID--);
-			parentCpy->obj->getDefinitionInfo()->getFileGroup()->addSceneObject(parentCpy->obj);
+
+			if (parentCpy->obj->getType() == SceneObjectStatic) {
+				StaticSceneObject* sobjCpy = (StaticSceneObject*) parentCpy->obj;
+				sobjCpy->getDefinitionInfo()->setID(nextID--);
+				sobjCpy->getDefinitionInfo()->getFileGroup()->addSceneObject(sobjCpy);
+			}
 			parentCpy->parent = parent->parent;
 			parentCpy->children.push_back(node);
 

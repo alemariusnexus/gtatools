@@ -39,17 +39,12 @@ public:
 	StaticSceneObject(MapItemDefinition* def, const Matrix4& modelMatrix = Matrix4(),
 			StaticSceneObject* lodParent = NULL);
 	StaticSceneObject(const StaticSceneObject& other);
+	SceneObject* clone() const { return new StaticSceneObject(*this); }
 	MapItemDefinition* getDefinition() { return def; }
 	const MapItemDefinition* getDefinition() const { return def; }
-	Matrix4& getModelMatrix() { return modelMatrix; }
-	const Matrix4& getModelMatrix() const { return modelMatrix; }
-	void setModelMatrix(const Matrix4& matrix);
-	void setLODParent(StaticSceneObject* parent) { lodParent = parent; }
-	btRigidBody* getRigidBody() { return rigidBody; }
 	void setHasAlphaTransparency(bool alpha) { this->alpha = alpha; }
 	void setDefinitionInfo(SceneObjectDefinitionInfo* info) { defInfo = info; }
 	SceneObjectDefinitionInfo* getDefinitionInfo() { return defInfo; }
-	virtual SceneObject* getLODParent() { return lodParent; }
 	virtual bool isVisible() const { return def->isVisible(); }
 	virtual int getType() const { return SceneObjectStatic; }
 	virtual float getDrawDistance() const { return def->getDrawDistance(); }
@@ -61,10 +56,6 @@ private:
 	int flags;
 	bool alpha;
 	MapItemDefinition* def;
-	Matrix4 modelMatrix;
-	StaticSceneObject* lodParent;
-	btRigidBody* rigidBody;
-	btMotionState* motionState;
 	SceneObjectDefinitionInfo* defInfo;
 };
 

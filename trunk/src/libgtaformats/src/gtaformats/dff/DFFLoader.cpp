@@ -90,7 +90,10 @@ DFFMesh* DFFLoader::loadMesh(RWSection* clump)
 	// In DFF, the frames are stored and indexed as a flat data structure, so at first we keep them flat.
 	IndexedDFFFrame* indexedFrames = new IndexedDFFFrame[numFrames];
 
-	map<int32_t, DFFBone*> bones;
+	DFFFrame** boneFrames = NULL;
+
+	map<int32_t, DFFBone*> bonesByIndex;
+	map<int32_t, DFFBone*> bonesByNum;
 
 	for (uint32_t i = 0 ; i < numFrames ; i++) {
 		IndexedDFFFrame& indexedFrame = indexedFrames[i];
@@ -167,7 +170,7 @@ DFFMesh* DFFLoader::loadMesh(RWSection* clump)
 			char* frameName = new char[frameSect->getSize() + 1];
 			frameName[frameSect->getSize()] = '\0';
 			memcpy(frameName, frameSect->getData(), frameSect->getSize());
-			frame->setName(frameName);
+			frame->setName(CString::from(frameName).trim());
 		}
 
 		RWSection* hAnimPlg = frameListExt->getChild(RW_SECTION_HANIM_PLG);
@@ -183,9 +186,15 @@ DFFMesh* DFFLoader::loadMesh(RWSection* clump)
 			if (boneCount != 0) {
 				adata += 8;
 
-				for (map<int32_t, DFFBone*>::iterator it = bones.begin() ; it != bones.end() ; it++)
+				mesh->boneCount = boneCount;
+
+				boneFrames = new DFFFrame*[boneCount];
+
+				for (map<int32_t, DFFBone*>::iterator it = bonesByNum.begin() ; it != bonesByNum.end() ; it++)
 					delete it->second;
-				bones.clear();
+
+				bonesByIndex.clear();
+				bonesByNum.clear();
 
 				for (int32_t i = 0 ; i < boneCount ; i++) {
 					// NOTE: The 'type' value might be the node topology flags. I don't know this for sure
@@ -198,13 +207,15 @@ DFFMesh* DFFLoader::loadMesh(RWSection* clump)
 					DFFBone* bone = new DFFBone;
 					memcpy(bone, adata, 12);
 
+
 #ifndef GTAFORMATS_LITTLE_ENDIAN
 					bone->index = FromLittleEndian32(bone->index);
 					bone->num = FromLittleEndian32(bone->num);
 					bone->type = FromLittleEndian32(bone->type);
 #endif
 
-					bones[bone->getIndex()] = bone;
+					bonesByIndex[bone->getIndex()] = bone;
+					bonesByNum[bone->getNumber()] = bone;
 
 					adata += 12;
 				}
@@ -216,10 +227,12 @@ DFFMesh* DFFLoader::loadMesh(RWSection* clump)
 	}
 
 	// Associate frames with bones
-	if (bones.size() != 0) {
+	if (bonesByIndex.size() != 0) {
+		uint32_t boneIdx = 0;
 		for (uint32_t i = 0 ; i < numFrames ; i++) {
 			if (indexedFrames[i].boneID != -1) {
-				indexedFrames[i].frame->bone = bones[indexedFrames[i].boneID];
+				indexedFrames[i].frame->bone = bonesByIndex[indexedFrames[i].boneID];
+				boneFrames[boneIdx++] = indexedFrames[i].frame;
 			}
 		}
 	}
@@ -426,7 +439,8 @@ DFFMesh* DFFLoader::loadMesh(RWSection* clump)
 				char* alphaName = new char[alphaNameSect->getSize()];
 				memcpy(alphaName, alphaNameSect->getData(), alphaNameSect->getSize());
 
-				DFFTexture* tex = new DFFTexture(diffuseName, alphaName, filterFlags);
+				DFFTexture* tex = new DFFTexture(CString::from(diffuseName), CString::from(alphaName),
+						filterFlags);
 
 				mat->addTexture(tex);
 
@@ -504,6 +518,35 @@ DFFMesh* DFFLoader::loadMesh(RWSection* clump)
 #endif
 
 			// Inverse Bone Matrices and possibly (version dependent) some unknown data follows...
+
+			geom->boneCount = boneCount;
+			//geom->inverseBoneMatrices = new Matrix4*[boneCount];
+
+			for (uint8_t i = 0 ; i < boneCount ; i++) {
+				if (skin->getVersion() != RW_VERSION_GTASA) {
+					sData += 4; // constDEAD
+				}
+
+				Matrix4 ibm;
+				memcpy(&ibm, sData, 16*sizeof(float));
+				sData += 16*sizeof(float);
+
+				const float* adata = ibm.toArray();
+
+				ibm = Matrix4 (
+						adata[0], adata[1], adata[2], 0.0f,
+						adata[4], adata[5], adata[6], 0.0f,
+						adata[8], adata[9], adata[10], 0.0f,
+						adata[12], adata[13], adata[14], 1.0f
+				);
+
+				DFFBone* bone = bonesByNum[i];
+				bone->ibm = ibm;
+
+				/*const float* a = geom->inverseBoneMatrices[i]->toArray();
+				printf("Loading IBM #%u:\n%f\t%f\t%f\t%f\n%f\t%f\t%f\t%f\n%f\t%f\t%f\t%f\n%f\t%f\t%f\t%f\n\n", i,
+					a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], a[8], a[9], a[10], a[11], a[12], a[13], a[14], a[15]);*/
+			}
 		}
 
 
@@ -535,6 +578,9 @@ DFFMesh* DFFLoader::loadMesh(RWSection* clump)
 
 	// Delete the flat frame structure.
 	delete[] indexedFrames;
+
+	if (boneFrames)
+		delete[] boneFrames;
 
 	return mesh;
 }

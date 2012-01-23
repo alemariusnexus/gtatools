@@ -25,6 +25,13 @@
 
 
 
+AnimatedSceneObject::AnimatedSceneObject(const AnimatedSceneObject& other)
+		: def(other.def), time(other.time), modelMatrix(other.modelMatrix), currentAnim(other.currentAnim),
+		  currentAnimLength(other.currentAnimLength)
+{
+}
+
+
 void AnimatedSceneObject::increaseAnimationTime(float t)
 {
 	float newTime = time + t;
@@ -35,10 +42,15 @@ void AnimatedSceneObject::increaseAnimationTime(float t)
 void AnimatedSceneObject::setCurrentAnimation(const CString& name)
 {
 	AnimationPackage* pkg = **def->getAnimationPackagePointer();
-	Animation* anim = pkg->find(name);
 
-	if (anim) {
-		currentAnimLength = anim->getDuration();
+	if (pkg) {
+		Animation* anim = pkg->find(name);
+
+		if (anim) {
+			currentAnimLength = anim->getDuration();
+		}
+	} else {
+		currentAnimLength = 1.0f;
 	}
 
 	currentAnim = name;

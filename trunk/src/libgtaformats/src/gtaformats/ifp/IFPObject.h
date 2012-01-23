@@ -25,6 +25,7 @@
 
 #include "IFPFrame.h"
 #include "IFPRootFrame.h"
+#include "../util/CString.h"
 #include <vector>
 
 using std::vector;
@@ -35,6 +36,7 @@ class IFPObject {
 public:
 	enum FrameType
 	{
+		Unknown2Frame = 2,
 		ChildFrame = 3,
 		RootFrame = 4
 	};
@@ -45,11 +47,10 @@ public:
 	typedef FrameList::const_iterator ConstFrameIterator;
 
 public:
-	void setName(const char* n) { if (name) delete[] name; name = new char[strlen(n)+1]; strcpy(name, n); }
+	void setName(const CString& n) { name = n; }
 	void setFrameType(FrameType type) { frameType = type; }
 	void setBoneID(int32_t id) { boneID = id; }
-	char* getName() { return name; }
-	const char* getName() const { return name; }
+	CString getName() const { return name; }
 	FrameType getFrameType() const { return frameType; }
 	int32_t getBoneID() const { return boneID; }
 	FrameIterator getFrameBegin() { return frames.begin(); }
@@ -63,7 +64,7 @@ public:
 	IFPObject() {}
 
 private:
-	char* name;
+	CString name;
 	FrameType frameType;
 	FrameList frames;
 	int32_t boneID;

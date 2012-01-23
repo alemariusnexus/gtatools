@@ -27,7 +27,7 @@
 
 
 WildcardTextureFilter::WildcardTextureFilter(const char* pattern)
-		: pattern(new char[strlen(pattern)])
+		: pattern(new char[strlen(pattern)+1])
 {
 	strcpy(this->pattern, pattern);
 }

@@ -60,12 +60,15 @@ public:
 	AnimationFrame* getInterpolatedFrame(float time) const;
 	Matrix4 getInterpolatedFrameMatrix(float time) const;
 	size_t guessSize() const { return frames.size() * 8 * sizeof(float) + sizeof(int) + sizeof(FrameList); }
-	const char* getID() const { return id; }
+	CString getName() const { return name; }
+	int32_t getID() const { return id; }
+	int getFlags() const { return flags; }
 
 private:
 	int flags;
 	FrameList frames;
-	char* id;
+	CString name;
+	int32_t id;
 };
 
 #endif /* ANIMATIONBONE_H_ */
