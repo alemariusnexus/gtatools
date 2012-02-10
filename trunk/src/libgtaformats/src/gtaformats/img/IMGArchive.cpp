@@ -48,6 +48,9 @@ using std::distance;
 
 #define IMG_BUFFER_SIZE 4096
 
+// Maximum number of blocks to be kept in memory
+#define IMG_MAX_RAM_BLOCKS 25000 // ~ 51.2MB
+
 
 char _DummyBuffer[8192] = {0};
 
@@ -438,14 +441,6 @@ void IMGArchive::readHeader()
 
 	for (EntryIterator it = entries.begin() ; it != entries.end() ; it++) {
 		IMGEntry* entry = *it;
-
-		/*EntryMap::iterator eit = entryMap.find(LowerHash(entry->name));
-		if (eit != entryMap.end()) {
-			EntryIterator eeit = eit->second;
-			printf("NAME COLLISION between %s and %s!\n", entry->name, (*eeit)->name);
-			exit(1);
-		}*/
-
 		char* lname = new char[24];
 		strtolower(lname, entry->name);
 		entryMap.insert(pair<char*, EntryIterator>(lname, it));
@@ -477,6 +472,9 @@ int32_t IMGArchive::getHeaderReservedSize() const
 void IMGArchive::forceMoveEntries(EntryIterator pos, EntryIterator moveBegin, EntryIterator moveEnd,
 		int32_t newOffset)
 {
+	if (moveBegin == moveEnd)
+		return;
+
 	EntryIterator lastToBeMoved = moveEnd;
 	lastToBeMoved--;
 	IMGEntry* moveBeginEntry = *moveBegin;
@@ -531,54 +529,105 @@ void IMGArchive::forceMoveEntries(EntryIterator pos, EntryIterator moveBegin, En
 }
 
 
-void IMGArchive::moveEntries(EntryIterator pos, EntryIterator moveBegin, EntryIterator moveEnd)
+void IMGArchive::moveEntries(EntryIterator pos, EntryIterator moveBegin, EntryIterator moveEnd,
+		MoveMode mmode)
 {
 	if (moveBegin == moveEnd)
 		return;
 
-	if (pos != entries.end()) {
-		// If the entries are to be inserted somewhere in the middle of the archive, we first have to move
-		// enough entries following the insertion position to make space for the moved entries.
+	// Check if pos is between moveBegin and moveEnd. In this case, there's nothing to be moved.
+	for (EntryIterator it = moveBegin ; it != moveEnd ; it++) {
+		if (it == pos)
+			return;
+	}
+	if (pos == moveEnd)
+		return;
 
-		int32_t moveBeginOffs = (*moveBegin)->offset;
-		int32_t moveEndOffs = (*moveEnd)->offset + (*moveEnd)->size;
-		int32_t moveSize = moveEndOffs - moveBeginOffs;
+	// Now we know that pos is either before or after the move range.
 
-		EntryIterator endMoveBegin = pos;
-		EntryIterator endMoveEnd;
-		IMGEntry* endMoveBeginEntry = *endMoveBegin;
+	if (mmode == MoveToEnd) {
+		// We move enough entries following the insertion position to the end of the archive.
 
-		// Compute how many entries we have to move to the archive end.
-		for (	endMoveEnd = pos
-				; endMoveEnd != entries.end()
-				  &&  (*endMoveEnd)->offset+(*endMoveEnd)->size - endMoveBeginEntry->offset < moveSize
-				; endMoveEnd++)
-		{}
+		int32_t newStartOffset; // Offset of the insertion position
 
-		// Even if we move all following entries, we might still need more space, so we might have to move
-		// the entries farther than the current archive end.
-		int32_t additionalEndSpace = 0;
-
-		if (endMoveEnd == entries.end()) {
-			additionalEndSpace = moveSize - (getDataEndOffset() - endMoveBeginEntry->offset);
+		if (pos == entries.begin()) {
+			newStartOffset = (*pos)->offset;
 		} else {
-			// If endMoveEnd is not entries.end(), then it currently points to the last entry to be moved.
-			// For forceMoveEntries, we need the iterator one PAST the last entry.
-			endMoveEnd++;
+			// There might be some holes before endMoveBegin. If so, we can fill them with this move
+			// operation.
+			EntryIterator beforePos = pos;
+			beforePos--;
+			newStartOffset = (*beforePos)->offset + (*beforePos)->size;
 		}
 
-		// Now move all entries between endMoveBegin and endMoveEnd to the archive end.
-		int32_t endMoveOffset = getDataEndOffset() + additionalEndSpace;
-		forceMoveEntries(entries.end(), endMoveBegin, endMoveEnd, endMoveOffset);
+		if (pos != entries.end()) {
+			// If the entries are to be inserted somewhere in the middle of the archive, we first have to
+			// make place for them...
+
+			int32_t moveBeginOffs = (*moveBegin)->offset;
+
+			EntryIterator last = moveEnd;
+			last--;
+			int32_t moveEndOffs = (*last)->offset + (*last)->size;
+
+			int32_t moveSize = moveEndOffs - moveBeginOffs; // Number of blocks to be moved
+
+			EntryIterator endMoveBegin = pos; // First entry to be moved to the end
+			EntryIterator endMoveEnd; // One PAST the last entry to be moved to the end
+			int32_t endMoveBeginOffset = newStartOffset;
+
+			for (	endMoveEnd = pos
+					;
+					endMoveEnd != entries.end() // Stop if the archive end is reached
+					&&  endMoveEnd != moveBegin // Stop if the move range is reached
+					&&  (*endMoveEnd)->offset - endMoveBeginOffset < moveSize
+							// Stop if enough space is available between endMoveBegin and endMoveEnd
+					;
+					endMoveEnd++
+			) {}
+
+			int32_t endOffset = getDataEndOffset();
+
+			// We might need to move the entries even futher than the current archive end
+			if (endMoveEnd == entries.end()) {
+				endOffset += moveSize - (endOffset - endMoveBeginOffset);
+			}
+
+			pos = endMoveEnd;
+
+			// Now move the entries to the end (and maybe futher)
+			forceMoveEntries(entries.end(), endMoveBegin, endMoveEnd, endOffset);
+		}
+
+		// Now we can be sure that there is enough space left after the insertion position.
+
+		// And finally, perform the actual requested move
+		forceMoveEntries(pos, moveBegin, moveEnd, newStartOffset);
+
+		expandSize();
+	} else {
+		// We create two consecutive ranges between moveBegin, moveEnd and pos, and swap them.
+
+		bool moveForward = false;
+
+		// Determine whether pos is before or after the move range (unfortunately, with bidi iterators,
+		// there's no better way to do this)
+		for (EntryIterator it = entries.begin() ;; it++) {
+			if (it == pos) {
+				moveForward = false;
+				break;
+			} else if (it == moveBegin) {
+				moveForward = true;
+				break;
+			}
+		}
+
+		if (moveForward) {
+			swapConsecutive(moveBegin, moveEnd, pos);
+		} else {
+			swapConsecutive(pos, moveBegin, moveEnd);
+		}
 	}
-
-	// Now we can be sure that there is enough space left after the insertion position.
-
-	// Finally, perform the actual requested move.
-	int32_t moveOffs = (pos == entries.end()) ? getDataEndOffset() : (*pos)->offset;
-	forceMoveEntries(pos, moveBegin, moveEnd, moveOffs);
-
-	expandSize();
 }
 
 
@@ -650,13 +699,6 @@ void IMGArchive::rewriteHeaderSection()
 		istream::off_type pos = outImgStream->tellp();
 		outImgStream->seekp(4 - outImgStream->tellp(), ostream::cur);
 		int32_t numEntries = entries.size();
-
-		//printf("Writing %d to %lld (vorher %lld, daher %lld)\n", numEntries, outImgStream->tellp(), pos, 4-pos);
-
-		/*printf("We are now at %lld\n", outImgStream->tellp());
-		printf("We were at %lld before\n", pos);
-		printf("And so we moved %lld\n", 4-pos);*/
-
 		writer.write32(numEntries);
 	}
 
@@ -692,6 +734,11 @@ bool IMGArchive::addEntries(IMGEntry** newEntries, int32_t num)
 		offset += entry->size;
 		entries.push_back(entry);
 
+		if ((mode & DisableNameZeroFill) == 0) {
+			size_t len = strlen(entry->name);
+			memset(entry->name + len + 1, 0, 23 - len);
+		}
+
 		char* lname = new char[24];
 		strtolower(lname, entry->name);
 		entryMap[lname] = --entries.end();
@@ -714,7 +761,9 @@ IMGArchive::EntryIterator IMGArchive::addEntry(const char* name, int32_t size)
 	}
 
 	IMGEntry* entry = new IMGEntry;
-	strcpy(entry->name, name);
+	size_t nameLen = strlen(name);
+	//strcpy(entry->name, name);
+	memcpy(entry->name, name, nameLen+1);
 	entry->size = size;
 	bool result = addEntries(&entry, 1);
 
@@ -751,19 +800,6 @@ void IMGArchive::resizeEntry(EntryIterator it, int32_t size)
 
 	if (nextEntry->offset-entry->offset < size) {
 		// Too few space left, so we have to move the entry to the end
-		/*int32_t previousEnd = getDataEndOffset();
-		imgStream->seekg(IMG_BLOCKS2BYTES(entry->offset) - imgStream->tellg(), istream::cur);
-		char* data = new char[IMG_BLOCKS2BYTES(entry->size)];
-		imgStream->read(data, IMG_BLOCKS2BYTES(entry->size));
-
-		outImgStream->seekp(IMG_BLOCKS2BYTES(getDataEndOffset()) - outImgStream->tellp(), fstream::cur);
-		outImgStream->write(data, IMG_BLOCKS2BYTES(entry->size));
-		entries.erase(it);
-		entries.push_back(entry);
-
-		entry->size = size;
-		entry->offset = previousEnd;*/
-
 		moveEntries(entries.end(), it, next);
 		entry->size = size;
 
@@ -813,6 +849,11 @@ void IMGArchive::renameEntry(EntryIterator it, const char* name)
 	delete[] key;
 
 	strcpy(entry->name, name);
+
+	if ((mode & DisableNameZeroFill) == 0) {
+		size_t len = strlen(entry->name);
+		memset(entry->name + len + 1, 0, 23 - len);
+	}
 
 	char* lname = new char[24];
 	strtolower(lname, name);
@@ -903,6 +944,126 @@ int32_t IMGArchive::pack()
 	copyFile.remove();
 
 	return getDataEndOffset();
+}
+
+
+void IMGArchive::swapConsecutive(EntryIterator r1Begin, EntryIterator r1End, EntryIterator r2End)
+{
+	if (r1Begin == r1End  ||  r1End == r2End)
+		return;
+
+	iostream* outImgStream = static_cast<iostream*>(imgStream);
+
+	EntryIterator r1Last = r1End;
+	EntryIterator r2Last = r2End;
+	r1Last--;
+	r2Last--;
+
+	int32_t r1Size = (*r1Last)->offset+(*r1Last)->size - (*r1Begin)->offset;
+	int32_t r2Size = (*r2Last)->offset+(*r2Last)->size - (*r1End)->offset;
+
+	int32_t backupSize; // In IMG blocks
+
+	// For swapping, we need to store a copy of the contents of one range. We choose the smaller one.
+	if (r1Size < r2Size) {
+		imgStream->seekg((*r1Begin)->offset*IMG_BLOCK_SIZE - imgStream->tellg(), istream::cur);
+		backupSize = r1Size;
+	} else {
+		imgStream->seekg((*r1End)->offset*IMG_BLOCK_SIZE - imgStream->tellg(), istream::cur);
+		backupSize = r2Size;
+	}
+
+	uint8_t* backup;
+	File* tmpFile;
+
+	if (backupSize <= IMG_MAX_RAM_BLOCKS) {
+		// Read the backup completely into memory.
+
+		backup = new uint8_t[backupSize*IMG_BLOCK_SIZE];
+		imgStream->read((char*) backup, backupSize*IMG_BLOCK_SIZE);
+	} else {
+		// Write the backup to a temporary file.
+
+		tmpFile = new File(File::createTemporaryFile());
+		ostream* out = tmpFile->openOutputStream(ostream::binary);
+
+		char buf[IMG_BLOCK_SIZE];
+
+		for (int32_t i = 0 ; i < backupSize ; i++) {
+			imgStream->read(buf, sizeof(buf));
+			out->write(buf, sizeof(buf));
+		}
+
+		delete out;
+	}
+
+	if (r1Size < r2Size) {
+		// Now move the contents of range 2 to the beginning of range 1
+		forceMoveEntries(r1Begin, r1End, r2End, (*r1Begin)->offset);
+
+		r1End = r1Last;
+		r1End++;
+
+		// Update the offsets of all entries in range 1
+		for (EntryIterator it = r1Begin ; it != r1End ; it++) {
+			IMGEntry* entry = *it;
+			entry->offset += r2Size;
+		}
+
+		// And rewrite the contents of range 1 from the backup
+		outImgStream->seekp((*r1Begin)->offset*IMG_BLOCK_SIZE - outImgStream->tellp(), iostream::cur);
+	} else {
+		// Range 2 is smaller
+		int32_t oldR1BeginOffset = (*r1Begin)->offset;
+
+		// Update the offsets of all entries in range 2
+		for (EntryIterator it = r1End ; it != r2End ; it++) {
+			IMGEntry* entry = *it;
+			entry->offset -= r1Size;
+		}
+
+		// Now move the contents of range 1 r2Size blocks further
+		forceMoveEntries(r2End, r1Begin, r1End, (*r2Last)->offset + (*r2Last)->size);
+
+		// And rewrite the contents of range 2 from the backup
+		outImgStream->seekp(oldR1BeginOffset*IMG_BLOCK_SIZE - outImgStream->tellp(), iostream::cur);
+	}
+
+	if (backupSize <= IMG_MAX_RAM_BLOCKS) {
+		// Restore the backup from memory
+
+		outImgStream->write((char*) backup, backupSize*IMG_BLOCK_SIZE);
+		delete[] backup;
+	} else {
+		// Restore the backup from the temporary file
+
+		istream* in = tmpFile->openInputStream(istream::binary);
+
+		char buf[IMG_BLOCK_SIZE];
+
+		for (int32_t i = 0 ; i < backupSize ; i++) {
+			in->read(buf, sizeof(buf));
+			outImgStream->write(buf, sizeof(buf));
+		}
+
+		delete in;
+		tmpFile->remove();
+		delete tmpFile;
+	}
+}
+
+
+void IMGArchive::zeroFill(int32_t size)
+{
+	// Internal method, so no need to check for ReadWrite
+	iostream* outImgStream = static_cast<iostream*>(imgStream);
+	int64_t bytesLeft = IMG_BLOCKS2BYTES(size);
+
+	while (bytesLeft > 0) {
+		int numBytes = min(bytesLeft, (int64_t) sizeof(_DummyBuffer));
+		outImgStream->write(_DummyBuffer, numBytes);
+		bytesLeft -= numBytes;
+	}
 }
 
 

@@ -748,9 +748,23 @@ void extractMipmapPNG(ostream* out, TXDTextureHeader* tex, int16_t w, int16_t h,
 
 	TXDTextureHeader toTex(*tex);
 	toTex.setRasterFormat(RasterFormatR8G8B8A8);
-	//tex->convert(pixels, data, mipmap, MIRROR_NONE, bpp, 0, 1, 2, alpha ? 3 : -1);
 
 	conv.convert(*tex, toTex, data, pixels, mipmap, mipmap);
+
+	/*int haa = 0;
+
+	for (int32_t i = 0 ; i < w*h ; i++) {
+		uint32_t& pixel = *(((uint32_t*) pixels) + i);
+
+		//fprintf(stderr, "At %d/%d\n", i, w*h);
+		if (pixel == 0) {
+			haa++;
+		}
+	}
+
+	printf("%d blank pixels\n", haa);
+
+	exit(0);*/
 
 	png_set_IHDR(png, info, w, h, 8,
 			PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE,

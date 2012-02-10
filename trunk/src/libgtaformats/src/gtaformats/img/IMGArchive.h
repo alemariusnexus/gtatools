@@ -120,11 +120,33 @@ public:
 	/**	\brief The modes in which you can open an IMGArchive. ReadOnly and ReadWrite are mutually exclusive.
 	 */
 	enum IMGMode {
-		ReadOnly = 1 << 0,			/*!< Only open the file for reading. All writing operations will throw
-										an exception. */
-		ReadWrite = 1 << 1,			//!< Open the file for both reading and writing.
-		KeepStreamsOpen = 1 << 6	/*!< Don't close/delete the streams in the destructor. If this is set,
-										it's the callers responsibility to delete them. */
+		ReadOnly = 1 << 0,				/*!< Only open the file for reading. All writing operations will
+											 throw an exception. */
+		ReadWrite = 1 << 1,				//!< Open the file for both reading and writing.
+		KeepStreamsOpen = 1 << 6,		/*!< Don't close/delete the streams in the destructor. If this is set,
+											 it's the callers responsibility to delete them. */
+		DisableNameZeroFill = 1 << 7	/*!< Disable filling up the entry name with zeroes after the first
+		 	 	 	 	 	 	 	 	 	 null terminator is found. */
+	};
+
+	/**	\brief The modes used for moving entries inside the archive.
+	 *
+	 * 	@see moveEntries()
+	 */
+	enum MoveMode {
+		MoveSwap,		/*!< A second range is constructed starting at (or ending with) the insertion
+		 	 	 	 	 	 position, and advancing up to (or from) the move range. This range is then
+		 	 	 	 	 	 swapped with the move range by calling swapConsecutive().
+
+		 	 	 	 	 	 This mode keeps the archive packed (at least as packed as it was before) and
+		 	 	 	 	 	 preserves the order of the other entries, but it might take a longer time and
+		 	 	 	 	 	 more memory because more blocks might have to be moved. */
+		MoveToEnd		/*!< Entries following the insertion position are moved to the end of the archive
+		 	 	 	 	 	 until enough space is available to move the entries.
+
+		 	 	 	 	 	 This mode is faster than MoveSwap, but it leaves holes in the archive, which
+		 	 	 	 	 	 might need to be filled using pack() once in a while. Also, this mode does NOT
+		 	 	 	 	 	 preserve the order of the other entries. */
 	};
 
 
@@ -518,7 +540,22 @@ public:
 	 */
 	void renameEntry(EntryIterator it, const char* name);
 
-	void moveEntries(EntryIterator pos, EntryIterator moveBegin, EntryIterator moveEnd);
+	/**	\brief Move entries to a new position.
+	 *
+	 * 	This method moves all entries between moveBegin and moveEnd to pos. If there's not enough space left
+	 * 	after pos, other entries might have to be moved. How this situation is handeled depends on the
+	 * 	MoveMode selected.
+	 *
+	 * 	All iterators between moveBegin and moveEnd (including these two) are invalid after this method. Also,
+	 * 	all iterators
+	 *
+	 * 	@param pos Iterator pointing to the entry before which the entries should be placed.
+	 * 	@param moveBegin Iterator to the first entry being moved.
+	 * 	@param moveEnd One past the iterator of the last entry to be moved.
+	 * 	@param MoveMode How entries are moved when there's not enough space at pos.
+	 */
+	void moveEntries(EntryIterator pos, EntryIterator moveBegin, EntryIterator moveEnd,
+			MoveMode mmode = MoveToEnd);
 
 	/**	\brief Writes out changes to the header section.
 	 *
@@ -554,7 +591,31 @@ public:
 	 */
 	int32_t pack();
 
+	/**	\brief Return the size of this archive.
+	 *
+	 * 	This is the combined size of the header and content section.
+	 *
+	 * 	@return The size of this archive, in IMG blocks.
+	 */
 	int32_t getSize() const { return getDataEndOffset(); }
+
+	/**	\brief Swap two consecutive ranges of entries.
+	 *
+	 *	This method constructs two ranges, the first one going from r1Begin to r1End (excluding r1End itself),
+	 *	the second one going from r1End to r2End (excluding r2End itself). These two entries and their
+	 *	contents are swapped in the archive.
+	 *
+	 *	This method keeps the archive packed (at least as packed as it was before) and does not affect the
+	 *	order of any entries outside the two swapped ranges.
+	 *
+	 *	All iterators referring to swapped elements should be considered invalid after calling this method.
+	 *
+	 *	@param r1Begin Iterator pointing to the beginning of the first range.
+	 *	@param r1End Iterator pointing to one element past the end of the first range. This is also the
+	 *		beginning of the second range.
+	 *	@param r2End Iterator pointing to one element past the end of the second range.
+	 */
+	void swapConsecutive(EntryIterator r1Begin, EntryIterator r1End, EntryIterator r2End);
 
 private:
 
@@ -587,6 +648,19 @@ private:
 	}
 
 
+	/**	\brief Move entries to a new position without checking for overlapping content.
+	 *
+	 * 	This moves all entries between moveBegin and moveEnd to pos, placing their contents at the newOffset.
+	 * 	This method just overwrites any content at newOffset (i.e. it does not move the entries which were
+	 * 	there before), so it should be used with caution.
+	 *
+	 * 	All iterators referring to moved entries are invalid after calling this method.
+	 *
+	 * 	@param pos The position before which the new entries are inserted.
+	 * 	@param moveBegin Iterator of the first entry to be moved.
+	 * 	@param moveEnd One past the iterator of the last entry to be moved.
+	 * 	@param newOffset The offset to store the first moved entry's contents, in IMG blocks.
+	 */
 	void forceMoveEntries(EntryIterator pos, EntryIterator moveBegin, EntryIterator moveEnd,
 			int32_t newOffset);
 
@@ -605,6 +679,8 @@ private:
 	 * 	@see expandSize(int32_t)
 	 */
 	void expandSize();
+
+	void zeroFill(int32_t size);
 
 private:
 	istream* imgStream;

@@ -607,15 +607,15 @@ int main(int argc, char** argv)
 							}
 
 							istream* imgStream = file->openInputStream(istream::binary);
-							img = new IMGArchive(&cin, imgStream);
+							img = new IMGArchive(&cin, imgStream, mode);
 						} else {
 							// The DIR file name is automatically guessed from the IMG file name.
-							img = new IMGArchive(*file);
+							img = new IMGArchive(*file, mode);
 						}
 					}
 				} else {
 					// The IMG file is VER2, so we don't need any DIR file.
-					img = new IMGArchive(*file);
+					img = new IMGArchive(*file, mode);
 				}
 			} else {
 				// The IMG archive is read from stdin. In this case, we can't determine the archive version
