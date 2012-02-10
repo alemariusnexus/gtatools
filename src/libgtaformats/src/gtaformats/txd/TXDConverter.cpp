@@ -164,16 +164,18 @@ int32_t TXDConverter::convert(const TXDTextureHeader& from, const TXDTextureHead
 			int32_t rs, gs, bs, as; // Right-shift value to get the actual value from extracted color data.
 			uint8_t rMax, gMax, bMax, aMax; // Maximum values for the colors
 			int8_t bpp; // BYTES per pixel
+			bool sb;
 			getFormatSpecifics(intermediateFormat, rm, gm, bm, am, rs, gs, bs, as, rMax, gMax, bMax, aMax,
-					bpp);
+					bpp, sb);
 
 			// Get specifics of the output raster format
 			int32_t orm, ogm, obm, oam;
 			int32_t ors, ogs, obs, oas;
 			uint8_t orMax, ogMax, obMax, oaMax;
 			int8_t obpp;
+			bool osb;
 			getFormatSpecifics(outFormat, orm, ogm, obm, oam, ors, ogs, obs, oas, orMax, ogMax, obMax, oaMax,
-					obpp);
+					obpp, osb);
 
 			int32_t outCombinedMask = rm | gm | bm | am;
 
@@ -192,38 +194,76 @@ int32_t TXDConverter::convert(const TXDTextureHeader& from, const TXDTextureHead
 				intermediateDataPtr += 256*4;
 			}
 
+			memset(outDataPtr, 0, mipW*mipH*obpp);
+
 			// Convert the raster pixel by pixel
 			for (int16_t y = 0 ; y < mipH ; y++) {
 				for (int16_t x = 0 ; x < mipW ; x++) {
-					uint32_t pixel = *((int32_t*) intermediateDataPtr);
+					uint8_t r, g, b, a;
 
-					if (pal4) {
-						pixel = ((uint32_t*) palette)[(pixel & 0xF)];
-					} else if (pal8) {
-						pixel = ((uint32_t*) palette)[(pixel & 0xFF)];
+					if (bpp == 4) {
+						uint32_t pixel = *((int32_t*) intermediateDataPtr);
+
+						if (sb)
+							pixel = SwapEndianness32(pixel);
+
+						if (pal4) {
+							pixel = ((uint32_t*) palette)[(pixel & 0xF)];
+						} else if (pal8) {
+							pixel = ((uint32_t*) palette)[(pixel & 0xFF)];
+						}
+
+						r = (pixel & rm) >> rs;
+						g = (pixel & gm) >> gs;
+						b = (pixel & bm) >> bs;
+						a = (pixel & am) >> as;
+					} else if (bpp == 2) {
+						uint16_t pixel = *((int16_t*) intermediateDataPtr);
+
+						if (sb)
+							pixel = SwapEndianness16(pixel);
+
+						if (pal4) {
+							pixel = ((uint16_t*) palette)[(pixel & 0xF)];
+						} else if (pal8) {
+							pixel = ((uint16_t*) palette)[(pixel & 0xFF)];
+						}
+
+						r = (pixel & rm) >> rs;
+						g = (pixel & gm) >> gs;
+						b = (pixel & bm) >> bs;
+						a = (pixel & am) >> as;
 					}
 
-					uint8_t r = (pixel & rm) >> rs;
-					uint8_t g = (pixel & gm) >> gs;
-					uint8_t b = (pixel & bm) >> bs;
-					uint8_t a = (pixel & am) >> as;
-
-					uint8_t modR = (r * orMax) / rMax;
-					uint8_t modG = (g * ogMax) / gMax;
-					uint8_t modB = (b * obMax) / bMax;
+					uint8_t modR = (uint8_t) floor(((r * orMax) / (float) rMax + 0.5f));
+					uint8_t modG = (uint8_t) floor((g * ogMax) / (float) gMax + 0.5f);
+					uint8_t modB = (uint8_t) floor((b * obMax) / (float) bMax + 0.5f);
 					uint8_t modA;
 
-					if (alpha)
-						modA = (float) (a * oaMax) / aMax;
+					if (alpha  &&  aMax != 0)
+						modA = (uint8_t) floor((a * oaMax) / (float) aMax + 0.5f);
 					else
 						modA = oaMax;
 
-					uint32_t& outPixel = *((uint32_t*) outDataPtr);
-					outPixel &= ~outCombinedMask;
-					outPixel |= (((uint32_t) modR) << ors);
-					outPixel |= (((uint32_t) modG) << ogs);
-					outPixel |= (((uint32_t) modB) << obs);
-					outPixel |= (((uint32_t) modA) << oas);
+					if (obpp == 4) {
+						uint32_t& outPixel = *((uint32_t*) outDataPtr);
+						outPixel |= (((uint32_t) modR) << ors);
+						outPixel |= (((uint32_t) modG) << ogs);
+						outPixel |= (((uint32_t) modB) << obs);
+						outPixel |= (((uint32_t) modA) << oas);
+
+						if (osb)
+							outPixel = SwapEndianness32(outPixel);
+					} else if (obpp == 2) {
+						uint16_t& outPixel = *((uint16_t*) outDataPtr);
+						outPixel |= (((uint16_t) modR) << ors);
+						outPixel |= (((uint16_t) modG) << ogs);
+						outPixel |= (((uint16_t) modB) << obs);
+						outPixel |= (((uint16_t) modA) << oas);
+
+						if (osb)
+							outPixel = SwapEndianness16(outPixel);
+					}
 
 					intermediateDataPtr += bpp;
 					outDataPtr += obpp;
@@ -406,81 +446,92 @@ bool TXDConverter::canConvert(const TXDTextureHeader& from, const TXDTextureHead
 
 void TXDConverter::getFormatSpecifics(int32_t rasterFormat, int32_t& rm, int32_t& gm, int32_t& bm, int32_t& am,
 		int32_t& rs, int32_t& gs, int32_t& bs, int32_t& as, uint8_t& rMax, uint8_t& gMax, uint8_t& bMax,
-		uint8_t& aMax, int8_t& bpp)
+		uint8_t& aMax, int8_t& bpp, bool& swapBytes)
 {
+	swapBytes = false;
+
 	if (	(rasterFormat & RasterFormatEXTPAL4)  !=  0
 			||  (rasterFormat & RasterFormatEXTPAL8)  !=  0
 	) {
-		rm = 0x000000FF;
-		gm = 0x0000FF00;
-		bm = 0x00FF0000;
-		am = 0xFF000000;
+		rm = FromLittleEndian32(0x000000FF);
+		gm = FromLittleEndian32(0x0000FF00);
+		bm = FromLittleEndian32(0x00FF0000);
+		am = FromLittleEndian32(0xFF000000);
 		bpp = 1;
 	} else {
 		switch (rasterFormat & RasterFormatMask) {
 		case RasterFormatA1R5G5B5:
-			am = 0x0001;
-			rm = 0x003E;
-			gm = 0x07C0;
-			bm = 0xF800;
+			bm = 0x001F;
+			gm = 0x03E0;
+			rm = 0x7C00;
+			am = 0x8000;
 			bpp = 2;
+#ifdef GTAFORMATS_LITTLE_ENDIAN
+			swapBytes = true;
+#endif
 			break;
 		case RasterFormatB8G8R8:
-			am = 0x000000;
-			bm = 0x0000FF;
-			gm = 0x00FF00;
-			rm = 0xFF0000;
+			am = FromLittleEndian32(0x000000);
+			bm = FromLittleEndian32(0x0000FF);
+			gm = FromLittleEndian32(0x00FF00);
+			rm = FromLittleEndian32(0xFF0000);
 			bpp = 4;
 			break;
 		case RasterFormatB8G8R8A8:
-			bm = 0x000000FF;
-			gm = 0x0000FF00;
-			rm = 0x00FF0000;
-			am = 0xFF000000;
+			bm = FromLittleEndian32(0x000000FF);
+			gm = FromLittleEndian32(0x0000FF00);
+			rm = FromLittleEndian32(0x00FF0000);
+			am = FromLittleEndian32(0xFF000000);
 			bpp = 4;
 			break;
 		case RasterFormatLUM8:
-			rm = 0xFF;
-			gm = 0xFF;
-			bm = 0xFF;
-			am = 0x0;
+			rm = FromLittleEndian32(0xFF);
+			gm = FromLittleEndian32(0xFF);
+			bm = FromLittleEndian32(0xFF);
+			am = FromLittleEndian32(0x00);
 			bpp = 1;
 			break;
 		case RasterFormatR4G4B4A4:
-			rm = 0x000F;
-			gm = 0x00F0;
-			bm = 0x0F00;
-			am = 0xF000;
+			rm = 0x00F0;
+			gm = 0x000F;
+			bm = 0xF000;
+			am = 0x0F00;
 			bpp = 2;
 			break;
 		case RasterFormatR5G5B5:
-			rm = 0x001F;
-			gm = 0x03E0;
-			bm = 0x7C00;
+			bm = 0x003E;
+			gm = 0x07C0;
+			rm = 0xF800;
 			am = 0x0000;
 			bpp = 2;
+#ifdef GTAFORMATS_LITTLE_ENDIAN
+			swapBytes = true;
+#endif
 			break;
 		case RasterFormatR5G6B5:
-			rm = 0x001F;
+			bm = 0x001F;
 			gm = 0x07E0;
-			bm = 0x7C00;
-			am = 0xF800;
+			rm = 0xF800;
+			am = 0x0000;
 			bpp = 2;
+#ifdef GTAFORMATS_LITTLE_ENDIAN
+			swapBytes = true;
+#endif
 			break;
 		case RasterFormatR8G8B8A8:
-			rm = 0x000000FF;
-			gm = 0x0000FF00;
-			bm = 0x00FF0000;
-			am = 0xFF000000;
+			rm = FromLittleEndian32(0x000000FF);
+			gm = FromLittleEndian32(0x0000FF00);
+			bm = FromLittleEndian32(0x00FF0000);
+			am = FromLittleEndian32(0xFF000000);
 			bpp = 4;
 			break;
 		}
 	}
 
-	rm = FromLittleEndian32(rm);
-	gm = FromLittleEndian32(gm);
-	bm = FromLittleEndian32(bm);
-	am = FromLittleEndian32(am);
+	rs = 0;
+	gs = 0;
+	bs = 0;
+	as = 0;
 
 	for (int i = 0 ; i < 32 ; i++) {
 		if ((rm & (1 << i)) != 0) {

@@ -65,9 +65,9 @@ enum TXDRasterFormat {
 	RasterFormatDefault = 0x000,	/*!< Default raster format. What this format means in TXD files is
 	 	 	 	 	 	 	 	 	 	 currently not known. When reading TXD files, this format may only
 	 	 	 	 	 	 	 	 	 	 appear for PVRTC-compressed textures. */
-	RasterFormatA1R5G5B5 = 0x100,	//!< 1 bit alpha and 5 bit for each red, green and blue.
-	RasterFormatR5G6B5 = 0x200,		//!< 5 bits red, 6 bits green and 5 bits blue.
-	RasterFormatR4G4B4A4 = 0x300,	//!< 4 bits red, green, blue and alpha each.
+	RasterFormatA1R5G5B5 = 0x100,	//!< 1 bit alpha and 5 bit for each red, green and blue (DXT1/3).
+	RasterFormatR5G6B5 = 0x200,		//!< 5 bits red, 6 bits green and 5 bits blue (DXT1/3).
+	RasterFormatR4G4B4A4 = 0x300,	//!< 4 bits red, green, blue and alpha each (DXT1/3).
 	RasterFormatLUM8 = 0x400,		//!< 8 bit luminance (for black-white).
 	RasterFormatB8G8R8A8 = 0x500,	//!< 8 bits blue, green, red and alpha each (in this order).
 	RasterFormatB8G8R8 = 0x600,		//!< 8 bits blue, green and red each (in this order).

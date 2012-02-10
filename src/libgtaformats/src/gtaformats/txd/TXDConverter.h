@@ -48,7 +48,7 @@ public:
 private:
 	void getFormatSpecifics(int32_t rasterFormat, int32_t& rm, int32_t& gm, int32_t& bm, int32_t& am,
 			int32_t& rs, int32_t& gs, int32_t& bs, int32_t& as, uint8_t& rMax, uint8_t& gMax, uint8_t& bMax,
-			uint8_t& aMax, int8_t& bpp);
+			uint8_t& aMax, int8_t& bpp, bool& swapBytes);
 
 private:
 	CompressionHint comprHint;
