@@ -234,7 +234,7 @@ public:
 	int findChildren(FileFinder& finder, vector<File*>& results, bool recursive = false,
 			bool archiveEntries = true) const;
 
-	void copy(const File& newFile) const;
+	void copyTo(const File& newFile) const;
 	void copyFrom(istream* inStream) const;
 
 	void copyTo(ostream* stream) const;

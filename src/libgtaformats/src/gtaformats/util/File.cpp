@@ -702,7 +702,7 @@ File File::createTemporaryFile()
 }
 
 
-void File::copy(const File& newFile) const
+void File::copyTo(const File& newFile) const
 {
 	istream* inStream = openInputStream(istream::binary);
 	newFile.copyFrom(inStream);

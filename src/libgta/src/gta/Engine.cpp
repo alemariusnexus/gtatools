@@ -177,15 +177,6 @@ void Engine::render()
 
 	updateTime = time;
 
-	/*if (viewWidth < 0  ||  viewHeight < 0) {
-		char* errmsg = new char[128];
-		sprintf(errmsg, "Error: Viewport dimensions in Engine class are invalid: %dx%d!",
-				viewWidth, viewHeight);
-		EngineException ex(errmsg, __FILE__, __LINE__);
-		delete[] errmsg;
-		throw ex;
-	}*/
-
 	scene->update(passed);
 
 	scene->present();

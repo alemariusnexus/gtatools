@@ -26,6 +26,7 @@
 #include <gtaformats/config.h>
 #include <locale>
 #include <cstring>
+#include <cstdio>
 
 using std::locale;
 using std::collate;

@@ -256,7 +256,7 @@ void GLDebugReadDepthTexture(float* buf, GLenum target)
 	uint8_t* rgbaData = new uint8_t[viewW*viewH*4];
 	glReadPixels(0, 0, viewW, viewH, GL_RGBA, GL_UNSIGNED_BYTE, rgbaData);
 
-	for (unsigned int i = 0 ; i < viewW*viewH ; i++) {
+	for (long long int i = 0 ; i < viewW*viewH ; i++) {
 		buf[i] = (rgbaData[i*4] / 255.0f)
 				+ (rgbaData[i*4 + 1] / 65025.0f)
 				+ (rgbaData[i*4 + 2] / 16581375.0f)
@@ -301,7 +301,7 @@ void GLDebugSaveDepthTexture(ostream* out, GLenum target)
 	float* dbuf = GLDebugReadDepthTexture(target);
 	uint32_t* data = new uint32_t[viewW*viewH];
 
-	for (unsigned int i = 0 ; i < viewW*viewH ; i++) {
+	for (long long int i = 0 ; i < viewW*viewH ; i++) {
 		data[i] = dbuf[i] * 4294967295;
 	}
 
