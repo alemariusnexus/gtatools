@@ -31,6 +31,7 @@
 #include <cmath>
 #include <utility>
 #include <iterator>
+#include "../util/stream/streamutil.h"
 #include "../util/stream/StreamReader.h"
 #include "../util/stream/EndianSwappingStreamReader.h"
 #include "../util/stream/StreamWriter.h"
@@ -309,15 +310,6 @@ IMGArchive::ConstEntryIterator IMGArchive::getEntryByName(const char* name) cons
 	}
 
 	return it->second;
-
-	/*for (ConstEntryIterator it = entries.begin() ; it != entries.end() ; it++) {
-		IMGEntry* entry = *it;
-		if (strcmp(entry->name, name) == 0) {
-			return it;
-		}
-	}
-
-	return entries.end();*/
 }
 
 
@@ -333,15 +325,6 @@ IMGArchive::EntryIterator IMGArchive::getEntryByName(const char* name)
 	}
 
 	return it->second;
-
-	/*for (EntryIterator it = entries.begin() ; it != entries.end() ; it++) {
-		IMGEntry* entry = *it;
-		if (strcmp(entry->name, name) == 0) {
-			return it;
-		}
-	}
-
-	return entries.end();*/
 }
 
 
@@ -425,7 +408,7 @@ void IMGArchive::readHeader()
 				} else {
 					char errmsg[128];
 					sprintf(errmsg, "ERROR: Input isn't divided into %u-byte blocks. Is this really a "
-							"VER1 DIR file?", sizeof(IMGEntry));
+							"VER1 DIR file?", (unsigned int) sizeof(IMGEntry));
 					throw IMGException(errmsg, __FILE__, __LINE__);
 				}
 			}
@@ -484,14 +467,10 @@ void IMGArchive::forceMoveEntries(EntryIterator pos, EntryIterator moveBegin, En
 
 	// Move the contents of all entries between moveBegin and moveEnd to newOffset
 	int32_t moveCount = (lastMoveEntry->offset + lastMoveEntry->size) - moveBeginEntry->offset;
+
 	imgStream->seekg(IMG_BLOCKS2BYTES(moveBeginEntry->offset), istream::beg);
-	char* data = new char[IMG_BLOCKS2BYTES(moveCount)];
-	imgStream->read(data, IMG_BLOCKS2BYTES(moveCount));
 
-	outImgStream->seekp(IMG_BLOCKS2BYTES(newOffset), ostream::beg);
-	outImgStream->write(data, IMG_BLOCKS2BYTES(moveCount));
-
-	delete[] data;
+	StreamMove(outImgStream, IMG_BLOCKS2BYTES(moveCount), IMG_BLOCKS2BYTES(newOffset));
 
 	// The offset by which all moved entries have been moved.
 	int32_t relativeOffset = newOffset - moveBeginEntry->offset;
@@ -601,8 +580,10 @@ void IMGArchive::moveEntries(EntryIterator pos, EntryIterator moveBegin, EntryIt
 
 		// Now we can be sure that there is enough space left after the insertion position.
 
-		// And finally, perform the actual requested move
-		forceMoveEntries(pos, moveBegin, moveEnd, newStartOffset);
+		if (pos != moveBegin) {
+			// And finally, perform the actual requested move
+			forceMoveEntries(pos, moveBegin, moveEnd, newStartOffset);
+		}
 
 		expandSize();
 	} else {
@@ -663,7 +644,6 @@ bool IMGArchive::reserveHeaderSpace(int32_t numHeaders)
 
 	EntryIterator moveBegin = entries.begin();
 	EntryIterator moveEnd; // One PAST the last entry to be moved
-	int32_t newOffset;
 
 	// Find out how many entries we have to move
 	for (moveEnd = entries.begin() ; moveEnd != entries.end() ; moveEnd++) {
@@ -696,7 +676,6 @@ void IMGArchive::rewriteHeaderSection()
 	if (version == VER1) {
 		outImgStream->seekp(0 - outImgStream->tellp(), ostream::cur);
 	} else {
-		istream::off_type pos = outImgStream->tellp();
 		outImgStream->seekp(4 - outImgStream->tellp(), ostream::cur);
 		int32_t numEntries = entries.size();
 		writer.write32(numEntries);
@@ -781,8 +760,6 @@ void IMGArchive::resizeEntry(EntryIterator it, int32_t size)
 	if ((mode & ReadWrite)  ==  0) {
 		throw IMGException("Attempt to modify a read-only IMG archive!", __FILE__, __LINE__);
 	}
-
-	iostream* outImgStream = static_cast<iostream*>(imgStream);
 
 	IMGEntry* entry = *it;
 
@@ -992,6 +969,16 @@ void IMGArchive::swapConsecutive(EntryIterator r1Begin, EntryIterator r1End, Ent
 		for (int32_t i = 0 ; i < backupSize ; i++) {
 			imgStream->read(buf, sizeof(buf));
 			out->write(buf, sizeof(buf));
+
+			if (out->fail()) {
+				delete out;
+				tmpFile->remove();
+				delete tmpFile;
+
+				IOException ex("IO error writing backup for IMGArchive::swapConsecutive()! Maybe you don't "
+						"have enough space left on the hard disk.", __FILE__, __LINE__);
+				throw ex;
+			}
 		}
 
 		delete out;

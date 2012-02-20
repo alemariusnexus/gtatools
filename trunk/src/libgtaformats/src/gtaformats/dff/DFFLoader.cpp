@@ -34,7 +34,7 @@
 struct IndexedDFFFrame
 {
 	DFFFrame* frame;
-	uint32_t parentIdx;
+	int32_t parentIdx;
 	int32_t boneID;
 };
 

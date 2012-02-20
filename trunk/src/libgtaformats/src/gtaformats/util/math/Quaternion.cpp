@@ -43,6 +43,7 @@ Quaternion& Quaternion::operator+=(const Quaternion& other)
 	data[1] += other.data[1];
 	data[2] += other.data[2];
 	data[3] += other.data[3];
+	return *this;
 }
 
 
@@ -52,6 +53,7 @@ Quaternion& Quaternion::operator-=(const Quaternion& other)
 	data[1] -= other.data[1];
 	data[2] -= other.data[2];
 	data[3] -= other.data[3];
+	return *this;
 }
 
 
@@ -64,6 +66,8 @@ Quaternion& Quaternion::operator*=(const Quaternion& other)
 	data[1] = odata[1]*other.data[0] + odata[0]*other.data[1] + odata[2]*other.data[3] - odata[3]*other.data[2];
 	data[2] = odata[0]*other.data[2] - odata[1]*other.data[3] + odata[2]*other.data[0] + odata[3]*other.data[1];
 	data[3] = odata[0]*other.data[3] + odata[1]*other.data[2] - odata[2]*other.data[1] + odata[3]*other.data[0];
+
+	return *this;
 }
 
 

@@ -51,7 +51,6 @@ using std::map;
 #define IMG_BLOCK_SIZE 2048L
 
 #define IMG_BLOCKS2BYTES(n) ((n) * (uint64_t) (2048))
-//#define IMG_BYTES2BLOCKS(n) (((n) + (2048L - (((uint64_t)(n))%2048L) == 0 ? 2048L : (((uint64_t)(n))%2048L))) / 2048L)
 #define IMG_BYTES2BLOCKS(n) ((uint32_t) ceil((n) / 2048.0f))
 
 

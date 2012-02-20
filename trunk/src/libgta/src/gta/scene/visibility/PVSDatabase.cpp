@@ -124,7 +124,7 @@ void PVSDatabase::calculatePVS(Scene::ObjectIterator beg, Scene::ObjectIterator 
 
 	uint32_t nextSect = 0;
 
-	for (int i = 0 ; i < numThreads ; i++) {
+	for (unsigned int i = 0 ; i < numThreads ; i++) {
 		threads[i].mutex = mutex;
 		threads[i].nextSect = &nextSect;
 		threads[i].pvs = this;
@@ -147,7 +147,7 @@ void PVSDatabase::calculatePVS(Scene::ObjectIterator beg, Scene::ObjectIterator 
 		SleepMilliseconds(50);
 	}
 
-	for (int i = 0 ; i < numThreads ; i++) {
+	for (unsigned int i = 0 ; i < numThreads ; i++) {
 		threads[i].join();
 	}
 
@@ -208,7 +208,7 @@ void PVSDatabase::SectionCalculatorThread::run()
 
 PVSSection* PVSDatabase::findSection(float x, float y, float z)
 {
-	for (int i = 0 ; i < numSects ; i++) {
+	for (uint32_t i = 0 ; i < numSects ; i++) {
 		PVSSection* sect = sections[i];
 
 		if (sect->containsPoint(x, y, z)) {

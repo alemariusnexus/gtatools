@@ -62,6 +62,7 @@ SET(GTATXD_BUILD ON CACHE BOOL "Whether you want to build gtatxd")
 SET(GTADFF_BUILD OFF CACHE BOOL "Whether you want to build gtadff")
 SET(GTATOOLS_GUI_BUILD ON CACHE BOOL "Whether you want to build gtatools-gui")
 SET(GTATOOLS_TEST_BUILD OFF CACHE BOOL "Whether you want to build gtatools-test")
+SET(GTAFORMATS_TEST_BUILD OFF CACHE BOOL "Whether you want to build gtaformats-test")
 
 IF(GTATOOLS_GUI_BUILD)
     IF(CPACK_PACKAGE_EXECUTABLES)
@@ -79,7 +80,7 @@ ENDIF(GTATOOLS_TEST_BUILD)
 
 INCLUDE(CPack)
 
-SET(ADDITIONAL_INSTALL_FILES "" CACHE STRING "Paths to files which will be additionally installed to the bib subdirectory.")
+SET(ADDITIONAL_INSTALL_FILES "" CACHE STRING "Paths to files which will be additionally installed to the bin subdirectory.")
 SET(ADDITIONAL_INSTALL_FILES_ENABLED OFF CACHE BOOL "Set true to enable ADDITIONAL_INSTALL_FILES")
 
 
@@ -110,6 +111,10 @@ ENDIF(GTATOOLS_GUI_BUILD)
 IF(GTATOOLS_TEST_BUILD)
     ADD_SUBDIRECTORY(gtatools-test/src gtatools-test/build)
 ENDIF(GTATOOLS_TEST_BUILD)
+
+IF(GTAFORMATS_TEST_BUILD)
+    ADD_SUBDIRECTORY(gtaformats-test/src gtaformats-test/build)
+ENDIF(GTAFORMATS_TEST_BUILD)
 
 
 IF(ADDITIONAL_INSTALL_FILES_ENABLED AND ADDITIONAL_INSTALL_FILES)
