@@ -59,7 +59,7 @@ File::File(const File& other)
 File::File(const File& parent, const char* child)
 		: path(NULL), autoDeletePath(true), archivePtr(parent.archivePtr)
 {
-	if (!parent.isDirectory()) {
+	if (parent.exists()  &&  !parent.isDirectory()) {
 		FileContentType type = parent.guessContentType();
 
 		if (type != CONTENT_TYPE_DIR  &&  type != CONTENT_TYPE_IMG) {
@@ -561,9 +561,9 @@ bool File::mkdirs() const
 }
 
 
-bool File::isChildOf(const File& other) const
+bool File::isChildOf(const File& other, bool recursive) const
 {
-	return path->isChildOf(*other.path);
+	return path->isChildOf(*other.path, recursive);
 }
 
 

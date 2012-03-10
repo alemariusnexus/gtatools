@@ -263,6 +263,7 @@ int main(int argc, char** argv)
 				running = false;
 				break;
 			case SDL_VIDEORESIZE:
+				printf("RESIZED!\n");
 #ifdef GT_USE_OPENGL_ES
 				//eglDestroyContext(eglDisplay, eglContext);
 				eglDestroySurface(eglDisplay, eglSurface);

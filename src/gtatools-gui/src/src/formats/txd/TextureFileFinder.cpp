@@ -60,13 +60,13 @@ bool TextureFileFinder::matches(const File& file)
 
 		for (TXDArchive::TextureIterator it = txd.getHeaderBegin() ; it != txd.getHeaderEnd() ; it++) {
 			TXDTextureHeader* tex = *it;
-			FilePath pseudoPath(*file.getPath(), tex->getDiffuseName());
+			FilePath pseudoPath(*file.getPath(), tex->getDiffuseName().get());
 			File pseudoFile(&pseudoPath, false);
 			bool matches = textureBackend->matches(pseudoFile);
 
 			if (matches) {
-				char* texNameCpy = new char[strlen(tex->getDiffuseName())+1];
-				strcpy(texNameCpy, tex->getDiffuseName());
+				char* texNameCpy = new char[strlen(tex->getDiffuseName().get())+1];
+				strcpy(texNameCpy, tex->getDiffuseName().get());
 				textureMap[file] = texNameCpy;
 				return true;
 			}

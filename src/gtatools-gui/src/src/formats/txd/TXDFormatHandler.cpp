@@ -93,7 +93,7 @@ bool TXDFormatHandler::extractTexturesDialog(TXDArchive* txd, const QLinkedList<
 		TXDTextureHeader* tex = *texes.begin();
 
 		QString fname = QFileDialog::getSaveFileName(parent, tr("Select the file to save to"),
-				QString(tex->getDiffuseName()).append(".png"), "Portable Network Graphics (*.png)");
+				QString(tex->getDiffuseName().get()).append(".png"), "Portable Network Graphics (*.png)");
 
 		if (!fname.isNull()) {
 			//uint8_t* rawData = txd->readTextureData(tex);
@@ -125,7 +125,7 @@ bool TXDFormatHandler::extractTexturesDialog(TXDArchive* txd, const QLinkedList<
 				image.setText("Description", "Converted from GTA TXD by gtatools " GTATOOLS_VERSION);
 				delete[] rawData;
 
-				QImageWriter writer(QString("%1/%2.png").arg(dname).arg(tex->getDiffuseName()));
+				QImageWriter writer(QString("%1/%2.png").arg(dname).arg(tex->getDiffuseName().get()));
 				writer.write(image);
 
 				delete[] data;

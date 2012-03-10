@@ -71,10 +71,16 @@ public:
 	bool operator>(const CString& other) const { return strcmp(cstr.get(), other.cstr.get()) > 0; }
 	bool operator<=(const CString& other) const { return !(*this > other); }
 	bool operator>=(const CString& other) const { return !(*this < other); }
-	bool operator==(const CString& other) const { return strcmp(cstr.get(), other.cstr.get()) == 0; }
+	bool operator==(const CString& other) const
+	{
+		return cstr.get() == 0  ||  other.cstr.get() == 0
+				? cstr.get() == other.cstr.get()
+				: strcmp(cstr.get(), other.cstr.get()) == 0;
+	}
 	bool operator!=(const CString& other) const { return !(*this == other); }
-	char& operator[](size_t idx) { return cstr[idx]; }
+	char& operator[](size_t idx) { ensureUniqueness(); return cstr[idx]; }
 	const char& operator[](size_t idx) const { return cstr[idx]; }
+	CString& operator=(const CString& other) { cstr = other.cstr; return *this; }
 
 private:
 	void ensureUniqueness() { if (!cstr.unique()) copy(); }

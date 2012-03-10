@@ -165,7 +165,11 @@ bool Cache<K, V, Compare, MapHash, KeyEqual>::insert(const K& key, V* value, cac
 		delete value;
 		return false;
 	}
-	free(capacity-size);
+	bool enoughLeft = free(size > capacity ? 0 : capacity-size);
+	if (!enoughLeft  &&  !locked) {
+		delete value;
+		return false;
+	}
 	typename EntryMap::iterator it = entries
 			.insert(pair<const K, Entry>(key, Entry(value, size, locked))).first;
 	Entry& entry = it->second;
@@ -200,14 +204,6 @@ bool Cache<K, V, Compare, MapHash, KeyEqual>::free(cachesize_t size)
 template<class K, class V, class Compare, class MapHash, class KeyEqual>
 bool Cache<K, V, Compare, MapHash, KeyEqual>::clear()
 {
-	/*while (first) {
-		delete first->vPtr;
-		first = first->next;
-	}
-	occupied = 0;
-	entries.clear();
-	last = NULL;*/
-
 	return free(0);
 }
 
@@ -229,10 +225,18 @@ V* Cache<K, V, Compare, MapHash, KeyEqual>::lock(const K& key, bool locked)
 		return NULL;
 	}
 
+	bool wasOverfilled = occupied > capacity;
+
 	Entry& entry = it->second;
 	entry.locked = locked;
 	free(capacity);
-	return entry.vPtr;
+
+	if (!locked  &&  wasOverfilled) {
+		// If an entry is unlocked in an overfilled cache, it will be deleted by the above call to free().
+		return NULL;
+	} else {
+		return entry.vPtr;
+	}
 }
 
 #endif /* CACHE_H_ */

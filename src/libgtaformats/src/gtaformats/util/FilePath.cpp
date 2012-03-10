@@ -192,7 +192,7 @@ bool FilePath::isIMGPath() const
 }
 
 
-bool FilePath::isChildOf(const FilePath& other) const
+bool FilePath::isChildOf(const FilePath& other, bool recursive) const
 {
 	FilePath* parent = getParentPath();
 
@@ -204,10 +204,12 @@ bool FilePath::isChildOf(const FilePath& other) const
 	if (*parent == other) {
 		delete parent;
 		return true;
-	} else {
-		bool ret = parent->isChildOf(other);
+	} else if (recursive) {
+		bool ret = parent->isChildOf(other, recursive);
 		delete parent;
 		return ret;
+	} else {
+		return false;
 	}
 }
 

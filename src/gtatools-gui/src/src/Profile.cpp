@@ -290,7 +290,7 @@ bool Profile::containsFile(const File& file)
 	for (it = getResourceBegin() ; it != getResourceEnd() ; it++) {
 		File* res = *it;
 
-		if (file.isChildOf(*res)) {
+		if (file.isChildOf(*res, true)) {
 			return true;
 		}
 	}

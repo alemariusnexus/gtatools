@@ -35,5 +35,6 @@ WildcardTextureFilter::WildcardTextureFilter(const char* pattern)
 
 bool WildcardTextureFilter::process(const TXDTextureHeader& tex)
 {
-	return WildcardMatch(pattern, tex.getDiffuseName())  ||  WildcardMatch(pattern, tex.getAlphaName());
+	return WildcardMatch(pattern, tex.getDiffuseName().get())
+			||  WildcardMatch(pattern, tex.getAlphaName().get());
 }

@@ -69,7 +69,7 @@ QModelIndex FileItemModel::indexOf(const File& file, const QModelIndex& start)
 		if (*sf->getFile() == file) {
 			return child;
 		} else {
-			if (file.isChildOf(*sf->getFile())) {
+			if (file.isChildOf(*sf->getFile(), true)) {
 				return indexOf(file, child);
 			}
 		}

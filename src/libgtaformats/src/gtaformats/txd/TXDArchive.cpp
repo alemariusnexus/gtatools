@@ -163,9 +163,8 @@ void TXDArchive::init(istream* stream)
 
 		TXDTextureHeader* tex = new TXDTextureHeader(header.diffuseName, header.rasterFormat, compr,
 				header.width, header.height);
-		tex->setAlphaChannel(alpha);
+		tex->setAlphaChannelUsed(alpha);
 		tex->setAlphaName(header.alphaName);
-		tex->setBytesPerPixel(header.bpp/8);
 		tex->setFilterFlags(header.filterFlags);
 		tex->setMipmapCount(header.mipmapCount);
 		tex->setWrappingFlags(header.uWrap, header.vWrap);
@@ -181,7 +180,7 @@ void TXDArchive::init(istream* stream)
 
 uint8_t* TXDArchive::getTextureData(TXDTextureHeader* header)
 {
-	hash_t hash = LowerHash(header->getDiffuseName());
+	hash_t hash = LowerHash(header->getDiffuseName().get());
 	TexNativeMap::iterator it = texNativeMap.find(hash);
 
 	if (it == texNativeMap.end()) {
@@ -218,7 +217,7 @@ uint8_t* TXDArchive::getTextureData(TXDTextureHeader* header)
 
 void TXDArchive::applyTextureHeader(TXDTextureHeader* header)
 {
-	hash_t hash = LowerHash(header->getDiffuseName());
+	hash_t hash = LowerHash(header->getDiffuseName().get());
 	TexNativeMap::iterator it = texNativeMap.find(hash);
 
 	RWSection* texNative = it->second;
@@ -229,8 +228,9 @@ void TXDArchive::applyTextureHeader(TXDTextureHeader* header)
 	nativeHeader.filterFlags = ToLittleEndian16(header->getFilterFlags());
 	nativeHeader.vWrap = header->getVWrapFlags();
 	nativeHeader.uWrap = header->getUWrapFlags();
-	strcpy(nativeHeader.diffuseName, header->getDiffuseName());
-	strcpy(nativeHeader.alphaName, header->getAlphaName());
+	memset(nativeHeader.diffuseName, 0, 64);
+	strcpy(nativeHeader.diffuseName, header->getDiffuseName().get());
+	strcpy(nativeHeader.alphaName, header->getAlphaName().get());
 	nativeHeader.rasterFormat = ToLittleEndian32(header->getFullRasterFormat());
 	nativeHeader.width = ToLittleEndian16(header->getWidth());
 	nativeHeader.height = ToLittleEndian16(header->getHeight());
@@ -255,7 +255,7 @@ void TXDArchive::applyTextureHeader(TXDTextureHeader* header)
 			strncpy(dxtFourCC, "PVR4", 4);
 			break;
 		case NONE:
-			if (header->hasAlphaChannel()) {
+			if (header->isAlphaChannelUsed()) {
 				*((int32_t*) dxtFourCC) = ToLittleEndian32(21);
 			} else {
 				*((int32_t*) dxtFourCC) = ToLittleEndian32(22);
@@ -266,12 +266,12 @@ void TXDArchive::applyTextureHeader(TXDTextureHeader* header)
 		//nativeHeader.compressionOrAlpha = (header->hasAlphaChannel() ? 1 : 0);
 
 		if (header->getCompression() == NONE) {
-			nativeHeader.compressionOrAlpha = (header->hasAlphaChannel() ? 1 : 0);
+			nativeHeader.compressionOrAlpha = (header->isAlphaChannelUsed() ? 1 : 0);
 		} else {
-			nativeHeader.compressionOrAlpha = (header->hasAlphaChannel() ? 9 : 8);
+			nativeHeader.compressionOrAlpha = (header->isAlphaChannelUsed() ? 9 : 8);
 		}
 	} else {
-		nativeHeader.alphaOrCompression = ToLittleEndian32((header->hasAlphaChannel() ? 1 : 0));
+		nativeHeader.alphaOrCompression = ToLittleEndian32((header->isAlphaChannelUsed() ? 1 : 0));
 
 		switch (header->getCompression()) {
 		case DXT1:
@@ -296,7 +296,7 @@ void TXDArchive::applyTextureHeader(TXDTextureHeader* header)
 
 void TXDArchive::setTextureData(TXDTextureHeader* header, uint8_t* data)
 {
-	hash_t hash = LowerHash(header->getDiffuseName());
+	hash_t hash = LowerHash(header->getDiffuseName().get());
 	TexNativeMap::iterator it = texNativeMap.find(hash);
 
 	RWSection* texNative = it->second;
@@ -322,16 +322,16 @@ void TXDArchive::setTextureData(TXDTextureHeader* header, uint8_t* data)
 }
 
 
-void TXDArchive::rename(TXDTextureHeader* header, const char* name)
+void TXDArchive::rename(TXDTextureHeader* header, const CString& name)
 {
-	hash_t hash = LowerHash(header->getDiffuseName());
+	hash_t hash = LowerHash(header->getDiffuseName().get());
 	TexNativeMap::iterator it = texNativeMap.find(hash);
 	header->setDiffuseName(name);
 
 	if (it != texNativeMap.end()) {
 		RWSection* sect = it->second;
 		texNativeMap.erase(it);
-		texNativeMap.insert(pair<hash_t, RWSection*>(LowerHash(name), sect));
+		texNativeMap.insert(pair<hash_t, RWSection*>(LowerHash(name.get()), sect));
 	}
 }
 
@@ -359,7 +359,7 @@ void TXDArchive::addTexture(TXDTextureHeader* header, uint8_t* data)
 	texNativeSect->setVersion(texDict->getVersion());
 
 	texHeaders.push_back(header);
-	texNativeMap.insert(pair<hash_t, RWSection*>(LowerHash(header->getDiffuseName()), texNativeSect));
+	texNativeMap.insert(pair<hash_t, RWSection*>(LowerHash(header->getDiffuseName().get()), texNativeSect));
 	applyTextureHeader(header);
 
 	if (data) {
@@ -372,7 +372,7 @@ void TXDArchive::addTexture(TXDTextureHeader* header, uint8_t* data)
 
 void TXDArchive::removeTexture(TXDTextureHeader* header)
 {
-	hash_t hash = LowerHash(header->getDiffuseName());
+	hash_t hash = LowerHash(header->getDiffuseName().get());
 	TexNativeMap::iterator it = texNativeMap.find(hash);
 
 	RWSection* texNative = it->second;
@@ -383,7 +383,7 @@ void TXDArchive::removeTexture(TXDTextureHeader* header)
 	for (TextureIterator it = texHeaders.begin() ; it != texHeaders.end() ; it++) {
 		TXDTextureHeader* storedHeader = *it;
 
-		if (LowerHash(storedHeader->getDiffuseName()) == hash) {
+		if (LowerHash(storedHeader->getDiffuseName().get()) == hash) {
 			delete storedHeader;
 			break;
 		}

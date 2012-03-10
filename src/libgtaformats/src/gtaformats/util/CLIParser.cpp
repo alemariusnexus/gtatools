@@ -74,23 +74,25 @@ int CLIParser::parse(int& argc, char**& argv, char*& argument)
 					for (it = options.begin() ; it != options.end() ; it++) {
 						const Option& opt = *it;
 
-						if (strcmp(arg+2, opt.longName) == 0) {
-							if (opt.takesArgument) {
-								if (argc == 1) {
-									// Error: Argument missing for option
-									return OptionMissingArgument;
+						if (opt.longName) {
+							if (strcmp(arg+2, opt.longName) == 0) {
+								if (opt.takesArgument) {
+									if (argc == 1) {
+										// Error: Argument missing for option
+										return OptionMissingArgument;
+									} else {
+										argument = argv[1];
+										argc -= 2;
+										argv += 2;
+									}
 								} else {
-									argument = argv[1];
-									argc -= 2;
-									argv += 2;
+									argc--;
+									argv++;
+									argument = NULL;
 								}
-							} else {
-								argc--;
-								argv++;
-								argument = NULL;
-							}
 
-							return numOpt;
+								return numOpt;
+							}
 						}
 
 						numOpt++;
@@ -105,39 +107,41 @@ int CLIParser::parse(int& argc, char**& argv, char*& argument)
 				for (it = options.begin() ; it != options.end() ; it++) {
 					const Option& opt = *it;
 
-					if (opt.name == arg[1]) {
-						if (opt.takesArgument) {
-							if (len > 2) {
-								// The argument is directly appended
-								argument = arg+2;
-								argc--;
-								argv++;
-							} else if (argc == 1) {
-								// Error: Argument missing for option
-								return OptionMissingArgument;
+					if (opt.name != 0) {
+						if (opt.name == arg[1]) {
+							if (opt.takesArgument) {
+								if (len > 2) {
+									// The argument is directly appended
+									argument = arg+2;
+									argc--;
+									argv++;
+								} else if (argc == 1) {
+									// Error: Argument missing for option
+									return OptionMissingArgument;
+								} else {
+									argument = argv[1];
+									argc -= 2;
+									argv += 2;
+								}
 							} else {
-								argument = argv[1];
-								argc -= 2;
-								argv += 2;
-							}
-						} else {
-							if (len > 2) {
-								// A group of short options without arguments. To support them, we remove the
-								// first option character in the group and replace it by '-', then we
-								// increment arg so that arg starts with just another short option.
+								if (len > 2) {
+									// A group of short options without arguments. To support them, we remove
+									// the first option character in the group and replace it by '-', then we
+									// increment arg so that arg starts with just another short option.
 
-								arg[0] = '\0';
-								arg[1] = '-';
-								arg++;
-							} else {
-								argc--;
-								argv++;
+									arg[0] = '\0';
+									arg[1] = '-';
+									arg++;
+								} else {
+									argc--;
+									argv++;
+								}
+
+								argument = NULL;
 							}
 
-							argument = NULL;
+							return numOpt;
 						}
-
-						return numOpt;
 					}
 
 					numOpt++;
