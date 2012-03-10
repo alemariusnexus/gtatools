@@ -100,7 +100,7 @@ inline double SwapEndiannessF64(double val)
 
 #define FromBigEndian16(v) (SwapEndianness16((v)))
 #define FromBigEndian32(v) (SwapEndianness32((v)))
-#define FromBigEndian64(v) (SwapEndianness32((v)))
+#define FromBigEndian64(v) (SwapEndianness64((v)))
 #define FromBigEndianF32(v) (SwapEndiannessF32((v)))
 #define FromBigEndianF64(v) (SwapEndiannessF64((v)))
 
@@ -120,7 +120,7 @@ inline double SwapEndiannessF64(double val)
 
 #define FromLittleEndian16(v) (SwapEndianness16((v)))
 #define FromLittleEndian32(v) (SwapEndianness32((v)))
-#define FromLittleEndian64(v) (SwapEndianness32((v)))
+#define FromLittleEndian64(v) (SwapEndianness64((v)))
 #define FromLittleEndianF32(v) (SwapEndiannessF32((v)))
 #define FromLittleEndianF64(v) (SwapEndiannessF64((v)))
 

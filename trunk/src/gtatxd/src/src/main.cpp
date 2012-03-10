@@ -431,8 +431,8 @@ void listTexture(const ListOptions& opts, TXDArchive* txd, TXDTextureHeader* tex
 	bool cs = opts.isCommaSeparation();
 	char sep = cs ? ',' : ' ';
 
-	printf("%-*s%c%-*s", cs ? 0 : 32, tex->getDiffuseName() ? tex->getDiffuseName() : "-", sep, cs ? 0 : 32,
-			tex->getAlphaName() ? tex->getAlphaName() : "-");
+	printf("%-*s%c%-*s", cs ? 0 : 32, tex->getDiffuseName().get() ? tex->getDiffuseName().get() : "-", sep,
+			cs ? 0 : 32, tex->getAlphaName().get() ? tex->getAlphaName().get() : "-");
 
 	if ((opts.getListSections() & RasterFormat)  !=  0) {
 		char rasterFormat[19];
@@ -487,7 +487,7 @@ void listTexture(const ListOptions& opts, TXDArchive* txd, TXDTextureHeader* tex
 	if ((opts.getListSections() & BitsPerPixel)  !=  0)
 		printf("%c%-*d", sep, cs ? 0 : 3, tex->getBytesPerPixel()*8);
 	if ((opts.getListSections() & HasAlpha)  !=  0)
-		printf("%c%-*s", sep, cs ? 0 : 5, tex->hasAlphaChannel() ? "Yes" : "No");
+		printf("%c%-*s", sep, cs ? 0 : 5, tex->isAlphaChannelUsed() ? "Yes" : "No");
 	if ((opts.getListSections() & Mipmaps)  !=  0)
 		printf("%c%-*d", sep, cs ? 0 : 3, tex->getMipmapCount());
 
@@ -670,7 +670,7 @@ void extractTexture(const ExtractOptions& opts, TXDArchive* txd, TXDTextureHeade
 									ofstream::out | ofstream::binary | ofstream::app);
 						} else {
 							char fname[50];
-							strcpy(fname, tex->getDiffuseName());
+							strcpy(fname, tex->getDiffuseName().get());
 
 							sprintf(fname+strlen(fname), "@%d", i);
 

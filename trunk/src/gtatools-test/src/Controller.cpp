@@ -354,9 +354,9 @@ void Controller::reshape(int w, int h)
 	glViewport(0, 0, w, h);
 
 	DefaultRenderer* renderer = new DefaultRenderer;
-	//renderer->setTransparencyAlgorithm(dpAlgo);
+	renderer->setTransparencyAlgorithm(dpAlgo);
 	//dpAlgo->setPassCount(0);
-	renderer->setTransparencyAlgorithm(basicTransAlgo);
+	//renderer->setTransparencyAlgorithm(basicTransAlgo);
 	engine->getScene()->setRenderer(renderer);
 
 	float l = aspect*-0.7;

@@ -182,7 +182,7 @@ int32_t TXDConverter::convert(const TXDTextureHeader& from, const TXDTextureHead
 			const uint8_t* intermediateDataPtr = intermediateData;
 			uint8_t* outDataPtr = outDataWritable;
 
-			bool alpha = from.hasAlphaChannel();
+			bool alpha = from.isAlphaChannelUsed();
 
 			const uint8_t* palette = NULL;
 
@@ -207,12 +207,6 @@ int32_t TXDConverter::convert(const TXDTextureHeader& from, const TXDTextureHead
 						if (sb)
 							pixel = SwapEndianness32(pixel);
 
-						if (pal4) {
-							pixel = ((uint32_t*) palette)[(pixel & 0xF)];
-						} else if (pal8) {
-							pixel = ((uint32_t*) palette)[(pixel & 0xFF)];
-						}
-
 						r = (pixel & rm) >> rs;
 						g = (pixel & gm) >> gs;
 						b = (pixel & bm) >> bs;
@@ -223,16 +217,32 @@ int32_t TXDConverter::convert(const TXDTextureHeader& from, const TXDTextureHead
 						if (sb)
 							pixel = SwapEndianness16(pixel);
 
-						if (pal4) {
-							pixel = ((uint16_t*) palette)[(pixel & 0xF)];
-						} else if (pal8) {
-							pixel = ((uint16_t*) palette)[(pixel & 0xFF)];
-						}
-
 						r = (pixel & rm) >> rs;
 						g = (pixel & gm) >> gs;
 						b = (pixel & bm) >> bs;
 						a = (pixel & am) >> as;
+					} else if (bpp == 1) {
+						if (pal4  || pal8) {
+							uint8_t pixel = *((uint8_t*) intermediateDataPtr);
+
+							if (pal4) {
+								pixel = ((uint32_t*) palette)[(pixel & 0xF)];
+							} else if (pal8) {
+								pixel = ((uint32_t*) palette)[pixel];
+							}
+
+							r = (pixel & rm) >> rs;
+							g = (pixel & gm) >> gs;
+							b = (pixel & bm) >> bs;
+							a = (pixel & am) >> as;
+						} else {
+							uint8_t pixel = *((uint8_t*) intermediateDataPtr);
+
+							r = (pixel & rm) >> rs;
+							g = (pixel & gm) >> gs;
+							b = (pixel & bm) >> bs;
+							a = (pixel & am) >> as;
+						}
 					}
 
 					uint8_t modR = (uint8_t) floor(((r * orMax) / (float) rMax + 0.5f));

@@ -113,7 +113,7 @@ unsigned int FillIMG(IMGArchive* img)
 	for (unsigned int i = 0 ; i < numEntries ; i++) {
 		IMGExpectedEntry& exEntry = CreatedBaseEntries[i];
 
-		File inFile(rootDir, exEntry.name.get());
+		File inFile(gtasaRoot, exEntry.name.get());
 
 		IMGArchive::EntryIterator it = img->addEntry(File(exEntry.name.get()).getPath()->getFileName(),
 				IMG_BYTES2BLOCKS(inFile.getSize()));
@@ -374,7 +374,7 @@ void TestIMGMove(const File& imgFile, IMGArchive::MoveMode mmode)
 
 TEST(IMGReadTest, CheckGTA3IMG)
 {
-	IMGArchive img(File(rootDir, "models/gta3.img"));
+	IMGArchive img(File(gtasaRoot, "models/gta3.img"));
 
 	IMGArchive::IMGVersion ver = img.getVersion();
 
@@ -484,7 +484,7 @@ TEST(IMGWriteTest, CheckAddRemoveRename)
 		EXPECT_TRUE(stream != NULL);
 
 		if (stream) {
-			File inFile(rootDir, entry.name.get());
+			File inFile(gtasaRoot, entry.name.get());
 			inFile.copyTo(stream);
 
 			delete stream;
@@ -773,7 +773,7 @@ TEST(IMGWriteTest, CheckCombinedGTA3IMG)
 
 	exDir.mkdir();
 
-	File(rootDir, "models/gta3.img").copyTo(imgFile);
+	File(gtasaRoot, "models/gta3.img").copyTo(imgFile);
 
 	IMGArchive img(imgFile, IMGArchive::ReadWrite);
 

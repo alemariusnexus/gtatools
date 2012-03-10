@@ -227,7 +227,7 @@ public:
 
 	bool mkdirs() const;
 
-	bool isChildOf(const File& other) const;
+	bool isChildOf(const File& other, bool recursive = false) const;
 
 	File* findChild(FileFinder& finder, bool recursive = false, bool archiveEntries = true) const;
 

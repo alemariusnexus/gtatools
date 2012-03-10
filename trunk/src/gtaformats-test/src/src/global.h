@@ -24,14 +24,35 @@
 #define GLOBAL_H_
 
 #include <gtest/gtest.h>
+#include <gtaformats/config.h>
 #include <gtaformats/util/File.h>
+
+enum GTATestVersion {
+	TestGTAIII,
+	TestGTAVC,
+	TestGTASA
+};
 
 
 #ifdef GLOBAL_H_DEF
-File rootDir = File("");
+bool gta3Enabled = false;
+bool gtavcEnabled = false;
+bool gtasaEnabled = false;
+
+File gta3Root = File("");
+File gtavcRoot = File("");
+File gtasaRoot = File("");
+
 File testRootDir = File("");
 #else
-extern File rootDir;
+extern bool gta3Enabled;
+extern bool gtavcEnabled;
+extern bool gtasaEnabled;
+
+extern File gta3Root;
+extern File gtavcRoot;
+extern File gtasaRoot;
+
 extern File testRootDir;
 #endif
 

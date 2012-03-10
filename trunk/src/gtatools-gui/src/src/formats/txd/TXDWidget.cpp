@@ -83,7 +83,7 @@ TXDWidget::TXDWidget(DisplayedFile* dfile, const QString& selectedTex, QWidget* 
 		for (TXDArchive::TextureIterator it = txd->getHeaderBegin() ; it != txd->getHeaderEnd() ; it++, i++) {
 			TXDTextureHeader* texture = *it;
 
-			if (!selectedTex.isNull()  &&  selectedTex == QString(texture->getDiffuseName())) {
+			if (!selectedTex.isNull()  &&  selectedTex == QString(texture->getDiffuseName().get())) {
 				currentRow = i;
 				break;
 			}
@@ -134,10 +134,10 @@ void TXDWidget::reloadHighLevelFile()
 		int i = 0;
 		for (TXDArchive::TextureIterator it = txd->getHeaderBegin() ; it != txd->getHeaderEnd() ; it++, i++) {
 			TXDTextureHeader* texture = *it;
-			ui.textureList->addItem(texture->getDiffuseName());
+			ui.textureList->addItem(texture->getDiffuseName().get());
 
 			if (	!curTexName.isNull()
-					&&  curTexName.toLower() == QString(texture->getDiffuseName()).toLower()
+					&&  curTexName.toLower() == QString(texture->getDiffuseName().get()).toLower()
 			) {
 				currentRow = i;
 			}
@@ -220,8 +220,8 @@ void TXDWidget::setDisplayedTexture(TXDTextureHeader* texture)
 		TxdGetRasterFormatDescription(formatDesc, format);
 
 		ui.formatLabel->setText(formatDesc);
-		ui.diffuseNameField->setText(texture->getDiffuseName());
-		ui.alphaNameField->setText(texture->getAlphaName());
+		ui.diffuseNameField->setText(texture->getDiffuseName().get());
+		ui.alphaNameField->setText(texture->getAlphaName().get());
 
 		TXDCompression compr = texture->getCompression();
 
@@ -246,7 +246,7 @@ void TXDWidget::setDisplayedTexture(TXDTextureHeader* texture)
 		ui.dimensionsField->setText(tr("%1x%2").arg(texture->getWidth()).arg(texture->getHeight()));
 		ui.bppField->setText(QString("%1").arg(texture->getBytesPerPixel()*8));
 		ui.mipmapCountField->setText(QString("%1").arg(texture->getMipmapCount()));
-		ui.alphaField->setText(texture->hasAlphaChannel() ? tr("yes") : tr("no"));
+		ui.alphaField->setText(texture->isAlphaChannelUsed() ? tr("yes") : tr("no"));
 
 		QString uWrapStr = QString("%1 [").arg(texture->getUWrapFlags());
 		QString vWrapStr = QString("%1 [").arg(texture->getVWrapFlags());

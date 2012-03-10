@@ -174,7 +174,7 @@ public:
 	 *	@param header The header you want to change. It should have the old texture name set.
 	 *	@param name The new name for the texture.
 	 */
-	void rename(TXDTextureHeader* header, const char* name);
+	void rename(TXDTextureHeader* header, const CString& name);
 
 	/**	\brief Adds a new texture to the end of the archive.
 	 *

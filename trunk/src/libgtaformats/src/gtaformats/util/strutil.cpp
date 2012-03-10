@@ -55,8 +55,9 @@ void rtrim(char* str, char chr)
 		return;
 	}
 
+	char* strBeg = str;
 	str += len-1;
-	while (*str == chr) *str-- = '\0';
+	while (str >= strBeg  &&  *str == chr) *str-- = '\0';
 }
 
 

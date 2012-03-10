@@ -24,6 +24,7 @@
 #define TXDTEXTUREHEADER_H_
 
 #include <gtaformats/config.h>
+#include "../util/CString.h"
 #include <istream>
 
 using std::istream;
@@ -127,24 +128,10 @@ public:
 	 */
 	//TXDTextureHeader(istream* stream, long long& bytesRead);
 
-	TXDTextureHeader(const char* diffuseName, int32_t rasterFormat, TXDCompression compression,
+	TXDTextureHeader(const CString& diffuseName, int32_t rasterFormat, TXDCompression compression,
 			int16_t w, int16_t h);
 
 	TXDTextureHeader(const TXDTextureHeader& other);
-
-	/**	\brief Returns the RGBA masks of the raw data of this texture.
-	 *
-	 * 	For plain textures, these masks can be used directly to extract the color values from each pixel
-	 * 	(You shouldn't do that if you don't really know what you do, though). For compressed images, this
-	 * 	method does the same as for plain textures (and the values are therefore not really useful). For
-	 * 	paletted images, this returns the masks used for the palette color entries.
-	 *
-	 *	@param redMask The red mask.
-	 *	@param greenMask The green mask.
-	 *	@param blueMask The blue mask.
-	 *	@param alphaMask The alpha (transparency) mask.
-	 */
-	void getColorMasks(int32_t& redMask, int32_t& greenMask, int32_t& blueMask, int32_t& alphaMask) const;
 
 	/**	\brief Returns a small describing string of the raster format of this texture.
 	 *
@@ -158,13 +145,13 @@ public:
 	 *
 	 *	@return The diffuse name.
 	 */
-	const char* getDiffuseName() const { return diffuseName; }
+	CString getDiffuseName() const { return diffuseName; }
 
 	/**	\brief Returns the alpha texture name.
 	 *
 	 *	@return The alpha name.
 	 */
-	const char* getAlphaName() const { return alphaName; }
+	CString getAlphaName() const { return alphaName; }
 
 	/**	\brief Returns the plain raster format (without extension) of this textures.
 	 *
@@ -210,7 +197,7 @@ public:
 	int16_t getHeight() const { return height; }
 
 
-	int8_t getBytesPerPixel() const { return bytesPerPixel; }
+	int8_t getBytesPerPixel() const;
 
 	/**	\brief Returns the number of mipmaps of this texture.
 	 *
@@ -225,7 +212,7 @@ public:
 	 *
 	 *	@return Whether the header says that alpha channels should be used.
 	 */
-	bool hasAlphaChannel() const { return alphaChannel; }
+	bool isAlphaChannelUsed() const { return alphaChannelUsed; }
 
 	/**	\brief Returns flags for texture coordinate U-wrapping.
 	 *
@@ -268,14 +255,14 @@ public:
 	 *	@param name The new diffuse name. It may not be longer than 31 characters + null terminator, or an
 	 *		exception will be thrown.
 	 */
-	void setDiffuseName(const char* name);
+	void setDiffuseName(const CString& name);
 
 	/**	\brief Sets the alpha name of this texture.
 	 *
 	 *	@param name The new alpha name. It may not be longer than 31 characters + null terminator, or an
 	 *		exception will be thrown.
 	 */
-	void setAlphaName(const char* name);
+	void setAlphaName(const CString& name);
 
 	/**	\brief Sets the base dimensions of the texture.
 	 *
@@ -297,7 +284,7 @@ public:
 	 *
 	 * 	@param alpha Whether to enable the alpha channel.
 	 */
-	void setAlphaChannel(bool alpha) { alphaChannel = alpha; }
+	void setAlphaChannelUsed(bool alpha) { alphaChannelUsed = alpha; }
 
 	/**	\brief Sets the wrapping flags of the texture.
 	 *
@@ -311,50 +298,6 @@ public:
 	 * 	@param flags The filter flags.
 	 */
 	void setFilterFlags(int16_t flags) { filterFlags = flags; }
-
-	/**	\brief Sets the number of bytes per pixel (BPP).
-	 *
-	 * 	Note that the BPP will be automatically set by setRasterFormat(), so usually you don't need to call
-	 * 	this method explicitly. If you do so, be careful to use a valid value!
-	 *
-	 * 	@param bpp The number of bytes per pixel (NOT bits).
-	 */
-	void setBytesPerPixel(int8_t bpp) { bytesPerPixel = bpp; }
-
-	/**	\brief Returns whether this texture can be converted using convert().
-	 *
-	 * 	This currently returns true for all textures. This just means that there is currently no TXD
-	 * 	construct known which can not be converted, though. It is possible that there is something that
-	 * 	can not be handeled and for which this method returns true.
-	 *
-	 *	@return Whether this texture can be converted using convert().
-	 */
-	bool canConvert() const;
-
-	/**	\brief This converts the raw data of this texture to a more suitable form.
-	 *
-	 * 	This method can be used to do several transformations at once, which yields to better performance.
-	 * 	If the texture is compressed, it will automatically be uncompressed. If it was paletted, it will
-	 * 	be automatically converted to a non-paletted image. You can give some parameters to change the
-	 * 	output format and you can mirror the texture horizontally, vertically or in both directions.
-	 * 	Be sure to choose a correct size for the dest parameter to not cause buffer overflow. Generally,
-	 * 	it should be width*height*bpp bytes in size.
-	 * 	The offset parameters give the location in the output buffer for the color components, relative to
-	 * 	the offset of the current pixel. Be sure not to choose it bigger or equal to bpp!
-	 *
-	 *	@param dest Where the new data shall be written to.
-	 *	@param src The raw data of this texture.
-	 *	@param mirror In which direction to mirror the texture. This can be one of MIRROR_NONE,
-	 *		MIRROR_HORIZONTAL, MIRROR_VERTICAL or MIRROR_BOTH. MIRROR_HORIZONTAL is the default.
-	 *	@param bpp The number of bytes per pixel in the output buffer.
-	 *	@param redOffset The offset in the output buffer to store the red component.
-	 *	@param greenOffset The offset in the output buffer to store the green component.
-	 *	@param blueOffset The offset in the output buffer to store the blue component.
-	 *	@param alphaOffset The offset in the output buffer to store the alpha component.
-	 */
-	/*void convert(uint8_t* dest, const uint8_t* src, int mipmap = 0, TXDMirrorFlags mirror = MIRROR_HORIZONTAL,
-			int8_t bpp = 4, int redOffset = 0, int greenOffset = 1, int blueOffset = 2,
-			int alphaOffset = 3) const;*/
 
 	/**	\brief Compute the size the raw data of this texture would have.
 	 *
@@ -391,18 +334,14 @@ public:
 	void fixMipmapCount();
 
 private:
-	int8_t calculateFormatBPP(int32_t rasterFormat);
-
-private:
-	char diffuseName[32];
-	char alphaName[32];
+	CString diffuseName;
+	CString alphaName;
 	int32_t rasterFormat;
 	TXDCompression compression;
 	int16_t width;
 	int16_t height;
-	int8_t bytesPerPixel;
 	int8_t mipmapCount;
-	bool alphaChannel;
+	bool alphaChannelUsed;
 	int8_t uWrap;
 	int8_t vWrap;
 	int16_t filterFlags;

@@ -126,7 +126,7 @@ public:
 	 */
 	bool isIMGPath() const;
 
-	bool isChildOf(const FilePath& other) const;
+	bool isChildOf(const FilePath& other, bool recursive = false) const;
 
 	FilePath* relativeTo(const FilePath& parent) const;
 
