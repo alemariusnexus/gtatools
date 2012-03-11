@@ -127,7 +127,8 @@ void ProfileManager::saveProfiles()
 		settings.beginGroup(QString("profile%1").arg(i));
 
 		settings.setValue(QString("name"), profile->getName());
-		settings.setValue(QString("root"), profile->getGameInfo()->getRootDirectory().getPath()->toString());
+		settings.setValue(QString("root"),
+				profile->getGameInfo()->getRootDirectory().getPath()->toString().get());
 
 		QString verStr;
 
@@ -150,19 +151,19 @@ void ProfileManager::saveProfiles()
 		int j = 0;
 
 		for (rit = profile->getResourceBegin() ; rit != profile->getResourceEnd() ; rit++, j++) {
-			settings.setValue(QString("resource%2").arg(j), (*rit)->getPath()->toString());
+			settings.setValue(QString("resource%2").arg(j), (*rit)->getPath()->toString().get());
 		}
 
 		j = 0;
 
 		for (rit = profile->getSearchResourceBegin() ; rit != profile->getSearchResourceEnd() ; rit++, j++) {
-			settings.setValue(QString("search_resource%2").arg(j), (*rit)->getPath()->toString());
+			settings.setValue(QString("search_resource%2").arg(j), (*rit)->getPath()->toString().get());
 		}
 
 		j = 0;
 
 		for (rit = profile->getDATFilesBegin() ; rit != profile->getDATFilesEnd() ; rit++, j++) {
-			settings.setValue(QString("dat_file%2").arg(j), (*rit)->getPath()->toString());
+			settings.setValue(QString("dat_file%2").arg(j), (*rit)->getPath()->toString().get());
 		}
 
 		settings.endGroup();

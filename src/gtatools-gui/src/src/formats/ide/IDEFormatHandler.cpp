@@ -55,7 +55,7 @@ void IDEFormatHandler::systemQuerySent(const SystemQuery& query, SystemQueryResu
 
 			if (toBeOpened) {
 				int line = finder.getMatchedLine(*toBeOpened);
-				result["file"] = toBeOpened->getPath()->toString();
+				result["file"] = toBeOpened->getPath()->toString().get();
 				result["line"] = line;
 				delete toBeOpened;
 				result.setSuccessful(true);

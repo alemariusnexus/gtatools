@@ -319,7 +319,7 @@ void DefaultGUIModule::onOpenSystemProgram(bool checked)
 	QLinkedList<File*>::iterator it;
 
 	for (it = contextFiles.begin() ; it != contextFiles.end() ; it++) {
-		QDesktopServices::openUrl(QUrl(QString("file://%1").arg((*it)->getPath()->toString())));
+		QDesktopServices::openUrl(QUrl(QString("file://%1").arg((*it)->getPath()->toString().get())));
 	}
 }
 
@@ -375,7 +375,7 @@ void DefaultGUIModule::onFileSaveAs(bool checked)
 	QString filter = dfile->getFormatHandler()->buildFileDialogFilter();
 
 	QString fname = QFileDialog::getSaveFileName(mainWindow, tr("Select file"),
-			dfile->getFile().getPath()->toString(), filter);
+			dfile->getFile().getPath()->toString().get(), filter);
 
 	if (!fname.isNull()) {
 		File file(fname.toLocal8Bit().constData());

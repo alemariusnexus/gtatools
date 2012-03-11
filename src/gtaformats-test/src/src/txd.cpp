@@ -214,14 +214,14 @@ void TestTXDConversion(TXDTextureHeader* tex, uint8_t* rawData, const File& conv
 	if (!convDirBefore.exists()) {
 		if (!convDirBefore.mkdirs()) {
 			ADD_FAILURE() << "Unable to create TXD conversion directory "
-					<< convDirBefore.getPath()->toString();
+					<< convDirBefore.getPath()->toString().get();
 			return;
 		}
 	}
 	if (!convDirAfter.exists()) {
 		if (!convDirAfter.mkdirs()) {
 			ADD_FAILURE() << "Unable to create TXD conversion directory "
-					<< convDirAfter.getPath()->toString();
+					<< convDirAfter.getPath()->toString().get();
 			return;
 		}
 	}
@@ -563,7 +563,7 @@ TEST(TXDConversionTest, CheckOriginalTXDConversion)
 		for (vector<CString>::iterator tit = texVec.begin() ; tit != texVec.end() ; tit++) {
 			CString exName = *tit;
 			ADD_FAILURE() << "No texture of name " << exName.get() << " was found in TXD archive "
-					<< txdFile.getPath()->toString();
+					<< txdFile.getPath()->toString().get();
 		}
 	}
 }
@@ -626,6 +626,8 @@ TEST(TXDWriteTest, CheckTXDWrite)
 		EXPECT_EQ(2, tex->getBytesPerPixel());
 		EXPECT_EQ(RasterFormatA1R5G5B5, tex->getFullRasterFormat());
 	}
+
+	txdFile.remove();
 }
 
 

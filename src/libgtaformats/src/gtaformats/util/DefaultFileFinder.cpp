@@ -39,17 +39,17 @@ DefaultFileFinder::DefaultFileFinder(const char* pattern, bool caseSensitive, bo
 
 bool DefaultFileFinder::matches(const File& file)
 {
-	const char* fname = file.getPath()->getFileName();
+	CString fname = file.getPath()->getFileName();
 
 	if (caseSensitive) {
 		if (exactMatch) {
-			return strcmp(fname, pattern) == 0;
+			return strcmp(fname.get(), pattern) == 0;
 		} else {
-			return strstr(fname, pattern) != NULL;
+			return strstr(fname.get(), pattern) != NULL;
 		}
 	} else {
-		char* lfname = new char[strlen(fname)+1];
-		strtolower(lfname, fname);
+		char* lfname = new char[fname.length() + 1];
+		strtolower(lfname, fname.get());
 		bool res;
 
 		if (exactMatch) {

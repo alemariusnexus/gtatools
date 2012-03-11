@@ -24,13 +24,14 @@
 #define IDETIMEDOBJECT_H_
 
 #include <gtaformats/config.h>
+#include "../util/CString.h"
 #include "IDEStaticObject.h"
 
 
 class IDETimedObject : public IDEStaticObject
 {
 public:
-	IDETimedObject(int32_t id, const char* modelName, const char* textureName, int32_t numSubObjects,
+	IDETimedObject(int32_t id, const CString& modelName, const CString& txdName, int32_t numSubObjects,
 			float* drawDistances, int32_t flags, int32_t timeOn, int32_t timeOff);
 	virtual ~IDETimedObject();
 

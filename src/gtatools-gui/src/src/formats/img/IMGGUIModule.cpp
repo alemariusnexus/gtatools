@@ -139,7 +139,7 @@ void IMGGUIModule::extract(const QLinkedList<File>& files)
 		if (files.size() == 1) {
 			File file = files.first();
 			QString fname = QFileDialog::getSaveFileName(mainWindow, tr("Choose a destination file"),
-					file.getPath()->getFileName());
+					file.getPath()->getFileName().get());
 
 			if (!fname.isEmpty()) {
 				QFile dfile(fname);
@@ -176,7 +176,7 @@ void IMGGUIModule::extract(const QLinkedList<File>& files)
 				for (it = files.begin() ; it != files.end() ; it++) {
 					File file = *it;
 					QString fname = dname;
-					fname.append("/").append(file.getPath()->getFileName());
+					fname.append("/").append(file.getPath()->getFileName().get());
 					QFile dfile(fname);
 
 					if (dfile.open(QFile::WriteOnly | QFile::Truncate)) {

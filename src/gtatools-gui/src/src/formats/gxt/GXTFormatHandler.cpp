@@ -41,7 +41,7 @@ GXTFormatHandler* GXTFormatHandler::getInstance()
 
 bool GXTFormatHandler::hasFileFormat(const File& file) const
 {
-	return QString(file.getPath()->getExtension()).toLower().compare("gxt") == 0;
+	return QString(file.getPath()->getExtension().get()).toLower().compare("gxt") == 0;
 }
 
 
@@ -64,7 +64,7 @@ DisplayedFile* GXTFormatHandler::openFile(const FileOpenRequest& request)
 
 void GXTFormatHandler::iniExport(const File& file, const QLinkedList<GXTTable*>& tables)
 {
-	QFile qfile(file.getPath()->toString());
+	QFile qfile(file.getPath()->toString().get());
 
 	if (qfile.open(QFile::WriteOnly | QFile::Truncate)) {
 		QTextStream stream(&qfile);
@@ -73,14 +73,14 @@ void GXTFormatHandler::iniExport(const File& file, const QLinkedList<GXTTable*>&
 
 		for (it = tables.begin() ; it != tables.end() ; it++) {
 			GXTTable* table = *it;
-			stream << "[" << table->getName() << "]\n";
+			stream << "[" << table->getName().get() << "]\n";
 
 			GXTTable::EntryIterator it;
 
 			for (it = table->getFirstEntry() ; it != table->getLastEntry() ; it++) {
 				crc32_t keyHash = it->first;
 				QString value = QString::fromUtf8(it->second);
-				const char* key = table->getKeyName(keyHash);
+				const char* key = table->getKeyName(keyHash).get();
 
 				if (key) {
 					stream << key << "=" << value << "\n";

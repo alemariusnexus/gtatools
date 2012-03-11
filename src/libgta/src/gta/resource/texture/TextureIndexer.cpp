@@ -41,9 +41,9 @@ TextureIndexer::~TextureIndexer()
 void TextureIndexer::resourceAdded(const File& file)
 {
 	if (file.guessContentType() == CONTENT_TYPE_TXD) {
-		const char* fname = file.getPath()->getFileName();
-		char* txdName = new char[strlen(fname)+1];
-		strtolower(txdName, fname);
+		CString fname = file.getPath()->getFileName();
+		char* txdName = new char[fname.length() + 1];
+		strtolower(txdName, fname.get());
 		*strchr(txdName, '.') = '\0';
 
 		char texName[33];
@@ -56,7 +56,7 @@ void TextureIndexer::resourceAdded(const File& file)
 		if (archives.find(txdName) != archives.end()) {
 			char* oldPath = dbgArchivePaths.find(txdName)->second;
 			fprintf(stderr, "WARNING: Conflicting resources: A TXD archive with the same name as %s was "
-					"already added! Previous resource: %s\n", file.getPath()->toString(), oldPath);
+					"already added! Previous resource: %s\n", file.getPath()->toString().get(), oldPath);
 		}
 #endif
 
@@ -64,8 +64,8 @@ void TextureIndexer::resourceAdded(const File& file)
 		archives[lTxdName] = archive;
 
 #ifndef NDEBUG
-		char* path = new char[strlen(file.getPath()->toString()) + 1];
-		strcpy(path, file.getPath()->toString());
+		char* path = new char[file.getPath()->toString().length() + 1];
+		strcpy(path, file.getPath()->toString().get());
 		dbgArchivePaths.insert(pair<CString, char*>(lTxdName, path));
 #endif
 	}

@@ -79,7 +79,7 @@ File* GUI::findFile(const QLinkedList<File*>& rootFiles, FileFinder* finder, QWi
 
 		for (it = files.begin() ; it != files.end() ; it++) {
 			File* file = *it;
-			options << file->getPath()->toString();
+			options << file->getPath()->toString().get();
 			delete file;
 		}
 

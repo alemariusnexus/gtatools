@@ -39,9 +39,9 @@ AnimationIndexer::~AnimationIndexer()
 void AnimationIndexer::resourceAdded(const File& file)
 {
 	if (file.guessContentType() == CONTENT_TYPE_IFP) {
-		const char* fname = file.getPath()->getFileName();
-		size_t len = strlen(fname);
-		CString lname(fname, len-4);
+		CString fname = file.getPath()->getFileName();
+		size_t len = fname.length();
+		CString lname(fname.get(), len-4);
 		lname.lower();
 		index.insert(pair<CString, File*>(lname, new File(file)));
 	}

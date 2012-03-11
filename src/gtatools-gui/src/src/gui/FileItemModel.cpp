@@ -59,7 +59,7 @@ QModelIndex FileItemModel::indexOf(const File& file, const QModelIndex& start)
 {
 	int rc = rowCount(start);
 
-	QString ipath(file.getPath()->toString());
+	QString ipath(file.getPath()->toString().get());
 
 	for (int i = 0 ; i < rc ; i++) {
 		QModelIndex child = index(i, 0, start);
@@ -144,7 +144,7 @@ QVariant FileItemModel::data(const QModelIndex& index, int role) const
 
 	switch (index.column()) {
 	case 0:
-		return QVariant(file->toString());
+		return QVariant(file->toString().get());
 		break;
 	case 1:
 		File* realFile = file->getFile();

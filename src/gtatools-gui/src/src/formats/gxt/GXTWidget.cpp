@@ -50,7 +50,7 @@ GXTWidget::GXTWidget(const FileOpenRequest& request, QWidget* parent)
 
 	for (int32_t i = 0 ; i < gxt.getTableCount() ; i++) {
 		GXTTable* table = gxt.readTableData(headers[i]);
-		tables[table->getName()] = table;
+		tables[table->getName().get()] = table;
 	}
 
 	rebuildTableList();
@@ -121,7 +121,7 @@ void GXTWidget::displayTable(const QString& tablename)
 	model = new GXTTableModel;
 
 	GXTTable* table = tables[tablename];
-	model->addLanguageTable(gxtFile->getPath()->getFileName(), table);
+	model->addLanguageTable(gxtFile->getPath()->getFileName().get(), table);
 
 	proxyModel->setSourceModel(model);
 	ui.table->setModel(proxyModel);

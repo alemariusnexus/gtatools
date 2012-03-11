@@ -26,20 +26,10 @@
 #include "ShaderProgram.h"
 #include "GLException.h"
 
-#include <res_glsl140_render_depth_2d_vertex_shader.h>
-#include <res_glsl140_render_depth_2d_fragment_shader.h>
-#include <res_glsl140_render_depth_rect_vertex_shader.h>
-#include <res_glsl140_render_depth_rect_fragment_shader.h>
-
-#include <res_glsl110_render_depth_2d_vertex_shader.h>
-#include <res_glsl110_render_depth_2d_fragment_shader.h>
-#include <res_glsl110_render_depth_rect_vertex_shader.h>
-#include <res_glsl110_render_depth_rect_fragment_shader.h>
-
-#include <res_glsles2_render_depth_2d_vertex_shader.h>
-#include <res_glsles2_render_depth_2d_fragment_shader.h>
-#include <res_glsles2_render_depth_rect_vertex_shader.h>
-#include <res_glsles2_render_depth_rect_fragment_shader.h>
+#include <res_render_depth_2d_vertex_shader.h>
+#include <res_render_depth_2d_fragment_shader.h>
+#include <res_render_depth_rect_vertex_shader.h>
+#include <res_render_depth_rect_fragment_shader.h>
 
 
 bool debugInited = false;
@@ -107,39 +97,15 @@ void GLDebugInit()
 	int rdFragmentRectShaderDataLen;
 
 
-#ifndef GTA_USE_OPENGL_ES
-	if (gtaglIsVersionSupported(3, 1)) {
-		rdVertex2dShaderData = (const char*) res_glsl140_render_depth_2d_vertex_shader_data;
-		rdFragment2dShaderData = (const char*) res_glsl140_render_depth_2d_fragment_shader_data;
-		rdVertexRectShaderData = (const char*) res_glsl140_render_depth_rect_vertex_shader_data;
-		rdFragmentRectShaderData = (const char*) res_glsl140_render_depth_rect_fragment_shader_data;
+	rdVertex2dShaderData = (const char*) res_render_depth_2d_vertex_shader_data;
+	rdFragment2dShaderData = (const char*) res_render_depth_2d_fragment_shader_data;
+	rdVertexRectShaderData = (const char*) res_render_depth_rect_vertex_shader_data;
+	rdFragmentRectShaderData = (const char*) res_render_depth_rect_fragment_shader_data;
 
-		rdVertex2dShaderDataLen = sizeof(res_glsl140_render_depth_2d_vertex_shader_data);
-		rdFragment2dShaderDataLen = sizeof(res_glsl140_render_depth_2d_fragment_shader_data);
-		rdVertexRectShaderDataLen = sizeof(res_glsl140_render_depth_rect_vertex_shader_data);
-		rdFragmentRectShaderDataLen = sizeof(res_glsl140_render_depth_rect_fragment_shader_data);
-	} else {
-		rdVertex2dShaderData = (const char*) res_glsl110_render_depth_2d_vertex_shader_data;
-		rdFragment2dShaderData = (const char*) res_glsl110_render_depth_2d_fragment_shader_data;
-		rdVertexRectShaderData = (const char*) res_glsl110_render_depth_rect_vertex_shader_data;
-		rdFragmentRectShaderData = (const char*) res_glsl110_render_depth_rect_fragment_shader_data;
-
-		rdVertex2dShaderDataLen = sizeof(res_glsl110_render_depth_2d_vertex_shader_data);
-		rdFragment2dShaderDataLen = sizeof(res_glsl110_render_depth_2d_fragment_shader_data);
-		rdVertexRectShaderDataLen = sizeof(res_glsl110_render_depth_rect_vertex_shader_data);
-		rdFragmentRectShaderDataLen = sizeof(res_glsl110_render_depth_rect_fragment_shader_data);
-	}
-#else
-	rdVertex2dShaderData = (const char*) res_glsles2_render_depth_2d_vertex_shader_data;
-	rdFragment2dShaderData = (const char*) res_glsles2_render_depth_2d_fragment_shader_data;
-	rdVertexRectShaderData = (const char*) res_glsles2_render_depth_rect_vertex_shader_data;
-	rdFragmentRectShaderData = (const char*) res_glsles2_render_depth_rect_fragment_shader_data;
-
-	rdVertex2dShaderDataLen = sizeof(res_glsles2_render_depth_2d_vertex_shader_data);
-	rdFragment2dShaderDataLen = sizeof(res_glsles2_render_depth_2d_fragment_shader_data);
-	rdVertexRectShaderDataLen = sizeof(res_glsles2_render_depth_rect_vertex_shader_data);
-	rdFragmentRectShaderDataLen = sizeof(res_glsles2_render_depth_rect_fragment_shader_data);
-#endif
+	rdVertex2dShaderDataLen = sizeof(res_render_depth_2d_vertex_shader_data);
+	rdFragment2dShaderDataLen = sizeof(res_render_depth_2d_fragment_shader_data);
+	rdVertexRectShaderDataLen = sizeof(res_render_depth_rect_vertex_shader_data);
+	rdFragmentRectShaderDataLen = sizeof(res_render_depth_rect_fragment_shader_data);
 
 
 	Shader* rdVertex2dShader = new Shader(GL_VERTEX_SHADER, "Render Depth Buffer 2D Vertex Shader");

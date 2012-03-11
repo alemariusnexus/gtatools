@@ -24,9 +24,9 @@
 #include <cstring>
 
 
-IDETimedObject::IDETimedObject(int32_t id, const char* modelName, const char* texName,
+IDETimedObject::IDETimedObject(int32_t id, const CString& modelName, const CString& txdName,
 			int32_t numSubObjects, float* drawDistances, int32_t flags, int32_t timeOn, int32_t timeOff)
-		: IDEStaticObject(id, modelName, texName, numSubObjects, drawDistances, flags),
+		: IDEStaticObject(id, modelName, txdName, numSubObjects, drawDistances, flags),
 		  timeOn(timeOn), timeOff(timeOff)
 {
 }

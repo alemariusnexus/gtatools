@@ -69,6 +69,10 @@ void Scene::addSceneObject(SceneObject* obj)
 
 	if (obj->getType() != SceneObjectStatic) {
 		dynamicObjs.push_back(obj);
+
+		if (obj->getType() == SceneObjectAnimated) {
+			animObjs.push_back(obj);
+		}
 	}
 }
 
@@ -77,6 +81,7 @@ void Scene::clear()
 {
 	objects.clear();
 	dynamicObjs.clear();
+	animObjs.clear();
 }
 
 
@@ -139,14 +144,10 @@ void Scene::buildVisibleSceneObjectList(ObjectList& list)
 
 void Scene::update(uint64_t timePassed)
 {
-	for (ObjectIterator it = objects.begin() ; it != objects.end() ; it++) {
+	for (ObjectIterator it = animObjs.begin() ; it != animObjs.end() ; it++) {
 		SceneObject* obj = *it;
-
-		if (obj->getType() == SceneObjectAnimated) {
-			AnimatedSceneObject* aobj = (AnimatedSceneObject*) obj;
-			//aobj->setAnimationTime(0.0f);
-			aobj->increaseAnimationTime(timePassed / 1000.0f);
-		}
+		AnimatedSceneObject* aobj = (AnimatedSceneObject*) obj;
+		aobj->increaseAnimationTime(timePassed / 1000.0f);
 	}
 }
 

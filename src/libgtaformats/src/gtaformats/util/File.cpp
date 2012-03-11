@@ -36,7 +36,7 @@
 
 
 
-File::File(const char* path)
+File::File(const CString& path)
 		: path(new FilePath(path)), autoDeletePath(true),
 		  archivePtr(shared_ptr< shared_ptr<IMGArchive> > (new shared_ptr<IMGArchive>))
 {
@@ -56,16 +56,16 @@ File::File(const File& other)
 }
 
 
-File::File(const File& parent, const char* child)
+File::File(const File& parent, const CString& child)
 		: path(NULL), autoDeletePath(true), archivePtr(parent.archivePtr)
 {
 	if (parent.exists()  &&  !parent.isDirectory()) {
 		FileContentType type = parent.guessContentType();
 
 		if (type != CONTENT_TYPE_DIR  &&  type != CONTENT_TYPE_IMG) {
-			char* errmsg = new char[strlen(parent.getPath()->toString()) + 128];
+			char* errmsg = new char[parent.getPath()->toString().length() + 128];
 			sprintf(errmsg, "Attempt to call File::File(const File& parent, const char* child) with non-directory '%s' as parent",
-					parent.getPath()->toString());
+					parent.getPath()->toString().get());
 			FileException ex(errmsg, __FILE__, __LINE__);
 			delete[] errmsg;
 			throw ex;
@@ -88,9 +88,9 @@ bool File::physicallyExists() const
 {
 #ifdef _POSIX_VERSION
 	struct stat fileInfo;
-	return stat(path->toString(), &fileInfo) == 0;
+	return stat(path->toString().get(), &fileInfo) == 0;
 #elif defined(_WIN32)
-	DWORD attribs = GetFileAttributes(path->toString());
+	DWORD attribs = GetFileAttributes(path->toString().get());
 	return attribs != 0xFFFFFFFF;
 #endif
 }
@@ -108,14 +108,15 @@ bool File::exists() const
 				shared_ptr<IMGArchive> archive = getIMGArchive();
 				delete parent;
 
-				if (archive->getEntryByName(path->getFileName()) != archive->getEntryEnd()) {
+				if (archive->getEntryByName(path->getFileName().get()) != archive->getEntryEnd()) {
 					return true;
 				} else {
 					return false;
 				}
 			} catch (Exception& ex) {
-				char* errMsg = new char[strlen(path->toString()) + 64];
-				sprintf(errMsg, "Exception thrown during existence check of IMG entry %s.", path->toString());
+				char* errMsg = new char[path->toString().length() + 64];
+				sprintf(errMsg, "Exception thrown during existence check of IMG entry %s.",
+						path->toString().get());
 				FileException fex(errMsg, __FILE__, __LINE__, &ex);
 				delete[] errMsg;
 				throw fex;
@@ -138,7 +139,7 @@ FileType File::getType() const
 #ifdef _POSIX_VERSION
 	struct stat fileInfo;
 
-	if (stat(path->toString(), &fileInfo) != 0) {
+	if (stat(path->toString().get(), &fileInfo) != 0) {
 		return TYPE_ERROR;
 	}
 
@@ -152,7 +153,7 @@ FileType File::getType() const
 		return TYPE_OTHER;
 	}
 #elif defined(_WIN32)
-	DWORD attribs = GetFileAttributes(path->toString());
+	DWORD attribs = GetFileAttributes(path->toString().get());
 
 	if (attribs == INVALID_FILE_ATTRIBUTES) {
 		return TYPE_ERROR;
@@ -193,36 +194,14 @@ FileContentType File::guessContentType() const
 }
 
 
-istream* File::openInputStream(ifstream::openmode mode, bool testen) const
+istream* File::openInputStream(ifstream::openmode mode) const
 {
-	/*if (testen) {
-		if (physicallyExists()) {
-			return NULL;
-		} else {
-			if (path->isIMGPath()) {
-				// TODO Reimplement
-				try {
-					shared_ptr<IMGArchive> archive = getIMGArchive();
-					istream* rstream = archive->gotoEntry(path->getFileName(), false, true);
-					return NULL;
-				} catch (Exception& ex) {
-					char* errMsg = new char[strlen(path->toString()) + 64];
-					sprintf(errMsg, "Exception thrown during stream opening of IMG entry %s.", path->toString());
-					FileException fex(errMsg, __FILE__, __LINE__, &ex);
-					delete[] errMsg;
-					throw fex;
-				}
-				return NULL;
-			}
-		}
-	}*/
-
 	if (physicallyExists()) {
 		if (isRegularFile()) {
-			return new ifstream(path->toString(), mode | ifstream::in);
+			return new ifstream(path->toString().get(), mode | ifstream::in);
 		} else {
-			char* errMsg = new char[strlen(path->toString()) + 64];
-			sprintf(errMsg, "Attempt to open stream on non-regular file %s.", path->toString());
+			char* errMsg = new char[path->toString().length() + 64];
+			sprintf(errMsg, "Attempt to open stream on non-regular file %s.", path->toString().get());
 			FileException fex(errMsg, __FILE__, __LINE__);
 			delete[] errMsg;
 			throw fex;
@@ -232,25 +211,27 @@ istream* File::openInputStream(ifstream::openmode mode, bool testen) const
 			// TODO Reimplement
 			try {
 				shared_ptr<IMGArchive> archive = getIMGArchive();
-				istream* rstream = archive->gotoEntry(path->getFileName(), false);
+				istream* rstream = archive->gotoEntry(path->getFileName().get(), false);
 
 				if (rstream != NULL) {
-					FileIMGWrapperStream<istream>* wrapper = new FileIMGWrapperStream<istream>(rstream, archive);
+					FileIMGWrapperStream<istream>* wrapper
+							= new FileIMGWrapperStream<istream>(rstream, archive);
 					return wrapper;
 				} else {
 					return NULL;
 				}
 			} catch (Exception& ex) {
-				char* errMsg = new char[strlen(path->toString()) + 64];
-				sprintf(errMsg, "Exception thrown during stream opening of IMG entry %s.", path->toString());
+				char* errMsg = new char[path->toString().length() + 64];
+				sprintf(errMsg, "Exception thrown during stream opening of IMG entry %s.",
+						path->toString().get());
 				FileException fex(errMsg, __FILE__, __LINE__, &ex);
 				delete[] errMsg;
 				throw fex;
 			}
 			return NULL;
 		} else {
-			char* errMsg = new char[strlen(path->toString()) + 64];
-			sprintf(errMsg, "Attempt to open stream on non-existant file %s.", path->toString());
+			char* errMsg = new char[path->toString().length() + 64];
+			sprintf(errMsg, "Attempt to open stream on non-existant file %s.", path->toString().get());
 			FileException fex(errMsg, __FILE__, __LINE__);
 			delete[] errMsg;
 			throw fex;
@@ -261,17 +242,17 @@ istream* File::openInputStream(ifstream::openmode mode, bool testen) const
 
 ostream* File::openOutputStream(ostream::openmode mode) const
 {
-	return new ofstream(path->toString(), mode | ostream::out);
+	return new ofstream(path->toString().get(), mode | ostream::out);
 }
 
 
 iostream* File::openInputOutputStream(iostream::openmode mode) const
 {
 	if (!physicallyExists()) {
-		ofstream tmp(path->toString());
+		ofstream tmp(path->toString().get());
 		tmp.close();
 	}
-	return new fstream(path->toString(), mode | iostream::out | iostream::in);
+	return new fstream(path->toString().get(), mode | iostream::out | iostream::in);
 }
 
 
@@ -294,15 +275,17 @@ File* File::getChild(int childIdx) const
 
 					return new File(*this, (*it)->name);
 				} catch (Exception& ex) {
-					char* errMsg = new char[strlen(path->toString()) + 64];
-					sprintf(errMsg, "Exception thrown during child count of IMG archive %s.", path->toString());
+					char* errMsg = new char[path->toString().length() + 64];
+					sprintf(errMsg, "Exception thrown during child count of IMG archive %s.",
+							path->toString().get());
 					FileException fex(errMsg, __FILE__, __LINE__, &ex);
 					delete[] errMsg;
 					throw fex;
 				}
 			} else {
-				char* errmsg = new char[strlen(path->toString())+128];
-				sprintf(errmsg, "Called getChild(int) with a regular non-archive file: '%s'", path->toString());
+				char* errmsg = new char[path->toString().length() + 128];
+				sprintf(errmsg, "Called getChild(int) with a regular non-archive file: '%s'",
+						path->toString().get());
 				FileException ex(errmsg, __FILE__, __LINE__);
 				delete[] errmsg;
 				throw ex;
@@ -327,15 +310,15 @@ File* File::getChild(int childIdx) const
 
 			return nextFile;
 		} else {
-			char* errmsg = new char[strlen(path->toString())+128];
-			sprintf(errmsg, "Called getChild(int) with file of invalid type: '%s'", path->toString());
+			char* errmsg = new char[path->toString().length() + 128];
+			sprintf(errmsg, "Called getChild(int) with file of invalid type: '%s'", path->toString().get());
 			FileException ex(errmsg, __FILE__, __LINE__);
 			delete[] errmsg;
 			throw ex;
 		}
 	} else {
-		char* errmsg = new char[strlen(path->toString())+128];
-		sprintf(errmsg, "Called getChild(int) with a non-existant file: '%s'", path->toString());
+		char* errmsg = new char[path->toString().length() + 128];
+		sprintf(errmsg, "Called getChild(int) with a non-existant file: '%s'", path->toString().get());
 		FileException ex(errmsg, __FILE__, __LINE__);
 		delete[] errmsg;
 		throw ex;
@@ -386,8 +369,9 @@ int File::getChildCount(bool recursive, bool archiveEntries) const
 int File::indexOf(const File& other) const
 {
 	if (!isDirectory()  &&  !isArchiveFile()) {
-		char* errmsg = new char[strlen(path->toString())+128];
-		sprintf(errmsg, "Called indexOf(const File&) with an invalid file type: '%s'", path->toString());
+		char* errmsg = new char[path->toString().length() + 128];
+		sprintf(errmsg, "Called indexOf(const File&) with an invalid file type: '%s'",
+				path->toString().get());
 		FileException ex(errmsg, __FILE__, __LINE__);
 		delete[] errmsg;
 		throw ex;
@@ -399,7 +383,7 @@ int File::indexOf(const File& other) const
 	File* child;
 
 	while ((child = it->next())  !=  NULL) {
-		if (strcmp(child->getPath()->toString(), other.getPath()->toString()) == 0) {
+		if (child->getPath()->toString() == other.getPath()->toString()) {
 			delete child;
 			delete it;
 			return i;
@@ -481,20 +465,21 @@ File::filesize File::getSize() const
 
 			try {
 				shared_ptr<IMGArchive> img = getIMGArchive();
-				const IMGEntry* entry = *img->getEntryByName(path->getFileName());
+				const IMGEntry* entry = *img->getEntryByName(path->getFileName().get());
 				filesize size = entry->size * IMG_BLOCK_SIZE;
 				delete imgFile;
 				return size;
 			} catch (Exception& ex) {
-				char* errMsg = new char[strlen(path->toString()) + 64];
-				sprintf(errMsg, "Exception thrown during size retrieval of IMG entry %s.", path->toString());
+				char* errMsg = new char[path->toString().length() + 64];
+				sprintf(errMsg, "Exception thrown during size retrieval of IMG entry %s.",
+						path->toString().get());
 				FileException fex(errMsg, __FILE__, __LINE__, &ex);
 				delete[] errMsg;
 				throw fex;
 			}
 		} else {
-			char* errMsg = new char[strlen(path->toString()) + 64];
-			sprintf(errMsg, "Attempt to get size of non-existent file %s", path->toString());
+			char* errMsg = new char[path->toString().length() + 64];
+			sprintf(errMsg, "Attempt to get size of non-existent file %s", path->toString().get());
 			FileException ex(errMsg);
 			delete[] errMsg;
 			throw ex;
@@ -502,8 +487,8 @@ File::filesize File::getSize() const
 	}
 
 	if (!isRegularFile()) {
-		char* errmsg = new char[strlen(path->toString())+128];
-		sprintf(errmsg, "Attemp to get size of non-regular file: '%s'", path->toString());
+		char* errmsg = new char[path->toString().length() + 128];
+		sprintf(errmsg, "Attemp to get size of non-regular file: '%s'", path->toString().get());
 		FileException ex(errmsg, __FILE__, __LINE__);
 		delete[] errmsg;
 		throw ex;
@@ -512,10 +497,10 @@ File::filesize File::getSize() const
 #ifdef _POSIX_VERSION
 	struct stat fileInfo;
 
-	if (stat(path->toString(), &fileInfo) != 0) {
+	if (stat(path->toString().get(), &fileInfo) != 0) {
 		char* errStr = strerror(errno);
-		char* errMsg = new char[strlen(errStr) + strlen(path->toString()) + 64];
-		sprintf(errMsg, "Internal error receiving size of file %s: %s", path->toString(), errStr);
+		char* errMsg = new char[strlen(errStr) + path->toString().length() + 64];
+		sprintf(errMsg, "Internal error receiving size of file %s: %s", path->toString().get(), errStr);
 		FileException ex(errMsg, __FILE__, __LINE__);
 		delete[] errMsg;
 		throw ex;
@@ -528,11 +513,6 @@ File::filesize File::getSize() const
     filesize size = stream->tellg();
     delete stream;
     return size;
-	/*InputStream* stream = openStream(STREAM_BINARY);
-	stream->seek(0, InputStream::STREAM_SEEK_END);
-	InputStream::streampos size = stream->tell();
-	delete stream;
-	return size;*/
 #endif
 }
 
@@ -540,9 +520,9 @@ File::filesize File::getSize() const
 bool File::mkdir() const
 {
 #ifdef _POSIX_VERSION
-	return ::mkdir(path->toString(), S_IRWXU | S_IRWXG | S_IRWXO) == 0;
+	return ::mkdir(path->toString().get(), S_IRWXU | S_IRWXG | S_IRWXO) == 0;
 #elif defined(_WIN32)
-	return CreateDirectory(path->toString(), NULL) != 0;
+	return CreateDirectory(path->toString().get(), NULL) != 0;
 #endif
 }
 
@@ -743,16 +723,16 @@ void File::copyTo(ostream* stream) const
 
 bool File::remove() const
 {
-	return ::remove(path->toString()) == 0;
+	return ::remove(path->toString().get()) == 0;
 }
 
 
 void File::resize(filesize size) const
 {
 #ifdef _POSIX_VERSION
-	truncate(path->toString(), size);
+	truncate(path->toString().get(), size);
 #elif defined(_WIN32)
-	HANDLE fhandle = CreateFile(path->toString(), GENERIC_WRITE, 0, NULL, OPEN_ALWAYS,
+	HANDLE fhandle = CreateFile(path->toString().get(), GENERIC_WRITE, 0, NULL, OPEN_ALWAYS,
 			FILE_ATTRIBUTE_NORMAL, NULL);
 	LARGE_INTEGER sizeVal;
 	sizeVal.QuadPart = size;
@@ -768,10 +748,10 @@ uint64_t File::getModifyTime() const
 #ifdef _POSIX_VERSION
 	struct stat fileInfo;
 
-	if (stat(path->toString(), &fileInfo) != 0) {
+	if (stat(path->toString().get(), &fileInfo) != 0) {
 		char* errStr = strerror(errno);
-		char* errmsg = new char[64 + strlen(errStr) + strlen(path->toString())];
-		sprintf(errmsg, "Error getting modification time of file '%s': %s", path->toString(), errStr);
+		char* errmsg = new char[64 + strlen(errStr) + path->toString().length()];
+		sprintf(errmsg, "Error getting modification time of file '%s': %s", path->toString().get(), errStr);
 		FileException ex(errmsg, __FILE__, __LINE__);
 		delete[] errmsg;
 		throw ex;
@@ -779,14 +759,14 @@ uint64_t File::getModifyTime() const
 
 	return fileInfo.st_mtime*1000;
 #else
-	HANDLE handle = CreateFile(path->toString(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE
+	HANDLE handle = CreateFile(path->toString().get(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE
 			| FILE_SHARE_DELETE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	FILETIME mtime;
 
 	if (GetFileTime(handle, NULL, NULL, &mtime) == 0) {
-		char* errmsg = new char[128 + strlen(path->toString())];
-		sprintf(errmsg, "Error getting modification time of file '%s'. Error code: %d", path->toString(),
-				GetLastError());
+		char* errmsg = new char[128 + path->toString().length()];
+		sprintf(errmsg, "Error getting modification time of file '%s'. Error code: %d",
+				path->toString().get(), GetLastError());
 		FileException ex(errmsg, __FILE__, __LINE__);
 		delete[] errmsg;
 		throw ex;

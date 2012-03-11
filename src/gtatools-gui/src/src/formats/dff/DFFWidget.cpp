@@ -84,7 +84,7 @@ DFFWidget::DFFWidget(DisplayedFile* dfile, QWidget* parent)
 
 	renderContainerWidget = new GLContainerWidget(ui.renderContainerWidget);
 	renderContainerWidget->setWindowTitle(tr("%1 - DFF Rendering")
-			.arg(file.getPath()->getFileName()));
+			.arg(file.getPath()->getFileName().get()));
 	ui.renderContainerWidget->layout()->addWidget(renderContainerWidget);
 	renderWidget = new DFFRenderWidget(renderContainerWidget);
 	renderContainerWidget->setGLWidget(renderWidget);
@@ -198,8 +198,8 @@ void DFFWidget::reloadHighLevelFile()
 				SLOT(geometryPartDisplayStateChanged(DFFGeometryPart*, bool)));
 
 		// Search for the mesh texture
-		char* meshName = new char[strlen(file.getPath()->getFileName())+1];
-		strtolower(meshName, file.getPath()->getFileName());
+		char* meshName = new char[file.getPath()->getFileName().length() + 1];
+		strtolower(meshName, file.getPath()->getFileName().get());
 		meshName[strlen(meshName)-4] = '\0';
 
 		SystemQuery query("FindMeshTextures");

@@ -211,9 +211,6 @@ void DepthPeelingAlgorithm::install()
 			gtaglFramebufferTexture2D(GTAGL_FRAMEBUFFER, GTAGL_DEPTH_ATTACHMENT, GL_TEXTURE_2D,
 					depthTexes[0], 0);
 
-			GLException::checkFramebufferStatus(GTAGL_FRAMEBUFFER,
-					"During initialization of depth peeling FBO 0 [1]");
-
 			// Initialize the color texture for FBO 0
 			glBindTexture(GL_TEXTURE_2D, colorTexes[0]);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);

@@ -61,7 +61,7 @@ ProfileConfigWidget::ProfileConfigWidget(Profile* profile, QWidget* parent)
 	ui.nameField->setText(profile->getName());
 
 	if (profile->getGameInfo())
-		ui.rootDirField->setText(profile->getGameInfo()->getRootDirectory().getPath()->toString());
+		ui.rootDirField->setText(profile->getGameInfo()->getRootDirectory().getPath()->toString().get());
 	else
 		ui.rootDirField->setText("");
 
@@ -82,15 +82,15 @@ ProfileConfigWidget::ProfileConfigWidget(Profile* profile, QWidget* parent)
 	Profile::ResourceIterator it;
 
 	for (it = profile->getResourceBegin() ; it != profile->getResourceEnd() ; it++) {
-		new QListWidgetItem((*it)->getPath()->toString(), ui.engineFileList);
+		new QListWidgetItem((*it)->getPath()->toString().get(), ui.engineFileList);
 	}
 
 	for (it = profile->getSearchResourceBegin() ; it != profile->getSearchResourceEnd() ; it++) {
-		new QListWidgetItem((*it)->getPath()->toString(), ui.searchFileList);
+		new QListWidgetItem((*it)->getPath()->toString().get(), ui.searchFileList);
 	}
 
 	for (it = profile->getDATFilesBegin() ; it != profile->getDATFilesEnd() ; it++) {
-		new QListWidgetItem((*it)->getPath()->toString(), ui.datFileList);
+		new QListWidgetItem((*it)->getPath()->toString().get(), ui.datFileList);
 	}
 
 	ui.engineFileAddButton->setEnabled(profile != NULL);
@@ -386,7 +386,7 @@ void ProfileConfigWidget::tryAutocomplete()
 		File* child;
 
 		while ((child = it->next())  !=  NULL) {
-			if (QString(child->getPath()->getFileName()).toLower() == QString("gta_sa.exe")) {
+			if (QString(child->getPath()->getFileName().get()).toLower() == QString("gta_sa.exe")) {
 				ver = GameInfo::GTASA;
 				verGuessed = true;
 				delete child;
@@ -415,9 +415,9 @@ void ProfileConfigWidget::tryAutocomplete()
 		// Try to autocomplete the DAT files
 		if (ui.datFileList->count() == 0) {
 			if (ver == GameInfo::GTASA) {
-				new QListWidgetItem(File(root, "data/default.dat").getPath()->toString(),
+				new QListWidgetItem(File(root, "data/default.dat").getPath()->toString().get(),
 						ui.datFileList);
-				new QListWidgetItem(File(root, "data/gta.dat").getPath()->toString(),
+				new QListWidgetItem(File(root, "data/gta.dat").getPath()->toString().get(),
 						ui.datFileList);
 			}
 		}

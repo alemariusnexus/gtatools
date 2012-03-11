@@ -193,7 +193,7 @@ void TXDFormatHandler::systemQuerySent(const SystemQuery& query, SystemQueryResu
 			File* file = GUI::getInstance()->findFile(&finder, NULL);
 
 			if (file) {
-				result["txdFile"] = QString(file->getPath()->toString());
+				result["txdFile"] = QString(file->getPath()->toString().get());
 
 				System* sys = System::getInstance();
 				FileOpenRequest req(*file);

@@ -53,7 +53,8 @@ void TestIMGContents(IMGArchive* img, IMGExpectedEntry* exEntries, unsigned int 
 		if (!exEntry.name.get())
 			continue;
 
-		IMGArchive::EntryIterator it = img->getEntryByName(File(exEntry.name.get()).getPath()->getFileName());
+		IMGArchive::EntryIterator it = img->getEntryByName(File(exEntry.name.get())
+				.getPath()->getFileName().get());
 
 		EXPECT_NE(img->getEntryEnd(), it) << "Test entry #" << i << " (" << exEntry.name.get() << ")"
 				<< " not found!";
@@ -115,7 +116,7 @@ unsigned int FillIMG(IMGArchive* img)
 
 		File inFile(gtasaRoot, exEntry.name.get());
 
-		IMGArchive::EntryIterator it = img->addEntry(File(exEntry.name.get()).getPath()->getFileName(),
+		IMGArchive::EntryIterator it = img->addEntry(File(exEntry.name.get()).getPath()->getFileName().get(),
 				IMG_BYTES2BLOCKS(inFile.getSize()));
 
 		iostream* stream = (iostream*) img->gotoEntry(it);
@@ -185,7 +186,7 @@ IMGExpectedEntry* FindExpectedEntry(const CString& name, IMGExpectedEntry* exEnt
 		IMGExpectedEntry* exEntry = exEntries+i;
 
 		if (	exEntry->name.get()
-				&&  strcmp(File(exEntry->name.get()).getPath()->getFileName(), baseName.get()) == 0
+				&& File(exEntry->name).getPath()->getFileName() == baseName
 		) {
 			return exEntry;
 		}
@@ -464,7 +465,7 @@ TEST(IMGWriteTest, CheckAddRemoveRename)
 
 	for (unsigned int i = 0 ; i < numToAdd ; i++) {
 		entries[i] = new IMGEntry;
-		strcpy(entries[i]->name, File(entriesToAdd[i].name.get()).getPath()->getFileName());
+		strcpy(entries[i]->name, File(entriesToAdd[i].name.get()).getPath()->getFileName().get());
 		entries[i]->size = entriesToAdd[i].size;
 	}
 
@@ -479,7 +480,7 @@ TEST(IMGWriteTest, CheckAddRemoveRename)
 	for (unsigned int i = 0 ; i < numToAdd ; i++) {
 		IMGExpectedEntry& entry = entriesToAdd[i];
 
-		iostream* stream = (iostream*) img->gotoEntry(File(entry.name.get()).getPath()->getFileName());
+		iostream* stream = (iostream*) img->gotoEntry(File(entry.name.get()).getPath()->getFileName().get());
 
 		EXPECT_TRUE(stream != NULL);
 

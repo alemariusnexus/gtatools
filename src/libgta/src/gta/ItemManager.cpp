@@ -54,15 +54,15 @@ void ItemManager::resourceAdded(const File& file)
 			if (type == IDETypeStaticObject) {
 				IDEStaticObject* sobj = (IDEStaticObject*) stmt;
 				StaticMapItemDefinition* item = new StaticMapItemDefinition(*sobj);
-				defineItem(sobj->getId(), item);
+				defineItem(sobj->getID(), item);
 			} else if (type == IDETypeTimedObject) {
 				IDETimedObject* tobj = (IDETimedObject*) stmt;
 				TimedMapItemDefinition* item = new TimedMapItemDefinition(*tobj);
-				defineItem(tobj->getId(), item);
+				defineItem(tobj->getID(), item);
 			} else if (type == IDETypeAnimation) {
 				IDEAnimation* anim = (IDEAnimation*) stmt;
 				AnimatedMapItemDefinition* item = new AnimatedMapItemDefinition(*anim);
-				defineItem(anim->getId(), item);
+				defineItem(anim->getID(), item);
 			}
 
 			delete stmt;

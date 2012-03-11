@@ -58,3 +58,12 @@ void CString::append(const CString& other)
 	strcat(cpy.get(), other.cstr.get());
 	cstr = cpy;
 }
+
+
+CString CString::substr(size_t begin, size_t len) const
+{
+	char* sub = new char[len+1];
+	strncpy(sub, cstr.get() + begin, len);
+	sub[len] = '\0';
+	return CString::from(sub);
+}

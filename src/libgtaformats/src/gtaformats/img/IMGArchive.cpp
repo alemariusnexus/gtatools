@@ -78,9 +78,9 @@ IMGArchive::IMGArchive(const File& file, int mode)
 	FileContentType type = file.guessContentType();
 
 	if (type == CONTENT_TYPE_DIR) {
-		char* imgFilePath = new char[strlen(path->toString())+1];
-		int basePathLen = path->getExtension() - path->toString();
-		strncpy(imgFilePath, path->toString(), basePathLen);
+		char* imgFilePath = new char[path->toString().length() + 1];
+		int basePathLen = path->getExtension().get() - path->toString().get();
+		strncpy(imgFilePath, path->toString().get(), basePathLen);
 		strcpy(imgFilePath+basePathLen, "img");
 		File imgFile(imgFilePath);
 		delete[] imgFilePath;
@@ -105,9 +105,9 @@ IMGArchive::IMGArchive(const File& file, int mode)
 			dirStream = imgStream;
 			readHeader();
 		} else {
-			char* dirFilePath = new char[strlen(path->toString())+1];
-			int basePathLen = path->getExtension() - path->toString();
-			strncpy(dirFilePath, path->toString(), basePathLen);
+			char* dirFilePath = new char[path->toString().length() + 1];
+			int basePathLen = path->getExtension().get() - path->toString().get();
+			strncpy(dirFilePath, path->toString().get(), basePathLen);
 			strcpy(dirFilePath+basePathLen, "dir");
 			File dirFile(dirFilePath);
 			delete[] dirFilePath;
@@ -232,9 +232,9 @@ IMGArchive* IMGArchive::createArchive(const File& file, IMGVersion version, int 
 {
 	if (version == VER1) {
 		if (file.guessContentType() == CONTENT_TYPE_DIR) {
-			const char* dirPath = file.getPath()->toString();
+			const char* dirPath = file.getPath()->toString().get();
 			char* imgPath = new char[strlen(dirPath)+1];
-			int baseLen = strlen(dirPath) - strlen(file.getPath()->getExtension());
+			int baseLen = strlen(dirPath) - file.getPath()->getExtension().length();
 			strncpy(imgPath, dirPath, baseLen);
 			strcpy(imgPath+baseLen, "img");
 			File imgFile(imgPath);
@@ -242,9 +242,9 @@ IMGArchive* IMGArchive::createArchive(const File& file, IMGVersion version, int 
 			return createArchive(file.openInputOutputStream(iostream::binary),
 					imgFile.openInputOutputStream(iostream::binary), mode);
 		} else {
-			const char* imgPath = file.getPath()->toString();
+			const char* imgPath = file.getPath()->toString().get();
 			char* dirPath = new char[strlen(imgPath)+1];
-			int baseLen = strlen(imgPath) - strlen(file.getPath()->getExtension());
+			int baseLen = strlen(imgPath) - file.getPath()->getExtension().length();
 			strncpy(dirPath, imgPath, baseLen);
 			strcpy(dirPath+baseLen, "dir");
 			File dirFile(dirPath);

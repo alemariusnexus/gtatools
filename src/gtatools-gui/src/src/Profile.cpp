@@ -159,7 +159,7 @@ void Profile::loadResourceRecurse(const File& file)
 			resourceLoadingQueue.enqueue(new File(file));
 		} catch (Exception& ex) {
 			sys->log(LogEntry::warning(tr("Error loading resource file %1: %2. The resource file will not be "
-					"used for certain operations.").arg(file.getPath()->toString()).arg(ex.getMessage()),
+					"used for certain operations.").arg(file.getPath()->toString().get()).arg(ex.getMessage()),
 					&ex));
 		}
 	}
@@ -178,7 +178,7 @@ void Profile::loadSingleResource()
 			engine->addResource(*file);
 		} catch (Exception& ex) {
 			sys->log(LogEntry::warning(tr("Error loading resource file %1: %2. The resource file will not be "
-					"used for certain operations.").arg(file->getPath()->toString()).arg(ex.getMessage()),
+					"used for certain operations.").arg(file->getPath()->toString().get()).arg(ex.getMessage()),
 					&ex));
 		}
 
@@ -319,20 +319,20 @@ void Profile::resourceAdded(const File& file)
 
 			if (type == IDETypeStaticObject  ||  type == IDETypeTimedObject) {
 				IDEStaticObject* sobj = (IDEStaticObject*) stmt;
-				meshName = sobj->getModelName();
-				texName = sobj->getTextureName();
+				meshName = sobj->getModelName().get();
+				texName = sobj->getTXDArchiveName().get();
 			} else if (type == IDETypeAnimation) {
 				IDEAnimation* anim = (IDEAnimation*) stmt;
-				meshName = anim->getModelName();
-				texName = anim->getTextureName();
+				meshName = anim->getModelName().get();
+				texName = anim->getTXDArchiveName().get();
 			} else if (type == IDETypePedestrian) {
 				IDEPedestrian* ped = (IDEPedestrian*) stmt;
-				meshName = ped->getModelName();
-				texName = ped->getTXDName();
+				meshName = ped->getModelName().get();
+				texName = ped->getTXDArchiveName().get();
 			} else if (type == IDETypeWeapon) {
 				IDEWeapon* weap = (IDEWeapon*) stmt;
-				meshName = weap->getModelName();
-				texName = weap->getTXDName();
+				meshName = weap->getModelName().get();
+				texName = weap->getTXDArchiveName().get();
 			}
 
 			char* lMeshName = new char[strlen(meshName)+1];

@@ -50,7 +50,7 @@ public:
 	ChildIterator getChildBegin() { return children.begin(); }
 	ChildIterator getChildEnd() { return children.end(); }
 	int indexOf(StaticFile* child) { ensureChildrenAvailable(); return children.indexOf(child); }
-	const char* toString() const { return file->getPath()->getFileName(); }
+	CString toString() const { return file->getPath()->getFileName(); }
 
 private:
 	StaticFile(File* file, StaticFile* parent, Type type = Unknown);

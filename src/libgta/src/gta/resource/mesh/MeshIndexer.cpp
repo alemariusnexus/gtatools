@@ -44,9 +44,9 @@ MeshIndexer::~MeshIndexer()
 void MeshIndexer::resourceAdded(const File& file)
 {
 	if (file.guessContentType() == CONTENT_TYPE_DFF) {
-		const char* fname = file.getPath()->getFileName();
-		char* lMeshName = new char[strlen(fname)+1];
-		strtolower(lMeshName, fname);
+		CString fname = file.getPath()->getFileName();
+		char* lMeshName = new char[fname.length() + 1];
+		strtolower(lMeshName, fname.get());
 		*strrchr(lMeshName, '.') = '\0';
 		index.insert(pair<CString, File*>(CString::from(lMeshName), new File(file)));
 	}

@@ -39,7 +39,7 @@ public:
 	virtual QWidget* getWidget() const { return widget; }
 	void setWidget(QWidget* widget) { this->widget = widget; }
 	virtual File getFile() const { return file; }
-	virtual QString getName() const { return file.getPath()->getFileName(); }
+	virtual QString getName() const { return file.getPath()->getFileName().get(); }
 	virtual void saveTo(const File& file) { DisplayedFile::saveTo(file); this->file = file; }
 
 private:

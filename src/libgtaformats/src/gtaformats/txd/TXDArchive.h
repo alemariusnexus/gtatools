@@ -59,7 +59,7 @@ public:
 	typedef TextureList::const_iterator ConstTextureIterator;
 
 private:
-	typedef map<hash_t, RWSection*> TexNativeMap;
+	typedef map<CString, RWSection*, StringComparator> TexNativeMap;
 
 public:
 	/**	\brief Creates a new, empty TXD archive.

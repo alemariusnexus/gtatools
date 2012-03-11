@@ -24,6 +24,7 @@
 #define GXTTABLE_H_
 
 #include <gtaformats/config.h>
+#include "../util/CString.h"
 #include "../util/encoding.h"
 #include "../gta.h"
 #include <map>
@@ -49,20 +50,20 @@ public:
 	typedef map<crc32_t, char*>::iterator EntryIterator;
 	typedef map<crc32_t, char*>::const_iterator ConstEntryIterator;
 	typedef map<crc32_t, char*> EntryMap;
-	typedef map<crc32_t, char*> KeyNameMap;
+	typedef map<crc32_t, CString> KeyNameMap;
 
 public:
 	/**	\brief Creates an empty new GXTTable with the given internal encoding.
 	 *
 	 * 	@param internalEncoding The encoding in which the entry values are stored.
 	 */
-	GXTTable(const char* name, Encoding internalEncoding, bool keepKeyNames = false);
+	GXTTable(const CString& name, Encoding internalEncoding, bool keepKeyNames = false);
 
 	/**	\brief Destructor.
 	 */
 	~GXTTable();
 
-	const char* getName() const { return name; }
+	CString getName() const { return name; }
 
 	/**	\brief Returns the encoding in which the entries are stored.
 	 *
@@ -115,14 +116,14 @@ public:
 	 * 	@param key The key name of the entry.
 	 * 	@return The entry value in the internal encoding.
 	 */
-	char* getValue(const char* key) { return getValue(Crc32(key)); }
+	char* getValue(const CString& key) { return getValue(Crc32(key.get())); }
 
 	/**	\brief Returns the value of an entry in the internal encoding.
 	 *
 	 * 	@param key The key name of the entry.
 	 * 	@return The entry value in the internal encoding.
 	 */
-	const char* getValue(const char* key) const { return getValue(Crc32(key)); }
+	const char* getValue(const CString& key) const { return getValue(Crc32(key.get())); }
 
 	/**	\brief Returns the value of an entry transcoded to UTF-8.
 	 *
@@ -138,7 +139,7 @@ public:
 	 * 	@param key The key name of the entry.
 	 * 	@see getValueUTF8(int32_t)
 	 */
-	char* getValueUTF8(const char* key) const;
+	char* getValueUTF8(const CString& key) const;
 
 	/**	\brief Returns the value of an entry transcoded to UTF-16.
 	 *
@@ -154,7 +155,7 @@ public:
 	 * 	@param key The key name of the entry.
 	 * 	@see getValueUTF16(int32_t)
 	 */
-	char* getValueUTF16(const char* key) const;
+	char* getValueUTF16(const CString& key) const;
 
 	/**	\brief Returns the value of an entry in the internal encoding.
 	 *
@@ -172,24 +173,24 @@ public:
 	 *
 	 * 	@see getValue(const char*)
 	 */
-	char* operator[](const char* key) { return getValue(key); }
+	char* operator[](const CString& key) { return getValue(key); }
 
 	/**	\brief Returns the value of an entry in the internal encoding.
 	 *
 	 * 	@see getValue(const char*)
 	 */
-	const char* operator[](const char* key) const { return getValue(key); }
+	const char* operator[](const CString& key) const { return getValue(key); }
 
 	void setValue(crc32_t keyHash, char* value);
 
-	void setValue(const char* key, char* value);
+	void setValue(const CString& key, char* value);
 
-	void setKeyName(crc32_t keyHash, const char* name);
+	void setKeyName(crc32_t keyHash, const CString& name);
 
-	const char* getKeyName(crc32_t keyHash) const;
+	CString getKeyName(crc32_t keyHash) const;
 
 private:
-	char name[8];
+	CString name;
 	Encoding internalEncoding;
 	EntryMap entries;
 	KeyNameMap* keyNames;

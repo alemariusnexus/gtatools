@@ -184,7 +184,7 @@ void MainWindow::openFile(const FileOpenRequest& request, DisplayedFile* file)
 {
 	FileViewWidget* widget = new FileViewWidget(file);
 	fileWidgets[file] = widget;
-	ui.contentTabber->addTab(widget, QString(file->getFile().getPath()->getFileName()));
+	ui.contentTabber->addTab(widget, QString(file->getFile().getPath()->getFileName().get()));
 	connect(file, SIGNAL(saved(const File&)), this, SLOT(fileSaved(const File&)));
 	connect(file, SIGNAL(changeStatusChanged()), this, SLOT(fileChangeStatusChanged()));
 }
@@ -211,7 +211,7 @@ void MainWindow::fileSaved(const File& file)
 {
 	DisplayedFile* dfile = (DisplayedFile*) sender();
 	FileViewWidget* widget = fileWidgets[dfile];
-	ui.contentTabber->setTabText(ui.contentTabber->indexOf(widget), file.getPath()->getFileName());
+	ui.contentTabber->setTabText(ui.contentTabber->indexOf(widget), file.getPath()->getFileName().get());
 }
 
 
@@ -219,7 +219,7 @@ void MainWindow::fileChangeStatusChanged()
 {
 	DisplayedFile* dfile = (DisplayedFile*) sender();
 	FileViewWidget* widget = fileWidgets[dfile];
-	QString text = dfile->getFile().getPath()->getFileName();
+	QString text = dfile->getFile().getPath()->getFileName().get();
 
 	if (dfile->hasChanges())
 		text += "*";

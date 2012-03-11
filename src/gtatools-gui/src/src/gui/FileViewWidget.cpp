@@ -65,7 +65,7 @@ void FileViewWidget::updateFile()
 {
 	File file = dfile->getFile();
 
-	ui.fileNameLabel->setText(QString(file.getPath()->getFileName()));
+	ui.fileNameLabel->setText(QString(file.getPath()->getFileName().get()));
 
 	if (file.isDirectory()) {
 		ui.fileTypeLabel->setText(QString(tr("Directory")));

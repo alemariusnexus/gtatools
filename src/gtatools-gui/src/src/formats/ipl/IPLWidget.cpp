@@ -161,7 +161,7 @@ IPLWidget::IPLWidget(QWidget* parent, const File& file)
 
 			ui.instTable->setVerticalHeaderItem(rc, createItem(QString("%1").arg(rc)));
 			ui.instTable->setItem(rc, 0, createItem(QString("%1").arg(inst->getID()), true));
-			ui.instTable->setItem(rc, 1, createItem(inst->getModelName(), true));
+			ui.instTable->setItem(rc, 1, createItem(inst->getModelName().get(), true));
 			ui.instTable->setItem(rc, 2, createItem(QString("%1").arg(inst->getInterior())));
 			ui.instTable->setItem(rc, 3, createItem(QString("%1").arg(x)));
 			ui.instTable->setItem(rc, 4, createItem(QString("%1").arg(y)));
@@ -205,7 +205,8 @@ IPLWidget::IPLWidget(QWidget* parent, const File& file)
 		System* sys = System::getInstance();
 		char* elem;
 
-		sys->log(LogEntry::error(tr("Parsing errors in IPL file %1:").arg(file.getPath()->getFileName())));
+		sys->log(LogEntry::error(tr("Parsing errors in IPL file %1:")
+				.arg(file.getPath()->getFileName().get())));
 
 		while ((elem = log->nextMessage())  !=  NULL) {
 			sys->log(LogEntry::error(QString("\t%1").arg(elem)));

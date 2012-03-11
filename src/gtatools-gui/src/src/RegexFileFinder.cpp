@@ -32,7 +32,7 @@ RegexFileFinder::RegexFileFinder(const QRegExp& regex, bool exactMatch)
 
 bool RegexFileFinder::matches(const File& file)
 {
-	QString fname = file.getPath()->getFileName();
+	QString fname = file.getPath()->getFileName().get();
 
 	if (exactMatch) {
 		return regex.exactMatch(fname);

@@ -31,7 +31,7 @@ class IDEEntity : public IDEStatement
 {
 public:
 	IDEEntity(int32_t id) : id(id) {}
-	int32_t getId() const { return id; }
+	int32_t getID() const { return id; }
 
 private:
 	int32_t id;

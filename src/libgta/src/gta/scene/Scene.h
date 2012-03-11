@@ -74,6 +74,7 @@ public:
 private:
 	ObjectList objects;
 	ObjectList dynamicObjs;
+	ObjectList animObjs;
 	PVSDatabase* pvs;
 	int pvObjCount, visibleObjCount;
 	float ddMultiplier;

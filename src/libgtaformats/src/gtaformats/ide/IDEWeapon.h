@@ -24,19 +24,20 @@
 #define IDEWEAPON_H_
 
 #include <gtaformats/config.h>
+#include "../util/CString.h"
 #include "IDEEntity.h"
 
 
 
 class IDEWeapon : public IDEEntity {
 public:
-	IDEWeapon(int32_t id, const char* modelName, const char* txdName, const char* animName,
+	IDEWeapon(int32_t id, const CString& modelName, const CString& txdName, const CString& animName,
 			int32_t objectCount, float* drawDists, int32_t flags);
 	virtual ~IDEWeapon();
 
-	const char* getModelName() const { return modelName; }
-	const char* getTXDName() const { return txdName; }
-	const char* getAnimationName() const { return animName; }
+	CString getModelName() const { return modelName; }
+	CString getTXDArchiveName() const { return txdName; }
+	CString getAnimationName() const { return animName; }
 	int32_t getObjectCount() const { return objectCount; }
 	const float* getDrawDistances() const { return drawDists; }
 	int32_t getFlags() const { return flags; }
@@ -44,9 +45,9 @@ public:
 	virtual idetype_t getType() const { return IDETypeWeapon; }
 
 private:
-	char* modelName;
-	char* txdName;
-	char* animName;
+	CString modelName;
+	CString txdName;
+	CString animName;
 	int32_t objectCount;
 	float* drawDists;
 	int32_t flags;
