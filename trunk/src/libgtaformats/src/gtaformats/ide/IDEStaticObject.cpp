@@ -24,21 +24,16 @@
 #include <cstring>
 
 
-IDEStaticObject::IDEStaticObject(int32_t id, const char* modelName, const char* texName,
+IDEStaticObject::IDEStaticObject(int32_t id, const CString& modelName, const CString& txdName,
 			int32_t numSubObjects, float* drawDistances, int32_t flags)
-		: IDEEntity(id), modelName(new char[strlen(modelName)+1]),
-		  textureName(new char[strlen(texName)+1]), numSubObjects(numSubObjects),
+		: IDEEntity(id), modelName(modelName), txdName(txdName), numSubObjects(numSubObjects),
 		  drawDistances(drawDistances), flags(flags)
 {
-	strcpy(this->modelName, modelName);
-	strcpy(this->textureName, texName);
 }
 
 
 IDEStaticObject::~IDEStaticObject()
 {
-	delete[] modelName;
-	delete[] textureName;
 	delete[] drawDistances;
 }
 

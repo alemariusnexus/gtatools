@@ -127,9 +127,9 @@ IDEWidget::IDEWidget(QWidget* parent, const FileOpenRequest& request)
 			IDEStaticObject* sobj = (IDEStaticObject*) stmt;
 			int rc = ui.staticObjectTable->rowCount();
 			ui.staticObjectTable->setRowCount(rc+1);
-			ui.staticObjectTable->setItem(rc, 0, createItem(QString("%1").arg(sobj->getId())));
-			ui.staticObjectTable->setItem(rc, 1, createItem(sobj->getModelName(), true));
-			ui.staticObjectTable->setItem(rc, 2, createItem(sobj->getTextureName(), true));
+			ui.staticObjectTable->setItem(rc, 0, createItem(QString("%1").arg(sobj->getID())));
+			ui.staticObjectTable->setItem(rc, 1, createItem(sobj->getModelName().get(), true));
+			ui.staticObjectTable->setItem(rc, 2, createItem(sobj->getTXDArchiveName().get(), true));
 			ui.staticObjectTable->setItem(rc, 3, createItem(QString("%1")
 					.arg(sobj->getNumSubObjects())));
 			ui.staticObjectTable->setItem(rc, 5, createItem(QString("%1")
@@ -151,9 +151,9 @@ IDEWidget::IDEWidget(QWidget* parent, const FileOpenRequest& request)
 			IDETimedObject* tobj = (IDETimedObject*) stmt;
 			int rc = ui.timedObjectTable->rowCount();
 			ui.timedObjectTable->setRowCount(rc+1);
-			ui.timedObjectTable->setItem(rc, 0, createItem(QString("%1").arg(tobj->getId())));
-			ui.timedObjectTable->setItem(rc, 1, createItem(tobj->getModelName(), true));
-			ui.timedObjectTable->setItem(rc, 2, createItem(tobj->getTextureName(), true));
+			ui.timedObjectTable->setItem(rc, 0, createItem(QString("%1").arg(tobj->getID())));
+			ui.timedObjectTable->setItem(rc, 1, createItem(tobj->getModelName().get(), true));
+			ui.timedObjectTable->setItem(rc, 2, createItem(tobj->getTXDArchiveName().get(), true));
 			ui.timedObjectTable->setItem(rc, 3, createItem(QString("%1")
 					.arg(tobj->getNumSubObjects())));
 			ui.timedObjectTable->setItem(rc, 5, createItem(QString("%1")
@@ -179,10 +179,10 @@ IDEWidget::IDEWidget(QWidget* parent, const FileOpenRequest& request)
 			IDEAnimation* anim = (IDEAnimation*) stmt;
 			int rc = ui.animationTable->rowCount();
 			ui.animationTable->setRowCount(rc+1);
-			ui.animationTable->setItem(rc, 0, createItem(QString("%1").arg(anim->getId())));
-			ui.animationTable->setItem(rc, 1, createItem(anim->getModelName(), true));
-			ui.animationTable->setItem(rc, 2, createItem(anim->getTextureName(), true));
-			ui.animationTable->setItem(rc, 3, createItem(anim->getAnimationName()));
+			ui.animationTable->setItem(rc, 0, createItem(QString("%1").arg(anim->getID())));
+			ui.animationTable->setItem(rc, 1, createItem(anim->getModelName().get(), true));
+			ui.animationTable->setItem(rc, 2, createItem(anim->getTXDArchiveName().get(), true));
+			ui.animationTable->setItem(rc, 3, createItem(anim->getAnimationName().get()));
 			ui.animationTable->setItem(rc, 4, createItem(QString("%1")
 					.arg(anim->getDrawDist())));
 			ui.animationTable->setItem(rc, 5, createItem(QString("%1").arg(anim->getFlags())));
@@ -195,23 +195,23 @@ IDEWidget::IDEWidget(QWidget* parent, const FileOpenRequest& request)
 			IDEPedestrian* ped = (IDEPedestrian*) stmt;
 			int rc = ui.pedTable->rowCount();
 			ui.pedTable->setRowCount(rc+1);
-			ui.pedTable->setItem(rc, 0, createItem(QString("%1").arg(ped->getId())));
-			ui.pedTable->setItem(rc, 1, createItem(ped->getModelName(), true));
-			ui.pedTable->setItem(rc, 2, createItem(ped->getTXDName(), true));
-			ui.pedTable->setItem(rc, 3, createItem(ped->getDefaultPedType()));
-			ui.pedTable->setItem(rc, 4, createItem(ped->getBehavior()));
-			ui.pedTable->setItem(rc, 5, createItem(ped->getAnimationGroup()));
+			ui.pedTable->setItem(rc, 0, createItem(QString("%1").arg(ped->getID())));
+			ui.pedTable->setItem(rc, 1, createItem(ped->getModelName().get(), true));
+			ui.pedTable->setItem(rc, 2, createItem(ped->getTXDArchiveName().get(), true));
+			ui.pedTable->setItem(rc, 3, createItem(ped->getDefaultPedType().get()));
+			ui.pedTable->setItem(rc, 4, createItem(ped->getBehavior().get()));
+			ui.pedTable->setItem(rc, 5, createItem(ped->getAnimationGroup().get()));
 			ui.pedTable->setItem(rc, 6, createItem(QString("%1")
 					.arg(ped->getDrivableCarClasses(), 0, 16)));
 			ui.pedTable->setItem(rc, 7, createItem(QString("%1").arg(ped->getFlags())));
-			ui.pedTable->setItem(rc, 8, createItem(ped->getSecondaryAnimationFile()));
+			ui.pedTable->setItem(rc, 8, createItem(ped->getSecondaryAnimationFile().get()));
 			ui.pedTable->setItem(rc, 9, createItem(QString("%1")
 					.arg(ped->getPreferredRadio1())));
 			ui.pedTable->setItem(rc, 10, createItem(QString("%1")
 					.arg(ped->getPreferredRadio2())));
-			ui.pedTable->setItem(rc, 11, createItem(ped->getVoiceFile()));
-			ui.pedTable->setItem(rc, 12, createItem(ped->getVoice1()));
-			ui.pedTable->setItem(rc, 13, createItem(ped->getVoice2()));
+			ui.pedTable->setItem(rc, 11, createItem(ped->getVoiceFile().get()));
+			ui.pedTable->setItem(rc, 12, createItem(ped->getVoice1().get()));
+			ui.pedTable->setItem(rc, 13, createItem(ped->getVoice2().get()));
 
 			if (line == selectedLine) {
 				ui.pedTable->setCurrentCell(rc, 0);
@@ -221,10 +221,10 @@ IDEWidget::IDEWidget(QWidget* parent, const FileOpenRequest& request)
 			IDEWeapon* weap = (IDEWeapon*) stmt;
 			int rc = ui.weaponTable->rowCount();
 			ui.weaponTable->setRowCount(rc+1);
-			ui.weaponTable->setItem(rc, 0, createItem(QString("%1").arg(weap->getId())));
-			ui.weaponTable->setItem(rc, 1, createItem(weap->getModelName(), true));
-			ui.weaponTable->setItem(rc, 2, createItem(weap->getTXDName(), true));
-			ui.weaponTable->setItem(rc, 3, createItem(weap->getAnimationName()));
+			ui.weaponTable->setItem(rc, 0, createItem(QString("%1").arg(weap->getID())));
+			ui.weaponTable->setItem(rc, 1, createItem(weap->getModelName().get(), true));
+			ui.weaponTable->setItem(rc, 2, createItem(weap->getTXDArchiveName().get(), true));
+			ui.weaponTable->setItem(rc, 3, createItem(weap->getAnimationName().get()));
 			ui.weaponTable->setItem(rc, 4, createItem(QString("%1")
 					.arg(weap->getObjectCount())));
 			ui.weaponTable->setItem(rc, 6, createItem(QString("%1").arg(weap->getFlags())));
@@ -252,7 +252,8 @@ IDEWidget::IDEWidget(QWidget* parent, const FileOpenRequest& request)
 		System* sys = System::getInstance();
 		char* elem;
 
-		sys->log(LogEntry::error(tr("Parsing errors in IDE file %1:").arg(file->getPath()->getFileName())));
+		sys->log(LogEntry::error(tr("Parsing errors in IDE file %1:")
+				.arg(file->getPath()->getFileName().get())));
 
 		while ((elem = log->nextMessage())  !=  NULL) {
 			sys->log(LogEntry::error(QString("\t%1").arg(elem)));

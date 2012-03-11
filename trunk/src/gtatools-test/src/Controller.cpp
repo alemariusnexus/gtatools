@@ -271,7 +271,7 @@ void Controller::init()
 	SceneObjectDefinitionDatabase* defDB = scene->getDefinitionDatabase();
 
 	if (pvsFile.exists()) {
-		printf("Loading PVS data from file '%s'...\n", pvsFile.getPath()->toString());
+		printf("Loading PVS data from file '%s'...\n", pvsFile.getPath()->toString().get());
 
 		Scene::ObjectList missingObjs;
 		PVSDatabase::LoadingResult res = pvs->load(pvsFile, defDB, missingObjs,
@@ -304,7 +304,7 @@ void Controller::init()
 		printf("Building PVS data from scratch. This may take some time...\n");
 		pvs->buildSections(scene->getSceneObjectBegin(), scene->getSceneObjectEnd());
 		pvs->calculatePVS(scene->getSceneObjectBegin(), scene->getSceneObjectEnd());
-		printf("Writing PVS data to file '%s'\n", pvsFile.getPath()->toString());
+		printf("Writing PVS data to file '%s'\n", pvsFile.getPath()->toString().get());
 		pvs->save(pvsFile, defDB);
 		printf("PVS data successfully built!\n");
 
@@ -481,7 +481,8 @@ void Controller::addResource(const File& file)
 		try {
 			Engine::getInstance()->addResource(file);
 		} catch (Exception& ex) {
-			fprintf(stderr, "ERROR loading resource file %s: %s\n", file.getPath()->toString(), ex.what());
+			fprintf(stderr, "ERROR loading resource file %s: %s\n", file.getPath()->toString().get(),
+					ex.what());
 		}
 	}
 }

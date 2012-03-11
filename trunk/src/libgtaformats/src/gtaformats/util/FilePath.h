@@ -24,6 +24,7 @@
 #define FILEPATH_H_
 
 #include <gtaformats/config.h>
+#include "CString.h"
 
 
 /**	\brief Content types which can be guessed by FilePath::guessContentType().
@@ -58,7 +59,7 @@ public:
 	 *
 	 *	@param path The path string.
 	 */
-	FilePath(const char* path, int flags = 0);
+	FilePath(const CString& path, int flags = 0);
 
 	/**	\brief Copy constructor.
 	 *
@@ -73,7 +74,7 @@ public:
 	 * 	@param parent The parent FilePath.
 	 *	@param child The child file name.
 	 */
-	FilePath(const FilePath& parent, const char* child, int flags = 0);
+	FilePath(const FilePath& parent, const CString& child, int flags = 0);
 
 	~FilePath();
 
@@ -81,7 +82,7 @@ public:
 	 *
 	 *	@return The file name extension (without the '.').
 	 */
-	const char* getExtension() const;
+	CString getExtension() const;
 
 	/**	\brief Returns the file name.
 	 *
@@ -89,7 +90,7 @@ public:
 	 *
 	 *	@return The file name.
 	 */
-	const char* getFileName() const;
+	CString getFileName() const;
 
 	/**	\brief Returns a part of the path.
 	 *
@@ -98,13 +99,13 @@ public:
 	 *	@param The index of the path part.
 	 *	@return The path part (a newly created string).
 	 */
-	char* getPathPart(int partNo);
+	CString getPathPart(int partNo);
 
 	/**	\brief Returns the string representation of this path.
 	 *
 	 *	@return The string representation of this path.
 	 */
-	const char* toString() const { return path; };
+	CString toString() const { return path; };
 
 	/**	\brief Returns the parent path.
 	 *
@@ -145,10 +146,10 @@ private:
 	 * 	@param src The input path.
 	 * 	@return The normalized path.
 	 */
-	static char* normalize(const char* src, int flags);
+	static CString normalize(const CString& src, int flags);
 
 private:
-	char* path;
+	CString path;
 };
 
 #endif /* FILEPATH_H_ */

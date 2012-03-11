@@ -50,29 +50,30 @@ FileIterator::FileIterator(const File* file)
 					archive = file->getIMGArchive();
 					archiveIt = archive->getEntryBegin();
 				} catch (Exception& ex) {
-					char* errMsg = new char[strlen(file->getPath()->toString()) + 128];
+					char* errMsg = new char[file->getPath()->toString().length() + 128];
 					sprintf(errMsg, "Exception thrown during initialization of a FileIterator over IMG archive %s.",
-							file->getPath()->toString());
+							file->getPath()->toString().get());
 					FileException fex(errMsg, __FILE__, __LINE__, &ex);
 					delete[] errMsg;
 					throw fex;
 				}
 			} else {
-				char* errmsg = new char[strlen(file->getPath()->toString()+64)];
+				char* errmsg = new char[file->getPath()->toString().length() + 64];
 				sprintf(errmsg, "Attempt to iterate over regular non-archive file: %s!",
-						file->getPath()->toString());
+						file->getPath()->toString().get());
 				FileException ex(errmsg, __FILE__, __LINE__);
 				delete[] errmsg;
 				throw ex;
 			}
 		} else {
 #ifdef _POSIX_VERSION
-			dir = opendir(file->getPath()->toString());
+			dir = opendir(file->getPath()->toString().get());
 
 			if (dir == NULL) {
 				char* errStr = strerror(errno);
-				char* errMsg = new char[strlen(errStr) + strlen(file->getPath()->toString()) + 128];
-				sprintf(errMsg, "Internal error opening file %s for iteration: %s", file->getPath()->toString(), errStr);
+				char* errMsg = new char[strlen(errStr) + file->getPath()->toString().length() + 128];
+				sprintf(errMsg, "Internal error opening file %s for iteration: %s",
+						file->getPath()->toString().get(), errStr);
 				FileException ex(errMsg, __FILE__, __LINE__);
 				delete[] errMsg;
 				throw ex;
@@ -101,8 +102,8 @@ FileIterator::FileIterator(const File* file)
 #endif
 		}
 	} else {
-		char* errmsg = new char[strlen(file->getPath()->toString())+128];
-		sprintf(errmsg, "Attempt to iterate over non-existant file '%s'!", file->getPath()->toString());
+		char* errmsg = new char[file->getPath()->toString().length() + 128];
+		sprintf(errmsg, "Attempt to iterate over non-existant file '%s'!", file->getPath()->toString().get());
 		FileException ex(errmsg, __FILE__, __LINE__);
 		delete[] errmsg;
 		throw ex;
@@ -194,9 +195,9 @@ File* FileIterator::next()
 
 			return nextFile;
 		} catch (Exception& ex) {
-			char* errMsg = new char[strlen(iteratedDir->getPath()->toString()) + 128];
+			char* errMsg = new char[iteratedDir->getPath()->toString().length() + 128];
 			sprintf(errMsg, "Exception thrown during iteration over IMG archive %s",
-					iteratedDir->getPath()->toString());
+					iteratedDir->getPath()->toString().get());
 			FileException fex(errMsg, __FILE__, __LINE__, &ex);
 			delete[] errMsg;
 			throw fex;

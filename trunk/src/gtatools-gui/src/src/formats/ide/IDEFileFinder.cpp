@@ -56,7 +56,7 @@ bool IDEFileFinder::matches(const File& file)
 		if (id != -1) {
 			if ((type & IDETypeGroupEntity)  !=  0) {
 				IDEEntity* entity = (IDEEntity*) stmt;
-				int32_t id = entity->getId();
+				int32_t id = entity->getID();
 
 				if (id != this->id) {
 					delete stmt;
@@ -86,7 +86,7 @@ bool IDEFileFinder::matches(const File& file)
 			if (type == IDETypeStaticObject  ||  type == IDETypeTimedObject) {
 				IDEStaticObject* sobj = (IDEStaticObject*) stmt;
 
-				if (!txdFinder->matches(File(sobj->getTextureName()))) {
+				if (!txdFinder->matches(File(sobj->getTXDArchiveName()))) {
 					delete stmt;
 					continue;
 				}

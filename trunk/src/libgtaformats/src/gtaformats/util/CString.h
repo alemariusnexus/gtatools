@@ -67,6 +67,9 @@ public:
 	const char* get() const { return cstr.get(); }
 	void append(const CString& other);
 
+	CString substr(size_t begin, size_t len) const;
+	CString substr(size_t begin) const { return substr(begin, length()-begin); }
+
 	bool operator<(const CString& other) const { return strcmp(cstr.get(), other.cstr.get()) < 0; }
 	bool operator>(const CString& other) const { return strcmp(cstr.get(), other.cstr.get()) > 0; }
 	bool operator<=(const CString& other) const { return !(*this > other); }

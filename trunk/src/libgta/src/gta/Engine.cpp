@@ -253,11 +253,12 @@ void Engine::iplRecurse(File* file, const File& rootDir, const GameInfo* gameInf
 			streamingFiles.push(new File(*file));
 
 			if (ver == GameInfo::GTASA) {
-				const char* fname = file->getPath()->getFileName();
+				// For GTA SA, search for matching streaming files.
+				CString fname = file->getPath()->getFileName();
 
-				int baseLen = strlen(fname)-4+7;
+				int baseLen = fname.length() - 4 + 7;
 				char* baseName = new char[baseLen+1];
-				strtolower(baseName, fname);
+				strtolower(baseName, fname.get());
 				char* baseEnd = strchr(baseName, '.');
 				strcpy(baseEnd, "_stream");
 
@@ -282,8 +283,6 @@ void Engine::iplRecurse(File* file, const File& rootDir, const GameInfo* gameInf
 			multimap<const char*, IndexedSceneObject*, StringComparator> vcLocalObjs;
 			vector<IndexedSceneObject*> saLocalObjs;
 			int iplIdx = 0;
-
-			unsigned int groupObjCount = 0;
 
 			while (!streamingFiles.empty()) {
 				File* sfile = streamingFiles.front();
@@ -328,8 +327,8 @@ void Engine::iplRecurse(File* file, const File& rootDir, const GameInfo* gameInf
 							char* lModelName = NULL; // Needed and created only for GTAVC.
 
 							if (ver == GameInfo::GTAVC) {
-								lModelName = new char[strlen(inst->getModelName()) + 1];
-								strtolower(lModelName, inst->getModelName());
+								lModelName = new char[inst->getModelName().length() + 1];
+								strtolower(lModelName, inst->getModelName().get());
 							}
 
 							if (	ver != GameInfo::GTAVC
@@ -362,15 +361,6 @@ void Engine::iplRecurse(File* file, const File& rootDir, const GameInfo* gameInf
 								iobj->parent = NULL;
 								VisualSceneObject* obj;
 
-								/*StaticSceneObject* sobj = new StaticSceneObject(def, modelMatrix, NULL);
-								obj = sobj;
-
-								SceneObjectDefinitionInfo* defInfo = new SceneObjectDefinitionInfo(group,
-										localIplIdx);
-								sobj->setDefinitionInfo(defInfo);
-
-								group->addSceneObject(sobj);*/
-
 								int type = def->getType();
 
 								if (type == ItemTypeStaticMapItem  ||  type == ItemTypeTimedMapItem) {
@@ -398,7 +388,6 @@ void Engine::iplRecurse(File* file, const File& rootDir, const GameInfo* gameInf
 									saLocalObjs.push_back(iobj);
 								} else if (ver == GameInfo::GTAVC) {
 									iobj->vcModelName = lModelName;
-									//vcLocalObjs[Hash(iobj->vcModelName)] = iobj;
 
 									vcLocalObjs.insert(pair<const char*, IndexedSceneObject*>(
 											iobj->vcModelName, iobj));
@@ -422,7 +411,7 @@ void Engine::iplRecurse(File* file, const File& rootDir, const GameInfo* gameInf
 								}
 							}
 						} else {
-							printf("WARNING: Object with ID %d (%s) not found!\n", id, inst->getModelName());
+							printf("WARNING: Object with ID %d (%s) not found!\n", id, inst->getModelName().get());
 
 							if (ver == GameInfo::GTASA) {
 								saLocalObjs.push_back(NULL);
@@ -437,8 +426,6 @@ void Engine::iplRecurse(File* file, const File& rootDir, const GameInfo* gameInf
 				}
 
 				delete sfile;
-
-				groupObjCount += group->getObjectCount();
 			}
 
 			if (ver == GameInfo::GTASA) {
@@ -500,10 +487,10 @@ void Engine::iplRecurse(File* file, const File& rootDir, const GameInfo* gameInf
 
 					if (iobj) {
 						if (iobj->children.size() > 1) {
-							char* errmsg = new char[256 + strlen(file->getPath()->toString())];
+							char* errmsg = new char[256 + file->getPath()->toString().length()];
 							sprintf(errmsg, "Failed to generate unique IPL LOD hierarchy: Encountered IPL "
 									"object with multiple LOD children in '%s' (or one of it's streaming "
-									"files).", file->getPath()->toString());
+									"files).", file->getPath()->toString().get());
 							EngineException ex(errmsg, __FILE__, __LINE__);
 							delete[] errmsg;
 							throw ex;

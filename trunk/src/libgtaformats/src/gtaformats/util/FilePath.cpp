@@ -32,75 +32,74 @@
 #endif
 
 
-FilePath::FilePath(const char* path, int flags)
+FilePath::FilePath(const CString& path, int flags)
 		: path(normalize(path, flags))
 {
 }
 
 
 FilePath::FilePath(const FilePath& other)
-		: path(new char[strlen(other.path)+1])
+		: path(other.path)
 {
-	strcpy(path, other.path);
 }
 
 
-FilePath::FilePath(const FilePath& parent, const char* child, int flags)
+FilePath::FilePath(const FilePath& parent, const CString& child, int flags)
 {
-	char* tmpPath = new char[strlen(parent.path) + strlen(child) + 2];
-	strcpy(tmpPath, parent.path);
-	strcat(tmpPath, "/");
-	strcat(tmpPath, child);
+	CString tmpPath(parent.path);
+	tmpPath.append("/");
+	tmpPath.append(child);
 	path = normalize(tmpPath, flags);
-	delete[] tmpPath;
 }
 
 
 FilePath::~FilePath()
 {
-	delete[] path;
 }
 
 
-const char* FilePath::getExtension() const
+CString FilePath::getExtension() const
 {
-	int len = strlen(path);
+	int len = path.length();
 
 	for (int i = len-1 ; i > 0 ; i--) {
 		if (path[i] == '.') {
-			return path+i+1;
+			return path.substr(i+1);
 		} else if (path[i] == '/') {
-			return NULL;
+			return CString();
 		}
 	}
 
-	return NULL;
+	return CString();
 }
 
 
-const char* FilePath::getFileName() const
+CString FilePath::getFileName() const
 {
-	const char* fname = strrchr(path, '/');
+	const char* fname = strrchr(path.get(), '/');
 
 	if (fname == NULL) {
 		return path;
 	}
 
-	return fname+1;
+	return CString(fname+1);
 }
 
 
-char* FilePath::getPathPart(int partNo)
+CString FilePath::getPathPart(int partNo)
 {
-	char* start = strtok(path, "/");
+	char* pathCpy = new char[path.length()+1];
+	strcpy(pathCpy, path.get());
+
+	char* start = strtok(pathCpy, "/");
 
 	for (int i = 0 ; i < partNo ; i++) {
 		start = strtok(NULL, "/");
 	}
 
-	char* end = strtok(path, "/");
+	char* end = strtok(pathCpy, "/");
 	if (end == NULL) {
-		end = path + strlen(path) + 1;
+		end = pathCpy + path.length() + 1;
 	}
 	end--;
 
@@ -108,63 +107,61 @@ char* FilePath::getPathPart(int partNo)
 	strncpy(part, start, end-start);
 	part[strlen(part)] = '\0';
 
-	return part;
+	delete[] pathCpy;
+
+	return CString::from(part);
 }
 
 
 FilePath* FilePath::getParentPath() const
 {
-	char* parentEnd = strrchr(path, '/');
+	const char* parentEnd = strrchr(path.get(), '/');
 
-	if (parentEnd == NULL  ||  parentEnd == path) {
+	if (parentEnd == NULL  ||  parentEnd == path.get()) {
 		return NULL;
 	}
 
-	char* parentPath = new char[parentEnd-path+1];
-	strncpy(parentPath, path, parentEnd-path);
-	parentPath[parentEnd-path] = '\0';
-	FilePath* parent = new FilePath(parentPath);
-	delete[] parentPath;
+	char* parentPath = new char[parentEnd-path.get()+1];
+	strncpy(parentPath, path.get(), parentEnd-path.get());
+	parentPath[parentEnd-path.get()] = '\0';
+	FilePath* parent = new FilePath(CString::from(parentPath));
 	return parent;
 }
 
 
 FileContentType FilePath::guessContentType() const
 {
-	const char* tmpExt = getExtension();
+	CString tmpExt = getExtension();
 
-	if (tmpExt == NULL) {
+	if (tmpExt.get() == NULL) {
 		return CONTENT_TYPE_UNKNOWN;
 	}
 
-	char* ext = new char[strlen(tmpExt)+1];
-	strtolower(ext, tmpExt);
+	CString ext = tmpExt.lower();
 
 	FileContentType retval;
 
-	if (strcmp(ext, "img") == 0) {
+	if (ext == CString("img")) {
 		retval = CONTENT_TYPE_IMG;
-	} else if (strcmp(ext, "dir") == 0) {
+	} else if (ext == CString("dir")) {
 		retval = CONTENT_TYPE_DIR;
-	} else if (strcmp(ext, "ide") == 0) {
+	} else if (ext == CString("ide")) {
 		retval = CONTENT_TYPE_IDE;
-	} else if (strcmp(ext, "dff") == 0) {
+	} else if (ext == CString("dff")) {
 		retval = CONTENT_TYPE_DFF;
-	} else if (strcmp(ext, "ipl") == 0) {
+	} else if (ext == CString("ipl")) {
 		retval = CONTENT_TYPE_IPL;
-	} else if (strcmp(ext, "txd") == 0) {
+	} else if (ext == CString("txd")) {
 		retval = CONTENT_TYPE_TXD;
-	} else if (strcmp(ext, "dat") == 0) {
+	} else if (ext == CString("dat")) {
 		retval = CONTENT_TYPE_DAT;
-	} else if (strcmp(ext, "col") == 0) {
+	} else if (ext == CString("col")) {
 		retval = CONTENT_TYPE_COL;
-	} else if (strcmp(ext, "ifp") == 0) {
+	} else if (ext == CString("ifp")) {
 		retval = CONTENT_TYPE_IFP;
 	} else {
 		retval = CONTENT_TYPE_UNKNOWN;
 	}
-
-	delete[] ext;
 
 	return retval;
 }
@@ -216,20 +213,20 @@ bool FilePath::isChildOf(const FilePath& other, bool recursive) const
 
 FilePath* FilePath::relativeTo(const FilePath& parent) const
 {
-	size_t len = strlen(parent.toString())+1;
-	return new FilePath(path + len);
+	size_t len = parent.toString().length()+1;
+	return new FilePath(path.substr(len));
 }
 
 
 bool FilePath::operator==(const FilePath& other) const
 {
-	return strcmp(path, other.path) == 0;
+	return path == other.path;
 }
 
 
-char* FilePath::normalize(const char* src, int flags)
+CString FilePath::normalize(const CString& src, int flags)
 {
-	int srcLen = strlen(src);
+	int srcLen = src.length();
 	char* dest = new char[srcLen+1];
 	char* lastComponentStart = dest;
 	int srcIdx = 0, destIdx = 0;
@@ -266,11 +263,11 @@ char* FilePath::normalize(const char* src, int flags)
 				File* child;
 
 				while ((child = it->next())  !=  NULL) {
-					const char* fname = child->getPath()->getFileName();
-					char* lfname = new char[strlen(fname)+1];
-					strtolower(lfname, fname);
+					CString fname = child->getPath()->getFileName();
+					char* lfname = new char[fname.length() + 1];
+					strtolower(lfname, fname.get());
 					if (strcmp(lfname, component) == 0) {
-						memcpy(lastComponentStart+1, fname, strlen(fname));
+						memcpy(lastComponentStart+1, fname.get(), fname.length());
 						delete child;
 						delete[] lfname;
 						break;
@@ -295,18 +292,18 @@ char* FilePath::normalize(const char* src, int flags)
 	dest[srcLen] = '\0';
 	rtrim(dest, '/');
 
-	return dest;
+	return CString::from(dest);
 }
 
 
 bool FilePath::operator>(const FilePath& other) const
 {
-	return strcmp(path, other.path) > 0;
+	return path > other.path;
 }
 
 
 bool FilePath::operator<(const FilePath& other) const
 {
-	return strcmp(path, other.path) < 0;
+	return path < other.path;
 }
 

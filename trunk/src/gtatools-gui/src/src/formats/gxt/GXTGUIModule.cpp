@@ -91,7 +91,7 @@ void GXTGUIModule::onIniExport(bool checked)
 {
 	File* gxtFile = gxtWidget->getOpenFile();
 	QString fpath = QFileDialog::getSaveFileName(mainWindow, tr("Select a destination file"),
-			QString("%1.ini").arg(gxtFile->getPath()->getFileName()), tr("INI Files (*.ini)"));
+			QString("%1.ini").arg(gxtFile->getPath()->getFileName().get()), tr("INI Files (*.ini)"));
 
 	if (!fpath.isNull()) {
 		File file(fpath.toLocal8Bit().constData());

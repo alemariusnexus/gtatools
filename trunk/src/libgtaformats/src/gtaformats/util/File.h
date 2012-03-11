@@ -94,7 +94,7 @@ public:
 	 *
 	 * 	@param path The path to the file (does not have to exist).
 	 */
-	File(const char* path);
+	File(const CString& path);
 
 	/**	\brief Constructs a file from a given path.
 	 *
@@ -115,7 +115,7 @@ public:
 	 * 	@param parent The parent file.
 	 * 	@param The child file.
 	 */
-	File(const File& parent, const char* child);
+	File(const File& parent, const CString& child);
 
 	/**	\brief Destructor.
 	 */
@@ -201,15 +201,11 @@ public:
 	 * 	@param flags The stream flags.
 	 * 	@return The newly created stream.
 	 */
-	istream* openInputStream(ifstream::openmode mode = ifstream::in, bool testen = false) const;
+	istream* openInputStream(ifstream::openmode mode = ifstream::in) const;
 
 	ostream* openOutputStream(ostream::openmode mode = ostream::out) const;
 
 	iostream* openInputOutputStream(iostream::openmode mode = iostream::in | iostream::out) const;
-
-	//ofstream* openOutputStream(ofstream::openmode mode = ofstream::out) const;
-
-	//fstream* openInputOutputStream(fstream::openmode mode = fstream::in | fstream::out) const;
 
 	File* getChild(int childIdx) const;
 

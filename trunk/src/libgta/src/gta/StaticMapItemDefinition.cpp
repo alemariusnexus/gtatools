@@ -43,7 +43,7 @@ StaticMapItemDefinition::StaticMapItemDefinition(IDEStaticObject& object)
 	CString lMeshName(object.getModelName());
 	lMeshName.lower();
 	meshPtr = new ManagedMeshPointer(lMeshName);
-	texSrc = new ManagedTextureSource(CString(object.getTextureName()).lower());
+	texSrc = new ManagedTextureSource(CString(object.getTXDArchiveName()).lower());
 	colPtr = new ManagedCollisionShapePointer(lMeshName);
 
 	if (	(object.getFlags() & (IDEStaticObject::AlphaTransparency1 | IDEStaticObject::AlphaTransparency2))

@@ -416,7 +416,8 @@ int main(int argc, char** argv)
 				File* file = ifile.file;
 
 				if (file  &&  !file->exists()) {
-					fprintf(stderr, "ERROR: Input file %s does not exist!\n", file->getPath()->toString());
+					fprintf(stderr, "ERROR: Input file %s does not exist!\n",
+							file->getPath()->toString().get());
 					return 2;
 				}
 			}
@@ -495,7 +496,7 @@ int main(int argc, char** argv)
 							ostream::binary | ostream::out | ostream::in);
 
 					if (verbose)
-						printf("DIR file: %s", ifile.dirFile->getPath()->toString());
+						printf("DIR file: %s", ifile.dirFile->getPath()->toString().get());
 				} else {
 					if (ifile.dirFileIsStdout) {
 						// TODO Implement
@@ -512,9 +513,9 @@ int main(int argc, char** argv)
 							return 7;
 						}
 
-						const char* imgPath = file->getPath()->toString();
+						const char* imgPath = file->getPath()->toString().get();
 						char* dirPath = new char[strlen(imgPath)+1];
-						int baseLen = strlen(imgPath) - strlen(file->getPath()->getExtension());
+						int baseLen = strlen(imgPath) - file->getPath()->getExtension().length();
 						strncpy(dirPath, imgPath, baseLen);
 						strcpy(dirPath+baseLen, "dir");
 						File dirFile(dirPath);
@@ -524,7 +525,7 @@ int main(int argc, char** argv)
 								ostream::binary | ostream::out | ostream::in);
 
 						if (verbose)
-							printf("DIR file: %s", dirFile.getPath()->toString());
+							printf("DIR file: %s", dirFile.getPath()->toString().get());
 					}
 				}
 
@@ -532,7 +533,7 @@ int main(int argc, char** argv)
 					imgStream = file->openInputOutputStream(ostream::binary | ostream::out | ostream::in);
 
 					if (verbose)
-						printf(", IMG file: %s)", file->getPath()->toString());
+						printf(", IMG file: %s)", file->getPath()->toString().get());
 				} else {
 					// TODO Implement
 					//imgStream = &cout;
@@ -561,7 +562,7 @@ int main(int argc, char** argv)
 					imgStream = file->openInputOutputStream(ostream::binary | ostream::out | ostream::in);
 
 					if (verbose)
-						printf("%s\n", file->getPath()->toString());
+						printf("%s\n", file->getPath()->toString().get());
 				} else {
 					// TODO Implement
 					//imgStream = &cout;
@@ -638,14 +639,14 @@ int main(int argc, char** argv)
 				}
 			}
 		} catch (IMGException ex) {
-			fprintf(stderr, "ERROR opening IMG file %s: %s\n", file ? file->getPath()->toString() : "(stdin)",
-					ex.what());
+			fprintf(stderr, "ERROR opening IMG file %s: %s\n", file ? file->getPath()->toString().get()
+					: "(stdin)", ex.what());
 			return 5;
 		}
 
 		if (command == CommandShowHeader) {
 			if (file) {
-				printf("%s\n", file->getPath()->toString());
+				printf("%s\n", file->getPath()->toString().get());
 			} else {
 				printf("stdin:\n");
 			}
@@ -686,17 +687,19 @@ int main(int argc, char** argv)
 										||  !pattern->destination->isDirectory()
 								) {
 									if (verbose)
-										printf("to %s...\n", pattern->destination->getPath()->toString());
+										printf("to %s...\n",
+												pattern->destination->getPath()->toString().get());
 
-									out = new ofstream(pattern->destination->getPath()->toString(),
+									out = new ofstream(pattern->destination->getPath()->toString().get(),
 											ofstream::out | ofstream::binary | ofstream::app);
 								} else {
 									FilePath outPath(*pattern->destination->getPath(), entry.name);
 
 									if (verbose)
-										printf("to %s...\n", outPath.toString());
+										printf("to %s...\n", outPath.toString().get());
 
-									out = new ofstream(outPath.toString(), ofstream::out | ofstream::binary);
+									out = new ofstream(outPath.toString().get(),
+											ofstream::out | ofstream::binary);
 								}
 							} else {
 								// Write to stdout
@@ -784,13 +787,13 @@ int main(int argc, char** argv)
 
 				File file(fpath);
 
-				const char* fname = file.getPath()->getFileName();
+				CString fname = file.getPath()->getFileName();
 
-				IMGArchive::EntryIterator it = img->getEntryByName(fname);
+				IMGArchive::EntryIterator it = img->getEntryByName(fname.get());
 
 				if (it != img->getEntryEnd()  &&  !replace) {
 					fprintf(stderr, "WARNING: Entry %s already exists in the archive and will not be "
-							"touched. Use -R to replace it's contents.\n", fname);
+							"touched. Use -R to replace it's contents.\n", fname.get());
 					continue;
 				}
 
@@ -802,15 +805,15 @@ int main(int argc, char** argv)
 					// Add a new entry
 
 					if (verbose)
-						printf("Adding entry %s (%d blocks)...\n", fname, newSize);
+						printf("Adding entry %s (%d blocks)...\n", fname.get(), newSize);
 
-					it = img->addEntry(fname, newSize);
+					it = img->addEntry(fname.get(), newSize);
 				} else {
 					// Replace an existing entry. Here, we need to be sure that the entry has enough space to
 					// hold the new contents.
 
 					if (verbose)
-						printf("Replacing entry %s (%d blocks)...\n", fname, newSize);
+						printf("Replacing entry %s (%d blocks)...\n", fname.get(), newSize);
 
 					if (newSize > entry->size) {
 						img->resizeEntry(it, newSize);

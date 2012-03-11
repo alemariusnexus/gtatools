@@ -24,28 +24,29 @@
 #define IDEANIMATION_H_
 
 #include <gtaformats/config.h>
+#include "../util/CString.h"
 #include "IDEEntity.h"
 
 
 
 class IDEAnimation : public IDEEntity {
 public:
-	IDEAnimation(int32_t id, const char* modelName, const char* texName, const char* animName,
+	IDEAnimation(int32_t id, const CString& modelName, const CString& txdName, const CString& animName,
 			float drawDist, int32_t flags);
 	virtual ~IDEAnimation();
 
-	const char* getModelName() const { return modelName; }
-	const char* getTextureName() const { return texName; }
-	const char* getAnimationName() const { return animName; }
+	CString getModelName() const { return modelName; }
+	CString getTXDArchiveName() const { return txdName; }
+	CString getAnimationName() const { return animName; }
 	float getDrawDist() const { return drawDist; }
 	int32_t getFlags() const { return flags; }
 
 	virtual idetype_t getType() const { return IDETypeAnimation; }
 
 private:
-	char* modelName;
-	char* texName;
-	char* animName;
+	CString modelName;
+	CString txdName;
+	CString animName;
 	float drawDist;
 	int32_t flags;
 };

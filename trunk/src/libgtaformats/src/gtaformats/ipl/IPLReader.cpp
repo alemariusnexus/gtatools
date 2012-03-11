@@ -175,7 +175,7 @@ IPLStatement* IPLReader::readStatement()
 				}
 
 				return new IPLInstance (
-						id, modelName,
+						id, CString(modelName),
 						x, y, z,
 						rotX, rotY, rotZ, rotW,
 						scaleX, scaleY, scaleZ,
@@ -248,7 +248,7 @@ IPLStatement* IPLReader::readStatement()
 			reader.read32(&lod);
 
 			stmt = new IPLInstance (
-					id, NULL,
+					id, CString(),
 					pos[0], pos[1], pos[2],
 					rot[0], rot[1], rot[2], rot[3],
 					1.0f, 1.0f, 1.0f,

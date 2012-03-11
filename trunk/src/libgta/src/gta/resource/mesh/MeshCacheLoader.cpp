@@ -44,8 +44,8 @@ Engine::StringResourceCache::Entry* MeshCacheLoader::load(CString key)
 	try {
 		dffMesh = dff.loadMesh(*file);
 	} catch (Exception ex) {
-		char* errmsg = new char[64 + strlen(file->getPath()->toString())];
-		sprintf(errmsg, "Exception thrown during loading of DFF mesh %s.", file->getPath()->toString());
+		char* errmsg = new char[64 + file->getPath()->toString().length()];
+		sprintf(errmsg, "Exception thrown during loading of DFF mesh %s.", file->getPath()->toString().get());
 		EngineException eex(errmsg, __FILE__, __LINE__, &ex);
 		delete[] errmsg;
 		throw eex;

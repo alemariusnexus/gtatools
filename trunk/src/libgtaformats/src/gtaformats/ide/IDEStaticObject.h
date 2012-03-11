@@ -24,6 +24,7 @@
 #define IDESTATICOBJECT_H_
 
 #include <gtaformats/config.h>
+#include "../util/CString.h"
 #include "IDEEntity.h"
 
 
@@ -59,41 +60,26 @@ public:
 	};
 
 public:
-	IDEStaticObject(int32_t id, const char* modelName, const char* textureName, int32_t numSubObjects,
+	IDEStaticObject(int32_t id, const CString& modelName, const CString& txdName, int32_t numSubObjects,
 			float* drawDistances, int32_t flags);
 	virtual ~IDEStaticObject();
 
 
-    float *getDrawDistances() const
-    {
-        return drawDistances;
-    }
+    float *getDrawDistances() const { return drawDistances; }
 
-    int32_t getFlags() const
-    {
-        return flags;
-    }
+    int32_t getFlags() const { return flags; }
 
-    char *getModelName() const
-    {
-        return modelName;
-    }
+    CString getModelName() const { return modelName; }
 
-    int32_t getNumSubObjects() const
-    {
-        return numSubObjects;
-    }
+    int32_t getNumSubObjects() const { return numSubObjects; }
 
-    char *getTextureName() const
-    {
-        return textureName;
-    }
+    CString getTXDArchiveName() const { return txdName; }
 
     virtual idetype_t getType() const { return IDETypeStaticObject; }
 
 private:
-	char* modelName;
-	char* textureName;
+	CString modelName;
+	CString txdName;
 	int32_t numSubObjects;
 	float* drawDistances;
 	int32_t flags;

@@ -42,7 +42,7 @@ AnimatedMapItemDefinition::AnimatedMapItemDefinition(const IDEAnimation& anim)
 	CString lMeshName(anim.getModelName());
 	lMeshName.lower();
 	meshPtr = new ManagedMeshPointer(lMeshName);
-	texSrc = new ManagedTextureSource(CString(anim.getTextureName()).lower());
+	texSrc = new ManagedTextureSource(CString(anim.getTXDArchiveName()).lower());
 	colPtr = new ManagedCollisionShapePointer(lMeshName);
 	animPtr = new ManagedAnimationPackagePointer(CString(anim.getAnimationName()).lower());
 	defaultAnim = lMeshName;

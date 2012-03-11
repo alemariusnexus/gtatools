@@ -730,6 +730,14 @@ TEST(UtilTest, CheckCRC32)
 
 TEST(UtilTest, CheckFile)
 {
+	File testFile("/home/alemariusnexus/A Path With Whitespaces/hello.txt");
+
+	const FilePath* testPath = testFile.getPath();
+
+	EXPECT_EQ(CString("hello.txt"), testPath->getFileName());
+	EXPECT_EQ(CString("txt"), testPath->getExtension());
+
+
 	File file = File::createTemporaryFile();
 
 	ostream* out = file.openOutputStream();

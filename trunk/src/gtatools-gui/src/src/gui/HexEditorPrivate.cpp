@@ -58,7 +58,7 @@ HexEditorPrivate::HexEditorPrivate(QWidget* parent)
 
 void HexEditorPrivate::loadData(const File& file)
 {
-	QFile qfile(file.getPath()->toString());
+	QFile qfile(file.getPath()->toString().get());
 	qfile.open(QFile::ReadOnly);
 	data = qfile.readAll();
 	qfile.close();

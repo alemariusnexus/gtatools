@@ -76,7 +76,7 @@ void DFFFormatHandler::xmlDumpDialog(const DFFMesh& mesh, QWidget* parent)
 	System* sys = System::getInstance();
 
 	QString filePath = QFileDialog::getSaveFileName(parent, tr("Choose a destination file"),
-			QString(sys->getCurrentFile()->getFile().getPath()->getFileName()).append(".xml"),
+			QString(sys->getCurrentFile()->getFile().getPath()->getFileName().get()).append(".xml"),
 					tr("XML Files (*.xml)"));
 
 	if (!filePath.isEmpty()) {

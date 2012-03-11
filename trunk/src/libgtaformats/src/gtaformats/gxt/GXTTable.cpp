@@ -26,23 +26,14 @@
 
 
 
-GXTTable::GXTTable(const char* name, Encoding internalEncoding, bool keepKeyNames)
-		: internalEncoding(internalEncoding), keyNames(keepKeyNames ? new KeyNameMap : NULL)
+GXTTable::GXTTable(const CString& name, Encoding internalEncoding, bool keepKeyNames)
+		: name(name), internalEncoding(internalEncoding), keyNames(keepKeyNames ? new KeyNameMap : NULL)
 {
-	strncpy(this->name, name, 8);
 }
 
 
 GXTTable::~GXTTable()
 {
-	if (keyNames) {
-		KeyNameMap::iterator it;
-
-		for (it = keyNames->begin() ; it != keyNames->end() ; it++) {
-			delete[] it->second;
-		}
-	}
-
 	EntryIterator it;
 
 	for (it = entries.begin() ; it != entries.end() ; it++) {
@@ -65,15 +56,15 @@ const char* GXTTable::getValue(int32_t keyHash) const
 }
 
 
-char* GXTTable::getValueUTF8(const char* key) const
+char* GXTTable::getValueUTF8(const CString& key) const
 {
-	return getValueUTF8(Crc32(key));
+	return getValueUTF8(Crc32(key.get()));
 }
 
 
-char* GXTTable::getValueUTF16(const char* key) const
+char* GXTTable::getValueUTF16(const CString& key) const
 {
-	return getValueUTF16(Crc32(key));
+	return getValueUTF16(Crc32(key.get()));
 }
 
 
@@ -144,34 +135,30 @@ void GXTTable::setValue(crc32_t keyHash, char* value)
 }
 
 
-void GXTTable::setValue(const char* key, char* value)
+void GXTTable::setValue(const CString& key, char* value)
 {
-	crc32_t keyHash = Crc32(key);
+	crc32_t keyHash = Crc32(key.get());
 	setValue(keyHash, value);
 
 	if (keyNames) {
-		char* keyCpy = new char[strlen(key)];
-		strcpy(keyCpy, key);
-		(*keyNames)[keyHash] = keyCpy;
+		(*keyNames)[keyHash] = key;
 	}
 }
 
 
-const char* GXTTable::getKeyName(crc32_t keyHash) const
+CString GXTTable::getKeyName(crc32_t keyHash) const
 {
 	if (keyNames) {
 		return (*keyNames)[keyHash];
 	}
 
-	return NULL;
+	return CString();
 }
 
 
-void GXTTable::setKeyName(crc32_t keyHash, const char* name)
+void GXTTable::setKeyName(crc32_t keyHash, const CString& name)
 {
 	if (keyNames) {
-		char* nameCpy = new char[strlen(name)];
-		strcpy(nameCpy, name);
-		(*keyNames)[keyHash] = nameCpy;
+		(*keyNames)[keyHash] = name;
 	}
 }

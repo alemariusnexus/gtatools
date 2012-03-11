@@ -203,7 +203,8 @@ int main(int argc, char** argv)
 				File* file = new File(arg);
 
 				if (!file->exists()) {
-					fprintf(stderr, "ERROR: Input file %s does not exist!\n", file->getPath()->toString());
+					fprintf(stderr, "ERROR: Input file %s does not exist!\n",
+							file->getPath()->toString().get());
 					return 2;
 				}
 
@@ -241,9 +242,9 @@ int main(int argc, char** argv)
 				if (	!currentOutputFile->exists()
 						||  !currentOutputFile->isDirectory()
 				) {
-					const char* ext = currentOutputFile->getPath()->getExtension();
-					char* lExt = new char[strlen(ext)+1];
-					strtolower(lExt, ext);
+					CString ext = currentOutputFile->getPath()->getExtension();
+					char* lExt = new char[ext.length() + 1];
+					strtolower(lExt, ext.get());
 
 					if (currentOutputFormat == -1) {
 						if (strcmp(lExt, "png") == 0) {
@@ -573,7 +574,7 @@ void extractTexture(const ExtractOptions& opts, TXDArchive* txd, TXDTextureHeade
 		int packedW, packedH;
 		uint8_t* packed = buildPackedMipmap(opts, tex, data, packedW, packedH);
 
-		ostream* out = new ofstream(dest->getPath()->toString(), ofstream::out | ofstream::binary);
+		ostream* out = new ofstream(dest->getPath()->toString().get(), ofstream::out | ofstream::binary);
 
 		png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL,
 				NULL);
@@ -666,7 +667,7 @@ void extractTexture(const ExtractOptions& opts, TXDArchive* txd, TXDTextureHeade
 								||  !dest->isDirectory()
 						) {
 							// Plain file
-							out = new ofstream(dest->getPath()->toString(),
+							out = new ofstream(dest->getPath()->toString().get(),
 									ofstream::out | ofstream::binary | ofstream::app);
 						} else {
 							char fname[50];
@@ -685,7 +686,7 @@ void extractTexture(const ExtractOptions& opts, TXDArchive* txd, TXDTextureHeade
 
 							FilePath path(*dest->getPath(), fname);
 
-							out = new ofstream(path.toString(), ofstream::out | ofstream::binary);
+							out = new ofstream(path.toString().get(), ofstream::out | ofstream::binary);
 						}
 					} else {
 						out = &cout;

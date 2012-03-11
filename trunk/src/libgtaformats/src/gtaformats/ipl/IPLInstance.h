@@ -24,6 +24,7 @@
 #define IPLINSTANCE_H_
 
 #include <gtaformats/config.h>
+#include "../util/CString.h"
 #include "IPLStatement.h"
 
 #define IPL_TYPE_INSTANCE 0
@@ -33,7 +34,7 @@
 class IPLInstance : public IPLStatement {
 public:
 	IPLInstance	(
-			int32_t id, const char* modelName,
+			int32_t id, const CString& modelName,
 			float posX, float posY, float posZ,
 			float rotX, float rotY, float rotZ, float rotW,
 			float scaleX = 1.0f, float scaleY = 1.0f, float scaleZ = 1.0f,
@@ -44,7 +45,7 @@ public:
 
 	virtual ipltype_t getType() const { return IPL_TYPE_INSTANCE; }
 	int32_t getID() const { return id; }
-	const char* getModelName() const { return modelName; }
+	CString getModelName() const { return modelName; }
 	void getPosition(float& x, float& y, float& z) const { x = posX; y = posY; z = posZ; }
 	void getRotation(float& x, float& y, float& z, float& w) const
 			{ x = rotX; y = rotY; z = rotZ; w = rotW; }
@@ -54,7 +55,7 @@ public:
 
 private:
 	int32_t id;
-	char* modelName;
+	CString modelName;
 	float posX;
 	float posY;
 	float posZ;

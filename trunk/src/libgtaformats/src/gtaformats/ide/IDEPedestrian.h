@@ -24,6 +24,7 @@
 #define IDEPEDESTRIAN_H_
 
 #include <gtaformats/config.h>
+#include "../util/CString.h"
 #include "IDEEntity.h"
 
 
@@ -31,42 +32,42 @@
 
 class IDEPedestrian : public IDEEntity {
 public:
-	IDEPedestrian(int32_t id, const char* modelName, const char* txdName, const char* defaultPedType,
-			const char* behavior, const char* animGroup, int32_t drivableCarClasses, int32_t flags,
-			const char* secondaryAnimFile, int32_t preferredRadio1, int32_t preferredRadio2,
-			const char* voiceFile, const char* voice1, const char* voice2);
+	IDEPedestrian(int32_t id, const CString& modelName, const CString& txdName, const CString& defaultPedType,
+			const CString& behavior, const CString& animGroup, int32_t drivableCarClasses, int32_t flags,
+			const CString& secondaryAnimFile, int32_t preferredRadio1, int32_t preferredRadio2,
+			const CString& voiceFile, const CString& voice1, const CString& voice2);
 	virtual ~IDEPedestrian();
 
-	const char* getModelName() const { return modelName; }
-	const char* getTXDName() const { return txdName; }
-	const char* getDefaultPedType() const { return defaultPedType; }
-	const char* getBehavior() const { return behavior; }
-	const char* getAnimationGroup() const { return animGroup; }
+	CString getModelName() const { return modelName; }
+	CString getTXDArchiveName() const { return txdName; }
+	CString getDefaultPedType() const { return defaultPedType; }
+	CString getBehavior() const { return behavior; }
+	CString getAnimationGroup() const { return animGroup; }
 	int32_t getDrivableCarClasses() const { return drivableCarClasses; }
 	int32_t getFlags() const { return flags; }
-	const char* getSecondaryAnimationFile() const { return secondaryAnimFile; }
+	CString getSecondaryAnimationFile() const { return secondaryAnimFile; }
 	int32_t getPreferredRadio1() const { return preferredRadio1; }
 	int32_t getPreferredRadio2() const { return preferredRadio2; }
-	const char* getVoiceFile() const { return voiceFile; }
-	const char* getVoice1() const { return voice1; }
-	const char* getVoice2() const { return voice2; }
+	CString getVoiceFile() const { return voiceFile; }
+	CString getVoice1() const { return voice1; }
+	CString getVoice2() const { return voice2; }
 
 	virtual idetype_t getType() const { return IDETypePedestrian; }
 
 private:
-	char* modelName;
-	char* txdName;
-	char* defaultPedType;
-	char* behavior;
-	char* animGroup;
+	CString modelName;
+	CString txdName;
+	CString defaultPedType;
+	CString behavior;
+	CString animGroup;
 	int32_t drivableCarClasses;
 	int32_t flags;
-	char* secondaryAnimFile;
+	CString secondaryAnimFile;
 	int32_t preferredRadio1;
 	int32_t preferredRadio2;
-	char* voiceFile;
-	char* voice1;
-	char* voice2;
+	CString voiceFile;
+	CString voice1;
+	CString voice2;
 };
 
 #endif /* IDEPEDESTRIAN_H_ */

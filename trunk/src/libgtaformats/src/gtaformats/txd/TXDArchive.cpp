@@ -76,7 +76,7 @@ TXDArchive::TXDArchive(istream* stream)
 
 TXDArchive::TXDArchive(const File& file)
 {
-	istream* stream = file.openInputStream(istream::binary, true);
+	istream* stream = file.openInputStream(istream::binary);
 	texDict = RWSection::readSection(stream);
 	init(stream);
 	delete stream;
@@ -171,7 +171,7 @@ void TXDArchive::init(istream* stream)
 
 		texHeaders.push_back(tex);
 
-		texNativeMap.insert(pair<hash_t, RWSection*>(LowerHash(header.diffuseName), texNative));
+		texNativeMap.insert(pair<CString, RWSection*>(CString(header.diffuseName).lower(), texNative));
 
 		it++;
 	}
@@ -180,8 +180,7 @@ void TXDArchive::init(istream* stream)
 
 uint8_t* TXDArchive::getTextureData(TXDTextureHeader* header)
 {
-	hash_t hash = LowerHash(header->getDiffuseName().get());
-	TexNativeMap::iterator it = texNativeMap.find(hash);
+	TexNativeMap::iterator it = texNativeMap.find(header->getDiffuseName().lower());
 
 	if (it == texNativeMap.end()) {
 		return NULL;
@@ -217,8 +216,7 @@ uint8_t* TXDArchive::getTextureData(TXDTextureHeader* header)
 
 void TXDArchive::applyTextureHeader(TXDTextureHeader* header)
 {
-	hash_t hash = LowerHash(header->getDiffuseName().get());
-	TexNativeMap::iterator it = texNativeMap.find(hash);
+	TexNativeMap::iterator it = texNativeMap.find(header->getDiffuseName().lower());
 
 	RWSection* texNative = it->second;
 	RWSection* texNativeStruct = texNative->getChild(RW_SECTION_STRUCT);
@@ -296,8 +294,7 @@ void TXDArchive::applyTextureHeader(TXDTextureHeader* header)
 
 void TXDArchive::setTextureData(TXDTextureHeader* header, uint8_t* data)
 {
-	hash_t hash = LowerHash(header->getDiffuseName().get());
-	TexNativeMap::iterator it = texNativeMap.find(hash);
+	TexNativeMap::iterator it = texNativeMap.find(header->getDiffuseName().lower());
 
 	RWSection* texNative = it->second;
 	RWSection* texNativeStruct = texNative->getChild(RW_SECTION_STRUCT);
@@ -324,14 +321,13 @@ void TXDArchive::setTextureData(TXDTextureHeader* header, uint8_t* data)
 
 void TXDArchive::rename(TXDTextureHeader* header, const CString& name)
 {
-	hash_t hash = LowerHash(header->getDiffuseName().get());
-	TexNativeMap::iterator it = texNativeMap.find(hash);
+	TexNativeMap::iterator it = texNativeMap.find(header->getDiffuseName().lower());
 	header->setDiffuseName(name);
 
 	if (it != texNativeMap.end()) {
 		RWSection* sect = it->second;
 		texNativeMap.erase(it);
-		texNativeMap.insert(pair<hash_t, RWSection*>(LowerHash(name.get()), sect));
+		texNativeMap.insert(pair<CString, RWSection*>(CString(name).lower(), sect));
 	}
 }
 
@@ -359,7 +355,7 @@ void TXDArchive::addTexture(TXDTextureHeader* header, uint8_t* data)
 	texNativeSect->setVersion(texDict->getVersion());
 
 	texHeaders.push_back(header);
-	texNativeMap.insert(pair<hash_t, RWSection*>(LowerHash(header->getDiffuseName().get()), texNativeSect));
+	texNativeMap.insert(pair<CString, RWSection*>(header->getDiffuseName().lower(), texNativeSect));
 	applyTextureHeader(header);
 
 	if (data) {
@@ -372,8 +368,8 @@ void TXDArchive::addTexture(TXDTextureHeader* header, uint8_t* data)
 
 void TXDArchive::removeTexture(TXDTextureHeader* header)
 {
-	hash_t hash = LowerHash(header->getDiffuseName().get());
-	TexNativeMap::iterator it = texNativeMap.find(hash);
+	CString lHeaderName = header->getDiffuseName().lower();
+	TexNativeMap::iterator it = texNativeMap.find(lHeaderName);
 
 	RWSection* texNative = it->second;
 	texDict->removeChild(texNative);
@@ -383,7 +379,7 @@ void TXDArchive::removeTexture(TXDTextureHeader* header)
 	for (TextureIterator it = texHeaders.begin() ; it != texHeaders.end() ; it++) {
 		TXDTextureHeader* storedHeader = *it;
 
-		if (LowerHash(storedHeader->getDiffuseName().get()) == hash) {
+		if (storedHeader->getDiffuseName().lower() == lHeaderName) {
 			delete storedHeader;
 			break;
 		}

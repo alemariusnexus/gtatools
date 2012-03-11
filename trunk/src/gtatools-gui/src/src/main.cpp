@@ -64,7 +64,7 @@ void listRecurse(File* file, int ind = 0)
 			printf("  ");
 		}
 
-		printf("%s\n", child->getPath()->getFileName());
+		printf("%s\n", child->getPath()->getFileName().get());
 
 		if (child->isDirectory()) {
 			listRecurse(child, ind+1);
