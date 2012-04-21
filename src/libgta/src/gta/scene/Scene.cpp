@@ -21,7 +21,8 @@
  */
 
 #include "Scene.h"
-#include "AnimatedSceneObject.h"
+#include "parts/AnimatedSceneObject.h"
+#include "parts/PVSSceneObject.h"
 #include "../Engine.h"
 #include "visibility/PVSDatabase.h"
 #include <fstream>
@@ -52,7 +53,7 @@ struct SortableSceneObject
 
 
 Scene::Scene()
-		: pvs(NULL), pvObjCount(0), visibleObjCount(0), ddMultiplier(1.0f)
+		: pvs(NULL), pvObjCount(0), visibleObjCount(0), ddMultiplier(1.0f), pvsEnabled(false)
 {
 }
 
@@ -67,12 +68,16 @@ void Scene::addSceneObject(SceneObject* obj)
 {
 	objects.push_back(obj);
 
-	if (obj->getType() != SceneObjectStatic) {
-		dynamicObjs.push_back(obj);
+	SceneObject::typeflags_t tf = obj->getTypeFlags();
 
-		if (obj->getType() == SceneObjectAnimated) {
-			animObjs.push_back(obj);
-		}
+	if ((tf & SceneObject::TypeFlagPVS)  ==  0) {
+		dynamicObjs.push_back(obj);
+	} else {
+		pvs->addObject(dynamic_cast<PVSSceneObject*>(obj));
+	}
+
+	if ((tf & SceneObject::TypeFlagAnimated)  !=  0) {
+		animObjs.push_back(obj);
 	}
 }
 
@@ -87,6 +92,9 @@ void Scene::clear()
 
 void Scene::buildVisibleSceneObjectList(ObjectList& list)
 {
+	if (pvsEnabled)
+		pvs->calculatePVS();
+
 	Engine* engine = Engine::getInstance();
 
 	Camera* cam = engine->getCamera();
@@ -96,46 +104,30 @@ void Scene::buildVisibleSceneObjectList(ObjectList& list)
 	float cy = cpos.getY();
 	float cz = cpos.getZ();
 
-	ObjectList& pvObjects = objects;
+	PVSObjectList pvObjs;
+	ObjectList& nonPVObjs = objects;
 
-	if (pvs) {
-		ObjectList realPVObjects;
-		pvObjects = realPVObjects;
-		pvs->queryPVS(cx, cy, cz, pvObjects);
-		pvObjects.insert(pvObjects.end(), dynamicObjs.begin(), dynamicObjs.end());
+	if (pvsEnabled) {
+		nonPVObjs = dynamicObjs;
+		pvs->queryPVS(cx, cy, cz, pvObjs);
 	}
 
-	pvObjCount = pvObjects.size();
-
-	ObjectIterator it;
-	ObjectIterator begin = pvObjects.begin();
-	ObjectIterator end = pvObjects.end();
+	pvObjCount = pvObjs.size();
 
 	int actuallyRendered = 0;
 
-	for (it = begin ; it != end ; it++) {
+	for (PVSObjectIterator it = pvObjs.begin() ; it != pvObjs.end() ; it++) {
+		PVSSceneObject* obj = *it;
+
+		if (obj->isEnabled())
+			actuallyRendered += addIfVisible(obj, list, cx, cy, cz) ? 1 : 0;
+	}
+
+	for (ObjectIterator it = nonPVObjs.begin() ; it != nonPVObjs.end() ; it++) {
 		SceneObject* obj = *it;
 
-		Vector3 pos = obj->getPosition();
-
-		float dx = cx - pos.getX();
-		float dy = cy - pos.getY();
-		float dz = cz - pos.getZ();
-
-		float distSq = dx*dx + dy*dy + dz*dz;
-
-		while (obj) {
-			float dd = obj->getDrawDistance();
-			float distDiff = dd*dd - distSq;
-
-			if (distDiff > 0.0f) {
-				list.push_back(obj);
-				actuallyRendered++;
-				break;
-			} else {
-				obj = obj->getLODParent();
-			}
-		}
+		if (obj->isEnabled())
+			actuallyRendered += addIfVisible(obj, list, cx, cy, cz) ? 1 : 0;
 	}
 
 	visibleObjCount = actuallyRendered;
@@ -146,7 +138,7 @@ void Scene::update(uint64_t timePassed)
 {
 	for (ObjectIterator it = animObjs.begin() ; it != animObjs.end() ; it++) {
 		SceneObject* obj = *it;
-		AnimatedSceneObject* aobj = (AnimatedSceneObject*) obj;
+		AnimatedSceneObject* aobj = dynamic_cast<AnimatedSceneObject*>(obj);
 		aobj->increaseAnimationTime(timePassed / 1000.0f);
 	}
 }
@@ -159,10 +151,13 @@ void Scene::present()
 
 	for (ObjectIterator it = visObjs.begin() ; it != visObjs.end() ; it++) {
 		SceneObject* obj = *it;
-		int type = obj->getType();
+		//int type = obj->getType();
 
-		if (type == SceneObjectStatic  ||  type == SceneObjectAnimated) {
-			renderer->enqueueForRendering((VisualSceneObject*) obj);
+		SceneObject::typeflags_t tf = obj->getTypeFlags();
+
+		//if (type == SceneObjectStatic  ||  type == SceneObjectAnimated) {
+		if ((tf & SceneObject::TypeFlagVisual)  !=  0) {
+			renderer->enqueueForRendering(dynamic_cast<VisualSceneObject*>(obj));
 		}
 	}
 

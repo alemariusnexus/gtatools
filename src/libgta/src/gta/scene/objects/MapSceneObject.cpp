@@ -20,33 +20,18 @@
 	GPLADDITIONS.
  */
 
-#ifndef SCENEOBJECT_H_
-#define SCENEOBJECT_H_
-
-#include <gtaformats/util/math/Vector3.h>
+#include "MapSceneObject.h"
 
 
 
-enum SceneObjectType
+MapSceneObject::MapSceneObject(MapItemDefinition* def)
+		: def(def), enabled(true), lodParent(NULL), defInfo(NULL)
 {
-	SceneObjectInvalid,
-	SceneObjectStatic,
-	SceneObjectAnimated
-};
+}
 
 
-class SceneObject {
-public:
-	virtual ~SceneObject() {}
-	virtual SceneObject* clone() const = 0;
-	virtual int getType() const = 0;
-	virtual bool isVisible() const { return true; }
-	virtual float getDrawDistance() const = 0;
-	virtual Vector3 getPosition() const = 0;
-	virtual SceneObject* getLODParent() = 0;
-	virtual int getLODHierarchyDepth() const
-			{ SceneObject* p = getLODParent(); return p ? p->getLODHierarchyDepth()+1 : 0; }
-	SceneObject* getLODParent() const { return const_cast<SceneObject*>(this)->getLODParent(); }
-};
-
-#endif /* SCENEOBJECT_H_ */
+MapSceneObject::MapSceneObject(const MapSceneObject& other)
+		: def(other.def), enabled(other.enabled), mm(other.mm), lodParent(other.lodParent),
+		  defInfo(other.defInfo ? new SceneObjectDefinitionInfo(*other.defInfo) : NULL)
+{
+}

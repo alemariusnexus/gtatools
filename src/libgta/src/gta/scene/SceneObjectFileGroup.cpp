@@ -21,8 +21,9 @@
  */
 
 #include "SceneObjectFileGroup.h"
-#include "StaticSceneObject.h"
+#include "parts/PVSSceneObject.h"
 #include "SceneObjectDefinitionInfo.h"
+#include "../EngineException.h"
 #include <utility>
 
 using std::pair;
@@ -30,25 +31,16 @@ using std::pair;
 
 
 SceneObjectFileGroup::SceneObjectFileGroup(const CString& relPath)
-		: relPath(relPath)
+		: relPath(relPath), lodBaseObjCount(0)
 {
 }
 
 
-void SceneObjectFileGroup::addSceneObject(StaticSceneObject* obj)
+/*void SceneObjectFileGroup::updateObjectIterator(uint32_t id, list<PVSSceneObject*>::iterator it)
 {
-	SceneObjectDefinitionInfo* info = obj->getDefinitionInfo();
-	objs.insert(pair<uint32_t, StaticSceneObject*>(info->getID(), obj));
-}
+	ObjectIterator oit = objs.find(id);
 
-
-StaticSceneObject* SceneObjectFileGroup::getObject(uint32_t id)
-{
-	ObjectIterator it = objs.find(id);
-
-	if (it == objs.end()) {
-		return NULL;
+	if (oit != objs.end()) {
+		oit->second = it;
 	}
-
-	return it->second;
-}
+}*/

@@ -26,9 +26,10 @@
 #include "Renderer.h"
 #include "../Shader.h"
 #include "../ShaderProgram.h"
-#include "VisualSceneObject.h"
-#include "StaticSceneObject.h"
-#include "AnimatedSceneObject.h"
+#include "parts/VisualSceneObject.h"
+#include "parts/AnimatedSceneObject.h"
+#include "objects/MapSceneObject.h"
+#include "objects/AnimatedMapSceneObject.h"
 #include "../GLException.h"
 #include "../gl.h"
 #include "TransparencyAlgorithm.h"
@@ -51,8 +52,8 @@ public:
 	};
 
 private:
-	typedef list<StaticSceneObject*> StaticObjectList;
-	typedef list<AnimatedSceneObject*> AnimObjectList;
+	typedef list<MapSceneObject*> StaticObjectList;
+	typedef list<AnimatedMapSceneObject*> AnimObjectList;
 
 public:
 	DefaultRenderer();
@@ -62,8 +63,8 @@ public:
 	TransparencyAlgorithm* getTransparencyAlgorithm() { return transAlgo; }
 
 private:
-	void renderStaticSceneObject(StaticSceneObject* obj, const Matrix4& mvpMatrix);
-	void renderAnimatedSceneObject(AnimatedSceneObject* obj, const Matrix4& mvpMatrix);
+	void renderStaticSceneObject(MapSceneObject* obj, const Matrix4& mvpMatrix);
+	void renderAnimatedSceneObject(AnimatedMapSceneObject* obj, const Matrix4& mvpMatrix);
 
 private:
 	TransparencyAlgorithm* transAlgo;

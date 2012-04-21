@@ -20,5 +20,22 @@
 	GPLADDITIONS.
  */
 
-#include "SceneObject.h"
+#ifndef IPLSTREAMINGFILEPROVIDER_H_
+#define IPLSTREAMINGFILEPROVIDER_H_
 
+#include <list>
+#include <gtaformats/util/File.h>
+
+using std::list;
+
+
+class IPLStreamingFileProvider
+{
+public:
+	typedef list<File> StreamingFileList;
+
+public:
+	virtual void findStreamingFiles(const File& file, StreamingFileList& sfiles) = 0;
+};
+
+#endif /* IPLSTREAMINGFILEPROVIDER_H_ */

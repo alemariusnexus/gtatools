@@ -131,6 +131,8 @@ public:
 
 	FilePath* relativeTo(const FilePath& parent) const;
 
+	FilePath* absolute() const;
+
 	bool operator==(const FilePath& other) const;
 	bool operator!=(const FilePath& other) const { return !(*this == other); }
 	bool operator>(const FilePath& other) const;

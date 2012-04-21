@@ -27,7 +27,8 @@
 #include "Camera.h"
 #include "GameInfo.h"
 #include "resource/ResourceCache.h"
-#include "scene/VisualSceneObject.h"
+#include "EngineIPLLoader.h"
+#include "scene/parts/VisualSceneObject.h"
 #include <locale>
 #include <cstring>
 #include <vector>
@@ -65,18 +66,6 @@ class Scene;
 class SceneObjectHandler;
 class StaticSceneObject;
 template<class K, class Compare, class MapHash, class KeyEqual> class ResourceCache;
-
-
-
-struct IndexedSceneObject
-{
-	VisualSceneObject* obj;
-	int32_t saLodIndex;
-	bool topLevel;
-	char* vcModelName;
-	IndexedSceneObject* parent;
-	vector<IndexedSceneObject*> children;
-};
 
 
 
@@ -126,12 +115,11 @@ public:
 	int getViewportHeight() const { return viewHeight; }
 	void setDefaultGameInfo(GameInfo* info) { defGameInfo = info; }
 	GameInfo* getDefaultGameInfo() { return defGameInfo; }
+	EngineIPLLoader* getIPLLoader() { return &iplLoader; }
 
 private:
 	Engine();
 	void iplRecurse(File* file, const File& rootDir, const GameInfo* gameInfo = NULL);
-	void iplMakeUniqueLODHierarchy(IndexedSceneObject* node, uint32_t& nextID,
-			vector<IndexedSceneObject*>& newObjs);
 
 private:
 	static Engine* instance;
@@ -168,6 +156,8 @@ private:
 	int viewWidth, viewHeight;
 
 	uint64_t updateTime;
+
+	EngineIPLLoader iplLoader;
 };
 
 #endif /* ENGINE_H_ */

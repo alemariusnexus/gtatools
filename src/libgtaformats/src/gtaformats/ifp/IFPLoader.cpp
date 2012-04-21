@@ -22,6 +22,7 @@
 
 #include "IFPLoader.h"
 #include "IFPUnknownFrame2.h"
+#include "IFPException.h"
 
 
 
@@ -49,6 +50,10 @@ void IFPLoader::init()
 {
 	char fourCC[4];
 	stream->read(fourCC, 4);
+
+	if (strncmp(fourCC, "ANP3", 4)  !=  0) {
+		throw IFPException("Unsupported file format (not ANP3)!", __FILE__, __LINE__);
+	}
 
 	stream->read((char*) &endOffs, sizeof(int32_t));
 

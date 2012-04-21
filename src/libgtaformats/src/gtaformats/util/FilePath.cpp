@@ -23,12 +23,21 @@
 #include "FilePath.h"
 #include "File.h"
 #include "strutil.h"
+#include "FileException.h"
 #include <cstring>
 #include <cstdio>
 
 #ifdef _POSIX_VERSION
+
+#include <unistd.h>
 #include <sys/types.h>
+#include <sys/param.h>
 #include <dirent.h>
+
+#elif defined(_WIN32)
+
+#include <windows.h>
+
 #endif
 
 
@@ -239,6 +248,7 @@ CString FilePath::normalize(const CString& src, int flags)
 			chr = '/';
 		}
 
+		// Remove multiple directory separators
 		if (chr == '/'  &&  destIdx > 0  &&  dest[destIdx-1] == '/') {
 			srcIdx++;
 			continue;
@@ -305,5 +315,27 @@ bool FilePath::operator>(const FilePath& other) const
 bool FilePath::operator<(const FilePath& other) const
 {
 	return path < other.path;
+}
+
+
+FilePath* FilePath::absolute() const
+{
+#ifdef _POSIX_VERSION
+	char absPath[MAXPATHLEN];
+
+	if (!realpath(path.get(), absPath)) {
+		throw FileException("Error getting absolute path via realpath()!", __FILE__, __LINE__);
+	}
+
+	return new FilePath(absPath);
+#elif defined(_WIN32)
+	char absPath[MAX_PATH];
+
+	if (GetFullPathName(path.get(), sizeof(absPath), absPath, NULL) == 0) {
+		throw FileException("Error getting absolute path via GetFullPathName()!", __FILE__, __LINE__);
+	}
+
+	return new FilePath(absPath);
+#endif
 }
 

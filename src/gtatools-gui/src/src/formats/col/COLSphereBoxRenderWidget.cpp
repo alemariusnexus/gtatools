@@ -98,10 +98,10 @@ void COLSphereBoxRenderWidget::paintGL()
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		QLinkedList<StaticSceneObject*>::iterator it;
+		QLinkedList<MapSceneObject*>::iterator it;
 	
 		for (it = objs.begin() ; it != objs.end() ; it++) {
-			StaticSceneObject* obj = *it;
+			MapSceneObject* obj = *it;
 			scene->addSceneObject(obj);
 		}
 
@@ -120,7 +120,7 @@ void COLSphereBoxRenderWidget::addSphere(const COLSphere& sphere)
 	clump->addMesh(mesh);
 	MapItemDefinition* item = new StaticMapItemDefinition(new StaticMeshPointer(clump),
 			new NullTextureSource, NULL, 5000.0f);
-	StaticSceneObject* obj = new StaticSceneObject(item);
+	MapSceneObject* obj = new MapSceneObject(item);
 	objs << obj;
 }
 
@@ -133,7 +133,7 @@ void COLSphereBoxRenderWidget::addBox(const COLBox& box)
 	clump->addMesh(mesh);
 	MapItemDefinition* item = new StaticMapItemDefinition(new StaticMeshPointer(clump),
 			new NullTextureSource, NULL, 5000.0f);
-	StaticSceneObject* obj = new StaticSceneObject(item);
+	MapSceneObject* obj = new MapSceneObject(item);
 	objs << obj;
 }
 
@@ -146,17 +146,17 @@ void COLSphereBoxRenderWidget::addModel(const COLModel& model)
 	clump->addMesh(mesh);
 	MapItemDefinition* item = new StaticMapItemDefinition(new StaticMeshPointer(clump),
 			new NullTextureSource, NULL, 5000.0f);
-	StaticSceneObject* obj = new StaticSceneObject(item);
+	MapSceneObject* obj = new MapSceneObject(item);
 	objs << obj;
 }
 
 
 void COLSphereBoxRenderWidget::clear()
 {
-	QLinkedList<StaticSceneObject*>::iterator it;
+	QLinkedList<MapSceneObject*>::iterator it;
 
 	for (it = objs.begin() ; it != objs.end() ; it++) {
-		StaticSceneObject* item = *it;
+		MapSceneObject* item = *it;
 		MapItemDefinition* def = item->getDefinition();
 		delete **def->getMeshPointer();
 		delete def;

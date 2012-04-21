@@ -94,14 +94,46 @@ void RWBSWidget::save(const File& file)
 {
 	applyChanges();
 
-	ostream* stream = file.openOutputStream(ostream::binary);
+	File* pfile = file.getParent();
 
-	for (SectIterator it = getRootSectionBegin() ; it != getRootSectionEnd() ; it++) {
-		RWSection* sect = *it;
-		sect->write(stream);
+	if (pfile->isArchiveFile()) {
+		IMGArchive img(*pfile, IMGArchive::ReadWrite);
+
+		IMGArchive::EntryIterator eit = img.getEntryByName(file.getPath()->getFileName().get());
+
+		if (eit != img.getEntryEnd()) {
+			size_t size = 0;
+
+			for (SectIterator it = getRootSectionBegin() ; it != getRootSectionEnd() ; it++) {
+				RWSection* sect = *it;
+				size += sect->getSize() + 12;
+			}
+
+			img.resizeEntry(eit, IMG_BYTES2BLOCKS(size));
+
+			iostream* stream = (iostream*) img.gotoEntry(eit);
+
+			for (SectIterator it = getRootSectionBegin() ; it != getRootSectionEnd() ; it++) {
+				RWSection* sect = *it;
+				sect->write(stream);
+			}
+
+			delete stream;
+
+			img.sync();
+		}
+	} else {
+		ostream* stream = file.openOutputStream(ostream::binary);
+
+		for (SectIterator it = getRootSectionBegin() ; it != getRootSectionEnd() ; it++) {
+			RWSection* sect = *it;
+			sect->write(stream);
+		}
+
+		delete stream;
 	}
 
-	delete stream;
+	delete pfile;
 }
 
 

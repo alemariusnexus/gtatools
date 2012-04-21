@@ -249,6 +249,10 @@ public:
 	bool operator<(const File& other) const;
 	bool operator<=(const File& other) const { return !(*this > other); }
 
+	void preloadIMG() { getIMGArchive(); }
+
+	uint32_t crc32() const;
+
 private:
 	shared_ptr<IMGArchive> getIMGArchive() const;
 

@@ -20,38 +20,23 @@
 	GPLADDITIONS.
  */
 
-#include "AnimatedSceneObject.h"
-#include <cmath>
+#ifndef VISUALSCENEOBJECT_H_
+#define VISUALSCENEOBJECT_H_
+
+#include "SceneObject.h"
+#include <gtaformats/util/math/Matrix4.h>
 
 
+class VisualSceneObject : public virtual SceneObject {
+public:
+	virtual void setHasAlphaTransparency(bool alpha) = 0;
+	virtual bool hasAlphaTransparency() const = 0;
+	virtual Matrix4& getModelMatrix() = 0;
+	virtual const Matrix4& getModelMatrix() const = 0;
+	virtual void setModelMatrix(const Matrix4& matrix) = 0;
+	virtual void setLODParent(VisualSceneObject* parent) = 0;
+	virtual SceneObject* getLODParent() = 0;
+	virtual typeflags_t getTypeFlags() const { return TypeFlagVisual; }
+};
 
-AnimatedSceneObject::AnimatedSceneObject(const AnimatedSceneObject& other)
-		: def(other.def), time(other.time), modelMatrix(other.modelMatrix), currentAnim(other.currentAnim),
-		  currentAnimLength(other.currentAnimLength)
-{
-}
-
-
-void AnimatedSceneObject::increaseAnimationTime(float t)
-{
-	float newTime = time + t;
-	time = fmod(newTime, currentAnimLength);
-}
-
-
-void AnimatedSceneObject::setCurrentAnimation(const CString& name)
-{
-	AnimationPackage* pkg = **def->getAnimationPackagePointer();
-
-	if (pkg) {
-		Animation* anim = pkg->find(name);
-
-		if (anim) {
-			currentAnimLength = anim->getDuration();
-		}
-	} else {
-		currentAnimLength = 1.0f;
-	}
-
-	currentAnim = name;
-}
+#endif /* VISUALSCENEOBJECT_H_ */

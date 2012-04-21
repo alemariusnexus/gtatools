@@ -373,7 +373,7 @@ void TestIMGMove(const File& imgFile, IMGArchive::MoveMode mmode)
 
 
 
-TEST(IMGReadTest, CheckGTA3IMG)
+TEST(IMGReadTest, CheckGTA3IMGSA)
 {
 	IMGArchive img(File(gtasaRoot, "models/gta3.img"));
 
@@ -399,6 +399,24 @@ TEST(IMGReadTest, CheckGTA3IMG)
 			{"veh_mods.col",			12,		2048,	0xABF280AC},
 			{"fbmp_a_f.dff",			28,		2048,	0xD0284B87},
 			{"des_byofficeint.dff",		37,		2048,	0xCD740D6B}
+	};
+
+	TestIMGContents(&img, exEntries, sizeof(exEntries) / sizeof(IMGExpectedEntry));
+}
+
+
+TEST(IMGReadTest, CheckGTA3IMGVC)
+{
+	IMGArchive img(File(gtavcRoot, "models/gta3.img"));
+
+	IMGArchive::IMGVersion ver = img.getVersion();
+
+	EXPECT_EQ(IMGArchive::VER1, ver);
+	EXPECT_EQ(6043, img.getEntryCount());
+
+	// Check for some hand-chosen entries...
+
+	IMGExpectedEntry exEntries[] = {
 	};
 
 	TestIMGContents(&img, exEntries, sizeof(exEntries) / sizeof(IMGExpectedEntry));

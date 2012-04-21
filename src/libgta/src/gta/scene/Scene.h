@@ -23,7 +23,6 @@
 #ifndef SCENE_H_
 #define SCENE_H_
 
-#include "StaticSceneObject.h"
 #include "SceneObjectDefinitionDatabase.h"
 #include "Renderer.h"
 #include <gtaformats/util/StringComparator.h>
@@ -48,16 +47,24 @@ public:
 	typedef ObjectList::iterator ObjectIterator;
 	typedef ObjectList::const_iterator ConstObjectIterator;
 
+	typedef list<PVSSceneObject*> PVSObjectList;
+	typedef PVSObjectList::iterator PVSObjectIterator;
+	typedef PVSObjectList::const_iterator ConstPVSObjectIterator;
+
 public:
 	Scene();
 	~Scene();
+
+	template <class ItType>
+	void addSceneObjects(ItType begin, ItType end);
+
 	void addSceneObject(SceneObject* obj);
 	void clear();
 	ObjectIterator getSceneObjectBegin() { return objects.begin(); }
 	ObjectIterator getSceneObjectEnd() { return objects.end(); }
 	ConstObjectIterator getSceneObjectBegin() const { return objects.begin(); }
 	ConstObjectIterator getSceneObjectEnd() const { return objects.end(); }
-	size_type getSceneObjectCount() { return objects.size(); }
+	ObjectList::size_type getSceneObjectCount() { return objects.size(); }
 	void buildVisibleSceneObjectList(ObjectList& list);
 	//DefaultSceneObject* getObjectByID(int id) { return objects[id]; }
 	int getLastPotentiallyVisibleObjectCount() const { return pvObjCount; }
@@ -68,8 +75,36 @@ public:
 	void setRenderer(Renderer* r) { renderer = r; }
 	void update(uint64_t timePassed);
 	void present();
-	SceneObjectDefinitionDatabase* getDefinitionDatabase() { return &defDB; }
 	void setPVSDatabase(PVSDatabase* pvs) { this->pvs = pvs; }
+	PVSDatabase* getPVSDatabase() { return pvs; }
+	void setPVSEnabled(bool pe) { pvsEnabled = pe; }
+	bool isPVSEnabled() const { return pvsEnabled; }
+
+private:
+	inline bool addIfVisible(SceneObject* obj, ObjectList& list, float cx, float cy, float cz)
+	{
+		Vector3 pos = obj->getPosition();
+
+		float dx = cx - pos.getX();
+		float dy = cy - pos.getY();
+		float dz = cz - pos.getZ();
+
+		float distSq = dx*dx + dy*dy + dz*dz;
+
+		while (obj) {
+			float dd = obj->getStreamingDistance();
+			float distDiff = dd*dd - distSq;
+
+			if (distDiff > 0.0f) {
+				list.push_back(obj);
+				return true;
+			} else {
+				obj = obj->getLODParent();
+			}
+		}
+
+		return false;
+	}
 
 private:
 	ObjectList objects;
@@ -80,7 +115,19 @@ private:
 	float ddMultiplier;
 	Renderer* renderer;
 	int nextStaticObjID;
-	SceneObjectDefinitionDatabase defDB;
+	bool pvsEnabled;
 };
+
+
+
+
+template <class ItType>
+void Scene::addSceneObjects(ItType begin, ItType end)
+{
+	for (ItType it = begin ; it != end ; it++) {
+		SceneObject* obj = dynamic_cast<SceneObject*>(*it);
+		addSceneObject(obj);
+	}
+}
 
 #endif /* SCENE_H_ */

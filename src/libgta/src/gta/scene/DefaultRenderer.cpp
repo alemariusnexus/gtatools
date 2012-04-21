@@ -198,18 +198,18 @@ void DefaultRenderer::setTransparencyAlgorithm(TransparencyAlgorithm* algo)
 
 void DefaultRenderer::enqueueForRendering(VisualSceneObject* obj)
 {
-	int type = obj->getType();
+	SceneObject::typeflags_t tf = obj->getTypeFlags();
 
-	if (type == SceneObjectStatic) {
+	if ((tf & SceneObject::TypeFlagAnimated)  !=  0) {
 		if (obj->hasAlphaTransparency())
-			staticObjs.push_back((StaticSceneObject*) obj);
+			animObjs.push_back(dynamic_cast<AnimatedMapSceneObject*>(obj));
 		else
-			staticObjs.insert(staticAlphaBegin, (StaticSceneObject*) obj);
-	} else if (type == SceneObjectAnimated) {
+			animObjs.insert(animAlphaBegin, dynamic_cast<AnimatedMapSceneObject*>(obj));
+	} else {
 		if (obj->hasAlphaTransparency())
-			animObjs.push_back((AnimatedSceneObject*) obj);
+			staticObjs.push_back(dynamic_cast<MapSceneObject*>(obj));
 		else
-			animObjs.insert(animAlphaBegin, (AnimatedSceneObject*) obj);
+			staticObjs.insert(staticAlphaBegin, dynamic_cast<MapSceneObject*>(obj));
 	}
 }
 
@@ -303,8 +303,6 @@ void DefaultRenderer::render()
 	if (transAlgo->performTransparentRenderInit()) {
 		bool running = true;
 
-		int lastType = SceneObjectInvalid;
-
 		while (running) {
 			transAlgo->performPreRenderPass();
 
@@ -390,7 +388,7 @@ void DefaultRenderer::render()
 }
 
 
-void DefaultRenderer::renderStaticSceneObject(StaticSceneObject* obj, const Matrix4& mvpMatrix)
+void DefaultRenderer::renderStaticSceneObject(MapSceneObject* obj, const Matrix4& mvpMatrix)
 {
 	Matrix4 mat = mvpMatrix * obj->getModelMatrix();
 	const float* matData = mat.toArray();
@@ -501,7 +499,7 @@ void DefaultRenderer::renderStaticSceneObject(StaticSceneObject* obj, const Matr
 }
 
 
-void DefaultRenderer::renderAnimatedSceneObject(AnimatedSceneObject* obj, const Matrix4& mvpMatrix)
+void DefaultRenderer::renderAnimatedSceneObject(AnimatedMapSceneObject* obj, const Matrix4& mvpMatrix)
 {
 	Matrix4 mat = mvpMatrix * obj->getModelMatrix();
 

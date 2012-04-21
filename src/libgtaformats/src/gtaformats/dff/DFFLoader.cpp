@@ -433,6 +433,7 @@ DFFMesh* DFFLoader::loadMesh(RWSection* clump)
 				RWSection* diffNameSect = *it;
 				char* diffuseName = new char[diffNameSect->getSize()];
 				memcpy(diffuseName, diffNameSect->getData(), diffNameSect->getSize());
+				it++;
 
 				it = texSect->nextChild(RW_SECTION_STRING, it);
 				RWSection* alphaNameSect = *it;

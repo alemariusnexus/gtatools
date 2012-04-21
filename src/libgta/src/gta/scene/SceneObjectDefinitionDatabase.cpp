@@ -28,24 +28,6 @@ using std::pair;
 
 
 
-void SceneObjectDefinitionDatabase::addFileGroup(SceneObjectFileGroup* group)
-{
-	fileGroups.insert(pair<CString, SceneObjectFileGroup*>(group->getRelativePath(), group));
-}
-
-
-SceneObjectFileGroup* SceneObjectDefinitionDatabase::getFileGroup(const CString& relPath)
-{
-	FileGroupMap::iterator it = fileGroups.find(relPath);
-
-	if (it == fileGroups.end()) {
-		return NULL;
-	}
-
-	return it->second;
-}
-
-
 void SceneObjectDefinitionDatabase::addGroupDependency(SceneObjectGroupDependency* dep)
 {
 	groupDeps.insert(pair<CString, SceneObjectGroupDependency*>(dep->getRelativePath(), dep));

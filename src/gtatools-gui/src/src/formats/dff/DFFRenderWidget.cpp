@@ -37,6 +37,7 @@
 #include <gta/scene/DefaultRenderer.h>
 #include <gta/scene/DepthPeelingAlgorithm.h>
 #include <gta/scene/BasicTransparencyAlgorithm.h>
+#include <gta/scene/visibility/PVSDatabase.h>
 
 
 
@@ -65,17 +66,19 @@ DFFRenderWidget::~DFFRenderWidget()
 {
 	clearGeometries();
 
-	DefaultRenderer* renderer = (DefaultRenderer*) scene->getRenderer();
-	delete renderer->getTransparencyAlgorithm();
-	delete renderer;
-	delete scene;
+	if (scene) {
+		DefaultRenderer* renderer = (DefaultRenderer*) scene->getRenderer();
+		delete renderer->getTransparencyAlgorithm();
+		delete renderer;
+		delete scene;
+	}
 
 	if (texSource)
 		delete texSource;
 }
 
 
-StaticSceneObject* DFFRenderWidget::createSceneObject(const DFFGeometry* geom,
+MapSceneObject* DFFRenderWidget::createSceneObject(const DFFGeometry* geom,
 		QLinkedList<const DFFGeometryPart*> parts)
 {
 	makeCurrent();
@@ -102,7 +105,7 @@ StaticSceneObject* DFFRenderWidget::createSceneObject(const DFFGeometry* geom,
 
 	StaticMapItemDefinition* def = new StaticMapItemDefinition(new StaticMeshPointer(clump), texSrc, NULL,
 			5000.0f);
-	StaticSceneObject* obj = new StaticSceneObject(def);
+	MapSceneObject* obj = new MapSceneObject(def);
 
 	return obj;
 }
@@ -111,7 +114,7 @@ StaticSceneObject* DFFRenderWidget::createSceneObject(const DFFGeometry* geom,
 void DFFRenderWidget::addGeometry(const DFFGeometry* geom, QLinkedList<const DFFGeometryPart*> parts)
 {
 	makeCurrent();
-	StaticSceneObject* obj = createSceneObject(geom, parts);
+	MapSceneObject* obj = createSceneObject(geom, parts);
 	objs[geom] = obj;
 }
 
@@ -119,10 +122,10 @@ void DFFRenderWidget::addGeometry(const DFFGeometry* geom, QLinkedList<const DFF
 void DFFRenderWidget::removeGeometry(const DFFGeometry* geom)
 {
 	makeCurrent();
-	QMap<const DFFGeometry*, StaticSceneObject*>::iterator it = objs.find(geom);
+	QMap<const DFFGeometry*, MapSceneObject*>::iterator it = objs.find(geom);
 
 	if (it != objs.end()) {
-		StaticSceneObject* obj = it.value();
+		MapSceneObject* obj = it.value();
 		MapItemDefinition* def = obj->getDefinition();
 		MeshClump* clump = **def->getMeshPointer();
 		delete clump;
@@ -163,6 +166,8 @@ void DFFRenderWidget::initializeGL()
 
 		if (!scene) {
 			scene = new Scene;
+			PVSDatabase* pvs = new PVSDatabase;
+			scene->setPVSDatabase(pvs);
 
 			DefaultRenderer* renderer = new DefaultRenderer;
 			scene->setRenderer(renderer);
@@ -213,9 +218,9 @@ void DFFRenderWidget::paintGL()
 
 		scene->clear();
 
-		QMap<const DFFGeometry*, StaticSceneObject*>::iterator it;
+		QMap<const DFFGeometry*, MapSceneObject*>::iterator it;
 		for (it = objs.begin() ; it != objs.end() ; it++) {
-			StaticSceneObject* obj = it.value();
+			MapSceneObject* obj = it.value();
 			scene->addSceneObject(obj);
 		}
 
@@ -235,9 +240,9 @@ void DFFRenderWidget::setTextureSource(TextureSource* source)
 
 	texSource = source;
 
-	QMap<const DFFGeometry*, StaticSceneObject*>::iterator it;
+	QMap<const DFFGeometry*, MapSceneObject*>::iterator it;
 	for (it = objs.begin() ; it != objs.end() ; it++) {
-		StaticSceneObject* obj = it.value();
+		MapSceneObject* obj = it.value();
 		MapItemDefinition* def = obj->getDefinition();
 
 		if (textured) {

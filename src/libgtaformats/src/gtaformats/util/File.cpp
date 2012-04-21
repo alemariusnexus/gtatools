@@ -28,10 +28,24 @@
 #include "../img/IMGArchive.h"
 #include "FileFinder.h"
 #include "FileIMGWrapperStream.h"
+#include "CRC32.h"
+#include <map>
+#include <utility>
 
 #ifdef _POSIX_VERSION
 #include <errno.h>
 #endif
+
+
+using std::map;
+using std::pair;
+
+
+
+
+map<CString, shared_ptr<IMGArchive> > IMGArchiveMap;
+
+
 
 
 
@@ -211,6 +225,7 @@ istream* File::openInputStream(ifstream::openmode mode) const
 			// TODO Reimplement
 			try {
 				shared_ptr<IMGArchive> archive = getIMGArchive();
+
 				istream* rstream = archive->gotoEntry(path->getFileName().get(), false);
 
 				if (rstream != NULL) {
@@ -627,7 +642,21 @@ shared_ptr<IMGArchive> File::getIMGArchive() const
 			parent->getIMGArchive();
 			delete parent;
 		} else {
-			(*sharedPtr) = shared_ptr<IMGArchive>(new IMGArchive(*this));
+			FilePath* absPath = path->absolute();
+			map<CString, shared_ptr<IMGArchive> >::iterator it
+					= IMGArchiveMap.find(absPath->toString());
+			delete absPath;
+
+			if (it != IMGArchiveMap.end()) {
+				(*sharedPtr) = it->second;
+			} else {
+				(*sharedPtr) = shared_ptr<IMGArchive>(new IMGArchive(*this));
+
+				FilePath* absPath = path->absolute();
+				IMGArchiveMap.insert(pair<CString, shared_ptr<IMGArchive> >(
+						absPath->toString(), *sharedPtr));
+				delete absPath;
+			}
 		}
 	}
 
@@ -777,4 +806,22 @@ uint64_t File::getModifyTime() const
 			- 116444736000000000) / 10000;
 	return t - (t % 1000);
 #endif
+}
+
+
+uint32_t File::crc32() const
+{
+	istream* stream = openInputStream(istream::binary);
+
+	CRC32 crc;
+	char buf[4096];
+
+	while (!stream->eof()) {
+		stream->read(buf, sizeof(buf));
+		crc.append(buf, stream->gcount());
+	}
+
+	delete stream;
+
+	return crc.getChecksum();
 }

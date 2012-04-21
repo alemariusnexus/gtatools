@@ -215,7 +215,7 @@ void TXDWidget::setDisplayedTexture(TXDTextureHeader* texture)
 		ui.displayLabel->display(texture, rawData);
 		delete[] rawData;
 
-		int32_t format = texture->getRasterFormat();
+		int32_t format = texture->getFullRasterFormat();
 		char formatDesc[32];
 		TxdGetRasterFormatDescription(formatDesc, format);
 

@@ -23,7 +23,7 @@
 #ifndef RENDERER_H_
 #define RENDERER_H_
 
-#include "VisualSceneObject.h"
+#include "parts/VisualSceneObject.h"
 
 
 

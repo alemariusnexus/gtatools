@@ -22,7 +22,8 @@
 SET(FILES
     gl Camera Shader ShaderProgram ItemDefinition GLException Engine MeshGenerator ItemManager
     MapItemDefinition StaticMapItemDefinition TimedMapItemDefinition GameInfo
-    Animation AnimationBone AnimationFrame AnimatedMapItemDefinition Animator gldebug)
+    Animation AnimationBone AnimationFrame AnimatedMapItemDefinition Animator gldebug
+    DefaultIPLStreamingFileProvider EngineIPLLoader)
     
 ADD_SUBDIRECTORY(resource)
 ADD_SUBDIRECTORY(scene)

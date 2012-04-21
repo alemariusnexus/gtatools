@@ -31,6 +31,7 @@
 #include "DefaultDisplayedFile.h"
 #include "ProfileManager.h"
 #include <gta/scene/Scene.h>
+#include <gta/scene/visibility/PVSDatabase.h>
 #include <gta/resource/ResourceCache.h>
 
 
@@ -96,7 +97,10 @@ void System::initializeInstance()
 
 	connect(qApp, SIGNAL(lastWindowClosed()), this, SLOT(destroyInstance()));
 
+	PVSDatabase* pvs = new PVSDatabase;
+
 	Scene* scene = new Scene;
+	scene->setPVSDatabase(pvs);
 	engine->setScene(scene);
 
 	initializing = false;

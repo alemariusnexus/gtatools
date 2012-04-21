@@ -20,24 +20,17 @@
 	GPLADDITIONS.
  */
 
-#ifndef SCENEOBJECTGROUPDEPENDENCY_H_
-#define SCENEOBJECTGROUPDEPENDENCY_H_
-
-#include <gta/config.h>
-#include <gtaformats/util/CString.h>
-#include <gtaformats/util/CRC32.h>
+#include "AnimatedMapSceneObject.h"
 
 
-class SceneObjectGroupDependency {
-public:
-	SceneObjectGroupDependency(const CString& relPath);
-	CString getRelativePath() const { return relPath; }
-	void setChecksum(uint32_t cs) { checksum = cs; }
-	uint32_t getChecksum() const { return checksum; }
 
-private:
-	CString relPath;
-	uint32_t checksum;
-};
+AnimatedMapSceneObject::AnimatedMapSceneObject(AnimatedMapItemDefinition* def)
+		: MapSceneObject(def), def(def), curAnim(def->getDefaultAnimation()), time(0.0f)
+{
+}
 
-#endif /* SCENEOBJECTGROUPDEPENDENCY_H_ */
+
+AnimatedMapSceneObject::AnimatedMapSceneObject(const AnimatedMapSceneObject& other)
+		: MapSceneObject(other), def(other.def), curAnim(other.curAnim), time(other.time)
+{
+}
