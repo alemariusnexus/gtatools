@@ -223,12 +223,13 @@ int32_t TXDConverter::convert(const TXDTextureHeader& from, const TXDTextureHead
 						a = (pixel & am) >> as;
 					} else if (bpp == 1) {
 						if (pal4  || pal8) {
-							uint8_t pixel = *((uint8_t*) intermediateDataPtr);
+							uint8_t idx = *((uint8_t*) intermediateDataPtr);
+							uint32_t pixel;
 
 							if (pal4) {
-								pixel = ((uint32_t*) palette)[(pixel & 0xF)];
+								pixel = ((uint32_t*) palette)[(idx & 0xF)];
 							} else if (pal8) {
-								pixel = ((uint32_t*) palette)[pixel];
+								pixel = ((uint32_t*) palette)[idx];
 							}
 
 							r = (pixel & rm) >> rs;

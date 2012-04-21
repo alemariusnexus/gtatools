@@ -25,6 +25,6 @@
 
 
 SceneObjectDefinitionInfo::SceneObjectDefinitionInfo(SceneObjectFileGroup* group, uint32_t id)
-		: group(group), id(id), lodLeaf(false)
+		: group(group), id(id), lodLeaf(false), fixed(false)
 {
 }

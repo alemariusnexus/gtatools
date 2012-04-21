@@ -20,24 +20,17 @@
 	GPLADDITIONS.
  */
 
-#ifndef SCENEOBJECTGROUPDEPENDENCY_H_
-#define SCENEOBJECTGROUPDEPENDENCY_H_
+#ifndef PVSSCENEOBJECT_H_
+#define PVSSCENEOBJECT_H_
 
-#include <gta/config.h>
-#include <gtaformats/util/CString.h>
-#include <gtaformats/util/CRC32.h>
+#include "SceneObject.h"
+#include "../SceneObjectDefinitionInfo.h"
 
 
-class SceneObjectGroupDependency {
+class PVSSceneObject : public virtual SceneObject
+{
 public:
-	SceneObjectGroupDependency(const CString& relPath);
-	CString getRelativePath() const { return relPath; }
-	void setChecksum(uint32_t cs) { checksum = cs; }
-	uint32_t getChecksum() const { return checksum; }
-
-private:
-	CString relPath;
-	uint32_t checksum;
+	virtual SceneObjectDefinitionInfo* getDefinitionInfo() = 0;
 };
 
-#endif /* SCENEOBJECTGROUPDEPENDENCY_H_ */
+#endif /* PVSSCENEOBJECT_H_ */

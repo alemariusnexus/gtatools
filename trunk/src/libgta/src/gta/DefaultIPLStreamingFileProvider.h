@@ -20,24 +20,20 @@
 	GPLADDITIONS.
  */
 
-#ifndef SCENEOBJECTGROUPDEPENDENCY_H_
-#define SCENEOBJECTGROUPDEPENDENCY_H_
+#ifndef DEFAULTIPLSTREAMINGFILEPROVIDER_H_
+#define DEFAULTIPLSTREAMINGFILEPROVIDER_H_
 
-#include <gta/config.h>
-#include <gtaformats/util/CString.h>
-#include <gtaformats/util/CRC32.h>
+#include "IPLStreamingFileProvider.h"
 
 
-class SceneObjectGroupDependency {
+class DefaultIPLStreamingFileProvider : public IPLStreamingFileProvider
+{
 public:
-	SceneObjectGroupDependency(const CString& relPath);
-	CString getRelativePath() const { return relPath; }
-	void setChecksum(uint32_t cs) { checksum = cs; }
-	uint32_t getChecksum() const { return checksum; }
+	virtual void findStreamingFiles(const File& file, StreamingFileList& sfiles);
+	void addSearchDirectory(const File& file);
 
 private:
-	CString relPath;
-	uint32_t checksum;
+	list<File> searchDirs;
 };
 
-#endif /* SCENEOBJECTGROUPDEPENDENCY_H_ */
+#endif /* DEFAULTIPLSTREAMINGFILEPROVIDER_H_ */

@@ -66,16 +66,14 @@ void PVSDialog::buttonClicked(QAbstractButton* button)
 		float sy = (float) ui.ySizeBox->value();
 		float sz = (float) ui.zSizeBox->value();
 
-		PVSDatabase pvs;
-		pvs.addProgressObserver(this);
-		pvs.setSectionSize(sx, sy, sz);
+		PVSDatabase* pvs = scene->getPVSDatabase();
+		pvs->addProgressObserver(this);
 
 		task = System::getInstance()->createTask();
 		task->start(0, 100, tr("Building PVS data..."));
 
-		pvs.buildSections(scene->getSceneObjectBegin(), scene->getSceneObjectEnd());
-		pvs.calculatePVS(scene->getSceneObjectBegin(), scene->getSceneObjectEnd(),
-				ui.threadCountSpinner->value());
+		pvs->calculateSections(sx, sy, sz);
+		pvs->calculatePVS(ui.threadCountSpinner->value());
 
 		delete task;
 
@@ -87,7 +85,7 @@ void PVSDialog::buttonClicked(QAbstractButton* button)
 
 			bool littleEndian = ui.littleEndianBox->isChecked();
 
-			pvs.save(file, scene->getDefinitionDatabase(),
+			pvs->save(file,
 					littleEndian ? PVSDatabase::SaveForceLittleEndian : PVSDatabase::SaveForceBigEndian);
 
 			accept();

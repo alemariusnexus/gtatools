@@ -199,87 +199,98 @@ void initWindowSystem(int w, int h)
 
 int main(int argc, char** argv)
 {
-	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-		printf("ERROR Initializing SDL\n");
-	}
-
-	SDL_EnableUNICODE(1);
-	SDL_ShowCursor(SDL_DISABLE); // We'll use the CEGUI cursor
-
-	initWindowSystem(WINDOW_WIDTH, WINDOW_HEIGHT);
-
-	SDL_WM_SetCaption(WINDOW_BASE_TITLE, NULL);
-
-	Controller renderer;
-
-	renderer.init();
-	renderer.reshape(WINDOW_WIDTH, WINDOW_HEIGHT);
-
-	bool running = true;
-	while (running) {
-		if (!renderer.paint()) {
-			break;
+	try {
+		if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+			printf("ERROR Initializing SDL\n");
 		}
 
-#ifdef GT_USE_OPENGL_ES
-		eglSwapBuffers(eglDisplay, eglSurface);
-#else
-		SDL_GL_SwapBuffers();
-#endif
+		SDL_EnableUNICODE(1);
+		SDL_ShowCursor(SDL_DISABLE); // We'll use the CEGUI cursor
 
-		SDL_PumpEvents();
+		initWindowSystem(WINDOW_WIDTH, WINDOW_HEIGHT);
 
-		uint64_t s, e;
+		SDL_WM_SetCaption(WINDOW_BASE_TITLE, NULL);
 
-		SDL_Event lastMMEvt;
-		bool hasMMEvt = false;
+		Controller renderer;
 
-		SDL_Event evt;
-		//while (SDL_PollEvent(&evt) != 0) {
-		while (SDL_PeepEvents(&evt, 1, SDL_GETEVENT, SDL_ALLEVENTS) > 0) {
-			switch (evt.type) {
-			case SDL_KEYDOWN:
-				if (evt.key.keysym.sym == SDLK_q  &&  (evt.key.keysym.mod & KMOD_CTRL) != 0) {
+		renderer.init();
+		renderer.reshape(WINDOW_WIDTH, WINDOW_HEIGHT);
+
+		bool running = true;
+		while (running) {
+			if (!renderer.paint()) {
+				break;
+			}
+
+	#ifdef GT_USE_OPENGL_ES
+			eglSwapBuffers(eglDisplay, eglSurface);
+	#else
+			SDL_GL_SwapBuffers();
+	#endif
+
+			SDL_PumpEvents();
+
+			uint64_t s, e;
+
+			SDL_Event lastMMEvt;
+			bool hasMMEvt = false;
+
+			SDL_Event evt;
+			//while (SDL_PollEvent(&evt) != 0) {
+			while (SDL_PeepEvents(&evt, 1, SDL_GETEVENT, SDL_ALLEVENTS) > 0) {
+				switch (evt.type) {
+				case SDL_KEYDOWN:
+					if (evt.key.keysym.sym == SDLK_q  &&  (evt.key.keysym.mod & KMOD_CTRL) != 0) {
+						running = false;
+						break;
+					}
+
+					renderer.keyPressed(evt.key.keysym);
+					break;
+				case SDL_KEYUP:
+					renderer.keyReleased(evt.key.keysym);
+					break;
+				case SDL_MOUSEBUTTONDOWN:
+					renderer.mouseButtonPressed(evt.button.button, evt.button.x, evt.button.y);
+					break;
+				case SDL_MOUSEBUTTONUP:
+					renderer.mouseButtonReleased(evt.button.button, evt.button.x, evt.button.y);
+					break;
+				case SDL_MOUSEMOTION:
+					lastMMEvt = evt;
+					hasMMEvt = true;
+					break;
+				case SDL_QUIT:
 					running = false;
 					break;
+				case SDL_VIDEORESIZE:
+					printf("RESIZED!\n");
+	#ifdef GT_USE_OPENGL_ES
+					//eglDestroyContext(eglDisplay, eglContext);
+					eglDestroySurface(eglDisplay, eglSurface);
+	#endif
+					SDL_FreeSurface(surface);
+					initWindowSystem(evt.resize.w, evt.resize.h);
+					renderer.reshape(evt.resize.w, evt.resize.h);
+					break;
 				}
+			}
 
-				renderer.keyPressed(evt.key.keysym);
-				break;
-			case SDL_KEYUP:
-				renderer.keyReleased(evt.key.keysym);
-				break;
-			case SDL_MOUSEBUTTONDOWN:
-				renderer.mouseButtonPressed(evt.button.button, evt.button.x, evt.button.y);
-				break;
-			case SDL_MOUSEBUTTONUP:
-				renderer.mouseButtonReleased(evt.button.button, evt.button.x, evt.button.y);
-				break;
-			case SDL_MOUSEMOTION:
-				lastMMEvt = evt;
-				hasMMEvt = true;
-				break;
-			case SDL_QUIT:
-				running = false;
-				break;
-			case SDL_VIDEORESIZE:
-				printf("RESIZED!\n");
-#ifdef GT_USE_OPENGL_ES
-				//eglDestroyContext(eglDisplay, eglContext);
-				eglDestroySurface(eglDisplay, eglSurface);
-#endif
-				SDL_FreeSurface(surface);
-				initWindowSystem(evt.resize.w, evt.resize.h);
-				renderer.reshape(evt.resize.w, evt.resize.h);
-				break;
+			if (hasMMEvt) {
+				renderer.mouseMotion(lastMMEvt.motion.x, lastMMEvt.motion.y);
 			}
 		}
 
-		if (hasMMEvt) {
-			renderer.mouseMotion(lastMMEvt.motion.x, lastMMEvt.motion.y);
-		}
-	}
+		SDL_Quit();
+	} catch (Exception& ex) {
+		printf("Exception caught: %s\n", ex.what());
+		const char* bt = ex.getBacktrace();
 
-	SDL_Quit();
+		if (bt) {
+			printf("STACK TRACE:\n----------------------------\n%s\n----------------------------\n", bt);
+		}
+
+		exit(1);
+	}
 }
 

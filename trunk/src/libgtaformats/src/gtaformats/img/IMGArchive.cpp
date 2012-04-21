@@ -79,7 +79,7 @@ IMGArchive::IMGArchive(const File& file, int mode)
 
 	if (type == CONTENT_TYPE_DIR) {
 		char* imgFilePath = new char[path->toString().length() + 1];
-		int basePathLen = path->getExtension().get() - path->toString().get();
+		int basePathLen = path->toString().length() - 3;
 		strncpy(imgFilePath, path->toString().get(), basePathLen);
 		strcpy(imgFilePath+basePathLen, "img");
 		File imgFile(imgFilePath);
@@ -106,7 +106,7 @@ IMGArchive::IMGArchive(const File& file, int mode)
 			readHeader();
 		} else {
 			char* dirFilePath = new char[path->toString().length() + 1];
-			int basePathLen = path->getExtension().get() - path->toString().get();
+			int basePathLen = path->toString().length() - 3;
 			strncpy(dirFilePath, path->toString().get(), basePathLen);
 			strcpy(dirFilePath+basePathLen, "dir");
 			File dirFile(dirFilePath);

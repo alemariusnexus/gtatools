@@ -26,7 +26,7 @@
 #include "../../gui/GLBaseWidget.h"
 #include <gtaformats/gtacol.h>
 #include <gta/MapItemDefinition.h>
-#include <gta/scene/StaticSceneObject.h>
+#include <gta/scene/objects/MapSceneObject.h>
 
 
 class COLMeshRenderWidget : public GLBaseWidget {
@@ -49,8 +49,8 @@ signals:
 
 private:
 	Scene* scene;
-	StaticSceneObject* obj;
-	StaticSceneObject* pickObj;
+	MapSceneObject* obj;
+	MapSceneObject* pickObj;
 	uint8_t* colors;
 	int pickedFace;
 	uint8_t pickedFaceRealColor[4];

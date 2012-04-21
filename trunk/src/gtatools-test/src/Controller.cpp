@@ -39,7 +39,6 @@
 #include <gta/resource/texture/ManagedTextureSource.h>
 #include <gta/resource/texture/NullTextureSource.h>
 #include <gta/resource/mesh/StaticMeshPointer.h>
-#include <gta/scene/StaticSceneObject.h>
 #include <gta/StaticMapItemDefinition.h>
 #include <gta/ItemManager.h>
 #include <gta/scene/DefaultRenderer.h>
@@ -54,11 +53,11 @@
 #include <gtaformats/ifp/IFPRootFrame.h>
 #include <gtaformats/util/Exception.h>
 #include <gtaformats/util/CRC32.h>
-#include "AnimatedBone.h"
 #include <gta/resource/animation/ManagedAnimationPackagePointer.h>
 #include <gta/gldebug.h>
 #include <gta/scene/visibility/PVSDatabase.h>
 #include <gta/scene/SceneObjectDefinitionInfo.h>
+#include <gta/DefaultIPLStreamingFileProvider.h>
 
 
 
@@ -132,7 +131,22 @@ void Controller::init()
 {
 	Engine* engine = Engine::getInstance();
 
-	GameInfo* gameInfo = new GameInfo(GameInfo::GTASA, File(GTASA_PATH));
+	GameInfo::VersionMode ver;
+
+	File rootDir(GTASA_PATH);
+
+	if (File(rootDir, "gta_sa.exe").exists()) {
+		ver = GameInfo::GTASA;
+	} else if (File(rootDir, "gta-vc.exe").exists()) {
+		ver = GameInfo::GTAVC;
+	} else if (File(rootDir, "gta3.exe").exists()) {
+		ver = GameInfo::GTAIII;
+	} else {
+		fprintf(stderr, "ERROR: Unable to guess GTA version!\n");
+		exit(1);
+	}
+
+	GameInfo* gameInfo = new GameInfo(ver, File(GTASA_PATH));
 	engine->setDefaultGameInfo(gameInfo);
 
 	printf("Initializing Bullet...\n");
@@ -187,10 +201,23 @@ void Controller::init()
 
 	Scene* scene = new Scene;
 
+	PVSDatabase* pvs = new PVSDatabase;
+	scene->setPVSDatabase(pvs);
+	scene->setPVSEnabled(true);
+
 	Camera* cam = new Camera;
 	engine->setCamera(cam);
 
 	engine->setScene(scene);
+
+	if (gameInfo->getVersionMode() == GameInfo::GTASA) {
+		DefaultIPLStreamingFileProvider* sfProv = new DefaultIPLStreamingFileProvider;
+		File gta3imgFile(GTASA_PATH "/models/gta3.img");
+		gta3imgFile.preloadIMG();
+		sfProv->addSearchDirectory(gta3imgFile);
+
+		engine->getIPLLoader()->setStreamingFileProvider(sfProv);
+	}
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
@@ -208,7 +235,11 @@ void Controller::init()
 	printf("Loading resources...\n");
 	//addResource(File(GTASA_PATH "/anim/anim.img"));
 	addResource(File(GTASA_PATH "/models/gta3.img"));
-	addResource(File(GTASA_PATH "/models/gta_int.img"));
+
+	if (gameInfo->getVersionMode() == GameInfo::GTASA) {
+		addResource(File(GTASA_PATH "/models/gta_int.img"));
+	}
+
 	addResource(File(GTASA_PATH "/anim/ped.ifp"));
 	//engine->addResource(File(GTASA_PATH ""));
 	//engine->addResource(File(GTASA_PATH "/models/generic/vehicle.txd"));
@@ -216,9 +247,21 @@ void Controller::init()
 
 	printf("Loading DAT files...\n");
 	engine->loadDAT(File(GTASA_PATH "/data/default.dat"), File(GTASA_PATH));
-	engine->loadDAT(File(GTASA_PATH "/data/gta.dat"), File(GTASA_PATH));
-	//engine->loadDAT(File(GTASA_PATH "/data/gta_vc.dat"), File(GTASA_PATH));
-	//engine->loadDAT(File(GTASA_PATH "/data/gta3.dat"), File(GTASA_PATH));
+
+	switch (gameInfo->getVersionMode()) {
+	case GameInfo::GTASA:
+		engine->loadDAT(File(GTASA_PATH "/data/gta.dat"), File(GTASA_PATH));
+		break;
+
+	case GameInfo::GTAVC:
+		engine->loadDAT(File(GTASA_PATH "/data/gta_vc.dat"), File(GTASA_PATH));;
+		break;
+
+	case GameInfo::GTAIII:
+		engine->loadDAT(File(GTASA_PATH "/data/gta3.dat"), File(GTASA_PATH));
+		break;
+	}
+
 	//engine->loadDAT(File(GTASA_PATH "/data/test.dat"), File(GTASA_PATH));
 
 
@@ -244,7 +287,9 @@ void Controller::init()
 	size_t numObjs = sizeof(AnimationData) / (sizeof(const char*) * 4);
 
 
-	for (size_t j = 0 ; j < 1 ; j++) {
+
+
+	/*for (size_t j = 0 ; j < 1 ; j++) {
 		for (size_t i = 0 ; i < numObjs ; i++) {
 			ManagedMeshPointer* meshPtr = new ManagedMeshPointer(AnimationData[i*4]);
 			ManagedTextureSource* texSrc = new ManagedTextureSource(AnimationData[i*4 + 1]);
@@ -252,36 +297,32 @@ void Controller::init()
 
 			AnimatedMapItemDefinition* def = new AnimatedMapItemDefinition(meshPtr, texSrc, NULL, animPtr, 500.0f, 0);
 
-			AnimatedSceneObject* obj = new AnimatedSceneObject(def);
+			AnimatedMapSceneObject* obj = new AnimatedMapSceneObject(def);
 			obj->setCurrentAnimation(AnimationData[i*4 + 3]);
 			obj->setModelMatrix(Matrix4::translation(2.0f * i, -2.0f * (j+1), 20.0f));
 
 			scene->addSceneObject(obj);
 		}
-	}
+	}*/
 
 
 
 
 	File pvsFile(GTASA_PATH "/visibility.pvs");
 
-	PVSDatabase* pvs = new PVSDatabase;
 	bool pvsBuilt = false;
-
-	SceneObjectDefinitionDatabase* defDB = scene->getDefinitionDatabase();
 
 	if (pvsFile.exists()) {
 		printf("Loading PVS data from file '%s'...\n", pvsFile.getPath()->toString().get());
 
-		Scene::ObjectList missingObjs;
-		PVSDatabase::LoadingResult res = pvs->load(pvsFile, defDB, missingObjs,
-				engine->getDefaultGameInfo()->getRootDirectory(), 0);
+		PVSDatabase::LoadingResult res = pvs->load(pvsFile, engine->getDefaultGameInfo()->getRootDirectory());
 
 		if (res == PVSDatabase::ResultOK) {
-			if (!missingObjs.empty()) {
+			size_t numUncalculated = pvs->getUncalculatedObjectCount();
+			if (numUncalculated != 0) {
 				printf("Building PVS data from scratch for %u (of %u) missing or potentially modified "
-						"objects...\n", missingObjs.size(), scene->getSceneObjectCount());
-				pvs->calculatePVS(missingObjs.begin(), missingObjs.end());
+						"objects...\n", numUncalculated, scene->getSceneObjectCount());
+				//pvs->calculatePVS();
 			}
 
 			pvsBuilt = true;
@@ -302,16 +343,14 @@ void Controller::init()
 
 	if (!pvsBuilt) {
 		printf("Building PVS data from scratch. This may take some time...\n");
-		pvs->buildSections(scene->getSceneObjectBegin(), scene->getSceneObjectEnd());
-		pvs->calculatePVS(scene->getSceneObjectBegin(), scene->getSceneObjectEnd());
+		pvs->calculateSections(500.0f, 500.0f, 2000.0f);
+		pvs->calculatePVS();
 		printf("Writing PVS data to file '%s'\n", pvsFile.getPath()->toString().get());
-		pvs->save(pvsFile, defDB);
+		pvs->save(pvsFile);
 		printf("PVS data successfully built!\n");
 
 		pvsBuilt = true;
 	}
-
-	scene->setPVSDatabase(pvs);
 
 
 	for (int i = 0 ; i < 20 ; i++) {

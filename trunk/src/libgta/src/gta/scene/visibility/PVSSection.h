@@ -25,14 +25,14 @@
 
 #include <gtaformats/util/math/intersection.h>
 #include <vector>
-#include "../StaticSceneObject.h"
+#include "../parts/PVSSceneObject.h"
 
 using std::vector;
 
 
 class PVSSection {
 public:
-	typedef vector<StaticSceneObject*> ObjectList;
+	typedef vector<PVSSceneObject*> ObjectList;
 	typedef ObjectList::iterator ObjectIterator;
 
 public:
@@ -45,10 +45,10 @@ public:
 			{ return IntersectAABoxSphere(sx, sy, sz, sr, x1, y1, z1, x2, y2, z2); }
 	bool containsPoint(float x, float y, float z) const
 			{ return (x >= x1 && x <= x2)  &&  (y >= y1 && y <= y2)  &&  (z >= z1 && z <= z2); }
-	void addPotentiallyVisibleObject(StaticSceneObject* object) { pvs.push_back(object); }
+	void addPotentiallyVisibleObject(PVSSceneObject* object) { pvs.push_back(object); }
 	ObjectIterator getPVSObjectBegin() { return pvs.begin(); }
 	ObjectIterator getPVSObjectEnd() { return pvs.end(); }
-	size_type getPVSObjectCount() { return pvs.size(); }
+	ObjectList::size_type getPVSObjectCount() { return pvs.size(); }
 
 private:
 	PVSSection() {}
@@ -56,7 +56,7 @@ private:
 private:
 	float x1, y1, z1;
 	float x2, y2, z2;
-	vector<StaticSceneObject*> pvs;
+	ObjectList pvs;
 
 private:
 	friend class PVSDatabase;

@@ -38,19 +38,11 @@ using std::distance;
 
 class SceneObjectDefinitionDatabase {
 public:
-	typedef map<CString, SceneObjectFileGroup*> FileGroupMap;
-	typedef FileGroupMap::iterator FileGroupIterator;
-
 	typedef map<CString, SceneObjectGroupDependency*> GroupDepMap;
 	typedef GroupDepMap::iterator GroupDepIterator;
 	typedef GroupDepMap::const_iterator ConstGroupDepIterator;
 
 public:
-	void addFileGroup(SceneObjectFileGroup* group);
-	SceneObjectFileGroup* getFileGroup(const CString& relPath);
-	size_t getFileGroupCount() const { return fileGroups.size(); }
-	FileGroupIterator getFileGroupBegin() { return fileGroups.begin(); }
-	FileGroupIterator getFileGroupEnd() { return fileGroups.end(); }
 	void addGroupDependency(SceneObjectGroupDependency* dep);
 	size_t getGroupDependencyCount() const { return groupDeps.size(); }
 	GroupDepIterator getGroupDependencyBegin() { return groupDeps.begin(); }
@@ -60,7 +52,6 @@ public:
 	SceneObjectGroupDependency* getGroupDependency(const CString& relPath);
 
 private:
-	FileGroupMap fileGroups;
 	GroupDepMap groupDeps;
 };
 

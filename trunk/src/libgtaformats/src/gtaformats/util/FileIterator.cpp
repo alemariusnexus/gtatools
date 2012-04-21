@@ -80,8 +80,8 @@ FileIterator::FileIterator(const File* file)
 			}
 #else
 			WIN32_FIND_DATA fdata;
-			char* pattern = new char[strlen(file->getPath()->toString())+3];
-			strcpy(pattern, file->getPath()->toString());
+			char* pattern = new char[file->getPath()->toString().length() + 3];
+			strcpy(pattern, file->getPath()->toString().get());
 			strcat(pattern, "/*");
 			dirHandle = FindFirstFile(pattern, &fdata);
 

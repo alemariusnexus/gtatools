@@ -20,26 +20,23 @@
 	GPLADDITIONS.
  */
 
-#ifndef VISUALSCENEOBJECT_H_
-#define VISUALSCENEOBJECT_H_
+#ifndef ANIMATEDSCENEOBJECT_H_
+#define ANIMATEDSCENEOBJECT_H_
 
-#include "SceneObject.h"
+#include "VisualSceneObject.h"
+#include "../../AnimatedMapItemDefinition.h"
 #include <gtaformats/util/math/Matrix4.h>
+#include <gtaformats/util/CString.h>
 
 
-class VisualSceneObject : public SceneObject {
+class AnimatedSceneObject : public virtual VisualSceneObject {
 public:
-	VisualSceneObject() : lodParent(NULL) {}
-	virtual bool hasAlphaTransparency() const = 0;
-	Matrix4& getModelMatrix() { return modelMatrix; }
-	const Matrix4& getModelMatrix() const { return modelMatrix; }
-	void setModelMatrix(const Matrix4& matrix);
-	void setLODParent(VisualSceneObject* parent) { lodParent = parent; }
-	virtual SceneObject* getLODParent() { return lodParent; }
-
-protected:
-	Matrix4 modelMatrix;
-	VisualSceneObject* lodParent;
+	virtual void setAnimationTime(float t) = 0;
+	virtual float getAnimationTime() const = 0;
+	virtual void setCurrentAnimation(const CString& name) = 0;
+	virtual CString getCurrentAnimation() const = 0;
+	virtual void increaseAnimationTime(float t) { setAnimationTime(getAnimationTime() + t); }
+	virtual typeflags_t getTypeFlags() const { return TypeFlagAnimated | TypeFlagVisual; }
 };
 
-#endif /* VISUALSCENEOBJECT_H_ */
+#endif /* ANIMATEDSCENEOBJECT_H_ */

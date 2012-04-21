@@ -38,7 +38,7 @@
 #include <gta/ShaderProgram.h>
 #include <gta/Camera.h>
 #include <gta/resource/texture/TextureSource.h>
-#include <gta/scene/StaticSceneObject.h>
+#include <gta/scene/objects/MapSceneObject.h>
 #include <gta/scene/Scene.h>
 #include <gta/scene/Renderer.h>
 #include <QtGui/QMouseEvent>
@@ -70,7 +70,7 @@ protected:
 	virtual void paintGL();
 
 private:
-	StaticSceneObject* createSceneObject(const DFFGeometry* geom,
+	MapSceneObject* createSceneObject(const DFFGeometry* geom,
 			QLinkedList<const DFFGeometryPart*> parts);
 
 private slots:
@@ -80,7 +80,7 @@ private slots:
 
 private:
 	Scene* scene;
-	QMap<const DFFGeometry*, StaticSceneObject*> objs;
+	QMap<const DFFGeometry*, MapSceneObject*> objs;
 	TextureSource* texSource;
 
 	GLint vertexAttrib, normalAttrib, texCoordAttrib, colorAttrib;

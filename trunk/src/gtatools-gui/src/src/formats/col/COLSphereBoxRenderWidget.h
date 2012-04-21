@@ -29,7 +29,7 @@
 #include <gta/ShaderProgram.h>
 #include <gta/scene/Scene.h>
 #include <gta/MapItemDefinition.h>
-#include <gta/scene/StaticSceneObject.h>
+#include <gta/scene/objects/MapSceneObject.h>
 #include <gtaformats/util/math/Matrix4.h>
 #include <gtaformats/col/COLSphere.h>
 #include <QtCore/QLinkedList>
@@ -53,7 +53,7 @@ protected:
 
 private:
 	Scene* scene;
-	QLinkedList<StaticSceneObject*> objs;
+	QLinkedList<MapSceneObject*> objs;
 };
 
 #endif /* SPHEREBOXRENDERWIDGET_H_ */

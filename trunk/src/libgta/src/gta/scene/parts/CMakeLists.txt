@@ -18,18 +18,10 @@
 # Additional permissions are granted, which are listed in the file
 # GPLADDITIONS.
 
-SET(FILES
-    Scene DefaultRenderer DepthPeelingAlgorithm
-    SceneObjectDefinitionDatabase SceneObjectDefinitionInfo SceneObjectFileGroup SceneObjectGroupDependency
-    BasicTransparencyAlgorithm
-    )
-
-ADD_SUBDIRECTORY(parts)
-ADD_SUBDIRECTORY(objects)
-ADD_SUBDIRECTORY(visibility)
+SET(FILES )
 
 FOREACH(FILE ${FILES})
-    SET(SRCS ${SRCS} "gta/scene/${FILE}")
+    SET(SRCS ${SRCS} "gta/scene/parts/${FILE}")
 ENDFOREACH(FILE)
 
 SET(SRCS ${SRCS} PARENT_SCOPE)

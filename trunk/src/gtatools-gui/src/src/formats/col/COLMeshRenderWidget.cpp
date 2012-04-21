@@ -25,10 +25,10 @@
 #include <gta/resource/mesh/StaticMeshPointer.h>
 #include <gta/resource/texture/NullTextureSource.h>
 #include <gta/resource/mesh/Submesh.h>
-#include <gta/scene/StaticSceneObject.h>
 #include <gta/scene/Scene.h>
 #include <gta/scene/DefaultRenderer.h>
 #include <gta/scene/DepthPeelingAlgorithm.h>
+#include <gta/MapItemDefinition.h>
 #include <gta/StaticMapItemDefinition.h>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QImage>
@@ -119,7 +119,7 @@ void COLMeshRenderWidget::render(const float* vertices, int32_t vertexCount, con
 		MapItemDefinition* def = new StaticMapItemDefinition(new StaticMeshPointer(clump),
 				new NullTextureSource, NULL, 5000.0f);
 
-		obj = new StaticSceneObject(def);
+		obj = new MapSceneObject(def);
 
 		// Build picking mesh
 		Mesh* pickMesh = conv.convert(vertices, vertexCount, faces, faceCount);
@@ -149,7 +149,7 @@ void COLMeshRenderWidget::render(const float* vertices, int32_t vertexCount, con
 		MapItemDefinition* pickDef = new StaticMapItemDefinition(new StaticMeshPointer(pickClump),
 				new NullTextureSource, NULL, 5000.0f);
 
-		pickObj = new StaticSceneObject(pickDef);
+		pickObj = new MapSceneObject(pickDef);
 
 		printf("<====\n");
 

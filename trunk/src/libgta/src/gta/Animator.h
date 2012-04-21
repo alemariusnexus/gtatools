@@ -36,7 +36,7 @@ private:
 
 public:
 	Animator(MeshClump* clump, Animation* anim) : clump(clump), anim(anim), boneMats(NULL) {}
-	void setTime(float time) { this->time = time; updateBoneMatrices(); }
+	void setTime(float time) { this->time = fmod(time, anim->getDuration()); updateBoneMatrices(); }
 	Matrix4* getBoneMatrices() { return boneMats; }
 	Matrix4 getBoneMatrix(size_t idx) { return boneMats[idx]; }
 	Matrix4 getFrameMatrix(MeshFrame* frame) { return frameMats[frame]; }

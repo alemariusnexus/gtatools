@@ -25,19 +25,24 @@
 
 #include "PVSSection.h"
 #include "../Scene.h"
-#include "../StaticSceneObject.h"
+#include "../parts/SceneObject.h"
 #include "../SceneObjectDefinitionDatabase.h"
 #include <vector>
+#include <gtaformats/util/util.h>
 #include <gtaformats/util/File.h>
 #include <gtaformats/util/ProgressObserver.h>
 #include <gtaformats/util/thread/Thread.h>
 #include <gtaformats/util/thread/Mutex.h>
 #include <istream>
 #include <ostream>
+#include <algorithm>
+#include <utility>
 
 using std::istream;
 using std::ostream;
 using std::vector;
+using std::distance;
+using std::pair;
 
 
 
@@ -49,7 +54,7 @@ class PVSDatabase
 public:
 	enum LoadFlags
 	{
-		LoadValidateByModifyTime = (1 << 0)
+		LoadValidateByCRC = (1 << 0)
 	};
 
 	enum SaveFlags
@@ -66,6 +71,39 @@ public:
 	};
 
 private:
+	struct PVSSceneObjectContainer
+	{
+		PVSSceneObject* obj;
+		bool pvsCalculated;
+	};
+
+
+	class InternalSceneObjectFileGroup
+	{
+	public:
+		typedef map<uint32_t, PVSSceneObjectContainer*> ObjectMap;
+		typedef ObjectMap::iterator ObjectIterator;
+		typedef ObjectMap::const_iterator ConstObjectIterator;
+
+	public:
+		InternalSceneObjectFileGroup(SceneObjectFileGroup* fg) : fg(fg), lodBaseObjCount(0) {}
+		SceneObjectFileGroup* getFileGroup() { return fg; }
+		void addSceneObject(PVSSceneObjectContainer* obj);
+		PVSSceneObjectContainer* getObject(uint32_t id);
+		ObjectIterator getObjectBegin() { return objs.begin(); }
+		ObjectIterator getObjectEnd() { return objs.end(); }
+		ConstObjectIterator getObjectBegin() const { return objs.begin(); }
+		ConstObjectIterator getObjectEnd() const { return objs.end(); }
+		size_t getObjectCount() const { return objs.size(); }
+		size_t getLODBaseObjectCount() const { return lodBaseObjCount; }
+
+	private:
+		SceneObjectFileGroup* fg;
+		ObjectMap objs;
+		size_t lodBaseObjCount;
+	};
+
+
 	class SectionCalculatorThread : public Thread
 	{
 	public:
@@ -75,37 +113,123 @@ private:
 		Mutex* mutex;
 		uint32_t* nextSect;
 		PVSDatabase* pvs;
-		Scene::ObjectIterator beg, end;
+		list<PVSSceneObjectContainer*>::iterator beg, end;
 	};
+
+	typedef map<CString, InternalSceneObjectFileGroup*> FileGroupMap;
+	typedef FileGroupMap::iterator FileGroupIterator;
+	typedef FileGroupMap::const_iterator ConstFileGroupIterator;
 
 public:
 	PVSDatabase();
-	void buildSections(Scene::ObjectIterator beg, Scene::ObjectIterator end);
-	void calculatePVS(Scene::ObjectIterator beg, Scene::ObjectIterator end, unsigned int numThreads = 1);
-	LoadingResult load(istream* stream, SceneObjectDefinitionDatabase* defDB, Scene::ObjectList& missingObjs,
-			const File& rootDir, int flags = LoadValidateByModifyTime);
-	LoadingResult load(const File& file, SceneObjectDefinitionDatabase* defDB,
-			Scene::ObjectList& missingObjs, const File& rootDir, int flags = LoadValidateByModifyTime);
-	void save(ostream* out, SceneObjectDefinitionDatabase* defDB, int flags = 0);
-	void save(const File& file, SceneObjectDefinitionDatabase* defDB, int flags = 0);
-	void queryPVS(float x, float y, float z, list<SceneObject*>& pvs);
-	void setSectionSize(float x, float y, float z) { sectSizeX = x; sectSizeY = y; sectSizeZ = z; }
-	void getSectionSize(float& x, float& y, float& z) const { x = sectSizeX; y = sectSizeY; z = sectSizeZ; }
+
+	void calculatePVS(unsigned int numThreads = 1);
+
+	template <class ItType>
+	void addObjects(ItType beg, ItType end);
+
+	void addObject(PVSSceneObject* obj)
+			{ addObjects<PVSSceneObject**>(&obj, &obj + 1); }
+
+	void setSections(PVSSection** sects, uint32_t numSects)
+			{ sections = sects; this->numSects = numSects; }
+
+	void calculateSections(float sectSizeX, float sectSizeY, float sectSizeZ);
+
+	LoadingResult load(istream* stream, const File& rootDir, int flags = LoadValidateByCRC);
+
+	LoadingResult load(const File& file, const File& rootDir, int flags = LoadValidateByCRC);
+
+	void save(ostream* out, int flags = 0);
+
+	void save(const File& file, int flags = 0);
+
+	void queryPVS(float x, float y, float z, list<PVSSceneObject*>& pvs);
+
 	void addProgressObserver(ProgressObserver* obsv) { progressObservers.push_back(obsv); }
+
 	void removeProgressObserver(ProgressObserver* obsv);
+
+	size_t getUncalculatedObjectCount() const { return uncalculatedObjCount; }
 
 private:
 	PVSSection* findSection(float x, float y, float z);
+	InternalSceneObjectFileGroup* getFileGroup(const CString& relPath);
 
 private:
+	list<PVSSceneObjectContainer*> objects;
+	FileGroupMap fileGroups;
 	vector<ProgressObserver*> progressObservers;
-	Scene* scene;
 	PVSSection** sections;
 	uint32_t numSects;
-	float sectSizeX, sectSizeY, sectSizeZ;
+	SceneObjectDefinitionDatabase defDB;
+	size_t uncalculatedObjCount;
 
 
-	friend class SectionCalculatorThread;
+	friend class SceneObjectFileGroup;
+	//friend class SectionCalculatorThread;
 };
+
+
+
+
+
+
+
+
+
+
+template <class ItType>
+void PVSDatabase::addObjects(ItType beg, ItType end)
+{
+	for (ItType it = beg ; it != end ; it++) {
+		PVSSceneObject* obj = dynamic_cast<PVSSceneObject*>(*it);
+
+		if (!obj)
+			continue;
+
+		SceneObjectDefinitionInfo* info = obj->getDefinitionInfo();
+
+		PVSSceneObject* baseObj = obj;
+
+		uncalculatedObjCount++;
+
+		while (obj) {
+			PVSSceneObjectContainer* cont = new PVSSceneObjectContainer;
+			cont->obj = obj;
+			cont->pvsCalculated = false;
+
+			if (obj == baseObj)
+				objects.push_back(cont);
+
+			SceneObjectDefinitionInfo* info = obj->getDefinitionInfo();
+
+			if (info) {
+				SceneObjectFileGroup* group = info->getFileGroup();
+				InternalSceneObjectFileGroup* igroup = NULL;
+
+				FileGroupIterator it;
+				for (it = fileGroups.begin() ; it != fileGroups.end() ; it++) {
+					InternalSceneObjectFileGroup* itigroup = it->second;
+
+					if (itigroup->getFileGroup() == group) {
+						igroup = itigroup;
+						break;
+					}
+				}
+
+				if (!igroup) {
+					igroup = new InternalSceneObjectFileGroup(group);
+					fileGroups.insert(pair<CString, InternalSceneObjectFileGroup*>(
+							group->getRelativePath(), igroup));
+				}
+
+				igroup->addSceneObject(cont);
+			}
+
+			obj = dynamic_cast<PVSSceneObject*>(obj->getLODParent());
+		}
+	}
+}
 
 #endif /* PVSDATABASE_H_ */

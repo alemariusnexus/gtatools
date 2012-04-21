@@ -28,11 +28,13 @@
 #include "../SceneObjectDefinitionInfo.h"
 #include <algorithm>
 #include <set>
-#include <gtaformats/util/util.h>
 #include <gtaformats/util/stream/StreamReader.h>
 #include <gtaformats/util/stream/EndianSwappingStreamReader.h>
 #include <gtaformats/util/stream/StreamWriter.h>
 #include <gtaformats/util/stream/EndianSwappingStreamWriter.h>
+#include <gtaformats/util/CRC32.h>
+#include "../../Engine.h"
+#include "../../EngineException.h"
 
 using std::set;
 using std::copy;
@@ -43,166 +45,8 @@ using std::find;
 
 
 PVSDatabase::PVSDatabase()
-		: sectSizeX(500.0f), sectSizeY(500.0f), sectSizeZ(2000.0f)
+		: sections(NULL), numSects(0), uncalculatedObjCount(0)
 {
-}
-
-
-void PVSDatabase::buildSections(Scene::ObjectIterator beg, Scene::ObjectIterator end)
-{
-	// Calculate the world visibility bounding box
-	float bx1 = 0.0f;
-	float by1 = 0.0f;
-	float bz1 = 0.0f;
-	float bx2 = 0.0f;
-	float by2 = 0.0f;
-	float bz2 = 0.0f;
-
-	Scene::ObjectIterator it;
-
-	for (it = beg ; it != end ; it++) {
-		SceneObject* sobj = *it;
-
-		if (sobj->getType() == SceneObjectStatic) {
-			StaticSceneObject* object = (StaticSceneObject*) sobj;
-			const float* mat = object->getModelMatrix().toArray();
-
-			float ox = mat[12];
-			float oy = mat[13];
-			float oz = mat[14];
-			float dd = object->getDefinition()->getDrawDistance();
-
-			if (ox+dd > bx2) {
-				bx2 = ox+dd;
-			}
-			if (ox-dd < bx1) {
-				bx1 = ox-dd;
-			}
-
-			if (oy+dd > by2) {
-				by2 = oy+dd;
-			}
-			if (oy-dd < by1) {
-				by1 = oy-dd;
-			}
-
-			if (oz+dd > bz2) {
-				bz2 = oz+dd;
-			}
-			if (oz-dd < bz1) {
-				bz1 = oz-dd;
-			}
-		}
-	}
-
-
-	// Now build the sections
-	int numSectsX = ceil((bx2-bx1) / sectSizeX);
-	int numSectsY = ceil((by2-by1) / sectSizeY);
-	int numSectsZ = ceil((bz2-bz1) / sectSizeZ);
-	numSects = numSectsX * numSectsY * numSectsZ;
-
-	sections = new PVSSection*[numSects];
-
-	int i = 0;
-	for (float xOffs = bx1 ; xOffs < bx2 ; xOffs += sectSizeX) {
-		for (float yOffs = by1 ; yOffs < by2 ; yOffs += sectSizeY) {
-			for (float zOffs = bz1 ; zOffs < bz2 ; zOffs += sectSizeZ) {
-				PVSSection* section = new PVSSection(xOffs, yOffs, zOffs,
-						xOffs+sectSizeX, yOffs+sectSizeY, zOffs+sectSizeZ);
-				sections[i++] = section;
-			}
-		}
-	}
-}
-
-
-void PVSDatabase::calculatePVS(Scene::ObjectIterator beg, Scene::ObjectIterator end, unsigned int numThreads)
-{
-	Mutex* mutex = new Mutex;
-	SectionCalculatorThread* threads = new SectionCalculatorThread[numThreads];
-
-	uint32_t nextSect = 0;
-
-	for (unsigned int i = 0 ; i < numThreads ; i++) {
-		threads[i].mutex = mutex;
-		threads[i].nextSect = &nextSect;
-		threads[i].pvs = this;
-		threads[i].beg = beg;
-		threads[i].end = end;
-		threads[i].start();
-	}
-
-	while (nextSect < numSects) {
-		mutex->lock();
-
-		vector<ProgressObserver*>::iterator pit;
-		for (pit = progressObservers.begin() ; pit != progressObservers.end() ; pit++) {
-			ProgressObserver* obsv = *pit;
-			obsv->progressChanged(nextSect, numSects);
-		}
-
-		mutex->unlock();
-
-		SleepMilliseconds(50);
-	}
-
-	for (unsigned int i = 0 ; i < numThreads ; i++) {
-		threads[i].join();
-	}
-
-	delete[] threads;
-	delete mutex;
-
-	/*// And finally, calculate the PVS data
-	for (uint32_t i = 0 ; i < numSects ; i++) {
-
-	}*/
-}
-
-
-void PVSDatabase::SectionCalculatorThread::run()
-{
-	mutex->lock();
-
-	while (*nextSect < pvs->numSects) {
-		//printf("Calc %u/%u\n", *nextSect, pvs->numSects);
-		PVSSection* sect = pvs->sections[*nextSect];
-		(*nextSect)++;
-
-		mutex->unlock();
-
-		unsigned int i = 0;
-
-		for (Scene::ObjectIterator it = beg ; it != end ; it++, i++) {
-			SceneObject* sobj = *it;
-
-			if (sobj->getType() == SceneObjectStatic) {
-				StaticSceneObject* obj = (StaticSceneObject*) sobj;
-				StaticSceneObject* baseObj = obj;
-
-				while (obj) {
-					const float* mat = obj->getModelMatrix().toArray();
-
-					float ox = mat[12];
-					float oy = mat[13];
-					float oz = mat[14];
-					float dd = obj->getDefinition()->getDrawDistance();
-
-					if (sect->intersectsSphere(ox, oy, oz, dd)) {
-						sect->addPotentiallyVisibleObject(baseObj);
-						break;
-					} else {
-						obj = (StaticSceneObject*) obj->getLODParent();
-					}
-				}
-			}
-		}
-
-		mutex->lock();
-	}
-
-	mutex->unlock();
 }
 
 
@@ -220,7 +64,7 @@ PVSSection* PVSDatabase::findSection(float x, float y, float z)
 }
 
 
-void PVSDatabase::queryPVS(float x, float y, float z, list<SceneObject*>& pvs)
+void PVSDatabase::queryPVS(float x, float y, float z, list<PVSSceneObject*>& pvs)
 {
 	PVSSection* sect = findSection(x, y, z);
 
@@ -239,7 +83,7 @@ void PVSDatabase::removeProgressObserver(ProgressObserver* obsv)
 }
 
 
-void PVSDatabase::save(ostream* out, SceneObjectDefinitionDatabase* defDB, int flags)
+void PVSDatabase::save(ostream* out, int flags)
 {
 	Engine* engine = Engine::getInstance();
 
@@ -263,7 +107,7 @@ void PVSDatabase::save(ostream* out, SceneObjectDefinitionDatabase* defDB, int f
 	out->write((char*) &endianFlag, 1);
 
 	// Version number (>= 10000 are development versions)
-	uint32_t version = 10001;
+	uint32_t version = 10002;
 	writer->writeU32(version);
 
 	// The number of sections
@@ -276,12 +120,12 @@ void PVSDatabase::save(ostream* out, SceneObjectDefinitionDatabase* defDB, int f
 	}
 
 	// The number of group dependencies
-	uint32_t numDeps = defDB->getGroupDependencyCount();
+	uint32_t numDeps = defDB.getGroupDependencyCount();
 	writer->writeU32(numDeps);
 
 	// Store the group dependencies...
 	SceneObjectDefinitionDatabase::GroupDepIterator dit;
-	for (dit = defDB->getGroupDependencyBegin() ; dit != defDB->getGroupDependencyEnd() ; dit++) {
+	for (dit = defDB.getGroupDependencyBegin() ; dit != defDB.getGroupDependencyEnd() ; dit++) {
 		SceneObjectGroupDependency* dep = dit->second;
 
 		uint32_t pathLen = dep->getRelativePath().length()+1;
@@ -289,26 +133,27 @@ void PVSDatabase::save(ostream* out, SceneObjectDefinitionDatabase* defDB, int f
 		writer->writeU32(pathLen);
 		out->write(dep->getRelativePath().get(), pathLen);
 
-		uint64_t mtime = dep->getModifyTime();
-		writer->writeU64(mtime);
+		uint32_t checksum = dep->getChecksum();
+		writer->writeU32(checksum);
 	}
 
 	// Number of file groups
-	uint32_t numGroups = defDB->getFileGroupCount();
+	uint32_t numGroups = fileGroups.size();
 	writer->writeU32(numGroups);
 
 	// Store the data for each file group...
-	SceneObjectDefinitionDatabase::FileGroupIterator it;
-	for (it = defDB->getFileGroupBegin() ; it != defDB->getFileGroupEnd() ; it++) {
-		SceneObjectFileGroup* group = it->second;
+	for (FileGroupIterator it = fileGroups.begin() ; it != fileGroups.end() ; it++) {
+		InternalSceneObjectFileGroup* igroup = it->second;
+		SceneObjectFileGroup* group = igroup->getFileGroup();
+
 		CString relPath = group->getRelativePath();
 		uint32_t len = relPath.length()+1;
 
 		writer->writeU32(len);
 		out->write(relPath.get(), len);
 
-		uint64_t mtime = group->getModifyTime();
-		writer->writeU64(mtime);
+		uint32_t checksum = group->getChecksum();
+		writer->writeU32(checksum);
 
 		numDeps = group->getDependencyCount();
 		writer->writeU32(numDeps);
@@ -318,8 +163,24 @@ void PVSDatabase::save(ostream* out, SceneObjectDefinitionDatabase* defDB, int f
 		for (gdit = group->getDependencyBegin() ; gdit != group->getDependencyEnd() ; gdit++) {
 			SceneObjectGroupDependency* dep = *gdit;
 
-			uint32_t idx = defDB->indexOf(dep);
+			uint32_t idx = defDB.indexOf(dep);
 			writer->writeU32(idx);
+		}
+
+		writer->writeU32(igroup->getLODBaseObjectCount());
+
+		uint32_t actually = 0;
+
+		// Write the IDs of all objects
+		InternalSceneObjectFileGroup::ObjectIterator ooit;
+		for (ooit = igroup->getObjectBegin() ; ooit != igroup->getObjectEnd() ; ooit++) {
+			PVSSceneObject* obj = ooit->second->obj;
+
+			if (obj->getDefinitionInfo()->isLODLeaf()) {
+				uint32_t id = ooit->first;
+				writer->writeU32(id);
+				actually++;
+			}
 		}
 
 		uint32_t numGroupSects = 0;
@@ -333,12 +194,14 @@ void PVSDatabase::save(ostream* out, SceneObjectDefinitionDatabase* defDB, int f
 
 			PVSSection::ObjectIterator oit;
 			for (oit = sect->getPVSObjectBegin() ; oit != sect->getPVSObjectEnd() ; oit++) {
-				StaticSceneObject* obj = *oit;
+				PVSSceneObject* obj = *oit;
 				SceneObjectDefinitionInfo* info = obj->getDefinitionInfo();
 
-				if (info->getFileGroup() == group) {
-					sectInGroup = true;
-					break;
+				if (info) {
+					if (info->getFileGroup() == group) {
+						sectInGroup = true;
+						break;
+					}
 				}
 			}
 
@@ -355,11 +218,13 @@ void PVSDatabase::save(ostream* out, SceneObjectDefinitionDatabase* defDB, int f
 
 			PVSSection::ObjectIterator oit;
 			for (oit = sect->getPVSObjectBegin() ; oit != sect->getPVSObjectEnd() ; oit++) {
-				StaticSceneObject* obj = *oit;
+				PVSSceneObject* obj = *oit;
 				SceneObjectDefinitionInfo* info = obj->getDefinitionInfo();
 
-				if (info->getFileGroup() == group) {
-					groupObjs.push_back(obj);
+				if (info) {
+					if (info->getFileGroup() == group) {
+						groupObjs.push_back(obj);
+					}
 				}
 			}
 
@@ -370,7 +235,7 @@ void PVSDatabase::save(ostream* out, SceneObjectDefinitionDatabase* defDB, int f
 				writer->writeU32(numObjs);
 
 				for (oit = groupObjs.begin() ; oit != groupObjs.end() ; oit++) {
-					StaticSceneObject* obj = *oit;
+					PVSSceneObject* obj = *oit;
 					SceneObjectDefinitionInfo* info = obj->getDefinitionInfo();
 
 					uint32_t id = info->getID();
@@ -382,18 +247,17 @@ void PVSDatabase::save(ostream* out, SceneObjectDefinitionDatabase* defDB, int f
 }
 
 
-void PVSDatabase::save(const File& file, SceneObjectDefinitionDatabase* defDB, int flags)
+void PVSDatabase::save(const File& file, int flags)
 {
 	ostream* out = file.openOutputStream(ostream::binary | ostream::out);
-	save(out, defDB, flags);
+	save(out, flags);
 	delete out;
 }
 
 
-PVSDatabase::LoadingResult PVSDatabase::load(istream* stream, SceneObjectDefinitionDatabase* defDB,
-		Scene::ObjectList& missingObjs, const File& rootDir, int flags)
+PVSDatabase::LoadingResult PVSDatabase::load(istream* stream, const File& rootDir, int flags)
 {
-	bool validateMtime = (flags & LoadValidateByModifyTime) != 0;
+	bool validateCRC = (flags & LoadValidateByCRC) != 0;
 
 	const char expectedMagicHeader[8] = {'G', 'T', 'A', 'T', '.', 'P', 'V', 'S'};
 
@@ -415,7 +279,7 @@ PVSDatabase::LoadingResult PVSDatabase::load(istream* stream, SceneObjectDefinit
 	reader = (endianFlag == 1) ? new StreamReader(stream) : new EndianSwappingStreamReader(stream);
 #endif
 
-	int32_t expectedVersion = 10001;
+	int32_t expectedVersion = 10002;
 
 	int32_t version = reader->readU32();
 
@@ -443,14 +307,14 @@ PVSDatabase::LoadingResult PVSDatabase::load(istream* stream, SceneObjectDefinit
 		char* relPath = new char[pathLen];
 		stream->read(relPath, pathLen);
 
-		uint64_t mtime = reader->readU64();
+		uint32_t checksum = reader->readU32();
 
-		SceneObjectGroupDependency* dep = defDB->getGroupDependency(relPath);
+		SceneObjectGroupDependency* dep = defDB.getGroupDependency(relPath);
 
 		delete[] relPath;
 
 		if (dep)
-			depUpToDateTable[i] = (dep->getModifyTime() == mtime);
+			depUpToDateTable[i] = (dep->getChecksum() == checksum);
 		else
 			depUpToDateTable[i] = false;
 	}
@@ -465,9 +329,10 @@ PVSDatabase::LoadingResult PVSDatabase::load(istream* stream, SceneObjectDefinit
 		char* relPath = new char[len];
 		stream->read(relPath, len);
 
-		SceneObjectFileGroup* group = defDB->getFileGroup(relPath);
+		InternalSceneObjectFileGroup* igroup = getFileGroup(relPath);
+		SceneObjectFileGroup* group = igroup->getFileGroup();
 
-		uint64_t mtime = reader->readU64();
+		uint32_t checksum = reader->readU32();
 
 		bool upToDate = true;
 
@@ -479,7 +344,7 @@ PVSDatabase::LoadingResult PVSDatabase::load(istream* stream, SceneObjectDefinit
 			upToDate = false;
 			stream->ignore(numDeps*4);
 		} else {
-			if (validateMtime) {
+			if (validateCRC) {
 				for (uint32_t j = 0 ; j < numDeps ; j++) {
 					uint32_t idx = reader->readU32();
 
@@ -493,18 +358,23 @@ PVSDatabase::LoadingResult PVSDatabase::load(istream* stream, SceneObjectDefinit
 			}
 		}
 
-		uint32_t numGroupSects = reader->readU32();
+		uint32_t lodBaseObjCount = reader->readU32();
 
 		File sourceFile(rootDir, relPath);
 
-		if (validateMtime  &&  sourceFile.physicallyExists()) {
-			if (sourceFile.getModifyTime() != mtime) {
+		if (validateCRC  &&  sourceFile.physicallyExists()) {
+			//printf("Checking %s: %X vs. %X\n", sourceFile.getPath()->getFileName().get(), sourceFile.crc32(), checksum);
+			if (sourceFile.crc32() != checksum) {
 				upToDate = false;
 			}
 		}
 
 		if (!upToDate) {
 			delete[] relPath;
+
+			stream->ignore(lodBaseObjCount*4);
+
+			uint32_t numGroupSects = reader->readU32();
 
 			for (uint32_t j = 0 ; j < numGroupSects ; j++) {
 				stream->ignore(4);
@@ -514,6 +384,18 @@ PVSDatabase::LoadingResult PVSDatabase::load(istream* stream, SceneObjectDefinit
 
 			continue;
 		}
+
+		for (uint32_t i = 0 ; i < lodBaseObjCount ; i++) {
+			uint32_t id = reader->readU32();
+			PVSSceneObjectContainer* objc = igroup->getObject(id);
+
+			if (!objc->pvsCalculated) {
+				uncalculatedObjCount--;
+				objc->pvsCalculated = true;
+			}
+		}
+
+		uint32_t numGroupSects = reader->readU32();
 
 		resolvedGroups.insert(CString::from(relPath));
 
@@ -527,7 +409,7 @@ PVSDatabase::LoadingResult PVSDatabase::load(istream* stream, SceneObjectDefinit
 			for (uint32_t k = 0 ; k < numObjs ; k++) {
 				uint32_t id = reader->readU32();
 
-				StaticSceneObject* obj = group->getObject(id);
+				PVSSceneObject* obj = igroup->getObject(id)->obj;
 				sect->addPotentiallyVisibleObject(obj);
 			}
 		}
@@ -535,31 +417,235 @@ PVSDatabase::LoadingResult PVSDatabase::load(istream* stream, SceneObjectDefinit
 
 	delete[] depUpToDateTable;
 
-	SceneObjectDefinitionDatabase::FileGroupIterator it;
-	for (it = defDB->getFileGroupBegin() ; it != defDB->getFileGroupEnd() ; it++) {
-		SceneObjectFileGroup* group = it->second;
-
-		if (resolvedGroups.find(group->getRelativePath()) == resolvedGroups.end()) {
-			SceneObjectFileGroup::ObjectIterator oit;
-
-			for (oit = group->getObjectBegin() ; oit != group->getObjectEnd() ; oit++) {
-				StaticSceneObject* obj = oit->second;
-
-				if (obj->getDefinitionInfo()->isLODLeaf())
-					missingObjs.push_back(obj);
-			}
-		}
-	}
-
 	return ResultOK;
 }
 
 
-PVSDatabase::LoadingResult PVSDatabase::load(const File& file, SceneObjectDefinitionDatabase* defDB,
-		Scene::ObjectList& missingObjs, const File& rootDir, int flags)
+PVSDatabase::LoadingResult PVSDatabase::load(const File& file, const File& rootDir, int flags)
 {
 	istream* stream = file.openInputOutputStream(istream::binary | istream::in);
-	LoadingResult res = load(stream, defDB, missingObjs, rootDir, flags);
+	LoadingResult res = load(stream, rootDir, flags);
 	delete stream;
 	return res;
 }
+
+
+void PVSDatabase::calculatePVS(unsigned int numThreads)
+{
+	if (!sections)
+		calculateSections(500.0f, 500.0f, 2000.0f);
+
+	if (uncalculatedObjCount == 0)
+		return;
+
+	Mutex* mutex = new Mutex;
+	SectionCalculatorThread* threads = new SectionCalculatorThread[numThreads];
+
+	list<PVSSceneObjectContainer*> uncalculatedObjs;
+
+	for (list<PVSSceneObjectContainer*>::iterator it = objects.begin() ; it != objects.end() ; it++) {
+		PVSSceneObjectContainer* objc = *it;
+
+		if (!objc->pvsCalculated) {
+			uncalculatedObjs.push_back(objc);
+		}
+	}
+
+	uint32_t nextSect = 0;
+
+	for (unsigned int i = 0 ; i < numThreads ; i++) {
+		threads[i].mutex = mutex;
+		threads[i].nextSect = &nextSect;
+		threads[i].pvs = this;
+		threads[i].beg = uncalculatedObjs.begin();
+		threads[i].end = uncalculatedObjs.end();
+		threads[i].start();
+	}
+
+	while (nextSect < numSects) {
+		mutex->lock();
+
+		vector<ProgressObserver*>::iterator pit;
+		for (pit = progressObservers.begin() ; pit != progressObservers.end() ; pit++) {
+			ProgressObserver* obsv = *pit;
+			obsv->progressChanged(nextSect, numSects);
+		}
+
+		mutex->unlock();
+
+		SleepMilliseconds(50);
+	}
+
+	for (unsigned int i = 0 ; i < numThreads ; i++) {
+		threads[i].join();
+	}
+
+	list<PVSSceneObjectContainer*>::iterator it;
+	for (it = uncalculatedObjs.begin() ; it != uncalculatedObjs.end() ; it++) {
+		PVSSceneObjectContainer* objc = *it;
+		objc->pvsCalculated = true;
+	}
+
+	uncalculatedObjCount = 0;
+
+	delete[] threads;
+	delete mutex;
+}
+
+
+void PVSDatabase::SectionCalculatorThread::run()
+{
+	mutex->lock();
+
+	while (*nextSect < pvs->numSects) {
+		PVSSection* sect = pvs->sections[*nextSect];
+		(*nextSect)++;
+
+		mutex->unlock();
+
+		unsigned int i = 0;
+
+		for (list<PVSSceneObjectContainer*>::iterator it = beg ; it != end ; it++, i++) {
+			PVSSceneObjectContainer* objc = *it;
+
+			if (objc->pvsCalculated)
+				continue;
+
+			PVSSceneObject* obj = objc->obj;
+			PVSSceneObject* baseObj = obj;
+
+			while (obj) {
+				Vector3 pos = obj->getPosition();
+
+				float ox = pos.getX();
+				float oy = pos.getY();
+				float oz = pos.getZ();
+				float dd = obj->getStreamingDistance();
+
+				if (sect->intersectsSphere(ox, oy, oz, dd)) {
+					sect->addPotentiallyVisibleObject(baseObj);
+					break;
+				} else {
+					// TODO Make sure this works for non-PVS objects
+					//obj = (PVSSceneObject*) obj->getLODParent();
+					obj = dynamic_cast<PVSSceneObject*>(obj->getLODParent());
+				}
+			}
+		}
+
+		mutex->lock();
+	}
+
+	mutex->unlock();
+}
+
+
+void PVSDatabase::calculateSections(float sectSizeX, float sectSizeY, float sectSizeZ)
+{
+	// Calculate the world visibility bounding box
+	float bx1 = 0.0f;
+	float by1 = 0.0f;
+	float bz1 = 0.0f;
+	float bx2 = 0.0f;
+	float by2 = 0.0f;
+	float bz2 = 0.0f;
+
+	list<PVSSceneObjectContainer*>::iterator it;
+
+	for (it = objects.begin() ; it != objects.end() ; it++) {
+		PVSSceneObject* object = (*it)->obj;
+
+		Vector3 pos = object->getPosition();
+		float ox = pos.getX();
+		float oy = pos.getY();
+		float oz = pos.getZ();
+		float dd = object->getStreamingDistance();
+
+		if (ox+dd > bx2) {
+			bx2 = ox+dd;
+		}
+		if (ox-dd < bx1) {
+			bx1 = ox-dd;
+		}
+
+		if (oy+dd > by2) {
+			by2 = oy+dd;
+		}
+		if (oy-dd < by1) {
+			by1 = oy-dd;
+		}
+
+		if (oz+dd > bz2) {
+			bz2 = oz+dd;
+		}
+		if (oz-dd < bz1) {
+			bz1 = oz-dd;
+		}
+	}
+
+
+	// Now build the sections
+	int numSectsX = ceil((bx2-bx1) / sectSizeX);
+	int numSectsY = ceil((by2-by1) / sectSizeY);
+	int numSectsZ = ceil((bz2-bz1) / sectSizeZ);
+	numSects = numSectsX * numSectsY * numSectsZ;
+
+	sections = new PVSSection*[numSects];
+
+	int i = 0;
+	for (float xOffs = bx1 ; xOffs < bx2 ; xOffs += sectSizeX) {
+		for (float yOffs = by1 ; yOffs < by2 ; yOffs += sectSizeY) {
+			for (float zOffs = bz1 ; zOffs < bz2 ; zOffs += sectSizeZ) {
+				PVSSection* section = new PVSSection(xOffs, yOffs, zOffs,
+						xOffs+sectSizeX, yOffs+sectSizeY, zOffs+sectSizeZ);
+				sections[i++] = section;
+			}
+		}
+	}
+}
+
+
+void PVSDatabase::InternalSceneObjectFileGroup::addSceneObject(PVSSceneObjectContainer* objc)
+{
+	SceneObjectDefinitionInfo* info = objc->obj->getDefinitionInfo();
+
+	if (info->getFileGroup() != fg) {
+		throw EngineException("SceneObjectFileGroup::addSceneObject() called with object of different "
+				"file group!", __FILE__, __LINE__);
+	}
+
+	if (!objs.insert(pair<uint32_t, PVSSceneObjectContainer*>(info->getID(), objc)).second) {
+		throw EngineException("ID collision in SceneObjectFileGroup::addSceneObject()!", __FILE__, __LINE__);
+	}
+
+	objc->obj->getDefinitionInfo()->markAsFixed();
+
+	if (objc->obj->getDefinitionInfo()->isLODLeaf()) {
+		lodBaseObjCount++;
+	}
+}
+
+
+PVSDatabase::PVSSceneObjectContainer* PVSDatabase::InternalSceneObjectFileGroup::getObject(uint32_t id)
+{
+	ObjectIterator it = objs.find(id);
+
+	if (it == objs.end()) {
+		return NULL;
+	}
+
+	return it->second;
+}
+
+
+PVSDatabase::InternalSceneObjectFileGroup* PVSDatabase::getFileGroup(const CString& relPath)
+{
+	FileGroupIterator it = fileGroups.find(relPath);
+
+	if (it == fileGroups.end()) {
+		return NULL;
+	}
+
+	return it->second;
+}
+
