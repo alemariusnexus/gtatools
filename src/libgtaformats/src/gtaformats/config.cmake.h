@@ -31,7 +31,7 @@
 #include <unistd.h>
 #endif
 
-#include "stdint.h"
+#include "gtaformats_stdint.h"
 
 
 #define PI 3.141593f
