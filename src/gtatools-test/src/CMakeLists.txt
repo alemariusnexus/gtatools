@@ -45,7 +45,7 @@ SET(GT_DRAW_DIST_MULTIPLIER "1.0f" CACHE STRING "Draw distances will be multipli
 
 IF(prj-gtaformats_SOURCE_DIR)
     SET(GTAFORMATS_LIB_PATH gtaformats)
-    SET(GTAFORMATS_INCLUDE_PATH "${prj-gtaformats_SOURCE_DIR}" "${prj-gtaformats_BINARY_DIR}")
+    SET(GTAFORMATS_INCLUDE_PATH "${prj-gtaformats_SOURCE_DIR}" "${prj-gtaformats_BINARY_DIR}" "${prj-gtaformats_SOURCE_DIR}/gtaformats")
 ELSE(prj-gtaformats_SOURCE_DIR)
     FIND_LIBRARY(GTAFORMATS_LIB_PATH NAMES gtaformats libgtaformats)
     FIND_PATH(GTAFORMATS_INCLUDE_PATH gtaformats/config.h)

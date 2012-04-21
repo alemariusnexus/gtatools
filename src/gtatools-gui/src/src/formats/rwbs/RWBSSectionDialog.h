@@ -23,6 +23,7 @@
 #ifndef RWBSSECTIONDIALOG_H_
 #define RWBSSECTIONDIALOG_H_
 
+#include <gta/config.h>
 #include <ui_RWBSSectionDialog.h>
 
 

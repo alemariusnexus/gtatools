@@ -30,10 +30,10 @@ Int64Validator::State Int64Validator::validate(QString& input, int& pos) const
 	if (input.isEmpty()) {
 		return Intermediate;
 	}
-	if (input.startsWith('-')  &&  min > 0) {
+	if (input.startsWith('-')  &&  vmin > 0) {
 		return Invalid;
 	}
-	if (input.startsWith('+')  &&  max < 0) {
+	if (input.startsWith('+')  &&  vmax < 0) {
 		return Invalid;
 	}
 	if (input == "-"  ||  input == "+") {
@@ -49,19 +49,19 @@ Int64Validator::State Int64Validator::validate(QString& input, int& pos) const
 		if (!ok) {
 			return Invalid;
 		} else {
-			return (uvalue > max  &&  -uvalue < min) ? Invalid : Intermediate;
+			return (uvalue > vmax  &&  -uvalue < vmin) ? Invalid : Intermediate;
 		}
 
 		return Invalid;
 	} else {
-		if (value >= min  &&  value <= max) {
+		if (value >= vmin  &&  value <= vmax) {
 			return Acceptable;
 		}
 	}
 
 	if (value >= 0) {
-		return (value > max  &&  -value < min) ? Invalid : Intermediate;
+		return (value > vmax  &&  -value < vmin) ? Invalid : Intermediate;
 	} else {
-		return value < min ? Invalid : Intermediate;
+		return value < vmin ? Invalid : Intermediate;
 	}
 }

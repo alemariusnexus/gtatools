@@ -68,6 +68,9 @@ SET(INCLUDES ${INCLUDES} "${Boost_INCLUDE_DIRS}")
 # The directory containing the generated config.h
 SET(INCLUDES ${INCLUDES} "${CMAKE_BINARY_DIR}/libgtaformats/build")
 
+# Needed for config.h to reference stdint.h
+SET(INCLUDES ${INCLUDES} "${prj-gtaformats_SOURCE_DIR}/gtaformats")
+
 INCLUDE_DIRECTORIES(${INCLUDES})
 
 ADD_LIBRARY(gtaformats STATIC ${SRCS})
