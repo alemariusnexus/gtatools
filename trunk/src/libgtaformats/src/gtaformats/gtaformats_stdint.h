@@ -20,8 +20,8 @@
 	GPLADDITIONS.
  */
 
-#ifndef STDINT_H_
-#define STDINT_H_
+#ifndef GTAFORMATS_STDINT_H_
+#define GTAFORMATS_STDINT_H_
 
 #ifdef _MSC_VER
 #include "msvcstdint.h"
@@ -29,4 +29,4 @@
 #include <stdint.h>
 #endif
 
-#endif /* STDINT_H_ */
+#endif /* GTAFORMATS_STDINT_H_ */
