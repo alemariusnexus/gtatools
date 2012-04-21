@@ -291,7 +291,7 @@ void EngineIPLLoader::load(const File& file, Scene::ObjectList& objects, const G
 				delete iobj;
 			}
 		} else if (ver == GameInfo::GTAVC) {
-			map<const char*, IndexedSceneObject*, StringComparator>::iterator it;
+			multimap<const char*, IndexedSceneObject*, StringComparator>::iterator it;
 
 			for (it = vcLocalObjs.begin() ; it != vcLocalObjs.end() ; it++) {
 				IndexedSceneObject* iobj = it->second;
@@ -306,15 +306,15 @@ void EngineIPLLoader::load(const File& file, Scene::ObjectList& objects, const G
 
 						VisualSceneObject* obj = iobj->obj;
 
-						pair<map<const char*, IndexedSceneObject*, StringComparator>::iterator,
-								map<const char*, IndexedSceneObject*, StringComparator>::iterator >
+						pair<multimap<const char*, IndexedSceneObject*, StringComparator>::iterator,
+								multimap<const char*, IndexedSceneObject*, StringComparator>::iterator >
 								parentRange = vcLocalObjs.equal_range(lodModelName);
 
 						delete[] lodModelName;
 
-						map<const char*, IndexedSceneObject*, StringComparator>::iterator nearestParentIt
+						multimap<const char*, IndexedSceneObject*, StringComparator>::iterator nearestParentIt
 								= vcLocalObjs.end();
-						map<const char*, IndexedSceneObject*, StringComparator>::iterator parentIt;
+						multimap<const char*, IndexedSceneObject*, StringComparator>::iterator parentIt;
 
 						if (parentRange.first != parentRange.second) {
 							parentIt = parentRange.first;

@@ -32,12 +32,12 @@ class UInt64Validator : public QValidator {
 
 public:
 	UInt64Validator(uint64_t min, uint64_t max, QObject* parent = NULL)
-			: QValidator(parent), min(min), max(max) {}
-	UInt64Validator(QObject* parent = NULL) : QValidator(parent), min(0), max(UINT64_MAX) {}
+			: QValidator(parent), vmin(min), vmax(max) {}
+	UInt64Validator(QObject* parent = NULL) : QValidator(parent), vmin(0), vmax(UINT64_MAX) {}
 	virtual State validate(QString& input, int& pos) const;
 
 private:
-	uint64_t min, max;
+	uint64_t vmin, vmax;
 };
 
 #endif /* UINT64VALIDATOR_H_ */

@@ -43,7 +43,7 @@ UInt64Validator::State UInt64Validator::validate(QString& input, int& pos) const
 	if (!ok) {
 		return Invalid;
 	} else {
-		if (value >= min  &&  value <= max) {
+		if (value >= vmin  &&  value <= vmax) {
 			return Acceptable;
 		}
 	}

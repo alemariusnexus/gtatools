@@ -416,10 +416,10 @@ TEST(IMGReadTest, CheckGTA3IMGVC)
 
 	// Check for some hand-chosen entries...
 
-	IMGExpectedEntry exEntries[] = {
+	/*IMGExpectedEntry exEntries[] = {
 	};
 
-	TestIMGContents(&img, exEntries, sizeof(exEntries) / sizeof(IMGExpectedEntry));
+	TestIMGContents(&img, exEntries, sizeof(exEntries) / sizeof(IMGExpectedEntry));*/
 }
 
 

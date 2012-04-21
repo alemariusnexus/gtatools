@@ -24,6 +24,7 @@
 #define UTIL_H_
 
 #include <gtaformats/config.h>
+#include <cstdlib>
 
 
 #define PS() uint64_t psS = GetTickcount();
