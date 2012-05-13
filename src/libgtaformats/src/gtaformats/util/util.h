@@ -31,7 +31,8 @@
 #define PE(n) uint64_t psE = GetTickcount(); printf("%s took %d\n", (n), (int) (psE-psS));
 
 
-#ifdef __GNUC__
+//#ifdef __GNUC__
+#if defined(__GNUC__)  &&  (__GNUC__ > 4  ||  (__GNUC__ == 4  &&  __GNUC_MINOR__ >= 3))
 
 #define SwapEndianness16(v) ((((v) >> 8) & 0xFF)  |  (((v) << 8) & 0xFF00))
 #define SwapEndianness32(v) (__builtin_bswap32((v)))

@@ -65,7 +65,7 @@ public:
 	CString& rtrim(char c = ' ') { ensureUniqueness(); ::rtrim(cstr.get(), c); return *this; }
 	CString& trim(char c = ' ') { rtrim(c); ltrim(c); return *this; }
 	const char* get() const { return cstr.get(); }
-	void append(const CString& other);
+	CString& append(const CString& other);
 
 	CString substr(size_t begin, size_t len) const;
 	CString substr(size_t begin) const { return substr(begin, length()-begin); }

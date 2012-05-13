@@ -110,6 +110,7 @@ void Shader::loadSourceCode(const CString& code)
 
 	newCode.append(code);
 
+
 #ifdef GTA_USE_OPENGL_ES
 	this->code = newCode;
 #else

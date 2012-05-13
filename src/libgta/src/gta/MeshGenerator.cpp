@@ -23,6 +23,7 @@
 #include "MeshGenerator.h"
 #include <cmath>
 #include "resource/mesh/Submesh.h"
+#include <gtaformats/util/math/Vector3.h>
 
 
 void MeshGenerator::createBox(float*& vertices, int& vertexCount, uint32_t*& indices, int& indexCount,
@@ -79,12 +80,13 @@ Mesh* MeshGenerator::createBox(const Vector3& min, const Vector3& max)
 }
 
 
-void MeshGenerator::createSphere(float*& vertices, int& vertexCount, uint32_t*& indices, int& indexCount,
+void MeshGenerator::createSphere(float*& vertices, float*& normals, int& vertexCount, uint32_t*& indices, int& indexCount,
 		float radius, int slices, int stacks)
 {
     int numVertices = (stacks-1)*slices+2;
     vertexCount = numVertices;
 	vertices = new float[numVertices*3];
+	normals = new float[numVertices*3];
 	vertices[0] = 0.0f;
 	vertices[1] = 0.0f;
 	vertices[2] = radius;
@@ -157,20 +159,36 @@ void MeshGenerator::createSphere(float*& vertices, int& vertexCount, uint32_t*& 
 	indices[indexOffset++] = sv + slices;
 	indices[indexOffset++] = sv;
 	indices[indexOffset++] = sv + slices - 1;
+
+	for (int i = 0 ; i < vertexCount ; i++) {
+		Vector3 normal(vertices + i*3);
+		normal.normalize();
+		/*printf("(%f   %f   %f) normalized is (%f   %f   %f)\n", oldNormal.getX(), oldNormal.getY(), oldNormal.getZ(),
+				normal.getX(), normal.getY(), normal.getZ());*/
+		/*float len = normal.length();
+
+		if (len > 1.001f  ||  len < 0.999f) {
+			printf("FALSCH!\n");
+			exit(0);
+		}*/
+		memcpy((void*) (normals + i*3), &normal, 3*4);
+	}
 }
 
 
 Mesh* MeshGenerator::createSphere(float radius, int slices, int stacks)
 {
 	float* vertices;
+	float* normals;
 	int vcount;
 	uint32_t* indices;
 	int indCount;
-	createSphere(vertices, vcount, indices, indCount, radius, slices, stacks);
-	Mesh* mesh = new Mesh(vcount, VertexFormatTriangles, 0, vertices);
+	createSphere(vertices, normals, vcount, indices, indCount, radius, slices, stacks);
+	Mesh* mesh = new Mesh(vcount, VertexFormatTriangles, MeshNormals, vertices, normals);
 	Submesh* submesh = new Submesh(mesh, indCount, indices);
 	mesh->addSubmesh(submesh);
 	delete[] vertices;
+	delete[] normals;
 	delete[] indices;
 	return mesh;
 }

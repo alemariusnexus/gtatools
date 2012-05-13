@@ -58,6 +58,9 @@
 #include <gta/scene/visibility/PVSDatabase.h>
 #include <gta/scene/SceneObjectDefinitionInfo.h>
 #include <gta/DefaultIPLStreamingFileProvider.h>
+#include <gta/scene/DirectionalLightSource.h>
+#include <gta/scene/PointLightSource.h>
+#include <gta/scene/SpotLightSource.h>
 
 
 
@@ -289,7 +292,7 @@ void Controller::init()
 
 
 
-	/*for (size_t j = 0 ; j < 1 ; j++) {
+	for (size_t j = 0 ; j < 1 ; j++) {
 		for (size_t i = 0 ; i < numObjs ; i++) {
 			ManagedMeshPointer* meshPtr = new ManagedMeshPointer(AnimationData[i*4]);
 			ManagedTextureSource* texSrc = new ManagedTextureSource(AnimationData[i*4 + 1]);
@@ -303,7 +306,42 @@ void Controller::init()
 
 			scene->addSceneObject(obj);
 		}
-	}*/
+	}
+
+
+	for (int i = 0 ; i < 9 ; i++) {
+		for (int j = 0 ; j < 9 ; j++) {
+			Vector3 pos = Vector3(-20.0f + 5.0f*i, -20.0f + 5.0f*j, 50.0f - abs(i-4)*1.0f);
+			MeshGenerator mg;
+
+			Mesh* mesh = mg.createSphere(2.5f, 25, 25);
+			mesh->setDynamicLightingEnabled(true);
+
+			MeshClump* clump = new MeshClump;
+			MeshFrame* frame = new MeshFrame;
+			frame->setModelMatrix(Matrix4::translation(0.0f, 0.0f, 0.0f));
+			clump->setRootFrame(frame);
+			mesh->setFrame(frame);
+			clump->addMesh(mesh);
+
+			for (Mesh::SubmeshIterator it = mesh->getSubmeshBegin() ; it != mesh->getSubmeshEnd() ; it++) {
+				Submesh* submesh = *it;
+
+				Material* mat = new Material;
+				mat->setColor(0, 0, 0, 255);
+
+				submesh->setMaterial(mat);
+			}
+
+			StaticMeshPointer* meshPtr = new StaticMeshPointer(clump);
+			StaticMapItemDefinition* def = new StaticMapItemDefinition(meshPtr, new NullTextureSource(), NULL, 500.0f);
+
+			MapSceneObject* obj = new MapSceneObject(def);
+			obj->setModelMatrix(Matrix4::translation(pos));
+
+			scene->addSceneObject(obj);
+		}
+	}
 
 
 
@@ -376,8 +414,16 @@ void Controller::init()
 		//rigidBody->setLinearVelocity(btVector3(RandomFloat(-20.0, 20.0f), RandomFloat(-20.0f, 20.0f), RandomFloat(-20.0f, 20.0f)));
 	}
 
+	// <------ X+
+	// V Y+
 	//cam->setPosition(475.285858f, 1377.026855f, 28.393959f);
-	cam->setPosition(0.0f, 0.0f, 20.0f);
+	//cam->setPosition(0.0f, 0.0f, 20.0f);
+	//cam->setPosition(0.0f, 5.0f, 10.0f);
+	cam->setPosition(0.0f, 5.0f, 0.0f);
+
+	//cam->setPosition(162.309998f, -201.011093f, 35.131886f);
+	//cam->lookAt(Vector3(0.757422f, 0.506264f, -0.412321f), Vector3(0.342802f, 0.229130f, 0.911053f));
+
 
 	GLException::checkError("After init");
 }
@@ -397,6 +443,26 @@ void Controller::reshape(int w, int h)
 	//dpAlgo->setPassCount(0);
 	//renderer->setTransparencyAlgorithm(basicTransAlgo);
 	engine->getScene()->setRenderer(renderer);
+
+	PointLightSource* pl = new PointLightSource;
+	pl->setDiffuseColor(Vector4(1.0f, 1.0f, 1.0f, 1.0f));
+	pl->setPosition(Vector3(0.0f, 15.0f, 20.0f));
+	pl->setSpecularColor(Vector4(5.0f, 5.0f, 5.0f, 1.0f));
+	pl->setShininess(96.0f);
+	renderer->addLightSource(pl);
+
+	SpotLightSource* sl = new SpotLightSource;
+	sl->setDiffuseColor(Vector4(5.0f, 0.0f, 0.0f, 1.0f));
+	sl->setPosition(Vector3(0.0f, 15.0f, 20.0f));
+	sl->setDirection(Vector3::NegativeUnitY);
+	sl->setCutoffAngleCosine(cos((31.0f / 180.0f) * M_PI));
+	renderer->addLightSource(sl);
+
+	DirectionalLightSource* dl = new DirectionalLightSource;
+	dl->setDiffuseColor(Vector4(0.0f, 0.0f, 0.5f, 1.0f));
+	dl->setDirection(Vector3::UnitZ);
+	renderer->addLightSource(dl);
+
 
 	float l = aspect*-0.7;
 	float r = aspect*0.7;
@@ -552,8 +618,12 @@ void Controller::keyPressed(SDL_keysym evt)
 	} else if (k == SDLK_c) {
 		engine->switchDrawing();
 	} else if (k == SDLK_p) {
-		printf("Camera position: (%f, %f, %f)\n", engine->getCamera()->getPosition().getX(),
-				engine->getCamera()->getPosition().getY(), engine->getCamera()->getPosition().getZ());
+		Camera* cam = engine->getCamera();
+		Vector3 p = cam->getPosition();
+		Vector3 t = cam->getTarget();
+		Vector3 up = cam->getUp();
+		printf("Camera is at (%f, %f, %f), looking at (%f, %f, %f), with up vector (%f, %f, %f)\n", p.getX(),
+				p.getY(), p.getZ(), t.getX(), t.getY(), t.getZ(), up.getX(), up.getY(), up.getZ());
 	} else if (k == SDLK_x) {
 		programRunning = false;
 	} else if (k == SDLK_l) {

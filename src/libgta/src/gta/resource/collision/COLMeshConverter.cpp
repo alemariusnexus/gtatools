@@ -50,7 +50,8 @@ Mesh* COLMeshConverter::convert(const COLSphere& sphere)
 	float* vertices;
 	uint32_t* indices;
 	int vertexCount, indexCount;
-	gen.createSphere(vertices, vertexCount, indices, indexCount, sphere.getRadius(), 4, 4);
+	// TODO Reenable
+	//gen.createSphere(vertices, normals, vertexCount, indices, indexCount, sphere.getRadius(), 4, 4);
 
 	const COLSurface& surface = sphere.getSurface();
 	uint8_t matNum = surface.getMaterial();
@@ -157,8 +158,9 @@ Mesh* COLMeshConverter::convert(const COLModel& model)
 
     for (int i = 0 ; i < sphereCount ; i++) {
 		const COLSphere& sphere = spheres[i];
-		gen.createSphere(sphereVertexArrays[i], sphereVertexCounts[i],
-               sphereIndexArrays[i], sphereIndexCounts[i], sphere.getRadius(), 4, 4);
+		// TODO Reenable
+		/*gen.createSphere(sphereVertexArrays[i], sphereVertexCounts[i],
+               sphereIndexArrays[i], sphereIndexCounts[i], sphere.getRadius(), 4, 4);*/
         vertexCount += sphereVertexCounts[i];
     }
 

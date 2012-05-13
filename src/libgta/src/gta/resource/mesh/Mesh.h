@@ -45,7 +45,8 @@ enum MeshFlags
 	MeshTexCoords = 1<<1,
 	MeshVertexColors = 1<<2,
 	MeshTriangleStrips = 1<<3,
-	MeshSkinData = 1<<4
+	MeshSkinData = 1<<4,
+	MeshDynamicLighting = 1<<5
 };
 
 
@@ -74,6 +75,9 @@ public:
 	~Mesh();
 
 	int getFlags() const { return flags; }
+
+	void setDynamicLightingEnabled(bool e)
+			{ if (e) flags |= MeshDynamicLighting; else flags &= ~MeshDynamicLighting; }
 
 	VertexFormat getVertexFormat() const { return vertexFormat; }
 

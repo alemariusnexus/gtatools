@@ -40,8 +40,8 @@ using std::find;
 #define GEOMETRY_FLAG_TEXCOORDS (1<<2)
 #define GEOMETRY_FLAG_COLORS (1<<3)
 #define GEOMETRY_FLAG_NORMALS (1<<4)
-#define GEOMETRY_FLAG_UNKNOWN1 (1<<5)
-#define GEOMETRY_FLAG_UNKNOWN2 (1<<6)
+#define GEOMETRY_FLAG_DYNAMICLIGHTING (1<<5)
+#define GEOMETRY_FLAG_MODULATEMATCOLOR (1<<6)
 #define GEOMETRY_FLAG_MULTIPLEUVSETS (1<<7)
 
 
@@ -109,6 +109,8 @@ public:
 	 * 	@return true if it's a triangle strip format, false in case of plain triangle lists.
 	 */
 	bool isTriangleStripFormat() const { return (flags & GEOMETRY_FLAG_TRISTRIP) != 0; }
+
+	bool isDynamicLightingEnabled() const { return (flags & GEOMETRY_FLAG_DYNAMICLIGHTING) != 0; }
 
 	/**	\brief Returns the geometry flags.
 	 *

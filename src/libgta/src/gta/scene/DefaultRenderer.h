@@ -34,6 +34,7 @@
 #include "../gl.h"
 #include "TransparencyAlgorithm.h"
 #include <list>
+#include "LightSource.h"
 
 using std::list;
 
@@ -54,6 +55,7 @@ public:
 private:
 	typedef list<MapSceneObject*> StaticObjectList;
 	typedef list<AnimatedMapSceneObject*> AnimObjectList;
+	typedef list<LightSource*> LightSourceList;
 
 public:
 	DefaultRenderer();
@@ -61,10 +63,13 @@ public:
 	virtual void render();
 	void setTransparencyAlgorithm(TransparencyAlgorithm* algo);
 	TransparencyAlgorithm* getTransparencyAlgorithm() { return transAlgo; }
+	void addLightSource(LightSource* light) { lightSources.push_back(light); }
 
 private:
-	void renderStaticSceneObject(MapSceneObject* obj, const Matrix4& mvpMatrix);
-	void renderAnimatedSceneObject(AnimatedMapSceneObject* obj, const Matrix4& mvpMatrix);
+	void initializeUniforms(ShaderProgram* program);
+	void setupDynamicLighting(bool enabled, const Matrix4& vMatrix, const Matrix4& lightMatrix);
+	void renderStaticSceneObject(MapSceneObject* obj, const Matrix4& mvMatrix, const Matrix4& mvpMatrix);
+	void renderAnimatedSceneObject(AnimatedMapSceneObject* obj, const Matrix4& vMatrix, const Matrix4& vpMatrix);
 
 private:
 	TransparencyAlgorithm* transAlgo;
@@ -75,12 +80,15 @@ private:
 	AnimObjectList animObjs;
 	AnimObjectList::iterator animAlphaBegin;
 
+	LightSourceList lightSources;
+
 	Shader* shadeVertexShader;
 	Shader* shadeFragmentShader;
 	Shader* vertexDefaultShader;
 	Shader* fragmentDefaultShader;
 	Shader* animShadeVertexShader;
 	Shader* animShadeFragmentShader;
+	Shader* lightingVertexShader;
 
 	ShaderProgram* opaqueStaticProgram;
 	ShaderProgram* transStaticProgram;
@@ -88,9 +96,22 @@ private:
 	ShaderProgram* opaqueAnimProgram;
 	ShaderProgram* transAnimProgram;
 
-	GLint mvpMatrixUniform, texturedUniform, materialColorUniform, vertexColorsUniform,
-			textureUniform;
+	GLint mvMatrixUniform, mvpMatrixUniform, normalMvMatrixUniform, texturedUniform, materialColorUniform,
+			vertexColorsUniform, textureUniform, camPosUniform;
 	GLint vertexAttrib, normalAttrib, colorAttrib, texCoordAttrib;
+
+	struct {
+		GLint ambientUniform, diffuseUniform, specularUniform;
+		GLint positionUniform, directionUniform;
+		GLint cutoffAngleCosUniform;
+		GLint shininessUniform;
+		GLint spotlightExponentUniform;
+		GLint constAttenuationUniform, linearAttenuationUniform, quadAttenuationUniform;
+	} lightSourceUniforms[10];
+
+	GLint matAmbientReflectionUniform, matDiffuseReflectionUniform, matSpecularReflectionUniform;
+	GLint globalAmbientLightUniform;
+	GLint dynamicLightingEnabledUniform;
 
 	GLint boneMatUniform, boneUniform, boneMatSizeUniform;
 	GLint boneIndexAttrib, boneWeightAttrib;
