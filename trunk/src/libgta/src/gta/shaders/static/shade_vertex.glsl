@@ -20,15 +20,18 @@
 	GPLADDITIONS.
  */
 
+
+
+
 uniform bool Textured;
 uniform vec4 MaterialColor;
-uniform bool VertexColors;
 
+uniform mat4 MVMatrix;
 uniform mat4 MVPMatrix;
-uniform mat4 ModelMatrix;
+uniform mat4 NormalMVMatrix;
 
 ATTRIBUTE vec4 Vertex;
-ATTRIBUTE vec4 Normal;
+ATTRIBUTE vec3 Normal;
 ATTRIBUTE vec2 TexCoord;
 ATTRIBUTE vec4 Color;
 
@@ -36,12 +39,20 @@ VARYING vec2 FragTexCoord;
 VARYING vec4 FragColor;
 
 
+
+void CalculateVertexLighting(inout vec4 color, vec3 eVertex, vec3 eNormal);
+
+
 void ShadeVertex()
 {
     FragTexCoord = TexCoord;
+    
+    vec3 eVertex = vec3(MVMatrix * Vertex);
+    vec3 eNormal = normalize(vec3(NormalMVMatrix * vec4(Normal, 1.0)));
+    
     gl_Position = MVPMatrix * Vertex;
     
-    if (VertexColors) {
-    	FragColor = Color;
-    }
+    FragColor = MaterialColor * Color;
+    
+    CalculateVertexLighting(FragColor, eVertex, eNormal);
 }

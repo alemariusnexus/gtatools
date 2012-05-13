@@ -98,17 +98,29 @@ const Vector3 Vector3::cross(const Vector3& rhv) const
 
 float Vector3::length() const
 {
-	return sqrtf(this->dot(*this));
+	double d0 = data[0];
+	double d1 = data[1];
+	double d2 = data[2];
+	return (float) sqrt(d0*d0 + d1*d1 + d2*d2);
+	//return sqrtf(this->dot(*this));
 }
 
 
 float Vector3::normalize()
 {
-	float len = length();
+	//float len = length();
+	double d0 = data[0];
+	double d1 = data[1];
+	double d2 = data[2];
+	double len = sqrt(d0*d0 + d1*d1 + d2*d2);
 
-	data[0] /= len;
-	data[1] /= len;
-	data[2] /= len;
+	//data[0] /= len;
+	//data[1] /= len;
+	//data[2] /= len;
+
+	data[0] = d0 / len;
+	data[1] = d1 / len;
+	data[2] = d2 / len;
 
 	return len;
 }

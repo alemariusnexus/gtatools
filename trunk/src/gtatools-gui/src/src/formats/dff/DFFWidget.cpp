@@ -343,6 +343,8 @@ void DFFWidget::setCurrentGeometry(DFFGeometry* geom)
 			vdata << QString("TC (%1)").arg(geom->getUVSetCount());
 		if (geom->getVertexColors())
 			vdata << "C";
+		if (geom->isDynamicLightingEnabled())
+			vdata << "DL";
 
 		ui.geometryVdataLabel->setText(vdata.join(", "));
 		ui.geometryFlagsLabel->setText(QString("%1b").arg(geom->getFlags(), 0, 2));

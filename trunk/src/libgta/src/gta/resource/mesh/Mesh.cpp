@@ -71,6 +71,10 @@ Mesh::Mesh(const DFFGeometry& geometry, bool autoSubmeshes)
 		flags |= MeshSkinData;
 	}
 
+	if (geometry.isDynamicLightingEnabled()  &&  normals) {
+		flags |= MeshDynamicLighting;
+	}
+
 	DFFGeometry::ConstMaterialIterator it;
 	for (it = geometry.getMaterialBegin() ; it != geometry.getMaterialEnd() ; it++) {
 		Material* material = new Material(**it);

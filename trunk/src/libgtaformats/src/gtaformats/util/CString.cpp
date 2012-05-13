@@ -50,13 +50,14 @@ CString& CString::ltrim(char c)
 }
 
 
-void CString::append(const CString& other)
+CString& CString::append(const CString& other)
 {
 	size_t len = length() + other.length();
 	shared_array<char> cpy(new char[len+1]);
 	strcpy(cpy.get(), cstr.get());
 	strcat(cpy.get(), other.cstr.get());
 	cstr = cpy;
+	return *this;
 }
 
 
