@@ -84,11 +84,14 @@ void IFPWidget::currentObjectChanged(int row)
 	IFPObject* obj = *it;
 
 	switch (obj->getFrameType()) {
-	case IFPObject::RootFrame:
-		ui.frameTypeLabel->setText(tr("Root Frames"));
+	case IFPObject::RotFrame:
+		ui.frameTypeLabel->setText(tr("Rotation Frames (Child Frames)"));
 		break;
-	case IFPObject::ChildFrame:
-		ui.frameTypeLabel->setText(tr("Child Frames"));
+	case IFPObject::RotTransFrame:
+		ui.frameTypeLabel->setText(tr("Rotation/Translation Frames (Root Frames)"));
+		break;
+	case IFPObject::RotTransScaleFrame:
+		ui.frameTypeLabel->setText(tr("Rotation/Translation/Scale Frames"));
 		break;
 	case IFPObject::Unknown2Frame:
 		ui.frameTypeLabel->setText(tr("Unknown (FrameType = 2)"));
@@ -97,10 +100,12 @@ void IFPWidget::currentObjectChanged(int row)
 
 	ui.boneIDLabel->setText(QString("%1").arg(obj->getBoneID()));
 
+	printf("Object has %d frames\n", obj->getFrameCount());
 	ui.frameNumSpinner->setRange(0, obj->getFrameCount()-1);
 	ui.frameNumSlider->setRange(0, obj->getFrameCount()-1);
 	ui.frameNumSpinner->setValue(0);
 	ui.frameNumSlider->setValue(0);
+	displayFrame(0);
 }
 
 
@@ -128,7 +133,7 @@ void IFPWidget::displayFrame(int fnum)
 
 	IFPObject::FrameIterator fit = obj->getFrameBegin();
 	advance(fit, fnum);
-	IFPFrame* frame = *fit;
+	IFPRotFrame* frame = *fit;
 
 	Quaternion rot = frame->getRotation();
 	ui.frameRotLabel->setText(tr("%1, %2, %3, %4").arg(rot.getX()).arg(rot.getY()).arg(rot.getZ())
@@ -136,12 +141,21 @@ void IFPWidget::displayFrame(int fnum)
 
 	ui.frameTimeLabel->setText(QString("%1").arg(frame->getTime()));
 
-	if (obj->getFrameType() == IFPObject::RootFrame) {
-		IFPRootFrame* rframe = (IFPRootFrame*) frame;
-		Vector3 trans = rframe->getTranslation();
+	if (obj->getFrameType() == IFPObject::RotTransFrame) {
+		IFPRotTransFrame* rtframe = (IFPRotTransFrame*) frame;
+		Vector3 trans = rtframe->getTranslation();
 
 		ui.frameTransLabel->setText(tr("%1, %2, %3").arg(trans.getX()).arg(trans.getY()).arg(trans.getZ()));
+		ui.frameScaleLabel->setText(tr("-"));
+	} else if (obj->getFrameType() == IFPObject::RotTransScaleFrame) {
+		IFPRotTransScaleFrame* rtsframe = (IFPRotTransScaleFrame*) frame;
+		Vector3 trans = rtsframe->getTranslation();
+		Vector3 scale = rtsframe->getScale();
+
+		ui.frameTransLabel->setText(tr("%1, %2, %3").arg(trans.getX()).arg(trans.getY()).arg(trans.getZ()));
+		ui.frameScaleLabel->setText(tr("%1, %2, %3").arg(scale.getX()).arg(scale.getY()).arg(scale.getZ()));
 	} else {
 		ui.frameTransLabel->setText(tr("-"));
+		ui.frameScaleLabel->setText(tr("-"));
 	}
 }

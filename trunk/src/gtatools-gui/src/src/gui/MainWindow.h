@@ -35,7 +35,7 @@
 #include <QtGui/QTabWidget>
 #include <QtGui/QLabel>
 #include <QtCore/QMap>
-#include "../FileOpenRequest.h"
+#include "../EntityOpenRequest.h"
 #include "FileViewWidget.h"
 #include "FileTree.h"
 #include <QtGui/QAction>
@@ -69,14 +69,14 @@ protected:
 	virtual void closeEvent(QCloseEvent* evt);
 
 private slots:
-	void openFile(const FileOpenRequest& request, DisplayedFile* file);
-	void currentFileChanged(DisplayedFile* file, DisplayedFile* prev);
-	void closeFile(DisplayedFile* file);
-	void fileSaved(const File& file);
-	void fileChangeStatusChanged();
+	void openEntity(DisplayedEntity* ent);
+	void currentEntityChanged(DisplayedEntity* cur, DisplayedEntity* prev);
+	void closeEntity(DisplayedEntity* ent);
+	void entitySaved();
+	void entityChangeStatusChanged();
 	void configurationChanged();
-	void currentFileTabChanged(int index);
-	void fileTabClosed(int index);
+	void currentEntityTabChanged(int index);
+	void entityTabClosed(int index);
 	void dockWidgetViewChanged(bool checked);
 	void dockWidgetVisibilityChanged(bool visible);
 
@@ -86,7 +86,7 @@ public slots:
 private:
 	QList<QDockWidget*> dockWidgets;
 	QList<QAction*> dockViewActions;
-	QMap<DisplayedFile*, FileViewWidget*> fileWidgets;
+	QMap<DisplayedEntity*, QWidget*> entityWidgets;
 	Ui_MainWindow ui;
 	QLabel* taskLabel;
 	QProgressBar* progressBar;

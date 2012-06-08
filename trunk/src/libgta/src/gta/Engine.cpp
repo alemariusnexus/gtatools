@@ -84,8 +84,8 @@ void Engine::destroy()
 
 
 Engine::Engine()
-		: defGameInfo(NULL), enableDrawing(true), gameHours(8), gameMinutes(0), viewWidth(-1), viewHeight(-1),
-		  updateTime(0)
+		: defGameInfo(NULL), scene(NULL), enableDrawing(true), gameHours(8), gameMinutes(0), viewWidth(-1),
+		  viewHeight(-1), updateTime(0)
 {
 	meshIndexer = new MeshIndexer;
 	texIndexer = TextureIndexer::getInstance();
@@ -155,6 +155,7 @@ void Engine::clearResources()
 	meshCache->clear();
 	texCache->clear();
 	colCache->clear();
+	animCache->clear();
 }
 
 

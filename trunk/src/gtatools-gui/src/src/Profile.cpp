@@ -28,6 +28,8 @@
 #include <utility>
 #include <gtaformats/gtaide.h>
 #include <gtaformats/util/strutil.h>
+#include <gta/scene/DefaultRenderer.h>
+#include <gta/scene/visibility/PVSDatabase.h>
 #include <QtCore/QTimer>
 
 using std::pair;
@@ -42,6 +44,16 @@ Profile::Profile(const QString& name)
 {
 	connect(ProfileManager::getInstance(), SIGNAL(currentProfileChanged(Profile*, Profile*)), this,
 			SLOT(currentProfileChanged(Profile*, Profile*)));
+
+	scene = new Scene;
+
+	scene->setPVSDatabase(new PVSDatabase);
+}
+
+
+Profile::~Profile()
+{
+	delete scene;
 }
 
 
@@ -203,7 +215,16 @@ void Profile::loadSingleDAT()
 	if (!datLoadingQueue.empty()) {
 		File* file = datLoadingQueue.dequeue();
 		Engine* engine = Engine::getInstance();
+
+		Scene* oldScene = engine->getScene();
+		if (engine->getScene() != scene)
+			engine->setScene(scene);
+
 		engine->loadDAT(*file, gameInfo->getRootDirectory());
+
+		if (oldScene != scene)
+			engine->setScene(oldScene);
+
 		QTimer::singleShot(0, this, SLOT(loadSingleDAT()));
 	} else {
 		delete datLoadingTask;
@@ -217,6 +238,7 @@ void Profile::currentProfileChanged(Profile* oldProfile, Profile* newProfile)
 
 	if (oldProfile == this  &&  newProfile != this) {
 		interruptResourceLoading();
+		engine->clearResources();
 		disconnect(System::getInstance(), SIGNAL(systemQuerySent(const SystemQuery&, SystemQueryResult&)),
 				this, SLOT(systemQuerySent(const SystemQuery&, SystemQueryResult&)));
 		engine->removeResourceObserver(this);

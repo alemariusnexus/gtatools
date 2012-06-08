@@ -47,10 +47,11 @@
 #include <gtaformats/util/math/Quaternion.h>
 #include <gta/MeshGenerator.h>
 #include <gtaformats/ifp/IFPAnimation.h>
-#include <gtaformats/ifp/IFPFrame.h>
+#include <gtaformats/ifp/IFPRotFrame.h>
 #include <gtaformats/ifp/IFPLoader.h>
 #include <gtaformats/ifp/IFPObject.h>
-#include <gtaformats/ifp/IFPRootFrame.h>
+#include <gtaformats/ifp/IFPRotTransFrame.h>
+#include <gtaformats/ifp/IFPRotTransScaleFrame.h>
 #include <gtaformats/util/Exception.h>
 #include <gtaformats/util/CRC32.h>
 #include <gta/resource/animation/ManagedAnimationPackagePointer.h>
@@ -58,9 +59,10 @@
 #include <gta/scene/visibility/PVSDatabase.h>
 #include <gta/scene/SceneObjectDefinitionInfo.h>
 #include <gta/DefaultIPLStreamingFileProvider.h>
-#include <gta/scene/DirectionalLightSource.h>
-#include <gta/scene/PointLightSource.h>
-#include <gta/scene/SpotLightSource.h>
+#include <gta/scene/objects/DirectionalLightSource.h>
+#include <gta/scene/objects/PointLightSource.h>
+#include <gta/scene/objects/SpotLightSource.h>
+#include <gta/resource/animation/AnimationCacheEntry.h>
 
 
 
@@ -269,25 +271,66 @@ void Controller::init()
 
 
 
+	PointLightSource* pl = new PointLightSource;
+	pl->setDiffuseColor(Vector4(1.0f, 1.0f, 1.0f, 1.0f));
+	pl->setPosition(Vector3(0.0f, 15.0f, 20.0f));
+	pl->setSpecularColor(Vector4(5.0f, 5.0f, 5.0f, 1.0f));
+	pl->setShininess(96.0f);
+	scene->addSceneObject(pl);
 
-	const char* AnimationData[] = {
-		/*	Mesh Name				TXD Name				IFP Name				Animation Name	*/
+	SpotLightSource* sl = new SpotLightSource;
+	sl->setDiffuseColor(Vector4(5.0f, 0.0f, 0.0f, 1.0f));
+	sl->setPosition(Vector3(0.0f, 15.0f, 20.0f));
+	sl->setDirection(Vector3::NegativeUnitY);
+	sl->setCutoffAngleCosine(cos((31.0f / 180.0f) * M_PI));
+	scene->addSceneObject(sl);
 
-			"jizzy",				"jizzy",				"ped",					"atm",
-			"jizzy",				"jizzy",				"ped",					"bike_fall_off",
-			"jizzy",				"jizzy",				"ped",					"car_getinl_lhs",
-			"jizzy",				"jizzy",				"ped",					"climb_jump",
-			"jizzy",				"jizzy",				"ped",					"drown",
-			"jizzy",				"jizzy",				"ped",					"arrestgun",
-			"jizzy",				"jizzy",				"ped",					"bomber",
-			"jizzy",				"jizzy",				"ped",					"gum_eat",
-			"jizzy",				"jizzy",				"ped",					"handsup",
-			"jizzy",				"jizzy",				"ped",					"hit_back",
-			"jizzy",				"jizzy",				"ped",					"woman_runfatold",
-			"jizzy",				"jizzy",				"ped",					"xpressscratch"
+	DirectionalLightSource* dl = new DirectionalLightSource;
+	dl->setDiffuseColor(Vector4(0.0f, 0.0f, 0.5f, 1.0f));
+	dl->setDirection(Vector3::UnitZ);
+	scene->addSceneObject(dl);
+
+
+	CString testMeshName;
+
+	switch (gameInfo->getVersionMode()) {
+	case GameInfo::GTASA:
+		testMeshName = CString("jizzy");
+		break;
+	case GameInfo::GTAVC:
+		testMeshName = CString("hmori");
+		break;
+	case GameInfo::GTAIII:
+		testMeshName = CString("medic");
+		break;
+	}
+
+
+	AnimationCacheEntry* pedEntry = (AnimationCacheEntry*) engine->getAnimationCache()->getEntryPointer(CString("ped")).getEntry();
+
+	AnimationPackage* anpk = pedEntry->getPackage();
+
+	CString* AnimationData = new CString[anpk->getAnimationCount() * 4];
+
+	AnimationPackage::AnimIterator it;
+	int idx = 0;
+	for (it = anpk->getAnimationBegin() ; it != anpk->getAnimationEnd() ; it++, idx++) {
+		Animation* anim = it->second;
+		CString name = it->first;
+
+		AnimationData[idx*4] = CString(testMeshName);
+		AnimationData[idx*4 + 1] = CString(testMeshName);
+		AnimationData[idx*4 + 2] = CString("ped");
+		AnimationData[idx*4 + 3] = CString(name);
+	}
+
+	size_t numObjs = anpk->getAnimationCount();
+
+	/*CString AnimationData[] = {
+			"medic",					"medic",					"ped",					"arrestgun"
 	};
 
-	size_t numObjs = sizeof(AnimationData) / (sizeof(const char*) * 4);
+	size_t numObjs = sizeof(AnimationData) / (sizeof(CString) * 4);*/
 
 
 
@@ -302,7 +345,7 @@ void Controller::init()
 
 			AnimatedMapSceneObject* obj = new AnimatedMapSceneObject(def);
 			obj->setCurrentAnimation(AnimationData[i*4 + 3]);
-			obj->setModelMatrix(Matrix4::translation(2.0f * i, -2.0f * (j+1), 20.0f));
+			obj->setModelMatrix(Matrix4::translation(2.0f * i, -2.0f * (j+1), -20.0f));
 
 			scene->addSceneObject(obj);
 		}
@@ -443,25 +486,6 @@ void Controller::reshape(int w, int h)
 	//dpAlgo->setPassCount(0);
 	//renderer->setTransparencyAlgorithm(basicTransAlgo);
 	engine->getScene()->setRenderer(renderer);
-
-	PointLightSource* pl = new PointLightSource;
-	pl->setDiffuseColor(Vector4(1.0f, 1.0f, 1.0f, 1.0f));
-	pl->setPosition(Vector3(0.0f, 15.0f, 20.0f));
-	pl->setSpecularColor(Vector4(5.0f, 5.0f, 5.0f, 1.0f));
-	pl->setShininess(96.0f);
-	renderer->addLightSource(pl);
-
-	SpotLightSource* sl = new SpotLightSource;
-	sl->setDiffuseColor(Vector4(5.0f, 0.0f, 0.0f, 1.0f));
-	sl->setPosition(Vector3(0.0f, 15.0f, 20.0f));
-	sl->setDirection(Vector3::NegativeUnitY);
-	sl->setCutoffAngleCosine(cos((31.0f / 180.0f) * M_PI));
-	renderer->addLightSource(sl);
-
-	DirectionalLightSource* dl = new DirectionalLightSource;
-	dl->setDiffuseColor(Vector4(0.0f, 0.0f, 0.5f, 1.0f));
-	dl->setDirection(Vector3::UnitZ);
-	renderer->addLightSource(dl);
 
 
 	float l = aspect*-0.7;

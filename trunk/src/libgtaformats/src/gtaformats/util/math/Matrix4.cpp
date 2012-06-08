@@ -314,6 +314,17 @@ Matrix4 Matrix4::rotationZ(float a)
 }
 
 
+Matrix4 Matrix4::scale(const Vector3& s)
+{
+	return Matrix4 (
+			s.getX(),	0.0f,		0.0f,		0.0f,
+			0.0f,		s.getY(),	0.0f,		0.0f,
+			0.0f,		0.0f,		s.getZ(),	0.0f,
+			0.0f,		0.0f,		0.0f,		1.0f
+	);
+}
+
+
 Matrix4 Matrix4::lookAt(const Vector3& target, const Vector3& up)
 {
 	Vector3 f = target;

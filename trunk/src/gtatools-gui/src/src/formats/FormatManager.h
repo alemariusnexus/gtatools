@@ -24,6 +24,7 @@
 #define FORMATMANAGER_H_
 
 #include "FormatHandler.h"
+#include "../EntityOpenRequest.h"
 #include <QtCore/QLinkedList>
 
 
@@ -37,8 +38,8 @@ public:
 public:
 	void registerFormatHandler(FormatHandler* provider);
 	QLinkedList<FormatHandler*> getHandlers() { return handlers; }
-	QLinkedList<FormatHandler*> getHandlers(const File& file);
-	FormatHandler* getHandler(const File& file);
+	QLinkedList<FormatHandler*> getHandlers(const EntityOpenRequest& req);
+	FormatHandler* getHandler(const EntityOpenRequest& req);
 
 private:
 	FormatManager();

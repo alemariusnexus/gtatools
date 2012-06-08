@@ -33,8 +33,8 @@ public:
 	IDEFormatHandler();
 	virtual QString getFormatName(const File* file = NULL) const { return tr("Item Definition File (IDE)"); }
 	virtual QLinkedList<QString> getFileFormatExtensions() const { return QLinkedList<QString>() << "ide"; }
-	virtual bool hasFileFormat(const File& file) const { return file.guessContentType() == CONTENT_TYPE_IDE; }
-	virtual DisplayedFile* openFile(const FileOpenRequest& request);
+	virtual bool canHandle(const EntityOpenRequest& req) const;
+	virtual DisplayedEntity* openEntity(const EntityOpenRequest& request);
 
 private slots:
 	void systemQuerySent(const SystemQuery& query, SystemQueryResult& result);

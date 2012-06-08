@@ -24,7 +24,7 @@
 #define UNRECOGNIZEDFORMATHANDLER_H_
 
 #include "../FormatHandler.h"
-#include "../../DefaultDisplayedFile.h"
+#include "../../DisplayedFile.h"
 
 
 
@@ -34,10 +34,10 @@ class UnrecognizedFormatHandler : public FormatHandler {
 public:
 	virtual QString getFormatName(const File* file = NULL) const { return tr("Unrecognized File"); }
 	virtual QLinkedList<QString> getFileFormatExtensions() const { return QLinkedList<QString>(); }
-	virtual bool hasFileFormat(const File& file) const { return true; }
-	virtual int getSuitability(const File& file) const { return 10; }
-	virtual DisplayedFile* openFile(const FileOpenRequest& request)
-			{ return new DefaultDisplayedFile(*request.getFile(), this, NULL); }
+	virtual bool canHandle(const EntityOpenRequest& req) const { return !req.getAttribute("file").isNull(); }
+	virtual int getSuitability(const EntityOpenRequest& req) const { return 10; }
+	virtual DisplayedEntity* openEntity(const EntityOpenRequest& request)
+			{ return new DisplayedFile(File(request.getAttribute("file").toString().toLocal8Bit().constData()), this, NULL); }
 };
 
 #endif /* UNRECOGNIZEDFORMATHANDLER_H_ */

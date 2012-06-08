@@ -41,14 +41,21 @@ AnimationBone::AnimationBone(const AnimationBone& other)
 
 
 AnimationBone::AnimationBone(const IFPObject* obj)
-		: flags(obj->getFrameType() == IFPObject::RootFrame ? FrameHasTranslation : 0),
-		  name(obj->getName().lower()), id(obj->getBoneID())
+		: flags(0), name(obj->getName().lower()), id(obj->getBoneID())
 {
-	for (IFPObject::ConstFrameIterator it = obj->getFrameBegin() ; it != obj->getFrameEnd() ; it++) {
-		const IFPFrame* iframe = *it;
+	if (obj->getFrameType() == IFPObject::RotTransFrame) {
+		flags |= FrameHasTranslation;
+	} else if (obj->getFrameType() == IFPObject::RotTransScaleFrame) {
+		flags |= FrameHasTranslation | FrameHasScale;
+	}
 
-		if ((flags & FrameHasTranslation) != 0) {
-			frames.push_back(new AnimationFrame((IFPRootFrame*) iframe));
+	for (IFPObject::ConstFrameIterator it = obj->getFrameBegin() ; it != obj->getFrameEnd() ; it++) {
+		const IFPRotFrame* iframe = *it;
+
+		if (obj->getFrameType() == IFPObject::RotTransFrame) {
+			frames.push_back(new AnimationFrame((IFPRotTransFrame*) iframe));
+		} else if (obj->getFrameType() == IFPObject::RotTransScaleFrame) {
+			frames.push_back(new AnimationFrame((IFPRotTransScaleFrame*) iframe));
 		} else {
 			frames.push_back(new AnimationFrame(iframe));
 		}
@@ -66,6 +73,10 @@ AnimationBone::~AnimationBone()
 
 bool AnimationBone::getFrames(float time, AnimationFrame*& f1, AnimationFrame*& f2, float& t) const
 {
+	if (frames.empty()) {
+		return false;
+	}
+
 	for (ConstFrameIterator it = frames.begin() ; it != frames.end() ; it++) {
 		AnimationFrame* frame = *it;
 
@@ -82,7 +93,12 @@ bool AnimationBone::getFrames(float time, AnimationFrame*& f1, AnimationFrame*& 
 				f1 = *(it-1);
 			}
 
-			t = (time - f1->getStart()) / (f2->getStart() - f1->getStart());
+			float tdiff = f2->getStart() - f1->getStart();
+
+			if (tdiff == 0.0f)
+				t = 1.0f;
+			else
+				t = (time - f1->getStart()) / tdiff;
 
 			return true;
 		}
@@ -105,31 +121,50 @@ AnimationFrame* AnimationBone::getInterpolatedFrame(float time) const
 	AnimationFrame* f2 = NULL;
 	float t;
 
-	getFrames(time, f1, f2, t);
+	bool found = getFrames(time, f1, f2, t);
 
-	Vector3 t1, t2;
-	Quaternion r1 = f1->getRotation();
-	Quaternion r2 = f2->getRotation();
+	if (found) {
+		Vector3 t1, t2;
+		Vector3 s1 = Vector3::One,
+				s2 = Vector3::One;
+		Quaternion r1 = f1->getRotation();
+		Quaternion r2 = f2->getRotation();
 
-	if ((flags & FrameHasTranslation)  !=  0) {
-		t1 = f1->getTranslation();
-		t2 = f2->getTranslation();
+		if ((flags & FrameHasTranslation)  !=  0) {
+			t1 = f1->getTranslation();
+			t2 = f2->getTranslation();
+		}
+		if ((flags & FrameHasScale)  !=  0) {
+			s1 = f1->getScale();
+			s2 = f2->getScale();
+		}
+
+		Quaternion ir = r1.slerp(r2, t);
+		Vector3 it = t1 + (t2-t1) * t;
+		Vector3 is = s1 + (s2-s1) * t;
+
+		AnimationFrame* frame = new AnimationFrame(time, ir, it, is);
+
+		return frame;
+	} else {
+		return NULL;
 	}
-
-	Quaternion ir = r1.slerp(r2, t);
-
-	Vector3 it = t1 + (t2-t1) * t;
-
-	AnimationFrame* frame = new AnimationFrame(time, ir, it);
-
-	return frame;
 }
 
 
 Matrix4 AnimationBone::getInterpolatedFrameMatrix(float time) const
 {
 	AnimationFrame* frame = getInterpolatedFrame(time);
-	Matrix4 mat = Matrix4::translation(frame->getTranslation()) * Matrix4(frame->getRotation().toMatrix());
-	delete frame;
-	return mat;
+
+	if (frame) {
+		Matrix4 mat = Matrix4::scale(frame->getScale())
+				* Matrix4::translation(frame->getTranslation())
+				* Matrix4(frame->getRotation().toMatrix());
+
+		delete frame;
+
+		return mat;
+	} else {
+		return Matrix4::Identity;
+	}
 }

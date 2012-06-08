@@ -49,7 +49,7 @@ FileViewWidget::FileViewWidget(DisplayedFile* dfile)
 		}
 	}
 
-	connect(dfile, SIGNAL(saved(const File&)), this, SLOT(saved(const File&)));
+	connect(dfile, SIGNAL(saved()), this, SLOT(saved()));
 }
 
 
@@ -86,7 +86,7 @@ void FileViewWidget::updateFile()
 }
 
 
-void FileViewWidget::saved(const File& file)
+void FileViewWidget::saved()
 {
 	updateFile();
 }

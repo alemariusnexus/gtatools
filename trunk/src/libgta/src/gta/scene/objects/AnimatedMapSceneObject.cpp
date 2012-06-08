@@ -25,12 +25,12 @@
 
 
 AnimatedMapSceneObject::AnimatedMapSceneObject(AnimatedMapItemDefinition* def)
-		: MapSceneObject(def), def(def), curAnim(def->getDefaultAnimation()), time(0.0f)
+		: MapSceneObject(def), def(def), curAnim(def->getDefaultAnimation()), time(0.0f), autoAnim(true)
 {
 }
 
 
 AnimatedMapSceneObject::AnimatedMapSceneObject(const AnimatedMapSceneObject& other)
-		: MapSceneObject(other), def(other.def), curAnim(other.curAnim), time(other.time)
+		: MapSceneObject(other), def(other.def), curAnim(other.curAnim), time(other.time), autoAnim(true)
 {
 }

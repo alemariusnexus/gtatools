@@ -33,7 +33,8 @@ public:
 	enum TypeFlags {
 		TypeFlagVisual = (1 << 0),
 		TypeFlagAnimated = (1 << 1),
-		TypeFlagPVS = (1 << 2)
+		TypeFlagPVS = (1 << 2),
+		TypeFlagLight = (1 << 3)
 	};
 
 public:

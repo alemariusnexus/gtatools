@@ -32,6 +32,7 @@
 #include <gtaformats/util/File.h>
 #include <gta/resource/ResourceObserver.h>
 #include <gta/Engine.h>
+#include <gta/scene/Scene.h>
 #include "Task.h"
 #include "SystemQuery.h"
 #include "SystemQueryResult.h"
@@ -53,6 +54,7 @@ private:
 
 public:
 	Profile(const QString& name);
+	~Profile();
 
 	void addResource(const File& resource);
 	void addSearchResource(const File& resource);
@@ -126,6 +128,7 @@ private:
 	Task* resourceLoadingTask;
 	Task* datLoadingTask;
 	bool stopResourceLoading;
+	Scene* scene;
 };
 
 //Q_DECLARE_METATYPE(Profile)

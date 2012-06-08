@@ -32,7 +32,7 @@
 #include "../../ProfileManager.h"
 #include "TextureSearchDialog.h"
 #include <gtaformats/txd/TXDConverter.h>
-#include "../../DefaultDisplayedFile.h"
+#include "../../DisplayedFile.h"
 #include <gtaformats/util/DefaultFileFinder.h>
 #include "TextureFileFinder.h"
 #include "../../gui/GUI.h"
@@ -54,7 +54,20 @@ TXDFormatHandler::TXDFormatHandler()
 }
 
 
-DisplayedFile* TXDFormatHandler::openFile(const FileOpenRequest& request)
+bool TXDFormatHandler::canHandle(const EntityOpenRequest& req) const
+{
+	QVariant fileVar = req.getAttribute("file");
+
+	if (fileVar.isNull())
+		return false;
+
+	File file(fileVar.toString().toLocal8Bit().constData());
+
+	return file.guessContentType() == CONTENT_TYPE_TXD;
+}
+
+
+DisplayedEntity* TXDFormatHandler::openEntity(const EntityOpenRequest& request)
 {
 	QString texName;
 
@@ -63,26 +76,20 @@ DisplayedFile* TXDFormatHandler::openFile(const FileOpenRequest& request)
 		texName = tn.toString();
 	}
 
-	DefaultDisplayedFile* file = new DefaultDisplayedFile(*request.getFile(), this, NULL);
+	File file(request.getAttribute("file").toString().toLocal8Bit().constData());
+	DisplayedFile* dfile = new DisplayedFile(file, this, NULL);
 	TXDWidget* widget;
 
 	try {
-		widget = new TXDWidget(file, texName, NULL);
+		widget = new TXDWidget(dfile, texName, NULL);
 	} catch (Exception& ex) {
-		delete file;
+		delete dfile;
 		return NULL;
 	}
 
-	file->setWidget(widget);
+	dfile->setWidget(widget);
 
-	return file;
-}
-
-
-void TXDFormatHandler::saveFile(DisplayedFile* file, const File& destFile)
-{
-	TXDWidget* widget = (TXDWidget*) file->getWidget();
-	widget->saveTo(destFile);
+	return dfile;
 }
 
 
@@ -196,10 +203,11 @@ void TXDFormatHandler::systemQuerySent(const SystemQuery& query, SystemQueryResu
 				result["txdFile"] = QString(file->getPath()->toString().get());
 
 				System* sys = System::getInstance();
-				FileOpenRequest req(*file);
+				EntityOpenRequest req;
+				req.setAttribute("file", QString(file->getPath()->toString().get()));
 				req.setAttribute("texture", finder.getMatchedTexture(*file));
 				delete file;
-				sys->openFile(req);
+				sys->openEntity(req);
 
 				result.setSuccessful(true);
 			}

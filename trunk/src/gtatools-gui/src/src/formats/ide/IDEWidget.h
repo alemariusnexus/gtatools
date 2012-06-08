@@ -28,7 +28,7 @@
 #include <gtaformats/util/File.h>
 #include <QtCore/QLinkedList>
 #include <QtGui/QBrush>
-#include "../../FileOpenRequest.h"
+#include "../../EntityOpenRequest.h"
 
 
 
@@ -36,7 +36,7 @@ class IDEWidget : public QWidget {
 	Q_OBJECT
 
 public:
-	IDEWidget(QWidget* parent, const FileOpenRequest& request);
+	IDEWidget(QWidget* parent, const EntityOpenRequest& request);
 
 private:
 	QTableWidgetItem* createItem(const QString& text, bool link = false);

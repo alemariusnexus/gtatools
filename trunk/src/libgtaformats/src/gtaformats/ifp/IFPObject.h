@@ -23,8 +23,9 @@
 #ifndef IFPOBJECT_H_
 #define IFPOBJECT_H_
 
-#include "IFPFrame.h"
-#include "IFPRootFrame.h"
+#include "IFPRotFrame.h"
+#include "IFPRotTransFrame.h"
+#include "IFPRotTransScaleFrame.h"
 #include "../util/CString.h"
 #include <vector>
 
@@ -37,12 +38,13 @@ public:
 	enum FrameType
 	{
 		Unknown2Frame = 2,
-		ChildFrame = 3,
-		RootFrame = 4
+		RotFrame = 3,
+		RotTransFrame = 4,
+		RotTransScaleFrame = 500
 	};
 
 public:
-	typedef vector<IFPFrame*> FrameList;
+	typedef vector<IFPRotFrame*> FrameList;
 	typedef FrameList::iterator FrameIterator;
 	typedef FrameList::const_iterator ConstFrameIterator;
 
@@ -58,7 +60,7 @@ public:
 	ConstFrameIterator getFrameBegin() const { return frames.begin(); }
 	ConstFrameIterator getFrameEnd() const { return frames.end(); }
 	int getFrameCount() const { return frames.size(); }
-	void addFrame(IFPFrame* frame) { frames.push_back(frame); }
+	void addFrame(IFPRotFrame* frame) { frames.push_back(frame); }
 
 public:
 	IFPObject() {}

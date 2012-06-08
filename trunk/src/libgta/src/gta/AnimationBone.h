@@ -38,10 +38,11 @@ class AnimationBone {
 public:
 	enum Flags
 	{
-		FrameHasTranslation = (1 << 0)
+		FrameHasTranslation = (1 << 0),
+		FrameHasScale = (1 << 1)
 	};
 
-private:
+public:
 	typedef vector<AnimationFrame*> FrameList;
 	typedef FrameList::iterator FrameIterator;
 	typedef FrameList::const_iterator ConstFrameIterator;

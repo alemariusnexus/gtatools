@@ -292,6 +292,9 @@ public:
 	 */
 	static Matrix4 rotationZ(float a);
 
+	static Matrix4 scale(const Vector3& s);
+	static Matrix4 scale(float x, float y, float z) { return scale(Vector3(x, y, z)); }
+
 	static Matrix4 lookAt(const Vector3& target, const Vector3& up);
 	static Matrix4 fromQuaternion(float x, float y, float z, float w);
 

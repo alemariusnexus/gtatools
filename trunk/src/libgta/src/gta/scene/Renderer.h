@@ -24,12 +24,14 @@
 #define RENDERER_H_
 
 #include "parts/VisualSceneObject.h"
+#include "objects/LightSource.h"
 
 
 
 class Renderer {
 public:
 	virtual void enqueueForRendering(VisualSceneObject* obj) = 0;
+	virtual void enqueueForRendering(LightSource* ls) = 0;
 	virtual void render() = 0;
 };
 

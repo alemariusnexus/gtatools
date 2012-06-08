@@ -25,7 +25,7 @@
 #include "IDEFileFinder.h"
 #include "../../gui/GUI.h"
 #include "../../System.h"
-#include "../../DefaultDisplayedFile.h"
+#include "../../DisplayedFile.h"
 
 
 
@@ -36,10 +36,24 @@ IDEFormatHandler::IDEFormatHandler()
 }
 
 
-DisplayedFile* IDEFormatHandler::openFile(const FileOpenRequest& request)
+bool IDEFormatHandler::canHandle(const EntityOpenRequest& req) const
+{
+	QVariant fileVar = req.getAttribute("file");
+
+	if (fileVar.isNull())
+		return false;
+
+	File file(fileVar.toString().toLocal8Bit().constData());
+
+	return file.guessContentType() == CONTENT_TYPE_IDE;
+}
+
+
+DisplayedEntity* IDEFormatHandler::openEntity(const EntityOpenRequest& request)
 {
 	IDEWidget* widget = new IDEWidget(NULL, request);
-	DefaultDisplayedFile* file = new DefaultDisplayedFile(*request.getFile(), this, widget);
+	DisplayedFile* file = new DisplayedFile (
+			File(request.getAttribute("file").toString().toLocal8Bit().constData()), this, widget );
 	return file;
 }
 

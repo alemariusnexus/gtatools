@@ -93,9 +93,8 @@ private:
 
 		while (obj) {
 			float dd = obj->getStreamingDistance();
-			float distDiff = dd*dd - distSq;
 
-			if (distDiff > 0.0f) {
+			if (dd == 0.0f  ||  dd*dd - distSq > 0.0f) {
 				list.push_back(obj);
 				return true;
 			} else {

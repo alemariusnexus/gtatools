@@ -35,9 +35,10 @@
 #include <QtCore/QString>
 #include <QtOpenGL/QGLWidget>
 #include "Task.h"
-#include "FileOpenRequest.h"
+#include "EntityOpenRequest.h"
 #include "SystemQuery.h"
 #include "SystemQueryResult.h"
+#include "DisplayedEntity.h"
 #include "DisplayedFile.h"
 #include <gtaformats/util/FileFinder.h>
 #include <QtGui/QImage>
@@ -53,17 +54,19 @@ public:
 
 public:
 	void initializeGL();
-	bool openFile(const FileOpenRequest& request);
-	bool closeFile(const File& file, bool force = false) { return closeFile(findOpenFile(file), force); }
-	bool closeFile(DisplayedFile* file, bool force = false);
-	bool closeCurrentFile(bool force = false);
-	void changeCurrentFile(DisplayedFile* file);
-	void changeCurrentFile(const File& file) { changeCurrentFile(findOpenFile(file)); }
+	bool openEntity(DisplayedEntity* entity);
+	bool openEntity(const EntityOpenRequest& request);
+	bool openFile(const File& file);
+	bool closeFile(const File& file, bool force = false) { return closeEntity(findOpenFile(file), force); }
+	bool closeEntity(DisplayedEntity* file, bool force = false);
+	bool closeCurrentEntity(bool force = false);
+	void changeCurrentEntity(DisplayedEntity* ent);
+	void changeCurrentEntity(const File& file) { changeCurrentEntity(findOpenFile(file)); }
 	DisplayedFile* findOpenFile(const File& file);
-	DisplayedFile* getCurrentFile() { return currentFile; }
-	QLinkedList<DisplayedFile*> getOpenFiles() { return openFiles; }
+	DisplayedEntity* getCurrentEntity() { return currentEntity; }
+	QLinkedList<DisplayedEntity*> getOpenEntities() { return openEntities; }
 	bool isOpenFile(const File& file) { return findOpenFile(file) != NULL; }
-	bool hasOpenFile();
+	bool hasOpenEntity();
 	void unhandeledException(Exception& ex);
 	void emitConfigurationChange();
 	QLinkedList<GUIModule*> getInstalledGUIModules() { return installedGUIModules; }
@@ -80,12 +83,13 @@ public:
 	bool quit();
 	bool isInitializing() const { return initializing; }
 	bool isShuttingDown() const { return shuttingDown; }
+	MainWindow* getMainWindow() { return mainWindow; }
 
 signals:
-	void fileOpened(const FileOpenRequest& request, DisplayedFile* file);
-	void fileClosed(DisplayedFile* file);
-	void currentFileChanged(DisplayedFile* current, DisplayedFile* prev);
-	void currentFileClosed();
+	void entityOpened(DisplayedEntity* ent);
+	void entityClosed(DisplayedEntity* ent);
+	void currentEntityChanged(DisplayedEntity* current, DisplayedEntity* prev);
+	void currentEntityClosed();
 	void configurationChanged();
 	void installedGUIModule(GUIModule* module);
 	void uninstalledGUIModule(GUIModule* module);
@@ -108,8 +112,8 @@ private:
 private:
 	MainWindow* mainWindow;
 	QLinkedList<GUIModule*> installedGUIModules;
-	QLinkedList<DisplayedFile*> openFiles;
-	DisplayedFile* currentFile;
+	QLinkedList<DisplayedEntity*> openEntities;
+	DisplayedEntity* currentEntity;
 	QGLWidget* sharedWidget;
 	QImage dummyTexImage;
 	bool initializing, shuttingDown;

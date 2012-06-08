@@ -31,8 +31,8 @@ class IPLFormatHandler: public FormatHandler {
 public:
 	virtual QString getFormatName(const File* file = NULL) const;
 	virtual QLinkedList<QString> getFileFormatExtensions() const { return QLinkedList<QString>() << "ipl"; }
-	virtual bool hasFileFormat(const File& file) const { return file.guessContentType() == CONTENT_TYPE_IPL; }
-	virtual DisplayedFile* openFile(const FileOpenRequest& request);
+	virtual bool canHandle(const EntityOpenRequest& req) const;
+	virtual DisplayedEntity* openEntity(const EntityOpenRequest& request);
 };
 
 #endif /* IPLFORMATHANDLER_H_ */

@@ -47,10 +47,9 @@ FileTree::FileTree(QWidget* parent)
 			SLOT(contextMenuRequested(const QPoint&)));
 	connect(pm, SIGNAL(currentProfileChanged(Profile*, Profile*)), this,
 			SLOT(currentProfileChanged(Profile*, Profile*)));
-	connect(sys, SIGNAL(fileOpened(const FileOpenRequest&, DisplayedFile*)), this,
-			SLOT(fileOpened(const FileOpenRequest&, DisplayedFile*)));
+	connect(sys, SIGNAL(entityOpened(DisplayedEntity*)), this,
+			SLOT(entityOpened(DisplayedEntity*)));
 
-	//showProfile(pm->getCurrentProfile());
 	currentProfileChanged(NULL, pm->getCurrentProfile());
 }
 
@@ -108,8 +107,7 @@ void FileTree::fileSelected(const QModelIndex& index)
 	File* file = static_cast<StaticFile*>(proxyModel->mapToSource(index).internalPointer())->getFile();
 
 	if (!file->isDirectory()) {
-		FileOpenRequest request(*file);
-		sys->openFile(request);
+		sys->openFile(*file);
 	}
 }
 
@@ -166,20 +164,24 @@ void FileTree::currentProfileChanged(Profile* oldProfile, Profile* newProfile)
 }
 
 
-void FileTree::fileOpened(const FileOpenRequest& request, DisplayedFile* file)
+void FileTree::entityOpened(DisplayedEntity* ent)
 {
-	QSettings settings;
+	DisplayedFile* file = dynamic_cast<DisplayedFile*>(ent);
 
-	if (settings.value("gui/file_tree_auto_select", true).toBool()) {
-		QModelIndex cur = currentIndex();
-		cur = proxyModel->mapToSource(cur);
+	if (file) {
+		QSettings settings;
 
-		if (!cur.isValid()  ||  *model->getFileForIndex(cur) != file->getFile()) {
-			QModelIndex index = model->indexOf(file->getFile(), rootIndex());
+		if (settings.value("gui/file_tree_auto_select", true).toBool()) {
+			QModelIndex cur = currentIndex();
+			cur = proxyModel->mapToSource(cur);
 
-			if (index.isValid()) {
-				QModelIndex idx = proxyModel->mapFromSource(index);
-				setCurrentIndex(idx);
+			if (!cur.isValid()  ||  *model->getFileForIndex(cur) != file->getFile()) {
+				QModelIndex index = model->indexOf(file->getFile(), rootIndex());
+
+				if (index.isValid()) {
+					QModelIndex idx = proxyModel->mapFromSource(index);
+					setCurrentIndex(idx);
+				}
 			}
 		}
 	}

@@ -37,6 +37,8 @@ public:
 	virtual float getAnimationTime() const { return time; }
 	virtual void setCurrentAnimation(const CString& name) { curAnim = name; }
 	virtual CString getCurrentAnimation() const { return curAnim; }
+	virtual bool isAutoAnimationEnabled() const { return autoAnim; }
+	void setAutoAnimationEnabled(bool aa) { autoAnim = aa; }
 
 	virtual typeflags_t getTypeFlags() const { return TypeFlagVisual | TypeFlagPVS | TypeFlagAnimated; }
 	virtual AnimatedMapItemDefinition* getDefinition() { return def; }
@@ -45,6 +47,7 @@ private:
 	AnimatedMapItemDefinition* def;
 	CString curAnim;
 	float time;
+	bool autoAnim;
 };
 
 #endif /* ANIMATEDMAPSCENEOBJECT_H_ */

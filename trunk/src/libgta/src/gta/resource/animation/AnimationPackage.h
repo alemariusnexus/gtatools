@@ -38,12 +38,21 @@ private:
 	typedef map<CString, Animation*> AnimMap;
 
 public:
+	typedef AnimMap::iterator AnimIterator;
+	typedef AnimMap::const_iterator ConstAnimIterator;
+
+public:
 	AnimationPackage() : size(sizeof(AnimMap) + sizeof(cachesize_t)) {}
 	~AnimationPackage();
 	cachesize_t getSize() const { return size; }
 	void addAnimation(const CString& name, Animation* anim);
 	Animation* find(const CString& name);
 	Animation* operator[](const CString& name) { return find(name); }
+	AnimIterator getAnimationBegin() { return anims.begin(); }
+	AnimIterator getAnimationEnd() { return anims.end(); }
+	ConstAnimIterator getAnimationBegin() const { return anims.begin(); }
+	ConstAnimIterator getAnimationEnd() const { return anims.end(); }
+	size_t getAnimationCount() const { return anims.size(); }
 
 private:
 	AnimMap anims;

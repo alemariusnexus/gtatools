@@ -40,6 +40,7 @@ private:
 public:
 	~AnimationIndexer();
 	virtual void resourceAdded(const File& file);
+	virtual void resourcesCleared();
 	File* find(CString name);
 	File* operator[](CString name) { return find(name); }
 

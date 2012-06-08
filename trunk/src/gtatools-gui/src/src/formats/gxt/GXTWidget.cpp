@@ -34,15 +34,15 @@
 
 
 
-GXTWidget::GXTWidget(const FileOpenRequest& request, QWidget* parent)
+GXTWidget::GXTWidget(const EntityOpenRequest& request, QWidget* parent)
 		: QWidget(parent), guiModule(this), model(NULL)
 {
 	ui.setupUi(this);
 
-	File* file = request.getFile();
+	File file(request.getAttribute("file").toString().toLocal8Bit().constData());
 
-	gxtFile = new File(*file);
-	GXTLoader gxt(*file);
+	gxtFile = new File(file);
+	GXTLoader gxt(file);
 	gxt.setEncoding(UTF8);
 	gxt.setKeepKeyNames(true);
 	GXTTableHeader* headers = new GXTTableHeader[gxt.getTableCount()];

@@ -24,25 +24,33 @@
 
 
 
-AnimationFrame::AnimationFrame(float start, const Quaternion& rot, const Vector3& trans)
-		: start(start), rot(rot), trans(trans)
+AnimationFrame::AnimationFrame(float start, const Quaternion& rot, const Vector3& trans, const Vector3& scale)
+		: start(start), rot(rot), trans(trans), scale(scale)
 {
 }
 
 
 AnimationFrame::AnimationFrame(const AnimationFrame& other)
-		: start(other.start), rot(other.rot), trans(other.trans)
+		: start(other.start), rot(other.rot), trans(other.trans), scale(other.scale)
 {
 }
 
 
-AnimationFrame::AnimationFrame(const IFPFrame* frame)
-		: start(frame->getTime()), rot(frame->getRotation())
+AnimationFrame::AnimationFrame(const IFPRotFrame* frame)
+		: start(frame->getTime()), rot(frame->getRotation()), scale(Vector3::One)
 {
 }
 
 
-AnimationFrame::AnimationFrame(const IFPRootFrame* frame)
-		: start(frame->getTime()), rot(frame->getRotation()), trans(frame->getTranslation())
+AnimationFrame::AnimationFrame(const IFPRotTransFrame* frame)
+		: start(frame->getTime()), rot(frame->getRotation()), trans(frame->getTranslation()),
+		  scale(Vector3::One)
+{
+}
+
+
+AnimationFrame::AnimationFrame(const IFPRotTransScaleFrame* frame)
+		: start(frame->getTime()), rot(frame->getRotation()), trans(frame->getTranslation()),
+		  scale(frame->getScale())
 {
 }

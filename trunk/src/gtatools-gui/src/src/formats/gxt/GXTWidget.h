@@ -33,14 +33,14 @@
 #include "GXTTableModel.h"
 #include "GXTGUIModule.h"
 #include <QtCore/QSettings>
-#include "../../FileOpenRequest.h"
+#include "../../EntityOpenRequest.h"
 
 
 class GXTWidget : public QWidget {
 	Q_OBJECT
 
 public:
-	GXTWidget(const FileOpenRequest& request, QWidget* parent = NULL);
+	GXTWidget(const EntityOpenRequest& request, QWidget* parent = NULL);
 	~GXTWidget();
 	QMap<QString, GXTTable*> getTables() { return tables; }
 	QLinkedList<GXTTable*> getSelectedTables();

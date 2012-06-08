@@ -24,9 +24,51 @@
 
 
 
+
+Animator::Animator(MeshClump* clump, Animation* anim)
+		: clump(clump), anim(anim), boneMats(NULL)
+{
+	boneNumbersValid = checkBoneNumberValidity(clump->getRootFrame());
+
+	if (!boneNumbersValid) {
+		generatePseudoBoneNumbers(clump->getRootFrame());
+	}
+}
+
+
+bool Animator::checkBoneNumberValidity(MeshFrame* frame)
+{
+	if (frame->getBoneNumber() != -1) {
+		return true;
+	}
+
+	for (MeshFrame::ChildIterator it = frame->getChildBegin() ; it != frame->getChildEnd() ; it++) {
+		MeshFrame* child = *it;
+
+		if (checkBoneNumberValidity(child))
+			return true;
+	}
+}
+
+
+void Animator::generatePseudoBoneNumbers(MeshFrame* frame)
+{
+	pseudoBoneNums.insert(pair<MeshFrame*, int32_t>(frame, pseudoBoneNums.size()));
+
+	for (MeshFrame::ChildIterator it = frame->getChildBegin() ; it != frame->getChildEnd() ; it++) {
+		MeshFrame* child = *it;
+		generatePseudoBoneNumbers(child);
+	}
+}
+
+
 void Animator::updateBoneMatrix(MeshFrame* frame)
 {
-	AnimationBone* bone = anim->getBoneForFrame(frame);
+	AnimationBone* bone = NULL;
+
+	if (frame->getName() != CString("root")  ||  frame->getChildByName(CString("root")) == NULL) {
+		bone = anim->getBoneForFrame(frame);
+	}
 
 	if (bone) {
 		Matrix4 modelMat = frame->getModelMatrix();
@@ -86,7 +128,7 @@ void Animator::updateBoneMatrices()
 	if (boneMats)
 		delete[] boneMats;
 
-	int32_t numBones = clump->getBoneCount();
+	int32_t numBones = getBoneCount();
 
 	updateBoneMatrix(clump->getRootFrame());
 
@@ -99,6 +141,13 @@ void Animator::updateBoneMatrices()
 
 		if (frame->getBoneID() != -1) {
 			boneMats[frame->getBoneNumber()] = it->second;
+		} else if (!boneNumbersValid) {
+			PseudoBoneNumMap::iterator pit = pseudoBoneNums.find(frame);
+
+			if (pit != pseudoBoneNums.end()) {
+				int num = pit->second;
+				boneMats[num] = it->second;
+			}
 		}
 	}
 }

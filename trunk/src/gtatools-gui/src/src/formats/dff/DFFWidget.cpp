@@ -119,7 +119,7 @@ DFFWidget::DFFWidget(DisplayedFile* dfile, QWidget* parent)
 	connect(ui.rwbsWidget, SIGNAL(sectionRemoved(RWSection*, RWSection*)), this,
 			SLOT(sectionStructureChanged()));
 
-	connect(dfile, SIGNAL(saved(const File&)), this, SLOT(reloadHighLevelFile()));
+	connect(dfile, SIGNAL(saved()), this, SLOT(reloadHighLevelFile()));
 }
 
 

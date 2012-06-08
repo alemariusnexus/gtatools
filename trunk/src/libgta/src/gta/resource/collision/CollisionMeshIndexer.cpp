@@ -49,6 +49,16 @@ void CollisionMeshIndexer::resourceAdded(const File& file)
 }
 
 
+void CollisionMeshIndexer::resourcesCleared()
+{
+	for (IndexMap::iterator it = index.begin() ; it != index.end() ; it++) {
+		delete it->second;
+	}
+
+	index.clear();
+}
+
+
 CollisionMeshIndexer::CollisionMeshIndexEntry* CollisionMeshIndexer::getCollisionMesh(CString name)
 {
 	IndexMap::iterator it = index.find(name);

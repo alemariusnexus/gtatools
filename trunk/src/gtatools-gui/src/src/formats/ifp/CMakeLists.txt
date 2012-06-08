@@ -19,11 +19,15 @@
 # GPLADDITIONS.
 
 SET(SRCS ${SRCS}
-    src/formats/ifp/IFPWidget.cpp src/formats/ifp/IFPFormatHandler.cpp
+    src/formats/ifp/IFPWidget.cpp src/formats/ifp/IFPFormatHandler.cpp src/formats/ifp/IFPGUIModule.cpp
+    src/formats/ifp/IFPAnimationViewerWidget.cpp src/formats/ifp/IFPAnimationViewerEntity.cpp
+    src/formats/ifp/IFPAnimationViewerRenderWidget.cpp src/formats/ifp/IFPFrameItemModel.cpp
     PARENT_SCOPE)
 SET(MOC_SRCS ${MOC_SRCS}
-    src/formats/ifp/IFPWidget.h src/formats/ifp/IFPFormatHandler.h
+    src/formats/ifp/IFPWidget.h src/formats/ifp/IFPFormatHandler.h src/formats/ifp/IFPGUIModule.h
+    src/formats/ifp/IFPAnimationViewerWidget.h src/formats/ifp/IFPAnimationViewerEntity.h
+    src/formats/ifp/IFPAnimationViewerRenderWidget.h src/formats/ifp/IFPFrameItemModel.h
     PARENT_SCOPE)
 SET(UIC_SRCS ${UIC_SRCS}
-    src/formats/ifp/IFPWidget.ui
+    src/formats/ifp/IFPWidget.ui src/formats/ifp/IFPAnimationViewerWidget.ui
     PARENT_SCOPE)

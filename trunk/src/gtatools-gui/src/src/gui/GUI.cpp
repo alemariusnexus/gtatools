@@ -126,8 +126,9 @@ bool GUI::findAndOpenFile(const QLinkedList<File*>& rootFiles, FileFinder* finde
 	File* file = findFile(rootFiles, finder, parent);
 
 	if (file) {
-		FileOpenRequest req(*file);
-		System::getInstance()->openFile(req);
+		EntityOpenRequest req;
+		req.setAttribute("file", QString(file->getPath()->toString().get()));
+		System::getInstance()->openEntity(req);
 		delete file;
 		return true;
 	}

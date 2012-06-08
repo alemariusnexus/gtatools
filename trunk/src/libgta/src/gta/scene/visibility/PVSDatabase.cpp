@@ -522,7 +522,7 @@ void PVSDatabase::SectionCalculatorThread::run()
 				float oz = pos.getZ();
 				float dd = obj->getStreamingDistance();
 
-				if (sect->intersectsSphere(ox, oy, oz, dd)) {
+				if (dd == 0.0f  ||  sect->intersectsSphere(ox, oy, oz, dd)) {
 					sect->addPotentiallyVisibleObject(baseObj);
 					break;
 				} else {

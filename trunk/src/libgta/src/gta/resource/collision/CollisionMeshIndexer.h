@@ -43,6 +43,7 @@ class CollisionMeshIndexer : public ResourceObserver {
 public:
 	struct CollisionMeshIndexEntry
 	{
+		~CollisionMeshIndexEntry() { delete file; }
 		File* file;
 		int index;
 	};
@@ -56,6 +57,7 @@ private:
 
 public:
 	virtual void resourceAdded(const File& file);
+	virtual void resourcesCleared();
 	CollisionMeshIndexEntry* getCollisionMesh(CString name);
 	CollisionMeshIndexEntry* operator[](CString name) { return getCollisionMesh(name); }
 

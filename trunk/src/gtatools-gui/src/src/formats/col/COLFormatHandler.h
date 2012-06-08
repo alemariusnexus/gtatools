@@ -32,8 +32,8 @@ class COLFormatHandler: public FormatHandler
 public:
 	virtual QString getFormatName(const File* file = NULL) const { return tr("Collision File (COL)"); }
 	virtual QLinkedList<QString> getFileFormatExtensions() const { return QLinkedList<QString>() << "col"; }
-	virtual bool hasFileFormat(const File& file) const { return file.guessContentType() == CONTENT_TYPE_COL; }
-	virtual DisplayedFile* openFile(const FileOpenRequest& request);
+	virtual bool canHandle(const EntityOpenRequest& req) const;
+	virtual DisplayedEntity* openEntity(const EntityOpenRequest& request);
 };
 
 #endif /* COLFORMATHANDLER_H_ */

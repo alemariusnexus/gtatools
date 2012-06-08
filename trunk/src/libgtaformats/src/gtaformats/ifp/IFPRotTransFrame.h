@@ -20,31 +20,30 @@
 	GPLADDITIONS.
  */
 
-#ifndef IFPFRAME_H_
-#define IFPFRAME_H_
+#ifndef IFPROTTRANSFRAME_H_
+#define IFPROTTRANSFRAME_H_
 
-#include <gtaformats/config.h>
-#include "../util/math/Quaternion.h"
+#include "IFPRotFrame.h"
+#include "../util/math/Vector3.h"
 
 
 
-class IFPFrame {
+class IFPRotTransFrame : public IFPRotFrame {
 public:
-	IFPFrame(const Quaternion& rot, float time) : rot(rot), time(time) {}
-	Quaternion getRotation() const { return rot; }
-	float getTime() const { return time; }
-	void setRotation(const Quaternion& rot) { this->rot = rot; }
-	void setTime(float time) { this->time = time; }
+	IFPRotTransFrame(const Vector3& trans, const Quaternion& rot, float time)
+			: IFPRotFrame(rot, time), trans(trans) {}
+	void setTranslation(const Vector3& trans) { this->trans = trans; }
+	void setTranslation(float x, float y, float z) { setTranslation(Vector3(x, y, z)); }
+	Vector3 getTranslation() const { return trans; }
 
 protected:
-	IFPFrame() {}
+	IFPRotTransFrame() : IFPRotFrame() {}
 
 private:
-	Quaternion rot;
-	float time;
+	Vector3 trans;
 
 private:
 	friend class IFPLoader;
 };
 
-#endif /* IFPFRAME_H_ */
+#endif /* IFPROTTRANSFRAME_H_ */

@@ -27,13 +27,13 @@ CONFIGURE_FILE(config.cmake.h "${CMAKE_CURRENT_BINARY_DIR}/gtatools-gui/config.h
 
 SET(SRCS ${SRCS}
     src/main.cpp src/Profile.cpp src/ProfileManager.cpp src/System.cpp
-    src/Task.cpp src/FileOpenRequest.cpp src/RegexFileFinder.cpp src/TaskFileFinder.cpp
+    src/Task.cpp src/EntityOpenRequest.cpp src/RegexFileFinder.cpp src/TaskFileFinder.cpp
     src/MainApplication.cpp src/Int64Validator.cpp src/UInt64Validator.cpp
-    src/DisplayedFile.cpp src/DefaultDisplayedFile.cpp
+    src/DisplayedEntity.cpp src/DisplayedFile.cpp
     PARENT_SCOPE)
 SET(MOC_SRCS ${MOC_SRCS}
     src/ProfileManager.h src/Profile.h src/System.h src/Task.h src/MainApplication.h
-    src/Int64Validator.h src/UInt64Validator.h src/DisplayedFile.h src/DefaultDisplayedFile.h
+    src/Int64Validator.h src/UInt64Validator.h src/DisplayedEntity.h src/DisplayedFile.h
     PARENT_SCOPE)
 SET(UIC_SRCS ${UIC_SRCS} PARENT_SCOPE)
 SET(INCS ${INCS} PARENT_SCOPE)

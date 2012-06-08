@@ -96,11 +96,10 @@ DefaultGUIModule::DefaultGUIModule()
 	pvsAction = new QAction(tr("Build PVS Data"), NULL);
 	connect(pvsAction, SIGNAL(triggered(bool)), this, SLOT(onBuildPVS(bool)));
 
-	connect(sys, SIGNAL(fileOpened(const FileOpenRequest&, DisplayedFile*)), this,
-			SLOT(fileOpened(const FileOpenRequest&, DisplayedFile*)));
-	connect(sys, SIGNAL(fileClosed(DisplayedFile*)), this, SLOT(fileClosed(DisplayedFile*)));
-	connect(sys, SIGNAL(currentFileChanged(DisplayedFile*, DisplayedFile*)), this,
-			SLOT(currentFileChanged(DisplayedFile*, DisplayedFile*)));
+	connect(sys, SIGNAL(entityOpened(DisplayedEntity*)), this, SLOT(entityOpened(DisplayedEntity*)));
+	connect(sys, SIGNAL(entityClosed(DisplayedEntity*)), this, SLOT(entityClosed(DisplayedEntity*)));
+	connect(sys, SIGNAL(currentEntityChanged(DisplayedEntity*, DisplayedEntity*)), this,
+			SLOT(currentEntityChanged(DisplayedEntity*, DisplayedEntity*)));
 }
 
 
@@ -142,6 +141,8 @@ void DefaultGUIModule::doInstall()
 
 	mainWindow->addDockWidget(Qt::BottomDockWidgetArea, logConsoleDock);
 	mainWindow->addDockWidget(Qt::LeftDockWidgetArea, fileTreeDock);
+
+	logConsoleDock->close();
 
 	fileOpenAction->setParent(mainWindow);
 	fileCloseAction->setParent(mainWindow);
@@ -356,64 +357,54 @@ void DefaultGUIModule::onFileOpen(bool checked)
 
 void DefaultGUIModule::onFileClose(bool checked)
 {
-	System::getInstance()->closeCurrentFile();
+	System::getInstance()->closeCurrentEntity();
 }
 
 
 void DefaultGUIModule::onFileSave(bool checked)
 {
-	DisplayedFile* dfile = System::getInstance()->getCurrentFile();
-	File file = dfile->getFile();
-	dfile->saveTo(file);
+	DisplayedEntity* dent = System::getInstance()->getCurrentEntity();
+	dent->save(true);
 }
 
 
 void DefaultGUIModule::onFileSaveAs(bool checked)
 {
-	DisplayedFile* dfile = System::getInstance()->getCurrentFile();
-
-	QString filter = dfile->getFormatHandler()->buildFileDialogFilter();
-
-	QString fname = QFileDialog::getSaveFileName(mainWindow, tr("Select file"),
-			dfile->getFile().getPath()->toString().get(), filter);
-
-	if (!fname.isNull()) {
-		File file(fname.toLocal8Bit().constData());
-		dfile->saveTo(file);
-	}
+	DisplayedEntity* dent = System::getInstance()->getCurrentEntity();
+	dent->save(false);
 }
 
 
-void DefaultGUIModule::fileOpened(const FileOpenRequest& request, DisplayedFile* file)
+void DefaultGUIModule::entityOpened(DisplayedEntity* ent)
 {
 	fileCloseAction->setEnabled(true);
-	connect(file, SIGNAL(changeStatusChanged()), this, SLOT(fileChangeStatusChanged()));
+	connect(ent, SIGNAL(changeStatusChanged()), this, SLOT(entityChangeStatusChanged()));
 }
 
 
-void DefaultGUIModule::fileClosed(DisplayedFile* file)
+void DefaultGUIModule::entityClosed(DisplayedEntity* ent)
 {
 	System* sys = System::getInstance();
 
-	if (!sys->hasOpenFile()) {
+	if (!sys->hasOpenEntity()) {
 		fileCloseAction->setEnabled(false);
 	}
 
-	disconnect(file, NULL, this, NULL);
+	disconnect(ent, NULL, this, NULL);
 }
 
 
-void DefaultGUIModule::currentFileChanged(DisplayedFile* current, DisplayedFile* prev)
+void DefaultGUIModule::currentEntityChanged(DisplayedEntity* current, DisplayedEntity* prev)
 {
 	fileSaveAction->setEnabled(current  &&  current->canSave()  &&  current->hasChanges());
 	fileSaveAsAction->setEnabled(current  &&  current->canSave());
 }
 
 
-void DefaultGUIModule::fileChangeStatusChanged()
+void DefaultGUIModule::entityChangeStatusChanged()
 {
-	DisplayedFile* dfile = (DisplayedFile*) sender();
-	fileSaveAction->setEnabled(dfile->hasChanges());
+	DisplayedEntity* dent = (DisplayedEntity*) sender();
+	fileSaveAction->setEnabled(dent->hasChanges());
 }
 
 

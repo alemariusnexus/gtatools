@@ -28,7 +28,7 @@
 #include <QtCore/QThread>
 #include <QtGui/QInputDialog>
 #include <QtGui/QMessageBox>
-#include "DefaultDisplayedFile.h"
+#include "DisplayedFile.h"
 #include "ProfileManager.h"
 #include <gta/scene/Scene.h>
 #include <gta/scene/visibility/PVSDatabase.h>
@@ -41,7 +41,7 @@ System* System::instance = NULL;
 
 
 System::System()
-		: mainWindow(NULL), currentFile(NULL), initializing(true), shuttingDown(false)
+		: mainWindow(NULL), currentEntity(NULL), initializing(true), shuttingDown(false)
 {
 	int dummyTexW = 16;
 	int dummyTexH = 16;
@@ -87,6 +87,7 @@ void System::initializeInstance()
 
 	engine->getMeshCache()->resize(10 * 1000000); // 10MB
 	engine->getTextureCache()->resize(25 * 1000000); // 25MB
+	engine->getAnimationCache()->resize(10 * 1000000); // 10MB
 
 	ProfileManager::getInstance()->loadProfiles();
 
@@ -97,11 +98,7 @@ void System::initializeInstance()
 
 	connect(qApp, SIGNAL(lastWindowClosed()), this, SLOT(destroyInstance()));
 
-	PVSDatabase* pvs = new PVSDatabase;
-
-	Scene* scene = new Scene;
-	scene->setPVSDatabase(pvs);
-	engine->setScene(scene);
+	FormatManager::getInstance();
 
 	initializing = false;
 
@@ -115,6 +112,8 @@ void System::destroyInstance()
 
 	shuttingDown = true;
 
+	delete mainWindow;
+
 	ProfileManager::destroy();
 	Engine::destroy();
 }
@@ -126,52 +125,82 @@ void System::initializeGL()
 }
 
 
-bool System::openFile(const FileOpenRequest& request)
+bool System::openEntity(DisplayedEntity* ent)
 {
-	if (isOpenFile(*request.getFile())) {
+	openEntities << ent;
+
+	try {
+		emit entityOpened(ent);
+	} catch (...) {
+		closeEntity(ent);
 		return false;
 	}
 
+	changeCurrentEntity(ent);
+	return true;
+}
+
+
+bool System::openEntity(const EntityOpenRequest& request)
+{
+	QVariant fileVar = request.getAttribute("file").toString();
+
+	if (!fileVar.isNull()) {
+		File file(fileVar.toString().toLocal8Bit().constData());
+
+		if (isOpenFile(file)) {
+			return false;
+		}
+	}
+
 	FormatManager* fmgr = FormatManager::getInstance();
-	FormatHandler* handler = fmgr->getHandler(*request.getFile());
+	FormatHandler* handler = fmgr->getHandler(request);
 
 	if (!handler) {
 		return false;
 	}
 
-	DisplayedFile* dfile = handler->openFile(request);
+	DisplayedEntity* dent = handler->openEntity(request);
 
-	if (!dfile) {
+	if (!dent) {
 		return false;
 	}
 
-	openFiles << dfile;
+	openEntities << dent;
 
 	try {
-		emit fileOpened(request, dfile);
+		emit entityOpened(dent);
 	} catch (...) {
-		closeFile(*request.getFile());
+		closeEntity(dent);
 		return false;
 	}
 
-	changeCurrentFile(dfile);
+	changeCurrentEntity(dent);
 	return true;
 }
 
 
-bool System::closeCurrentFile(bool force)
+bool System::openFile(const File& file)
 {
-	if (currentFile != NULL) {
-		return closeFile(currentFile, force);
+	EntityOpenRequest req;
+	req.setAttribute("file", QString(file.getPath()->toString().get()));
+	return openEntity(req);
+}
+
+
+bool System::closeCurrentEntity(bool force)
+{
+	if (currentEntity != NULL) {
+		return closeEntity(currentEntity, force);
 	}
 
 	return false;
 }
 
 
-bool System::hasOpenFile()
+bool System::hasOpenEntity()
 {
-	return openFiles.size() != 0;
+	return openEntities.size() != 0;
 }
 
 
@@ -220,27 +249,28 @@ void System::emitConfigurationChange()
 }
 
 
-void System::changeCurrentFile(DisplayedFile* file)
+void System::changeCurrentEntity(DisplayedEntity* ent)
 {
-	if (file) {
-		DisplayedFile* prev = currentFile;
-		currentFile = file;
-		emit currentFileChanged(file, prev);
+	if (ent) {
+		DisplayedEntity* prev = currentEntity;
+		currentEntity = ent;
+		emit currentEntityChanged(ent, prev);
 	} else {
-		currentFile = NULL;
-		emit currentFileChanged(NULL, currentFile);
+		currentEntity = NULL;
+		emit currentEntityChanged(NULL, currentEntity);
 	}
 }
 
 
 DisplayedFile* System::findOpenFile(const File& file)
 {
-	QLinkedList<DisplayedFile*>::iterator it;
+	QLinkedList<DisplayedEntity*>::iterator it;
 
-	for (it = openFiles.begin() ; it != openFiles.end() ; it++) {
-		DisplayedFile* dfile = *it;
+	for (it = openEntities.begin() ; it != openEntities.end() ; it++) {
+		DisplayedEntity* dent = *it;
+		DisplayedFile* dfile = dynamic_cast<DisplayedFile*>(dent);
 
-		if (dfile->getFile() == file) {
+		if (dfile  &&  dfile->getFile() == file) {
 			return dfile;
 		}
 	}
@@ -249,38 +279,38 @@ DisplayedFile* System::findOpenFile(const File& file)
 }
 
 
-bool System::closeFile(DisplayedFile* file, bool force)
+bool System::closeEntity(DisplayedEntity* ent, bool force)
 {
-	if (!file) {
+	if (!ent) {
 		return false;
 	}
 
-	if (file->hasChanges()  &&  !force) {
+	if (ent->hasChanges()  &&  !force) {
 		QMessageBox::StandardButton res = QMessageBox::question(mainWindow, tr("Save changes?"),
 				tr("This file has unsaved changes. Do you want to save it before closing?"),
 				QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Yes);
 
 		if (res == QMessageBox::Yes) {
-			file->saveTo(file->getFile());
+			ent->save(true);
 		} else if (res == QMessageBox::No) {
 		} else {
 			return false;
 		}
 	}
 
-	openFiles.removeOne(file);
+	openEntities.removeOne(ent);
 
-	if (currentFile == file) {
-		if (openFiles.size() > 0) {
-			changeCurrentFile(openFiles.first());
+	if (currentEntity == ent) {
+		if (openEntities.size() > 0) {
+			changeCurrentEntity(openEntities.first());
 		} else {
-			changeCurrentFile(NULL);
+			changeCurrentEntity(NULL);
 		}
 	}
 
-	emit fileClosed(file);
+	emit entityClosed(ent);
 
-	delete file;
+	delete ent;
 
 	return true;
 }
@@ -345,8 +375,8 @@ SystemQueryResult System::sendSystemQuery(const SystemQuery& query)
 
 bool System::quit()
 {
-	while (hasOpenFile()) {
-		if (!closeCurrentFile()) {
+	while (hasOpenEntity()) {
+		if (!closeCurrentEntity()) {
 			return false;
 		}
 	}

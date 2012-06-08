@@ -40,7 +40,8 @@ enum FileContentType {
 	CONTENT_TYPE_IPL,		//!< The file is an item placement (IPL) file.
 	CONTENT_TYPE_DAT,		//!< The file is a DAT file.
 	CONTENT_TYPE_COL,		//!< The file is a Collision Mesh (COL) file.
-	CONTENT_TYPE_IFP		//!< The file is an animation package (IFP).
+	CONTENT_TYPE_IFP,		//!< The file is an animation package (IFP).
+	CONTENT_TYPE_GXT		//!< The file is a GXT archive.
 };
 
 

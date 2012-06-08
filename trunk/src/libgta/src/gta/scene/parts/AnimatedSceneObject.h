@@ -36,6 +36,7 @@ public:
 	virtual void setCurrentAnimation(const CString& name) = 0;
 	virtual CString getCurrentAnimation() const = 0;
 	virtual void increaseAnimationTime(float t) { setAnimationTime(getAnimationTime() + t); }
+	virtual bool isAutoAnimationEnabled() const = 0;
 	virtual typeflags_t getTypeFlags() const { return TypeFlagAnimated | TypeFlagVisual; }
 };
 
