@@ -23,47 +23,34 @@
 #ifndef DISPLAYEDFILE_H_
 #define DISPLAYEDFILE_H_
 
-#include <QtCore/QString>
-#include <QtGui/QWidget>
+#include "DisplayedEntity.h"
 #include <gtaformats/util/File.h>
-#include "formats/FormatHandler.h"
 
 
-class DisplayedFile : public QObject {
+class FormatHandler;
+
+
+class DisplayedFile : public DisplayedEntity {
 	Q_OBJECT
 
 public:
-	DisplayedFile(FormatHandler* handler);
-	//virtual ~DisplayedFile();
-	virtual FormatHandler* getFormatHandler() { return handler; }
-	virtual QWidget* getWidget() const = 0;
-	virtual File getFile() const = 0;
-	virtual QString getName() const = 0;
+	DisplayedFile(const File& file, FormatHandler* handler, QWidget* widget = NULL)
+			: DisplayedEntity(), file(file), widget(widget), handler(handler) {}
+	~DisplayedFile();
 	virtual QString getFormatName() const;
-	virtual bool canSave() const { return handler->canSaveFile(this); }
-	virtual bool hasChanges() const { return changes; }
-	virtual void setHasChanges(bool ch)
-			{ bool old = changes; changes = ch; if (old != ch) emit changeStatusChanged(); }
-	virtual void saveTo(const File& file)
-			{ handler->saveFile(this, file); emit saved(file); setHasChanges(false); }
+	virtual QWidget* getWidget() const { return widget; }
+	void setWidget(QWidget* widget) { this->widget = widget; }
+	virtual File getFile() const { return file; }
+	virtual QString getName() const { return file.getPath()->getFileName().get(); }
+	FormatHandler* getFormatHandler() { return handler; }
 
 protected:
-	void emitChangedStatusChanged() { emit changeStatusChanged(); }
-
-signals:
-	void closed();
-	void madeCurrent();
-	void lostCurrent(DisplayedFile* newCurrent);
-	void saved(const File& file);
-	void changeStatusChanged();
-
-private slots:
-	void fileClosed(DisplayedFile* file);
-	void currentFileChanged(DisplayedFile* current, DisplayedFile* prev);
+	virtual bool doSave(bool useLast);
 
 private:
+	File file;
+	QWidget* widget;
 	FormatHandler* handler;
-	bool changes;
 };
 
 #endif /* DISPLAYEDFILE_H_ */

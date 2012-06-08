@@ -35,7 +35,7 @@ public:
 	virtual ~IMGFormatHandler();
 	virtual QString getFormatName(const File* file = NULL) const;
 	virtual QLinkedList<QString> getFileFormatExtensions() const { return QLinkedList<QString>() << "img" << "dir"; }
-	virtual bool hasFileFormat(const File& file) const { return file.guessContentType() == CONTENT_TYPE_IMG; }
+	virtual bool canHandle(const EntityOpenRequest& req) const;
 
 private:
 	IMGGUIModule* guiModule;

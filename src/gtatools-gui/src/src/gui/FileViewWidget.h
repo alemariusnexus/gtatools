@@ -25,7 +25,6 @@
 
 #include <ui_FileViewWidget.h>
 #include <QtGui/QWidget>
-#include "../FileOpenRequest.h"
 #include "../DisplayedFile.h"
 
 
@@ -41,7 +40,7 @@ private:
 	void updateFile();
 
 private slots:
-	void saved(const File& file);
+	void saved();
 
 private:
 	DisplayedFile* dfile;

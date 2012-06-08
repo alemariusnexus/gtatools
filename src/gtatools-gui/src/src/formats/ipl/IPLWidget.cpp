@@ -254,9 +254,10 @@ void IPLWidget::instanceTableCellDoubleClicked(int row, int col)
 		if (result.isSuccessful()) {
 			File file(result["file"].toString().toAscii().constData());
 			int line = result["line"].toInt();
-			FileOpenRequest req(file);
+			EntityOpenRequest req;
+			req.setAttribute("file", QString(file.getPath()->toString().get()));
 			req.setAttribute("line", line);
-			System::getInstance()->openFile(req);
+			System::getInstance()->openEntity(req);
 		}
 	}
 }

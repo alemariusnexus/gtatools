@@ -20,29 +20,26 @@
 	GPLADDITIONS.
  */
 
-#ifndef SPOTLIGHTSOURCE_H_
-#define SPOTLIGHTSOURCE_H_
+#ifndef DIRECTIONALLIGHTSOURCE_H_
+#define DIRECTIONALLIGHTSOURCE_H_
 
 #include "LightSource.h"
+#include <gtaformats/util/math/Vector3.h>
 
 
-class SpotLightSource : public LightSource
+class DirectionalLightSource : public LightSource
 {
 public:
-	SpotLightSource()
+	DirectionalLightSource()
 	{
-		setPosition(Vector3::Zero);
+		lightData.cutoffAngleCos = -1.0f;
 		setDirection(Vector3::UnitZ);
 		setShininess(1.0f);
 		setAttenuation(1.0f, 0.0f, 0.0f);
-		setCutoffAngleCosine(0.70710678f); // 45 degrees
-		setSpotlightExponent(1.0f);
 	}
+	DirectionalLightSource(const DirectionalLightSource& other) : LightSource(other) {}
 
-	virtual LightType getLightType() const { return SpotLight; }
-	void setPosition(const Vector3& pos) { lightData.position = pos; }
-	Vector3& getPosition() { return lightData.position; }
-	const Vector3& getPosition() const { return lightData.position; }
+	virtual LightType getLightType() const { return DirectionalLight; }
 	void setDirection(const Vector3& direction) { lightData.direction = direction; }
 	Vector3& getDirection() { return lightData.direction; }
 	const Vector3& getDirection() const { return lightData.direction; }
@@ -56,10 +53,8 @@ public:
 	float getQuadraticAttenuation() const { return lightData.quadAttenuation; }
 	void setAttenuation(float c, float l, float q)
 			{ lightData.constAttenuation=c; lightData.linearAttenuation=l; lightData.quadAttenuation=q; }
-	void setCutoffAngleCosine(float coc) { lightData.cutoffAngleCos = coc; }
-	float getCutoffAngleCosine() const { return lightData.cutoffAngleCos; }
-	void setSpotlightExponent(float exp) { lightData.spotlightExponent = exp; }
-	float getSpotlightExponent() const { return lightData.spotlightExponent; }
+	virtual SceneObject* clone() const { return new DirectionalLightSource(*this); }
+	virtual float getStreamingDistance() const { return 0.0f; }
 };
 
-#endif /* SPOTLIGHTSOURCE_H_ */
+#endif /* DIRECTIONALLIGHTSOURCE_H_ */

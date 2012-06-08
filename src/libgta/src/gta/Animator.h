@@ -33,17 +33,24 @@ using std::map;
 class Animator {
 private:
 	typedef map<MeshFrame*, Matrix4> FrameMatrixMap;
+	typedef map<MeshFrame*, int32_t> PseudoBoneNumMap;
 
 public:
-	Animator(MeshClump* clump, Animation* anim) : clump(clump), anim(anim), boneMats(NULL) {}
+	Animator(MeshClump* clump, Animation* anim);
 	void setTime(float time) { this->time = fmod(time, anim->getDuration()); updateBoneMatrices(); }
 	Matrix4* getBoneMatrices() { return boneMats; }
 	Matrix4 getBoneMatrix(size_t idx) { return boneMats[idx]; }
 	Matrix4 getFrameMatrix(MeshFrame* frame) { return frameMats[frame]; }
+	bool hasPseudoBoneNumbers() const { return !boneNumbersValid; }
+	int32_t getPseudoBoneNumber(MeshFrame* frame) const
+			{ PseudoBoneNumMap::const_iterator it = pseudoBoneNums.find(frame); return it != pseudoBoneNums.end() ? it->second : -1; }
+	int32_t getBoneCount() const { return hasPseudoBoneNumbers() ? pseudoBoneNums.size() : clump->getBoneCount(); }
 
 private:
 	void updateBoneMatrices();
 	void updateBoneMatrix(MeshFrame* frame);
+	bool checkBoneNumberValidity(MeshFrame* frame);
+	void generatePseudoBoneNumbers(MeshFrame* frame);
 
 private:
 	MeshClump* clump;
@@ -51,6 +58,8 @@ private:
 	Matrix4* boneMats;
 	FrameMatrixMap frameMats;
 	float time;
+	bool boneNumbersValid;
+	PseudoBoneNumMap pseudoBoneNums;
 };
 
 #endif /* ANIMATOR_H_ */

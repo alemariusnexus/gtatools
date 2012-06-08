@@ -52,7 +52,7 @@ private:
 private slots:
 	void onExtract(bool);
 	void onContextExtract(bool);
-	void currentFileChanged(DisplayedFile* file, DisplayedFile* prev);
+	void currentEntityChanged(DisplayedEntity* cur, DisplayedEntity* prev);
 
 private:
 	QAction* extractAction;

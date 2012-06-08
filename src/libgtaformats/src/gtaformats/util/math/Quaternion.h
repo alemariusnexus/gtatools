@@ -62,7 +62,7 @@ public:
 	float dot(const Quaternion& rhv) const
 			{ return data[0]*rhv.data[0] + data[1]*rhv.data[1] + data[2]*rhv.data[2] + data[3]*rhv.data[3]; }
 	float angle(const Quaternion& other) const
-			{ return acosf(dot(other) / sqrt(lengthSquared() * other.lengthSquared())); }
+			{ return acosf(fabs(dot(other)) / sqrt(lengthSquared() * other.lengthSquared())); }
 	const Quaternion lerp(const Quaternion& other, float t);
 	const Quaternion nlerp(const Quaternion& other, float t)
 			{ Quaternion res = lerp(other, t); res.normalize(); return res; }

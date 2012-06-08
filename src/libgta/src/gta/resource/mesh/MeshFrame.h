@@ -27,9 +27,11 @@
 #include <gtaformats/util/CString.h>
 #include <gtaformats/dff/DFFFrame.h>
 #include <vector>
+#include <algorithm>
 #include "../../Engine.h"
 
 using std::vector;
+using std::find;
 
 
 
@@ -63,6 +65,10 @@ public:
 	int32_t getBoneID() const { return boneID; }
 	void setBoneID(int32_t id) { boneID = id; }
 	int32_t getBoneNumber() const { return boneNum; }
+	void setBoneNumber(int32_t num) { boneNum = num; }
+	size_t indexOf(MeshFrame* child) const
+			{ return find(children.begin(), children.end(), child) - children.begin(); }
+	MeshFrame* getChild(size_t idx) { return children[idx]; }
 
 private:
 	void reparent(MeshFrame* parent);

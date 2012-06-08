@@ -168,6 +168,8 @@ FileContentType FilePath::guessContentType() const
 		retval = CONTENT_TYPE_COL;
 	} else if (ext == CString("ifp")) {
 		retval = CONTENT_TYPE_IFP;
+	} else if (ext == CString("gxt")) {
+		retval = CONTENT_TYPE_GXT;
 	} else {
 		retval = CONTENT_TYPE_UNKNOWN;
 	}

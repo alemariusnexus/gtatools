@@ -40,18 +40,18 @@
 
 
 
-IDEWidget::IDEWidget(QWidget* parent, const FileOpenRequest& request)
+IDEWidget::IDEWidget(QWidget* parent, const EntityOpenRequest& request)
 		: QWidget(parent), linkBrush(QColor(Qt::blue))
 {
 	ui.setupUi(this);
 
-	File* file = request.getFile();
+	File file(request.getAttribute("file").toString().toLocal8Bit().constData());
 	QVariant lineVariant = request.getAttribute("line");
 	int selectedLine = lineVariant.isNull() ? -1 : lineVariant.toInt();
 
 	QString content;
 
-	istream* stream = file->openInputStream();
+	istream* stream = file.openInputStream();
 
 	char buffer[4096];
 	while (!stream->eof()) {
@@ -114,7 +114,7 @@ IDEWidget::IDEWidget(QWidget* parent, const FileOpenRequest& request)
 	ui.pedTable->horizontalHeader()->setVisible(true);
 	ui.weaponTable->horizontalHeader()->setVisible(true);
 
-	IDEReader ide(*file);
+	IDEReader ide(file);
 
 	IDEStatement* stmt;
 
@@ -253,7 +253,7 @@ IDEWidget::IDEWidget(QWidget* parent, const FileOpenRequest& request)
 		char* elem;
 
 		sys->log(LogEntry::error(tr("Parsing errors in IDE file %1:")
-				.arg(file->getPath()->getFileName().get())));
+				.arg(file.getPath()->getFileName().get())));
 
 		while ((elem = log->nextMessage())  !=  NULL) {
 			sys->log(LogEntry::error(QString("\t%1").arg(elem)));

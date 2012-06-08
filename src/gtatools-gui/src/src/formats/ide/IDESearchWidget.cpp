@@ -119,9 +119,10 @@ void IDESearchWidget::onSearch(bool checked)
 
 	if (toBeOpened) {
 		int line = finder->getMatchedLine(*toBeOpened);
-		FileOpenRequest req(*toBeOpened);
+		EntityOpenRequest req;
+		req.setAttribute("file", QString(toBeOpened->getPath()->toString().get()));
 		req.setAttribute("line", line);
-		System::getInstance()->openFile(req);
+		System::getInstance()->openEntity(req);
 	}
 
 	delete toBeOpened;

@@ -105,10 +105,11 @@ void TextureSearchDialog::onSearch(bool checked)
 	bool closeDialog = false;
 
 	if (toBeOpened) {
-		FileOpenRequest req(*toBeOpened);
+		EntityOpenRequest req;
+		req.setAttribute("file", QString(toBeOpened->getPath()->toString().get()));
 		const char* matchedTex = finder->getMatchedTexture(*toBeOpened);
 		req.setAttribute("texture", matchedTex);
-		System::getInstance()->openFile(req);
+		System::getInstance()->openEntity(req);
 		delete toBeOpened;
 		closeDialog = true;
 	}

@@ -23,12 +23,13 @@
 #ifndef LIGHTSOURCE_H_
 #define LIGHTSOURCE_H_
 
+#include "../parts/SceneObject.h"
 #include <gtaformats/util/math/Vector3.h>
 #include <gtaformats/util/math/Vector4.h>
 
 
 
-class LightSource
+class LightSource : public SceneObject
 {
 public:
 	enum LightType
@@ -44,9 +45,14 @@ public:
 		lightData.ambient = Vector4(0.0f, 0.0f, 0.0f, 1.0f);
 		lightData.diffuse = Vector4(0.0f, 0.0f, 0.0f, 1.0f);
 		lightData.specular = Vector4(0.0f, 0.0f, 0.0f, 1.0f);
+		sdist = 0.0f;
 	}
+	LightSource(const LightSource& other)
+			: enabled(other.enabled), sdist(other.sdist)
+	{ memcpy(&lightData, &other.lightData, sizeof(lightData)); }
+
 	void setEnabled(bool enabled) { this->enabled = enabled; }
-	bool isEnabled() const { return enabled; }
+	virtual bool isEnabled() const { return enabled; }
 	void setAmbientColor(const Vector4& a) { lightData.ambient = a; }
 	void setDiffuseColor(const Vector4& d) { lightData.diffuse = d; }
 	void setSpecularColor(const Vector4& s) { lightData.specular = s; }
@@ -57,6 +63,13 @@ public:
 	Vector4& getSpecularColor() { return lightData.specular; }
 	const Vector4& getSpecularColor() const { return lightData.specular; }
 	virtual LightType getLightType() const = 0;
+
+	virtual typeflags_t getTypeFlags() const { return TypeFlagLight; }
+	virtual Vector3 getPosition() const { return lightData.position; }
+	virtual SceneObject* getLODParent() { return NULL; }
+	virtual float getStreamingDistance() const { return sdist; }
+
+	void setStreamingDistance(float sd) { sdist = sd; }
 
 protected:
 	// This struct must match struct LightSource in GLSL
@@ -76,6 +89,7 @@ protected:
 
 private:
 	bool enabled;
+	float sdist;
 };
 
 #endif /* LIGHTSOURCE_H_ */

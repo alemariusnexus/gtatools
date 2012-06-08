@@ -31,7 +31,7 @@
 #include <QtCore/QHash>
 #include <QtCore/QString>
 #include <QtCore/QVariant>
-#include "../FileOpenRequest.h"
+#include "../EntityOpenRequest.h"
 #include <QtGui/QSortFilterProxyModel>
 #include "../DisplayedFile.h"
 
@@ -54,7 +54,7 @@ private slots:
 	void currentProfileChanged(Profile* oldProfile, Profile* newProfile);
 	void currentProfileResourceAdded(const File& file) { reload(); }
 	void currentProfileResourceRemoved(const File& file) { reload(); }
-	void fileOpened(const FileOpenRequest& request, DisplayedFile* file);
+	void entityOpened(DisplayedEntity* ent);
 
 private:
 	QSortFilterProxyModel* proxyModel;

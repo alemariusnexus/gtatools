@@ -96,11 +96,12 @@ const Quaternion Quaternion::lerp(const Quaternion& other, float t)
 
 const Quaternion Quaternion::slerp(const Quaternion& other, float t) const
 {
-	float theta = angle(other);
+	float cosTheta = fabs(dot(other)) / sqrt(lengthSquared() * other.lengthSquared());
 
-	if (theta == 0.0)
+	if (cosTheta >= 1.0f)
 		return *this;
 
+	float theta = acosf(cosTheta);
 	float sinTheta = sin(theta);
 
 	if (fabs(sinTheta) < 0.0000001f) {

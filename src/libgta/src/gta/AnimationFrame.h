@@ -26,24 +26,29 @@
 #include <gta/config.h>
 #include <gtaformats/util/math/Vector3.h>
 #include <gtaformats/util/math/Quaternion.h>
-#include <gtaformats/ifp/IFPFrame.h>
-#include <gtaformats/ifp/IFPRootFrame.h>
+#include <gtaformats/ifp/IFPRotFrame.h>
+#include <gtaformats/ifp/IFPRotTransFrame.h>
+#include <gtaformats/ifp/IFPRotTransScaleFrame.h>
 
 
 class AnimationFrame {
 public:
-	AnimationFrame(float start, const Quaternion& rot, const Vector3& trans = Vector3());
+	AnimationFrame(float start, const Quaternion& rot, const Vector3& trans = Vector3::Zero,
+			const Vector3& scale = Vector3::One);
 	AnimationFrame(const AnimationFrame& other);
-	AnimationFrame(const IFPFrame* frame);
-	AnimationFrame(const IFPRootFrame* frame);
+	AnimationFrame(const IFPRotFrame* frame);
+	AnimationFrame(const IFPRotTransFrame* frame);
+	AnimationFrame(const IFPRotTransScaleFrame* frame);
 	float getStart() const { return start; }
 	Quaternion getRotation() const { return rot; }
 	Vector3 getTranslation() const { return trans; }
+	Vector3 getScale() const { return scale; }
 
 private:
 	float start;
 	Quaternion rot;
 	Vector3 trans;
+	Vector3 scale;
 };
 
 #endif /* ANIMATIONFRAME_H_ */

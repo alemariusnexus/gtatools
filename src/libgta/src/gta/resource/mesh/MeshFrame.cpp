@@ -64,7 +64,10 @@ void MeshFrame::dump(int level)
 		printf("  ");
 	}
 
-	printf("%s\n", name.get());
+	if (name.get())
+		printf("%s\n", name.get());
+	else
+		printf("[UNNAMED]\n");
 
 	for (ChildIterator it = children.begin() ; it != children.end() ; it++) {
 		MeshFrame* child = *it;

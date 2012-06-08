@@ -38,8 +38,8 @@ IMGGUIModule::IMGGUIModule()
 	contextExtractAction = new QAction(tr("Extract File(s)"), NULL);
 	connect(contextExtractAction, SIGNAL(triggered(bool)), this, SLOT(onContextExtract(bool)));
 
-	connect(sys, SIGNAL(currentFileChanged(DisplayedFile*, DisplayedFile*)), this,
-			SLOT(currentFileChanged(DisplayedFile*, DisplayedFile*)));
+	connect(sys, SIGNAL(currentEntityChanged(DisplayedEntity*, DisplayedEntity*)), this,
+			SLOT(currentEntityChanged(DisplayedEntity*, DisplayedEntity*)));
 }
 
 
@@ -109,9 +109,11 @@ void IMGGUIModule::buildFileTreeMenu(const QLinkedList<File*>& files, QMenu& men
 }
 
 
-void IMGGUIModule::currentFileChanged(DisplayedFile* dfile, DisplayedFile* prev)
+void IMGGUIModule::currentEntityChanged(DisplayedEntity* dent, DisplayedEntity* prev)
 {
 	QMenu* fileMenu = mainWindow->getFileMenu();
+
+	DisplayedFile* dfile = dynamic_cast<DisplayedFile*>(dent);
 
 	if (dfile  &&  (dfile->getFile().getPath()->isIMGPath()  ||  dfile->getFile().isArchiveFile())) {
 		if (!menuExists) {
@@ -213,7 +215,7 @@ void IMGGUIModule::onExtract(bool)
 {
 	System* sys = System::getInstance();
 
-	DisplayedFile* dfile = sys->getCurrentFile();
+	DisplayedFile* dfile = dynamic_cast<DisplayedFile*>(sys->getCurrentEntity());
 
 	if (dfile) {
 		File file = dfile->getFile();

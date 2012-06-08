@@ -29,7 +29,7 @@ using std::pair;
 
 
 Animation::Animation(const Animation& other)
-		: size(other.size)
+		: size(other.size), duration(other.duration)
 {
 	for (ConstBoneIterator it = other.bones.begin() ; it != other.bones.end() ; it++) {
 		AnimationBone* bone = new AnimationBone(**it);
@@ -41,7 +41,7 @@ Animation::Animation(const Animation& other)
 
 
 Animation::Animation(const IFPAnimation* anim)
-		: size(0)
+		: size(0), duration(0.0f)
 {
 	for (IFPAnimation::ConstObjectIterator it = anim->getObjectBegin() ; it != anim->getObjectEnd() ; it++) {
 		const IFPObject* obj = *it;
@@ -50,6 +50,16 @@ Animation::Animation(const IFPAnimation* anim)
 		boneNameMap.insert(pair<CString, AnimationBone*>(obj->getName().lower(), bone));
 		boneIDMap.insert(pair<int32_t, AnimationBone*>(obj->getBoneID(), bone));
 		bones.push_back(bone);
+
+		if (bone->getFrameCount() != 0) {
+			AnimationBone::FrameIterator fit = bone->getFrameEnd();
+			fit--;
+			AnimationFrame* lastFrame = *fit;
+
+			if (lastFrame->getStart() > duration) {
+				duration = lastFrame->getStart();
+			}
+		}
 	}
 }
 
@@ -59,6 +69,14 @@ Animation::~Animation()
 	for (BoneIterator it = bones.begin() ; it != bones.end() ; it++) {
 		delete *it;
 	}
+}
+
+
+AnimationBone* Animation::getBoneByName(const CString& name)
+{
+	if (name.get() == NULL)
+		return NULL;
+	return boneNameMap[name];
 }
 
 

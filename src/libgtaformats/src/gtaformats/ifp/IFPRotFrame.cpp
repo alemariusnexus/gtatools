@@ -20,5 +20,5 @@
 	GPLADDITIONS.
  */
 
-#include "IFPFrame.h"
+#include "IFPRotFrame.h"
 

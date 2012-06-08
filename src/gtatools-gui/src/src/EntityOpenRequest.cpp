@@ -20,31 +20,26 @@
 	GPLADDITIONS.
  */
 
-#ifndef DEFAULTDISPLAYEDFILE_H_
-#define DEFAULTDISPLAYEDFILE_H_
-
-#include "DisplayedFile.h"
+#include "EntityOpenRequest.h"
 
 
-class FormatHandler;
+EntityOpenRequest::EntityOpenRequest()
+{
+}
 
 
-class DefaultDisplayedFile : public DisplayedFile {
-	Q_OBJECT
+EntityOpenRequest::~EntityOpenRequest()
+{
+}
 
-public:
-	DefaultDisplayedFile(const File& file, FormatHandler* handler, QWidget* widget = NULL)
-			: DisplayedFile(handler), file(file), widget(widget) {}
-	~DefaultDisplayedFile();
-	virtual QWidget* getWidget() const { return widget; }
-	void setWidget(QWidget* widget) { this->widget = widget; }
-	virtual File getFile() const { return file; }
-	virtual QString getName() const { return file.getPath()->getFileName().get(); }
-	virtual void saveTo(const File& file) { DisplayedFile::saveTo(file); this->file = file; }
 
-private:
-	File file;
-	QWidget* widget;
-};
+QVariant EntityOpenRequest::getAttribute(const QString& key) const
+{
+	MetaDataMap::const_iterator it = metadata.find(key);
 
-#endif /* DEFAULTDISPLAYEDFILE_H_ */
+	if (it == metadata.end()) {
+		return QVariant();
+	}
+
+	return it.value();
+}

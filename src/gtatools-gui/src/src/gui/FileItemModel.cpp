@@ -152,7 +152,9 @@ QVariant FileItemModel::data(const QModelIndex& index, int role) const
 		if (realFile->isDirectory()) {
 			return tr("Directory");
 		} else {
-			FormatHandler* handler = FormatManager::getInstance()->getHandler(*realFile);
+			EntityOpenRequest req;
+			req.setAttribute("file", QString(realFile->getPath()->toString().get()));
+			FormatHandler* handler = FormatManager::getInstance()->getHandler(req);
 
 			if (handler) {
 				return handler->getFormatName(realFile);

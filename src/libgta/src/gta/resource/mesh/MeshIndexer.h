@@ -50,6 +50,7 @@ private:
 public:
 	~MeshIndexer();
 	virtual void resourceAdded(const File& file);
+	virtual void resourcesCleared();
 	const File* find(const CString& name);
 	const File* operator[](const CString& name) { return find(name); }
 

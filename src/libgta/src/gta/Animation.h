@@ -80,8 +80,7 @@ public:
 	 * 		lower-case and searching is done case-sensitive.
 	 * 	\return The requested bone or NULL if none was found.
 	 */
-	AnimationBone* getBoneByName(const CString& name)
-			{ if (name.get() == NULL) return NULL; return boneNameMap[name]; }
+	AnimationBone* getBoneByName(const CString& name);
 
 	/**	\brief Returns the AnimationBone with the given bone ID.
 	 *
@@ -138,13 +137,14 @@ public:
 	 *
 	 * 	\return The animation duration.
 	 */
-	float getDuration() const { return bones.empty() ? 0.0f : (*((*bones.begin())->getFrameEnd()-1))->getStart(); }
+	float getDuration() const { return duration; }
 
 private:
 	BoneNameMap boneNameMap;
 	BoneIDMap boneIDMap;
 	BoneList bones;
 	size_t size;
+	float duration;
 };
 
 #endif /* ANIMATION_H_ */

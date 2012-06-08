@@ -23,44 +23,39 @@
 #include "DisplayedFile.h"
 #include "formats/FormatHandler.h"
 #include "System.h"
+#include <QtGui/QFileDialog>
 
 
 
-DisplayedFile::DisplayedFile(FormatHandler* handler)
-		: handler(handler), changes(false)
+DisplayedFile::~DisplayedFile()
 {
-	System* sys = System::getInstance();
-
-	connect(sys, SIGNAL(fileClosed(DisplayedFile*)), this, SLOT(fileClosed(DisplayedFile*)));
-	connect(sys, SIGNAL(currentFileChanged(DisplayedFile*, DisplayedFile*)), this,
-			SLOT(currentFileChanged(DisplayedFile*, DisplayedFile*)));
+	if (widget)
+		delete widget;
 }
 
 
-/*DisplayedFile::~DisplayedFile()
+bool DisplayedFile::doSave(bool useLast)
 {
-	printf("Destroying DisplayedFile\n");
-}*/
+	if (!useLast) {
+		QString filter = handler->buildFileDialogFilter();
+
+		QString fname = QFileDialog::getSaveFileName(System::getInstance()->getMainWindow(),
+				tr("Select file"), file.getPath()->toString().get(), filter);
+
+		if (!fname.isNull()) {
+			File file(fname.toLocal8Bit().constData());
+			this->file = file;
+			return true;
+		}
+
+		return false;
+	} else {
+		return true;
+	}
+}
 
 
 QString DisplayedFile::getFormatName() const
 {
-	File file = getFile();
 	return handler->getFormatName(&file);
-}
-
-
-void DisplayedFile::fileClosed(DisplayedFile* file)
-{
-	if (file == this)
-		emit closed();
-}
-
-
-void DisplayedFile::currentFileChanged(DisplayedFile* current, DisplayedFile* prev)
-{
-	if (current == this  &&  prev != this)
-		emit madeCurrent();
-	else if (prev == this  &&  current != this)
-		emit lostCurrent(current);
 }

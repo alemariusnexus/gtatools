@@ -53,6 +53,16 @@ void MeshIndexer::resourceAdded(const File& file)
 }
 
 
+void MeshIndexer::resourcesCleared()
+{
+	for (IndexMap::iterator it = index.begin() ; it != index.end() ; it++) {
+		delete it->second;
+	}
+
+	index.clear();
+}
+
+
 const File* MeshIndexer::find(const CString& name)
 {
 	IndexMap::iterator it = index.find(name);

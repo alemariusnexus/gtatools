@@ -8,10 +8,10 @@
 #ifndef IFPUNKNOWNFRAME2_H_
 #define IFPUNKNOWNFRAME2_H_
 
-#include "IFPFrame.h"
+#include "IFPRotFrame.h"
 
 
-class IFPUnknownFrame2 : public IFPFrame
+class IFPUnknownFrame2 : public IFPRotFrame
 {
 public:
 	IFPUnknownFrame2() {}

@@ -33,8 +33,8 @@
 #include "../GLException.h"
 #include "../gl.h"
 #include "TransparencyAlgorithm.h"
+#include "objects/LightSource.h"
 #include <list>
-#include "LightSource.h"
 
 using std::list;
 
@@ -60,10 +60,10 @@ private:
 public:
 	DefaultRenderer();
 	virtual void enqueueForRendering(VisualSceneObject* obj);
+	virtual void enqueueForRendering(LightSource* ls);
 	virtual void render();
 	void setTransparencyAlgorithm(TransparencyAlgorithm* algo);
 	TransparencyAlgorithm* getTransparencyAlgorithm() { return transAlgo; }
-	void addLightSource(LightSource* light) { lightSources.push_back(light); }
 
 private:
 	void initializeUniforms(ShaderProgram* program);

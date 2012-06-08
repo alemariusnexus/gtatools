@@ -20,25 +20,28 @@
 	GPLADDITIONS.
  */
 
-#ifndef DIRECTIONALLIGHTSOURCE_H_
-#define DIRECTIONALLIGHTSOURCE_H_
+#ifndef SPOTLIGHTSOURCE_H_
+#define SPOTLIGHTSOURCE_H_
 
 #include "LightSource.h"
-#include <gtaformats/util/math/Vector3.h>
 
 
-class DirectionalLightSource : public LightSource
+class SpotLightSource : public LightSource
 {
 public:
-	DirectionalLightSource()
+	SpotLightSource()
 	{
-		lightData.cutoffAngleCos = -1.0f;
+		setPosition(Vector3::Zero);
 		setDirection(Vector3::UnitZ);
 		setShininess(1.0f);
 		setAttenuation(1.0f, 0.0f, 0.0f);
+		setCutoffAngleCosine(0.70710678f); // 45 degrees
+		setSpotlightExponent(1.0f);
 	}
+	SpotLightSource(const SpotLightSource& other) : LightSource(other) {}
 
-	virtual LightType getLightType() const { return DirectionalLight; }
+	virtual LightType getLightType() const { return SpotLight; }
+	void setPosition(const Vector3& pos) { lightData.position = pos; }
 	void setDirection(const Vector3& direction) { lightData.direction = direction; }
 	Vector3& getDirection() { return lightData.direction; }
 	const Vector3& getDirection() const { return lightData.direction; }
@@ -52,6 +55,11 @@ public:
 	float getQuadraticAttenuation() const { return lightData.quadAttenuation; }
 	void setAttenuation(float c, float l, float q)
 			{ lightData.constAttenuation=c; lightData.linearAttenuation=l; lightData.quadAttenuation=q; }
+	void setCutoffAngleCosine(float coc) { lightData.cutoffAngleCos = coc; }
+	float getCutoffAngleCosine() const { return lightData.cutoffAngleCos; }
+	void setSpotlightExponent(float exp) { lightData.spotlightExponent = exp; }
+	float getSpotlightExponent() const { return lightData.spotlightExponent; }
+	virtual SceneObject* clone() const { return new SpotLightSource(*this); }
 };
 
-#endif /* DIRECTIONALLIGHTSOURCE_H_ */
+#endif /* SPOTLIGHTSOURCE_H_ */

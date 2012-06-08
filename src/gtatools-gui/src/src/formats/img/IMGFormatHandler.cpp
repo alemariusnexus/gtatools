@@ -60,3 +60,17 @@ QString IMGFormatHandler::getFormatName(const File* file) const
 		}
 	}
 }
+
+
+bool IMGFormatHandler::canHandle(const EntityOpenRequest& req) const
+{
+	QVariant fileVar = req.getAttribute("file");
+
+	if (fileVar.isNull())
+		return false;
+
+	File file(fileVar.toString().toLocal8Bit().constData());
+
+	return	file.guessContentType() == CONTENT_TYPE_IMG
+			||  file.guessContentType() == CONTENT_TYPE_DIR;
+}

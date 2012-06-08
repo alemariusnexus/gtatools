@@ -7,18 +7,38 @@
 
 #include "IFPFormatHandler.h"
 #include "IFPWidget.h"
-#include "../../DefaultDisplayedFile.h"
+#include "../../DisplayedFile.h"
+#include "../../System.h"
 
 
 
-DisplayedFile* IFPFormatHandler::openFile(const FileOpenRequest& request)
+IFPFormatHandler::IFPFormatHandler()
 {
-	File* file = request.getFile();
+	guiModule = new IFPGUIModule;
+	System::getInstance()->installGUIModule(guiModule);
+}
 
-	IFPWidget* widget = new IFPWidget(*file);
 
-	DefaultDisplayedFile* dfile = new DefaultDisplayedFile(*file, this, widget);
+bool IFPFormatHandler::canHandle(const EntityOpenRequest& req) const
+{
+	QVariant fileVar = req.getAttribute("file");
+
+	if (fileVar.isNull())
+		return false;
+
+	File file(fileVar.toString().toLocal8Bit().constData());
+
+	return file.guessContentType() == CONTENT_TYPE_IFP;
+}
+
+
+DisplayedEntity* IFPFormatHandler::openEntity(const EntityOpenRequest& request)
+{
+	File file(request.getAttribute("file").toString().toLocal8Bit().constData());
+
+	IFPWidget* widget = new IFPWidget(file);
+
+	DisplayedFile* dfile = new DisplayedFile(file, this, widget);
 
 	return dfile;
-
 }

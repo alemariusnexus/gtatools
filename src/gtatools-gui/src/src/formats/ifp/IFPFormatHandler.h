@@ -9,6 +9,7 @@
 #define IFPFORMATHANDLER_H_
 
 #include "../FormatHandler.h"
+#include "IFPGUIModule.h"
 
 
 class IFPFormatHandler : public FormatHandler
@@ -16,10 +17,14 @@ class IFPFormatHandler : public FormatHandler
 	Q_OBJECT
 
 public:
+	IFPFormatHandler();
 	virtual QString getFormatName(const File* file = NULL) const { return tr("IFP Animation Package"); }
 	virtual QLinkedList<QString> getFileFormatExtensions() const { return QLinkedList<QString>() << "ifp"; }
-	virtual bool hasFileFormat(const File& file) const { return file.guessContentType() == CONTENT_TYPE_IFP; }
-	virtual DisplayedFile* openFile(const FileOpenRequest& request);
+	virtual bool canHandle(const EntityOpenRequest& req) const;
+	virtual DisplayedEntity* openEntity(const EntityOpenRequest& request);
+
+private:
+	IFPGUIModule* guiModule;
 };
 
 #endif /* IFPFORMATHANDLER_H_ */

@@ -20,8 +20,8 @@
 	GPLADDITIONS.
  */
 
-#ifndef FILEOPENREQUEST_H_
-#define FILEOPENREQUEST_H_
+#ifndef ENTITYOPENREQUEST_H_
+#define ENTITYOPENREQUEST_H_
 
 #include <gtaformats/util/File.h>
 #include <QtCore/QHash>
@@ -30,20 +30,18 @@
 
 
 
-class FileOpenRequest {
+class EntityOpenRequest {
 private:
 	typedef QHash<QString, QVariant> MetaDataMap;
 
 public:
-	FileOpenRequest(const File& file);
-	~FileOpenRequest();
+	EntityOpenRequest();
+	~EntityOpenRequest();
 	void setAttribute(const QString& key, const QVariant& value) { metadata[key] = value; }
 	QVariant getAttribute(const QString& key) const;
-	File* getFile() const { return file; }
 
 private:
-	File* file;
 	MetaDataMap metadata;
 };
 
-#endif /* FILEOPENREQUEST_H_ */
+#endif /* ENTITYOPENREQUEST_H_ */

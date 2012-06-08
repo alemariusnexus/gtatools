@@ -33,6 +33,12 @@ using std::istream;
 
 class IFPLoader {
 public:
+	enum IFPVersion {
+		ANPK = 1,
+		ANP3 = 3
+	};
+
+public:
 	IFPLoader(istream* stream);
 	IFPLoader(const File& file);
 	~IFPLoader();
@@ -42,12 +48,53 @@ public:
 
 private:
 	void init();
+	CString readVER1String()
+	{
+		CString str("");
+		char buf[64];
+		char* offBuf = buf;
+
+		while (true) {
+			stream->read(offBuf, 4);
+
+			if (offBuf[0] == '\0') {
+				str.append(CString(buf, offBuf-buf));
+				break;
+			} else if (offBuf[1] == '\0') {
+				str.append(CString(buf, offBuf-buf + 1));
+				break;
+			} else if (offBuf[2] == '\0') {
+				str.append(CString(buf, offBuf-buf + 2));
+				break;
+			} else if (offBuf[3] == '\0') {
+				str.append(CString(buf, offBuf-buf + 3));
+				break;
+			}
+
+			offBuf += 4;
+
+			if (offBuf-buf == sizeof(buf)) {
+				str.append(CString(buf, sizeof(buf)));
+				offBuf = buf;
+			}
+		}
+
+		return str;
+	}
+	void skipVER1String()
+	{
+		char buf[4];
+		do {
+			stream->read(buf, 4);
+		} while (buf[0] != '\0'  &&  buf[1] != '\0'  &&  buf[2] != '\0'  &&  buf[3] != '\0');
+	}
 
 private:
 	istream* stream;
 	CString ifpName;
 	int32_t endOffs;
 	int32_t numAnims;
+	IFPVersion ver;
 };
 
 #endif /* IFPLOADER_H_ */

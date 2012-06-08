@@ -44,10 +44,8 @@ public:
 public:
 	virtual QString getFormatName(const File* file = NULL) const { return tr("Texture Dictionary (TXD)"); };
 	virtual QLinkedList<QString> getFileFormatExtensions() const { return QLinkedList<QString>() << "txd"; }
-	virtual bool hasFileFormat(const File& file) const { return file.guessContentType() == CONTENT_TYPE_TXD; }
-	virtual DisplayedFile* openFile(const FileOpenRequest& request);
-	virtual bool canSave(const DisplayedFile* file) const { return true; }
-	virtual void saveFile(DisplayedFile* file, const File& destFile);
+	virtual bool canHandle(const EntityOpenRequest& req) const;
+	virtual DisplayedEntity* openEntity(const EntityOpenRequest& request);
 
 	bool extractTexturesDialog(TXDArchive* txd, const QLinkedList<TXDTextureHeader*>& texes, QWidget* parent);
 	bool findTextureDialog(const QLinkedList<File*>& files, QWidget* parent);

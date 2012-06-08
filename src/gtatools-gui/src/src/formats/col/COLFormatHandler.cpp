@@ -22,23 +22,38 @@
 
 #include "COLFormatHandler.h"
 #include "COLWidget.h"
-#include "../../DefaultDisplayedFile.h"
+#include "../../DisplayedFile.h"
 #include "../../System.h"
 
 
 
-DisplayedFile* COLFormatHandler::openFile(const FileOpenRequest& request)
+bool COLFormatHandler::canHandle(const EntityOpenRequest& req) const
+{
+	QVariant fileVar = req.getAttribute("file");
+
+	if (fileVar.isNull())
+		return false;
+
+	File file(fileVar.toString().toLocal8Bit().constData());
+
+	return file.guessContentType() == CONTENT_TYPE_COL;
+}
+
+
+DisplayedEntity* COLFormatHandler::openEntity(const EntityOpenRequest& request)
 {
 	COLWidget* widget;
 
+	File file(request.getAttribute("file").toString().toLocal8Bit().constData());
+
 	try {
-		widget = new COLWidget(*request.getFile(), NULL);
+		widget = new COLWidget(file, NULL);
 	} catch (Exception& ex) {
 		System::getInstance()->log(LogEntry::error(QString(tr("Error opening COL file: %1"))
 				.arg(ex.getMessage()), &ex));
 		return NULL;
 	}
 
-	DefaultDisplayedFile* file = new DefaultDisplayedFile(*request.getFile(), this, widget);
-	return file;
+	DisplayedFile* dfile = new DisplayedFile(file, this, widget);
+	return dfile;
 }

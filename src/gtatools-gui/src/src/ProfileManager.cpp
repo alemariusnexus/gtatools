@@ -89,8 +89,8 @@ Profile* ProfileManager::setCurrentProfile(Profile* profile)
 	if (currentProfile != profile) {
 		System* sys = System::getInstance();
 
-		while (sys->hasOpenFile())
-			sys->closeCurrentFile();
+		while (sys->hasOpenEntity())
+			sys->closeCurrentEntity();
 
 		Profile* oldProfile = currentProfile;
 		currentProfile = profile;

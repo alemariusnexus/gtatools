@@ -28,7 +28,7 @@
 #include <QtCore/QObject>
 #include <QtGui/QAction>
 #include <QtGui/QMenu>
-#include "../FileOpenRequest.h"
+#include "../EntityOpenRequest.h"
 #include "FileTree.h"
 #include <QtGui/QDockWidget>
 #include "LogConsole.h"
@@ -59,10 +59,10 @@ private slots:
 	void onFileClose(bool checked);
 	void onFileSave(bool checked);
 	void onFileSaveAs(bool checked);
-	void fileOpened(const FileOpenRequest& request, DisplayedFile* file);
-	void fileClosed(DisplayedFile* file);
-	void currentFileChanged(DisplayedFile* current, DisplayedFile* prev);
-	void fileChangeStatusChanged();
+	void entityOpened(DisplayedEntity* ent);
+	void entityClosed(DisplayedEntity* ent);
+	void currentEntityChanged(DisplayedEntity* current, DisplayedEntity* prev);
+	void entityChangeStatusChanged();
 	void onSearchFile(bool checked);
 	void profileAdded(Profile* profile);
 	void profileRemoved(Profile* profile);

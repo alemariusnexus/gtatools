@@ -75,18 +75,17 @@ void MainWindow::initialize()
 {
 	System* sys = System::getInstance();
 
-	connect(sys, SIGNAL(fileOpened(const FileOpenRequest&, DisplayedFile*)), this,
-			SLOT(openFile(const FileOpenRequest&, DisplayedFile*)));
-	connect(sys, SIGNAL(fileClosed(DisplayedFile*)), this, SLOT(closeFile(DisplayedFile*)));
-	connect(sys, SIGNAL(currentFileChanged(DisplayedFile*, DisplayedFile*)), this,
-			SLOT(currentFileChanged(DisplayedFile*, DisplayedFile*)));
+	connect(sys, SIGNAL(entityOpened(DisplayedEntity*)), this, SLOT(openEntity(DisplayedEntity*)));
+	connect(sys, SIGNAL(entityClosed(DisplayedEntity*)), this, SLOT(closeEntity(DisplayedEntity*)));
+	connect(sys, SIGNAL(currentEntityChanged(DisplayedEntity*, DisplayedEntity*)), this,
+			SLOT(currentEntityChanged(DisplayedEntity*, DisplayedEntity*)));
 	connect(sys, SIGNAL(configurationChanged()), this, SLOT(configurationChanged()));
-	connect(ui.contentTabber, SIGNAL(currentChanged(int)), this, SLOT(currentFileTabChanged(int)));
-	connect(ui.contentTabber, SIGNAL(tabCloseRequested(int)), this, SLOT(fileTabClosed(int)));
+	connect(ui.contentTabber, SIGNAL(currentChanged(int)), this, SLOT(currentEntityTabChanged(int)));
+	connect(ui.contentTabber, SIGNAL(tabCloseRequested(int)), this, SLOT(entityTabClosed(int)));
 
 	QSettings settings;
 
-	resize(settings.value("gui/mainwindow_size", size()).toSize());
+	restoreGeometry(settings.value("gui/mainwindow_geometry").toByteArray());
 	restoreState(settings.value("gui/mainwindow_state").toByteArray());
 
 	setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
@@ -96,7 +95,7 @@ void MainWindow::initialize()
 MainWindow::~MainWindow()
 {
 	QSettings settings;
-	settings.setValue("gui/mainwindow_size", size());
+	settings.setValue("gui/mainwindow_geometry", saveGeometry());
 	settings.setValue("gui/mainwindow_state", saveState());
 
 	System* sys = System::getInstance();
@@ -180,48 +179,62 @@ void MainWindow::dockWidgetVisibilityChanged(bool visible)
 }
 
 
-void MainWindow::openFile(const FileOpenRequest& request, DisplayedFile* file)
+void MainWindow::openEntity(DisplayedEntity* ent)
 {
-	FileViewWidget* widget = new FileViewWidget(file);
-	fileWidgets[file] = widget;
-	ui.contentTabber->addTab(widget, QString(file->getFile().getPath()->getFileName().get()));
-	connect(file, SIGNAL(saved(const File&)), this, SLOT(fileSaved(const File&)));
-	connect(file, SIGNAL(changeStatusChanged()), this, SLOT(fileChangeStatusChanged()));
+	DisplayedFile* dfile = dynamic_cast<DisplayedFile*>(ent);
+
+	if (dfile) {
+		FileViewWidget* widget = new FileViewWidget(dfile);
+		entityWidgets[dfile] = widget;
+		ui.contentTabber->addTab(widget, dfile->getName());
+	} else {
+		QWidget* widget = ent->getWidget();
+
+		if (widget) {
+			entityWidgets[ent] = widget;
+			ui.contentTabber->addTab(widget, ent->getName());
+		}
+	}
+
+	connect(ent, SIGNAL(saved()), this, SLOT(entitySaved()));
+	connect(ent, SIGNAL(changeStatusChanged()), this, SLOT(entityChangeStatusChanged()));
 }
 
 
-void MainWindow::currentFileChanged(DisplayedFile* file, DisplayedFile* prev)
+void MainWindow::currentEntityChanged(DisplayedEntity* cur, DisplayedEntity* prev)
 {
-	if (file)
-		ui.contentTabber->setCurrentWidget(fileWidgets[file]);
+	if (cur)
+		ui.contentTabber->setCurrentWidget(entityWidgets[cur]);
 }
 
 
-void MainWindow::closeFile(DisplayedFile* file)
+void MainWindow::closeEntity(DisplayedEntity* ent)
 {
-	FileViewWidget* widget = fileWidgets[file];
-	fileWidgets.remove(file);
+	QWidget* widget = entityWidgets[ent];
+	entityWidgets.remove(ent);
 	ui.contentTabber->removeTab(ui.contentTabber->indexOf(widget));
-	disconnect(file, NULL, this, NULL);
-	delete widget;
+	disconnect(ent, NULL, this, NULL);
+
+	if (dynamic_cast<DisplayedFile*>(ent))
+		delete widget;
 }
 
 
-void MainWindow::fileSaved(const File& file)
+void MainWindow::entitySaved()
 {
-	DisplayedFile* dfile = (DisplayedFile*) sender();
-	FileViewWidget* widget = fileWidgets[dfile];
-	ui.contentTabber->setTabText(ui.contentTabber->indexOf(widget), file.getPath()->getFileName().get());
+	DisplayedEntity* dent = (DisplayedEntity*) sender();
+	QWidget* widget = entityWidgets[dent];
+	ui.contentTabber->setTabText(ui.contentTabber->indexOf(widget), dent->getName());
 }
 
 
-void MainWindow::fileChangeStatusChanged()
+void MainWindow::entityChangeStatusChanged()
 {
-	DisplayedFile* dfile = (DisplayedFile*) sender();
-	FileViewWidget* widget = fileWidgets[dfile];
-	QString text = dfile->getFile().getPath()->getFileName().get();
+	DisplayedEntity* dent = (DisplayedEntity*) sender();
+	QWidget* widget = entityWidgets[dent];
+	QString text = dent->getName();
 
-	if (dfile->hasChanges())
+	if (dent->hasChanges())
 		text += "*";
 
 	ui.contentTabber->setTabText(ui.contentTabber->indexOf(widget), text);
@@ -230,7 +243,6 @@ void MainWindow::fileChangeStatusChanged()
 
 void MainWindow::configurationChanged()
 {
-	//loadConfigUiSettings();
 }
 
 
@@ -239,31 +251,31 @@ void MainWindow::taskLabelShouldAdjust()
 }
 
 
-void MainWindow::currentFileTabChanged(int index)
+void MainWindow::currentEntityTabChanged(int index)
 {
-	QMap<DisplayedFile*, FileViewWidget*>::iterator it;
+	QMap<DisplayedEntity*, QWidget*>::iterator it;
 	QWidget* widget = ui.contentTabber->widget(index);
 
-	for (it = fileWidgets.begin() ; it != fileWidgets.end() ; it++) {
+	for (it = entityWidgets.begin() ; it != entityWidgets.end() ; it++) {
 		if (widget == it.value()) {
 			System* sys = System::getInstance();
-			DisplayedFile* file = it.key();
-			sys->changeCurrentFile(file);
+			DisplayedEntity* ent = it.key();
+			sys->changeCurrentEntity(ent);
 			break;
 		}
 	}
 }
 
 
-void MainWindow::fileTabClosed(int index)
+void MainWindow::entityTabClosed(int index)
 {
-	QMap<DisplayedFile*, FileViewWidget*>::iterator it;
+	QMap<DisplayedEntity*, QWidget*>::iterator it;
 	QWidget* widget = ui.contentTabber->widget(index);
 
-	for (it = fileWidgets.begin() ; it != fileWidgets.end() ; it++) {
+	for (it = entityWidgets.begin() ; it != entityWidgets.end() ; it++) {
 		if (widget == it.value()) {
 			System* sys = System::getInstance();
-			sys->closeFile(it.key());
+			sys->closeEntity(it.key());
 			break;
 		}
 	}

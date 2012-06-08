@@ -31,7 +31,8 @@
 #include <QtCore/QLinkedList>
 #include <QtCore/QHash>
 #include <QtCore/QVariant>
-#include "../FileOpenRequest.h"
+#include "../EntityOpenRequest.h"
+#include "../DisplayedEntity.h"
 
 
 class DisplayedFile;
@@ -46,11 +47,9 @@ public:
 	virtual ~FormatHandler() {}
 	virtual QString getFormatName(const File* file = NULL) const = 0;
 	virtual QLinkedList<QString> getFileFormatExtensions() const = 0;
-	virtual bool hasFileFormat(const File& file) const = 0;
-	virtual DisplayedFile* openFile(const FileOpenRequest& request) { return NULL; }
-	virtual int getSuitability(const File& file) const { return 10000; }
-	virtual bool canSaveFile(const DisplayedFile* file) const { return false; }
-	virtual void saveFile(DisplayedFile* file, const File& destFile) {}
+	virtual bool canHandle(const EntityOpenRequest& req) const = 0;
+	virtual DisplayedEntity* openEntity(const EntityOpenRequest& request) { return NULL; }
+	virtual int getSuitability(const EntityOpenRequest& req) const { return 10000; }
 
 	virtual QString buildFileDialogFilter() const;
 };

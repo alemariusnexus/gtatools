@@ -31,7 +31,7 @@
 class Vector3
 {
 public:
-	static const Vector3 Zero;
+	static const Vector3 Zero, One;
 	static const Vector3 UnitX, UnitY, UnitZ;
 	static const Vector3 NegativeUnitX, NegativeUnitY, NegativeUnitZ;
 

@@ -48,6 +48,16 @@ void AnimationIndexer::resourceAdded(const File& file)
 }
 
 
+void AnimationIndexer::resourcesCleared()
+{
+	for (AnimMap::iterator it = index.begin() ; it != index.end() ; it++) {
+		delete it->second;
+	}
+
+	index.clear();
+}
+
+
 File* AnimationIndexer::find(CString name)
 {
 	AnimMap::iterator it = index.find(name);

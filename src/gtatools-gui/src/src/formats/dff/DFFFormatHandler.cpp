@@ -27,7 +27,7 @@
 #include "../../System.h"
 #include <QtGui/QFileDialog>
 #include "DFFXMLDumpDialog.h"
-#include "../../DefaultDisplayedFile.h"
+#include "../../DisplayedFile.h"
 
 
 
@@ -45,29 +45,37 @@ DFFFormatHandler::DFFFormatHandler()
 }
 
 
-DisplayedFile* DFFFormatHandler::openFile(const FileOpenRequest& request)
+bool DFFFormatHandler::canHandle(const EntityOpenRequest& req) const
 {
-	DFFWidget* widget;
+	QVariant fileVar = req.getAttribute("file");
 
-	DefaultDisplayedFile* file = new DefaultDisplayedFile(*request.getFile(), this, NULL);
+	if (fileVar.isNull())
+		return false;
 
-	try {
-		widget = new DFFWidget(file, NULL);
-	} catch (Exception& ex) {
-		delete file;
-		return NULL;
-	}
+	File file(fileVar.toString().toLocal8Bit().constData());
 
-	file->setWidget(widget);
-
-	return file;
+	return file.guessContentType() == CONTENT_TYPE_DFF;
 }
 
 
-void DFFFormatHandler::saveFile(DisplayedFile* file, const File& destFile)
+DisplayedEntity* DFFFormatHandler::openEntity(const EntityOpenRequest& request)
 {
-	DFFWidget* widget = (DFFWidget*) file->getWidget();
-	widget->saveTo(destFile);
+	DFFWidget* widget;
+
+	File file(request.getAttribute("file").toString().toLocal8Bit().constData());
+
+	DisplayedFile* dfile = new DisplayedFile(file, this, NULL);
+
+	try {
+		widget = new DFFWidget(dfile, NULL);
+	} catch (Exception& ex) {
+		delete dfile;
+		return NULL;
+	}
+
+	dfile->setWidget(widget);
+
+	return dfile;
 }
 
 
@@ -75,8 +83,10 @@ void DFFFormatHandler::xmlDumpDialog(const DFFMesh& mesh, QWidget* parent)
 {
 	System* sys = System::getInstance();
 
+	DisplayedFile* dfile = dynamic_cast<DisplayedFile*>(sys->getCurrentEntity());
+
 	QString filePath = QFileDialog::getSaveFileName(parent, tr("Choose a destination file"),
-			QString(sys->getCurrentFile()->getFile().getPath()->getFileName().get()).append(".xml"),
+			QString(dfile->getFile().getPath()->getFileName().get()).append(".xml"),
 					tr("XML Files (*.xml)"));
 
 	if (!filePath.isEmpty()) {

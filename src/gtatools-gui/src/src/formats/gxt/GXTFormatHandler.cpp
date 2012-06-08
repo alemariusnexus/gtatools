@@ -26,7 +26,7 @@
 #include <QtCore/QTextStream>
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
-#include "../../DefaultDisplayedFile.h"
+#include "../../DisplayedFile.h"
 #include <gtaformats/util/Exception.h>
 #include "../../System.h"
 
@@ -39,13 +39,20 @@ GXTFormatHandler* GXTFormatHandler::getInstance()
 }
 
 
-bool GXTFormatHandler::hasFileFormat(const File& file) const
+bool GXTFormatHandler::canHandle(const EntityOpenRequest& req) const
 {
-	return QString(file.getPath()->getExtension().get()).toLower().compare("gxt") == 0;
+	QVariant fileVar = req.getAttribute("file");
+
+	if (fileVar.isNull())
+		return false;
+
+	File file(fileVar.toString().toLocal8Bit().constData());
+
+	return file.guessContentType() == CONTENT_TYPE_GXT;
 }
 
 
-DisplayedFile* GXTFormatHandler::openFile(const FileOpenRequest& request)
+DisplayedEntity* GXTFormatHandler::openEntity(const EntityOpenRequest& request)
 {
 	GXTWidget* widget;
 
@@ -57,8 +64,10 @@ DisplayedFile* GXTFormatHandler::openFile(const FileOpenRequest& request)
 		return NULL;
 	}
 
-	DefaultDisplayedFile* file = new DefaultDisplayedFile(*request.getFile(), this, widget);
-	return file;
+	File file(request.getAttribute("file").toString().toLocal8Bit().constData());
+
+	DisplayedFile* dfile = new DisplayedFile(file, this, widget);
+	return dfile;
 }
 
 

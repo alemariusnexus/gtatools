@@ -60,14 +60,14 @@ void FormatManager::registerFormatHandler(FormatHandler* handler)
 }
 
 
-QLinkedList<FormatHandler*> FormatManager::getHandlers(const File& file)
+QLinkedList<FormatHandler*> FormatManager::getHandlers(const EntityOpenRequest& req)
 {
 	QLinkedList<FormatHandler*> list;
 
 	HandlerList::iterator it;
 	for (it = handlers.begin() ; it != handlers.end() ; it++) {
 		FormatHandler* handler = *it;
-		if (handler->hasFileFormat(file)) {
+		if (handler->canHandle(req)) {
 			list << handler;
 		}
 	}
@@ -76,7 +76,7 @@ QLinkedList<FormatHandler*> FormatManager::getHandlers(const File& file)
 }
 
 
-FormatHandler* FormatManager::getHandler(const File& file)
+FormatHandler* FormatManager::getHandler(const EntityOpenRequest& req)
 {
 	HandlerList::iterator it;
 
@@ -85,8 +85,8 @@ FormatHandler* FormatManager::getHandler(const File& file)
 
 	for (it = handlers.begin() ; it != handlers.end() ; it++) {
 		FormatHandler* handler = *it;
-		if (handler->hasFileFormat(file)) {
-			int suitability = handler->getSuitability(file);
+		if (handler->canHandle(req)) {
+			int suitability = handler->getSuitability(req);
 
 			if (suitability > bestSuitability) {
 				bestHandler = handler;

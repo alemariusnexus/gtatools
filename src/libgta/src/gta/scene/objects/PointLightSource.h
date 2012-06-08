@@ -36,11 +36,10 @@ public:
 		setShininess(1.0f);
 		setAttenuation(1.0f, 0.0f, 0.0f);
 	}
+	PointLightSource(const PointLightSource& other) : LightSource(other) {}
 
 	virtual LightType getLightType() const { return PointLight; }
 	void setPosition(const Vector3& pos) { lightData.position = pos; }
-	Vector3& getPosition() { return lightData.position; }
-	const Vector3& getPosition() const { return lightData.position; }
 	float getShininess() const { return lightData.shininess; }
 	void setShininess(float s) { lightData.shininess = s; }
 	void setConstantAttenuation(float a) { lightData.constAttenuation = a; }
@@ -51,6 +50,7 @@ public:
 	float getQuadraticAttenuation() const { return lightData.quadAttenuation; }
 	void setAttenuation(float c, float l, float q)
 			{ lightData.constAttenuation=c; lightData.linearAttenuation=l; lightData.quadAttenuation=q; }
+	virtual SceneObject* clone() const { return new PointLightSource(*this); }
 };
 
 #endif /* POINTLIGHTSOURCE_H_ */

@@ -28,10 +28,10 @@
 #include "BasicTransparencyAlgorithm.h"
 #include "../Animator.h"
 #include "../EngineException.h"
-#include "LightSource.h"
-#include "DirectionalLightSource.h"
-#include "PointLightSource.h"
-#include "SpotLightSource.h"
+#include "objects/LightSource.h"
+#include "objects/DirectionalLightSource.h"
+#include "objects/PointLightSource.h"
+#include "objects/SpotLightSource.h"
 
 #include <res_vertex_default_shader.h>
 #include <res_fragment_default_shader.h>
@@ -231,6 +231,12 @@ void DefaultRenderer::enqueueForRendering(VisualSceneObject* obj)
 }
 
 
+void DefaultRenderer::enqueueForRendering(LightSource* ls)
+{
+	lightSources.push_back(ls);
+}
+
+
 void DefaultRenderer::render()
 {
 	// Erase the dummy
@@ -345,6 +351,8 @@ void DefaultRenderer::render()
 		glDisableVertexAttribArray(texCoordAttrib);
 
 	gtaglBindFramebuffer(GTAGL_FRAMEBUFFER, 0);
+
+	lightSources.clear();
 
 	staticObjs.clear();
 	animObjs.clear();
@@ -660,18 +668,23 @@ void DefaultRenderer::renderAnimatedSceneObject(AnimatedMapSceneObject* obj, con
 	lightMatrix.invert();
 	lightMatrix.transpose();
 
-	AnimationPackage* apkg = **obj->getDefinition()->getAnimationPackagePointer();
 	MeshClump* meshClump = **obj->getDefinition()->getMeshPointer();
 	TextureSource* texSrc = obj->getDefinition()->getTextureSource();
 
 	if (!meshClump  ||  meshClump->getMeshCount() == 0)
 		return;
 
+	AnimationPackage* apkg = NULL;
+
+	if (obj->getDefinition()->getAnimationPackagePointer()) {
+		apkg = **obj->getDefinition()->getAnimationPackagePointer();
+	}
+
 	// Find the current animation
 	CString canimName = obj->getCurrentAnimation();
 	Animation* anim = NULL;
 
-	if (canimName.get()) {
+	if (canimName.get()  &&  apkg) {
 		anim = apkg->find(canimName);
 	}
 
@@ -680,16 +693,29 @@ void DefaultRenderer::renderAnimatedSceneObject(AnimatedMapSceneObject* obj, con
 	Matrix4* boneMats;
 	unsigned int npotBoneCount;
 
+	Animator* animator = NULL;
+
+	if (anim) {
+		animator = new Animator(meshClump, anim);
+		boneCount = animator->getBoneCount();
+	} else {
+		boneCount = meshClump->getBoneCount();
+	}
+
 	// We use an extra identity bone matrix which is used when a bone can't be found
-	boneCount = meshClump->getBoneCount();
 	npotBoneCount = GetNextPowerOfTwo(boneCount+1);
 	boneMats = new Matrix4[npotBoneCount];
 
-	Animator animator(meshClump, anim);
-	animator.setTime(obj->getAnimationTime());
+	if (anim) {
+		animator->setTime(obj->getAnimationTime());
 
-	boneMats[boneCount] = Matrix4::Identity;
-	memcpy(boneMats, animator.getBoneMatrices(), boneCount*sizeof(Matrix4));
+		boneMats[boneCount] = Matrix4::Identity;
+		memcpy(boneMats, animator->getBoneMatrices(), boneCount*sizeof(Matrix4));
+	} else {
+		for (unsigned int i = 0 ; i <= boneCount ; i++) {
+			boneMats[i] = Matrix4::Identity;
+		}
+	}
 
 	if (maxVertexUniformComponents < 2048) {
 		// We store the bone matrices in a texture to access them from the vertex shader
@@ -775,13 +801,18 @@ void DefaultRenderer::renderAnimatedSceneObject(AnimatedMapSceneObject* obj, con
 
 		if (boneIndexOffs == -1) {
 			// This is an unskinned animation, so all vertices of this frame belong to a single bone.
-			AnimationBone* bone = anim->getBoneForFrame(frame);
-			int32_t idx = frame->getBoneNumber();
 
-			if (idx == -1)
-				idx = boneCount;
+			int32_t num;
 
-			glUniform1i(boneUniform, idx);
+			if (!animator  ||  !animator->hasPseudoBoneNumbers())
+				num = frame->getBoneNumber();
+			else
+				num = animator->getPseudoBoneNumber(frame);
+
+			if (num == -1)
+				num = boneCount;
+
+			glUniform1i(boneUniform, num);
 		} else {
 			// This animation uses skinning, so the bone index is stored on a per-vertex basis.
 			glUniform1i(boneUniform, -1);
@@ -850,6 +881,8 @@ void DefaultRenderer::renderAnimatedSceneObject(AnimatedMapSceneObject* obj, con
 			glDrawElements(mode, submesh->getIndexCount(), GL_UNSIGNED_INT, (void*) 0);
 		}
 	}
+
+	delete animator;
 
 	delete[] boneMats;
 }

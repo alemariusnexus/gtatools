@@ -139,7 +139,9 @@ void Scene::update(uint64_t timePassed)
 	for (ObjectIterator it = animObjs.begin() ; it != animObjs.end() ; it++) {
 		SceneObject* obj = *it;
 		AnimatedSceneObject* aobj = dynamic_cast<AnimatedSceneObject*>(obj);
-		aobj->increaseAnimationTime(timePassed / 1000.0f);
+
+		if (aobj->isAutoAnimationEnabled())
+			aobj->increaseAnimationTime(timePassed / 1000.0f);
 	}
 }
 
@@ -158,6 +160,8 @@ void Scene::present()
 		//if (type == SceneObjectStatic  ||  type == SceneObjectAnimated) {
 		if ((tf & SceneObject::TypeFlagVisual)  !=  0) {
 			renderer->enqueueForRendering(dynamic_cast<VisualSceneObject*>(obj));
+		} else if ((tf & SceneObject::TypeFlagLight)  !=  0) {
+			renderer->enqueueForRendering(dynamic_cast<LightSource*>(obj));
 		}
 	}
 
