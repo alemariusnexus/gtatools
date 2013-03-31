@@ -85,6 +85,8 @@ void GLBaseWidget::resizeGL(int w, int h)
 	float n = 1.0;
 	float f = 3000.0;
 
+	cam.getFrustum().setDistances(l, r, t, b, n, f);
+
 	// glFrustum(l, r, b, t, n, f):
 	pMatrix = Matrix4 (
 		2*n/(r-l),		0,				0,					0,
@@ -100,7 +102,6 @@ void GLBaseWidget::paintGL()
 	Engine* engine = Engine::getInstance();
 
 	engine->setCamera(&cam);
-	engine->setProjectionMatrix(pMatrix);
 	engine->setViewportSize(viewW, viewH);
 
 #ifndef GTATOOLS_GUI_USE_OPENGL_ES

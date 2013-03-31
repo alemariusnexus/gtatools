@@ -24,6 +24,7 @@
 #include <cstring>
 #include <gtaformats/util/strutil.h>
 #include <utility>
+#include <gtaformats/col/COLLoader.h>
 
 using std::pair;
 
@@ -34,7 +35,7 @@ MeshIndexer::~MeshIndexer()
 	IndexMap::iterator it;
 
 	for (it = index.begin() ; it != index.end() ; it++) {
-		delete it->second;
+		delete it->second.file;
 	}
 
 	index.clear();
@@ -48,7 +49,10 @@ void MeshIndexer::resourceAdded(const File& file)
 		char* lMeshName = new char[fname.length() + 1];
 		strtolower(lMeshName, fname.get());
 		*strrchr(lMeshName, '.') = '\0';
-		index.insert(pair<CString, File*>(CString::from(lMeshName), new File(file)));
+
+		IndexEntry entry;
+		entry.file = new File(file);
+		index.insert(pair<CString, IndexEntry>(CString::from(lMeshName), entry));
 	}
 }
 
@@ -56,19 +60,21 @@ void MeshIndexer::resourceAdded(const File& file)
 void MeshIndexer::resourcesCleared()
 {
 	for (IndexMap::iterator it = index.begin() ; it != index.end() ; it++) {
-		delete it->second;
+		delete it->second.file;
 	}
 
 	index.clear();
 }
 
 
-const File* MeshIndexer::find(const CString& name)
+MeshIndexer::IndexEntry MeshIndexer::find(const CString& name)
 {
 	IndexMap::iterator it = index.find(name);
 
 	if (it == index.end()) {
-		return NULL;
+		IndexEntry e;
+		e.file = NULL;
+		return e;
 	}
 
 	return it->second;

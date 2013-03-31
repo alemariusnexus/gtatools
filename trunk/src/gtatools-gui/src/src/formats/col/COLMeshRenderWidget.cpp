@@ -51,14 +51,14 @@ COLMeshRenderWidget::COLMeshRenderWidget(QWidget* parent)
 COLMeshRenderWidget::~COLMeshRenderWidget()
 {
 	if (obj) {
-		MapItemDefinition* def = obj->getDefinition();
+		MapItemDefinition* def = obj->getLODInstance()->getDefinition();
 		delete **def->getMeshPointer();
 		delete def;
 		delete obj;
 	}
 
 	if (pickObj) {
-		MapItemDefinition* def = pickObj->getDefinition();
+		MapItemDefinition* def = pickObj->getLODInstance()->getDefinition();
 		delete **def->getMeshPointer();
 		delete def;
 		delete pickObj;
@@ -110,7 +110,7 @@ void COLMeshRenderWidget::render(const float* vertices, int32_t vertexCount, con
 		clump->addMesh(mesh);
 
 		if (obj) {
-			MapItemDefinition* def = obj->getDefinition();
+			MapItemDefinition* def = obj->getLODInstance()->getDefinition();
 			delete **def->getMeshPointer();
 			delete def;
 			delete obj;
@@ -119,7 +119,9 @@ void COLMeshRenderWidget::render(const float* vertices, int32_t vertexCount, con
 		MapItemDefinition* def = new StaticMapItemDefinition(new StaticMeshPointer(clump),
 				new NullTextureSource, NULL, 5000.0f);
 
-		obj = new MapSceneObject(def);
+		obj = new MapSceneObject;
+		MapSceneObjectLODInstance* inst = new MapSceneObjectLODInstance(def);
+		obj->addLODInstance(inst);
 
 		// Build picking mesh
 		Mesh* pickMesh = conv.convert(vertices, vertexCount, faces, faceCount);
@@ -140,7 +142,7 @@ void COLMeshRenderWidget::render(const float* vertices, int32_t vertexCount, con
 		pickClump->addMesh(pickMesh);
 
 		if (pickObj) {
-			MapItemDefinition* def = pickObj->getDefinition();
+			MapItemDefinition* def = pickObj->getLODInstance()->getDefinition();
 			delete **def->getMeshPointer();
 			delete def;
 			delete pickObj;
@@ -149,7 +151,9 @@ void COLMeshRenderWidget::render(const float* vertices, int32_t vertexCount, con
 		MapItemDefinition* pickDef = new StaticMapItemDefinition(new StaticMeshPointer(pickClump),
 				new NullTextureSource, NULL, 5000.0f);
 
-		pickObj = new MapSceneObject(pickDef);
+		pickObj = new MapSceneObject;
+		MapSceneObjectLODInstance* pickInst = new MapSceneObjectLODInstance(pickDef);
+		pickObj->addLODInstance(inst);
 
 		printf("<====\n");
 
@@ -284,7 +288,7 @@ void COLMeshRenderWidget::setSelectedFace(int index)
 		int prevIdx = pickedFace;
 
 
-		MeshClump* clump = **obj->getDefinition()->getMeshPointer();
+		MeshClump* clump = **obj->getLODInstance()->getDefinition()->getMeshPointer();
 		Mesh* mesh = *clump->getMeshBegin();
 
 		if (mesh->getVertexCount() != 0) {

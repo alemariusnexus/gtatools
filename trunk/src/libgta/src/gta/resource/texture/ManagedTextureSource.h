@@ -35,9 +35,10 @@ public:
 	ManagedTextureSource(const CString& txdName)
 			: pointer(Engine::getInstance()->getTextureCache()->getEntryPointer(txdName)) {}
 	ManagedTextureSource(const ManagedTextureSource& other) : pointer(other.pointer) {}
-	virtual Texture* getTexture(const CString& txdName);
+	virtual Texture* getTexture(const CString& txdName, bool lock = false);
+	virtual void lock(bool lock = true);
 	virtual TextureSource* clone() const { return new ManagedTextureSource(*this); }
-	virtual void release() {}
+	virtual void release() { pointer.release(); }
 
 private:
 	Engine::StringResourceCache::Pointer pointer;

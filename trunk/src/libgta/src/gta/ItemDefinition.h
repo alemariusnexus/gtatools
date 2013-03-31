@@ -24,7 +24,6 @@
 #define ITEMDEFINITION_H_
 
 #include <gta/config.h>
-#include "Engine.h"
 #include "resource/mesh/Mesh.h"
 #include <gtaformats/ide/IDEStaticObject.h>
 #include "resource/mesh/MeshPointer.h"

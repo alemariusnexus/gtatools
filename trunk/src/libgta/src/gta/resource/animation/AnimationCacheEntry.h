@@ -25,6 +25,7 @@
 
 #include "../ResourceCache.h"
 #include "AnimationPackage.h"
+#include "../../Engine.h"
 
 
 class AnimationCacheEntry : public Engine::StringResourceCache::Entry {

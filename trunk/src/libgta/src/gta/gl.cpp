@@ -53,11 +53,27 @@ inline void gtaglGenFramebuffersCORE(GLsizei p1, GLuint* p2) { glGenFramebuffers
 inline void gtaglBindFramebufferCORE(GLenum p1, GLuint p2) { glBindFramebuffer(p1, p2); }
 inline void gtaglFramebufferTexture2DCORE(GLenum p1, GLenum p2, GLenum p3, GLuint p4, GLint p5)
 		{ glFramebufferTexture2D(p1, p2, p3, p4, p5); }
+inline void gtaglDeleteFramebuffersCORE(GLsizei p1, GLuint* p2) { glDeleteFramebuffers(p1, p2); }
+inline void gtaglGenRenderbuffersCORE(GLsizei p1, GLuint* p2) { glGenRenderbuffers(p1, p2); }
+inline void gtaglDeleteRenderbuffersCORE(GLsizei p1, GLuint* p2) { glDeleteRenderbuffers(p1, p2); }
+inline void gtaglBindRenderbufferCORE(GLenum p1, GLuint p2) { glBindRenderbuffer(p1, p2); }
+inline void gtaglRenderbufferStorageCORE(GLenum p1, GLenum p2, GLsizei p3, GLsizei p4)
+		{ glRenderbufferStorage(p1, p2, p3, p4); }
+inline void gtaglFramebufferRenderbufferCORE(GLenum p1, GLenum p2, GLenum p3, GLuint p4)
+		{ glFramebufferRenderbuffer(p1, p2, p3, p4); }
 
 inline void gtaglGenFramebuffersEXT(GLsizei p1, GLuint* p2) { glGenFramebuffersEXT(p1, p2); }
 inline void gtaglBindFramebufferEXT(GLenum p1, GLuint p2) { glBindFramebufferEXT(p1, p2); }
 inline void gtaglFramebufferTexture2DEXT(GLenum p1, GLenum p2, GLenum p3, GLuint p4, GLint p5)
 		{ glFramebufferTexture2DEXT(p1, p2, p3, p4, p5); }
+inline void gtaglDeleteFramebuffersEXT(GLsizei p1, GLuint* p2) { glDeleteFramebuffersEXT(p1, p2); }
+inline void gtaglGenRenderbuffersEXT(GLsizei p1, GLuint* p2) { glGenRenderbuffersEXT(p1, p2); }
+inline void gtaglDeleteRenderbuffersEXT(GLsizei p1, GLuint* p2) { glDeleteRenderbuffersEXT(p1, p2); }
+inline void gtaglBindRenderbufferEXT(GLenum p1, GLuint p2) { glBindRenderbufferEXT(p1, p2); }
+inline void gtaglRenderbufferStorageEXT(GLenum p1, GLenum p2, GLsizei p3, GLsizei p4)
+		{ glRenderbufferStorageEXT(p1, p2, p3, p4); }
+inline void gtaglFramebufferRenderbufferEXT(GLenum p1, GLenum p2, GLenum p3, GLuint p4)
+		{ glFramebufferRenderbufferEXT(p1, p2, p3, p4); }
 
 #endif
 
@@ -101,6 +117,12 @@ void gtaglInit()
 		gtaglGenFramebuffers = &gtaglGenFramebuffersCORE;
 		gtaglBindFramebuffer = &gtaglBindFramebufferCORE;
 		gtaglFramebufferTexture2D = &gtaglFramebufferTexture2DCORE;
+		gtaglDeleteFramebuffers = &gtaglDeleteFramebuffersCORE;
+		gtaglGenRenderbuffers = &gtaglGenRenderbuffersCORE;
+		gtaglDeleteRenderbuffers = &gtaglDeleteRenderbuffersCORE;
+		gtaglBindRenderbuffer = &gtaglBindRenderbufferCORE;
+		gtaglRenderbufferStorage = &gtaglRenderbufferStorageCORE;
+		gtaglFramebufferRenderbuffer = &gtaglFramebufferRenderbufferCORE;
 
 		GTAGL_FRAMEBUFFER = GL_FRAMEBUFFER;
 		GTAGL_COLOR_ATTACHMENT0 = GL_COLOR_ATTACHMENT0;
@@ -108,10 +130,18 @@ void gtaglInit()
 		GTAGL_COLOR_ATTACHMENT2 = GL_COLOR_ATTACHMENT2;
 		GTAGL_COLOR_ATTACHMENT3 = GL_COLOR_ATTACHMENT3;
 		GTAGL_DEPTH_ATTACHMENT = GL_DEPTH_ATTACHMENT;
+		GTAGL_STENCIL_ATTACHMENT = GL_STENCIL_ATTACHMENT;
+		GTAGL_RENDERBUFFER = GL_RENDERBUFFER;
 	} else {
 		gtaglGenFramebuffers = &gtaglGenFramebuffersEXT;
 		gtaglBindFramebuffer = &gtaglBindFramebufferEXT;
 		gtaglFramebufferTexture2D = &gtaglFramebufferTexture2DEXT;
+		gtaglDeleteFramebuffers = &gtaglDeleteFramebuffersEXT;
+		gtaglGenRenderbuffers = &gtaglGenRenderbuffersEXT;
+		gtaglDeleteRenderbuffers = &gtaglDeleteRenderbuffersEXT;
+		gtaglBindRenderbuffer = &gtaglBindRenderbufferEXT;
+		gtaglRenderbufferStorage = &gtaglRenderbufferStorageEXT;
+		gtaglFramebufferRenderbuffer = &gtaglFramebufferRenderbufferEXT;
 
 		GTAGL_FRAMEBUFFER = GL_FRAMEBUFFER_EXT;
 		GTAGL_COLOR_ATTACHMENT0 = GL_COLOR_ATTACHMENT0_EXT;
@@ -119,11 +149,19 @@ void gtaglInit()
 		GTAGL_COLOR_ATTACHMENT2 = GL_COLOR_ATTACHMENT2_EXT;
 		GTAGL_COLOR_ATTACHMENT3 = GL_COLOR_ATTACHMENT3_EXT;
 		GTAGL_DEPTH_ATTACHMENT = GL_DEPTH_ATTACHMENT_EXT;
+		GTAGL_STENCIL_ATTACHMENT = GL_STENCIL_ATTACHMENT_EXT;
+		GTAGL_RENDERBUFFER = GL_RENDERBUFFER_EXT;
 	}
 #else
 	gtaglGenFramebuffers = &glGenFramebuffers;
 	gtaglBindFramebuffer = &glBindFramebuffer;
 	gtaglFramebufferTexture2D = &glFramebufferTexture2D;
+	gtaglDeleteFramebuffers = &glDeleteFramebuffers;
+	gtaglGenRenderbuffers = &glGenRenderbuffers;
+	gtaglDeleteRenderbuffers = &glDeleteRenderbuffers;
+	gtaglBindRenderbuffer = &glBindRenderbuffer;
+	gtaglRenderbufferStorage = &glRenderbufferStorage;
+	gtaglFramebufferRenderbuffer = &glFramebufferRenderbuffer;
 
 	GTAGL_FRAMEBUFFER = GL_FRAMEBUFFER;
 	GTAGL_COLOR_ATTACHMENT0 = GL_COLOR_ATTACHMENT0;
@@ -131,6 +169,8 @@ void gtaglInit()
 	GTAGL_COLOR_ATTACHMENT2 = GL_COLOR_ATTACHMENT0;
 	GTAGL_COLOR_ATTACHMENT3 = GL_COLOR_ATTACHMENT0;
 	GTAGL_DEPTH_ATTACHMENT = GL_DEPTH_ATTACHMENT;
+	GTAGL_STENCIL_ATTACHMENT = GL_STENCIL_ATTACHMENT;
+	GTAGL_RENDERBUFFER = GL_RENDERBUFFER;
 #endif
 
 	gtaglInitialized = true;

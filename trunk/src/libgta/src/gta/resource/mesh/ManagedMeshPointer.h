@@ -36,7 +36,8 @@ public:
 	ManagedMeshPointer(const CString& meshName)
 			: pointer(Engine::getInstance()->getMeshCache()->getEntryPointer(meshName)) {}
 	ManagedMeshPointer(const ManagedMeshPointer& other) : pointer(other.pointer) {}
-	virtual MeshClump* operator*();
+	virtual MeshClump* get(bool lock = false);
+	virtual void lock(bool lock = true);
 	virtual MeshPointer* clone() const { return new ManagedMeshPointer(*this); }
 	virtual void release();
 

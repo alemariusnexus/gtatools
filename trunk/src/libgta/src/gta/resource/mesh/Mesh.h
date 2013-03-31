@@ -28,7 +28,6 @@
 #include <vector>
 #include <gtaformats/dff/DFFGeometry.h>
 #include <gtaformats/col/COLModel.h>
-#include "../../Engine.h"
 #include "Material.h"
 #include "MeshFrame.h"
 
@@ -95,13 +94,19 @@ public:
 
 	int getBoneWeightOffset() const { return boneWeightOffs; }
 
+	GLuint getDataBuffer() const { return dataBuffer; }
+
 	void bindDataBuffer();
+
+	int getDataBufferSize() const;
 
 	void addSubmesh(Submesh* submesh);
 
 	SubmeshIterator getSubmeshBegin() { return submeshes.begin(); }
 
 	SubmeshIterator getSubmeshEnd() { return submeshes.end(); }
+
+	size_t getSubmeshCount() const { return submeshes.size(); }
 
 	void addMaterial(Material* material);
 

@@ -45,13 +45,17 @@ void _BuildFrameConversionMap(map<const DFFFrame*, MeshFrame*>& m, const DFFFram
 
 
 MeshClump::MeshClump()
-		: rootFrame(NULL), boneCount(0), size(0)
+		: rootFrame(NULL), boneCount(0), size(0), boundsValid(true)
 {
+	bounds[0] = 0.0f;
+	bounds[1] = 0.0f;
+	bounds[2] = 0.0f;
+	bounds[3] = 0.0f;
 }
 
 
 MeshClump::MeshClump(const DFFMesh* mesh)
-		: boneCount(mesh->getBoneCount()), size(0)
+		: boneCount(mesh->getBoneCount()), size(0), boundsValid(false)
 {
 	rootFrame = new MeshFrame(mesh->getRootFrame());
 
@@ -84,10 +88,45 @@ MeshClump::~MeshClump()
 }
 
 
+void MeshClump::calculateBounds()
+{
+	if (boundsValid)
+		return;
+
+	Vector3 center;
+
+	for (MeshIterator it = meshes.begin() ; it != meshes.end() ; it++) {
+		Mesh* mesh = *it;
+		float* mbounds = mesh->getBounds();
+		center += *((Vector3*) mbounds);
+	}
+
+	center *= 1.0f / (meshes.size());
+
+	float radius = 0.0f;
+
+	for (MeshIterator it = meshes.begin() ; it != meshes.end() ; it++) {
+		Mesh* mesh = *it;
+		float* mbounds = mesh->getBounds();
+		float d = (*((Vector3*) mbounds) - center).length() + mbounds[3];
+
+		if (d > radius) {
+			radius = d;
+		}
+	}
+
+	memcpy(bounds, &center, 3*sizeof(float));
+	bounds[3] = radius;
+
+	boundsValid = true;
+}
+
+
 void MeshClump::addMesh(Mesh* mesh)
 {
 	meshes.push_back(mesh);
 	size += mesh->guessSize();
+	boundsValid = false;
 }
 
 
@@ -100,6 +139,7 @@ bool MeshClump::removeMesh(Mesh* mesh)
 	}
 
 	meshes.erase(it);
+	boundsValid = false;
 	return true;
 }
 

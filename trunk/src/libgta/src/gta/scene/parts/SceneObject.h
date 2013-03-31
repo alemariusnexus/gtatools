@@ -24,6 +24,7 @@
 #define SCENEOBJECT_H_
 
 #include <gtaformats/util/math/Vector3.h>
+#include <gtaformats/util/math/Matrix4.h>
 
 
 class SceneObject {
@@ -34,20 +35,33 @@ public:
 		TypeFlagVisual = (1 << 0),
 		TypeFlagAnimated = (1 << 1),
 		TypeFlagPVS = (1 << 2),
-		TypeFlagLight = (1 << 3)
+		TypeFlagLight = (1 << 3),
+		TypeFlagRigidBody = (1 << 4)
 	};
 
 public:
+	SceneObject() : sceneGraphicsVisible(false), scenePhysicsVisible(false) {}
 	virtual ~SceneObject() {}
 	virtual SceneObject* clone() const = 0;
 	virtual typeflags_t getTypeFlags() const = 0;
 	virtual bool isEnabled() const { return true; }
 	virtual float getStreamingDistance() const = 0;
-	virtual Vector3 getPosition() const = 0;
-	virtual SceneObject* getLODParent() = 0;
-	virtual int getLODHierarchyDepth() const
-			{ SceneObject* p = getLODParent(); return p ? p->getLODHierarchyDepth()+1 : 0; }
-	SceneObject* getLODParent() const { return const_cast<SceneObject*>(this)->getLODParent(); }
+	virtual Matrix4& getModelMatrix() = 0;
+	virtual const Matrix4& getModelMatrix() const = 0;
+	virtual void setModelMatrix(const Matrix4& matrix) = 0;
+
+	virtual Vector3 getPosition() const
+	{
+		const float* a = getModelMatrix().toArray();
+		return Vector3(a[12], a[13], a[14]);
+	}
+
+//private:
+public:
+	bool sceneGraphicsVisible, scenePhysicsVisible;
+
+private:
+	friend class Scene;
 };
 
 #endif /* SCENEOBJECT_H_ */

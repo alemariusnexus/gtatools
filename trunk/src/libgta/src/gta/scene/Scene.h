@@ -23,18 +23,23 @@
 #ifndef SCENE_H_
 #define SCENE_H_
 
+#include "parts/RigidBodySceneObject.h"
 #include "SceneObjectDefinitionDatabase.h"
-#include "Renderer.h"
+#include "../render/Renderer.h"
+#include "../render/RenderingEntityGenerator.h"
+#include "objects/LightSource.h"
+#include "StreamingViewpoint.h"
+#include "visibility/PVSDatabase.h"
 #include <gtaformats/util/StringComparator.h>
 #include "../ShaderProgram.h"
 #include <list>
 #include <map>
+#include <btBulletDynamicsCommon.h>
 
 using std::list;
 using std::map;
 
 
-class PVSDatabase;
 
 
 
@@ -47,9 +52,25 @@ public:
 	typedef ObjectList::iterator ObjectIterator;
 	typedef ObjectList::const_iterator ConstObjectIterator;
 
+	typedef list<VisualSceneObject*> VisualObjectList;
+	typedef VisualObjectList::iterator VisualObjectIterator;
+	typedef VisualObjectList::const_iterator ConstVisualObjectIterator;
+
+	typedef list<RigidBodySceneObject*> RigidBodyObjectList;
+	typedef RigidBodyObjectList::iterator RigidBodyObjectIterator;
+	typedef RigidBodyObjectList::const_iterator ConstRigidBodyObjectIterator;
+
 	typedef list<PVSSceneObject*> PVSObjectList;
 	typedef PVSObjectList::iterator PVSObjectIterator;
 	typedef PVSObjectList::const_iterator ConstPVSObjectIterator;
+
+	typedef list<StreamingViewpoint*> StreamingViewpointList;
+	typedef StreamingViewpointList::iterator StreamingViewpointIterator;
+	typedef StreamingViewpointList::const_iterator ConstStreamingViewpointIterator;
+
+	typedef list<LightSource*> LightSourceList;
+	typedef LightSourceList::iterator LightSourceIterator;
+	typedef LightSourceList::const_iterator ConstLightSourceIterator;
 
 public:
 	Scene();
@@ -65,23 +86,28 @@ public:
 	ConstObjectIterator getSceneObjectBegin() const { return objects.begin(); }
 	ConstObjectIterator getSceneObjectEnd() const { return objects.end(); }
 	ObjectList::size_type getSceneObjectCount() { return objects.size(); }
-	void buildVisibleSceneObjectList(ObjectList& list);
+	void buildVisibleSceneObjectList(VisualObjectList& visObjs, RigidBodyObjectList& rbObjs);
 	//DefaultSceneObject* getObjectByID(int id) { return objects[id]; }
-	int getLastPotentiallyVisibleObjectCount() const { return pvObjCount; }
-	int getLastVisibleObjectCount() const { return visibleObjCount; }
-	void setDrawDistanceMultiplier(float ddm) { ddMultiplier = ddm; }
-	float getDrawDistanceMultiplier() const { return ddMultiplier; }
+	size_t getLastVisibleObjectCount() const { return curVisObjs.size(); }
 	Renderer* getRenderer() { return renderer; }
 	void setRenderer(Renderer* r) { renderer = r; }
+	void updateVisibility();
 	void update(uint64_t timePassed);
 	void present();
-	void setPVSDatabase(PVSDatabase* pvs) { this->pvs = pvs; }
-	PVSDatabase* getPVSDatabase() { return pvs; }
+	PVSDatabase* getPVSDatabase() { return &pvs; }
 	void setPVSEnabled(bool pe) { pvsEnabled = pe; }
 	bool isPVSEnabled() const { return pvsEnabled; }
+	void setFrustumCullingEnabled(bool fc) { fcEnabled = fc; }
+	bool isFrustumCullingEnabled() const { return fcEnabled; }
+	btDiscreteDynamicsWorld* getPhysicsWorld() { return physicsWorld; }
+	void setPhysicsWorld(btDiscreteDynamicsWorld* world) { physicsWorld = world; }
+	void addStreamingViewpoint(StreamingViewpoint* vp) { svList.push_back(vp); }
+
+	void setFreezeVisibility(bool fv) { freezeVisibility = fv; }
+	bool isVisibilityFrozen() const { return freezeVisibility; }
 
 private:
-	inline bool addIfVisible(SceneObject* obj, ObjectList& list, float cx, float cy, float cz)
+	/*inline bool addIfVisible(SceneObject* obj, ObjectList& list, float cx, float cy, float cz)
 	{
 		Vector3 pos = obj->getPosition();
 
@@ -103,18 +129,29 @@ private:
 		}
 
 		return false;
-	}
+	}*/
+
+	template <class ItType>
+	void buildVisibleSceneObjectList(StreamingViewpoint* svp, ItType beg, ItType end);
 
 private:
 	ObjectList objects;
 	ObjectList dynamicObjs;
 	ObjectList animObjs;
-	PVSDatabase* pvs;
-	int pvObjCount, visibleObjCount;
-	float ddMultiplier;
+	LightSourceList lightSources;
+	PVSDatabase pvs;
 	Renderer* renderer;
+	RenderingEntityGenerator* reGenerator;
 	int nextStaticObjID;
 	bool pvsEnabled;
+	bool fcEnabled;
+	btDiscreteDynamicsWorld* physicsWorld;
+	StreamingViewpointList svList;
+
+	VisualObjectList curVisObjs;
+	RigidBodyObjectList curRbObjs;
+
+	bool freezeVisibility;
 };
 
 

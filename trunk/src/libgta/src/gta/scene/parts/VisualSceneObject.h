@@ -25,18 +25,23 @@
 
 #include "SceneObject.h"
 #include <gtaformats/util/math/Matrix4.h>
+#include "../../resource/smesh/ShadowMeshPointer.h"
 
 
 class VisualSceneObject : public virtual SceneObject {
 public:
-	virtual void setHasAlphaTransparency(bool alpha) = 0;
 	virtual bool hasAlphaTransparency() const = 0;
-	virtual Matrix4& getModelMatrix() = 0;
-	virtual const Matrix4& getModelMatrix() const = 0;
-	virtual void setModelMatrix(const Matrix4& matrix) = 0;
-	virtual void setLODParent(VisualSceneObject* parent) = 0;
-	virtual SceneObject* getLODParent() = 0;
 	virtual typeflags_t getTypeFlags() const { return TypeFlagVisual; }
+	virtual void getBoundingSphere(Vector3& center, float& radius) = 0;
+	virtual ShadowMeshPointer* getCurrentShadowMeshPointer() { return NULL; }
+
+//private:
+public:
+	virtual void updateRenderingDistance(float dist, float sdMultiplier) = 0;
+	virtual void resetRenderingDistance() = 0;
+
+private:
+	friend class Scene;
 };
 
 #endif /* VISUALSCENEOBJECT_H_ */

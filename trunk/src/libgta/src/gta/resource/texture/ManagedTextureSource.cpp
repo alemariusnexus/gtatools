@@ -30,23 +30,21 @@
 
 
 
-Texture* ManagedTextureSource::getTexture(const CString& texName)
+Texture* ManagedTextureSource::getTexture(const CString& texName, bool lock)
 {
-	TextureCacheEntry* entry = (TextureCacheEntry*) pointer.getEntry();
+	TextureCacheEntry* entry = (TextureCacheEntry*) pointer.getEntry(lock);
 
 	if (!entry)
 		return NULL;
 
 	return entry->getTexture(texName);
-	/*ResourceCache* cache = Engine::getInstance()->getTextureCache();
+}
 
-	TextureCacheEntry* entry = (TextureCacheEntry*) cache->getEntry(txdHash, true);
 
-	if (!entry) {
-		return 0;
-	}
-
-	Texture* tex = entry->getTexture(texHash);
-
-	return tex;*/
+void ManagedTextureSource::lock(bool lock)
+{
+	if (lock)
+		pointer.getEntry(true);
+	else
+		pointer.release();
 }

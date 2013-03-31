@@ -46,8 +46,6 @@ Profile::Profile(const QString& name)
 			SLOT(currentProfileChanged(Profile*, Profile*)));
 
 	scene = new Scene;
-
-	scene->setPVSDatabase(new PVSDatabase);
 }
 
 

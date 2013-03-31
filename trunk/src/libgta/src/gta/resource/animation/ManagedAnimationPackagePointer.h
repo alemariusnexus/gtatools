@@ -36,7 +36,8 @@ public:
 			: pointer(Engine::getInstance()->getAnimationCache()->getEntryPointer(name)) {}
 	ManagedAnimationPackagePointer(const ManagedAnimationPackagePointer& other) : pointer(other.pointer) {}
 	virtual AnimationPackagePointer* clone() const { return new ManagedAnimationPackagePointer(*this); }
-	virtual AnimationPackage* operator*();
+	virtual AnimationPackage* get(bool lock);
+	virtual void release();
 
 private:
 	Engine::StringResourceCache::Pointer pointer;

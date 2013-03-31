@@ -28,7 +28,10 @@
 class CollisionShapePointer {
 public:
 	virtual CollisionShapePointer* clone() const = 0;
-	virtual btCollisionShape* operator*() = 0;
+	virtual btCollisionShape* get(bool lock = false) = 0;
+	virtual void release() {}
+
+	virtual btCollisionShape* operator*() { return get(); }
 };
 
 #endif /* COLLISIONSHAPEPOINTER_H_ */

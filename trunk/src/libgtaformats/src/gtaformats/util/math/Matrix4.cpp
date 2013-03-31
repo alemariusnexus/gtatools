@@ -343,8 +343,13 @@ Matrix4 Matrix4::lookAt(const Vector3& target, const Vector3& up)
 }
 
 
-Matrix4 Matrix4::fromQuaternion(float x, float y, float z, float w)
+Matrix4 Matrix4::fromQuaternion(const Quaternion& q)
 {
+	float w = q.getW();
+	float x = q.getX();
+	float y = q.getY();
+	float z = q.getZ();
+
 	float x2 = x*x;
 	float y2 = y*y;
 	float z2 = z*z;
@@ -356,10 +361,36 @@ Matrix4 Matrix4::fromQuaternion(float x, float y, float z, float w)
 	float xw = x*w;
 
 	return Matrix4 (
-			1.0f - 2.0f * (y2-z2),	2.0f * (xy-zw),			2.0f * (xz+yw),			0.0f,
-			2.0f * (xy+zw),			1.0f - 2.0f * (x2-z2),	2.0f * (yz-xw),			0.0f,
-			2.0f * (xz-yw),			2.0f * (yz+xw),			1.0f - 2.0f * (x2-y2),	0.0f,
+			1.0f - 2.0f * (y2+z2),	2.0f * (xy-zw),			2.0f * (xz+yw),			0.0f,
+			2.0f * (xy+zw),			1.0f - 2.0f * (x2+z2),	2.0f * (yz-xw),			0.0f,
+			2.0f * (xz-yw),			2.0f * (yz+xw),			1.0f - 2.0f * (x2+y2),	0.0f,
 			0.0f,					0.0f,					0.0f,					1.0f
+	);
+}
+
+
+Matrix4 Matrix4::fromQuaternionVector(const Vector3& pos, const Quaternion& rot)
+{
+	float w = rot.getW();
+	float x = rot.getX();
+	float y = rot.getY();
+	float z = rot.getZ();
+
+	float x2 = x*x;
+	float y2 = y*y;
+	float z2 = z*z;
+	float xy = x*y;
+	float zw = z*w;
+	float xz = x*z;
+	float yw = y*w;
+	float yz = y*z;
+	float xw = x*w;
+
+	return Matrix4 (
+			1.0f - 2.0f * (y2+z2),	2.0f * (xy-zw),			2.0f * (xz+yw),			0.0f,
+			2.0f * (xy+zw),			1.0f - 2.0f * (x2+z2),	2.0f * (yz-xw),			0.0f,
+			2.0f * (xz-yw),			2.0f * (yz+xw),			1.0f - 2.0f * (x2+y2),	0.0f,
+			pos.getX(),				pos.getY(),				pos.getZ(),				1.0f
 	);
 }
 

@@ -71,7 +71,7 @@ Mesh::Mesh(const DFFGeometry& geometry, bool autoSubmeshes)
 		flags |= MeshSkinData;
 	}
 
-	if (geometry.isDynamicLightingEnabled()  &&  normals) {
+	if (geometry.isDynamicLightingEnabled()) {
 		flags |= MeshDynamicLighting;
 	}
 
@@ -121,14 +121,39 @@ Mesh::~Mesh()
 }
 
 
+int Mesh::getDataBufferSize() const
+{
+	int bufferSize = 0;
+
+	bufferSize += vertexCount*3*4;
+
+	if (normalOffs != -1) {
+		bufferSize += vertexCount*3*4;
+	}
+	if (texCoordOffs != -1) {
+		bufferSize += vertexCount*2*4;
+	}
+	if (vertexColorOffs != -1) {
+		bufferSize += vertexCount*4;
+	}
+	if (boneIndexOffs != -1) {
+		bufferSize += vertexCount*4;
+	}
+	if (boneWeightOffs != -1) {
+		bufferSize += vertexCount*4*4;
+	}
+
+	return bufferSize;
+}
+
+
 void Mesh::init(int flags, const float* vertices, const float* normals, const float* texCoords,
 		const uint8_t* vertexColors, const uint8_t* boneIndices, const float* boneWeights)
 {
 	int bufferSize = 0;
 
-	if (vertices) {
-		bufferSize += vertexCount*3*4;
-	}
+	bufferSize += vertexCount*3*4;
+
 	if (normals) {
 		bufferSize += vertexCount*3*4;
 	}
@@ -148,6 +173,7 @@ void Mesh::init(int flags, const float* vertices, const float* normals, const fl
 	glGenBuffers(1, &dataBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, dataBuffer);
 	glBufferData(GL_ARRAY_BUFFER, bufferSize, NULL, GL_STATIC_DRAW);
+	Engine::getInstance()->increaseTestMem(bufferSize, __FILE__, __LINE__);
 
 	normalOffs = -1;
 	texCoordOffs = -1;

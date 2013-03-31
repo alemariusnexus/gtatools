@@ -41,7 +41,9 @@ public:
 	SpotLightSource(const SpotLightSource& other) : LightSource(other) {}
 
 	virtual LightType getLightType() const { return SpotLight; }
-	void setPosition(const Vector3& pos) { lightData.position = pos; }
+	/*Vector3& getPosition() { return lightData.position; }
+	const Vector3& getPosition() const { return lightData.position; }*/
+	void setPosition(const Vector3& pos) { lightData.position = pos; pseudoModelMat = Matrix4::translation(pos); }
 	void setDirection(const Vector3& direction) { lightData.direction = direction; }
 	Vector3& getDirection() { return lightData.direction; }
 	const Vector3& getDirection() const { return lightData.direction; }
@@ -60,6 +62,8 @@ public:
 	void setSpotlightExponent(float exp) { lightData.spotlightExponent = exp; }
 	float getSpotlightExponent() const { return lightData.spotlightExponent; }
 	virtual SceneObject* clone() const { return new SpotLightSource(*this); }
+	virtual void setModelMatrix(const Matrix4& matrix)
+			{ const float* mm = matrix.toArray(); setPosition(Vector3(mm[12], mm[13], mm[14])); }
 };
 
 #endif /* SPOTLIGHTSOURCE_H_ */

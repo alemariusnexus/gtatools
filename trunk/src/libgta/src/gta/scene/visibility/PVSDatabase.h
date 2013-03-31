@@ -21,12 +21,14 @@
  */
 
 #ifndef PVSDATABASE_H_
-#define PVSDATA_HBASE_
+#define PVSDATABASE_H_
 
 #include "PVSSection.h"
-#include "../Scene.h"
 #include "../parts/SceneObject.h"
 #include "../SceneObjectDefinitionDatabase.h"
+#include "../StreamingViewpoint.h"
+#include "../SceneObjectDefinitionInfo.h"
+#include "../parts/PVSSceneObject.h"
 #include <vector>
 #include <gtaformats/util/util.h>
 #include <gtaformats/util/File.h>
@@ -86,7 +88,7 @@ private:
 		typedef ObjectMap::const_iterator ConstObjectIterator;
 
 	public:
-		InternalSceneObjectFileGroup(SceneObjectFileGroup* fg) : fg(fg), lodBaseObjCount(0) {}
+		InternalSceneObjectFileGroup(SceneObjectFileGroup* fg) : fg(fg) {}
 		SceneObjectFileGroup* getFileGroup() { return fg; }
 		void addSceneObject(PVSSceneObjectContainer* obj);
 		PVSSceneObjectContainer* getObject(uint32_t id);
@@ -95,12 +97,10 @@ private:
 		ConstObjectIterator getObjectBegin() const { return objs.begin(); }
 		ConstObjectIterator getObjectEnd() const { return objs.end(); }
 		size_t getObjectCount() const { return objs.size(); }
-		size_t getLODBaseObjectCount() const { return lodBaseObjCount; }
 
 	private:
 		SceneObjectFileGroup* fg;
 		ObjectMap objs;
-		size_t lodBaseObjCount;
 	};
 
 
@@ -144,7 +144,8 @@ public:
 
 	void save(const File& file, int flags = 0);
 
-	void queryPVS(float x, float y, float z, list<PVSSceneObject*>& pvs);
+	bool queryPVS(list<PVSSceneObject*>& pvs, const Vector3& pos, float distMultiplier,
+			float* chosenDistMultiplier = NULL);
 
 	void addProgressObserver(ProgressObserver* obsv) { progressObservers.push_back(obsv); }
 
@@ -167,6 +168,7 @@ private:
 
 
 	friend class SceneObjectFileGroup;
+	friend class PVSVisibilitySet;
 	//friend class SectionCalculatorThread;
 };
 
@@ -194,40 +196,34 @@ void PVSDatabase::addObjects(ItType beg, ItType end)
 
 		uncalculatedObjCount++;
 
-		while (obj) {
-			PVSSceneObjectContainer* cont = new PVSSceneObjectContainer;
-			cont->obj = obj;
-			cont->pvsCalculated = false;
+		PVSSceneObjectContainer* cont = new PVSSceneObjectContainer;
+		cont->obj = obj;
+		cont->pvsCalculated = false;
 
-			if (obj == baseObj)
-				objects.push_back(cont);
+		if (obj == baseObj)
+			objects.push_back(cont);
 
-			SceneObjectDefinitionInfo* info = obj->getDefinitionInfo();
+		if (info) {
+			SceneObjectFileGroup* group = info->getFileGroup();
+			InternalSceneObjectFileGroup* igroup = NULL;
 
-			if (info) {
-				SceneObjectFileGroup* group = info->getFileGroup();
-				InternalSceneObjectFileGroup* igroup = NULL;
+			FileGroupIterator it;
+			for (it = fileGroups.begin() ; it != fileGroups.end() ; it++) {
+				InternalSceneObjectFileGroup* itigroup = it->second;
 
-				FileGroupIterator it;
-				for (it = fileGroups.begin() ; it != fileGroups.end() ; it++) {
-					InternalSceneObjectFileGroup* itigroup = it->second;
-
-					if (itigroup->getFileGroup() == group) {
-						igroup = itigroup;
-						break;
-					}
+				if (itigroup->getFileGroup() == group) {
+					igroup = itigroup;
+					break;
 				}
-
-				if (!igroup) {
-					igroup = new InternalSceneObjectFileGroup(group);
-					fileGroups.insert(pair<CString, InternalSceneObjectFileGroup*>(
-							group->getRelativePath(), igroup));
-				}
-
-				igroup->addSceneObject(cont);
 			}
 
-			obj = dynamic_cast<PVSSceneObject*>(obj->getLODParent());
+			if (!igroup) {
+				igroup = new InternalSceneObjectFileGroup(group);
+				fileGroups.insert(pair<CString, InternalSceneObjectFileGroup*>(
+						group->getRelativePath(), igroup));
+			}
+
+			igroup->addSceneObject(cont);
 		}
 	}
 }

@@ -52,6 +52,9 @@
 #include <SDL_video.h>
 #include <SDL_syswm.h>
 
+#include <unistd.h>
+#include <sys/time.h>
+
 using std::ifstream;
 using std::vector;
 using std::queue;
@@ -78,16 +81,28 @@ SDL_Surface* surface;
 
 
 
+
+uint64_t GetTickcountMicroseconds()
+{
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	return tv.tv_sec*1000000 + tv.tv_usec;
+}
+
+
+
+
 void initWindowSystem(int w, int h)
 {
-	Uint32 videoMode = SDL_RESIZABLE;
+	//Uint32 videoMode = SDL_RESIZABLE;
+	Uint32 videoMode = 0;
 
 #ifdef GT_WINDOW_FULLSCREEN
 	videoMode |= SDL_FULLSCREEN;
 #endif
 
 #ifdef GT_USE_OPENGL_ES
-	SDL_Surface* screen = SDL_SetVideoMode(w, h, 16, videoMode);
+	SDL_Surface* screen = SDL_SetVideoMode(w, h, 0, videoMode);
 	surface = screen;
 
 	SDL_SysWMinfo wmInfo;
@@ -117,13 +132,77 @@ void initWindowSystem(int w, int h)
 			EGL_RED_SIZE, 5,
 			EGL_GREEN_SIZE, 5,
 			EGL_BLUE_SIZE, 5,
-			EGL_ALPHA_SIZE, 8,
-			EGL_DEPTH_SIZE, 16,
+			EGL_ALPHA_SIZE, 0,
+			EGL_DEPTH_SIZE, 24,
 			EGL_NONE
 	};
 
-	EGLConfig config;
+
 	EGLint numConfigs;
+
+    if (!eglGetConfigs(eglDisplay, NULL, 0, &numConfigs)) {
+        cerr << "ERROR: Unable to get EGL configs (error code 0x" << hex << eglGetError() << dec << ")!" << endl;
+        return;
+    }
+
+
+    printf("************* EGL CONFIGS *************\n");
+
+    printf("#  R  G  B  A  D  S  CAV  CONF \n");
+    printf("-------------------------------\n");
+
+    EGLConfig* configs = new EGLConfig[numConfigs];
+
+    eglGetConfigs(eglDisplay, configs, numConfigs, &numConfigs);
+
+    for (EGLint i = 0 ; i < numConfigs ; i++) {
+        EGLint r, g, b, a, d, s, cav, conf;
+
+        eglGetConfigAttrib(eglDisplay, configs[i], EGL_RED_SIZE, &r);
+        eglGetConfigAttrib(eglDisplay, configs[i], EGL_GREEN_SIZE, &g);
+        eglGetConfigAttrib(eglDisplay, configs[i], EGL_BLUE_SIZE, &b);
+        eglGetConfigAttrib(eglDisplay, configs[i], EGL_ALPHA_SIZE, &a);
+        eglGetConfigAttrib(eglDisplay, configs[i], EGL_DEPTH_SIZE, &d);
+        eglGetConfigAttrib(eglDisplay, configs[i], EGL_STENCIL_SIZE, &s);
+        eglGetConfigAttrib(eglDisplay, configs[i], EGL_CONFIG_CAVEAT, &cav);
+        eglGetConfigAttrib(eglDisplay, configs[i], EGL_CONFORMANT, &conf);
+
+        printf("%-2d %-2d %-2d %-2d %-2d %-2d %-2d ", i, r, g, b, a, d, s);
+
+        if (cav == EGL_NONE)
+        	printf("none ");
+        else if (cav == EGL_SLOW_CONFIG)
+        	printf("slow ");
+        else if (cav == EGL_NON_CONFORMANT_CONFIG)
+        	printf("ncon ");
+
+        if ((conf & EGL_OPENGL_ES_BIT) != 0)
+        	printf("1");
+        else
+        	printf(" ");
+
+        if ((conf & EGL_OPENGL_ES2_BIT) != 0)
+        	printf("2");
+        else
+        	printf(" ");
+
+        if ((conf & EGL_OPENVG_BIT) != 0)
+        	printf("V");
+        else
+        	printf(" ");
+
+        if ((conf & EGL_OPENGL_BIT) != 0)
+        	printf("G");
+        else
+        	printf(" ");
+
+        printf("\n");
+    }
+
+    printf("************* END EGL CONFIGS *************\n");
+
+
+    EGLConfig config;
 
 	if (!eglChooseConfig(eglDisplay, eglAttribs, &config, 1, &numConfigs)) {
 		cerr << "ERROR: Could not choose config (error code 0x" << hex << eglGetError() << dec << ")!" << endl;
@@ -180,20 +259,29 @@ void initWindowSystem(int w, int h)
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
 	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
+	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
 	surface = SDL_SetVideoMode(w, h, info->vfmt->BitsPerPixel, videoMode | SDL_OPENGL);
 
 	int dsize;
 	int r, g, b, a;
+	int ssize;
 	SDL_GL_GetAttribute(SDL_GL_DEPTH_SIZE, &dsize);
 	SDL_GL_GetAttribute(SDL_GL_RED_SIZE, &r);
 	SDL_GL_GetAttribute(SDL_GL_GREEN_SIZE, &g);
 	SDL_GL_GetAttribute(SDL_GL_BLUE_SIZE, &b);
 	SDL_GL_GetAttribute(SDL_GL_ALPHA_SIZE, &a);
-	printf("Framebuffer: R%d G%d B%d A%d D%d\n", r, g, b, a, dsize);
+	SDL_GL_GetAttribute(SDL_GL_STENCIL_SIZE, &ssize);
+
+	//ostream* out = File("/home/alemariusnexus/test.log").openOutputStream();
+	//*out << "Framebuffer: R" << r << " G" << g << " B" << b << " A" << a << " D" << dsize << " S" << ssize << "\n";
+	//delete out;
+
+	printf("Framebuffer: R%d G%d B%d A%d D%d S%d\n", r, g, b, a, dsize, ssize);
 #endif
 }
+
 
 
 
@@ -216,11 +304,20 @@ int main(int argc, char** argv)
 		renderer.init();
 		renderer.reshape(WINDOW_WIDTH, WINDOW_HEIGHT);
 
+		uint64_t s, ss, e, se;
+
 		bool running = true;
 		while (running) {
+			s = GetTickcountMicroseconds();
+
 			if (!renderer.paint()) {
 				break;
 			}
+
+			//glFlush();
+			//SleepMilliseconds(70);
+
+			ss = GetTickcountMicroseconds();
 
 	#ifdef GT_USE_OPENGL_ES
 			eglSwapBuffers(eglDisplay, eglSurface);
@@ -228,15 +325,16 @@ int main(int argc, char** argv)
 			SDL_GL_SwapBuffers();
 	#endif
 
-			SDL_PumpEvents();
+			se = GetTickcountMicroseconds();
 
-			uint64_t s, e;
+			//printf("%dms\n", (int) (e-s));
+
+			SDL_PumpEvents();
 
 			SDL_Event lastMMEvt;
 			bool hasMMEvt = false;
 
 			SDL_Event evt;
-			//while (SDL_PollEvent(&evt) != 0) {
 			while (SDL_PeepEvents(&evt, 1, SDL_GETEVENT, SDL_ALLEVENTS) > 0) {
 				switch (evt.type) {
 				case SDL_KEYDOWN:
@@ -279,6 +377,12 @@ int main(int argc, char** argv)
 			if (hasMMEvt) {
 				renderer.mouseMotion(lastMMEvt.motion.x, lastMMEvt.motion.y);
 			}
+
+			e = GetTickcountMicroseconds();
+
+
+			/*printf("SwapBuffers took %.4f%% of frame time (%u / %u microsecs)\n",
+					(float(se-ss) / float(e-s)) * 100.0f, (unsigned int) (se-ss), (unsigned int) (e-s));*/
 		}
 
 		SDL_Quit();

@@ -25,7 +25,6 @@
 
 #include <gta/config.h>
 #include "AnimationFrame.h"
-#include "Engine.h"
 #include <vector>
 #include <gtaformats/ifp/IFPObject.h>
 #include <gtaformats/util/math/Matrix4.h>

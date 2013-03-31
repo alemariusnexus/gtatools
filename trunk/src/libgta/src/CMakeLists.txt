@@ -25,6 +25,8 @@ PROJECT(prj-gta C CXX)
 INCLUDE(CheckSymbolExists)
 INCLUDE(../../ResourceCompiler.cmake)
 
+ADD_DEFINITIONS(-D__STDC_LIMIT_MACROS)
+
 ADD_SUBDIRECTORY(gta)
 
 SET(GTA_USE_OPENGL_ES OFF CACHE BOOL "Whether to use OpenGL ES 2.0 instead of Desktop OpenGL")

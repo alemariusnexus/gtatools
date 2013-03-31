@@ -31,16 +31,7 @@ using std::pair;
 
 
 SceneObjectFileGroup::SceneObjectFileGroup(const CString& relPath)
-		: relPath(relPath), lodBaseObjCount(0)
+		: relPath(relPath)
 {
 }
 
-
-/*void SceneObjectFileGroup::updateObjectIterator(uint32_t id, list<PVSSceneObject*>::iterator it)
-{
-	ObjectIterator oit = objs.find(id);
-
-	if (oit != objs.end()) {
-		oit->second = it;
-	}
-}*/

@@ -25,6 +25,8 @@
 #include <gtaformats/dff/DFFMesh.h>
 #include <gtaformats/dff/DFFLoader.h>
 #include <gtaformats/dff/DFFGeometry.h>
+#include <gtaformats/col/COLLoader.h>
+#include "../collision/COLMeshConverter.h"
 #include "Mesh.h"
 #include "../../EngineException.h"
 
@@ -32,9 +34,9 @@
 
 Engine::StringResourceCache::Entry* MeshCacheLoader::load(CString key)
 {
-	const File* file = indexer->find(key);
+	MeshIndexer::IndexEntry ientry = indexer->find(key);
 
-	if (!file) {
+	if (!ientry.file) {
 		return NULL;
 	}
 
@@ -42,18 +44,19 @@ Engine::StringResourceCache::Entry* MeshCacheLoader::load(CString key)
 	DFFMesh* dffMesh;
 
 	try {
-		dffMesh = dff.loadMesh(*file);
+		dffMesh = dff.loadMesh(*ientry.file);
 	} catch (Exception ex) {
-		char* errmsg = new char[64 + file->getPath()->toString().length()];
-		sprintf(errmsg, "Exception thrown during loading of DFF mesh %s.", file->getPath()->toString().get());
+		char* errmsg = new char[64 + ientry.file->getPath()->toString().length()];
+		sprintf(errmsg, "Exception thrown during loading of DFF mesh %s.", ientry.file->getPath()->toString().get());
 		EngineException eex(errmsg, __FILE__, __LINE__, &ex);
 		delete[] errmsg;
 		throw eex;
 	}
 
-	MeshClump* mesh = new MeshClump(dffMesh);
+	MeshClump* clump = new MeshClump(dffMesh);
 
 	delete dffMesh;
-	MeshCacheEntry* entry = new MeshCacheEntry(mesh);
+
+	MeshCacheEntry* entry = new MeshCacheEntry(clump);
 	return entry;
 }

@@ -18,7 +18,7 @@
 # Additional permissions are granted, which are listed in the file
 # GPLADDITIONS.
 
-SET(FILES )
+SET(FILES RigidBodySceneObject)
 
 FOREACH(FILE ${FILES})
     SET(SRCS ${SRCS} "gta/scene/parts/${FILE}")

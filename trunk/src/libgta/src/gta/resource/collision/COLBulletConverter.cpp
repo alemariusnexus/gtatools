@@ -24,15 +24,21 @@
 
 
 
-btCollisionShape* COLBulletConverter::convert(const COLSphere& sphere)
+btCollisionShape* COLBulletConverter::convert(const COLSphere& sphere, cachesize_t* cacheSize)
 {
+	if (cacheSize)
+		*cacheSize = sizeof(btSphereShape);
+
 	btSphereShape* shape = new btSphereShape(sphere.getRadius());
 	return shape;
 }
 
 
-btCollisionShape* COLBulletConverter::convert(const COLBox& box)
+btCollisionShape* COLBulletConverter::convert(const COLBox& box, cachesize_t* cacheSize)
 {
+	if (cacheSize)
+		*cacheSize = sizeof(btBoxShape);
+
 	const Vector3& min = box.getMinimum();
 	const Vector3& max = box.getMaximum();
 	btBoxShape* shape = new btBoxShape(btVector3(
@@ -44,29 +50,44 @@ btCollisionShape* COLBulletConverter::convert(const COLBox& box)
 
 
 btCollisionShape* COLBulletConverter::convert(const float* vertices, int vertexCount, const COLFace* faces,
-		int faceCount)
+		int faceCount, cachesize_t* cacheSize)
 {
-	btTriangleMesh* mesh = new btTriangleMesh(true, false);
-	mesh->preallocateVertices(faceCount*3);
+	if (cacheSize)
+		*cacheSize = faceCount * 3 * sizeof(uint32_t) + vertexCount * 3 * sizeof(float) + sizeof(btBvhTriangleMeshShape);
+
+	float* bvertices = new float[vertexCount*3];
+	uint32_t* bindices = new uint32_t[faceCount*3];
+
+	memcpy(bvertices, vertices, vertexCount*3*sizeof(float));
 
 	for (int i = 0 ; i < faceCount ; i++) {
 		const COLFace& face = faces[i];
 		const uint32_t* indices = face.getIndices();
-		const float* v1 = vertices + indices[0]*3;
-		const float* v2 = vertices + indices[1]*3;
-		const float* v3 = vertices + indices[2]*3;
-		mesh->addTriangle(btVector3(v1[0], v1[1], v1[2]), btVector3(v2[0], v2[1], v2[2]),
-				btVector3(v3[0], v3[1], v3[2]));
+		memcpy(bindices + i*3, indices, 3*sizeof(uint32_t));
 	}
 
-	btBvhTriangleMeshShape* shape = new btBvhTriangleMeshShape(mesh, true, true);
+	btIndexedMesh mesh;
+	mesh.m_numVertices = vertexCount;
+	mesh.m_numTriangles = faceCount;
+	mesh.m_triangleIndexStride = 3 * sizeof(uint32_t);
+	mesh.m_vertexStride = 3 * sizeof(float);
+	mesh.m_triangleIndexBase = (unsigned char*) bindices;
+	mesh.m_vertexBase = (unsigned char*) bvertices;
+
+	btTriangleIndexVertexArray* ivArray = new btTriangleIndexVertexArray;
+	ivArray->addIndexedMesh(mesh);
+
+	btBvhTriangleMeshShape* shape = new btBvhTriangleMeshShape(ivArray, true, true);
 	return shape;
 }
 
 
-btCollisionShape* COLBulletConverter::convert(const COLModel& model)
+btCollisionShape* COLBulletConverter::convert(const COLModel& model, cachesize_t* cacheSize)
 {
 	btCompoundShape* shape = new btCompoundShape(true);
+
+	if (cacheSize)
+		*cacheSize = sizeof(btCompoundShape);
 
 	const COLSphere* spheres = model.getSpheres();
 	uint32_t sphereCount = model.getSphereCount();
@@ -74,9 +95,13 @@ btCollisionShape* COLBulletConverter::convert(const COLModel& model)
 	for (uint32_t i = 0 ; i < sphereCount ; i++) {
 		const COLSphere& sphere = spheres[i];
 		const Vector3& center = sphere.getCenter();
-		btCollisionShape* sphereShape = convert(sphere);
+		cachesize_t sphereSize;
+		btCollisionShape* sphereShape = convert(sphere, &sphereSize);
 		shape->addChildShape(btTransform(btQuaternion(0.0f, 0.0f, 0.0f, 1.0f),
 				btVector3(center.getX(), center.getY(), center.getZ())), sphereShape);
+
+		if (cacheSize)
+			*cacheSize += sphereSize;
 	}
 
 	const COLBox* boxes = model.getBoxes();
@@ -87,15 +112,23 @@ btCollisionShape* COLBulletConverter::convert(const COLModel& model)
 		const Vector3& min = box.getMinimum();
 		const Vector3& max = box.getMaximum();
 		Vector3 center = min + (max - min) * 0.5f;
-		btCollisionShape* boxShape = convert(box);
+		cachesize_t boxSize;
+		btCollisionShape* boxShape = convert(box, &boxSize);
 		shape->addChildShape(btTransform(btQuaternion(0.0f, 0.0f, 0.0f, 1.0f),
 				btVector3(center.getX(), center.getY(), center.getZ())), boxShape);
+
+		if (cacheSize)
+			*cacheSize += boxSize;
 	}
 
 	if (model.getFaceCount() > 0) {
+		cachesize_t size;
 		btCollisionShape* meshShape = convert(model.getVertices(), model.getVertexCount(), model.getFaces(),
-				model.getFaceCount());
+				model.getFaceCount(), &size);
 		shape->addChildShape(btTransform(btQuaternion(0.0f, 0.0f, 0.0f, 1.0f)), meshShape);
+
+		if (cacheSize)
+			*cacheSize += size;
 	}
 
 	return shape;

@@ -24,14 +24,14 @@
 #define TEXTURESOURCE_H_
 
 #include <gta/config.h>
-#include "../../Engine.h"
 #include "Texture.h"
 
 
 class TextureSource {
 public:
-	virtual Texture* getTexture(const CString& texHash) = 0;
+	virtual Texture* getTexture(const CString& texHash, bool lock = false) = 0;
 	virtual TextureSource* clone() const = 0;
+	virtual void lock(bool lock = true) {}
 	virtual void release() {}
 };
 

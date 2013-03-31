@@ -25,6 +25,7 @@
 
 #include <gta/config.h>
 
+
 #ifdef GTA_USE_OPENGL_ES
 
 #include <EGL/egl.h>
@@ -51,6 +52,8 @@ GTAGL_EXTERN GLenum GTAGL_COLOR_ATTACHMENT1;
 GTAGL_EXTERN GLenum GTAGL_COLOR_ATTACHMENT2;
 GTAGL_EXTERN GLenum GTAGL_COLOR_ATTACHMENT3;
 GTAGL_EXTERN GLenum GTAGL_DEPTH_ATTACHMENT;
+GTAGL_EXTERN GLenum GTAGL_STENCIL_ATTACHMENT;
+GTAGL_EXTERN GLenum GTAGL_RENDERBUFFER;
 
 
 void gtaglInit();
@@ -63,5 +66,17 @@ const char* gtaglGetSupportedExtensions();
 GTAGL_EXTERN void (*gtaglGenFramebuffers)(GLsizei, GLuint*);
 GTAGL_EXTERN void (*gtaglBindFramebuffer)(GLenum, GLuint);
 GTAGL_EXTERN void (*gtaglFramebufferTexture2D)(GLenum, GLenum, GLenum, GLuint, GLint);
+GTAGL_EXTERN void (*gtaglGenRenderbuffers)(GLsizei, GLuint*);
+GTAGL_EXTERN void (*gtaglBindRenderbuffer)(GLenum, GLuint);
+GTAGL_EXTERN void (*gtaglRenderbufferStorage)(GLenum, GLenum, GLsizei, GLsizei);
+GTAGL_EXTERN void (*gtaglFramebufferRenderbuffer)(GLenum, GLenum, GLenum, GLuint);
+
+#ifdef GTA_USE_OPENGL_ES
+GTAGL_EXTERN void (*gtaglDeleteFramebuffers)(GLsizei, const GLuint*);
+GTAGL_EXTERN void (*gtaglDeleteRenderbuffers)(GLsizei, const GLuint*);
+#else
+GTAGL_EXTERN void (*gtaglDeleteFramebuffers)(GLsizei, GLuint*);
+GTAGL_EXTERN void (*gtaglDeleteRenderbuffers)(GLsizei, GLuint*);
+#endif
 
 #endif /* GL_H_ */

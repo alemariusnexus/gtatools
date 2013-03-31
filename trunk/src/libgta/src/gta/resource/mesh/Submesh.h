@@ -38,6 +38,7 @@ public:
 	~Submesh();
 	Material* getMaterial() { return material; }
 	void setMaterial(Material* mat);
+	GLuint getIndexBuffer() const { return indexBuffer; }
 	void bindIndexBuffer();
 	int getIndexCount() const { return indexCount; }
 

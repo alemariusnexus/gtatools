@@ -44,7 +44,7 @@ StaticTextureSource::StaticTextureSource(const StaticTextureSource& other)
 }
 
 
-Texture* StaticTextureSource::getTexture(const CString& texHash)
+Texture* StaticTextureSource::getTexture(const CString& texHash, bool lock)
 {
 	TexMap::iterator it = texes.find(texHash);
 

@@ -26,18 +26,23 @@
 #include "../ResourceCache.h"
 #include <gtaformats/util/strutil.h>
 #include <btBulletDynamicsCommon.h>
+#include "../smesh/ShadowMesh.h"
+#include "../../Engine.h"
 
 
 class CollisionMeshCacheEntry : public Engine::StringResourceCache::Entry {
 public:
-	CollisionMeshCacheEntry(btCollisionShape* shape, cachesize_t size) : shape(shape), size(size) {}
-	virtual ~CollisionMeshCacheEntry() { delete shape; }
+	CollisionMeshCacheEntry(btCollisionShape* shape, ShadowMesh* smesh, cachesize_t size)
+			: shape(shape), size(size), smesh(smesh) {}
+	virtual ~CollisionMeshCacheEntry() { delete shape; delete smesh; }
 	virtual cachesize_t getSize() const { return size; }
 	btCollisionShape* operator*() { return shape; }
+	ShadowMesh* getShadowMesh() { return smesh; }
 
 private:
 	btCollisionShape* shape;
 	cachesize_t size;
+	ShadowMesh* smesh;
 };
 
 #endif /* COLLISIONMESHCACHEENTRY_H_ */

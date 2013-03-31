@@ -26,6 +26,7 @@
 #include <fstream>
 #include "../Scene.h"
 #include "../SceneObjectDefinitionInfo.h"
+#include "PVSVisibilitySet.h"
 #include <algorithm>
 #include <set>
 #include <gtaformats/util/stream/StreamReader.h>
@@ -41,6 +42,18 @@ using std::copy;
 using std::find;
 using std::ofstream;
 using std::find;
+
+
+
+struct IPVSSection
+{
+	PVSSection* sect;
+	uint32_t idx;
+};
+
+
+
+
 
 
 
@@ -64,17 +77,57 @@ PVSSection* PVSDatabase::findSection(float x, float y, float z)
 }
 
 
-void PVSDatabase::queryPVS(float x, float y, float z, list<PVSSceneObject*>& pvs)
+bool PVSDatabase::queryPVS(list<PVSSceneObject*>& pvs, const Vector3& pos, float distMultiplier,
+		float* chosenDistMultiplier)
+{
+
+	PVSSection* sect = findSection(pos.getX(), pos.getY(), pos.getZ());
+
+	if (sect) {
+		PVSVisibilitySet* set = sect->getVisibilitySet(distMultiplier);
+
+		if (set) {
+			if (chosenDistMultiplier)
+				*chosenDistMultiplier = set->getDistanceMultiplier();
+
+			pvs.resize(pvs.size() + set->getPVSObjectCount());
+			PVSVisibilitySet::ObjectIterator beg = set->getPVSObjectBegin();
+			PVSVisibilitySet::ObjectIterator end = set->getPVSObjectEnd();
+			list<PVSSceneObject*>::iterator pvsIt = pvs.begin();
+			while (beg != end) {
+				*pvsIt++ = (*beg)->obj;
+				beg++;
+			}
+		} else {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+
+/*bool PVSDatabase::queryPVS(float x, float y, float z, float distMultiplier, list<PVSSceneObject*>& pvs)
 {
 	PVSSection* sect = findSection(x, y, z);
 
 	// If sect is NULL, then we are outside the range for which sections exist. As the bounds for this range
 	// are the draw distance bounds, we know that outside this range no objects will be visible.
 	if (sect) {
-		pvs.resize(sect->getPVSObjectCount());
-		copy(sect->getPVSObjectBegin(), sect->getPVSObjectEnd(), pvs.begin());
+		PVSVisibilitySet* set = sect->getVisibilitySet(distMultiplier);
+
+		if (!set)
+			return false;
+
+		list<PVSSceneObject*>::iterator endIt = pvs.end();
+		endIt--;
+		pvs.resize(pvs.size() + set->getPVSObjectCount());
+		endIt++;
+		copy(set->getPVSObjectBegin(), set->getPVSObjectEnd(), endIt);
 	}
-}
+
+	return true;
+}*/
 
 
 void PVSDatabase::removeProgressObserver(ProgressObserver* obsv)
@@ -107,7 +160,7 @@ void PVSDatabase::save(ostream* out, int flags)
 	out->write((char*) &endianFlag, 1);
 
 	// Version number (>= 10000 are development versions)
-	uint32_t version = 10002;
+	uint32_t version = 10003;
 	writer->writeU32(version);
 
 	// The number of sections
@@ -117,6 +170,14 @@ void PVSDatabase::save(ostream* out, int flags)
 	for (uint32_t i = 0 ; i < numSects ; i++) {
 		PVSSection* sect = sections[i];
 		writer->writeArrayCopyFloat((const float*) sect, 6);
+
+		writer->writeU32(sect->getVisibilitySetCount());
+
+		PVSSection::SetIterator it;
+		for (it = sect->getVisibilitySetBegin() ; it != sect->getVisibilitySetEnd() ; it++) {
+			PVSVisibilitySet* set = *it;
+			writer->writeFloat(set->getDistanceMultiplier());
+		}
 	}
 
 	// The number of group dependencies
@@ -167,75 +228,86 @@ void PVSDatabase::save(ostream* out, int flags)
 			writer->writeU32(idx);
 		}
 
-		writer->writeU32(igroup->getLODBaseObjectCount());
-
-		uint32_t actually = 0;
+		writer->writeU32(igroup->getObjectCount());
 
 		// Write the IDs of all objects
 		InternalSceneObjectFileGroup::ObjectIterator ooit;
 		for (ooit = igroup->getObjectBegin() ; ooit != igroup->getObjectEnd() ; ooit++) {
 			PVSSceneObject* obj = ooit->second->obj;
 
-			if (obj->getDefinitionInfo()->isLODLeaf()) {
-				uint32_t id = ooit->first;
-				writer->writeU32(id);
-				actually++;
-			}
+			uint32_t id = ooit->first;
+			writer->writeU32(id);
 		}
 
-		uint32_t numGroupSects = 0;
+		list<IPVSSection> groupSects;
 
 		for (uint32_t i = 0 ; i < numSects ; i++) {
 			PVSSection* sect = sections[i];
-
-			PVSSection::ObjectList groupObjs;
 
 			bool sectInGroup = false;
 
-			PVSSection::ObjectIterator oit;
-			for (oit = sect->getPVSObjectBegin() ; oit != sect->getPVSObjectEnd() ; oit++) {
-				PVSSceneObject* obj = *oit;
-				SceneObjectDefinitionInfo* info = obj->getDefinitionInfo();
+			PVSSection::SetIterator vsit;
+			for (vsit = sect->getVisibilitySetBegin() ; vsit != sect->getVisibilitySetEnd() ; vsit++) {
+				PVSVisibilitySet* set = *vsit;
 
-				if (info) {
-					if (info->getFileGroup() == group) {
-						sectInGroup = true;
-						break;
+				PVSVisibilitySet::ObjectIterator oit;
+				for (oit = set->getPVSObjectBegin() ; oit != set->getPVSObjectEnd() ; oit++) {
+					PVSSceneObject* obj = (*oit)->obj;
+					SceneObjectDefinitionInfo* info = obj->getDefinitionInfo();
+
+					if (info) {
+						if (info->getFileGroup() == group) {
+							sectInGroup = true;
+							break;
+						}
 					}
 				}
+
+				if (sectInGroup)
+					break;
 			}
 
-			if (sectInGroup)
-				numGroupSects++;
+			if (sectInGroup) {
+				IPVSSection isect;
+				isect.sect = sect;
+				isect.idx = i;
+				groupSects.push_back(isect);
+			}
 		}
 
-		writer->writeU32(numGroupSects);
+		writer->writeU32(groupSects.size());
 
-		for (uint32_t i = 0 ; i < numSects ; i++) {
-			PVSSection* sect = sections[i];
+		for (list<IPVSSection>::iterator sit = groupSects.begin() ; sit != groupSects.end() ; sit++) {
+			IPVSSection isect = *sit;
+			PVSSection* sect = isect.sect;
 
-			PVSSection::ObjectList groupObjs;
+			writer->writeU32(isect.idx);
 
-			PVSSection::ObjectIterator oit;
-			for (oit = sect->getPVSObjectBegin() ; oit != sect->getPVSObjectEnd() ; oit++) {
-				PVSSceneObject* obj = *oit;
-				SceneObjectDefinitionInfo* info = obj->getDefinitionInfo();
+			PVSSection::SetIterator vsit;
+			for (vsit = sect->getVisibilitySetBegin() ; vsit != sect->getVisibilitySetEnd() ; vsit++) {
+				PVSVisibilitySet* set = *vsit;
 
-				if (info) {
-					if (info->getFileGroup() == group) {
-						groupObjs.push_back(obj);
+				PVSVisibilitySet::ObjectList groupObjs;
+
+				PVSVisibilitySet::ObjectIterator oit;
+				for (oit = set->getPVSObjectBegin() ; oit != set->getPVSObjectEnd() ; oit++) {
+					PVSSceneObjectContainer* objc = *oit;
+					PVSSceneObject* obj = objc->obj;
+					SceneObjectDefinitionInfo* info = obj->getDefinitionInfo();
+
+					if (info) {
+						if (info->getFileGroup() == group) {
+							groupObjs.push_back(objc);
+						}
 					}
 				}
-			}
-
-			if (!groupObjs.empty()) {
-				writer->writeU32(i);
 
 				uint32_t numObjs = groupObjs.size();
 				writer->writeU32(numObjs);
 
 				for (oit = groupObjs.begin() ; oit != groupObjs.end() ; oit++) {
-					PVSSceneObject* obj = *oit;
+					PVSSceneObjectContainer* objc = *oit;
+					PVSSceneObject* obj = objc->obj;
 					SceneObjectDefinitionInfo* info = obj->getDefinitionInfo();
 
 					uint32_t id = info->getID();
@@ -279,7 +351,7 @@ PVSDatabase::LoadingResult PVSDatabase::load(istream* stream, const File& rootDi
 	reader = (endianFlag == 1) ? new StreamReader(stream) : new EndianSwappingStreamReader(stream);
 #endif
 
-	int32_t expectedVersion = 10002;
+	int32_t expectedVersion = 10003;
 
 	int32_t version = reader->readU32();
 
@@ -295,6 +367,14 @@ PVSDatabase::LoadingResult PVSDatabase::load(istream* stream, const File& rootDi
 		PVSSection* sect = new PVSSection;
 		reader->readArrayFloat((float*) sect, 6);
 		sections[i] = sect;
+
+		uint32_t numSets = reader->readU32();
+
+		for (uint32_t j = 0 ; j < numSets ; j++) {
+			float dmul = reader->readFloat();
+			PVSVisibilitySet* set = new PVSVisibilitySet(dmul);
+			sect->addVisibilitySet(set);
+		}
 	}
 
 	uint32_t numDeps = reader->readU32();
@@ -358,7 +438,7 @@ PVSDatabase::LoadingResult PVSDatabase::load(istream* stream, const File& rootDi
 			}
 		}
 
-		uint32_t lodBaseObjCount = reader->readU32();
+		uint32_t objCount = reader->readU32();
 
 		File sourceFile(rootDir, relPath);
 
@@ -372,7 +452,7 @@ PVSDatabase::LoadingResult PVSDatabase::load(istream* stream, const File& rootDi
 		if (!upToDate) {
 			delete[] relPath;
 
-			stream->ignore(lodBaseObjCount*4);
+			stream->ignore(objCount*4);
 
 			uint32_t numGroupSects = reader->readU32();
 
@@ -385,7 +465,7 @@ PVSDatabase::LoadingResult PVSDatabase::load(istream* stream, const File& rootDi
 			continue;
 		}
 
-		for (uint32_t i = 0 ; i < lodBaseObjCount ; i++) {
+		for (uint32_t i = 0 ; i < objCount ; i++) {
 			uint32_t id = reader->readU32();
 			PVSSceneObjectContainer* objc = igroup->getObject(id);
 
@@ -404,13 +484,18 @@ PVSDatabase::LoadingResult PVSDatabase::load(istream* stream, const File& rootDi
 
 			PVSSection* sect = sections[sectID];
 
-			uint32_t numObjs = reader->readU32();
+			PVSSection::SetIterator sit;
+			for (sit = sect->getVisibilitySetBegin() ; sit != sect->getVisibilitySetEnd() ; sit++) {
+				PVSVisibilitySet* set = *sit;
 
-			for (uint32_t k = 0 ; k < numObjs ; k++) {
-				uint32_t id = reader->readU32();
+				uint32_t numObjs = reader->readU32();
 
-				PVSSceneObject* obj = igroup->getObject(id)->obj;
-				sect->addPotentiallyVisibleObject(obj);
+				for (uint32_t l = 0 ; l < numObjs ; l++) {
+					uint32_t id = reader->readU32();
+
+					PVSSceneObjectContainer* objc = igroup->getObject(id);
+					set->addPotentiallyVisibleObject(objc);
+				}
 			}
 		}
 	}
@@ -514,21 +599,19 @@ void PVSDatabase::SectionCalculatorThread::run()
 			PVSSceneObject* obj = objc->obj;
 			PVSSceneObject* baseObj = obj;
 
-			while (obj) {
+			PVSSection::SetIterator sit;
+			for (sit = sect->getVisibilitySetBegin() ; sit != sect->getVisibilitySetEnd() ; sit++) {
+				PVSVisibilitySet* set = *sit;
+
 				Vector3 pos = obj->getPosition();
 
 				float ox = pos.getX();
 				float oy = pos.getY();
 				float oz = pos.getZ();
-				float dd = obj->getStreamingDistance();
+				float dd = obj->getStreamingDistance() * set->getDistanceMultiplier();
 
 				if (dd == 0.0f  ||  sect->intersectsSphere(ox, oy, oz, dd)) {
-					sect->addPotentiallyVisibleObject(baseObj);
-					break;
-				} else {
-					// TODO Make sure this works for non-PVS objects
-					//obj = (PVSSceneObject*) obj->getLODParent();
-					obj = dynamic_cast<PVSSceneObject*>(obj->getLODParent());
+					set->addPotentiallyVisibleObject(objc);
 				}
 			}
 		}
@@ -598,6 +681,16 @@ void PVSDatabase::calculateSections(float sectSizeX, float sectSizeY, float sect
 			for (float zOffs = bz1 ; zOffs < bz2 ; zOffs += sectSizeZ) {
 				PVSSection* section = new PVSSection(xOffs, yOffs, zOffs,
 						xOffs+sectSizeX, yOffs+sectSizeY, zOffs+sectSizeZ);
+
+				PVSVisibilitySet* set1 = new PVSVisibilitySet(1.0f);
+				section->addVisibilitySet(set1);
+
+				PVSVisibilitySet* set2 = new PVSVisibilitySet(2.0f);
+				section->addVisibilitySet(set2);
+
+				//PVSVisibilitySet* set5 = new PVSVisibilitySet(5.0f);
+				//section->addVisibilitySet(set5);
+
 				sections[i++] = section;
 			}
 		}
@@ -619,10 +712,6 @@ void PVSDatabase::InternalSceneObjectFileGroup::addSceneObject(PVSSceneObjectCon
 	}
 
 	objc->obj->getDefinitionInfo()->markAsFixed();
-
-	if (objc->obj->getDefinitionInfo()->isLODLeaf()) {
-		lodBaseObjCount++;
-	}
 }
 
 

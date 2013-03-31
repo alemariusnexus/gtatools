@@ -31,10 +31,20 @@ VARYING HIGHP vec4 FragColor;
 
 HIGHP vec4 ShadeFragment()
 {
-    if (Textured) {
-    	return FragColor * gtaglTexture2D(Texture, FragTexCoord);
+	/*float v = 0.0;
+    
+    for (int i = 0 ; i < 2000 ; i++) {
+    	v += 0.1 + (v/2.0);
+    }
+    
+    v = 1.0 / v;
+    
+    vec4 vc = vec4(v, 0.0, 0.0, 0.0);*/
+
+	if (Textured) {
+    	return FragColor * gtaglTexture2D(Texture, FragTexCoord) /*+ vc*/;
     	//return FragColor;
     } else {
-    	return FragColor;
+    	return FragColor /*+ vc*/;
     }
 }

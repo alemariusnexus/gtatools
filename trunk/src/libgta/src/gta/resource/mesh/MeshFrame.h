@@ -28,7 +28,6 @@
 #include <gtaformats/dff/DFFFrame.h>
 #include <vector>
 #include <algorithm>
-#include "../../Engine.h"
 
 using std::vector;
 using std::find;

@@ -63,6 +63,7 @@ public:
 	const Vector3 operator-(const Vector3& rhv) const { return Vector3(*this) -= rhv; }
 	Vector3& operator*=(float rhv);
 	const Vector3 operator*(float rhv) const { return Vector3(*this) *= rhv; }
+	float operator*(const Vector3& rhv) const { return dot(rhv); }
 	const Vector3 operator-() const;
 	float dot(const Vector3& rhv) const;
 	const Vector3 cross(const Vector3& rhv) const;

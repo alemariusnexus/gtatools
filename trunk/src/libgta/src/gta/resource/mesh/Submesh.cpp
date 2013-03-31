@@ -22,6 +22,7 @@
 
 #include "Submesh.h"
 #include "../../GLException.h"
+#include "../../Engine.h"
 
 
 
@@ -57,6 +58,7 @@ void Submesh::init(uint32_t* indices)
 	glGenBuffers(1, &indexBuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexCount*4, indices, GL_STATIC_DRAW);
+	Engine::getInstance()->increaseTestMem(indexCount*4, __FILE__, __LINE__);
 }
 
 

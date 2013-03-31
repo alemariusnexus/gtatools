@@ -23,10 +23,11 @@ SET(FILES
     gl Camera Shader ShaderProgram ItemDefinition GLException Engine MeshGenerator ItemManager
     MapItemDefinition StaticMapItemDefinition TimedMapItemDefinition GameInfo
     Animation AnimationBone AnimationFrame AnimatedMapItemDefinition Animator gldebug
-    DefaultIPLStreamingFileProvider EngineIPLLoader)
+    DefaultIPLStreamingFileProvider EngineIPLLoader MeshAnimator)
     
 ADD_SUBDIRECTORY(resource)
 ADD_SUBDIRECTORY(scene)
+ADD_SUBDIRECTORY(render)
 #ADD_SUBDIRECTORY(ceguigl2)
     
 #CONFIGURE_FILE(config.cmake.h "${CMAKE_CURRENT_SOURCE_DIR}/config.h")

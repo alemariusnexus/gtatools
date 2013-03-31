@@ -41,4 +41,8 @@
 #define VARYING varying
 #endif
 
+#ifdef GTAGL_ES
+precision highp float;
+#endif
+
 #endif

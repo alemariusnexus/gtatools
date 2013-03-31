@@ -195,7 +195,9 @@ void IFPAnimationViewerRenderWidget::rebuildDisplayedObject()
 			mptr = meshPtr;
 
 		def = new AnimatedMapItemDefinition(mptr, texSrc, NULL, anpkPtr, 500.0f, 0);
-		obj = new AnimatedMapSceneObject(def);
+		obj = new AnimatedMapSceneObject;
+		MapSceneObjectLODInstance* inst = new MapSceneObjectLODInstance(def);
+		obj->addLODInstance(inst);
 		obj->setAutoAnimationEnabled(false);
 
 		obj->setCurrentAnimation(curAnim);
@@ -217,9 +219,7 @@ void IFPAnimationViewerRenderWidget::initializeGL()
 
 	scene = new Scene;
 	scene->setRenderer(renderer);
-
-	PVSDatabase* pvs = new PVSDatabase;
-	scene->setPVSDatabase(pvs);
+	scene->addStreamingViewpoint(&cam);
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 }

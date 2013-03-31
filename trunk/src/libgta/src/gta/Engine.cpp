@@ -35,7 +35,6 @@
 #include "scene/Scene.h"
 #include "scene/SceneObjectDefinitionInfo.h"
 #include "scene/objects/MapSceneObject.h"
-#include "scene/objects/AnimatedMapSceneObject.h"
 #include "GLException.h"
 #include "EngineException.h"
 #include <gtaformats/util/File.h>
@@ -84,8 +83,8 @@ void Engine::destroy()
 
 
 Engine::Engine()
-		: defGameInfo(NULL), scene(NULL), enableDrawing(true), gameHours(8), gameMinutes(0), viewWidth(-1),
-		  viewHeight(-1), updateTime(0)
+		: defGameInfo(NULL), camera(NULL), scene(NULL), gameHours(8), gameMinutes(0), viewWidth(-1),
+		  viewHeight(-1), testMem(0), freezeVisibility(false)
 {
 	meshIndexer = new MeshIndexer;
 	texIndexer = TextureIndexer::getInstance();
@@ -172,19 +171,62 @@ void Engine::removeResourceObserver(ResourceObserver* observer)
 }
 
 
-void Engine::render()
+void Engine::addViewportObserver(ViewportObserver* observer)
 {
-	uint64_t passed;
-	uint64_t time = GetTickcount();
+	vpObservers.push_back(observer);
+}
 
-	if (updateTime == 0)
-		passed = 0;
-	else
-		passed = time - updateTime;
 
-	updateTime = time;
+void Engine::removeViewportObserver(ViewportObserver* observer)
+{
+	vector<ViewportObserver*>::iterator it = find(vpObservers.begin(), vpObservers.end(), observer);
+	vpObservers.erase(it);
+}
 
-	scene->update(passed);
+
+void Engine::setViewportSize(int w, int h)
+{
+	viewWidth = w;
+	viewHeight = h;
+
+	for (vector<ViewportObserver*>::iterator it = vpObservers.begin() ; it != vpObservers.end() ; it++) {
+		ViewportObserver* obsv = *it;
+		obsv->viewportChanged(w, h);
+	}
+}
+
+
+void Engine::advanceFrame(uint64_t advanceTime)
+{
+	if (!scene) {
+		throw EngineException("Attempt to render without a Scene!", __FILE__, __LINE__);
+	}
+	if (!camera) {
+		throw EngineException("Attempt to render without a Camera!", __FILE__, __LINE__);
+	}
+	if (viewWidth == -1  ||  viewHeight == -1) {
+		throw EngineException("Attempt to render with invalid viewport dimensions!", __FILE__, __LINE__);
+	}
+
+
+	if (!freezeVisibility)
+		scene->updateVisibility();
+
+	scene->update(advanceTime);
+}
+
+
+void Engine::renderFrame()
+{
+	if (!scene) {
+		throw EngineException("Attempt to render without a Scene!", __FILE__, __LINE__);
+	}
+	if (!camera) {
+		throw EngineException("Attempt to render without a Camera!", __FILE__, __LINE__);
+	}
+	if (viewWidth == -1  ||  viewHeight == -1) {
+		throw EngineException("Attempt to render with invalid viewport dimensions!", __FILE__, __LINE__);
+	}
 
 	scene->present();
 }

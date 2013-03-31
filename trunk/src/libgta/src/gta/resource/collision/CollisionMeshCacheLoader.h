@@ -25,6 +25,7 @@
 
 #include "../ResourceCache.h"
 #include "CollisionMeshIndexer.h"
+#include "../../Engine.h"
 
 
 

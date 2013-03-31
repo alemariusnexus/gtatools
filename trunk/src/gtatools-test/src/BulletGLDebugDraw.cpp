@@ -135,6 +135,8 @@ void BulletGLDebugDraw::reallocLineVertices(int numAddVertices)
 
 void BulletGLDebugDraw::flush()
 {
+	return;
+
 	// TODO Using glBufferData with zero size seems to cause problems at least with the PowerVR X11 Linux
 	// driver in GLES2
 	if (lineVerticesOffset != 0) {

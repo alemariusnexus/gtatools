@@ -25,32 +25,44 @@
 
 #include <gta/config.h>
 #include <gtaformats/util/math/Vector3.h>
+#include <gtaformats/util/math/Frustum.h>
+#include "scene/StreamingViewpoint.h"
 
 
 
-class Camera {
+class Camera : public StreamingViewpoint {
 public:
-	Camera(	const Vector3& position = Vector3(),
+	/*Camera(	const Vector3& position = Vector3(),
 			const Vector3& target = Vector3(0.0f, -1.0f, 0.0f),
 			const Vector3& up = Vector3(0.0f, 0.0f, 1.0f)
-	) : position(position), target(target), up(up) {}
-	const Vector3& getPosition() const { return position; }
-	Vector3& getPosition() { return position; }
-	const Vector3& getTarget() const { return target; }
-	Vector3& getTarget() { return target; }
-	const Vector3& getUp() const { return up; }
-	Vector3& getUp() { return up; }
-	void setPosition(const Vector3& pos) { position = pos; }
+	) : position(position), target(target), up(up) {}*/
+	Camera(const Frustum& frustum = Frustum(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+			Vector3::Zero, Vector3::NegativeUnitY, Vector3::UnitZ))
+			: frustum(frustum) {}
+	const Vector3& getPosition() const { return frustum.getPosition(); }
+	const Vector3& getTarget() const { return frustum.getFrontDirection(); }
+	const Vector3& getUp() const { return frustum.getUpDirection(); }
+	void setPosition(const Vector3& pos) { frustum.setPosition(pos); }
 	void setPosition(float x, float y, float z) { setPosition(Vector3(x, y, z)); }
-	void lookAt(const Vector3& target, const Vector3& up) { this->target = target; this->up = up; }
+	void lookAt(const Vector3& target, const Vector3& up) { frustum.setDirection(target, up); }
 	void rotateHorizontal(float angle);
 	void rotateVertical(float angle);
 	void move(float length);
 	void moveSideways(float length);
 	void moveUp(float length);
+	const Frustum& getFrustum() const { return frustum; }
+	Frustum& getFrustum() { return frustum; }
+	void setFrustum(const Frustum& f) { frustum = f; }
+
+	virtual Vector3 getStreamingViewpointPosition() const { return getPosition(); }
+	virtual int getStreamingFlags() const
+			{ return GraphicsStreaming /*| PhysicsStreaming*/ | FrustumCulling; }
+	virtual float getStreamingDistanceMultiplier() const { return 1.0f; }
+	virtual Frustum getCullingFrustum() const { return frustum; }
 
 private:
-	Vector3 position, target, up;
+	//Vector3 position, target, up;
+	Frustum frustum;
 };
 
 #endif /* CAMERA_H_ */

@@ -28,6 +28,7 @@
 #include <gtaformats/util/File.h>
 #include "IPLStreamingFileProvider.h"
 #include "scene/parts/VisualSceneObject.h"
+#include "scene/objects/MapSceneObjectLODInstance.h"
 #include <vector>
 #include <list>
 
@@ -40,12 +41,22 @@ class EngineIPLLoader
 private:
 	struct IndexedSceneObject
 	{
-		VisualSceneObject* obj;
+		MapSceneObjectLODInstance* lodInst;
+		//MapSceneObject* rootObj;
 		int32_t saLodIndex;
 		bool topLevel;
 		char* vcModelName;
-		IndexedSceneObject* parent;
-		vector<IndexedSceneObject*> children;
+		Vector3 pos;
+		Quaternion rot;
+		int32_t id;
+		SceneObjectDefinitionInfo* defInfo;
+	};
+	struct TemporaryLODHierarchy
+	{
+		list<IndexedSceneObject*> insts;
+		map<IndexedSceneObject*, IndexedSceneObject*> parentChildAssociations;
+		IndexedSceneObject* topLevelInst;
+		bool animated;
 	};
 
 public:
@@ -55,8 +66,8 @@ public:
 	IPLStreamingFileProvider* getStreamingFileProvider() { return sfProv; }
 
 private:
-	void makeUniqueLODHierarchy(IndexedSceneObject* iobj, uint32_t& nextID,
-			vector<IndexedSceneObject*>& newObjs);
+	/*void makeUniqueLODHierarchy(IndexedSceneObject* iobj, uint32_t& nextID,
+			vector<IndexedSceneObject*>& newObjs);*/
 
 private:
 	IPLStreamingFileProvider* sfProv;
