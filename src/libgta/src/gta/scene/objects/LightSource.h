@@ -36,47 +36,52 @@ public:
 	{
 		DirectionalLight,
 		PointLight,
-		SpotLight
+		SpotLight,
+		AmbientLight
 	};
 
 public:
-	LightSource() : enabled(true)
+	LightSource() : enabled(true), shadowsEnabled(true)
 	{
-		lightData.ambient = Vector4(0.0f, 0.0f, 0.0f, 1.0f);
-		lightData.diffuse = Vector4(0.0f, 0.0f, 0.0f, 1.0f);
-		lightData.specular = Vector4(0.0f, 0.0f, 0.0f, 1.0f);
+		lightData.ambient = Vector3(0.0f, 0.0f, 0.0f);
+		lightData.diffuse = Vector3(0.0f, 0.0f, 0.0f);
+		lightData.specular = Vector3(0.0f, 0.0f, 0.0f);
 		sdist = 0.0f;
 	}
 	LightSource(const LightSource& other)
-			: enabled(other.enabled), sdist(other.sdist)
-	{ memcpy(&lightData, &other.lightData, sizeof(lightData)); }
+			: pseudoModelMat(other.pseudoModelMat), enabled(other.enabled), sdist(other.sdist),
+			  shadowsEnabled(other.shadowsEnabled)
+			{ memcpy(&lightData, &other.lightData, sizeof(lightData)); }
 
 	void setEnabled(bool enabled) { this->enabled = enabled; }
 	virtual bool isEnabled() const { return enabled; }
-	void setAmbientColor(const Vector4& a) { lightData.ambient = a; }
-	void setDiffuseColor(const Vector4& d) { lightData.diffuse = d; }
-	void setSpecularColor(const Vector4& s) { lightData.specular = s; }
-	Vector4& getAmbientColor() { return lightData.ambient; }
-	const Vector4& getAmbientColor() const { return lightData.ambient; }
-	Vector4& getDiffuseColor() { return lightData.diffuse; }
-	const Vector4& getDiffuseColor() const { return lightData.diffuse; }
-	Vector4& getSpecularColor() { return lightData.specular; }
-	const Vector4& getSpecularColor() const { return lightData.specular; }
+	void setAmbientColor(const Vector3& a) { lightData.ambient = a; }
+	void setDiffuseColor(const Vector3& d) { lightData.diffuse = d; }
+	void setSpecularColor(const Vector3& s) { lightData.specular = s; }
+	Vector3& getAmbientColor() { return lightData.ambient; }
+	const Vector3& getAmbientColor() const { return lightData.ambient; }
+	Vector3& getDiffuseColor() { return lightData.diffuse; }
+	const Vector3& getDiffuseColor() const { return lightData.diffuse; }
+	Vector3& getSpecularColor() { return lightData.specular; }
+	const Vector3& getSpecularColor() const { return lightData.specular; }
 	virtual LightType getLightType() const = 0;
+	virtual bool isShadowCastingEnabled() const { return shadowsEnabled; }
+	virtual void setShadowCastingEnabled(bool e) { shadowsEnabled = e; }
 
 	virtual typeflags_t getTypeFlags() const { return TypeFlagLight; }
-	virtual Vector3 getPosition() const { return lightData.position; }
 	virtual SceneObject* getLODParent() { return NULL; }
 	virtual float getStreamingDistance() const { return sdist; }
+
+	virtual Matrix4& getModelMatrix() { return pseudoModelMat; }
+	virtual const Matrix4& getModelMatrix() const { return pseudoModelMat; }
 
 	void setStreamingDistance(float sd) { sdist = sd; }
 
 protected:
-	// This struct must match struct LightSource in GLSL
 	struct {
-		Vector4 ambient;
-		Vector4 diffuse;
-		Vector4 specular;
+		Vector3 ambient;
+		Vector3 diffuse;
+		Vector3 specular;
 		Vector3 position;
 		Vector3 direction;
 		float cutoffAngleCos;
@@ -87,8 +92,11 @@ protected:
 		float quadAttenuation;
 	} lightData;
 
+	Matrix4 pseudoModelMat;
+
 private:
 	bool enabled;
+	bool shadowsEnabled;
 	float sdist;
 };
 

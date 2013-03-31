@@ -27,13 +27,19 @@
 
 
 
-AnimationPackage* ManagedAnimationPackagePointer::operator*()
+AnimationPackage* ManagedAnimationPackagePointer::get(bool lock)
 {
-	AnimationCacheEntry* entry = (AnimationCacheEntry*) pointer.getEntry();
+	AnimationCacheEntry* entry = (AnimationCacheEntry*) pointer.getEntry(lock);
 
 	if (!entry) {
 		return NULL;
 	}
 
 	return entry->getPackage();
+}
+
+
+void ManagedAnimationPackagePointer::release()
+{
+	pointer.release();
 }

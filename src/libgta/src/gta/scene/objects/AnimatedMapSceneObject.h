@@ -31,23 +31,25 @@
 class AnimatedMapSceneObject : public virtual MapSceneObject, public virtual AnimatedSceneObject
 {
 public:
-	AnimatedMapSceneObject(AnimatedMapItemDefinition* def);
+	AnimatedMapSceneObject();
 	AnimatedMapSceneObject(const AnimatedMapSceneObject& other);
 	virtual void setAnimationTime(float t) { time = t; }
 	virtual float getAnimationTime() const { return time; }
 	virtual void setCurrentAnimation(const CString& name) { curAnim = name; }
-	virtual CString getCurrentAnimation() const { return curAnim; }
+	virtual CString getCurrentAnimation() const;
 	virtual bool isAutoAnimationEnabled() const { return autoAnim; }
 	void setAutoAnimationEnabled(bool aa) { autoAnim = aa; }
+	void setAutoPickDefaultAnimation(bool ap) { autoPickDefaultAnim = ap; }
+	bool isAutoPickDefaultAnimation() const { return autoPickDefaultAnim; }
 
-	virtual typeflags_t getTypeFlags() const { return TypeFlagVisual | TypeFlagPVS | TypeFlagAnimated; }
-	virtual AnimatedMapItemDefinition* getDefinition() { return def; }
+	virtual typeflags_t getTypeFlags() const
+			{ return TypeFlagVisual | TypeFlagPVS | TypeFlagRigidBody | TypeFlagAnimated; }
 
 private:
-	AnimatedMapItemDefinition* def;
 	CString curAnim;
 	float time;
 	bool autoAnim;
+	bool autoPickDefaultAnim;
 };
 
 #endif /* ANIMATEDMAPSCENEOBJECT_H_ */

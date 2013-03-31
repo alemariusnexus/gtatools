@@ -25,6 +25,7 @@
 
 #include "../ResourceCache.h"
 #include "MeshClump.h"
+#include "../../Engine.h"
 
 
 class MeshCacheEntry : public Engine::StringResourceCache::Entry {

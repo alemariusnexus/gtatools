@@ -19,9 +19,8 @@
 # GPLADDITIONS.
 
 SET(FILES
-    Scene DefaultRenderer DepthPeelingAlgorithm
+    Scene
     SceneObjectDefinitionDatabase SceneObjectDefinitionInfo SceneObjectFileGroup SceneObjectGroupDependency
-    BasicTransparencyAlgorithm
     )
 
 ADD_SUBDIRECTORY(parts)

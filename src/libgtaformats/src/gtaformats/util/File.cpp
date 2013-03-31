@@ -29,6 +29,7 @@
 #include "FileFinder.h"
 #include "FileIMGWrapperStream.h"
 #include "CRC32.h"
+#include "stream/RangedStream.h"
 #include <map>
 #include <utility>
 
@@ -226,7 +227,24 @@ istream* File::openInputStream(ifstream::openmode mode) const
 			try {
 				shared_ptr<IMGArchive> archive = getIMGArchive();
 
-				istream* rstream = archive->gotoEntry(path->getFileName().get(), false);
+				IMGArchive::EntryIterator it = archive->getEntryByName(path->getFileName().get());
+
+				if (it == archive->getEntryEnd())
+					return NULL;
+
+				IMGEntry* entry = *it;
+				File* parent = getParent();
+
+				istream* imgStream = parent->openInputStream(istream::binary);
+				delete parent;
+				imgStream->seekg(IMG_BLOCKS2BYTES(entry->offset));
+
+				RangedStream<istream>* rstream = new RangedStream<istream>(imgStream,
+						IMG_BLOCKS2BYTES(entry->size), true);
+
+				return rstream;
+
+				/*istream* rstream = archive->gotoEntry(path->getFileName().get(), false);
 
 				if (rstream != NULL) {
 					FileIMGWrapperStream<istream>* wrapper
@@ -234,7 +252,7 @@ istream* File::openInputStream(ifstream::openmode mode) const
 					return wrapper;
 				} else {
 					return NULL;
-				}
+				}*/
 			} catch (Exception& ex) {
 				char* errMsg = new char[path->toString().length() + 64];
 				sprintf(errMsg, "Exception thrown during stream opening of IMG entry %s.",

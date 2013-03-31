@@ -69,7 +69,7 @@ private:
 public:
 	Vector4() { data.f[0] = 0.0f; data.f[1] = 0.0f; data.f[2] = 0.0f; data.f[3] = 1.0f; }
 	Vector4(const Vector4& other) { memcpy(data.f, other.data.f, 4*4); }
-	Vector4(const Vector3& other);
+	Vector4(const Vector3& other, float w = 1.0f);
 	Vector4(float* data) { memcpy(this->data.f, data, 4*4); }
 	Vector4(float x, float y, float z, float w) { data.f[0] = x; data.f[1] = y; data.f[2] = z; data.f[3] = w; }
 	const float* toArray() const { return data.f; }

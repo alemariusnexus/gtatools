@@ -56,12 +56,19 @@ public:
 	cachesize_t guessSize() const { return size; }
 	int32_t getBoneCount() const { return boneCount; }
 	void setBoneCount(int32_t bc) { boneCount = bc; }
+	void getBoundingSphere(Vector3& center, float& radius)
+			{ calculateBounds(); center = Vector3(bounds[0], bounds[1], bounds[2]); radius = bounds[3]; }
+
+private:
+	void calculateBounds();
 
 private:
 	MeshList meshes;
 	MeshFrame* rootFrame;
 	int32_t boneCount;
 	cachesize_t size;
+	float bounds[4];
+	bool boundsValid;
 };
 
 #endif /* MESHCLUMP_H_ */

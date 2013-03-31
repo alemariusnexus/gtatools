@@ -23,14 +23,17 @@
 #include "Scene.h"
 #include "parts/AnimatedSceneObject.h"
 #include "parts/PVSSceneObject.h"
+#include "parts/RigidBodySceneObject.h"
 #include "../Engine.h"
 #include "visibility/PVSDatabase.h"
+#include "../EngineException.h"
 #include <fstream>
 #include <utility>
 #include <gtaformats/util/util.h>
 #include <set>
 #include <map>
 #include <algorithm>
+#include "objects/MapSceneObject.h"
 
 using std::ofstream;
 using std::min;
@@ -53,14 +56,14 @@ struct SortableSceneObject
 
 
 Scene::Scene()
-		: pvs(NULL), pvObjCount(0), visibleObjCount(0), ddMultiplier(1.0f), pvsEnabled(false)
+		: renderer(NULL), reGenerator(new RenderingEntityGenerator), pvsEnabled(false), fcEnabled(true),
+		  physicsWorld(NULL), freezeVisibility(false)
 {
 }
 
 
 Scene::~Scene()
 {
-	delete pvs;
 }
 
 
@@ -73,12 +76,27 @@ void Scene::addSceneObject(SceneObject* obj)
 	if ((tf & SceneObject::TypeFlagPVS)  ==  0) {
 		dynamicObjs.push_back(obj);
 	} else {
-		pvs->addObject(dynamic_cast<PVSSceneObject*>(obj));
+		pvs.addObject(dynamic_cast<PVSSceneObject*>(obj));
 	}
 
 	if ((tf & SceneObject::TypeFlagAnimated)  !=  0) {
 		animObjs.push_back(obj);
 	}
+
+	if ((tf & SceneObject::TypeFlagLight)  !=  0) {
+		lightSources.push_back(dynamic_cast<LightSource*>(obj));
+	}
+
+	/*if ((tf & SceneObject::TypeFlagRigidBody)  !=  0) {
+		RigidBodySceneObject* rbObj = dynamic_cast<RigidBodySceneObject*>(obj);
+
+		btRigidBody* rb = rbObj->getRigidBody();
+
+		if (rb) {
+			physicsWorld->addRigidBody(rb);
+			delete rb->getCollisionShape();
+		}
+	}*/
 }
 
 
@@ -90,47 +108,110 @@ void Scene::clear()
 }
 
 
-void Scene::buildVisibleSceneObjectList(ObjectList& list)
+template <class ItType>
+void Scene::buildVisibleSceneObjectList(StreamingViewpoint* svp, ItType beg, ItType end)
+{
+	int svpFlags = svp->getStreamingFlags();
+
+	bool visSvp = (svpFlags & StreamingViewpoint::GraphicsStreaming) != 0;
+	bool physSvp = (svpFlags & StreamingViewpoint::PhysicsStreaming) != 0;
+	bool fcSvp = (svpFlags & StreamingViewpoint::FrustumCulling) != 0;
+
+	Frustum frustum = svp->getCullingFrustum();
+
+	float sdMul = svp->getStreamingDistanceMultiplier();
+	Vector3 svpPos = svp->getStreamingViewpointPosition();
+
+	float sx = svpPos.getX();
+	float sy = svpPos.getY();
+	float sz = svpPos.getZ();
+
+	for (ItType it = beg ; it != end ; it++) {
+		SceneObject* obj = dynamic_cast<SceneObject*>(*it);
+
+		Vector3 dv = svpPos - obj->getPosition();
+		float dist = sqrt(dv.dot(dv));
+
+		float sd = obj->getStreamingDistance() * sdMul;
+
+		if (sd == 0.0f  ||  sd - dist > 0.0f) {
+			if (visSvp  &&  (obj->getTypeFlags() & SceneObject::TypeFlagVisual)  !=  0) {
+				VisualSceneObject* vobj = dynamic_cast<VisualSceneObject*>(obj);
+
+				if (fcEnabled  &&  fcSvp) {
+					Vector3 bCenter;
+					float bRadius;
+					vobj->getBoundingSphere(bCenter, bRadius);
+
+					if (frustum.computeSphere(bCenter, bRadius) == Frustum::Outside) {
+						continue;
+					}
+				}
+
+				vobj->updateRenderingDistance(dist, sdMul);
+
+				if (!obj->sceneGraphicsVisible) {
+					curVisObjs.push_back(vobj);
+					obj->sceneGraphicsVisible = true;
+				}
+			}
+			if (physSvp  &&  (obj->getTypeFlags() & SceneObject::TypeFlagRigidBody)  !=  0) {
+				RigidBodySceneObject* rbobj = dynamic_cast<RigidBodySceneObject*>(obj);
+
+				if (!obj->scenePhysicsVisible) {
+					curRbObjs.push_back(rbobj);
+					obj->scenePhysicsVisible = true;
+				}
+			}
+		}
+	}
+}
+
+
+void Scene::buildVisibleSceneObjectList(VisualObjectList& visObjs, RigidBodyObjectList& rbObjs)
 {
 	if (pvsEnabled)
-		pvs->calculatePVS();
+		pvs.calculatePVS();
 
 	Engine* engine = Engine::getInstance();
 
-	Camera* cam = engine->getCamera();
-	const Vector3& cpos = cam->getPosition();
-
-	float cx = cpos.getX();
-	float cy = cpos.getY();
-	float cz = cpos.getZ();
-
-	PVSObjectList pvObjs;
-	ObjectList& nonPVObjs = objects;
-
 	if (pvsEnabled) {
-		nonPVObjs = dynamicObjs;
-		pvs->queryPVS(cx, cy, cz, pvObjs);
+		for (StreamingViewpointIterator it = svList.begin() ; it != svList.end() ; it++) {
+			StreamingViewpoint* vp = *it;
+
+			list<PVSSceneObject*> pvObjs;
+
+			Vector3 pos = vp->getStreamingViewpointPosition();
+			float sdMul = vp->getStreamingDistanceMultiplier();
+			float chosenSdMul;
+
+			if (pvs.queryPVS(pvObjs, pos, sdMul, &chosenSdMul)) {
+				// PVS query was successful
+
+				// Process the dynamic objects
+				buildVisibleSceneObjectList(vp, dynamicObjs.begin(), dynamicObjs.end());
+
+				// Then, process all objects delivered by PVS for this viewpoint
+				buildVisibleSceneObjectList(vp, pvObjs.begin(), pvObjs.end());
+			} else {
+				// PVS query was NOT sucessful, so we manually process all objects here
+				buildVisibleSceneObjectList(vp, objects.begin(), objects.end());
+			}
+		}
+	} else {
+		for (StreamingViewpointIterator it = svList.begin() ; it != svList.end() ; it++) {
+			StreamingViewpoint* vp = *it;
+			buildVisibleSceneObjectList(vp, objects.begin(), objects.end());
+		}
 	}
+}
 
-	pvObjCount = pvObjs.size();
 
-	int actuallyRendered = 0;
-
-	for (PVSObjectIterator it = pvObjs.begin() ; it != pvObjs.end() ; it++) {
-		PVSSceneObject* obj = *it;
-
-		if (obj->isEnabled())
-			actuallyRendered += addIfVisible(obj, list, cx, cy, cz) ? 1 : 0;
-	}
-
-	for (ObjectIterator it = nonPVObjs.begin() ; it != nonPVObjs.end() ; it++) {
-		SceneObject* obj = *it;
-
-		if (obj->isEnabled())
-			actuallyRendered += addIfVisible(obj, list, cx, cy, cz) ? 1 : 0;
-	}
-
-	visibleObjCount = actuallyRendered;
+void Scene::updateVisibility()
+{
+	curVisObjs.clear();
+	curRbObjs.clear();
+	buildVisibleSceneObjectList(curVisObjs, curRbObjs);
 }
 
 
@@ -148,22 +229,37 @@ void Scene::update(uint64_t timePassed)
 
 void Scene::present()
 {
-	ObjectList visObjs;
-	buildVisibleSceneObjectList(visObjs);
+	if (!renderer) {
+		throw EngineException("Attempt to present a Scene without a Renderer specified!", __FILE__, __LINE__);
+	}
 
-	for (ObjectIterator it = visObjs.begin() ; it != visObjs.end() ; it++) {
-		SceneObject* obj = *it;
-		//int type = obj->getType();
+	list<RenderingEntity*> rEntities;
+
+	for (VisualObjectIterator it = curVisObjs.begin() ; it != curVisObjs.end() ; it++) {
+		VisualSceneObject* obj = *it;
+
+		obj->sceneGraphicsVisible = false;
 
 		SceneObject::typeflags_t tf = obj->getTypeFlags();
+	}
 
-		//if (type == SceneObjectStatic  ||  type == SceneObjectAnimated) {
-		if ((tf & SceneObject::TypeFlagVisual)  !=  0) {
-			renderer->enqueueForRendering(dynamic_cast<VisualSceneObject*>(obj));
-		} else if ((tf & SceneObject::TypeFlagLight)  !=  0) {
-			renderer->enqueueForRendering(dynamic_cast<LightSource*>(obj));
-		}
+	reGenerator->generate(curVisObjs.begin(), curVisObjs.end(), rEntities);
+
+	for (list<RenderingEntity*>::iterator it = rEntities.begin() ; it != rEntities.end() ; it++) {
+		RenderingEntity* re = *it;
+		renderer->enqueueForRendering(re);
+	}
+
+	for (LightSourceIterator it = lightSources.begin() ; it != lightSources.end() ; it++) {
+		renderer->enqueueForRendering(*it);
 	}
 
 	renderer->render();
+
+	if (!freezeVisibility) {
+		for (VisualObjectIterator it = curVisObjs.begin() ; it != curVisObjs.end() ; it++) {
+			VisualSceneObject* obj = *it;
+			obj->resetRenderingDistance();
+		}
+	}
 }

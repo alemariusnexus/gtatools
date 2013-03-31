@@ -30,20 +30,17 @@ class SceneObjectDefinitionInfo {
 public:
 	SceneObjectDefinitionInfo(SceneObjectFileGroup* group, uint32_t id);
 	SceneObjectDefinitionInfo(const SceneObjectDefinitionInfo& other)
-			: group(other.group), id(other.id), lodLeaf(other.lodLeaf), fixed(other.fixed) {}
+			: group(other.group), id(other.id), fixed(other.fixed) {}
 	SceneObjectFileGroup* getFileGroup() { return group; }
 	uint32_t getID() const { return id; }
 	void setFileGroup(SceneObjectFileGroup* group) { this->group = group; }
 	void setID(uint32_t id) { this->id = id; }
-	void setLODLeaf(bool leaf) { lodLeaf = leaf; }
-	bool isLODLeaf() const { return lodLeaf; }
 	void markAsFixed() { fixed = true; }
 	bool isFixed() const { return fixed; }
 
 private:
 	SceneObjectFileGroup* group;
 	uint32_t id;
-	bool lodLeaf;
 	bool fixed;
 };
 

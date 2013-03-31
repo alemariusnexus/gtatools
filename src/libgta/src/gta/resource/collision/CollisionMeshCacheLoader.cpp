@@ -23,6 +23,7 @@
 #include "CollisionMeshCacheLoader.h"
 #include "COLBulletConverter.h"
 #include "CollisionMeshCacheEntry.h"
+#include "../smesh/ShadowMesh.h"
 
 
 
@@ -45,11 +46,21 @@ Engine::StringResourceCache::Entry* CollisionMeshCacheLoader::load(CString name)
 	istream* stream = entry->file->openInputStream(istream::binary);
 	col.skip(stream, entry->index);
 	COLModel* model = col.loadModel(stream);
+
 	COLBulletConverter conv;
-	btCollisionShape* shape = conv.convert(*model);
+	cachesize_t size;
+	btCollisionShape* shape = conv.convert(*model, &size);
+
+	ShadowMesh* smesh = NULL;
+
+	if (model->getShadowMesh()) {
+		COLShadowMesh* csmesh = model->getShadowMesh();
+		smesh = new ShadowMesh(*csmesh);
+	}
+
 	delete model;
 	delete stream;
 
-	CollisionMeshCacheEntry* cacheEntry = new CollisionMeshCacheEntry(shape, 10);
+	CollisionMeshCacheEntry* cacheEntry = new CollisionMeshCacheEntry(shape, smesh, size);
 	return cacheEntry;
 }

@@ -29,7 +29,7 @@
 
 class NullTextureSource : public TextureSource {
 public:
-	virtual Texture* getTexture(const CString& texName) { return NULL; }
+	virtual Texture* getTexture(const CString& texName, bool locked = false) { return NULL; }
 	virtual TextureSource* clone() const { return new NullTextureSource; }
 };
 

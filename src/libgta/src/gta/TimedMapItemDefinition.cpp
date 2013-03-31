@@ -27,8 +27,9 @@
 
 
 TimedMapItemDefinition::TimedMapItemDefinition(MeshPointer* meshPtr, TextureSource* texSrc,
-		CollisionShapePointer* colPtr, float drawDist, int8_t timeOn, int8_t timeOff)
-		: StaticMapItemDefinition(meshPtr, texSrc, colPtr, drawDist), timeOn(timeOn), timeOff(timeOff)
+		CollisionShapePointer* colPtr, ShadowMeshPointer* smeshPtr, float drawDist,
+		int8_t timeOn, int8_t timeOff)
+		: StaticMapItemDefinition(meshPtr, texSrc, colPtr, smeshPtr, drawDist), timeOn(timeOn), timeOff(timeOff)
 {
 }
 

@@ -26,6 +26,7 @@
 #include <gtaformats/config.h>
 #include "Vector3.h"
 #include "Vector4.h"
+#include "Quaternion.h"
 
 class Matrix3;
 
@@ -296,7 +297,9 @@ public:
 	static Matrix4 scale(float x, float y, float z) { return scale(Vector3(x, y, z)); }
 
 	static Matrix4 lookAt(const Vector3& target, const Vector3& up);
-	static Matrix4 fromQuaternion(float x, float y, float z, float w);
+	static Matrix4 fromQuaternion(const Quaternion& q);
+
+	static Matrix4 fromQuaternionVector(const Vector3& pos, const Quaternion& rot);
 
 	static Matrix4 frustum(float l, float r, float b, float t, float n, float f);
 	static Matrix4 perspective(float fovy, float aspect, float n, float f);

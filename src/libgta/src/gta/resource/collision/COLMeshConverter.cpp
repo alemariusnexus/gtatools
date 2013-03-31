@@ -23,6 +23,7 @@
 #include "COLMeshConverter.h"
 #include "../mesh/Submesh.h"
 #include "../../MeshGenerator.h"
+#include "../../Engine.h"
 
 
 
@@ -73,6 +74,7 @@ Mesh* COLMeshConverter::convert(const COLSphere& sphere)
 	glBindBuffer(GL_ARRAY_BUFFER, dataBuffer);
 
 	glBufferData(GL_ARRAY_BUFFER, vertexCount*3*4 + vertexCount*4, NULL, GL_STATIC_DRAW);
+	Engine::getInstance()->increaseTestMem(vertexCount*3*4 + vertexCount*4, __FILE__, __LINE__);
 
 	glBufferSubData(GL_ARRAY_BUFFER, 0, vertexCount*3*4, vertices);
 	glBufferSubData(GL_ARRAY_BUFFER, vertexCount*3*4, vertexCount*4, colors);
@@ -117,6 +119,7 @@ Mesh* COLMeshConverter::convert(const COLBox& box)
 	glBindBuffer(GL_ARRAY_BUFFER, dataBuffer);
 
 	glBufferData(GL_ARRAY_BUFFER, vertexCount*3*4 + vertexCount*4, NULL, GL_STATIC_DRAW);
+	Engine::getInstance()->increaseTestMem(vertexCount*3*4 + vertexCount*4, __FILE__, __LINE__);
 
 	glBufferSubData(GL_ARRAY_BUFFER, 0, vertexCount*3*4, vertices);
 	glBufferSubData(GL_ARRAY_BUFFER, vertexCount*3*4, vertexCount*4, colors);
@@ -158,7 +161,11 @@ Mesh* COLMeshConverter::convert(const COLModel& model)
 
     for (int i = 0 ; i < sphereCount ; i++) {
 		const COLSphere& sphere = spheres[i];
+		float* tmpNormals;
 		// TODO Reenable
+		gen.createSphere(sphereVertexArrays[i], tmpNormals, sphereVertexCounts[i], sphereIndexArrays[i],
+				sphereIndexCounts[i], sphere.getRadius(), 4, 4);
+		delete[] tmpNormals;
 		/*gen.createSphere(sphereVertexArrays[i], sphereVertexCounts[i],
                sphereIndexArrays[i], sphereIndexCounts[i], sphere.getRadius(), 4, 4);*/
         vertexCount += sphereVertexCounts[i];
@@ -192,6 +199,7 @@ Mesh* COLMeshConverter::convert(const COLModel& model)
     //printf("glBufferData COLMeshConverter 3\n");
 
     glBufferData(GL_ARRAY_BUFFER, vertexCount*3*4 + vertexCount*4, NULL, GL_STATIC_DRAW);
+    Engine::getInstance()->increaseTestMem(vertexCount*3*4 + vertexCount*4, __FILE__, __LINE__);
     int vertexOffset = 0;
     int colorOffset = vertexCount*3*4;
 

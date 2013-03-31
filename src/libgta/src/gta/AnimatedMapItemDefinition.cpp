@@ -25,13 +25,15 @@
 #include "resource/texture/ManagedTextureSource.h"
 #include "resource/collision/ManagedCollisionShapePointer.h"
 #include "resource/animation/ManagedAnimationPackagePointer.h"
+#include "resource/smesh/ManagedShadowMeshPointer.h"
 
 
 
 
 AnimatedMapItemDefinition::AnimatedMapItemDefinition(MeshPointer* mptr, TextureSource* tsrc,
-		CollisionShapePointer* cptr, AnimationPackagePointer* aptr, float dd, unsigned int flags)
-		: MapItemDefinition(mptr, tsrc, cptr, dd, flags), animPtr(aptr)
+		CollisionShapePointer* cptr, ShadowMeshPointer* smptr, AnimationPackagePointer* aptr,
+		float dd, unsigned int flags)
+		: MapItemDefinition(mptr, tsrc, cptr, smptr, dd, flags), animPtr(aptr)
 {
 }
 
@@ -44,6 +46,7 @@ AnimatedMapItemDefinition::AnimatedMapItemDefinition(const IDEAnimation& anim)
 	meshPtr = new ManagedMeshPointer(lMeshName);
 	texSrc = new ManagedTextureSource(CString(anim.getTXDArchiveName()).lower());
 	colPtr = new ManagedCollisionShapePointer(lMeshName);
+	smeshPtr = new ManagedShadowMeshPointer(lMeshName);
 	animPtr = new ManagedAnimationPackagePointer(CString(anim.getAnimationName()).lower());
 	defaultAnim = lMeshName;
 

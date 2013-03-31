@@ -31,6 +31,10 @@
 
 
 
+/**	\brief Mathematical Quaternion.
+ *
+ * 	This class represents a quaternion of the form w + ix + jy + kz.
+ */
 class Quaternion {
 public:
 	static Quaternion fromAxisAngle(const Vector3& axis, float angle);

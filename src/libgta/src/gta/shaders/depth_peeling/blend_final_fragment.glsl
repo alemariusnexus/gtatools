@@ -35,9 +35,9 @@ VARYING HIGHP vec2 FragTexCoord;
 void main()
 {
 #ifdef GTAGL_3_1_SUPPORTED
-	vec2 tc = gl_FragCoord.xy;
+	HIGHP vec2 tc = gl_FragCoord.xy;
 #else
-	vec2 tc = FragTexCoord;
+	HIGHP vec2 tc = FragTexCoord;
 #endif
 	gl_FragColor = gtaglTexture2D(CombinedLayerTex, tc);
 }

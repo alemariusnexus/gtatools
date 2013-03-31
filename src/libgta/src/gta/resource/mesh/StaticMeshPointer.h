@@ -35,7 +35,7 @@ class StaticMeshPointer : public MeshPointer {
 public:
 	StaticMeshPointer(MeshClump* mesh) : mesh(shared_ptr<MeshClump>(mesh)) {}
 	StaticMeshPointer(const StaticMeshPointer& other) : mesh(other.mesh) {}
-	virtual MeshClump* operator*() { return mesh.get(); }
+	virtual MeshClump* get(bool lock = false) { return mesh.get(); }
 	virtual MeshPointer* clone() const { return new StaticMeshPointer(*this); }
 
 private:

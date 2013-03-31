@@ -111,7 +111,7 @@ void SpotLight (
 	vec3 light2vertex = vertex - LightSources[i].position;
 	vec3 nLight2vertex = normalize(light2vertex);
 	
-	float cosAngle = max(dot(nLight2vertex, LightSources[i].direction), 0.0);
+	float cosAngle = max(dot(nLight2vertex, -LightSources[i].direction), 0.0);
 	
 	if (cosAngle >= LightSources[i].cutoffAngleCos) {
 		float spotFactor = pow(cosAngle, LightSources[i].spotlightExponent);
@@ -146,10 +146,10 @@ void CalculateVertexLighting(inout vec4 color, vec3 eVertex, vec3 eNormal)
 {
 	vec4 globalAmbient = GlobalAmbientLight * MaterialAmbientReflection;
     
-    vec4 lightContrib = vec4(0.0, 0.0, 0.0, 1.0);
+    vec4 lightContrib = vec4(0.0, 0.0, 0.0, 0.0);
     
     if (DynamicLightingEnabled) {
-	    for (int i = 0 ; i < 10 ; i++) {
+    	for (int i = 0 ; i < 10 ; i++) {
 	    	if (LightSources[i].cutoffAngleCos <= -2.5) {
 	    		break;
 	    	} else if (LightSources[i].cutoffAngleCos <= -1.5) {

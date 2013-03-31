@@ -26,9 +26,9 @@
 
 
 
-MeshClump* ManagedMeshPointer::operator*()
+MeshClump* ManagedMeshPointer::get(bool lock)
 {
-	MeshCacheEntry* entry = (MeshCacheEntry*) pointer.getEntry();
+	MeshCacheEntry* entry = (MeshCacheEntry*) pointer.getEntry(lock);
 
 	if (!entry)
 		return NULL;
@@ -44,7 +44,16 @@ MeshClump* ManagedMeshPointer::operator*()
 }
 
 
+void ManagedMeshPointer::lock(bool lock)
+{
+	if (lock)
+		pointer.getEntry(true);
+	else
+		release();
+}
+
+
 void ManagedMeshPointer::release()
 {
-
+	pointer.release();
 }

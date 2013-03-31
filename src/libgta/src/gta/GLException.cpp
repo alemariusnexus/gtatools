@@ -24,6 +24,7 @@
 #include "gl.h"
 #include <cstring>
 #include <cstdio>
+#include "Engine.h"
 
 
 
@@ -54,6 +55,8 @@ void GLException::checkError(const char* msg)
 		default:
 			sprintf(errname, "[UNKNOWN: 0x%X]", error);
 		}
+
+		printf("Buffer memory before exception: %u bytes\n", Engine::getInstance()->getTestMem());
 
 		char* errmsg = new char[128+strlen(msg)];
 		sprintf(errmsg, "OpenGL error %s (%u) [%s]", errname, error, msg);

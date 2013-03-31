@@ -36,10 +36,10 @@ const Vector4 Vector4::NegativeUnitZ = Vector4(0.0f, 0.0f, -1.0f, 1.0f);
 
 
 
-Vector4::Vector4(const Vector3& other)
+Vector4::Vector4(const Vector3& other, float w)
 {
 	memcpy(data.f, other.data, 3*4);
-	data.f[3] = 1.0f;
+	data.f[3] = w;
 }
 
 

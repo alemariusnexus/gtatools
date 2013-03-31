@@ -47,18 +47,18 @@ uniform ivec2 TexDimensions;
 void main()
 {
 #ifdef GTAGL_3_1_SUPPORTED
-	vec2 tc = gl_FragCoord.xy;
+	HIGHP vec2 tc = gl_FragCoord.xy;
 #else
-	vec2 tc = vec2(gl_FragCoord.x / float(TexDimensions.x), gl_FragCoord.y / float(TexDimensions.y));
+	HIGHP vec2 tc = vec2(gl_FragCoord.x / float(TexDimensions.x), gl_FragCoord.y / float(TexDimensions.y));
 #endif
 
-	float opaqueDepth = gtaglTexture2D(OpaqueDepthTex, tc).r;
+	HIGHP float opaqueDepth = gtaglTexture2D(OpaqueDepthTex, tc).r;
 	
 	if (gl_FragCoord.z >= opaqueDepth + DEPTH_THRESHOLD) {
 		discard;
 	}
 
-	float peelDepth = gtaglTexture2D(PeelDepthTex, tc).r;
+	HIGHP float peelDepth = gtaglTexture2D(PeelDepthTex, tc).r;
 	
 	if (gl_FragCoord.z <= peelDepth + DEPTH_THRESHOLD) {
 		discard;

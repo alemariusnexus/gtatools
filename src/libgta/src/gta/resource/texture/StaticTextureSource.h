@@ -41,7 +41,7 @@ private:
 public:
 	StaticTextureSource(TXDArchive* txd);
 	StaticTextureSource(const StaticTextureSource& other);
-	virtual Texture* getTexture(const CString& texName);
+	virtual Texture* getTexture(const CString& texName, bool lock = false);
 	virtual TextureSource* clone() const { return new StaticTextureSource(*this); }
 
 private:

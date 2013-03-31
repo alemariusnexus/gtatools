@@ -28,37 +28,40 @@
 void Camera::rotateHorizontal(float angle)
 {
 	Matrix4 rot = Matrix4::rotationZ(angle);
-	//Matrix4 rot = Matrix4::rotationY(angle);
-	target = rot * target;
-	up = rot * up;
+	Vector3 target = rot * getTarget();
+	Vector3 up = rot * getUp();
+	target.normalize();
+	up.normalize();
+	frustum.setDirection(target, up);
 }
 
 
 void Camera::rotateVertical(float angle)
 {
-	Vector3 side = up.cross(target);
-	target = Matrix4::rotation(angle, side) * target;
-	up = target.cross(side);
+	Vector3 side = getUp().cross(getTarget());
+	Vector3 target = Matrix4::rotation(angle, side) * getTarget();
+	Vector3 up = getTarget().cross(side);
+	target.normalize();
+	up.normalize();
+	frustum.setDirection(target, up);
 }
 
 
 void Camera::move(float length)
 {
-	target.normalize();
-	position += target * length;
+	setPosition(getPosition() + getTarget() * length);
 }
 
 
 void Camera::moveSideways(float length)
 {
-	Vector3 side = up.cross(target);
-	target.normalize();
-	position += side * length;
+	Vector3 side = getUp().cross(getTarget());
+	side.normalize();
+	setPosition(getPosition() + side * length);
 }
 
 
 void Camera::moveUp(float length)
 {
-	target.normalize();
-	position += up * length;
+	setPosition(getPosition() + getUp() * length);
 }

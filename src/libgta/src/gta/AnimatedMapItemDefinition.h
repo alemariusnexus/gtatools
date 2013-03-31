@@ -31,7 +31,7 @@
 class AnimatedMapItemDefinition : public MapItemDefinition {
 public:
 	AnimatedMapItemDefinition(MeshPointer* mptr, TextureSource* tsrc, CollisionShapePointer* cptr,
-			AnimationPackagePointer* aptr, float dd, unsigned int flags);
+			ShadowMeshPointer* smptr, AnimationPackagePointer* aptr, float dd, unsigned int flags);
 	AnimatedMapItemDefinition(const IDEAnimation& anim);
 	AnimationPackagePointer* getAnimationPackagePointer() { return animPtr; }
 	virtual int getType() const { return ItemTypeAnimatedMapItem; }

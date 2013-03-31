@@ -29,7 +29,10 @@
 class AnimationPackagePointer {
 public:
 	virtual AnimationPackagePointer* clone() const = 0;
-	virtual AnimationPackage* operator*() = 0;
+	virtual AnimationPackage* get(bool lock = false) = 0;
+	virtual void release() {}
+
+	virtual AnimationPackage* operator*() { return get(); }
 };
 
 #endif /* ANIMATIONPACKAGEPOINTER_H_ */

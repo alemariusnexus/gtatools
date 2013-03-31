@@ -105,7 +105,9 @@ MapSceneObject* DFFRenderWidget::createSceneObject(const DFFGeometry* geom,
 
 	StaticMapItemDefinition* def = new StaticMapItemDefinition(new StaticMeshPointer(clump), texSrc, NULL,
 			5000.0f);
-	MapSceneObject* obj = new MapSceneObject(def);
+	MapSceneObject* obj = new MapSceneObject;
+	MapSceneObjectLODInstance* inst = new MapSceneObjectLODInstance(def);
+	obj->addLODInstance(inst);
 
 	return obj;
 }
@@ -126,7 +128,7 @@ void DFFRenderWidget::removeGeometry(const DFFGeometry* geom)
 
 	if (it != objs.end()) {
 		MapSceneObject* obj = it.value();
-		MapItemDefinition* def = obj->getDefinition();
+		MapItemDefinition* def = obj->getLODInstance()->getDefinition();
 		MeshClump* clump = **def->getMeshPointer();
 		delete clump;
 		delete def;
@@ -166,8 +168,7 @@ void DFFRenderWidget::initializeGL()
 
 		if (!scene) {
 			scene = new Scene;
-			PVSDatabase* pvs = new PVSDatabase;
-			scene->setPVSDatabase(pvs);
+			scene->addStreamingViewpoint(&cam);
 
 			DefaultRenderer* renderer = new DefaultRenderer;
 			scene->setRenderer(renderer);
@@ -243,7 +244,7 @@ void DFFRenderWidget::setTextureSource(TextureSource* source)
 	QMap<const DFFGeometry*, MapSceneObject*>::iterator it;
 	for (it = objs.begin() ; it != objs.end() ; it++) {
 		MapSceneObject* obj = it.value();
-		MapItemDefinition* def = obj->getDefinition();
+		MapItemDefinition* def = obj->getLODInstance()->getDefinition();
 
 		if (textured) {
 			if (texSource)

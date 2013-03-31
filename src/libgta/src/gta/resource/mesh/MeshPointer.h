@@ -29,9 +29,12 @@
 
 class MeshPointer {
 public:
-	virtual MeshClump* operator*() = 0;
+	virtual MeshClump* get(bool lock = false) = 0;
 	virtual MeshPointer* clone() const = 0;
 	virtual void release() {}
+	virtual void lock(bool lock = true) {}
+
+	virtual MeshClump* operator*() { return get(); }
 };
 
 #endif /* MESHPOINTER_H_ */

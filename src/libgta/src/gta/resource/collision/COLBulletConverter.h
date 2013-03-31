@@ -25,14 +25,16 @@
 
 #include <btBulletDynamicsCommon.h>
 #include <gtaformats/gtacol.h>
+#include "../ResourceCache.h"
 
 
 class COLBulletConverter {
 public:
-	btCollisionShape* convert(const COLSphere& sphere);
-	btCollisionShape* convert(const COLBox& box);
-	btCollisionShape* convert(const float* vertices, int vertexCount, const COLFace* faces, int faceCount);
-	btCollisionShape* convert(const COLModel& model);
+	btCollisionShape* convert(const COLSphere& sphere, cachesize_t* cacheSize = NULL);
+	btCollisionShape* convert(const COLBox& box, cachesize_t* cacheSize = NULL);
+	btCollisionShape* convert(const float* vertices, int vertexCount, const COLFace* faces, int faceCount,
+			cachesize_t* cacheSize = NULL);
+	btCollisionShape* convert(const COLModel& model, cachesize_t* cacheSize = NULL);
 };
 
 #endif /* COLBULLETCONVERTER_H_ */

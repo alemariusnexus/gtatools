@@ -31,7 +31,7 @@ public:
 	StaticAnimationPackagePointer(AnimationPackage* pkg) : pkg(pkg) {}
 	StaticAnimationPackagePointer(const StaticAnimationPackagePointer& other) : pkg(other.pkg) {}
 	virtual AnimationPackagePointer* clone() const { return new StaticAnimationPackagePointer(*this); }
-	virtual AnimationPackage* operator*() { return pkg; }
+	virtual AnimationPackage* get(bool lock = false) { return pkg; }
 
 private:
 	AnimationPackage* pkg;

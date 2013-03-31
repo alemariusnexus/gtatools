@@ -23,14 +23,17 @@
 #ifndef RENDERER_H_
 #define RENDERER_H_
 
-#include "parts/VisualSceneObject.h"
-#include "objects/LightSource.h"
+#include "RenderingEntity.h"
+#include "../scene/objects/LightSource.h"
+#include <list>
+
+using std::list;
 
 
 
 class Renderer {
 public:
-	virtual void enqueueForRendering(VisualSceneObject* obj) = 0;
+	virtual void enqueueForRendering(RenderingEntity* entity) = 0;
 	virtual void enqueueForRendering(LightSource* ls) = 0;
 	virtual void render() = 0;
 };

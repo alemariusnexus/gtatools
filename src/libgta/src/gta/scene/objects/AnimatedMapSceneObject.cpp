@@ -24,13 +24,45 @@
 
 
 
-AnimatedMapSceneObject::AnimatedMapSceneObject(AnimatedMapItemDefinition* def)
-		: MapSceneObject(def), def(def), curAnim(def->getDefaultAnimation()), time(0.0f), autoAnim(true)
+AnimatedMapSceneObject::AnimatedMapSceneObject()
+		: MapSceneObject(), time(0.0f), autoAnim(true),
+		  autoPickDefaultAnim(false)
 {
 }
 
 
 AnimatedMapSceneObject::AnimatedMapSceneObject(const AnimatedMapSceneObject& other)
-		: MapSceneObject(other), def(other.def), curAnim(other.curAnim), time(other.time), autoAnim(true)
+		: MapSceneObject(other), curAnim(other.curAnim), time(other.time), autoAnim(true),
+		  autoPickDefaultAnim(other.autoPickDefaultAnim)
 {
+}
+
+
+CString AnimatedMapSceneObject::getCurrentAnimation() const
+{
+	if (curAnim.get()) {
+		return curAnim;
+	} else if (autoPickDefaultAnim) {
+		ConstLODInstanceMapIterator beg, end;
+		getRenderingLODInstances(beg, end);
+
+		if (beg == end) {
+			// No rendering LOD instance
+			return CString();
+		} else {
+			for (ConstLODInstanceMapIterator it = beg ; it != end ; it++) {
+				const MapSceneObjectLODInstance* lodInst = *it;
+				const MapItemDefinition* def = lodInst->getDefinition();
+
+				if (def->getType() == ItemTypeAnimatedMapItem) {
+					const AnimatedMapItemDefinition* adef = (const AnimatedMapItemDefinition*) def;
+					return adef->getDefaultAnimation();
+				}
+			}
+
+			return CString();
+		}
+	} else {
+		return CString();
+	}
 }

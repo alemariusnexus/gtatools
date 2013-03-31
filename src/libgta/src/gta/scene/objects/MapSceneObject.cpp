@@ -21,17 +21,202 @@
  */
 
 #include "MapSceneObject.h"
+#include "../../EngineException.h"
 
 
 
-MapSceneObject::MapSceneObject(MapItemDefinition* def)
-		: def(def), enabled(true), lodParent(NULL), defInfo(NULL)
+MapSceneObject::MapSceneObject()
+		: enabled(true), defInfo(NULL), rb(NULL), visibleInstBeg(lodInsts.end()),
+		  visibleInstEnd(lodInsts.end()), mass(0.0f), maxStreamingDist(0.0f), boundsValid(false)
 {
+	btRigidBody::btRigidBodyConstructionInfo info(0.0f, this, NULL);
+	rb = new btRigidBody(info);
 }
 
 
 MapSceneObject::MapSceneObject(const MapSceneObject& other)
-		: def(other.def), enabled(other.enabled), mm(other.mm), lodParent(other.lodParent),
-		  defInfo(other.defInfo ? new SceneObjectDefinitionInfo(*other.defInfo) : NULL)
+		: enabled(other.enabled),
+		  defInfo(other.defInfo ? new SceneObjectDefinitionInfo(*other.defInfo) : NULL), rb(NULL),
+		  visibleInstBeg(lodInsts.end()), visibleInstEnd(lodInsts.end()), mass(other.mass),
+		  maxStreamingDist(0.0f), boundsValid(other.boundsValid), boundsCenter(other.boundsCenter),
+		  boundsRadius(other.boundsRadius)
 {
+	btRigidBody::btRigidBodyConstructionInfo info(mass, this, NULL);
+	rb = new btRigidBody(info);
+
+	for (LODInstanceMapIterator it = other.lodInsts.begin() ; it != other.lodInsts.end() ; it++) {
+		lodInsts.insert(new MapSceneObjectLODInstance(**it));
+	}
 }
+
+
+void MapSceneObject::addLODInstance(MapSceneObjectLODInstance* inst)
+{
+	if (inst->getSceneObject()) {
+		throw EngineException("Attempt to add a LOD instance to a MapSceneObject that is already associated!",
+				__FILE__, __LINE__);
+	}
+
+	boundsValid = false;
+
+	inst->obj = this;
+	lodInsts.insert(inst);
+	inst->updateModelMatrix();
+
+	if (inst->getStreamingDistance() > maxStreamingDist)
+		maxStreamingDist = inst->getStreamingDistance();
+}
+
+
+void MapSceneObject::setMass(float m)
+{
+	btCollisionShape* shape = getCollisionShapePointer()->get();
+	btVector3 inertia;
+	shape->calculateLocalInertia(m, inertia);
+	rb->setMassProps(m, inertia);
+	mass = m;
+}
+
+
+void MapSceneObject::setModelMatrix(const Matrix4& matrix)
+{
+	mm = matrix;
+
+	for (LODInstanceMapIterator it = lodInsts.begin() ; it != lodInsts.end() ; it++) {
+		MapSceneObjectLODInstance* inst = *it;
+		inst->updateModelMatrix();
+	}
+
+	btTransform trans;
+	getWorldTransform(trans);
+	rb->setWorldTransform(trans);
+	rb->setInterpolationWorldTransform(trans);
+
+	boundsValid = false;
+}
+
+
+void MapSceneObject::updateRenderingDistance(float dist, float sdMultiplier)
+{
+	for (LODInstanceMapIterator it = lodInsts.begin() ; it != lodInsts.end() ; it++) {
+		MapSceneObjectLODInstance* inst = *it;
+
+		if (inst->getStreamingDistance()*sdMultiplier >= dist) {
+			if (visibleInstBeg == lodInsts.end()  ||  inst->getStreamingDistance() < (*visibleInstBeg)->getStreamingDistance()) {
+				visibleInstBeg = it;
+
+				for (	visibleInstEnd = visibleInstBeg ;
+						visibleInstEnd != lodInsts.end()
+								&&  (*visibleInstEnd)->getStreamingDistance()
+									== (*visibleInstBeg)->getStreamingDistance()
+						; visibleInstEnd++);
+			}
+
+			return;
+		}
+	}
+
+	CString distStr("");
+
+	for (LODInstanceMapIterator it = lodInsts.begin() ; it != lodInsts.end() ; it++) {
+		MapSceneObjectLODInstance* inst = *it;
+		char str[16];
+		sprintf(str, "%.2f", inst->getStreamingDistance());
+
+		if (distStr.length() != 0)
+			distStr.append(CString(", "));
+
+		distStr.append(CString(str));
+	}
+
+	char* errmsg = new char[256 + distStr.length()];
+	sprintf(errmsg, "MapSceneObject::updateRenderingDistance() called with invalid distance: %.2f. Distance "
+			"multiplier: %.2f. LOD instance distances: %s", dist, sdMultiplier, distStr.get());
+	EngineException ex(errmsg, __FILE__, __LINE__);
+	delete[] errmsg;
+	throw ex;
+}
+
+
+void MapSceneObject::resetRenderingDistance()
+{
+	visibleInstBeg = lodInsts.end();
+	visibleInstEnd = lodInsts.end();
+}
+
+
+void MapSceneObject::calculateBounds()
+{
+	if (boundsValid)
+		return;
+
+	if (!lodInsts.empty()) {
+		MapSceneObjectLODInstance* lodInst = getLODInstance();
+
+		MeshPointer* meshPtr = lodInst->getDefinition()->getMeshPointer();
+		MeshClump* clump = meshPtr->get(true);
+
+		if (clump) {
+			clump->getBoundingSphere(boundsCenter, boundsRadius);
+			boundsCenter = mm * Vector4(boundsCenter);
+			boundsValid = true;
+		}
+
+		meshPtr->release();
+	}
+
+	if (!boundsValid) {
+		const float* a = mm.toArray();
+		boundsCenter = Vector3(a[12], a[13], a[14]);
+		boundsRadius = 0.0f;
+		boundsValid = true;
+	}
+}
+
+
+void MapSceneObject::getBoundingSphere(Vector3& center, float& radius)
+{
+	calculateBounds();
+	center = boundsCenter;
+	radius = boundsRadius;
+}
+
+
+bool MapSceneObject::getLODInstances(LODInstanceMapIterator& beg, LODInstanceMapIterator& end, size_t depth)
+{
+	float lastDist = -1.0f;
+
+	int i = 0;
+	for (beg = lodInsts.begin() ; beg != lodInsts.end()  &&  i < depth ; beg++) {
+		MapSceneObjectLODInstance* inst = *beg;
+
+		if (inst->getStreamingDistance() != lastDist) {
+			i++;
+			lastDist = inst->getStreamingDistance();
+		}
+	}
+
+	if (beg == lodInsts.end()) {
+		end = beg;
+		return false;
+	}
+
+	float dist = (*beg)->getStreamingDistance();
+	for (end = beg ; end != lodInsts.end()  &&  (*end)->getStreamingDistance() == dist ; end++);
+
+	return true;
+}
+
+
+bool MapSceneObject::hasAlphaTransparency() const
+{
+	if (visibleInstBeg != lodInsts.end()) {
+		bool alpha = false;
+		for (LODInstanceMapIterator it = visibleInstBeg ; it != visibleInstEnd  &&  !alpha ; it++)
+			alpha = (*it)->hasAlphaTransparency();
+		return alpha;
+	} else {
+		return getLODInstance()->hasAlphaTransparency();
+	}
+}
+

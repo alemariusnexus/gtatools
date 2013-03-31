@@ -25,9 +25,6 @@
 
 #include <SDL.h>
 #include <gtaformats/util/File.h>
-#include <gta/scene/BasicTransparencyAlgorithm.h>
-#include <gta/scene/DepthPeelingAlgorithm.h>
-//#include <gta/scene/WeightedAverageAlgorithm.h>
 
 
 class Controller {
@@ -56,10 +53,6 @@ private:
 	//BulletGLDebugDraw* debugDrawer;
 	bool programRunning;
 	bool forceStatisticsUpdate;
-
-	BasicTransparencyAlgorithm* basicTransAlgo;
-	DepthPeelingAlgorithm* dpAlgo;
-	//WeightedAverageAlgorithm* wavgAlgo;
 };
 
 #endif /* CONTROLLER_H_ */

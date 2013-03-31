@@ -60,7 +60,6 @@ private:
 	CString relPath;
 	uint32_t checksum;
 	DepList deps;
-	size_t lodBaseObjCount;
 
 
 	friend class PVSDatabase;

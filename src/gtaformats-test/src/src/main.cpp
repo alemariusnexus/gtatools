@@ -33,6 +33,8 @@
 
 int main(int argc, char** argv)
 {
+	printf("Eins\n");
+	exit(0);
 	testing::InitGoogleTest(&argc, argv);
 
 	CLIParser cli;

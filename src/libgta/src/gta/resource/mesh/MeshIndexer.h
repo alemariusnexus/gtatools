@@ -40,19 +40,25 @@ using std::map;
 
 
 class MeshIndexer : public ResourceObserver {
+public:
+	struct IndexEntry
+	{
+		File* file;
+	};
+
 private:
 #ifdef CXX0X_AVAILABLE
-	typedef unordered_map<CString, File*, CXX0XHash<CString> > IndexMap;
+	typedef unordered_map<CString, IndexEntry, CXX0XHash<CString> > IndexMap;
 #else
-	typedef map<CString, File*> IndexMap;
+	typedef map<CString, IndexEntry> IndexMap;
 #endif
 
 public:
 	~MeshIndexer();
 	virtual void resourceAdded(const File& file);
 	virtual void resourcesCleared();
-	const File* find(const CString& name);
-	const File* operator[](const CString& name) { return find(name); }
+	IndexEntry find(const CString& name);
+	IndexEntry operator[](const CString& name) { return find(name); }
 
 private:
 	IndexMap index;

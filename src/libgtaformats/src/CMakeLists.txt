@@ -24,6 +24,7 @@ PROJECT(prj-gtaformats C CXX)
 
 INCLUDE(TestBigEndian)
 
+ADD_DEFINITIONS(-D__STDC_LIMIT_MACROS)
 
 SET(GTAFORMATS_ENABLE_PVRTEXLIB OFF CACHE BOOL "Whether we use the proprietary PVRTexLib for PVRTC-compressed textures.")
 SET(GTAFORMATS_ENABLE_SQUISH ON CACHE BOOL "Whether we use libsquish for DXT-compressed textures. If false, those textures are not supported directly by the library")

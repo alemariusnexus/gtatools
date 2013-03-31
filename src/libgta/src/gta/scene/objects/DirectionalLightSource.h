@@ -55,6 +55,7 @@ public:
 			{ lightData.constAttenuation=c; lightData.linearAttenuation=l; lightData.quadAttenuation=q; }
 	virtual SceneObject* clone() const { return new DirectionalLightSource(*this); }
 	virtual float getStreamingDistance() const { return 0.0f; }
+	virtual void setModelMatrix(const Matrix4& matrix) {}
 };
 
 #endif /* DIRECTIONALLIGHTSOURCE_H_ */

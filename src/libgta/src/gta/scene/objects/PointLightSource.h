@@ -39,7 +39,7 @@ public:
 	PointLightSource(const PointLightSource& other) : LightSource(other) {}
 
 	virtual LightType getLightType() const { return PointLight; }
-	void setPosition(const Vector3& pos) { lightData.position = pos; }
+	void setPosition(const Vector3& pos) { lightData.position = pos; pseudoModelMat = Matrix4::translation(pos); }
 	float getShininess() const { return lightData.shininess; }
 	void setShininess(float s) { lightData.shininess = s; }
 	void setConstantAttenuation(float a) { lightData.constAttenuation = a; }
@@ -51,6 +51,8 @@ public:
 	void setAttenuation(float c, float l, float q)
 			{ lightData.constAttenuation=c; lightData.linearAttenuation=l; lightData.quadAttenuation=q; }
 	virtual SceneObject* clone() const { return new PointLightSource(*this); }
+	virtual void setModelMatrix(const Matrix4& matrix)
+			{ const float* mm = matrix.toArray(); setPosition(Vector3(mm[12], mm[13], mm[14])); }
 };
 
 #endif /* POINTLIGHTSOURCE_H_ */

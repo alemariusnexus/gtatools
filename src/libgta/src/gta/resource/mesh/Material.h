@@ -25,7 +25,6 @@
 
 #include <gta/config.h>
 #include <gtaformats/util/CString.h>
-#include "../../Engine.h"
 #include <gtaformats/dff/DFFMaterial.h>
 
 

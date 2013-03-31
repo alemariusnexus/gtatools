@@ -23,9 +23,14 @@
 #ifndef TEXTURECACHEENTRY_H_
 #define TEXTURECACHEENTRY_H_
 
+
+#define ADHOC_MAP
+
+
 #include <gta/config.h>
 #include <gtaformats/util/cxx0xhash.h>
 #include <gtaformats/util/CString.h>
+#include <gtaformats/util/strutil.h>
 #include "../ResourceCache.h"
 #include "TextureArchive.h"
 #include "Texture.h"
@@ -57,7 +62,14 @@ public:
 	Texture* operator[](const CString& texName) { return getTexture(texName); }
 
 private:
+#ifndef ADHOC_MAP
 	TextureMap texMap;
+#else
+	hash_t* texKeys;
+	Texture** texValues;
+	size_t numTexes;
+#endif
+
 	cachesize_t size;
 	Engine::StringResourceCache::Pointer parentPtr;
 };

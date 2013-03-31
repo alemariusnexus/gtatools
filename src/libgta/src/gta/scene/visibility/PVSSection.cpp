@@ -21,4 +21,30 @@
  */
 
 #include "PVSSection.h"
+#include "PVSVisibilitySet.h"
 
+
+
+PVSVisibilitySet* PVSSection::getVisibilitySet(float multiplier)
+{
+	PVSVisibilitySet* nearestSet = NULL;
+
+	for (SetIterator it = sets.begin() ; it != sets.end() ; it++) {
+		PVSVisibilitySet* set = *it;
+		float mul = set->getDistanceMultiplier();
+
+		if (mul >= multiplier) {
+			nearestSet = set;
+		} else {
+			break;
+		}
+	}
+
+	return nearestSet;
+}
+
+
+bool PVSSection::SetComparator::operator()(const PVSVisibilitySet* s1, const PVSVisibilitySet* s2) const
+{
+	return s1->getDistanceMultiplier() > s2->getDistanceMultiplier();
+}

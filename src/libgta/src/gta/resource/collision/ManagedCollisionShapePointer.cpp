@@ -36,21 +36,18 @@ CollisionShapePointer* ManagedCollisionShapePointer::clone() const
 }
 
 
-btCollisionShape* ManagedCollisionShapePointer::operator*()
+btCollisionShape* ManagedCollisionShapePointer::get(bool lock)
 {
-	CollisionMeshCacheEntry* entry = (CollisionMeshCacheEntry*) pointer.getEntry();
+	CollisionMeshCacheEntry* entry = (CollisionMeshCacheEntry*) pointer.getEntry(lock);
 
 	if (!entry)
 		return NULL;
 
 	return **entry;
-	/*ResourceCache* cache = Engine::getInstance()->getCollisionMeshCache();
-	CollisionMeshCacheEntry* entry = (CollisionMeshCacheEntry*) cache->getEntry(name);
+}
 
-	if (!entry) {
-		return NULL;
-	}
 
-	btCollisionShape* shape = **entry;
-	return shape;*/
+void ManagedCollisionShapePointer::release()
+{
+	pointer.release();
 }

@@ -25,6 +25,7 @@
 
 #include "../ResourceCache.h"
 #include "AnimationIndexer.h"
+#include "../../Engine.h"
 
 
 

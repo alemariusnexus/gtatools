@@ -120,7 +120,9 @@ void COLSphereBoxRenderWidget::addSphere(const COLSphere& sphere)
 	clump->addMesh(mesh);
 	MapItemDefinition* item = new StaticMapItemDefinition(new StaticMeshPointer(clump),
 			new NullTextureSource, NULL, 5000.0f);
-	MapSceneObject* obj = new MapSceneObject(item);
+	MapSceneObject* obj = new MapSceneObject;
+	MapSceneObjectLODInstance* inst = new MapSceneObjectLODInstance(item);
+	obj->addLODInstance(inst);
 	objs << obj;
 }
 
@@ -133,7 +135,9 @@ void COLSphereBoxRenderWidget::addBox(const COLBox& box)
 	clump->addMesh(mesh);
 	MapItemDefinition* item = new StaticMapItemDefinition(new StaticMeshPointer(clump),
 			new NullTextureSource, NULL, 5000.0f);
-	MapSceneObject* obj = new MapSceneObject(item);
+	MapSceneObject* obj = new MapSceneObject;
+	MapSceneObjectLODInstance* inst = new MapSceneObjectLODInstance(item);
+	obj->addLODInstance(inst);
 	objs << obj;
 }
 
@@ -146,7 +150,9 @@ void COLSphereBoxRenderWidget::addModel(const COLModel& model)
 	clump->addMesh(mesh);
 	MapItemDefinition* item = new StaticMapItemDefinition(new StaticMeshPointer(clump),
 			new NullTextureSource, NULL, 5000.0f);
-	MapSceneObject* obj = new MapSceneObject(item);
+	MapSceneObject* obj = new MapSceneObject;
+	MapSceneObjectLODInstance* inst = new MapSceneObjectLODInstance(item);
+	obj->addLODInstance(inst);
 	objs << obj;
 }
 
@@ -157,7 +163,7 @@ void COLSphereBoxRenderWidget::clear()
 
 	for (it = objs.begin() ; it != objs.end() ; it++) {
 		MapSceneObject* item = *it;
-		MapItemDefinition* def = item->getDefinition();
+		MapItemDefinition* def = item->getLODInstance()->getDefinition();
 		delete **def->getMeshPointer();
 		delete def;
 		delete item;

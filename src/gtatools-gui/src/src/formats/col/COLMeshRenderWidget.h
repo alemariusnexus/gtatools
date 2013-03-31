@@ -27,6 +27,7 @@
 #include <gtaformats/gtacol.h>
 #include <gta/MapItemDefinition.h>
 #include <gta/scene/objects/MapSceneObject.h>
+#include <gta/scene/Scene.h>
 
 
 class COLMeshRenderWidget : public GLBaseWidget {
