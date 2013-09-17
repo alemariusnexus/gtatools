@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -110,7 +110,7 @@ public:
 	void advanceFrame(uint64_t advanceTime);
 	void renderFrame();
 
-	void loadDAT(const File& file, const File& rootDir, const GameInfo* gameInfo = NULL);
+	void loadDAT(const File& file, const File& rootDir, GameInfo gameInfo = GameInfo());
 
 	void setGameTime(int8_t h, int8_t m) { gameHours = h; gameMinutes = m; }
 	int8_t getGameHours() const { return gameHours; }
@@ -122,8 +122,8 @@ public:
 	int getViewportWidth() const { return viewWidth; }
 	int getViewportHeight() const { return viewHeight; }
 
-	void setDefaultGameInfo(GameInfo* info) { defGameInfo = info; }
-	GameInfo* getDefaultGameInfo() { return defGameInfo; }
+	void setDefaultGameInfo(const GameInfo& info) { defGameInfo = info; }
+	GameInfo getDefaultGameInfo() { return defGameInfo; }
 
 	EngineIPLLoader* getIPLLoader() { return &iplLoader; }
 
@@ -135,13 +135,13 @@ public:
 
 private:
 	Engine();
-	void iplRecurse(File* file, const File& rootDir, const GameInfo* gameInfo = NULL);
+	void iplRecurse(File* file, const File& rootDir, GameInfo gameInfo = GameInfo());
 
 private:
 	static Engine* instance;
 
 private:
-	GameInfo* defGameInfo;
+	GameInfo defGameInfo;
 
 	vector<ResourceObserver*> resObservers;
 	vector<ViewportObserver*> vpObservers;

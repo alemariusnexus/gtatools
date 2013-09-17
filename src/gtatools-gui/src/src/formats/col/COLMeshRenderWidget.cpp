@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -21,13 +21,13 @@
  */
 
 #include "COLMeshRenderWidget.h"
+#include <gta/Engine.h>
 #include <gta/resource/collision/COLMeshConverter.h>
 #include <gta/resource/mesh/StaticMeshPointer.h>
 #include <gta/resource/texture/NullTextureSource.h>
 #include <gta/resource/mesh/Submesh.h>
 #include <gta/scene/Scene.h>
-#include <gta/scene/DefaultRenderer.h>
-#include <gta/scene/DepthPeelingAlgorithm.h>
+#include <gta/render/DefaultRenderer.h>
 #include <gta/MapItemDefinition.h>
 #include <gta/StaticMapItemDefinition.h>
 #include <QtGui/QMouseEvent>
@@ -68,7 +68,6 @@ COLMeshRenderWidget::~COLMeshRenderWidget()
 		delete[] colors;
 
 	DefaultRenderer* renderer = (DefaultRenderer*) scene->getRenderer();
-	delete renderer->getTransparencyAlgorithm();
 	delete renderer;
 	delete scene;
 }
@@ -117,7 +116,7 @@ void COLMeshRenderWidget::render(const float* vertices, int32_t vertexCount, con
 		}
 
 		MapItemDefinition* def = new StaticMapItemDefinition(new StaticMeshPointer(clump),
-				new NullTextureSource, NULL, 5000.0f);
+				new NullTextureSource, NULL, NULL, 5000.0f);
 
 		obj = new MapSceneObject;
 		MapSceneObjectLODInstance* inst = new MapSceneObjectLODInstance(def);
@@ -149,7 +148,7 @@ void COLMeshRenderWidget::render(const float* vertices, int32_t vertexCount, con
 		}
 
 		MapItemDefinition* pickDef = new StaticMapItemDefinition(new StaticMeshPointer(pickClump),
-				new NullTextureSource, NULL, 5000.0f);
+				new NullTextureSource, NULL, NULL, 5000.0f);
 
 		pickObj = new MapSceneObject;
 		MapSceneObjectLODInstance* pickInst = new MapSceneObjectLODInstance(pickDef);
@@ -217,12 +216,8 @@ void COLMeshRenderWidget::resizeGL(int w, int h)
 
 	DefaultRenderer* renderer = (DefaultRenderer*) scene->getRenderer();
 
-	if (!renderer->getTransparencyAlgorithm()) {
-		Engine* engine = Engine::getInstance();
-		engine->setViewportSize(getViewportWidth(), getViewportHeight());
-		DepthPeelingAlgorithm* dpAlgo = new DepthPeelingAlgorithm;
-		renderer->setTransparencyAlgorithm(dpAlgo);
-	}
+	Engine* engine = Engine::getInstance();
+	engine->setViewportSize(getViewportWidth(), getViewportHeight());
 }
 
 
@@ -243,7 +238,8 @@ void COLMeshRenderWidget::paintGL()
 		scene->addSceneObject(obj);
 	}
 
-	engine->render();
+
+	engine->renderFrame();
 }
 
 

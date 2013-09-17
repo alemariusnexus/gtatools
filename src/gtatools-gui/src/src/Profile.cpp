@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -28,7 +28,7 @@
 #include <utility>
 #include <gtaformats/gtaide.h>
 #include <gtaformats/util/strutil.h>
-#include <gta/scene/DefaultRenderer.h>
+#include <gta/render/DefaultRenderer.h>
 #include <gta/scene/visibility/PVSDatabase.h>
 #include <QtCore/QTimer>
 
@@ -40,7 +40,7 @@ using std::distance;
 
 
 Profile::Profile(const QString& name)
-		: name(QString(name)), gameInfo(NULL), stopResourceLoading(false)
+		: name(QString(name)), stopResourceLoading(false)
 {
 	connect(ProfileManager::getInstance(), SIGNAL(currentProfileChanged(Profile*, Profile*)), this,
 			SLOT(currentProfileChanged(Profile*, Profile*)));
@@ -92,6 +92,16 @@ Profile::ResourceIterator Profile::getResourceBegin()
 Profile::ResourceIterator Profile::getResourceEnd()
 {
 	return resources.end();
+}
+
+
+void Profile::setGameInfo(const GameInfo& info)
+{
+	gameInfo = info;
+
+	if (isCurrent()) {
+		Engine::getInstance()->setDefaultGameInfo(info);
+	}
 }
 
 
@@ -218,7 +228,7 @@ void Profile::loadSingleDAT()
 		if (engine->getScene() != scene)
 			engine->setScene(scene);
 
-		engine->loadDAT(*file, gameInfo->getRootDirectory());
+		engine->loadDAT(*file, gameInfo.getRootDirectory());
 
 		if (oldScene != scene)
 			engine->setScene(oldScene);

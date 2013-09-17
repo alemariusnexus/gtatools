@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -31,15 +31,15 @@
 class StreamingViewpoint
 {
 public:
-	enum StreamingFlags {
-		GraphicsStreaming = 1 << 0,
-		PhysicsStreaming = 1 << 1,
-		FrustumCulling = 1 << 10
+	enum StreamingFlags
+	{
+		FrustumCulling = 1 << 0
 	};
 
 public:
 	virtual Vector3 getStreamingViewpointPosition() const = 0;
-	virtual int getStreamingFlags() const = 0;
+	virtual uint32_t getBuckets() const = 0;
+	virtual uint32_t getStreamingFlags() const = 0;
 	virtual float getStreamingDistanceMultiplier() const = 0;
 	virtual Frustum getCullingFrustum() const { return Frustum(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f); }
 };

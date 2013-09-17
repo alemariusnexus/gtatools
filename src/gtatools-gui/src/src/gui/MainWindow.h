@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -69,14 +69,7 @@ protected:
 	virtual void closeEvent(QCloseEvent* evt);
 
 private slots:
-	void openEntity(DisplayedEntity* ent);
-	void currentEntityChanged(DisplayedEntity* cur, DisplayedEntity* prev);
-	void closeEntity(DisplayedEntity* ent);
-	void entitySaved();
-	void entityChangeStatusChanged();
 	void configurationChanged();
-	void currentEntityTabChanged(int index);
-	void entityTabClosed(int index);
 	void dockWidgetViewChanged(bool checked);
 	void dockWidgetVisibilityChanged(bool visible);
 
@@ -86,7 +79,6 @@ public slots:
 private:
 	QList<QDockWidget*> dockWidgets;
 	QList<QAction*> dockViewActions;
-	QMap<DisplayedEntity*, QWidget*> entityWidgets;
 	Ui_MainWindow ui;
 	QLabel* taskLabel;
 	QProgressBar* progressBar;

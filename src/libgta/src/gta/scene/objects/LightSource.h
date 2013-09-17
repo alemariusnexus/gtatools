@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -24,6 +24,7 @@
 #define LIGHTSOURCE_H_
 
 #include "../parts/SceneObject.h"
+#include "../StreamingManager.h"
 #include <gtaformats/util/math/Vector3.h>
 #include <gtaformats/util/math/Vector4.h>
 
@@ -69,6 +70,7 @@ public:
 	virtual void setShadowCastingEnabled(bool e) { shadowsEnabled = e; }
 
 	virtual typeflags_t getTypeFlags() const { return TypeFlagLight; }
+	virtual uint32_t getStreamingBuckets() const { return StreamingManager::VisibleBucket; }
 	virtual SceneObject* getLODParent() { return NULL; }
 	virtual float getStreamingDistance() const { return sdist; }
 

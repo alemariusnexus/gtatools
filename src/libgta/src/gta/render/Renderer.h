@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -33,9 +33,23 @@ using std::list;
 
 class Renderer {
 public:
-	virtual void enqueueForRendering(RenderingEntity* entity) = 0;
-	virtual void enqueueForRendering(LightSource* ls) = 0;
+	virtual void enqueueForRendering(list<RenderingEntity*>::iterator beg, list<RenderingEntity*>::iterator end) = 0;
+	virtual void enqueueForRendering(list<LightSource*>::iterator beg, list<LightSource*>::iterator end) = 0;
 	virtual void render() = 0;
+
+	virtual void enqueueForRendering(RenderingEntity* entity)
+	{
+		list<RenderingEntity*> l;
+		l.push_back(entity);
+		enqueueForRendering(l.begin(), l.end());
+	}
+
+	virtual void enqueueForRendering(LightSource* ls)
+	{
+		list<LightSource*> l;
+		l.push_back(ls);
+		enqueueForRendering(l.begin(), l.end());
+	}
 };
 
 #endif /* RENDERER_H_ */

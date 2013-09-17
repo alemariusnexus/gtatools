@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats.
 
@@ -137,6 +137,7 @@ inline double SwapEndiannessF64(double val)
 
 
 uint64_t GetTickcount();
+uint64_t GetTickcountMicroseconds();
 
 float RandomFloat(float min, float max);
 

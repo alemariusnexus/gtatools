@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -29,6 +29,7 @@
 #include "../render/RenderingEntityGenerator.h"
 #include "objects/LightSource.h"
 #include "StreamingViewpoint.h"
+#include "StreamingManager.h"
 #include "visibility/PVSDatabase.h"
 #include <gtaformats/util/StringComparator.h>
 #include "../ShaderProgram.h"
@@ -43,7 +44,8 @@ using std::map;
 
 
 
-class Scene {
+class Scene : public StreamingManager::StreamingListener
+{
 private:
 	typedef map<const char*, SceneObjectFileGroup*, StringComparator> FileGroupMap;
 
@@ -74,7 +76,7 @@ public:
 
 public:
 	Scene();
-	~Scene();
+	virtual ~Scene();
 
 	template <class ItType>
 	void addSceneObjects(ItType begin, ItType end);
@@ -87,59 +89,29 @@ public:
 	ConstObjectIterator getSceneObjectEnd() const { return objects.end(); }
 	ObjectList::size_type getSceneObjectCount() { return objects.size(); }
 	void buildVisibleSceneObjectList(VisualObjectList& visObjs, RigidBodyObjectList& rbObjs);
-	//DefaultSceneObject* getObjectByID(int id) { return objects[id]; }
 	size_t getLastVisibleObjectCount() const { return curVisObjs.size(); }
 	Renderer* getRenderer() { return renderer; }
 	void setRenderer(Renderer* r) { renderer = r; }
 	void updateVisibility();
 	void update(uint64_t timePassed);
 	void present();
-	PVSDatabase* getPVSDatabase() { return &pvs; }
-	void setPVSEnabled(bool pe) { pvsEnabled = pe; }
-	bool isPVSEnabled() const { return pvsEnabled; }
 	void setFrustumCullingEnabled(bool fc) { fcEnabled = fc; }
 	bool isFrustumCullingEnabled() const { return fcEnabled; }
 	btDiscreteDynamicsWorld* getPhysicsWorld() { return physicsWorld; }
 	void setPhysicsWorld(btDiscreteDynamicsWorld* world) { physicsWorld = world; }
-	void addStreamingViewpoint(StreamingViewpoint* vp) { svList.push_back(vp); }
+	void addStreamingViewpoint(StreamingViewpoint* vp);
+	StreamingManager* getStreamingManager() { return streamer; }
 
 	void setFreezeVisibility(bool fv) { freezeVisibility = fv; }
 	bool isVisibilityFrozen() const { return freezeVisibility; }
 
-private:
-	/*inline bool addIfVisible(SceneObject* obj, ObjectList& list, float cx, float cy, float cz)
-	{
-		Vector3 pos = obj->getPosition();
-
-		float dx = cx - pos.getX();
-		float dy = cy - pos.getY();
-		float dz = cz - pos.getZ();
-
-		float distSq = dx*dx + dy*dy + dz*dz;
-
-		while (obj) {
-			float dd = obj->getStreamingDistance();
-
-			if (dd == 0.0f  ||  dd*dd - distSq > 0.0f) {
-				list.push_back(obj);
-				return true;
-			} else {
-				obj = obj->getLODParent();
-			}
-		}
-
-		return false;
-	}*/
-
-	template <class ItType>
-	void buildVisibleSceneObjectList(StreamingViewpoint* svp, ItType beg, ItType end);
+	virtual void streamed(SceneObject* obj, uint32_t inBuckets, uint32_t outBuckets);
 
 private:
+	StreamingManager* streamer;
 	ObjectList objects;
-	ObjectList dynamicObjs;
 	ObjectList animObjs;
 	LightSourceList lightSources;
-	PVSDatabase pvs;
 	Renderer* renderer;
 	RenderingEntityGenerator* reGenerator;
 	int nextStaticObjID;

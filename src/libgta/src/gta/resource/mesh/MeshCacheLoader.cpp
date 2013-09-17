@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -34,6 +34,7 @@
 
 Engine::StringResourceCache::Entry* MeshCacheLoader::load(CString key)
 {
+#if 1
 	MeshIndexer::IndexEntry ientry = indexer->find(key);
 
 	if (!ientry.file) {
@@ -59,4 +60,41 @@ Engine::StringResourceCache::Entry* MeshCacheLoader::load(CString key)
 
 	MeshCacheEntry* entry = new MeshCacheEntry(clump);
 	return entry;
+#else
+	/*if (key.lower() != CString("mtraffic1")) {
+		return NULL;
+	}*/
+
+	CollisionMeshIndexer::CollisionMeshIndexEntry* ientry = colIndexer->getCollisionMesh(key);
+
+	if (!ientry) {
+		return NULL;
+	}
+
+	//printf("%s : %d\n", ientry->file->getPath()->toString().get(), ientry->index);
+
+	COLLoader col;
+	istream* stream = ientry->file->openInputStream(istream::binary);
+	col.skip(stream, ientry->index);
+	COLModel* model = col.loadModel(stream);
+
+	COLBox* boxes = model->getBoxes();
+	COLSphere* spheres = model->getSpheres();
+
+	COLMeshConverter conv;
+	Mesh* mesh = conv.convert(*model);
+
+	MeshFrame* rootFrame = new MeshFrame;
+	mesh->setFrame(rootFrame);
+
+	MeshClump* clump = new MeshClump;
+	clump->setRootFrame(rootFrame);
+	clump->addMesh(mesh);
+
+
+	delete model;
+
+	MeshCacheEntry* entry = new MeshCacheEntry(clump);
+	return entry;
+#endif
 }

@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -27,6 +27,7 @@
 #include <gtaformats/util/math/Vector3.h>
 #include <gtaformats/util/math/Frustum.h>
 #include "scene/StreamingViewpoint.h"
+#include "scene/StreamingManager.h"
 
 
 
@@ -55,8 +56,8 @@ public:
 	void setFrustum(const Frustum& f) { frustum = f; }
 
 	virtual Vector3 getStreamingViewpointPosition() const { return getPosition(); }
-	virtual int getStreamingFlags() const
-			{ return GraphicsStreaming /*| PhysicsStreaming*/ | FrustumCulling; }
+	virtual uint32_t getStreamingFlags() const { return FrustumCulling; }
+	virtual uint32_t getBuckets() const { return StreamingManager::VisibleBucket; }
 	virtual float getStreamingDistanceMultiplier() const { return 1.0f; }
 	virtual Frustum getCullingFrustum() const { return frustum; }
 

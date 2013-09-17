@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -164,7 +164,7 @@ Mesh* COLMeshConverter::convert(const COLModel& model)
 		float* tmpNormals;
 		// TODO Reenable
 		gen.createSphere(sphereVertexArrays[i], tmpNormals, sphereVertexCounts[i], sphereIndexArrays[i],
-				sphereIndexCounts[i], sphere.getRadius(), 4, 4);
+				sphereIndexCounts[i], sphere.getRadius(), 4, 4, sphere.getCenter());
 		delete[] tmpNormals;
 		/*gen.createSphere(sphereVertexArrays[i], sphereVertexCounts[i],
                sphereIndexArrays[i], sphereIndexCounts[i], sphere.getRadius(), 4, 4);*/

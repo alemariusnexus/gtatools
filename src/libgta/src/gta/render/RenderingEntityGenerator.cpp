@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -32,7 +32,6 @@
 
 
 
-//void RenderingEntityGenerator::generate(VisualSceneObject* sobj, list<RenderingEntity*>& outList)
 void RenderingEntityGenerator::generate(list<VisualSceneObject*>::iterator beg, list<VisualSceneObject*>::iterator end, list<RenderingEntity*>& outList)
 {
 	for (list<VisualSceneObject*>::iterator it = beg ; it != end ; it++) {
@@ -95,6 +94,9 @@ void RenderingEntityGenerator::generateFromStaticMapSceneObjectLODInstance(MapSc
 
 	MeshPointer* mptr = def->getMeshPointer();
 	MeshClump* meshClump = mptr->get(true);
+
+	if (!meshClump)
+		return;
 
 	TextureSource* texSrc = def->getTextureSource();
 
@@ -209,6 +211,9 @@ void RenderingEntityGenerator::generateFromAnimatedMapSceneObjectLODInstance(Ani
 
 	MeshPointer* mptr = def->getMeshPointer();
 	MeshClump* meshClump = mptr->get(true);
+
+	if (!meshClump)
+		return;
 
 	TextureSource* texSrc = def->getTextureSource();
 

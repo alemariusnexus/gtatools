@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -80,8 +80,6 @@ void MainWindow::initialize()
 	connect(sys, SIGNAL(currentEntityChanged(DisplayedEntity*, DisplayedEntity*)), this,
 			SLOT(currentEntityChanged(DisplayedEntity*, DisplayedEntity*)));
 	connect(sys, SIGNAL(configurationChanged()), this, SLOT(configurationChanged()));
-	connect(ui.contentTabber, SIGNAL(currentChanged(int)), this, SLOT(currentEntityTabChanged(int)));
-	connect(ui.contentTabber, SIGNAL(tabCloseRequested(int)), this, SLOT(entityTabClosed(int)));
 
 	QSettings settings;
 
@@ -179,68 +177,6 @@ void MainWindow::dockWidgetVisibilityChanged(bool visible)
 }
 
 
-void MainWindow::openEntity(DisplayedEntity* ent)
-{
-	DisplayedFile* dfile = dynamic_cast<DisplayedFile*>(ent);
-
-	if (dfile) {
-		FileViewWidget* widget = new FileViewWidget(dfile);
-		entityWidgets[dfile] = widget;
-		ui.contentTabber->addTab(widget, dfile->getName());
-	} else {
-		QWidget* widget = ent->getWidget();
-
-		if (widget) {
-			entityWidgets[ent] = widget;
-			ui.contentTabber->addTab(widget, ent->getName());
-		}
-	}
-
-	connect(ent, SIGNAL(saved()), this, SLOT(entitySaved()));
-	connect(ent, SIGNAL(changeStatusChanged()), this, SLOT(entityChangeStatusChanged()));
-}
-
-
-void MainWindow::currentEntityChanged(DisplayedEntity* cur, DisplayedEntity* prev)
-{
-	if (cur)
-		ui.contentTabber->setCurrentWidget(entityWidgets[cur]);
-}
-
-
-void MainWindow::closeEntity(DisplayedEntity* ent)
-{
-	QWidget* widget = entityWidgets[ent];
-	entityWidgets.remove(ent);
-	ui.contentTabber->removeTab(ui.contentTabber->indexOf(widget));
-	disconnect(ent, NULL, this, NULL);
-
-	if (dynamic_cast<DisplayedFile*>(ent))
-		delete widget;
-}
-
-
-void MainWindow::entitySaved()
-{
-	DisplayedEntity* dent = (DisplayedEntity*) sender();
-	QWidget* widget = entityWidgets[dent];
-	ui.contentTabber->setTabText(ui.contentTabber->indexOf(widget), dent->getName());
-}
-
-
-void MainWindow::entityChangeStatusChanged()
-{
-	DisplayedEntity* dent = (DisplayedEntity*) sender();
-	QWidget* widget = entityWidgets[dent];
-	QString text = dent->getName();
-
-	if (dent->hasChanges())
-		text += "*";
-
-	ui.contentTabber->setTabText(ui.contentTabber->indexOf(widget), text);
-}
-
-
 void MainWindow::configurationChanged()
 {
 }
@@ -248,37 +184,6 @@ void MainWindow::configurationChanged()
 
 void MainWindow::taskLabelShouldAdjust()
 {
-}
-
-
-void MainWindow::currentEntityTabChanged(int index)
-{
-	QMap<DisplayedEntity*, QWidget*>::iterator it;
-	QWidget* widget = ui.contentTabber->widget(index);
-
-	for (it = entityWidgets.begin() ; it != entityWidgets.end() ; it++) {
-		if (widget == it.value()) {
-			System* sys = System::getInstance();
-			DisplayedEntity* ent = it.key();
-			sys->changeCurrentEntity(ent);
-			break;
-		}
-	}
-}
-
-
-void MainWindow::entityTabClosed(int index)
-{
-	QMap<DisplayedEntity*, QWidget*>::iterator it;
-	QWidget* widget = ui.contentTabber->widget(index);
-
-	for (it = entityWidgets.begin() ; it != entityWidgets.end() ; it++) {
-		if (widget == it.value()) {
-			System* sys = System::getInstance();
-			sys->closeEntity(it.key());
-			break;
-		}
-	}
 }
 
 

@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -81,7 +81,7 @@ Mesh* MeshGenerator::createBox(const Vector3& min, const Vector3& max)
 
 
 void MeshGenerator::createSphere(float*& vertices, float*& normals, int& vertexCount, uint32_t*& indices, int& indexCount,
-		float radius, int slices, int stacks)
+		float radius, int slices, int stacks, const Vector3& offset)
 {
     int numVertices = (stacks-1)*slices+2;
     vertexCount = numVertices;
@@ -160,6 +160,10 @@ void MeshGenerator::createSphere(float*& vertices, float*& normals, int& vertexC
 	indices[indexOffset++] = sv;
 	indices[indexOffset++] = sv + slices - 1;
 
+	float ox = offset.getX();
+	float oy = offset.getY();
+	float oz = offset.getZ();
+
 	for (int i = 0 ; i < vertexCount ; i++) {
 		Vector3 normal(vertices + i*3);
 		normal.normalize();
@@ -172,18 +176,22 @@ void MeshGenerator::createSphere(float*& vertices, float*& normals, int& vertexC
 			exit(0);
 		}*/
 		memcpy((void*) (normals + i*3), &normal, 3*4);
+
+		vertices[i*3] += ox;
+		vertices[i*3 + 1] += oy;
+		vertices[i*3 + 2] += oz;
 	}
 }
 
 
-Mesh* MeshGenerator::createSphere(float radius, int slices, int stacks)
+Mesh* MeshGenerator::createSphere(float radius, int slices, int stacks, const Vector3& offset)
 {
 	float* vertices;
 	float* normals;
 	int vcount;
 	uint32_t* indices;
 	int indCount;
-	createSphere(vertices, normals, vcount, indices, indCount, radius, slices, stacks);
+	createSphere(vertices, normals, vcount, indices, indCount, radius, slices, stacks, offset);
 	Mesh* mesh = new Mesh(vcount, VertexFormatTriangles, MeshNormals, vertices, normals);
 	Submesh* submesh = new Submesh(mesh, indCount, indices);
 	mesh->addSubmesh(submesh);

@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -60,13 +60,13 @@ ProfileConfigWidget::ProfileConfigWidget(Profile* profile, QWidget* parent)
 
 	ui.nameField->setText(profile->getName());
 
-	if (profile->getGameInfo())
-		ui.rootDirField->setText(profile->getGameInfo()->getRootDirectory().getPath()->toString().get());
+	if (profile->getGameInfo().isValid())
+		ui.rootDirField->setText(profile->getGameInfo().getRootDirectory().getPath()->toString().get());
 	else
 		ui.rootDirField->setText("");
 
-	if (profile->getGameInfo()) {
-		switch (profile->getGameInfo()->getVersionMode()) {
+	if (profile->getGameInfo().isValid()) {
+		switch (profile->getGameInfo().getVersionMode()) {
 		case GameInfo::GTASA:
 			ui.versionBox->setCurrentIndex(0);
 			break;

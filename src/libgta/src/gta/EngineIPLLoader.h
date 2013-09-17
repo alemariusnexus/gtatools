@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -61,7 +61,7 @@ private:
 
 public:
 	EngineIPLLoader() : sfProv(NULL) {}
-	void load(const File& file, Scene::ObjectList& objects, const GameInfo* info = NULL);
+	void load(const File& file, Scene::ObjectList& objects, GameInfo info = GameInfo());
 	void setStreamingFileProvider(IPLStreamingFileProvider* sfProv) { this->sfProv = sfProv; }
 	IPLStreamingFileProvider* getStreamingFileProvider() { return sfProv; }
 

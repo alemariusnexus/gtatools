@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -37,12 +37,15 @@ public:
 	};
 
 public:
+	GameInfo() : valid(false), ver(GTASA), rootDir("") {}
 	GameInfo(VersionMode ver, const File& rootDir);
-	GameInfo(const GameInfo& other) : ver(other.ver), rootDir(other.rootDir) {}
+	GameInfo(const GameInfo& other) : valid(other.valid), ver(other.ver), rootDir(other.rootDir) {}
+	bool isValid() const { return valid; }
 	VersionMode getVersionMode() const { return ver; }
 	File getRootDirectory() const { return rootDir; }
 
 private:
+	bool valid;
 	VersionMode ver;
 	File rootDir;
 };

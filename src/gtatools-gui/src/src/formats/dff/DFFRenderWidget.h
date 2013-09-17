@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -40,7 +40,6 @@
 #include <gta/resource/texture/TextureSource.h>
 #include <gta/scene/objects/MapSceneObject.h>
 #include <gta/scene/Scene.h>
-#include <gta/scene/Renderer.h>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QKeyEvent>
 #include <QtCore/QPoint>

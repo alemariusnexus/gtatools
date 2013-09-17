@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -121,6 +121,24 @@ private:
 	typedef FileGroupMap::const_iterator ConstFileGroupIterator;
 
 public:
+	class PVSSceneObjectIterator
+	{
+	public:
+		PVSSceneObjectIterator() {}
+		PVSSceneObjectIterator(vector<PVSSceneObjectContainer*>::iterator it) : it(it) {}
+		PVSSceneObjectIterator(const PVSSceneObjectIterator& other) : it(other.it) {}
+
+		PVSSceneObjectIterator& operator++() { it++; return *this; }
+		PVSSceneObjectIterator operator++(int) { PVSSceneObjectIterator oldIt = *this; it++; return oldIt; }
+		bool operator==(const PVSSceneObjectIterator& other) const { return it == other.it; }
+		bool operator!=(const PVSSceneObjectIterator& other) const { return it != other.it; }
+		PVSSceneObject* operator*() { return (*it)->obj; }
+
+	private:
+		vector<PVSSceneObjectContainer*>::iterator it;
+	};
+
+public:
 	PVSDatabase();
 
 	void calculatePVS(unsigned int numThreads = 1);
@@ -144,8 +162,12 @@ public:
 
 	void save(const File& file, int flags = 0);
 
-	bool queryPVS(list<PVSSceneObject*>& pvs, const Vector3& pos, float distMultiplier,
-			float* chosenDistMultiplier = NULL);
+	/*template <class ContainerType>
+	bool queryPVS(ContainerType& pvs, const Vector3& pos, float distMultiplier,
+			float* chosenDistMultiplier = NULL);*/
+
+	bool queryPVS(PVSSceneObjectIterator& beg, PVSSceneObjectIterator& end, const Vector3& pos,
+			float distMultiplier, float* chosenDistMultiplier = NULL);
 
 	void addProgressObserver(ProgressObserver* obsv) { progressObservers.push_back(obsv); }
 
