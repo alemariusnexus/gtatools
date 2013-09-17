@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-test.
 
@@ -96,7 +96,8 @@ class TestViewpoint : public StreamingViewpoint
 public:
 	TestViewpoint(Vector3 pos, float sdMul) : pos(pos), sdMul(sdMul) {}
 	virtual Vector3 getStreamingViewpointPosition() const { return pos; }
-	virtual int getStreamingFlags() const { return GraphicsStreaming; }
+	virtual uint32_t getStreamingFlags() const { return FrustumCulling; }
+	virtual uint32_t getStreamingBuckets() const { return StreamingManager::VisibleBucket; }
 	virtual float getStreamingDistanceMultiplier() const { return sdMul; }
 
 private:
@@ -151,7 +152,7 @@ void Controller::init()
 		exit(1);
 	}
 
-	GameInfo* gameInfo = new GameInfo(ver, File(GTASA_PATH));
+	GameInfo gameInfo(ver, File(GTASA_PATH));
 	engine->setDefaultGameInfo(gameInfo);
 
 	printf("Initializing Bullet...\n");
@@ -201,9 +202,6 @@ void Controller::init()
 
 	scene->setPhysicsWorld(world);
 
-	scene->setPVSEnabled(true);
-	PVSDatabase* pvs = scene->getPVSDatabase();
-
 	Camera* cam = new Camera;
 	engine->setCamera(cam);
 
@@ -214,7 +212,7 @@ void Controller::init()
 
 	engine->setScene(scene);
 
-	if (gameInfo->getVersionMode() == GameInfo::GTASA) {
+	if (gameInfo.getVersionMode() == GameInfo::GTASA) {
 		DefaultIPLStreamingFileProvider* sfProv = new DefaultIPLStreamingFileProvider;
 		File gta3imgFile(GTASA_PATH "/models/gta3.img");
 		gta3imgFile.preloadIMG();
@@ -246,7 +244,7 @@ void Controller::init()
 
 	printf("Loading resources...\n");
 
-	if (gameInfo->getVersionMode() == GameInfo::GTASA) {
+	if (gameInfo.getVersionMode() == GameInfo::GTASA) {
 		addResource(File(GTASA_PATH "/models/gta_int.img"));
 	}
 
@@ -260,7 +258,7 @@ void Controller::init()
 	printf("Loading DAT files...\n");
 	engine->loadDAT(File(GTASA_PATH "/data/default.dat"), File(GTASA_PATH));
 
-	switch (gameInfo->getVersionMode()) {
+	switch (gameInfo.getVersionMode()) {
 	case GameInfo::GTASA:
 		engine->loadDAT(File(GTASA_PATH "/data/gta.dat"), File(GTASA_PATH));
 		break;
@@ -325,7 +323,7 @@ void Controller::init()
 
 	CString testMeshName;
 
-	switch (gameInfo->getVersionMode()) {
+	switch (gameInfo.getVersionMode()) {
 	case GameInfo::GTASA:
 		testMeshName = CString("jizzy");
 		break;
@@ -391,6 +389,8 @@ void Controller::init()
 
 
 
+	PVSDatabase* pvs = scene->getStreamingManager()->getPVSDatabase();
+
 	File pvsFile(GTASA_PATH "/visibility.pvs");
 
 	bool pvsBuilt = false;
@@ -398,7 +398,7 @@ void Controller::init()
 	if (pvsFile.exists()) {
 		printf("Loading PVS data from file '%s'...\n", pvsFile.getPath()->toString().get());
 
-		PVSDatabase::LoadingResult res = pvs->load(pvsFile, engine->getDefaultGameInfo()->getRootDirectory());
+		PVSDatabase::LoadingResult res = pvs->load(pvsFile, engine->getDefaultGameInfo().getRootDirectory());
 
 		if (res == PVSDatabase::ResultOK) {
 			size_t numUncalculated = pvs->getUncalculatedObjectCount();
@@ -426,7 +426,7 @@ void Controller::init()
 
 	if (!pvsBuilt) {
 		printf("Building PVS data from scratch. This may take some time...\n");
-		pvs->calculateSections(250.0f, 250.0f, 2000.0f);
+		pvs->calculateSections(500.0f, 500.0f, 2000.0f);
 		pvs->calculatePVS(8);
 		printf("Writing PVS data to file '%s'\n", pvsFile.getPath()->toString().get());
 		pvs->save(pvsFile);
@@ -518,6 +518,8 @@ void Controller::init()
 	//cam->setPosition(162.309998f, -201.011093f, 35.131886f);
 	//cam->lookAt(Vector3(0.757422f, 0.506264f, -0.412321f), Vector3(0.342802f, 0.229130f, 0.911053f));
 
+	//cam->setPosition(1850.157104f, -1260.398071f, 19.490332f);
+	//cam->lookAt(Vector3(0.982754f, 0.018874f, -0.183951f), Vector3(0.179001f, 0.003437f, 0.983843f));
 
 	GLException::checkError("After init");
 }
@@ -574,7 +576,7 @@ unsigned int fib(int n)
 bool Controller::paint()
 {
 	uint64_t absS, absE;
-	absS = GetTickcount();
+	absS = GetTickcountMicroseconds();
 
 	uint64_t time = GetTickcount();
 
@@ -604,9 +606,15 @@ bool Controller::paint()
 	slPos += Vector3(sin(slAngle), cos(slAngle), 0.0f) * 50.0f;
 	sl->setPosition(slPos);
 
+	uint64_t s, e;
+	s = GetTickcountMicroseconds();
+
 	if (!firstFrame) {
 		engine->renderFrame();
 	}
+
+	e = GetTickcountMicroseconds();
+	uint64_t t1 = e-s;
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -651,9 +659,9 @@ bool Controller::paint()
 
 		char title[512];
 		sprintf(title, WINDOW_BASE_TITLE " - %.2f FPS - MC: %.2f%% - TC: %.2f%% - %.2d:%.2d - Transparency "
-				"Mode: %s, PVS: %s, Frustum Culling: %s, Backface Culling: %s, Rendering %d/%d objects (%.3f%%)",
+				"Mode: %s, Frustum Culling: %s, Backface Culling: %s, Rendering %d/%d objects (%.3f%%)",
 				fps, mc*100.0f, tc*100.0f, gameH, gameM, transMode,
-				scene->isPVSEnabled() ? "on" : "off", scene->isFrustumCullingEnabled() ? "on" : "off",
+				scene->isFrustumCullingEnabled() ? "on" : "off",
 				glIsEnabled(GL_CULL_FACE) == GL_TRUE ? "on" : "off",
 				scene->getLastVisibleObjectCount(), scene->getSceneObjectCount(),
 				renderingPercentage * 100.0f);
@@ -665,9 +673,13 @@ bool Controller::paint()
 		forceStatisticsUpdate = false;
 	}
 
+	s = GetTickcountMicroseconds();
 	engine->advanceFrame(timePassed);
+	e = GetTickcountMicroseconds();
 
-	absE = GetTickcount();
+	absE = GetTickcountMicroseconds();
+
+	//printf("Took %uus (%uus / %uus)\n", (unsigned int) (absE-absS), (unsigned int) t1, (unsigned int) (e-s));
 
 	GLException::checkError("After paint");
 
@@ -732,8 +744,10 @@ void Controller::keyPressed(SDL_keysym evt)
 		Vector3 p = cam->getPosition();
 		Vector3 t = cam->getTarget();
 		Vector3 up = cam->getUp();
-		printf("Camera is at (%f, %f, %f), looking at (%f, %f, %f), with up vector (%f, %f, %f)\n", p.getX(),
-				p.getY(), p.getZ(), t.getX(), t.getY(), t.getZ(), up.getX(), up.getY(), up.getZ());
+
+		printf("cam->setPosition(%ff, %ff, %ff);\n", p.getX(), p.getY(), p.getZ());
+		printf("cam->lookAt(Vector3(%ff, %ff, %ff), Vector3(%ff, %ff, %ff));\n",
+				t.getX(), t.getY(), t.getZ(), up.getX(), up.getY(), up.getZ());
 	} else if (k == SDLK_x) {
 		programRunning = false;
 	} else if (k == SDLK_l) {
@@ -747,8 +761,6 @@ void Controller::keyPressed(SDL_keysym evt)
 			r->dpNumPasses--;
 	} else if (k == SDLK_f) {
 		engine->getScene()->setFrustumCullingEnabled(!engine->getScene()->isFrustumCullingEnabled());
-	} else if (k == SDLK_v) {
-		engine->getScene()->setPVSEnabled(!engine->getScene()->isPVSEnabled());
 	} else if (k == SDLK_c) {
 		if (glIsEnabled(GL_CULL_FACE) == GL_TRUE) {
 			glDisable(GL_CULL_FACE);

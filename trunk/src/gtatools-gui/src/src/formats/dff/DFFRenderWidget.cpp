@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -34,9 +34,7 @@
 #include <gta/resource/mesh/Submesh.h>
 #include <gta/StaticMapItemDefinition.h>
 #include <gta/scene/Scene.h>
-#include <gta/scene/DefaultRenderer.h>
-#include <gta/scene/DepthPeelingAlgorithm.h>
-#include <gta/scene/BasicTransparencyAlgorithm.h>
+#include <gta/render/DefaultRenderer.h>
 #include <gta/scene/visibility/PVSDatabase.h>
 
 
@@ -68,7 +66,6 @@ DFFRenderWidget::~DFFRenderWidget()
 
 	if (scene) {
 		DefaultRenderer* renderer = (DefaultRenderer*) scene->getRenderer();
-		delete renderer->getTransparencyAlgorithm();
 		delete renderer;
 		delete scene;
 	}
@@ -104,7 +101,7 @@ MapSceneObject* DFFRenderWidget::createSceneObject(const DFFGeometry* geom,
 	clump->addMesh(mesh);
 
 	StaticMapItemDefinition* def = new StaticMapItemDefinition(new StaticMeshPointer(clump), texSrc, NULL,
-			5000.0f);
+			NULL, 5000.0f);
 	MapSceneObject* obj = new MapSceneObject;
 	MapSceneObjectLODInstance* inst = new MapSceneObjectLODInstance(def);
 	obj->addLODInstance(inst);
@@ -198,12 +195,6 @@ void DFFRenderWidget::resizeGL(int w, int h)
 
 	Engine* engine = Engine::getInstance();
 	engine->setViewportSize(getViewportWidth(), getViewportHeight());
-	TransparencyAlgorithm* oldAlgo = renderer->getTransparencyAlgorithm();
-	BasicTransparencyAlgorithm* btAlgo = new BasicTransparencyAlgorithm;
-	renderer->setTransparencyAlgorithm(btAlgo);
-
-	if (oldAlgo)
-		delete oldAlgo;
 }
 
 
@@ -225,7 +216,7 @@ void DFFRenderWidget::paintGL()
 			scene->addSceneObject(obj);
 		}
 
-		engine->render();
+		engine->renderFrame();
 
 		GLException::checkError();
 	} catch (Exception& ex) {

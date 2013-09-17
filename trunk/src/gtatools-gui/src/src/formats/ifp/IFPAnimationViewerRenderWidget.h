@@ -9,6 +9,7 @@
 #define IFPANIMATIONVIEWERRENDERWIDGET_H_
 
 #include "../../gui/GLBaseWidget.h"
+#include <gta/scene/Scene.h>
 #include <gta/scene/objects/AnimatedMapSceneObject.h>
 #include <gta/scene/objects/MapSceneObject.h>
 

@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -128,11 +128,11 @@ void ProfileManager::saveProfiles()
 
 		settings.setValue(QString("name"), profile->getName());
 		settings.setValue(QString("root"),
-				profile->getGameInfo()->getRootDirectory().getPath()->toString().get());
+				profile->getGameInfo().getRootDirectory().getPath()->toString().get());
 
 		QString verStr;
 
-		switch (profile->getGameInfo()->getVersionMode()) {
+		switch (profile->getGameInfo().getVersionMode()) {
 		case GameInfo::GTAIII:
 			verStr = "gta3";
 			break;
@@ -271,8 +271,7 @@ void ProfileManager::eventLoopStarted()
 		else
 			ver = GameInfo::GTASA;
 
-		GameInfo* info = new GameInfo(ver,
-				File(settings.value(QString("profile%1/root").arg(i)).toString().toLocal8Bit().constData()));
+		GameInfo info(ver, File(settings.value(QString("profile%1/root").arg(i)).toString().toLocal8Bit().constData()));
 		profile->setGameInfo(info);
 
 		for (int j = 0 ; true ; j++) {

@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -83,7 +83,7 @@ void Engine::destroy()
 
 
 Engine::Engine()
-		: defGameInfo(NULL), camera(NULL), scene(NULL), gameHours(8), gameMinutes(0), viewWidth(-1),
+		: defGameInfo(GameInfo()), camera(NULL), scene(NULL), gameHours(8), gameMinutes(0), viewWidth(-1),
 		  viewHeight(-1), testMem(0), freezeVisibility(false)
 {
 	meshIndexer = new MeshIndexer;
@@ -91,7 +91,7 @@ Engine::Engine()
 	colIndexer = new CollisionMeshIndexer;
 	animIndexer = new AnimationIndexer;
 
-	meshCacheLoader = new MeshCacheLoader(meshIndexer);
+	meshCacheLoader = new MeshCacheLoader(meshIndexer, colIndexer);
 	texCacheLoader = new TextureCacheLoader(texIndexer);
 	colCacheLoader = new CollisionMeshCacheLoader(colIndexer);
 	animCacheLoader = new AnimationCacheLoader(animIndexer);
@@ -208,7 +208,6 @@ void Engine::advanceFrame(uint64_t advanceTime)
 		throw EngineException("Attempt to render with invalid viewport dimensions!", __FILE__, __LINE__);
 	}
 
-
 	if (!freezeVisibility)
 		scene->updateVisibility();
 
@@ -232,9 +231,9 @@ void Engine::renderFrame()
 }
 
 
-void Engine::loadDAT(const File& file, const File& rootDir, const GameInfo* gameInfo)
+void Engine::loadDAT(const File& file, const File& rootDir, GameInfo gameInfo)
 {
-	if (!gameInfo)
+	if (!gameInfo.isValid())
 		gameInfo = defGameInfo;
 
 	istream* dat = file.openInputStream();
@@ -276,9 +275,9 @@ void Engine::loadDAT(const File& file, const File& rootDir, const GameInfo* game
 }
 
 
-void Engine::iplRecurse(File* file, const File& rootDir, const GameInfo* gameInfo)
+void Engine::iplRecurse(File* file, const File& rootDir, GameInfo gameInfo)
 {
-	if (!gameInfo)
+	if (!gameInfo.isValid())
 		gameInfo = defGameInfo;
 
 	File gta3img(rootDir, "/models/gta3.img");

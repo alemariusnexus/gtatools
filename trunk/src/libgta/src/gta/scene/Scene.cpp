@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -56,14 +56,16 @@ struct SortableSceneObject
 
 
 Scene::Scene()
-		: renderer(NULL), reGenerator(new RenderingEntityGenerator), pvsEnabled(false), fcEnabled(true),
-		  physicsWorld(NULL), freezeVisibility(false)
+		: streamer(new StreamingManager()), renderer(NULL), reGenerator(new RenderingEntityGenerator),
+		  pvsEnabled(false), fcEnabled(true), physicsWorld(NULL), freezeVisibility(false)
 {
+	streamer->addStreamingListener(this);
 }
 
 
 Scene::~Scene()
 {
+	delete streamer;
 }
 
 
@@ -73,145 +75,45 @@ void Scene::addSceneObject(SceneObject* obj)
 
 	SceneObject::typeflags_t tf = obj->getTypeFlags();
 
-	if ((tf & SceneObject::TypeFlagPVS)  ==  0) {
-		dynamicObjs.push_back(obj);
-	} else {
-		pvs.addObject(dynamic_cast<PVSSceneObject*>(obj));
-	}
-
 	if ((tf & SceneObject::TypeFlagAnimated)  !=  0) {
 		animObjs.push_back(obj);
 	}
 
 	if ((tf & SceneObject::TypeFlagLight)  !=  0) {
 		lightSources.push_back(dynamic_cast<LightSource*>(obj));
+	} else {
+		streamer->addSceneObject(obj);
 	}
+}
 
-	/*if ((tf & SceneObject::TypeFlagRigidBody)  !=  0) {
-		RigidBodySceneObject* rbObj = dynamic_cast<RigidBodySceneObject*>(obj);
 
-		btRigidBody* rb = rbObj->getRigidBody();
+void Scene::addStreamingViewpoint(StreamingViewpoint* vp)
+{
+	svList.push_back(vp);
+	streamer->addViewpoint(vp);
+}
 
-		if (rb) {
-			physicsWorld->addRigidBody(rb);
-			delete rb->getCollisionShape();
-		}
-	}*/
+
+void Scene::streamed(SceneObject* obj, uint32_t inBuckets, uint32_t outBuckets)
+{
+	if ((inBuckets & StreamingManager::VisibleBucket)  !=  0) {
+		curVisObjs.push_back(dynamic_cast<VisualSceneObject*>(obj));
+	} else if ((outBuckets & StreamingManager::VisibleBucket)  !=  0) {
+		curVisObjs.remove(dynamic_cast<VisualSceneObject*>(obj));
+	}
 }
 
 
 void Scene::clear()
 {
 	objects.clear();
-	dynamicObjs.clear();
 	animObjs.clear();
-}
-
-
-template <class ItType>
-void Scene::buildVisibleSceneObjectList(StreamingViewpoint* svp, ItType beg, ItType end)
-{
-	int svpFlags = svp->getStreamingFlags();
-
-	bool visSvp = (svpFlags & StreamingViewpoint::GraphicsStreaming) != 0;
-	bool physSvp = (svpFlags & StreamingViewpoint::PhysicsStreaming) != 0;
-	bool fcSvp = (svpFlags & StreamingViewpoint::FrustumCulling) != 0;
-
-	Frustum frustum = svp->getCullingFrustum();
-
-	float sdMul = svp->getStreamingDistanceMultiplier();
-	Vector3 svpPos = svp->getStreamingViewpointPosition();
-
-	float sx = svpPos.getX();
-	float sy = svpPos.getY();
-	float sz = svpPos.getZ();
-
-	for (ItType it = beg ; it != end ; it++) {
-		SceneObject* obj = dynamic_cast<SceneObject*>(*it);
-
-		Vector3 dv = svpPos - obj->getPosition();
-		float dist = sqrt(dv.dot(dv));
-
-		float sd = obj->getStreamingDistance() * sdMul;
-
-		if (sd == 0.0f  ||  sd - dist > 0.0f) {
-			if (visSvp  &&  (obj->getTypeFlags() & SceneObject::TypeFlagVisual)  !=  0) {
-				VisualSceneObject* vobj = dynamic_cast<VisualSceneObject*>(obj);
-
-				if (fcEnabled  &&  fcSvp) {
-					Vector3 bCenter;
-					float bRadius;
-					vobj->getBoundingSphere(bCenter, bRadius);
-
-					if (frustum.computeSphere(bCenter, bRadius) == Frustum::Outside) {
-						continue;
-					}
-				}
-
-				vobj->updateRenderingDistance(dist, sdMul);
-
-				if (!obj->sceneGraphicsVisible) {
-					curVisObjs.push_back(vobj);
-					obj->sceneGraphicsVisible = true;
-				}
-			}
-			if (physSvp  &&  (obj->getTypeFlags() & SceneObject::TypeFlagRigidBody)  !=  0) {
-				RigidBodySceneObject* rbobj = dynamic_cast<RigidBodySceneObject*>(obj);
-
-				if (!obj->scenePhysicsVisible) {
-					curRbObjs.push_back(rbobj);
-					obj->scenePhysicsVisible = true;
-				}
-			}
-		}
-	}
-}
-
-
-void Scene::buildVisibleSceneObjectList(VisualObjectList& visObjs, RigidBodyObjectList& rbObjs)
-{
-	if (pvsEnabled)
-		pvs.calculatePVS();
-
-	Engine* engine = Engine::getInstance();
-
-	if (pvsEnabled) {
-		for (StreamingViewpointIterator it = svList.begin() ; it != svList.end() ; it++) {
-			StreamingViewpoint* vp = *it;
-
-			list<PVSSceneObject*> pvObjs;
-
-			Vector3 pos = vp->getStreamingViewpointPosition();
-			float sdMul = vp->getStreamingDistanceMultiplier();
-			float chosenSdMul;
-
-			if (pvs.queryPVS(pvObjs, pos, sdMul, &chosenSdMul)) {
-				// PVS query was successful
-
-				// Process the dynamic objects
-				buildVisibleSceneObjectList(vp, dynamicObjs.begin(), dynamicObjs.end());
-
-				// Then, process all objects delivered by PVS for this viewpoint
-				buildVisibleSceneObjectList(vp, pvObjs.begin(), pvObjs.end());
-			} else {
-				// PVS query was NOT sucessful, so we manually process all objects here
-				buildVisibleSceneObjectList(vp, objects.begin(), objects.end());
-			}
-		}
-	} else {
-		for (StreamingViewpointIterator it = svList.begin() ; it != svList.end() ; it++) {
-			StreamingViewpoint* vp = *it;
-			buildVisibleSceneObjectList(vp, objects.begin(), objects.end());
-		}
-	}
 }
 
 
 void Scene::updateVisibility()
 {
-	curVisObjs.clear();
-	curRbObjs.clear();
-	buildVisibleSceneObjectList(curVisObjs, curRbObjs);
+	streamer->update();
 }
 
 
@@ -235,20 +137,9 @@ void Scene::present()
 
 	list<RenderingEntity*> rEntities;
 
-	for (VisualObjectIterator it = curVisObjs.begin() ; it != curVisObjs.end() ; it++) {
-		VisualSceneObject* obj = *it;
-
-		obj->sceneGraphicsVisible = false;
-
-		SceneObject::typeflags_t tf = obj->getTypeFlags();
-	}
-
 	reGenerator->generate(curVisObjs.begin(), curVisObjs.end(), rEntities);
 
-	for (list<RenderingEntity*>::iterator it = rEntities.begin() ; it != rEntities.end() ; it++) {
-		RenderingEntity* re = *it;
-		renderer->enqueueForRendering(re);
-	}
+	renderer->enqueueForRendering(rEntities.begin(), rEntities.end());
 
 	for (LightSourceIterator it = lightSources.begin() ; it != lightSources.end() ; it++) {
 		renderer->enqueueForRendering(*it);

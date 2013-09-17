@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -23,9 +23,8 @@
 #ifndef PVSVISIBILITYSET_H_
 #define PVSVISIBILITYSET_H_
 
-#include "PVSDatabase.h"
 #include "../parts/PVSSceneObject.h"
-
+#include "PVSDatabase.h"
 
 
 
@@ -38,8 +37,8 @@ public:
 public:
 	PVSVisibilitySet(float dm) : distMultiplier(dm) {}
 	void addPotentiallyVisibleObject(PVSDatabase::PVSSceneObjectContainer* object) { pvs.push_back(object); }
-	ObjectIterator getPVSObjectBegin() { return pvs.begin(); }
-	ObjectIterator getPVSObjectEnd() { return pvs.end(); }
+	PVSDatabase::PVSSceneObjectIterator getPVSObjectBegin() { return pvs.begin(); }
+	PVSDatabase::PVSSceneObjectIterator getPVSObjectEnd() { return pvs.end(); }
 	ObjectList::size_type getPVSObjectCount() { return pvs.size(); }
 	float getDistanceMultiplier() const { return distMultiplier; }
 	void setDistanceMultiplier(float dm) { distMultiplier = dm; }

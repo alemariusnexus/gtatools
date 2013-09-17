@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -500,32 +500,38 @@ void DefaultRenderer::setupBuffers()
 }
 
 
-void DefaultRenderer::enqueueForRendering(RenderingEntity* entity)
+void DefaultRenderer::enqueueForRendering(list<RenderingEntity*>::iterator beg, list<RenderingEntity*>::iterator end)
 {
-	AnimatedRenderingMesh* amesh = dynamic_cast<AnimatedRenderingMesh*>(entity);
+	for (list<RenderingEntity*>::iterator it = beg ; it != end ; it++) {
+		RenderingEntity* entity = *it;
 
-	if (amesh) {
-		if (amesh->hasTransparency()) {
-			transAnimMeshes.push_back(amesh);
-		} else {
-			opaqueAnimMeshes.push_back(amesh);
+		AnimatedRenderingMesh* amesh = dynamic_cast<AnimatedRenderingMesh*>(entity);
+
+		if (amesh) {
+			if (amesh->hasTransparency()) {
+				transAnimMeshes.push_back(amesh);
+			} else {
+				opaqueAnimMeshes.push_back(amesh);
+			}
+			continue;
 		}
-		return;
-	}
 
-	StaticRenderingMesh* smesh = dynamic_cast<StaticRenderingMesh*>(entity);
+		StaticRenderingMesh* smesh = dynamic_cast<StaticRenderingMesh*>(entity);
 
-	if (smesh->hasTransparency()) {
-		transStaticMeshes.push_back(smesh);
-	} else {
-		opaqueStaticMeshes.push_back(smesh);
+		if (smesh->hasTransparency()) {
+			transStaticMeshes.push_back(smesh);
+		} else {
+			opaqueStaticMeshes.push_back(smesh);
+		}
 	}
 }
 
 
-void DefaultRenderer::enqueueForRendering(LightSource* ls)
+void DefaultRenderer::enqueueForRendering(list<LightSource*>::iterator beg, list<LightSource*>::iterator end)
 {
-	lightSources.push_back(ls);
+	for (list<LightSource*>::iterator it = beg ; it != end ; it++) {
+		lightSources.push_back(*it);
+	}
 }
 
 

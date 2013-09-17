@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -100,8 +100,12 @@ private:
 public:
 	DefaultRenderer();
 
-	virtual void enqueueForRendering(RenderingEntity* entity);
-	virtual void enqueueForRendering(LightSource* ls);
+	//virtual void enqueueForRendering(RenderingEntity* entity);
+	//virtual void enqueueForRendering(LightSource* ls);
+
+	virtual void enqueueForRendering(list<RenderingEntity*>::iterator beg, list<RenderingEntity*>::iterator end);
+	virtual void enqueueForRendering(list<LightSource*>::iterator beg, list<LightSource*>::iterator end);
+
 	virtual void render();
 
 private:

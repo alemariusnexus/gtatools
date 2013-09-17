@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -24,9 +24,14 @@
 #define SHADERPROGRAM_H_
 
 #include <gta/config.h>
+#include <gtaformats/util/StringComparator.h>
 #include <vector>
+#include <map>
 #include "gl.h"
 #include "Shader.h"
+
+using std::map;
+using std::vector;
 
 
 class ShaderProgram {
@@ -34,6 +39,7 @@ private:
 	typedef vector<Shader*> ShaderList;
 	typedef ShaderList::iterator ShaderIterator;
 	typedef ShaderList::const_iterator ConstShaderIterator;
+	typedef map<CString, GLint, StringComparator> AttribUniformMap;
 
 public:
 	static void disableShaders();
@@ -65,6 +71,8 @@ private:
 	Shader* combinedFShader;
 #endif
 	CString name;
+	AttribUniformMap attribCache;
+	AttribUniformMap uniformCache;
 };
 
 #endif /* SHADERPROGRAM_H_ */

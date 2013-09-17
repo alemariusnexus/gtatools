@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats.
 
@@ -41,6 +41,18 @@ uint64_t GetTickcount()
 	return tv.tv_sec*1000 + tv.tv_usec/1000;
 #else
 	return GetTickCount();
+#endif
+}
+
+
+uint64_t GetTickcountMicroseconds()
+{
+#ifdef _POSIX_VERSION
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	return tv.tv_sec*1000000 + tv.tv_usec;
+#else
+#error GetTickcountMicroseconds() is only implemented on POSIX systems!
 #endif
 }
 

@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -41,7 +41,7 @@ System* System::instance = NULL;
 
 
 System::System()
-		: mainWindow(NULL), currentEntity(NULL), initializing(true), shuttingDown(false)
+		: mainWindow(NULL), initializing(true), shuttingDown(false)
 {
 	int dummyTexW = 16;
 	int dummyTexH = 16;
@@ -125,85 +125,6 @@ void System::initializeGL()
 }
 
 
-bool System::openEntity(DisplayedEntity* ent)
-{
-	openEntities << ent;
-
-	try {
-		emit entityOpened(ent);
-	} catch (...) {
-		closeEntity(ent);
-		return false;
-	}
-
-	changeCurrentEntity(ent);
-	return true;
-}
-
-
-bool System::openEntity(const EntityOpenRequest& request)
-{
-	QVariant fileVar = request.getAttribute("file").toString();
-
-	if (!fileVar.isNull()) {
-		File file(fileVar.toString().toLocal8Bit().constData());
-
-		if (isOpenFile(file)) {
-			return false;
-		}
-	}
-
-	FormatManager* fmgr = FormatManager::getInstance();
-	FormatHandler* handler = fmgr->getHandler(request);
-
-	if (!handler) {
-		return false;
-	}
-
-	DisplayedEntity* dent = handler->openEntity(request);
-
-	if (!dent) {
-		return false;
-	}
-
-	openEntities << dent;
-
-	try {
-		emit entityOpened(dent);
-	} catch (...) {
-		closeEntity(dent);
-		return false;
-	}
-
-	changeCurrentEntity(dent);
-	return true;
-}
-
-
-bool System::openFile(const File& file)
-{
-	EntityOpenRequest req;
-	req.setAttribute("file", QString(file.getPath()->toString().get()));
-	return openEntity(req);
-}
-
-
-bool System::closeCurrentEntity(bool force)
-{
-	if (currentEntity != NULL) {
-		return closeEntity(currentEntity, force);
-	}
-
-	return false;
-}
-
-
-bool System::hasOpenEntity()
-{
-	return openEntities.size() != 0;
-}
-
-
 void System::unhandeledException(Exception& ex)
 {
 	QDateTime dt = QDateTime::currentDateTime();
@@ -246,73 +167,6 @@ void System::unhandeledException(Exception& ex)
 void System::emitConfigurationChange()
 {
 	emit configurationChanged();
-}
-
-
-void System::changeCurrentEntity(DisplayedEntity* ent)
-{
-	if (ent) {
-		DisplayedEntity* prev = currentEntity;
-		currentEntity = ent;
-		emit currentEntityChanged(ent, prev);
-	} else {
-		currentEntity = NULL;
-		emit currentEntityChanged(NULL, currentEntity);
-	}
-}
-
-
-DisplayedFile* System::findOpenFile(const File& file)
-{
-	QLinkedList<DisplayedEntity*>::iterator it;
-
-	for (it = openEntities.begin() ; it != openEntities.end() ; it++) {
-		DisplayedEntity* dent = *it;
-		DisplayedFile* dfile = dynamic_cast<DisplayedFile*>(dent);
-
-		if (dfile  &&  dfile->getFile() == file) {
-			return dfile;
-		}
-	}
-
-	return NULL;
-}
-
-
-bool System::closeEntity(DisplayedEntity* ent, bool force)
-{
-	if (!ent) {
-		return false;
-	}
-
-	if (ent->hasChanges()  &&  !force) {
-		QMessageBox::StandardButton res = QMessageBox::question(mainWindow, tr("Save changes?"),
-				tr("This file has unsaved changes. Do you want to save it before closing?"),
-				QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Yes);
-
-		if (res == QMessageBox::Yes) {
-			ent->save(true);
-		} else if (res == QMessageBox::No) {
-		} else {
-			return false;
-		}
-	}
-
-	openEntities.removeOne(ent);
-
-	if (currentEntity == ent) {
-		if (openEntities.size() > 0) {
-			changeCurrentEntity(openEntities.first());
-		} else {
-			changeCurrentEntity(NULL);
-		}
-	}
-
-	emit entityClosed(ent);
-
-	delete ent;
-
-	return true;
 }
 
 
@@ -365,22 +219,16 @@ void System::forceUninstallGUIModule(GUIModule* module)
 }
 
 
-SystemQueryResult System::sendSystemQuery(const SystemQuery& query)
+QList<SystemQueryResult*> System::sendSystemQuery(const SystemQuery& query)
 {
-	SystemQueryResult result(false);
-	emit systemQuerySent(query, result);
-	return result;
+	QList<SystemQueryResult*> results;
+	emit systemQuerySent(query, results);
+	return results;
 }
 
 
 bool System::quit()
 {
-	while (hasOpenEntity()) {
-		if (!closeCurrentEntity()) {
-			return false;
-		}
-	}
-
 	// This will trigger signal qApp::lastWindowClosed(), which is connected to System::destroyInstance()
 	mainWindow->close();
 

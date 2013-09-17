@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats.
 
@@ -38,7 +38,8 @@ const Vector4 Vector4::NegativeUnitZ = Vector4(0.0f, 0.0f, -1.0f, 1.0f);
 
 Vector4::Vector4(const Vector3& other, float w)
 {
-	memcpy(data.f, other.data, 3*4);
+	//memcpy(data.f, other.data, 3*4);
+	memcpy(data.f, &other.data, 3*4);
 	data.f[3] = w;
 }
 
@@ -55,7 +56,7 @@ Vector4& Vector4::operator=(const Vector4& rhv)
 
 Vector4& Vector4::operator+=(const Vector4& rhv)
 {
-#ifdef __GNUC__
+#ifdef __GNUCBLA__
 	data.v += rhv.data.v;
 #else
 	data.f[0] += rhv.data.f[0];
@@ -69,7 +70,7 @@ Vector4& Vector4::operator+=(const Vector4& rhv)
 
 Vector4& Vector4::operator-=(const Vector4& rhv)
 {
-#ifdef __GNUC__
+#ifdef __GNUCBLA__
 	data.v -= rhv.data.v;
 #else
 	data.f[0] -= rhv.data.f[0];
@@ -83,7 +84,7 @@ Vector4& Vector4::operator-=(const Vector4& rhv)
 
 Vector4& Vector4::operator*=(float rhv)
 {
-#ifdef __GNUC__
+#ifdef __GNUCBLA__
 	Vec4SF rhvv;
 	rhvv.f[0] = rhv;
 	rhvv.f[1] = rhv;
@@ -109,7 +110,7 @@ const Vector4 Vector4::operator-() const
 
 float Vector4::dot(const Vector4& rhv) const
 {
-#ifdef __GNUC__
+#ifdef __GNUCBLA__
 	Vec4SF res;
 	res.v = data.v*rhv.data.v;
 
@@ -118,3 +119,8 @@ float Vector4::dot(const Vector4& rhv) const
 	return data.f[0]*rhv.data.f[0] + data.f[1]*rhv.data.f[1] + data.f[2]*rhv.data.f[2] + data.f[3]*rhv.data.f[3];
 #endif
 }
+
+
+#ifdef GNUC_DEFINED
+#define __GNUCBLA__
+#endif

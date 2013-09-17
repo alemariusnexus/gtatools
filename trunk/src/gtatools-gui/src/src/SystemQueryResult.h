@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -31,16 +31,13 @@ class SystemQueryResult {
 	typedef QHash<QString, QVariant> PropMap;
 
 public:
-	SystemQueryResult(bool successful = true) : successful(successful) {}
+	SystemQueryResult() {}
 	void setProperty(const QString& name, const QVariant& value) { properties[name] = value; }
 	const QVariant getProperty(const QString& name) { return properties[name]; }
 	QVariant& operator[](const QString& name) { return properties[name]; }
 	const QVariant operator[](const QString& name) const { return properties[name]; }
-	bool isSuccessful() const { return successful; }
-	void setSuccessful(bool successful) { this->successful = successful; }
 
 private:
-	bool successful;
 	PropMap properties;
 };
 

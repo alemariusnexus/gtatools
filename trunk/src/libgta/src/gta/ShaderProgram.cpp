@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -24,6 +24,9 @@
 #include "GLException.h"
 #include <cstring>
 #include <cstdio>
+#include <utility>
+
+using std::pair;
 
 
 static int _NextProgramID = 0;
@@ -57,6 +60,9 @@ ShaderProgram::~ShaderProgram()
 
 void ShaderProgram::link()
 {
+	uniformCache.clear();
+	attribCache.clear();
+
 #ifdef GTA_USE_OPENGL_ES
 	if (combinedVShader) {
 		glesForceDetachShader(combinedVShader);
@@ -248,15 +254,29 @@ void ShaderProgram::makeCurrent()
 
 GLint ShaderProgram::getAttributeLocation(const CString& name) const
 {
-	GLint attrib = glGetAttribLocation(program, name.get());
-	return attrib;
+	AttribUniformMap::const_iterator it = attribCache.find(name);
+
+	if (it == attribCache.end()) {
+		GLint attrib = glGetAttribLocation(program, name.get());
+		const_cast<ShaderProgram*>(this)->attribCache.insert(pair<CString, GLint>(name, attrib));
+		return attrib;
+	}
+
+	return it->second;
 }
 
 
 GLint ShaderProgram::getUniformLocation(const CString& name) const
 {
-	GLint uniform = glGetUniformLocation(program, name.get());
-	return uniform;
+	AttribUniformMap::const_iterator it = uniformCache.find(name);
+
+	if (it == uniformCache.end()) {
+		GLint uniform = glGetUniformLocation(program, name.get());
+		const_cast<ShaderProgram*>(this)->uniformCache.insert(pair<CString, GLint>(name, uniform));
+		return uniform;
+	}
+
+	return it->second;
 }
 
 

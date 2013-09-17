@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -27,6 +27,7 @@
 #include "../parts/PVSSceneObject.h"
 #include "../parts/RigidBodySceneObject.h"
 #include "../../MapItemDefinition.h"
+#include "../StreamingManager.h"
 #include "MapSceneObjectLODInstance.h"
 #include <set>
 #include <algorithm>
@@ -71,6 +72,7 @@ public:
 
 	virtual typeflags_t getTypeFlags() const
 			{ return TypeFlagVisual | TypeFlagPVS | TypeFlagRigidBody; }
+	virtual uint32_t getStreamingBuckets() const { return StreamingManager::VisibleBucket | StreamingManager::PhysicsBucket; }
 
 	virtual void setEnabled(bool enabled) { this->enabled = enabled; }
 	void setDefinitionInfo(SceneObjectDefinitionInfo* info) { defInfo = info; }
@@ -89,7 +91,7 @@ public:
 	size_t getLODInstanceCount() const { return lodInsts.size(); }
 
 	bool getLODInstances(LODInstanceMapIterator& beg, LODInstanceMapIterator& end, size_t depth = 0);
-	const bool getLODInstances(LODInstanceMapIterator& beg, LODInstanceMapIterator& end, size_t depth = 0) const
+	bool getLODInstances(LODInstanceMapIterator& beg, LODInstanceMapIterator& end, size_t depth = 0) const
 			{ return const_cast<MapSceneObject*>(this)->getLODInstances(beg, end, depth); }
 
 	MapSceneObjectLODInstance* getLODInstance(size_t depth = 0)

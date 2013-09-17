@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-test.
 
@@ -78,16 +78,6 @@ bool firstInitialization = true;
 #endif
 
 SDL_Surface* surface;
-
-
-
-
-uint64_t GetTickcountMicroseconds()
-{
-	struct timeval tv;
-	gettimeofday(&tv, NULL);
-	return tv.tv_sec*1000000 + tv.tv_usec;
-}
 
 
 
@@ -304,30 +294,19 @@ int main(int argc, char** argv)
 		renderer.init();
 		renderer.reshape(WINDOW_WIDTH, WINDOW_HEIGHT);
 
-		uint64_t s, ss, e, se;
-
 		bool running = true;
 		while (running) {
-			s = GetTickcountMicroseconds();
-
 			if (!renderer.paint()) {
 				break;
 			}
 
-			//glFlush();
-			//SleepMilliseconds(70);
-
-			ss = GetTickcountMicroseconds();
+			glFlush();
 
 	#ifdef GT_USE_OPENGL_ES
 			eglSwapBuffers(eglDisplay, eglSurface);
 	#else
 			SDL_GL_SwapBuffers();
 	#endif
-
-			se = GetTickcountMicroseconds();
-
-			//printf("%dms\n", (int) (e-s));
 
 			SDL_PumpEvents();
 
@@ -377,12 +356,6 @@ int main(int argc, char** argv)
 			if (hasMMEvt) {
 				renderer.mouseMotion(lastMMEvt.motion.x, lastMMEvt.motion.y);
 			}
-
-			e = GetTickcountMicroseconds();
-
-
-			/*printf("SwapBuffers took %.4f%% of frame time (%u / %u microsecs)\n",
-					(float(se-ss) / float(e-s)) * 100.0f, (unsigned int) (se-ss), (unsigned int) (e-s));*/
 		}
 
 		SDL_Quit();

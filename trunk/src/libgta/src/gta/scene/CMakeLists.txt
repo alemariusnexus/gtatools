@@ -1,4 +1,4 @@
-# Copyright 2010-2012 David "Alemarius Nexus" Lerch
+# Copyright 2010-2013 David "Alemarius Nexus" Lerch
 # 
 # This file is part of libgta.
 #
@@ -21,6 +21,7 @@
 SET(FILES
     Scene
     SceneObjectDefinitionDatabase SceneObjectDefinitionInfo SceneObjectFileGroup SceneObjectGroupDependency
+    StreamingManager
     )
 
 ADD_SUBDIRECTORY(parts)

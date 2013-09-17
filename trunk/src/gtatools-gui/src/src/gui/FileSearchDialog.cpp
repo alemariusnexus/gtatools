@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -88,8 +88,7 @@ void FileSearchDialog::onSearch(bool checked)
 	bool closeDialog = true;
 
 	if (profile) {
-		QLinkedList<File*> rootFiles = profile->getResources();
-		closeDialog = GUI::getInstance()->findAndOpenFile(rootFiles, finder, this);
+		closeDialog = GUI::getInstance()->findAndOpenFile(finder, this);
 	}
 
 	delete finder;

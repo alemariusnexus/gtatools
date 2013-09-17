@@ -6,8 +6,8 @@
  */
 
 #include "IFPAnimationViewerRenderWidget.h"
-#include <gta/scene/DefaultRenderer.h>
-#include <gta/scene/BasicTransparencyAlgorithm.h>
+#include <gta/Engine.h>
+#include <gta/render/DefaultRenderer.h>
 #include <gta/scene/visibility/PVSDatabase.h>
 #include <gta/resource/mesh/StaticMeshPointer.h>
 #include <gta/MeshGenerator.h>
@@ -84,7 +84,6 @@ IFPAnimationViewerRenderWidget::~IFPAnimationViewerRenderWidget()
 {
 	delete obj;
 	delete def;
-	delete ((DefaultRenderer*) scene->getRenderer())->getTransparencyAlgorithm();
 	delete scene->getRenderer();
 	delete scene;
 	delete meshPtr;
@@ -194,7 +193,7 @@ void IFPAnimationViewerRenderWidget::rebuildDisplayedObject()
 		else
 			mptr = meshPtr;
 
-		def = new AnimatedMapItemDefinition(mptr, texSrc, NULL, anpkPtr, 500.0f, 0);
+		def = new AnimatedMapItemDefinition(mptr, texSrc, NULL, NULL, anpkPtr, 500.0f, 0);
 		obj = new AnimatedMapSceneObject;
 		MapSceneObjectLODInstance* inst = new MapSceneObjectLODInstance(def);
 		obj->addLODInstance(inst);
@@ -213,9 +212,6 @@ void IFPAnimationViewerRenderWidget::initializeGL()
 	GLBaseWidget::initializeGL();
 
 	DefaultRenderer* renderer = new DefaultRenderer;
-
-	BasicTransparencyAlgorithm* basicAlgo = new BasicTransparencyAlgorithm;
-	renderer->setTransparencyAlgorithm(basicAlgo);
 
 	scene = new Scene;
 	scene->setRenderer(renderer);
@@ -241,5 +237,5 @@ void IFPAnimationViewerRenderWidget::paintGL()
 
 	engine->setScene(scene);
 
-	engine->render();
+	engine->renderFrame();
 }

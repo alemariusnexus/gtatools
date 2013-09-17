@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -116,8 +116,6 @@ void ConfigWidget::buttonClicked(QAbstractButton* button)
 
 void ConfigWidget::apply()
 {
-	close();
-
 	QSettings settings;
 
 	switch (ui.regexFormatBox->currentIndex()) {
@@ -139,9 +137,7 @@ void ConfigWidget::apply()
 
 		profile->setName(profileWidget->getProfileName());
 
-		GameInfo* info = new GameInfo(profileWidget->getVersionMode(),
-				File(profileWidget->getRootDirectory().toAscii().constData()));
-		delete profile->getGameInfo();
+		GameInfo info(profileWidget->getVersionMode(), File(profileWidget->getRootDirectory().toAscii().constData()));
 		profile->setGameInfo(info);
 
 		// ********** Set the new engine resources **********
@@ -192,6 +188,8 @@ void ConfigWidget::apply()
 	System::getInstance()->emitConfigurationChange();
 
 	settings.sync();
+
+	close();
 }
 
 

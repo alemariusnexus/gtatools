@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -107,14 +107,7 @@ File* GUI::findFile(FileFinder* finder, QWidget* parent)
 	Profile* profile = ProfileManager::getInstance()->getCurrentProfile();
 
 	if (profile) {
-		QLinkedList<File*> rootFiles;
-		Profile::ResourceIterator it;
-
-		for (it = profile->getSearchResourceBegin() ; it != profile->getSearchResourceEnd() ; it++) {
-			rootFiles << *it;
-		}
-
-		return findFile(rootFiles, finder, parent);
+		return findFile(profile->getSearchResources(), finder, parent);
 	}
 
 	return NULL;
@@ -142,14 +135,7 @@ bool GUI::findAndOpenFile(FileFinder* finder, QWidget* parent)
 	Profile* profile = ProfileManager::getInstance()->getCurrentProfile();
 
 	if (profile) {
-		QLinkedList<File*> rootFiles;
-		Profile::ResourceIterator it;
-
-		for (it = profile->getSearchResourceBegin() ; it != profile->getSearchResourceEnd() ; it++) {
-			rootFiles << *it;
-		}
-
-		return findAndOpenFile(rootFiles, finder, parent);
+		return findAndOpenFile(profile->getSearchResources(), finder, parent);
 	}
 
 	return false;

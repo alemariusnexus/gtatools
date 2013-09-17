@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -25,8 +25,7 @@
 #include <gta/resource/mesh/StaticMeshPointer.h>
 #include <gta/resource/texture/NullTextureSource.h>
 #include <gta/StaticMapItemDefinition.h>
-#include <gta/scene/DefaultRenderer.h>
-#include <gta/scene/DepthPeelingAlgorithm.h>
+#include <gta/render/DefaultRenderer.h>
 #include "../../System.h"
 
 
@@ -43,7 +42,6 @@ COLSphereBoxRenderWidget::~COLSphereBoxRenderWidget()
 	clear();
 
 	DefaultRenderer* renderer = (DefaultRenderer*) scene->getRenderer();
-	delete renderer->getTransparencyAlgorithm();
 	delete renderer;
 	delete scene;
 }
@@ -75,12 +73,8 @@ void COLSphereBoxRenderWidget::resizeGL(int w, int h)
 
 	DefaultRenderer* renderer = (DefaultRenderer*) scene->getRenderer();
 
-	if (!renderer->getTransparencyAlgorithm()) {
-		Engine* engine = Engine::getInstance();
-		engine->setViewportSize(getViewportWidth(), getViewportHeight());
-		DepthPeelingAlgorithm* dpAlgo = new DepthPeelingAlgorithm;
-		renderer->setTransparencyAlgorithm(dpAlgo);
-	}
+	Engine* engine = Engine::getInstance();
+	engine->setViewportSize(getViewportWidth(), getViewportHeight());
 }
 
 
@@ -105,7 +99,7 @@ void COLSphereBoxRenderWidget::paintGL()
 			scene->addSceneObject(obj);
 		}
 
-		engine->render();
+		engine->renderFrame();
 	} catch (Exception& ex) {
 		System::getInstance()->unhandeledException(ex);
 	}
@@ -119,7 +113,7 @@ void COLSphereBoxRenderWidget::addSphere(const COLSphere& sphere)
 	MeshClump* clump = new MeshClump;
 	clump->addMesh(mesh);
 	MapItemDefinition* item = new StaticMapItemDefinition(new StaticMeshPointer(clump),
-			new NullTextureSource, NULL, 5000.0f);
+			new NullTextureSource, NULL, NULL, 5000.0f);
 	MapSceneObject* obj = new MapSceneObject;
 	MapSceneObjectLODInstance* inst = new MapSceneObjectLODInstance(item);
 	obj->addLODInstance(inst);
@@ -134,7 +128,7 @@ void COLSphereBoxRenderWidget::addBox(const COLBox& box)
 	MeshClump* clump = new MeshClump;
 	clump->addMesh(mesh);
 	MapItemDefinition* item = new StaticMapItemDefinition(new StaticMeshPointer(clump),
-			new NullTextureSource, NULL, 5000.0f);
+			new NullTextureSource, NULL, NULL, 5000.0f);
 	MapSceneObject* obj = new MapSceneObject;
 	MapSceneObjectLODInstance* inst = new MapSceneObjectLODInstance(item);
 	obj->addLODInstance(inst);
@@ -149,7 +143,7 @@ void COLSphereBoxRenderWidget::addModel(const COLModel& model)
 	MeshClump* clump = new MeshClump;
 	clump->addMesh(mesh);
 	MapItemDefinition* item = new StaticMapItemDefinition(new StaticMeshPointer(clump),
-			new NullTextureSource, NULL, 5000.0f);
+			new NullTextureSource, NULL, NULL, 5000.0f);
 	MapSceneObject* obj = new MapSceneObject;
 	MapSceneObjectLODInstance* inst = new MapSceneObjectLODInstance(item);
 	obj->addLODInstance(inst);

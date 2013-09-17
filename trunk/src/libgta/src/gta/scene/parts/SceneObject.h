@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -40,12 +40,13 @@ public:
 	};
 
 public:
-	SceneObject() : sceneGraphicsVisible(false), scenePhysicsVisible(false) {}
+	SceneObject() : visibleBuckets(0), lastVisibleBuckets(0) {}
 	virtual ~SceneObject() {}
 	virtual SceneObject* clone() const = 0;
 	virtual typeflags_t getTypeFlags() const = 0;
 	virtual bool isEnabled() const { return true; }
 	virtual float getStreamingDistance() const = 0;
+	virtual uint32_t getStreamingBuckets() const = 0;
 	virtual Matrix4& getModelMatrix() = 0;
 	virtual const Matrix4& getModelMatrix() const = 0;
 	virtual void setModelMatrix(const Matrix4& matrix) = 0;
@@ -56,12 +57,13 @@ public:
 		return Vector3(a[12], a[13], a[14]);
 	}
 
-//private:
-public:
-	bool sceneGraphicsVisible, scenePhysicsVisible;
+private:
+	uint32_t lastVisibleBuckets;
+	uint32_t visibleBuckets;
 
 private:
 	friend class Scene;
+	friend class StreamingManager;
 };
 
 #endif /* SCENEOBJECT_H_ */

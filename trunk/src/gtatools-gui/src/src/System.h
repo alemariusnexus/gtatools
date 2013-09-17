@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -54,19 +54,6 @@ public:
 
 public:
 	void initializeGL();
-	bool openEntity(DisplayedEntity* entity);
-	bool openEntity(const EntityOpenRequest& request);
-	bool openFile(const File& file);
-	bool closeFile(const File& file, bool force = false) { return closeEntity(findOpenFile(file), force); }
-	bool closeEntity(DisplayedEntity* file, bool force = false);
-	bool closeCurrentEntity(bool force = false);
-	void changeCurrentEntity(DisplayedEntity* ent);
-	void changeCurrentEntity(const File& file) { changeCurrentEntity(findOpenFile(file)); }
-	DisplayedFile* findOpenFile(const File& file);
-	DisplayedEntity* getCurrentEntity() { return currentEntity; }
-	QLinkedList<DisplayedEntity*> getOpenEntities() { return openEntities; }
-	bool isOpenFile(const File& file) { return findOpenFile(file) != NULL; }
-	bool hasOpenEntity();
 	void unhandeledException(Exception& ex);
 	void emitConfigurationChange();
 	QLinkedList<GUIModule*> getInstalledGUIModules() { return installedGUIModules; }
@@ -77,7 +64,7 @@ public:
 	void installGUIModule(GUIModule* module);
 	void uninstallGUIModule(GUIModule* module);
 	void forceUninstallGUIModule(GUIModule* module);
-	SystemQueryResult sendSystemQuery(const SystemQuery& query);
+	QList<SystemQueryResult> sendSystemQuery(const SystemQuery& query);
 	QGLWidget* getSharedGLWidget() { return sharedWidget; }
 	QImage getDummyTextureImage() { return dummyTexImage; }
 	bool quit();
@@ -86,15 +73,11 @@ public:
 	MainWindow* getMainWindow() { return mainWindow; }
 
 signals:
-	void entityOpened(DisplayedEntity* ent);
-	void entityClosed(DisplayedEntity* ent);
-	void currentEntityChanged(DisplayedEntity* current, DisplayedEntity* prev);
-	void currentEntityClosed();
 	void configurationChanged();
 	void installedGUIModule(GUIModule* module);
 	void uninstalledGUIModule(GUIModule* module);
 	void entryLogged(const LogEntry& entry);
-	void systemQuerySent(const SystemQuery& query, SystemQueryResult& result);
+	void systemQuerySent(const SystemQuery& query, QList<SystemQueryResult*>& result);
 	void aboutToQuit();
 	void initializationDone();
 
@@ -112,8 +95,6 @@ private:
 private:
 	MainWindow* mainWindow;
 	QLinkedList<GUIModule*> installedGUIModules;
-	QLinkedList<DisplayedEntity*> openEntities;
-	DisplayedEntity* currentEntity;
 	QGLWidget* sharedWidget;
 	QImage dummyTexImage;
 	bool initializing, shuttingDown;

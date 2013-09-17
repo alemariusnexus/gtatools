@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -73,8 +73,8 @@ public:
 	int getResourceCount() const { return resources.size(); }
 	int getSearchResourceCount() const { return searchResources.size(); }
 	int getDATFileCount() const { return datFiles.size(); }
-	void setGameInfo(GameInfo* info) { gameInfo = info; }
-	GameInfo* getGameInfo() { return gameInfo; }
+	void setGameInfo(const GameInfo& info);
+	GameInfo getGameInfo() { return gameInfo; }
 	QLinkedList<File*> getResources() const { return resources; }
 	QString getName() const { return name; }
 	ResourceIterator removeResource(ResourceIterator it);
@@ -121,7 +121,7 @@ private:
 	QLinkedList<File*> resources;
 	QString name;
 	MeshTexMap meshTextures;
-	GameInfo* gameInfo;
+	GameInfo gameInfo;
 	QLinkedList<File*> datFiles;
 	QQueue<File*> resourceLoadingQueue;
 	QQueue<File*> datLoadingQueue;

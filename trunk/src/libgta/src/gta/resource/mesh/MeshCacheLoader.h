@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -25,16 +25,18 @@
 
 #include "../ResourceCache.h"
 #include "MeshIndexer.h"
+#include "../collision/CollisionMeshIndexer.h"
 #include <gtaformats/util/CString.h>
 
 
 class MeshCacheLoader : public Engine::StringResourceCache::EntryLoader {
 public:
-	MeshCacheLoader(MeshIndexer* indexer) : indexer(indexer) {}
+	MeshCacheLoader(MeshIndexer* indexer, CollisionMeshIndexer* colIndexer) : indexer(indexer), colIndexer(colIndexer) {}
 	virtual Engine::StringResourceCache::Entry* load(CString key);
 
 private:
 	MeshIndexer* indexer;
+	CollisionMeshIndexer* colIndexer;
 };
 
 #endif /* MESHCACHELOADER_H_ */

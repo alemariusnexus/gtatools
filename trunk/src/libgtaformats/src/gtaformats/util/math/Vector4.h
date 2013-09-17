@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats.
 
@@ -28,7 +28,8 @@
 
 class Vector3;
 
-#ifdef __GNUC__
+
+#ifdef __GNUCBLA__
 typedef float v4sf __attribute__((vector_size(16)));
 typedef int32_t v4i32 __attribute__((vector_size(16)));
 

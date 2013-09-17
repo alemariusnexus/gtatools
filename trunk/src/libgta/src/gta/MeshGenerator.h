@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -34,8 +34,8 @@ public:
 			const Vector3& min, const Vector3& max);
 	Mesh* createBox(const Vector3& min, const Vector3& max);
     void createSphere(float*& vertices, float*& normals, int& vertexCount, uint32_t*& indices, int& indexCount,
-    		float radius, int slices, int stacks);
-    Mesh* createSphere(float radius, int slices, int stacks);
+    		float radius, int slices, int stacks, const Vector3& offset = Vector3::Zero);
+    Mesh* createSphere(float radius, int slices, int stacks, const Vector3& offset = Vector3::Zero);
 };
 
 #endif /* MESHGENERATOR_H_ */

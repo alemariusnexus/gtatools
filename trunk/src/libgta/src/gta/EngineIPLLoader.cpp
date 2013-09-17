@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2012 David "Alemarius Nexus" Lerch
+	Copyright 2010-2013 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -49,12 +49,12 @@ int64_t tellHelper(istream* s)
 }
 
 
-void EngineIPLLoader::load(const File& file, Scene::ObjectList& objects, const GameInfo* info)
+void EngineIPLLoader::load(const File& file, Scene::ObjectList& objects, GameInfo info)
 {
-	if (!info)
+	if (!info.isValid())
 		info = Engine::getInstance()->getDefaultGameInfo();
 
-	GameInfo::VersionMode ver = info->getVersionMode();
+	GameInfo::VersionMode ver = info.getVersionMode();
 
 	if (ver == GameInfo::GTAIII)
 		ver = GameInfo::GTAVC;
@@ -78,7 +78,7 @@ void EngineIPLLoader::load(const File& file, Scene::ObjectList& objects, const G
 			File sfile = streamingFiles.front();
 			streamingFiles.pop();
 
-			FilePath* relPath = sfile.getPath()->relativeTo(*info->getRootDirectory().getPath());
+			FilePath* relPath = sfile.getPath()->relativeTo(*info.getRootDirectory().getPath());
 			SceneObjectFileGroup* group = new SceneObjectFileGroup(relPath->toString());
 			delete relPath;
 
