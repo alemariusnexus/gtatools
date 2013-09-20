@@ -78,6 +78,8 @@ Engine::StringResourceCache::Entry* MeshCacheLoader::load(CString key)
 	col.skip(stream, ientry->index);
 	COLModel* model = col.loadModel(stream);
 
+	delete stream;
+
 	COLBox* boxes = model->getBoxes();
 	COLSphere* spheres = model->getSpheres();
 

@@ -193,6 +193,7 @@ Mesh* MeshGenerator::createSphere(float radius, int slices, int stacks, const Ve
 	int indCount;
 	createSphere(vertices, normals, vcount, indices, indCount, radius, slices, stacks, offset);
 	Mesh* mesh = new Mesh(vcount, VertexFormatTriangles, MeshNormals, vertices, normals);
+	mesh->setBounds(offset.getX(), offset.getY(), offset.getZ(), radius);
 	Submesh* submesh = new Submesh(mesh, indCount, indices);
 	mesh->addSubmesh(submesh);
 	delete[] vertices;

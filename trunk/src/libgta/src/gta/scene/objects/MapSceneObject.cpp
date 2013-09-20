@@ -70,11 +70,11 @@ void MapSceneObject::addLODInstance(MapSceneObjectLODInstance* inst)
 
 void MapSceneObject::setMass(float m)
 {
-	btCollisionShape* shape = getCollisionShapePointer()->get();
+	/*btCollisionShape* shape = getCollisionShapePointer()->get();
 	btVector3 inertia;
 	shape->calculateLocalInertia(m, inertia);
 	rb->setMassProps(m, inertia);
-	mass = m;
+	mass = m;*/
 }
 
 
@@ -150,6 +150,10 @@ void MapSceneObject::calculateBounds()
 	if (boundsValid)
 		return;
 
+	const float* a = mm.toArray();
+	boundsCenter = Vector3(a[12], a[13], a[14]);
+	boundsRadius = 0.0f;
+
 	if (!lodInsts.empty()) {
 		MapSceneObjectLODInstance* lodInst = getLODInstance();
 
@@ -159,18 +163,35 @@ void MapSceneObject::calculateBounds()
 		if (clump) {
 			clump->getBoundingSphere(boundsCenter, boundsRadius);
 			boundsCenter = mm * Vector4(boundsCenter);
-			boundsValid = true;
 		}
 
 		meshPtr->release();
 	}
 
-	if (!boundsValid) {
-		const float* a = mm.toArray();
-		boundsCenter = Vector3(a[12], a[13], a[14]);
-		boundsRadius = 0.0f;
-		boundsValid = true;
+	Vector3 boxMin = Vector3::Zero;
+	Vector3 boxMax = Vector3::Zero;
+
+	CollisionShapePointer* colPtr = getCollisionShapePointer();
+
+	if (colPtr) {
+		CollisionModel* model = colPtr->get(true);
+
+		if (model) {
+			model->getBoundingSphere(colBoundingSphereCenter, colBoundingSphereRadius);
+			model->getBoundingBox(boxMin, boxMax);
+		}
+
+		colPtr->release();
 	}
+
+	colBoundingBoxMin = mm * boxMin;
+	colBoundingBoxExtX = (mm * Vector3(boxMax.getX(), boxMin.getY(), boxMin.getZ())) - colBoundingBoxMin;
+	colBoundingBoxExtY = (mm * Vector3(boxMin.getX(), boxMax.getY(), boxMin.getZ())) - colBoundingBoxMin;
+	colBoundingBoxExtZ = (mm * Vector3(boxMin.getX(), boxMin.getY(), boxMax.getZ())) - colBoundingBoxMin;
+
+	colBoundingSphereCenter = mm * colBoundingSphereCenter;
+
+	boundsValid = true;
 }
 
 
@@ -179,6 +200,24 @@ void MapSceneObject::getBoundingSphere(Vector3& center, float& radius)
 	calculateBounds();
 	center = boundsCenter;
 	radius = boundsRadius;
+}
+
+
+void MapSceneObject::getCollisionBoundingSphere(Vector3& center, float& radius)
+{
+	calculateBounds();
+	center = colBoundingSphereCenter;
+	radius = colBoundingSphereRadius;
+}
+
+
+void MapSceneObject::getCollisionBoundingBox(Vector3& min, Vector3& extX, Vector3& extY, Vector3& extZ)
+{
+	calculateBounds();
+	min = colBoundingBoxMin;
+	extX = colBoundingBoxExtX;
+	extY = colBoundingBoxExtY;
+	extZ = colBoundingBoxExtZ;
 }
 
 

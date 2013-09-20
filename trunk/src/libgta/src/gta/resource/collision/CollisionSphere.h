@@ -20,23 +20,28 @@
 	GPLADDITIONS.
  */
 
-#ifndef STATICCOLLISIONSHAPEPOINTER_H_
-#define STATICCOLLISIONSHAPEPOINTER_H_
+#ifndef COLLISIONSPHERE_H_
+#define COLLISIONSPHERE_H_
 
-#include "CollisionShapePointer.h"
+#include <gta/config.h>
+#include <gtaformats/col/COLSphere.h>
 
 
-
-class StaticCollisionShapePointer : public CollisionShapePointer
+class CollisionSphere
 {
 public:
-	StaticCollisionShapePointer(CollisionModel* model) : model(model) {}
-	StaticCollisionShapePointer(const StaticCollisionShapePointer& other) : model(other.model) {}
-	virtual CollisionShapePointer* clone() const { return new StaticCollisionShapePointer(*this); }
-	virtual CollisionModel* get(bool lock = false) { return model; }
+	CollisionSphere(const Vector3& center, float radius) : center(center), radius(radius) {}
+	CollisionSphere(const CollisionSphere& other) : center(other.center), radius(other.radius) {}
+	CollisionSphere(const COLSphere& sphere) : center(sphere.getCenter()), radius(sphere.getRadius()) {}
+	Vector3& getCenter() { return center; }
+	const Vector3& getCenter() const { return center; }
+	float getRadius() const { return radius; }
+	void setCenter(const Vector3& c) { center = c; }
+	void setRadius(float r) { radius = r; }
 
 private:
-	CollisionModel* model;
+	Vector3 center;
+	float radius;
 };
 
-#endif /* STATICCOLLISIONSHAPEPOINTER_H_ */
+#endif /* COLLISIONSPHERE_H_ */

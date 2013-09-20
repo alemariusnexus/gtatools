@@ -18,14 +18,10 @@
 # Additional permissions are granted, which are listed in the file
 # GPLADDITIONS.
 
-
-SET(FILES
-    CollisionMeshIndexer CollisionMeshCacheEntry CollisionMeshCacheLoader COLBulletConverter
-    CollisionShapePointer COLMeshConverter ManagedCollisionShapePointer CollisionBox
-    CollisionMesh CollisionSphere CollisionModel)
+SET(FILES RayCaster CollisionRayCastingHandler)
 
 FOREACH(FILE ${FILES})
-    SET(SRCS ${SRCS} "gta/resource/collision/${FILE}")
+    SET(SRCS ${SRCS} "gta/scene/raycasting/${FILE}")
 ENDFOREACH(FILE)
 
 SET(SRCS ${SRCS} PARENT_SCOPE)

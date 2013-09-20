@@ -294,10 +294,25 @@ void EngineIPLLoader::load(const File& file, Scene::ObjectList& objects, GameInf
 			map<uint32_t, TemporaryLODHierarchy*>::iterator hit;
 			for (hit = tmpHierarchies.begin() ; hit != tmpHierarchies.end() ; hit++) {
 				TemporaryLODHierarchy* h = hit->second;
+				IndexedSceneObject* bottomIobj;
+
+				list<IndexedSceneObject*>::iterator iit;
+
+				for (iit = h->insts.begin() ; iit != h->insts.end() ; iit++) {
+					IndexedSceneObject* iobj = *iit;
+
+					if (h->parentChildAssociations.find(iobj) == h->parentChildAssociations.end()) {
+						bottomIobj = iobj;
+						break;
+					}
+				}
 
 				MapSceneObject* obj;
 
-				Matrix4 modelMatrix = Matrix4::fromQuaternionVector(h->topLevelInst->pos, h->topLevelInst->rot);
+				/*printf("Yoyoyo: (%.3f, %.3f, %.3f),   (%.3f, %.3f, %.3f, %.3f)\n",
+						h->topLevelInst->pos.getX(), h->topLevelInst->pos.getY(), h->topLevelInst->pos.getZ(),
+						h->topLevelInst->rot.getW(), h->topLevelInst->rot.getX(), h->topLevelInst->rot.getY(), h->topLevelInst->rot.getZ());*/
+				Matrix4 modelMatrix = Matrix4::fromQuaternionVector(bottomIobj->pos, bottomIobj->rot);
 
 				if (h->animated) {
 					AnimatedMapSceneObject* aobj = new AnimatedMapSceneObject;
@@ -309,11 +324,10 @@ void EngineIPLLoader::load(const File& file, Scene::ObjectList& objects, GameInf
 					obj->setModelMatrix(modelMatrix);
 				}
 
-				obj->setDefinitionInfo(h->topLevelInst->defInfo);
+				obj->setDefinitionInfo(bottomIobj->defInfo);
 
 				Matrix4 invModelMatrix = modelMatrix.inverse();
 
-				list<IndexedSceneObject*>::iterator iit;
 				for (iit = h->insts.begin() ; iit != h->insts.end() ; iit++) {
 					IndexedSceneObject* iobj = *iit;
 
@@ -322,7 +336,8 @@ void EngineIPLLoader::load(const File& file, Scene::ObjectList& objects, GameInf
 					if (lodInst->getSceneObject())
 						lodInst = new MapSceneObjectLODInstance(*lodInst);
 
-					if (!iobj->topLevel) {
+					//if (!iobj->topLevel) {
+					if (iobj != bottomIobj) {
 						Matrix4 relMat = invModelMatrix * Matrix4::fromQuaternionVector(iobj->pos, iobj->rot);
 						lodInst->setRelativeModelMatrix(relMat);
 						delete iobj->defInfo;

@@ -114,6 +114,8 @@ public:
 	float getMass() const { return mass; }
 
 	virtual void getBoundingSphere(Vector3& center, float& radius);
+	virtual void getCollisionBoundingSphere(Vector3& center, float& radius);
+	virtual void getCollisionBoundingBox(Vector3& min, Vector3& extX, Vector3& extY, Vector3& extZ);
 
 private:
 	virtual void updateRenderingDistance(float dist, float sdMultiplier);
@@ -132,6 +134,12 @@ private:
 
 	Vector3 boundsCenter;
 	float boundsRadius;
+	Vector3 colBoundingSphereCenter;
+	float colBoundingSphereRadius;
+	Vector3 colBoundingBoxMin;
+	Vector3 colBoundingBoxExtX;
+	Vector3 colBoundingBoxExtY;
+	Vector3 colBoundingBoxExtZ;
 	bool boundsValid;
 };
 

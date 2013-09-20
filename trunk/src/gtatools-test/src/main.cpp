@@ -26,6 +26,7 @@
 #include <gtaformats/util/math/Matrix4.h>
 #include <gtaformats/util/util.h>
 #include <gtaformats/util/strutil.h>
+#include <gtaformats/util/math/intersection.h>
 #include <gtaformats/gtaide.h>
 #include <gtaformats/gtaipl.h>
 #include <gtaformats/gtacol.h>
@@ -271,7 +272,6 @@ void initWindowSystem(int w, int h)
 	printf("Framebuffer: R%d G%d B%d A%d D%d S%d\n", r, g, b, a, dsize, ssize);
 #endif
 }
-
 
 
 

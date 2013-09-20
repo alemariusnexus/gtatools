@@ -20,23 +20,4 @@
 	GPLADDITIONS.
  */
 
-#ifndef STATICCOLLISIONSHAPEPOINTER_H_
-#define STATICCOLLISIONSHAPEPOINTER_H_
-
-#include "CollisionShapePointer.h"
-
-
-
-class StaticCollisionShapePointer : public CollisionShapePointer
-{
-public:
-	StaticCollisionShapePointer(CollisionModel* model) : model(model) {}
-	StaticCollisionShapePointer(const StaticCollisionShapePointer& other) : model(other.model) {}
-	virtual CollisionShapePointer* clone() const { return new StaticCollisionShapePointer(*this); }
-	virtual CollisionModel* get(bool lock = false) { return model; }
-
-private:
-	CollisionModel* model;
-};
-
-#endif /* STATICCOLLISIONSHAPEPOINTER_H_ */
+#include "CollisionSphere.h"

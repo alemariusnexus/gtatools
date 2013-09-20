@@ -20,23 +20,27 @@
 	GPLADDITIONS.
  */
 
-#ifndef STATICCOLLISIONSHAPEPOINTER_H_
-#define STATICCOLLISIONSHAPEPOINTER_H_
-
-#include "CollisionShapePointer.h"
+#include "CollisionMesh.h"
 
 
 
-class StaticCollisionShapePointer : public CollisionShapePointer
+CollisionMesh::CollisionMesh(const COLModel& model)
+		: numVertices(model.getVertexCount()), numFaces(model.getFaceCount()),
+		  vertices(new float[numVertices*3]), indices(new uint32_t[numFaces*3])
 {
-public:
-	StaticCollisionShapePointer(CollisionModel* model) : model(model) {}
-	StaticCollisionShapePointer(const StaticCollisionShapePointer& other) : model(other.model) {}
-	virtual CollisionShapePointer* clone() const { return new StaticCollisionShapePointer(*this); }
-	virtual CollisionModel* get(bool lock = false) { return model; }
+	memcpy(vertices, model.getVertices(), numVertices*3*sizeof(float));
 
-private:
-	CollisionModel* model;
-};
+	const COLFace* faces = model.getFaces();
 
-#endif /* STATICCOLLISIONSHAPEPOINTER_H_ */
+	for (uint32_t i = 0 ; i < numFaces ; i++) {
+		const COLFace& face = faces[i];
+		const uint32_t* faceIndices = face.getIndices();
+		memcpy(indices+i*3, faceIndices, 3*sizeof(uint32_t));
+	}
+}
+
+
+cachesize_t CollisionMesh::getCacheSize() const
+{
+	return sizeof(CollisionMesh) + numVertices*3*sizeof(float) + numFaces*3*sizeof(uint32_t);
+}
