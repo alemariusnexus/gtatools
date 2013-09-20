@@ -155,6 +155,10 @@ void RenderingEntityGenerator::generateFromStaticMapSceneObjectLODInstance(MapSc
 				mat->getColor(r, g, b, a);
 			}
 
+			if (mobj->selected) {
+				a = 127;
+			}
+
 			DefaultStaticRenderingMesh* rm = new DefaultStaticRenderingMesh (
 					rpf,
 					mesh->getVertexCount(), submesh->getIndexCount(),
@@ -168,13 +172,21 @@ void RenderingEntityGenerator::generateFromStaticMapSceneObjectLODInstance(MapSc
 
 			rm->setHasTransparency(lodInst->hasAlphaTransparency());
 
+			if (mobj->selected)
+				rm->setHasTransparency(true);
+
 			rm->meshPtr = mptr->clone();
 			rm->meshPtr->lock();
-			rm->texSrc = texSrc->clone();
-			rm->texSrc->lock();
+
+			if (texSrc) {
+				rm->texSrc = texSrc->clone();
+				rm->texSrc->lock();
+			}
 
 			mptr->release();
-			texSrc->release();
+
+			if (texSrc)
+				texSrc->release();
 
 			outList.push_back(rm);
 		}

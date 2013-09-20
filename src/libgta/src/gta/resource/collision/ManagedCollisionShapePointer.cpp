@@ -36,7 +36,7 @@ CollisionShapePointer* ManagedCollisionShapePointer::clone() const
 }
 
 
-btCollisionShape* ManagedCollisionShapePointer::get(bool lock)
+CollisionModel* ManagedCollisionShapePointer::get(bool lock)
 {
 	CollisionMeshCacheEntry* entry = (CollisionMeshCacheEntry*) pointer.getEntry(lock);
 

@@ -39,6 +39,8 @@ public:
 	virtual CollisionShapePointer* getCollisionShapePointer() = 0;
 	virtual float getMass() const = 0;
 	virtual void setMass(float m) = 0;
+	virtual void getCollisionBoundingSphere(Vector3& center, float& radius) = 0;
+	virtual void getCollisionBoundingBox(Vector3& min, Vector3& extX, Vector3& extY, Vector3& extZ) = 0;
 };
 
 #endif /* RIGIDBODYSCENEOBJECT_H_ */

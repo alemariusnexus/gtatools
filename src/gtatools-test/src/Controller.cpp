@@ -33,6 +33,7 @@
 #include <gtaformats/util/util.h>
 #include <gtaformats/util/strutil.h>
 #include <cstdio>
+#include <algorithm>
 #include <btBulletDynamicsCommon.h>
 #include <gtaformats/gtadff.h>
 #include <gta/resource/mesh/ManagedMeshPointer.h>
@@ -71,6 +72,8 @@
 #include <gta/resource/smesh/ShadowMesh.h>
 #include <gta/resource/smesh/ShadowVolumeGenerator.h>
 #include <gta/resource/smesh/ManagedShadowMeshPointer.h>
+#include <gta/scene/raycasting/RayCaster.h>
+#include <gta/scene/raycasting/CollisionRayCastingHandler.h>
 
 
 
@@ -389,6 +392,227 @@ void Controller::init()
 
 
 
+	MeshGenerator mg;
+
+	float halfLenX = 1.0f;
+	float halfLenY = 1.0f;
+	float halfLenZ = 1.0f;
+
+	Vector3 boxMin(-halfLenX, -halfLenY, -halfLenZ);
+	Vector3 boxMax(halfLenX, halfLenY, halfLenZ);
+
+	//Mesh* mesh = mg.createBox(boxMin, boxMax);
+	Mesh* mesh = mg.createSphere(5.0f, 100, 100);
+	mesh->setBounds(0.0f, 0.0f, 0.0f, 5.0f);
+
+	MeshClump* clump = new MeshClump;
+	MeshFrame* frame = new MeshFrame;
+	frame->setModelMatrix(Matrix4::translation(0.0f, 0.0f, 0.0f));
+	clump->setRootFrame(frame);
+	mesh->setFrame(frame);
+	clump->addMesh(mesh);
+
+	for (Mesh::SubmeshIterator it = mesh->getSubmeshBegin() ; it != mesh->getSubmeshEnd() ; it++) {
+		Submesh* submesh = *it;
+
+		Material* mat = new Material;
+		mat->setColor(0, 0, 255, 255);
+
+		submesh->setMaterial(mat);
+	}
+
+	StaticMeshPointer* meshPtr = new StaticMeshPointer(clump);
+
+	CollisionModel* cmodel = new CollisionModel;
+	cmodel->setBoundingSphere(Vector3::Zero, 5.0f);
+	cmodel->setBoundingBox(Vector3(-5.0f, -5.0f, -5.0f), Vector3(5.0f, 5.0f, 5.0f));
+
+	CollisionSphere* sphere = new CollisionSphere(Vector3::Zero, 5.0f);
+	cmodel->addSphere(sphere);
+
+	StaticCollisionShapePointer* colPtr = new StaticCollisionShapePointer(cmodel);
+
+	StaticMapItemDefinition* def = new StaticMapItemDefinition(meshPtr, NULL, colPtr, NULL, 250.0f);
+
+	MapSceneObject* obj = new MapSceneObject;
+
+	MapSceneObjectLODInstance* lodInst = new MapSceneObjectLODInstance(def);
+	obj->addLODInstance(lodInst);
+
+	float angle = 45.0f;
+	obj->setModelMatrix(Matrix4::translation(Vector3(0.0f, 0.0f, 50.0f)) * Matrix4::rotation((angle / 180.0f) * M_PI, Vector3::UnitY));
+
+	//scene->addSceneObject(obj);
+
+
+
+
+	Vector3 rayStart(0.3f, -2.0f, 30.0f);
+	//Vector3 rayStart(2392.345215f, -1.829378f, 30);
+	//Vector3 rayStart(2414.333252f, -1.863295f, 27.659145f);
+	Vector3 rayDir(1.0f, 0.0f, 0.0f);
+
+	float rayLen = 10000.0f;
+
+
+
+	rayDir.normalize();
+
+
+	RayCaster rc;
+
+	Scene::ObjectList olist;
+	olist.push_back(obj);
+
+	CollisionRayCastingHandler<Scene::ObjectIterator> rch;
+	rch.setSceneObjects(scene->getSceneObjectBegin(), scene->getSceneObjectEnd());
+	//rch.setSceneObjects(olist.begin(), olist.end());
+
+	rc.setHandler(&rch);
+
+	uint64_t s, e;
+
+	s = GetTickcount();
+	rc.castRay(rayStart, rayDir, RayCaster::Sorted | RayCaster::CalculateIntersectionPosition);
+	e = GetTickcount();
+	uint64_t t1 = e-s;
+	s = GetTickcount();
+	rc.castRay(rayStart, rayDir, RayCaster::Sorted | RayCaster::CalculateIntersectionPosition);
+	e = GetTickcount();
+	uint64_t t2 = e-s;
+
+	printf("Raycasting took %ums (first: %ums)\n", t2, t1);
+
+	uint32_t numRes = 0;
+	for (CollisionRayCastingHandler<Scene::ObjectIterator>::ResultIterator it = rch.getResultBegin() ; it != rch.getResultEnd() ; it++) {
+		CollisionRayCastingHandler<Scene::ObjectIterator>::ObjectResult& res = *it;
+
+		unsigned int numR;
+		float r[2];
+
+		if ((res.flags & CollisionRayCastingHandler<Scene::ObjectIterator>::ObjectResultFlagSphere)  !=  0) {
+			r[0] = res.sphereRes.rayRa;
+			r[1] = res.sphereRes.rayRb;
+			numR = 2;
+		} else if ((res.flags & CollisionRayCastingHandler<Scene::ObjectIterator>::ObjectResultFlagBox)  !=  0) {
+			memcpy(r, res.boxRes.intersectionRayR, sizeof(r));
+			numR = 2;
+		} else {
+			r[0] = res.meshRes.rayR;
+			numR = 1;
+		}
+
+		for (unsigned int i = 0 ; i < numR ; i++) {
+			Vector3 pos = rayStart + rayDir*r[i];
+
+			MeshGenerator mg;
+
+			Mesh* mesh = mg.createSphere(0.1f, 10, 10);
+
+			MeshClump* clump = new MeshClump;
+			MeshFrame* frame = new MeshFrame;
+			frame->setModelMatrix(Matrix4::translation(0.0f, 0.0f, 0.0f));
+			clump->setRootFrame(frame);
+			mesh->setFrame(frame);
+			clump->addMesh(mesh);
+
+			for (Mesh::SubmeshIterator it = mesh->getSubmeshBegin() ; it != mesh->getSubmeshEnd() ; it++) {
+				Submesh* submesh = *it;
+
+				Material* mat = new Material;
+				mat->setColor(0, 0, 255, 255);
+
+				submesh->setMaterial(mat);
+			}
+
+			StaticMeshPointer* meshPtr = new StaticMeshPointer(clump);
+			StaticMapItemDefinition* def = new StaticMapItemDefinition(meshPtr, NULL, NULL, NULL, 250.0f);
+
+			MapSceneObject* obj = new MapSceneObject;
+
+			MapSceneObjectLODInstance* lodInst = new MapSceneObjectLODInstance(def);
+			obj->addLODInstance(lodInst);
+
+			obj->setModelMatrix(Matrix4::translation(pos));
+
+			scene->addSceneObject(obj);
+
+			printf("* INTERSECTION at position %f, %f, %f (R%u: %f)\n", pos.getX(), pos.getY(), pos.getZ(), i, r[i]);
+		}
+
+		dynamic_cast<VisualSceneObject*>(res.obj)->selected = true;
+
+		numRes++;
+	}
+
+	printf("%u Raycasting Results!\n", numRes);
+
+
+	float* vertices = new float[2*3];
+	uint32_t* indices = new uint32_t[2];
+
+	vertices[0] = rayStart.getX();
+	vertices[1] = rayStart.getY();
+	vertices[2] = rayStart.getZ();
+
+	vertices[3] = rayStart.getX() + rayDir.getX() * rayLen;
+	vertices[4] = rayStart.getY() + rayDir.getY() * rayLen;
+	vertices[5] = rayStart.getZ() + rayDir.getZ() * rayLen;
+
+	indices[0] = 0;
+	indices[1] = 1;
+
+	mesh = new Mesh(2, VertexFormatLines, 0, vertices);
+	Vector3 bsCenter = rayStart + rayDir*rayLen*0.5f;
+	mesh->setBounds(bsCenter.getX(), bsCenter.getY(), bsCenter.getZ(), rayLen*0.5f);
+
+	Submesh* submesh = new Submesh(mesh, 2, indices);
+
+	Material* mat = new Material;
+	mat->setColor(255, 0, 0, 255);
+
+	submesh->setMaterial(mat);
+
+	mesh->addMaterial(mat);
+	mesh->addSubmesh(submesh);
+
+	float sphereRadius = 0.25f;
+	Mesh* sphereMesh = mg.createSphere(sphereRadius, 10, 10, rayStart - rayDir*sphereRadius);
+
+	Material* sphereMat = new Material;
+	sphereMat->setColor(255, 255, 0, 255);
+
+	(*sphereMesh->getSubmeshBegin())->setMaterial(sphereMat);
+	sphereMesh->addMaterial(sphereMat);
+
+	MeshFrame* rootFrame = new MeshFrame;
+	mesh->setFrame(rootFrame);
+	sphereMesh->setFrame(rootFrame);
+
+	clump = new MeshClump;
+	clump->setRootFrame(rootFrame);
+	clump->addMesh(mesh);
+	clump->addMesh(sphereMesh);
+
+	delete[] vertices;
+	delete[] indices;
+
+
+	meshPtr = new StaticMeshPointer(clump);
+
+	def = new StaticMapItemDefinition(meshPtr, NULL, NULL, NULL, rayLen + 200.0f, 0);
+
+	lodInst = new MapSceneObjectLODInstance(def);
+
+	obj = new MapSceneObject;
+	obj->addLODInstance(lodInst);
+
+	//obj->setModelMatrix(Matrix4::translation(0.0f, 0.0f, 50.0f));
+
+	scene->addSceneObject(obj);
+
+
+
 	PVSDatabase* pvs = scene->getStreamingManager()->getPVSDatabase();
 
 	File pvsFile(GTASA_PATH "/visibility.pvs");
@@ -440,7 +664,7 @@ void Controller::init()
 
 	printf("\n\n\n\n");
 
-	for (int i = 0 ; i < 0 ; i++) {
+	/*for (int i = 0 ; i < 0 ; i++) {
 		//Vector3 pos(RandomFloat(-50.0f, 50.0f), RandomFloat(-50.0f, 50.0f), RandomFloat(100.0f, 200.0f));
 		Vector3 pos(sl->getPosition());
 
@@ -486,7 +710,7 @@ void Controller::init()
 		obj->setMass(1.0f);
 		rb->setRestitution(RandomFloat(0.0f, 1.0f));
 
-		scene->addSceneObject(obj);
+		scene->addSceneObject(obj);*/
 
 		/*btScalar mass = 100.0f;
 		btCollisionShape* shape;
@@ -508,12 +732,12 @@ void Controller::init()
 		//rigidBody->applyCentralForce(btVector3(RandomFloat(0.1f, 10.0f), RandomFloat(0.1f, 10.0f), RandomFloat(0.1f, 10.0f)));
 		world->addRigidBody(rigidBody);
 		//rigidBody->setLinearVelocity(btVector3(RandomFloat(-20.0, 20.0f), RandomFloat(-20.0f, 20.0f), RandomFloat(-20.0f, 20.0f)));*/
-	}
+	//}
 
 	// <------ X+
 	// V Y+
 	cam->setPosition(0.0f, 0.0f, 0.0f);
-	//cam->setPosition(999.427185f, -1385.898071f, 64.900925f);
+	//cam->setPosition(2392.345215f, -1.829378f, 33.771557f);
 
 	//cam->setPosition(162.309998f, -201.011093f, 35.131886f);
 	//cam->lookAt(Vector3(0.757422f, 0.506264f, -0.412321f), Vector3(0.342802f, 0.229130f, 0.911053f));

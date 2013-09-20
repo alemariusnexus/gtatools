@@ -30,6 +30,7 @@
 
 class VisualSceneObject : public virtual SceneObject {
 public:
+	VisualSceneObject() : selected(false) {}
 	virtual bool hasAlphaTransparency() const = 0;
 	virtual typeflags_t getTypeFlags() const { return TypeFlagVisual; }
 	virtual void getBoundingSphere(Vector3& center, float& radius) = 0;
@@ -42,6 +43,9 @@ public:
 
 private:
 	friend class Scene;
+
+public:
+	bool selected;
 };
 
 #endif /* VISUALSCENEOBJECT_H_ */

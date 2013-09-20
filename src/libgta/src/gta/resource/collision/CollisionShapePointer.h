@@ -23,15 +23,15 @@
 #ifndef COLLISIONSHAPEPOINTER_H_
 #define COLLISIONSHAPEPOINTER_H_
 
-#include <btBulletDynamicsCommon.h>
+#include "CollisionModel.h"
 
 class CollisionShapePointer {
 public:
 	virtual CollisionShapePointer* clone() const = 0;
-	virtual btCollisionShape* get(bool lock = false) = 0;
+	virtual CollisionModel* get(bool lock = false) = 0;
 	virtual void release() {}
 
-	virtual btCollisionShape* operator*() { return get(); }
+	virtual CollisionModel* operator*() { return get(); }
 };
 
 #endif /* COLLISIONSHAPEPOINTER_H_ */

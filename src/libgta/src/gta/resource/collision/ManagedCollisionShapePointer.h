@@ -36,7 +36,7 @@ public:
 	ManagedCollisionShapePointer(const ManagedCollisionShapePointer& other) : pointer(other.pointer) {}
 	~ManagedCollisionShapePointer();
 	virtual CollisionShapePointer* clone() const;
-	virtual btCollisionShape* get(bool lock = false);
+	virtual CollisionModel* get(bool lock = false);
 	virtual void release();
 
 private:

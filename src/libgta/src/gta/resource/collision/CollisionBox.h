@@ -20,23 +20,29 @@
 	GPLADDITIONS.
  */
 
-#ifndef STATICCOLLISIONSHAPEPOINTER_H_
-#define STATICCOLLISIONSHAPEPOINTER_H_
+#ifndef COLLISIONBOX_H_
+#define COLLISIONBOX_H_
 
-#include "CollisionShapePointer.h"
+#include <gta/config.h>
+#include <gtaformats/col/COLBox.h>
 
 
-
-class StaticCollisionShapePointer : public CollisionShapePointer
+class CollisionBox
 {
 public:
-	StaticCollisionShapePointer(CollisionModel* model) : model(model) {}
-	StaticCollisionShapePointer(const StaticCollisionShapePointer& other) : model(other.model) {}
-	virtual CollisionShapePointer* clone() const { return new StaticCollisionShapePointer(*this); }
-	virtual CollisionModel* get(bool lock = false) { return model; }
+	CollisionBox(const Vector3& min, const Vector3& max) : min(min), max(max) {}
+	CollisionBox(const CollisionBox& other) : min(other.min), max(other.max) {}
+	CollisionBox(const COLBox& box) : min(box.getMinimum()), max(box.getMaximum()) {}
+	Vector3& getMinimum() { return min; }
+	const Vector3& getMinimum() const { return min; }
+	Vector3& getMaximum() { return max; }
+	const Vector3& getMaximum() const { return max; }
+	void setMinimum(const Vector3& m) { min = m; }
+	void setMaximum(const Vector3& m) { max = m; }
 
 private:
-	CollisionModel* model;
+	Vector3 min;
+	Vector3 max;
 };
 
-#endif /* STATICCOLLISIONSHAPEPOINTER_H_ */
+#endif /* COLLISIONBOX_H_ */
