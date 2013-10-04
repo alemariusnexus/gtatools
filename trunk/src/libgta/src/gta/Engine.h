@@ -30,6 +30,7 @@
 #include "EngineIPLLoader.h"
 #include "scene/parts/VisualSceneObject.h"
 #include "ViewportObserver.h"
+#include "render/ShaderPluginAPI.h"
 #include <locale>
 #include <cstring>
 #include <vector>
@@ -133,6 +134,9 @@ public:
 	void setFreezeVisibility(bool fv) { freezeVisibility = fv; scene->setFreezeVisibility(fv); }
 	bool isVisibilityFrozen() const { return freezeVisibility; }
 
+	ShaderPluginAPI* getShaderPluginAPI() { return shaderPluginAPI; }
+	void setShaderPluginAPI(ShaderPluginAPI* api) { shaderPluginAPI = api; }
+
 private:
 	Engine();
 	void iplRecurse(File* file, const File& rootDir, GameInfo gameInfo = GameInfo());
@@ -174,6 +178,8 @@ private:
 	unsigned int testMem;
 
 	bool freezeVisibility;
+
+	ShaderPluginAPI* shaderPluginAPI;
 };
 
 #endif /* ENGINE_H_ */

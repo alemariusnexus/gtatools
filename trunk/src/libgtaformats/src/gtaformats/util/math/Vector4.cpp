@@ -26,6 +26,7 @@
 
 
 const Vector4 Vector4::Zero = Vector4(0.0f, 0.0f, 0.0f, 1.0f);
+const Vector4 Vector4::One = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 const Vector4 Vector4::UnitX = Vector4(1.0f, 0.0f, 0.0f, 1.0f);
 const Vector4 Vector4::UnitY = Vector4(0.0f, 1.0f, 0.0f, 1.0f);
 const Vector4 Vector4::UnitZ = Vector4(0.0f, 0.0f, 1.0f, 1.0f);
@@ -39,7 +40,7 @@ const Vector4 Vector4::NegativeUnitZ = Vector4(0.0f, 0.0f, -1.0f, 1.0f);
 Vector4::Vector4(const Vector3& other, float w)
 {
 	//memcpy(data.f, other.data, 3*4);
-	memcpy(data.f, &other.data, 3*4);
+	memcpy(data.f, other.data, 3*4);
 	data.f[3] = w;
 }
 

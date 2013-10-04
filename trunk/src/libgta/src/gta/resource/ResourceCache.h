@@ -198,12 +198,19 @@ public:
 		 */
 		void release() { if (locked) { sharedPtr->release(); locked = false; } }
 
+		bool operator==(const Pointer& other) const { return sharedPtr.get() == other.sharedPtr.get(); }
+		bool operator!=(const Pointer& other) const { return sharedPtr.get() != other.sharedPtr.get(); }
+		bool operator<(const Pointer& other) const { return sharedPtr.get() < other.sharedPtr.get(); }
+		bool operator>(const Pointer& other) const { return sharedPtr.get() > other.sharedPtr.get(); }
+		bool operator<=(const Pointer& other) const { return sharedPtr.get() <= other.sharedPtr.get(); }
+		bool operator>=(const Pointer& other) const { return sharedPtr.get() >= other.sharedPtr.get(); }
+
 	private:
 		/**	\brief Creates a pointer with the given SharedPointer.
 		 *
 		 * 	@param sharedPtr The SharedPointer.
 		 */
-		Pointer(SharedPointer* sharedPtr) : sharedPtr(sharedPtr), locked(false) {}
+		Pointer(shared_ptr<SharedPointer> sharedPtr) : sharedPtr(sharedPtr), locked(false) {}
 
 	private:
 		shared_ptr<SharedPointer> sharedPtr;
@@ -267,7 +274,7 @@ private:
 
 private:
 	typedef Cache<K, Entry, Compare, MapHash, KeyEqual> EntryCache;
-	typedef map<K, SharedPointer*, Compare> SharedPtrMap;
+	typedef map<K, shared_ptr<SharedPointer>, Compare> SharedPtrMap;
 
 public:
 	/**	\brief Create a new ResourceCache.
@@ -362,7 +369,7 @@ private:
 	 * 	@param key The entry's key.
 	 * 	@return The SharedPointer.
 	 */
-	SharedPointer* getSharedPointer(K key);
+	shared_ptr<SharedPointer> getSharedPointer(K key);
 
 	/**	\brief Remove the SharedPointer for the specified entry.
 	 *
@@ -458,13 +465,14 @@ typename ResourceCache<K, Compare, MapHash, KeyEqual>::Pointer ResourceCache<K, 
 
 
 template <class K, class Compare, class MapHash, class KeyEqual>
-typename ResourceCache<K, Compare, MapHash, KeyEqual>::SharedPointer* ResourceCache<K, Compare, MapHash, KeyEqual>::getSharedPointer(K key)
+shared_ptr<typename ResourceCache<K, Compare, MapHash, KeyEqual>::SharedPointer> ResourceCache<K, Compare, MapHash, KeyEqual>::getSharedPointer(K key)
 {
 	pair<typename SharedPtrMap::iterator, bool> res
-			= sharedPtrs.insert(pair<K, typename ResourceCache<K, Compare, MapHash, KeyEqual>::SharedPointer* >(key, NULL));
+			= sharedPtrs.insert(pair<K, shared_ptr<typename ResourceCache<K, Compare, MapHash, KeyEqual>::SharedPointer> >(key,
+					shared_ptr<typename ResourceCache<K, Compare, MapHash, KeyEqual>::SharedPointer>()));
 
 	if (res.second) {
-		res.first->second = new SharedPointer(this, key);
+		res.first->second = shared_ptr<SharedPointer>(new SharedPointer(this, key));
 	}
 
 	return res.first->second;

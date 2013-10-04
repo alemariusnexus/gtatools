@@ -37,3 +37,5 @@
 #endif
 
 #endif
+
+#define NUM_SUBMESHES 16

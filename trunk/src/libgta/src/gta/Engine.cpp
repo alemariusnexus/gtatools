@@ -43,6 +43,7 @@
 #include <gtaformats/ipl/IPLReader.h>
 #include <gtaformats/ipl/IPLInstance.h>
 #include "MapItemDefinition.h"
+#include "render/DefaultShaderPluginAPI.h"
 #include <cstdio>
 #include <utility>
 #include <algorithm>
@@ -84,7 +85,7 @@ void Engine::destroy()
 
 Engine::Engine()
 		: defGameInfo(GameInfo()), camera(NULL), scene(NULL), gameHours(8), gameMinutes(0), viewWidth(-1),
-		  viewHeight(-1), testMem(0), freezeVisibility(false)
+		  viewHeight(-1), testMem(0), freezeVisibility(false), shaderPluginAPI(new DefaultShaderPluginAPI)
 {
 	meshIndexer = new MeshIndexer;
 	texIndexer = TextureIndexer::getInstance();

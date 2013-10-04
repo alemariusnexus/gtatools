@@ -20,39 +20,67 @@
 	GPLADDITIONS.
  */
 
-
-
-
-uniform bool Textured;
-uniform vec4 MaterialColor;
-
+uniform mat4 MMatrix;
+uniform mat4 VMatrix;
+uniform mat4 VPMatrix;
 uniform mat4 MVMatrix;
 uniform mat4 MVPMatrix;
 uniform mat4 NormalMVMatrix;
+
+uniform bool HasVertexColors;
+//uniform bool IsTextured;
+//uniform vec4 MaterialColor;
+uniform vec4 MaterialAmbientReflection;
+uniform vec4 MaterialDiffuseReflection;
+uniform vec4 MaterialSpecularReflection;
+
+uniform bool IsTextured[NUM_SUBMESHES];
+uniform vec4 MaterialColor[NUM_SUBMESHES];
+
+uniform int SubmeshOffset;
 
 ATTRIBUTE vec4 Vertex;
 ATTRIBUTE vec3 Normal;
 ATTRIBUTE vec2 TexCoord;
 ATTRIBUTE vec4 Color;
+ATTRIBUTE int SubmeshIndex;
 
 VARYING vec2 FragTexCoord;
 VARYING vec4 FragColor;
+flat VARYING int FragSubmeshIndex;
 
 
 
 void CalculateVertexLighting(inout vec4 color, vec3 eVertex, vec3 eNormal);
 
 
+
 void ShadeVertex()
 {
+	int actualSubmeshIndex = SubmeshIndex - SubmeshOffset;
+	
+	FragSubmeshIndex = actualSubmeshIndex;
+
+	vec4 vertex = Vertex;
+	DispatchVertexPreProcessing(vertex);
+	
+#ifdef SHADER_PLUGIN_HOOK_VERTEXPOSTMODELTRANSFORMATIONPROCESSING_USED
+	vec4 mVertex = MMatrix * vertex;
+	DispatchVertexPostModelTransformationProcessing(mVertex);
+	vec3 eVertex = vec3(VMatrix * mVertex);
+	gl_Position = VPMatrix * mVertex;
+#else
+	vec3 eVertex = vec3(MVMatrix * vertex);
+	gl_Position = MVPMatrix * vertex;
+#endif
+
     FragTexCoord = TexCoord;
     
-    vec3 eVertex = vec3(MVMatrix * Vertex);
     vec3 eNormal = normalize(vec3(NormalMVMatrix * vec4(Normal, 1.0)));
     
-    gl_Position = MVPMatrix * Vertex;
-    
-    FragColor = MaterialColor * Color;
+    FragColor = MaterialColor[actualSubmeshIndex] * Color;
     
     CalculateVertexLighting(FragColor, eVertex, eNormal);
+    
+    DispatchVertexPostProcessing(gl_Position);
 }

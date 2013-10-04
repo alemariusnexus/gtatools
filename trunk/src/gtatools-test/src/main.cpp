@@ -27,6 +27,7 @@
 #include <gtaformats/util/util.h>
 #include <gtaformats/util/strutil.h>
 #include <gtaformats/util/math/intersection.h>
+#include <gtaformats/util/math/project.h>
 #include <gtaformats/gtaide.h>
 #include <gtaformats/gtaipl.h>
 #include <gtaformats/gtacol.h>
@@ -274,7 +275,6 @@ void initWindowSystem(int w, int h)
 }
 
 
-
 int main(int argc, char** argv)
 {
 	try {
@@ -283,7 +283,7 @@ int main(int argc, char** argv)
 		}
 
 		SDL_EnableUNICODE(1);
-		SDL_ShowCursor(SDL_DISABLE); // We'll use the CEGUI cursor
+		//SDL_ShowCursor(SDL_DISABLE); // We'll use the CEGUI cursor
 
 		initWindowSystem(WINDOW_WIDTH, WINDOW_HEIGHT);
 
@@ -293,6 +293,8 @@ int main(int argc, char** argv)
 
 		renderer.init();
 		renderer.reshape(WINDOW_WIDTH, WINDOW_HEIGHT);
+
+		uint64_t lastClickTime = 0;
 
 		bool running = true;
 		while (running) {
@@ -315,6 +317,12 @@ int main(int argc, char** argv)
 
 			SDL_Event evt;
 			while (SDL_PeepEvents(&evt, 1, SDL_GETEVENT, SDL_ALLEVENTS) > 0) {
+				uint64_t time;
+
+				if (evt.type != SDL_MOUSEBUTTONDOWN  &&  evt.type != SDL_MOUSEBUTTONUP) {
+					lastClickTime = 0;
+				}
+
 				switch (evt.type) {
 				case SDL_KEYDOWN:
 					if (evt.key.keysym.sym == SDLK_q  &&  (evt.key.keysym.mod & KMOD_CTRL) != 0) {
@@ -328,6 +336,19 @@ int main(int argc, char** argv)
 					renderer.keyReleased(evt.key.keysym);
 					break;
 				case SDL_MOUSEBUTTONDOWN:
+					if (evt.button.button == SDL_BUTTON_LEFT) {
+						time = GetTickcount();
+
+						if (time-lastClickTime < 300) {
+							renderer.mouseButtonDoubleClicked(evt.button.x, evt.button.y);
+							lastClickTime = 0;
+						} else {
+							lastClickTime = time;
+						}
+					} else {
+						lastClickTime = 0;
+					}
+
 					renderer.mouseButtonPressed(evt.button.button, evt.button.x, evt.button.y);
 					break;
 				case SDL_MOUSEBUTTONUP:

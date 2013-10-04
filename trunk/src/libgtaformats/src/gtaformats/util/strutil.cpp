@@ -47,7 +47,7 @@ void strtoupper(char* dest, const char* src, size_t len)
 }
 
 
-void rtrim(char* str, char chr)
+void rtrim(char* str, const char* chrs)
 {
 	int len = strlen(str);
 
@@ -57,7 +57,8 @@ void rtrim(char* str, char chr)
 
 	char* strBeg = str;
 	str += len-1;
-	while (str >= strBeg  &&  *str == chr) *str-- = '\0';
+	//while (str >= strBeg  &&  *str == chr) *str-- = '\0';
+	while (str >= strBeg  &&  strchr(chrs, *str)  !=  NULL) *str-- = '\0';
 }
 
 

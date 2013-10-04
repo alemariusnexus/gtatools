@@ -24,12 +24,29 @@
 #define RENDERINGENTITY_H_
 
 #include "rendering.h"
+#include "ShaderPlugin.h"
+#include "ShaderPluginRegistry.h"
+#include <list>
+
+using std::list;
+
 
 
 class RenderingEntity
 {
 public:
+	typedef list<ShaderPlugin*> ShaderPluginList;
+	typedef ShaderPluginList::iterator ShaderPluginIterator;
+	typedef ShaderPluginList::const_iterator ConstShaderPluginIterator;
+
+public:
 	virtual ~RenderingEntity() {}
+	virtual ShaderPluginRegistry& getPluginRegistry() { return pluginRegistry; }
+	virtual const ShaderPluginRegistry& getPluginRegistry() const { return pluginRegistry; }
+	virtual void setPluginRegistry(const ShaderPluginRegistry& reg) { pluginRegistry = reg; }
+
+private:
+	ShaderPluginRegistry pluginRegistry;
 };
 
 #endif /* RENDERINGENTITY_H_ */

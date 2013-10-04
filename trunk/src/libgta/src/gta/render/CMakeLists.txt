@@ -19,7 +19,11 @@
 # GPLADDITIONS.
 
 SET(FILES
-    DefaultRenderer RenderingEntityGenerator StaticRenderingMesh AnimatedRenderingMesh)
+    DefaultRenderer RenderingEntityGenerator RenderingMesh AdvancedShaderProgram
+    DefaultShaderPluginAPI ShaderPluginAPIHook ShaderPlugin TestShaderPlugin
+    ShaderPluginRegistry RenderingSubmesh UniformBuffer DPTestShaderPlugin
+    AdvancedShader
+    )
 
 FOREACH(FILE ${FILES})
     SET(SRCS ${SRCS} "gta/render/${FILE}")

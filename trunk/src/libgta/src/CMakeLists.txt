@@ -134,6 +134,15 @@ SET(INCLUDES ${INCLUDES} "${CMAKE_CURRENT_BINARY_DIR}")
 
 INCLUDE_DIRECTORIES(${INCLUDES})
 
+CREATE_RESOURCE(gta/shaders/test_vertex.glsl test_vertex_shader)
+CREATE_RESOURCE(gta/shaders/test_vertex2.glsl test_vertex2_shader)
+
+CREATE_RESOURCE(gta/shaders/test_fragment.glsl test_fragment_shader)
+CREATE_RESOURCE(gta/shaders/test_fragment2.glsl test_fragment2_shader)
+
+CREATE_RESOURCE(gta/shaders/dp_test_vertex.glsl dp_test_vertex_shader)
+CREATE_RESOURCE(gta/shaders/dp_test_fragment.glsl dp_test_fragment_shader)
+
 CREATE_RESOURCE(gta/shaders/global.glsl global_shader)
 CREATE_RESOURCE(gta/shaders/global_vertex.glsl global_vertex_shader)
 CREATE_RESOURCE(gta/shaders/global_fragment.glsl global_fragment_shader)

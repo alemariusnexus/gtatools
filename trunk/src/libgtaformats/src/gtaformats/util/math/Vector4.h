@@ -60,7 +60,7 @@ struct Vec4I32
 class Vector4
 {
 public:
-	static const Vector4 Zero;
+	static const Vector4 Zero, One;
 	static const Vector4 UnitX, UnitY, UnitZ;
 	static const Vector4 NegativeUnitX, NegativeUnitY, NegativeUnitZ;
 
@@ -79,6 +79,10 @@ public:
 	float getY() const { return data.f[1]; }
 	float getZ() const { return data.f[2]; }
 	float getW() const { return data.f[3]; }
+	void setX(float x) { data.f[0] = x; }
+	void setY(float y) { data.f[1] = y; }
+	void setZ(float z) { data.f[2] = z; }
+	void setW(float w) { data.f[3] = w; }
 	float operator[](unsigned int index) const { return data.f[index]; }
 	void mirrorYZ() { float y = data.f[1]; data.f[1] = data.f[2]; data.f[2] = y; }
 	void scale(float x, float y, float z) { data.f[0] *= x; data.f[1] *= y; data.f[2] *= z; }

@@ -56,6 +56,7 @@
 #include <gtaformats/ifp/IFPRotTransScaleFrame.h>
 #include <gtaformats/util/Exception.h>
 #include <gtaformats/util/CRC32.h>
+#include <gtaformats/util/math/project.h>
 #include <gta/resource/animation/ManagedAnimationPackagePointer.h>
 #include <gta/gldebug.h>
 #include <gta/scene/visibility/PVSDatabase.h>
@@ -74,6 +75,7 @@
 #include <gta/resource/smesh/ManagedShadowMeshPointer.h>
 #include <gta/scene/raycasting/RayCaster.h>
 #include <gta/scene/raycasting/CollisionRayCastingHandler.h>
+#include <gta/render/DPTestShaderPlugin.h>
 
 
 
@@ -88,7 +90,8 @@ Controller::Controller()
 		: lastFrameStart(0), lastMeasuredFrameStart(0), moveFactor(1.0f),
 		  moveForwardFactor(0.0f), moveSidewardFactor(0.0f), moveUpFactor(0.0f), firstFrame(true),
 		  framesSinceLastMeasure(0), lastMouseX(-1), lastMouseY(-1), printCacheStatistics(false),
-		  programRunning(true), forceStatisticsUpdate(false)
+		  programRunning(true), forceStatisticsUpdate(false),
+		  lastSelectedObj(NULL)
 {
 }
 
@@ -239,7 +242,7 @@ void Controller::init()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	//engine->getMeshCache()->resize(40 * 1000000); // 40MB
-	engine->getMeshCache()->resize(25 * 1000000); // 40MB
+	engine->getMeshCache()->resize(100 * 1000000); // 40MB
 	engine->getTextureCache()->resize(150 * 1000000); // 150MB
 	engine->getCollisionMeshCache()->resize(30 * 1000000);
 	engine->getAnimationCache()->resize(100 * 1000000);
@@ -392,7 +395,7 @@ void Controller::init()
 
 
 
-	MeshGenerator mg;
+	/*MeshGenerator mg;
 
 	float halfLenX = 1.0f;
 	float halfLenY = 1.0f;
@@ -609,7 +612,7 @@ void Controller::init()
 
 	//obj->setModelMatrix(Matrix4::translation(0.0f, 0.0f, 50.0f));
 
-	scene->addSceneObject(obj);
+	scene->addSceneObject(obj);*/
 
 
 
@@ -736,7 +739,11 @@ void Controller::init()
 
 	// <------ X+
 	// V Y+
-	cam->setPosition(0.0f, 0.0f, 0.0f);
+	//cam->setPosition(0.0f, 0.0f, 0.0f);
+
+	cam->setPosition(2100.095459f, 1719.237549f, 38.219982f);
+	cam->lookAt(Vector3(-0.605025f, 0.735448f, -0.305059f), Vector3(-0.193806f, 0.235585f, 0.952333f));
+
 	//cam->setPosition(2392.345215f, -1.829378f, 33.771557f);
 
 	//cam->setPosition(162.309998f, -201.011093f, 35.131886f);
@@ -764,6 +771,9 @@ void Controller::reshape(int w, int h)
 	DefaultRenderer* renderer = new DefaultRenderer;
 	engine->getScene()->setRenderer(renderer);
 
+	DPTestShaderPlugin* plugin = new DPTestShaderPlugin;
+	renderer->getDepthPeelingBlendLayerPluginRegistry().installPlugin(plugin);
+
 
 	float l = aspect*-0.7;
 	float r = aspect*0.7;
@@ -783,17 +793,6 @@ void Controller::reshape(int w, int h)
 	));*/
 
 	GLException::checkError("After reshape");
-}
-
-
-unsigned int fib(int n)
-{
-    if (n == 0)
-        return 0;
-    else if (n == 1)
-        return 1;
-    else
-        return fib(n-1) + fib(n-2);
 }
 
 
@@ -1044,6 +1043,119 @@ void Controller::mouseButtonPressed(Uint8 button, int x, int y)
 		lastMouseX = x;
 		lastMouseY = y;
 	}
+}
+
+
+void Controller::mouseButtonDoubleClicked(int x, int y)
+{
+	Engine* engine = Engine::getInstance();
+	Camera* cam = engine->getCamera();
+	Matrix4 pMatrix = engine->getProjectionMatrix();
+	Matrix4 vMatrix = Matrix4::lookAt(cam->getTarget(), cam->getUp())
+			* Matrix4::translation(-cam->getPosition());
+	Scene* scene = engine->getScene();
+
+	int w = engine->getViewportWidth();
+	int h = engine->getViewportHeight();
+
+	Vector3 point1, point2;
+	bool par = UnProject(Vector3(x, h-y, 0.0f), vMatrix, pMatrix, 0, 0, w, h, point1);
+	bool pbr = UnProject(Vector3(x, h-y, 0.5f), vMatrix, pMatrix, 0, 0, w, h, point2);
+
+	Vector3 rayStart = point1;
+	Vector3 rayDir = point2-point1;
+
+	rayDir.normalize();
+
+	float rayLen = 1000.0f;
+
+	RayCaster rc;
+
+	CollisionRayCastingHandler<Scene::ObjectIterator> rch;
+	rch.setSceneObjects(scene->getSceneObjectBegin(), scene->getSceneObjectEnd());
+
+	rc.setHandler(&rch);
+	rc.castRay(point1, rayDir, RayCaster::Sorted | RayCaster::CalculateIntersectionPosition, 1);
+
+	if (lastSelectedObj) {
+		lastSelectedObj->selected = false;
+	}
+
+	if (rch.getResultBegin() != rch.getResultEnd()) {
+		CollisionRayCastingHandler<Scene::ObjectIterator>::ObjectResult& res = *rch.getResultBegin();
+		VisualSceneObject* vobj = dynamic_cast<VisualSceneObject*>(res.obj);
+		vobj->selected = true;
+		lastSelectedObj = vobj;
+	} else {
+		lastSelectedObj = NULL;
+	}
+
+
+
+	/*MeshGenerator mg;
+
+	float* vertices = new float[2*3];
+	uint32_t* indices = new uint32_t[2];
+
+	vertices[0] = rayStart.getX();
+	vertices[1] = rayStart.getY();
+	vertices[2] = rayStart.getZ();
+
+	vertices[3] = rayStart.getX() + rayDir.getX() * rayLen;
+	vertices[4] = rayStart.getY() + rayDir.getY() * rayLen;
+	vertices[5] = rayStart.getZ() + rayDir.getZ() * rayLen;
+
+	indices[0] = 0;
+	indices[1] = 1;
+
+	Mesh* mesh = new Mesh(2, VertexFormatLines, 0, vertices);
+	Vector3 bsCenter = rayStart + rayDir*rayLen*0.5f;
+	mesh->setBounds(bsCenter.getX(), bsCenter.getY(), bsCenter.getZ(), rayLen*0.5f);
+
+	Submesh* submesh = new Submesh(mesh, 2, indices);
+
+	Material* mat = new Material;
+	mat->setColor(255, 0, 0, 255);
+
+	submesh->setMaterial(mat);
+
+	mesh->addMaterial(mat);
+	mesh->addSubmesh(submesh);
+
+	float sphereRadius = 0.25f;
+	Mesh* sphereMesh = mg.createSphere(sphereRadius, 10, 10, rayStart - rayDir*sphereRadius);
+
+	Material* sphereMat = new Material;
+	sphereMat->setColor(255, 255, 0, 255);
+
+	(*sphereMesh->getSubmeshBegin())->setMaterial(sphereMat);
+	sphereMesh->addMaterial(sphereMat);
+
+	MeshFrame* rootFrame = new MeshFrame;
+	mesh->setFrame(rootFrame);
+	sphereMesh->setFrame(rootFrame);
+
+	MeshClump* clump = new MeshClump;
+	clump->setRootFrame(rootFrame);
+	clump->addMesh(mesh);
+	clump->addMesh(sphereMesh);
+
+	delete[] vertices;
+	delete[] indices;
+
+
+	StaticMeshPointer* meshPtr = new StaticMeshPointer(clump);
+
+	StaticMapItemDefinition* def = new StaticMapItemDefinition(meshPtr, NULL, NULL, NULL, rayLen + 200.0f, 0);
+
+	MapSceneObjectLODInstance* lodInst = new MapSceneObjectLODInstance(def);
+
+	MapSceneObject* obj = new MapSceneObject;
+	obj->addLODInstance(lodInst);
+
+	//obj->setModelMatrix(Matrix4::translation(0.0f, 0.0f, 50.0f));
+
+	scene->addSceneObject(obj);*/
 }
 
 

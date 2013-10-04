@@ -187,12 +187,18 @@ void Shader::compile()
 			char* log = new char[maxLength];
 			glGetShaderInfoLog(shader, maxLength, &actualLength, log);
 
-			printf("Successfully compiled shader \"%s\" [#%d]. Build log:\n==========\n%s\n==========\n\n",
-					name.get() ? name.get() : "[UNNAMED]", shader, log);
+			CString clog = CString::from(log);
+			clog.trim();
 
-			delete[] log;
+			if (clog.length() != 0) {
+				printf("\nSuccessfully compiled shader \"%s\" [#%d]. Build log:\n==========\n%s\n==========\n\n",
+						name.get() ? name.get() : "[UNNAMED]", shader, clog.get());
+			} else {
+				printf("Successfully compiled shader \"%s\" [#%d]. Build log is empty\n",
+						name.get() ? name.get() : "[UNNAMED]", shader);
+			}
 		} else {
-			printf("Successfully compiled shader \"%s\" [#%d]. Build log is empty\n\n",
+			printf("\nSuccessfully compiled shader \"%s\" [#%d]. Build log is empty\n\n",
 					name.get() ? name.get() : "[UNNAMED]", shader);
 		}
 	}

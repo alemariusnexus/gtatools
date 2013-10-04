@@ -27,38 +27,37 @@
 
 
 Submesh::Submesh(Mesh* mesh, int indexCount, uint32_t* indices)
-		: mesh(mesh), material(NULL), indexCount(indexCount)
+		: mesh(mesh), material(NULL), indexCount(indexCount), indexOffset(0)
 {
-	init(indices);
+	this->indices = indices;
+	mesh->addSubmesh(this);
 }
 
 
 Submesh::Submesh(Mesh* mesh, const DFFGeometryPart& part)
-		: mesh(mesh), material(NULL), indexCount(part.getIndexCount())
+		: mesh(mesh), material(NULL), indexCount(part.getIndexCount()), indexOffset(0)
 {
+	this->indices = part.getIndices();
+	mesh->addSubmesh(this);
+
 	DFFMaterial* mat = part.getMaterial();
 
 	if (mat) {
 		int32_t index = part.getGeometry()->indexOf(mat);
 		material = mesh->getMaterial(index);
 	}
-
-	init(part.getIndices());
 }
 
 
 Submesh::~Submesh()
 {
-	glDeleteBuffers(1, &indexBuffer);
 }
 
 
-void Submesh::init(uint32_t* indices)
+void Submesh::setLinked(GLuint indexOffset)
 {
-	glGenBuffers(1, &indexBuffer);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexCount*4, indices, GL_STATIC_DRAW);
-	Engine::getInstance()->increaseTestMem(indexCount*4, __FILE__, __LINE__);
+	this->indexOffset = indexOffset;
+	indices = NULL;
 }
 
 
@@ -67,8 +66,3 @@ void Submesh::setMaterial(Material* mat)
 	material = mat;
 }
 
-
-void Submesh::bindIndexBuffer()
-{
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
-}

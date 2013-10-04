@@ -20,14 +20,23 @@
 	GPLADDITIONS.
  */
 
-uniform bool Textured;
-uniform HIGHP vec4 MaterialColor;
-uniform bool VertexColors;
+uniform bool HasVertexColors;
+//uniform bool IsTextured;
+//uniform vec4 MaterialColor;
+uniform vec4 MaterialAmbientReflection;
+uniform vec4 MaterialDiffuseReflection;
+uniform vec4 MaterialSpecularReflection;
 
-uniform sampler2D Texture;
+uniform bool IsTextured[NUM_SUBMESHES];
+uniform vec4 MaterialColor[NUM_SUBMESHES];
+
+uniform sampler2D Texture[NUM_SUBMESHES];
 
 VARYING HIGHP vec2 FragTexCoord;
 VARYING HIGHP vec4 FragColor;
+flat VARYING int FragSubmeshIndex;
+
+
 
 HIGHP vec4 ShadeFragment()
 {
@@ -40,11 +49,18 @@ HIGHP vec4 ShadeFragment()
     v = 1.0 / v;
     
     vec4 vc = vec4(v, 0.0, 0.0, 0.0);*/
+    
+    vec4 outColor;
 
-	if (Textured) {
-    	return FragColor * gtaglTexture2D(Texture, FragTexCoord) /*+ vc*/;
+	if (IsTextured[FragSubmeshIndex]) {
+		//return vec4(1.0, 0.0, 0.0, 1.0);
+    	outColor = FragColor * gtaglTexture2D(Texture[FragSubmeshIndex], FragTexCoord) /*+ vc*/;
     	//return FragColor;
     } else {
-    	return FragColor /*+ vc*/;
+    	outColor = FragColor /*+ vc*/;
     }
+    
+    DispatchFragmentPostProcessing(outColor);
+    
+    return outColor;
 }

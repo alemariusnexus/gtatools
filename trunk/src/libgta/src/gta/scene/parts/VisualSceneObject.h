@@ -26,6 +26,7 @@
 #include "SceneObject.h"
 #include <gtaformats/util/math/Matrix4.h>
 #include "../../resource/smesh/ShadowMeshPointer.h"
+#include "../../render/ShaderPluginRegistry.h"
 
 
 class VisualSceneObject : public virtual SceneObject {
@@ -35,6 +36,8 @@ public:
 	virtual typeflags_t getTypeFlags() const { return TypeFlagVisual; }
 	virtual void getBoundingSphere(Vector3& center, float& radius) = 0;
 	virtual ShadowMeshPointer* getCurrentShadowMeshPointer() { return NULL; }
+	ShaderPluginRegistry getShaderPluginRegistry() const { return pluginRegistry; }
+	void setShaderPluginRegistry(const ShaderPluginRegistry& reg) { pluginRegistry = reg; }
 
 //private:
 public:
@@ -42,10 +45,13 @@ public:
 	virtual void resetRenderingDistance() = 0;
 
 private:
-	friend class Scene;
+	ShaderPluginRegistry pluginRegistry;
 
 public:
 	bool selected;
+
+private:
+	friend class Scene;
 };
 
 #endif /* VISUALSCENEOBJECT_H_ */

@@ -33,6 +33,8 @@
 #include "visibility/PVSDatabase.h"
 #include <gtaformats/util/StringComparator.h>
 #include "../ShaderProgram.h"
+#include "../render/TestShaderPlugin.h"
+#include "../render/ShaderPluginRegistry.h"
 #include <list>
 #include <map>
 #include <btBulletDynamicsCommon.h>
@@ -124,6 +126,12 @@ private:
 	RigidBodyObjectList curRbObjs;
 
 	bool freezeVisibility;
+
+	TestShaderPlugin* testPlugin;
+	ShaderPluginRegistry testReg;
+	UniformBuffer testBuf;
+
+	GLint timeVal;
 };
 
 

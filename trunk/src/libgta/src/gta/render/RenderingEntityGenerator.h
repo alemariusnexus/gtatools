@@ -27,17 +27,23 @@
 #include "../scene/parts/VisualSceneObject.h"
 #include "../scene/objects/MapSceneObject.h"
 #include "../scene/objects/AnimatedMapSceneObject.h"
+#include "TestShaderPlugin.h"
+#include "ShaderPluginRegistry.h"
 #include <gtaformats/util/math/Matrix4.h>
 #include <list>
 #include <map>
+#include <set>
 
 using std::list;
 using std::map;
+using std::set;
+
 
 
 class RenderingEntityGenerator
 {
 public:
+	RenderingEntityGenerator();
 	void generate(list<VisualSceneObject*>::iterator beg, list<VisualSceneObject*>::iterator end, list<RenderingEntity*>& outList);
 
 private:
