@@ -40,6 +40,7 @@ private:
 	typedef ShaderList::iterator ShaderIterator;
 	typedef ShaderList::const_iterator ConstShaderIterator;
 	typedef map<CString, GLint, StringComparator> AttribUniformMap;
+	typedef map<CString, GLuint, StringComparator> UniformBlockMap;
 
 public:
 	static void disableShaders();
@@ -50,9 +51,13 @@ public:
 	void link();
 	void attachShader(Shader* shader);
 	void detachShader(Shader* shader);
+	void detachAllShaders();
 	void makeCurrent();
 	GLint getAttributeLocation(const CString& name) const;
+	void bindAttributeLocation(GLuint index, const CString& name);
 	GLint getUniformLocation(const CString& name) const;
+	GLuint getUniformBlockIndex(const CString& name) const;
+	void setUniformBlockBinding(GLuint blockIndex, GLuint bindingPoint);
 	bool operator==(const ShaderProgram& other) const { return id == other.id; }
 	bool operator!=(const ShaderProgram& other) const { return !(*this == other); }
 
@@ -73,6 +78,7 @@ private:
 	CString name;
 	AttribUniformMap attribCache;
 	AttribUniformMap uniformCache;
+	UniformBlockMap uniformBlocks;
 };
 
 #endif /* SHADERPROGRAM_H_ */

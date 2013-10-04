@@ -453,6 +453,8 @@ void Matrix4::invert()
 	float data[16];
 	memcpy(data, this->data, 16*sizeof(float));
 
+	float det = determinant();
+
 	this->GET_RC(0,0) =		  GET_RC(1,2)*GET_RC(2,3)*GET_RC(3,1) - GET_RC(1,3)*GET_RC(2,2)*GET_RC(3,1)
 							+ GET_RC(1,3)*GET_RC(2,1)*GET_RC(3,2) - GET_RC(1,1)*GET_RC(2,3)*GET_RC(3,2)
 							- GET_RC(1,2)*GET_RC(2,1)*GET_RC(3,3) + GET_RC(1,1)*GET_RC(2,2)*GET_RC(3,3);
@@ -502,7 +504,7 @@ void Matrix4::invert()
 							+ GET_RC(0,2)*GET_RC(1,0)*GET_RC(2,1) - GET_RC(0,0)*GET_RC(1,2)*GET_RC(2,1)
 							- GET_RC(0,1)*GET_RC(1,0)*GET_RC(2,2) + GET_RC(0,0)*GET_RC(1,1)*GET_RC(2,2);
 
-	*this *= (1.0f / determinant());
+	*this *= (1.0f / det);
 }
 
 

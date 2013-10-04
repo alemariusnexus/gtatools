@@ -27,6 +27,7 @@ uniform sampler2D LayerTex;
 #endif
 
 
+
 #ifndef GTAGL_3_1_SUPPORTED
 VARYING HIGHP vec2 FragTexCoord;
 #endif
@@ -41,4 +42,6 @@ void main()
 
 	gl_FragColor = gtaglTexture2D(LayerTex, tc);
 	gl_FragColor = vec4(gl_FragColor.rgb*gl_FragColor.a, gl_FragColor.a);
+	
+	DispatchDPBlendLayerFragmentPostProcessing(gl_FragColor);
 }

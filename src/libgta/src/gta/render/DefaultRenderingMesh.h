@@ -20,51 +20,55 @@
 	GPLADDITIONS.
  */
 
-#ifndef DEFAULTSTATICRENDERINGMESH_H_
-#define DEFAULTSTATICRENDERINGMESH_H_
+#ifndef DEFAULTRENDERINGMESH_H_
+#define DEFAULTRENDERINGMESH_H_
 
-#include "StaticRenderingMesh.h"
+#include "RenderingMesh.h"
 #include "RenderingEntityGenerator.h"
 #include "../resource/mesh/MeshPointer.h"
 #include "../resource/texture/TextureSource.h"
 
 
-class DefaultStaticRenderingMesh : public StaticRenderingMesh
+class DefaultRenderingMesh : public RenderingMesh
 {
 public:
-	DefaultStaticRenderingMesh (
+	DefaultRenderingMesh (
 			RenderingPrimitiveFormat primitiveFormat,
-			int vertexCount, int indexCount,
+			uint32_t flags,
+			int vertexCount, uint8_t boneCount,
+			Matrix4* boneMatrices,
+			int16_t boneIndex,
 			GLuint dataBuffer, GLuint indexBuffer,
-			int normalOffset = -1, int texCoordOffset = -1, int vertexColorOffset = -1,
-			GLuint texture = 0
+			int vertexOffset = 0, int vertexStride = 0,
+			int submeshIDOffset = -1, int submeshIDStride = -1,
+			int normalOffset = -1, int normalStride = -1,
+			int texCoordOffset = -1, int texCoordStride = -1,
+			int vertexColorOffset = -1, int vertexColorStride = -1,
+			int boneIndexOffset = -1, int boneIndexStride = -1,
+			int boneWeightOffset = -1, int boneWeightStride = -1
 			)
-			: StaticRenderingMesh(primitiveFormat, vertexCount, indexCount, dataBuffer, indexBuffer,
-					normalOffset, texCoordOffset, vertexColorOffset, texture),
-			  meshPtr(NULL), texSrc(NULL)
+			: RenderingMesh(primitiveFormat, flags, vertexCount, boneCount, boneMatrices, boneIndex, dataBuffer, indexBuffer,
+					vertexOffset, vertexStride, submeshIDOffset, submeshIDStride, normalOffset, normalStride,
+					texCoordOffset, texCoordStride, vertexColorOffset, vertexColorStride, boneIndexOffset, boneIndexStride,
+					boneWeightOffset, boneWeightStride),
+			  meshPtr(NULL)
 			{}
-	virtual ~DefaultStaticRenderingMesh()
+	virtual ~DefaultRenderingMesh()
 	{
 		if (meshPtr) {
 			meshPtr->release();
 			delete meshPtr;
 		}
-
-		if (texSrc) {
-			texSrc->release();
-			delete texSrc;
-		}
 	}
 
 private:
-	DefaultStaticRenderingMesh() {}
+	DefaultRenderingMesh() {}
 
 private:
 	MeshPointer* meshPtr;
-	TextureSource* texSrc;
 
 
 	friend class RenderingEntityGenerator;
 };
 
-#endif /* DEFAULTSTATICRENDERINGMESH_H_ */
+#endif /* DEFAULTRENDERINGMESH_H_ */

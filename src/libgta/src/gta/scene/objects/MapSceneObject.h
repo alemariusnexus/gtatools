@@ -28,6 +28,7 @@
 #include "../parts/RigidBodySceneObject.h"
 #include "../../MapItemDefinition.h"
 #include "../StreamingManager.h"
+#include "../../render/ShaderPluginRegistry.h"
 #include "MapSceneObjectLODInstance.h"
 #include <set>
 #include <algorithm>
@@ -117,6 +118,10 @@ public:
 	virtual void getCollisionBoundingSphere(Vector3& center, float& radius);
 	virtual void getCollisionBoundingBox(Vector3& min, Vector3& extX, Vector3& extY, Vector3& extZ);
 
+	ShaderPluginRegistry& getShaderPluginRegistry() { return shaderPluginReg; }
+	const ShaderPluginRegistry& getShaderPluginRegistry() const { return shaderPluginReg; }
+	void setShaderPluginRegistry(const ShaderPluginRegistry& reg) { shaderPluginReg = reg; }
+
 private:
 	virtual void updateRenderingDistance(float dist, float sdMultiplier);
 	virtual void resetRenderingDistance();
@@ -141,6 +146,8 @@ private:
 	Vector3 colBoundingBoxExtY;
 	Vector3 colBoundingBoxExtZ;
 	bool boundsValid;
+
+	ShaderPluginRegistry shaderPluginReg;
 };
 
 #endif /* MAPSCENEOBJECT_H_ */

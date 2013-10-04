@@ -60,6 +60,12 @@ Scene::Scene()
 		  pvsEnabled(false), fcEnabled(true), physicsWorld(NULL), freezeVisibility(false)
 {
 	streamer->addStreamingListener(this);
+
+	testPlugin = new TestShaderPlugin(0);
+	testPlugin->addUniformBuffer(&testBuf);
+	testReg.installPlugin(testPlugin);
+
+	timeVal = 0;
 }
 
 
@@ -83,6 +89,16 @@ void Scene::addSceneObject(SceneObject* obj)
 		lightSources.push_back(dynamic_cast<LightSource*>(obj));
 	} else {
 		streamer->addSceneObject(obj);
+	}
+
+	MapSceneObject* mobj = dynamic_cast<MapSceneObject*>(obj);
+
+	if (mobj) {
+		ShaderPluginRegistry reg = testReg;
+		//UniformBuffer* buf = new UniformBuffer;
+		//buf->setUniformInt("TestIndex", objIndex);
+		//reg.addUniformBuffer(buf);
+		mobj->setShaderPluginRegistry(reg);
 	}
 }
 
@@ -113,7 +129,8 @@ void Scene::clear()
 
 void Scene::updateVisibility()
 {
-	streamer->update();
+	if (!freezeVisibility)
+		streamer->update();
 }
 
 
@@ -126,26 +143,52 @@ void Scene::update(uint64_t timePassed)
 		if (aobj->isAutoAnimationEnabled())
 			aobj->increaseAnimationTime(timePassed / 1000.0f);
 	}
+
+	//printf("timeVal = %u\n", timeVal);
+	testBuf.setUniformInt("Time", timeVal);
+
+	timeVal += timePassed;
 }
 
 
 void Scene::present()
 {
+	uint64_t absS, absE, s, e;
+	absS = GetTickcountMicroseconds();
+
 	if (!renderer) {
 		throw EngineException("Attempt to present a Scene without a Renderer specified!", __FILE__, __LINE__);
 	}
 
 	list<RenderingEntity*> rEntities;
 
+	s = GetTickcountMicroseconds();
+
 	reGenerator->generate(curVisObjs.begin(), curVisObjs.end(), rEntities);
 
+	e = GetTickcountMicroseconds();
+	uint64_t t1 = e-s;
+	s = GetTickcountMicroseconds();
+
 	renderer->enqueueForRendering(rEntities.begin(), rEntities.end());
+
+	e = GetTickcountMicroseconds();
+	uint64_t t2 = e-s;
+	s = GetTickcountMicroseconds();
 
 	for (LightSourceIterator it = lightSources.begin() ; it != lightSources.end() ; it++) {
 		renderer->enqueueForRendering(*it);
 	}
 
+	e = GetTickcountMicroseconds();
+	uint64_t t3 = e-s;
+	s = GetTickcountMicroseconds();
+
 	renderer->render();
+
+	e = GetTickcountMicroseconds();
+	uint64_t t4 = e-s;
+	s = GetTickcountMicroseconds();
 
 	if (!freezeVisibility) {
 		for (VisualObjectIterator it = curVisObjs.begin() ; it != curVisObjs.end() ; it++) {
@@ -153,4 +196,19 @@ void Scene::present()
 			obj->resetRenderingDistance();
 		}
 	}
+
+	e = GetTickcountMicroseconds();
+	uint64_t t5 = e-s;
+
+	absE = GetTickcountMicroseconds();
+
+	/*printf("=== SCENE TIMING ===\n");
+	printf("Absolute:       %uus\n", (unsigned int) (absE-absS));
+	printf("T1:             %uus\n", (unsigned int) t1);
+	printf("T2:             %uus\n", (unsigned int) t2);
+	printf("T3:             %uus\n", (unsigned int) t3);
+	printf("T4:             %uus\n", (unsigned int) t4);
+	printf("T5:             %uus\n", (unsigned int) t5);
+
+	printf("\n");*/
 }

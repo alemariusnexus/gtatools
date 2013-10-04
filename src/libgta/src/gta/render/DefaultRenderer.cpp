@@ -22,6 +22,8 @@
 
 #include "DefaultRenderer.h"
 
+#include "TestShaderPlugin.h"
+
 #include "../Engine.h"
 #include "../GLException.h"
 
@@ -48,10 +50,21 @@
 
 
 
+//#define TIME_RENDERING
+
+#define NUM_SUBMESHES 16
+
+
+
+
 
 DefaultRenderer::DefaultRenderer()
-		: globalAmbientLightEnabled(true), dpNumPasses(6)
+		: globalAmbientLightEnabled(true), dpNumPasses(6), numObjects(0), currentMatrixAllocSize(5000),
+		  mvMatrices(new Matrix4[currentMatrixAllocSize]), mvpMatrices(new Matrix4[currentMatrixAllocSize]),
+		  normalMatrices(new Matrix4[currentMatrixAllocSize])
 {
+	programCache = new AdvancedShaderProgramCache(new AdvancedShaderProgramCacheLoader(this), 50);
+
 	setupShaders();
 	setupFBOs();
 	setupBuffers();
@@ -129,70 +142,48 @@ void DefaultRenderer::setupShaders()
 #endif
 
 
-	shaders.dpPeelLayerVertexShader = new Shader(GL_VERTEX_SHADER,
+	shaders.dpPeelLayerVertexShader = new AdvancedShader(GL_VERTEX_SHADER,
 			"Depth Peeling Transparency Algorithm Peel Layer Vertex Shader");
-	shaders.dpPeelLayerVertexShader->loadSourceCode(CString(dpPeelLayerVertexShaderData,
+	shaders.dpPeelLayerVertexShader->setSourceCode(CString(dpPeelLayerVertexShaderData,
 			dpPeelLayerVertexShaderDataLen));
-	shaders.dpPeelLayerVertexShader->compile();
 
-	shaders.dpPeelLayerFragmentShader = new Shader(GL_FRAGMENT_SHADER,
+	shaders.dpPeelLayerFragmentShader = new AdvancedShader(GL_FRAGMENT_SHADER,
 			"Depth Peeling Transparency Algorithm Peel Layer Fragment Shader");
-	shaders.dpPeelLayerFragmentShader->loadSourceCode(CString(dpPeelLayerFragmentShaderData,
+	shaders.dpPeelLayerFragmentShader->setSourceCode(CString(dpPeelLayerFragmentShaderData,
 			dpPeelLayerFragmentShaderDataLen));
-	shaders.dpPeelLayerFragmentShader->compile();
 
-	shaders.dpBlendLayerVertexShader = new Shader(GL_VERTEX_SHADER,
+	shaders.dpBlendLayerVertexShader = new AdvancedShader(GL_VERTEX_SHADER,
 			"Depth Peeling Transparency Algorithm Blend Layer Vertex Shader");
-	shaders.dpBlendLayerVertexShader->loadSourceCode(CString(dpBlendLayerVertexShaderData,
+	shaders.dpBlendLayerVertexShader->setSourceCode(CString(dpBlendLayerVertexShaderData,
 			dpBlendLayerVertexShaderDataLen));
-	shaders.dpBlendLayerVertexShader->compile();
 
-	shaders.dpBlendLayerFragmentShader = new Shader(GL_FRAGMENT_SHADER,
+	shaders.dpBlendLayerFragmentShader = new AdvancedShader(GL_FRAGMENT_SHADER,
 			"Depth Peeling Transparency Algorithm Blend Layer Fragment Shader");
-	shaders.dpBlendLayerFragmentShader->loadSourceCode(CString(dpBlendLayerFragmentShaderData,
+	shaders.dpBlendLayerFragmentShader->setSourceCode(CString(dpBlendLayerFragmentShaderData,
 			dpBlendLayerFragmentShaderDataLen));
-	shaders.dpBlendLayerFragmentShader->compile();
 
-	shaders.dpBlendFinalVertexShader = new Shader(GL_VERTEX_SHADER,
+	shaders.dpBlendFinalVertexShader = new AdvancedShader(GL_VERTEX_SHADER,
 			"Depth Peeling Transparency Algorithm Blend Final Vertex Shader");
-	shaders.dpBlendFinalVertexShader->loadSourceCode(CString(dpBlendFinalVertexShaderData,
+	shaders.dpBlendFinalVertexShader->setSourceCode(CString(dpBlendFinalVertexShaderData,
 			dpBlendFinalVertexShaderDataLen));
-	shaders.dpBlendFinalVertexShader->compile();
 
-	shaders.dpBlendFinalFragmentShader = new Shader(GL_FRAGMENT_SHADER,
+	shaders.dpBlendFinalFragmentShader = new AdvancedShader(GL_FRAGMENT_SHADER,
 			"Depth Peeling Transparency Algorithm Blend Final Fragment Shader");
-	shaders.dpBlendFinalFragmentShader->loadSourceCode(CString(dpBlendFinalFragmentShaderData,
+	shaders.dpBlendFinalFragmentShader->setSourceCode(CString(dpBlendFinalFragmentShaderData,
 			dpBlendFinalFragmentShaderDataLen));
-	shaders.dpBlendFinalFragmentShader->compile();
-
-	programs.dpBlendLayerProgram = new ShaderProgram(
-			"Depth Peeling Transparency Algorithm Blend Layer Shader Program");
-	programs.dpBlendLayerProgram->attachShader(shaders.dpBlendLayerVertexShader);
-	programs.dpBlendLayerProgram->attachShader(shaders.dpBlendLayerFragmentShader);
-	programs.dpBlendLayerProgram->link();
-
-	programs.dpBlendFinalProgram = new ShaderProgram(
-			"Depth Peeling Transparency Algorithm Blend Final Shader Program");
-	programs.dpBlendFinalProgram->attachShader(shaders.dpBlendFinalVertexShader);
-	programs.dpBlendFinalProgram->attachShader(shaders.dpBlendFinalFragmentShader);
-	programs.dpBlendFinalProgram->link();
 
 
-	shaders.shadeVertexShader = new Shader(GL_VERTEX_SHADER, "Static Vertex Shader");
-	shaders.shadeVertexShader->loadSourceCode(CString(shadeVertexShaderData, shadeVertexShaderDataLen));
-	shaders.shadeVertexShader->compile();
+	shaders.shadeVertexShader = new AdvancedShader(GL_VERTEX_SHADER, "Static Vertex Shader");
+	shaders.shadeVertexShader->setSourceCode(CString(shadeVertexShaderData, shadeVertexShaderDataLen));
 
-	shaders.shadeFragmentShader = new Shader(GL_FRAGMENT_SHADER, "Static Fragment Shader");
-	shaders.shadeFragmentShader->loadSourceCode(CString(shadeFragmentShaderData, shadeFragmentShaderDataLen));
-	shaders.shadeFragmentShader->compile();
+	shaders.shadeFragmentShader = new AdvancedShader(GL_FRAGMENT_SHADER, "Static Fragment Shader");
+	shaders.shadeFragmentShader->setSourceCode(CString(shadeFragmentShaderData, shadeFragmentShaderDataLen));
 
-	shaders.vertexDefaultShader = new Shader(GL_VERTEX_SHADER, "Default Opaque Vertex Shader");
-	shaders.vertexDefaultShader->loadSourceCode(CString(vertexDefaultData, vertexDefaultDataLen));
-	shaders.vertexDefaultShader->compile();
+	shaders.vertexDefaultShader = new AdvancedShader(GL_VERTEX_SHADER, "Default Opaque Vertex Shader");
+	shaders.vertexDefaultShader->setSourceCode(CString(vertexDefaultData, vertexDefaultDataLen));
 
-	shaders.fragmentDefaultShader = new Shader(GL_FRAGMENT_SHADER, "Default Opaque Fragment Shader");
-	shaders.fragmentDefaultShader->loadSourceCode(CString(fragmentDefaultData, fragmentDefaultDataLen));
-	shaders.fragmentDefaultShader->compile();
+	shaders.fragmentDefaultShader = new AdvancedShader(GL_FRAGMENT_SHADER, "Default Opaque Fragment Shader");
+	shaders.fragmentDefaultShader->setSourceCode(CString(fragmentDefaultData, fragmentDefaultDataLen));
 
 	CString animShadeVertexShaderCode = CString("");
 	if (maxVertexUniformComponents >= 2048) {
@@ -226,57 +217,138 @@ void DefaultRenderer::setupShaders()
 	svBlendProgram->attachShader(svBlendFragmentShader);
 	svBlendProgram->link();*/
 
-	shaders.animShadeVertexShader = new Shader(GL_VERTEX_SHADER, "Animated Vertex Shader");
-	shaders.animShadeVertexShader->loadSourceCode(animShadeVertexShaderCode);
-	shaders.animShadeVertexShader->compile();
+	shaders.animShadeVertexShader = new AdvancedShader(GL_VERTEX_SHADER, "Animated Vertex Shader");
+	shaders.animShadeVertexShader->setSourceCode(animShadeVertexShaderCode);
 
-	shaders.animShadeFragmentShader = new Shader(GL_FRAGMENT_SHADER, "Animated Fragment Shader");
-	shaders.animShadeFragmentShader->loadSourceCode(CString(animShadeFragmentShaderData, animShadeFragmentShaderDataLen));
-	shaders.animShadeFragmentShader->compile();
+	shaders.animShadeFragmentShader = new AdvancedShader(GL_FRAGMENT_SHADER, "Animated Fragment Shader");
+	shaders.animShadeFragmentShader->setSourceCode(CString(animShadeFragmentShaderData, animShadeFragmentShaderDataLen));
 
-	shaders.lightingVertexShader = new Shader(GL_VERTEX_SHADER, "Lighting Vertex Shader");
-	shaders.lightingVertexShader->loadSourceCode(CString(lightingVertexShaderData, lightingVertexShaderDataLen));
-	shaders.lightingVertexShader->compile();
-
-	programs.opaqueStaticProgram = new ShaderProgram("Opaque Static Shader Program");
-	programs.opaqueStaticProgram->attachShader(shaders.shadeVertexShader);
-	programs.opaqueStaticProgram->attachShader(shaders.shadeFragmentShader);
-	programs.opaqueStaticProgram->attachShader(shaders.vertexDefaultShader);
-	programs.opaqueStaticProgram->attachShader(shaders.fragmentDefaultShader);
-	programs.opaqueStaticProgram->attachShader(shaders.lightingVertexShader);
-	programs.opaqueStaticProgram->link();
-
-	programs.transStaticProgram = new ShaderProgram("Transparent Static Shader Program");
-	programs.transStaticProgram->attachShader(shaders.shadeVertexShader);
-	programs.transStaticProgram->attachShader(shaders.shadeFragmentShader);
-	programs.transStaticProgram->attachShader(shaders.lightingVertexShader);
-	programs.transStaticProgram->attachShader(shaders.dpPeelLayerVertexShader);
-	programs.transStaticProgram->attachShader(shaders.dpPeelLayerFragmentShader);
-	programs.transStaticProgram->link();
+	shaders.lightingVertexShader = new AdvancedShader(GL_VERTEX_SHADER, "Lighting Vertex Shader");
+	shaders.lightingVertexShader->setSourceCode(CString(lightingVertexShaderData, lightingVertexShaderDataLen));
 
 
-	programs.opaqueAnimProgram = new ShaderProgram("Opaque Animated Shader Program");
-	programs.opaqueAnimProgram->attachShader(shaders.animShadeVertexShader);
-	programs.opaqueAnimProgram->attachShader(shaders.animShadeFragmentShader);
-	programs.opaqueAnimProgram->attachShader(shaders.vertexDefaultShader);
-	programs.opaqueAnimProgram->attachShader(shaders.fragmentDefaultShader);
-	programs.opaqueAnimProgram->attachShader(shaders.lightingVertexShader);
-	programs.opaqueAnimProgram->link();
-
-	programs.transAnimProgram = new ShaderProgram("Transparent Animated Shader Program");
-	programs.transAnimProgram->attachShader(shaders.animShadeVertexShader);
-	programs.transAnimProgram->attachShader(shaders.animShadeFragmentShader);
-	programs.transAnimProgram->attachShader(shaders.lightingVertexShader);
-	programs.transAnimProgram->attachShader(shaders.dpPeelLayerVertexShader);
-	programs.transAnimProgram->attachShader(shaders.dpPeelLayerFragmentShader);
-	programs.transAnimProgram->link();
+	programs.dpBlendLayerProgram = NULL;
+	programs.dpBlendFinalProgram = NULL;
+}
 
 
-	dpShaderLocations.dpBlendLayerTexUniform = programs.dpBlendLayerProgram->getUniformLocation("LayerTex");
+void DefaultRenderer::bindFixedShaderProgramLocations(AdvancedShaderProgram* program)
+{
+	program->bindAttributeLocation(VertexAttributeLocationVertex, "Vertex");
+	program->bindAttributeLocation(VertexAttributeLocationNormal, "Normal");
+	program->bindAttributeLocation(VertexAttributeLocationVertexColor, "Color");
+	program->bindAttributeLocation(VertexAttributeLocationTexCoord, "TexCoord");
+	program->bindAttributeLocation(VertexAttributeLocationBoneWeight, "BoneWeights");
+	program->bindAttributeLocation(VertexAttributeLocationBoneIndex, "BoneIndices");
+	program->bindAttributeLocation(VertexAttributeLocationSubmeshIndex, "SubmeshIndex");
+}
+
+
+DefaultRenderer::AdvancedShaderProgramCacheEntry* DefaultRenderer::buildShaderPrograms(const ShaderPluginRegistry& pluginReg)
+{
+	list<ShaderPlugin*> plugins;
+	pluginReg.getPlugins(plugins);
+
+	AdvancedShaderProgramCacheEntry* entry = new AdvancedShaderProgramCacheEntry(this);
+
+
+	AdvancedShaderProgram* opaqueStaticProgram = new AdvancedShaderProgram("Opaque Static Shader Program");
+	opaqueStaticProgram->attachShader(shaders.shadeVertexShader);
+	opaqueStaticProgram->attachShader(shaders.shadeFragmentShader);
+	opaqueStaticProgram->attachShader(shaders.vertexDefaultShader);
+	opaqueStaticProgram->attachShader(shaders.fragmentDefaultShader);
+	opaqueStaticProgram->attachShader(shaders.lightingVertexShader);
+	opaqueStaticProgram->addShaderPlugins(plugins.begin(), plugins.end());
+	bindFixedShaderProgramLocations(opaqueStaticProgram);
+	opaqueStaticProgram->build();
+	entry->programs[OpaqueStaticShaderProgram] = opaqueStaticProgram;
+
+	AdvancedShaderProgram* transStaticProgram = new AdvancedShaderProgram("Transparent Static Shader Program");
+	transStaticProgram->attachShader(shaders.shadeVertexShader);
+	transStaticProgram->attachShader(shaders.shadeFragmentShader);
+	transStaticProgram->attachShader(shaders.lightingVertexShader);
+	transStaticProgram->attachShader(shaders.dpPeelLayerVertexShader);
+	transStaticProgram->attachShader(shaders.dpPeelLayerFragmentShader);
+	transStaticProgram->addShaderPlugins(plugins.begin(), plugins.end());
+	bindFixedShaderProgramLocations(transStaticProgram);
+	transStaticProgram->build();
+	entry->programs[TransparentStaticShaderProgram] = transStaticProgram;
+
+
+	AdvancedShaderProgram* opaqueAnimProgram = new AdvancedShaderProgram("Opaque Animated Shader Program");
+	opaqueAnimProgram->attachShader(shaders.animShadeVertexShader);
+	opaqueAnimProgram->attachShader(shaders.animShadeFragmentShader);
+	opaqueAnimProgram->attachShader(shaders.vertexDefaultShader);
+	opaqueAnimProgram->attachShader(shaders.fragmentDefaultShader);
+	opaqueAnimProgram->attachShader(shaders.lightingVertexShader);
+	opaqueAnimProgram->addShaderPlugins(plugins.begin(), plugins.end());
+	bindFixedShaderProgramLocations(opaqueAnimProgram);
+	opaqueAnimProgram->build();
+	entry->programs[OpaqueAnimatedShaderProgram] = opaqueAnimProgram;
+
+	AdvancedShaderProgram* transAnimProgram = new AdvancedShaderProgram("Transparent Animated Shader Program");
+	transAnimProgram->attachShader(shaders.animShadeVertexShader);
+	transAnimProgram->attachShader(shaders.animShadeFragmentShader);
+	transAnimProgram->attachShader(shaders.lightingVertexShader);
+	transAnimProgram->attachShader(shaders.dpPeelLayerVertexShader);
+	transAnimProgram->attachShader(shaders.dpPeelLayerFragmentShader);
+	transAnimProgram->addShaderPlugins(plugins.begin(), plugins.end());
+	bindFixedShaderProgramLocations(transAnimProgram);
+	transAnimProgram->build();
+	entry->programs[TransparentAnimatedShaderProgram] = transAnimProgram;
+
+	return entry;
+
+
+	/*dpShaderLocations.dpBlendLayerTexUniform = programs.dpBlendLayerProgram->getUniformLocation("LayerTex");
 	dpShaderLocations.dpBlendLayerVertexAttrib = programs.dpBlendLayerProgram->getAttributeLocation("Vertex");
 
 	dpShaderLocations.dpBlendFinalTexUniform = programs.dpBlendFinalProgram->getUniformLocation("CombinedLayerTex");
-	dpShaderLocations.dpBlendFinalVertexAttrib = programs.dpBlendFinalProgram->getAttributeLocation("Vertex");
+	dpShaderLocations.dpBlendFinalVertexAttrib = programs.dpBlendFinalProgram->getAttributeLocation("Vertex");*/
+}
+
+
+void DefaultRenderer::updateMiscShaderPrograms()
+{
+	if (!programs.dpBlendLayerProgram  ||  dpBlendLayerPluginRegistry != dpBlendLayerLinkedPluginRegistry) {
+		list<ShaderPlugin*> plugins;
+		dpBlendLayerPluginRegistry.getPlugins(plugins);
+
+		if (programs.dpBlendLayerProgram)
+			delete programs.dpBlendLayerProgram;
+
+		programs.dpBlendLayerProgram = new AdvancedShaderProgram (
+				"Depth Peeling Transparency Algorithm Blend Layer Shader Program");
+		programs.dpBlendLayerProgram->attachShader(shaders.dpBlendLayerVertexShader);
+		programs.dpBlendLayerProgram->attachShader(shaders.dpBlendLayerFragmentShader);
+		programs.dpBlendLayerProgram->addShaderPlugins(plugins.begin(), plugins.end());
+		programs.dpBlendLayerProgram->build();
+
+		dpShaderLocations.dpBlendLayerTexUniform = programs.dpBlendLayerProgram->getUniformLocation("LayerTex");
+		dpShaderLocations.dpBlendLayerVertexAttrib = programs.dpBlendLayerProgram->getAttributeLocation("Vertex");
+
+		dpBlendLayerLinkedPluginRegistry = dpBlendLayerPluginRegistry;
+	}
+
+	if (!programs.dpBlendFinalProgram  ||  dpBlendFinalPluginRegistry != dpBlendFinalLinkedPluginRegistry) {
+		list<ShaderPlugin*> plugins;
+		dpBlendFinalPluginRegistry.getPlugins(plugins);
+
+		if (programs.dpBlendFinalProgram)
+			delete programs.dpBlendFinalProgram;
+
+		programs.dpBlendFinalProgram = new AdvancedShaderProgram (
+				"Depth Peeling Transparency Algorithm Blend Final Shader Program");
+		programs.dpBlendFinalProgram->attachShader(shaders.dpBlendFinalVertexShader);
+		programs.dpBlendFinalProgram->attachShader(shaders.dpBlendFinalFragmentShader);
+		programs.dpBlendFinalProgram->addShaderPlugins(plugins.begin(), plugins.end());
+		programs.dpBlendFinalProgram->build();
+
+		dpShaderLocations.dpBlendFinalTexUniform = programs.dpBlendFinalProgram->getUniformLocation("CombinedLayerTex");
+		dpShaderLocations.dpBlendFinalVertexAttrib = programs.dpBlendFinalProgram->getAttributeLocation("Vertex");
+
+		dpBlendFinalLinkedPluginRegistry = dpBlendFinalPluginRegistry;
+	}
 }
 
 
@@ -327,10 +399,6 @@ void DefaultRenderer::setupFBOs()
 #ifndef GTA_USE_OPENGL_ES
 	}
 #endif
-
-	printf("%d, %d\n", viewW, viewH);
-
-	GLException::checkError("After FBO texes");
 
 	GLException::checkFramebufferStatus(GTAGL_FRAMEBUFFER,
 				"GALLALA X");
@@ -505,24 +573,36 @@ void DefaultRenderer::enqueueForRendering(list<RenderingEntity*>::iterator beg, 
 	for (list<RenderingEntity*>::iterator it = beg ; it != end ; it++) {
 		RenderingEntity* entity = *it;
 
-		AnimatedRenderingMesh* amesh = dynamic_cast<AnimatedRenderingMesh*>(entity);
+		renderingEntityDisposalList.push_back(entity);
 
-		if (amesh) {
-			if (amesh->hasTransparency()) {
-				transAnimMeshes.push_back(amesh);
+		RenderingMesh* mesh = dynamic_cast<RenderingMesh*>(entity);
+		uint32_t flags = mesh->getFlags();
+
+		AdvancedShaderProgramCache::Pointer ptr = programCache->getEntryPointer(mesh->getPluginRegistry());
+
+		if ((flags & RenderingMesh::IsAnimated)  !=  0) {
+			AnimatedRenderingMeshEntry entry;
+			entry.mesh = mesh;
+			entry.id = numObjects;
+
+			if ((flags & RenderingMesh::HasTransparency)  !=  0) {
+				transAnimMeshes[ptr].push_back(entry);
 			} else {
-				opaqueAnimMeshes.push_back(amesh);
+				opaqueAnimMeshes[ptr].push_back(entry);
 			}
-			continue;
-		}
-
-		StaticRenderingMesh* smesh = dynamic_cast<StaticRenderingMesh*>(entity);
-
-		if (smesh->hasTransparency()) {
-			transStaticMeshes.push_back(smesh);
 		} else {
-			opaqueStaticMeshes.push_back(smesh);
+			StaticRenderingMeshEntry entry;
+			entry.mesh = mesh;
+			entry.id = numObjects;
+
+			if ((flags & RenderingMesh::HasTransparency)  !=  0) {
+				transStaticMeshes[ptr].push_back(entry);
+			} else {
+				opaqueStaticMeshes[ptr].push_back(entry);
+			}
 		}
+
+		numObjects++;
 	}
 }
 
@@ -535,22 +615,27 @@ void DefaultRenderer::enqueueForRendering(list<LightSource*>::iterator beg, list
 }
 
 
-void DefaultRenderer::initializeUniforms(ShaderProgram* program)
+void DefaultRenderer::initializeUniforms(AdvancedShaderProgram* program)
 {
-	map<ShaderProgram*, ShaderProgramLocations>::iterator it = spLocs.find(program);
+	map<AdvancedShaderProgram*, ShaderProgramLocations>::iterator it = spLocs.find(program);
 
 	ShaderProgramLocations locs;
 
 	if (it == spLocs.end()) {
 		ShaderProgramLocations loc;
 
+		loc.matrixUBIndex = program->getUniformBlockIndex("Matrices");
+
 		loc.camPosUniform = program->getUniformLocation("CameraPosition");
+		loc.mMatrixUniform = program->getUniformLocation("MMatrix");
+		loc.vMatrixUniform = program->getUniformLocation("VMatrix");
+		loc.vpMatrixUniform = program->getUniformLocation("VPMatrix");
 		loc.mvMatrixUniform = program->getUniformLocation("MVMatrix");
 		loc.mvpMatrixUniform = program->getUniformLocation("MVPMatrix");
 		loc.normalMvMatrixUniform = program->getUniformLocation("NormalMVMatrix");
-		loc.texturedUniform = program->getUniformLocation("Textured");
+		loc.texturedUniform = program->getUniformLocation("IsTextured");
 		loc.materialColorUniform = program->getUniformLocation("MaterialColor");
-		loc.vertexColorsUniform = program->getUniformLocation("VertexColors");
+		loc.vertexColorsUniform = program->getUniformLocation("HasVertexColors");
 		loc.textureUniform = program->getUniformLocation("Texture");
 
 		loc.matAmbientReflectionUniform = program->getUniformLocation("MaterialAmbientReflection");
@@ -559,15 +644,10 @@ void DefaultRenderer::initializeUniforms(ShaderProgram* program)
 		loc.globalAmbientLightUniform = program->getUniformLocation("GlobalAmbientLight");
 		loc.dynamicLightingEnabledUniform = program->getUniformLocation("DynamicLightingEnabled");
 
-		loc.vertexAttrib = program->getAttributeLocation("Vertex");
-		loc.normalAttrib = program->getAttributeLocation("Normal");
-		loc.colorAttrib = program->getAttributeLocation("Color");
-		loc.texCoordAttrib = program->getAttributeLocation("TexCoord");
+		loc.submeshOffsetUniform = program->getUniformLocation("SubmeshOffset");
 
 		loc.boneMatUniform = program->getUniformLocation("BoneMatrices");
 		loc.boneUniform = program->getUniformLocation("Bone");
-		loc.boneWeightAttrib = program->getAttributeLocation("BoneWeights");
-		loc.boneIndexAttrib = program->getAttributeLocation("BoneIndices");
 
 		if (!gtaglIsVersionSupported(3, 1)) {
 			loc.boneMatSizeUniform = program->getUniformLocation("TexSize");
@@ -596,7 +676,7 @@ void DefaultRenderer::initializeUniforms(ShaderProgram* program)
 
 		locs = loc;
 
-		it = spLocs.insert(pair<ShaderProgram*, ShaderProgramLocations>(program, loc)).first;
+		it = spLocs.insert(pair<AdvancedShaderProgram*, ShaderProgramLocations>(program, loc)).first;
 	}
 
 	renderProgramLocations = &it->second;
@@ -706,7 +786,7 @@ void DefaultRenderer::setupDynamicLighting(bool enabled)
 }
 
 
-void DefaultRenderer::dpSetupShaderUniforms(ShaderProgram* program)
+void DefaultRenderer::dpSetupShaderUniforms(AdvancedShaderProgram* program)
 {
 	int viewW = Engine::getInstance()->getViewportWidth();
 	int viewH = Engine::getInstance()->getViewportHeight();
@@ -715,8 +795,8 @@ void DefaultRenderer::dpSetupShaderUniforms(ShaderProgram* program)
 	GLint opaqueDepthTexUniform = program->getUniformLocation("OpaqueDepthTex");
 	GLint texDimensionsUniform = program->getUniformLocation("TexDimensions");
 
-	glUniform1i(peelDepthTexUniform, 1);
-	glUniform1i(opaqueDepthTexUniform, 2);
+	glUniform1i(peelDepthTexUniform, 0);
+	glUniform1i(opaqueDepthTexUniform, 1);
 
 	// For OpenGL prior to 3.1 we use simple 2D textures instead of RECTANGLE ones, so we need the
 	// dimensions of the depth buffer texture in our fragment shader.
@@ -725,8 +805,28 @@ void DefaultRenderer::dpSetupShaderUniforms(ShaderProgram* program)
 }
 
 
+void DefaultRenderer::applyShaderPluginUniformBuffers(AdvancedShaderProgram* program)
+{
+	AdvancedShaderProgram::PluginIterator beg = program->getShaderPluginBegin();
+	AdvancedShaderProgram::PluginIterator end = program->getShaderPluginEnd();
+
+	for (AdvancedShaderProgram::PluginIterator it = beg ; it != end ; it++) {
+		ShaderPlugin* plugin = *it;
+		plugin->applyUniformBuffers(program);
+	}
+}
+
+
 void DefaultRenderer::render()
 {
+#ifdef TIME_RENDERING
+	uint64_t absS, absE, s, e;
+
+	absS = GetTickcountMicroseconds();
+
+	s = GetTickcountMicroseconds();
+#endif
+
 	Engine* engine = Engine::getInstance();
 
 	Camera* cam = engine->getCamera();
@@ -743,7 +843,82 @@ void DefaultRenderer::render()
 	vRotationMatrix.transpose();
 
 
+#ifdef TIME_RENDERING
+	e = GetTickcountMicroseconds();
+	uint64_t t1 = e-s;
+	s = GetTickcountMicroseconds();
+#endif
 
+	if (numObjects > currentMatrixAllocSize  ||  !mvMatrices) {
+		currentMatrixAllocSize = numObjects + 100;
+
+		mvMatrices = new Matrix4[currentMatrixAllocSize];
+		mvpMatrices = new Matrix4[currentMatrixAllocSize];
+		normalMatrices = new Matrix4[currentMatrixAllocSize];
+	}
+
+	for (StaticMeshIterator it = opaqueStaticMeshes.begin() ; it != opaqueStaticMeshes.end() ; it++) {
+		for (list<StaticRenderingMeshEntry>::iterator iit = it->second.begin() ; iit != it->second.end() ; iit++) {
+			StaticRenderingMeshEntry& entry = *iit;
+
+			const Matrix4& mm = entry.mesh->getModelMatrix();
+			Matrix4 mvMatrix = vMatrix * mm;
+			Matrix4 mvpMatrix = vpMatrix * mm;
+			Matrix4 nm = Matrix4::Identity;
+
+			mvMatrices[entry.id] = mvMatrix;
+			mvpMatrices[entry.id] = mvpMatrix;
+			normalMatrices[entry.id] = nm;
+		}
+	}
+
+	for (StaticMeshIterator it = transStaticMeshes.begin() ; it != transStaticMeshes.end() ; it++) {
+		for (list<StaticRenderingMeshEntry>::iterator iit = it->second.begin() ; iit != it->second.end() ; iit++) {
+			StaticRenderingMeshEntry& entry = *iit;
+
+			const Matrix4& mm = entry.mesh->getModelMatrix();
+			Matrix4 mvMatrix = vMatrix * mm;
+			Matrix4 mvpMatrix = vpMatrix * mm;
+			Matrix4 nm = Matrix4::Identity;
+
+			mvMatrices[entry.id] = mvMatrix;
+			mvpMatrices[entry.id] = mvpMatrix;
+			normalMatrices[entry.id] = nm;
+		}
+	}
+
+	for (AnimatedMeshIterator it = opaqueAnimMeshes.begin() ; it != opaqueAnimMeshes.end() ; it++) {
+		for (list<AnimatedRenderingMeshEntry>::iterator iit = it->second.begin() ; iit != it->second.end() ; iit++) {
+			AnimatedRenderingMeshEntry& entry = *iit;
+
+			const Matrix4& mm = entry.mesh->getModelMatrix();
+			Matrix4 mvMatrix = vMatrix * mm;
+			Matrix4 mvpMatrix = vpMatrix * mm;
+			Matrix4 nm = Matrix4::Identity;
+
+			mvMatrices[entry.id] = mvMatrix;
+			mvpMatrices[entry.id] = mvpMatrix;
+			normalMatrices[entry.id] = nm;
+		}
+	}
+
+	for (AnimatedMeshIterator it = transAnimMeshes.begin() ; it != transAnimMeshes.end() ; it++) {
+		for (list<AnimatedRenderingMeshEntry>::iterator iit = it->second.begin() ; iit != it->second.end() ; iit++) {
+			AnimatedRenderingMeshEntry& entry = *iit;
+
+			const Matrix4& mm = entry.mesh->getModelMatrix();
+			Matrix4 mvMatrix = vMatrix * mm;
+			Matrix4 mvpMatrix = vpMatrix * mm;
+			Matrix4 nm = Matrix4::Identity;
+
+			mvMatrices[entry.id] = mvMatrix;
+			mvpMatrices[entry.id] = mvpMatrix;
+			normalMatrices[entry.id] = nm;
+		}
+	}
+
+
+	updateMiscShaderPrograms();
 
 
 	// **********************************************
@@ -769,34 +944,57 @@ void DefaultRenderer::render()
 	enabledLightBegin = lightSources.end();
 	enabledLightEnd = lightSources.end();
 
-
-	programs.opaqueStaticProgram->makeCurrent();
-	initializeUniforms(programs.opaqueStaticProgram);
-
-	glEnableVertexAttribArray(renderProgramLocations->vertexAttrib);
-
-	glUniform3f(renderProgramLocations->camPosUniform, cpos.getX(), cpos.getY(), cpos.getZ());
-
-	setupDynamicLighting(true);
-
-	renderStaticMeshes(opaqueStaticMeshes.begin(), opaqueStaticMeshes.end());
-
-
-#ifndef GTA_CPU_ANIMATION
-	programs.opaqueAnimProgram->makeCurrent();
-	initializeUniforms(programs.opaqueAnimProgram);
-
-	glEnableVertexAttribArray(renderProgramLocations->vertexAttrib);
-
-	glUniform3f(renderProgramLocations->camPosUniform, cpos.getX(), cpos.getY(), cpos.getZ());
-
-	setupDynamicLighting(true);
+#ifdef TIME_RENDERING
+	e = GetTickcountMicroseconds();
+	uint64_t t2 = e-s;
+	s = GetTickcountMicroseconds();
 #endif
 
-	renderAnimatedMeshes(opaqueAnimMeshes.begin(), opaqueAnimMeshes.end());
+	for (StaticMeshIterator it = opaqueStaticMeshes.begin() ; it != opaqueStaticMeshes.end() ; it++) {
+		AdvancedShaderProgramCache::Pointer ptr = it->first;
+		AdvancedShaderProgramCacheEntry* entry = (AdvancedShaderProgramCacheEntry*) ptr.getEntry(true);
+		AdvancedShaderProgram* prog = entry->programs[OpaqueStaticShaderProgram];
+		prog->makeCurrent();
+		currentProgram = prog;
+		initializeUniforms(prog);
 
-	GLException::checkError("Blablabla 5");
+		applyShaderPluginUniformBuffers(prog);
+		glUniform3f(renderProgramLocations->camPosUniform, cpos.getX(), cpos.getY(), cpos.getZ());
+		glUniformMatrix4fv(renderProgramLocations->vMatrixUniform, 1, GL_FALSE, (float*) &vMatrix);
+		glUniformMatrix4fv(renderProgramLocations->vpMatrixUniform, 1, GL_FALSE, (float*) &vpMatrix);
+		setupDynamicLighting(true);
 
+		renderStaticMeshes(it->second.begin(), it->second.end());
+
+		ptr.release();
+	}
+
+	for (AnimatedMeshIterator it = opaqueAnimMeshes.begin() ; it != opaqueAnimMeshes.end() ; it++) {
+		AdvancedShaderProgramCache::Pointer ptr = it->first;
+		AdvancedShaderProgramCacheEntry* entry = (AdvancedShaderProgramCacheEntry*) ptr.getEntry(true);
+		AdvancedShaderProgram* prog = entry->programs[OpaqueAnimatedShaderProgram];
+		prog->makeCurrent();
+		currentProgram = prog;
+		initializeUniforms(prog);
+
+		applyShaderPluginUniformBuffers(prog);
+		glUniform3f(renderProgramLocations->camPosUniform, cpos.getX(), cpos.getY(), cpos.getZ());
+		glUniformMatrix4fv(renderProgramLocations->vMatrixUniform, 1, GL_FALSE, (float*) &vMatrix);
+		glUniformMatrix4fv(renderProgramLocations->vpMatrixUniform, 1, GL_FALSE, (float*) &vpMatrix);
+		setupDynamicLighting(true);
+
+		renderAnimatedMeshes(it->second.begin(), it->second.end());
+
+		ptr.release();
+	}
+
+#if 1
+
+#ifdef TIME_RENDERING
+	e = GetTickcountMicroseconds();
+	uint64_t t3 = e-s;
+	s = GetTickcountMicroseconds();
+#endif
 
 	// Dynamic lighting passes
 
@@ -823,34 +1021,45 @@ void DefaultRenderer::render()
 		enabledLightEnd = lit;
 		enabledLightEnd++;
 
-		programs.opaqueStaticProgram->makeCurrent();
+		for (StaticMeshIterator it = opaqueStaticMeshes.begin() ; it != opaqueStaticMeshes.end() ; it++) {
+			AdvancedShaderProgramCache::Pointer ptr = it->first;
+			AdvancedShaderProgramCacheEntry* entry = (AdvancedShaderProgramCacheEntry*) ptr.getEntry(true);
+			AdvancedShaderProgram* prog = entry->programs[OpaqueStaticShaderProgram];
+			prog->makeCurrent();
+			currentProgram = prog;
+			initializeUniforms(prog);
 
-		initializeUniforms(programs.opaqueStaticProgram);
+			applyShaderPluginUniformBuffers(prog);
+			glUniform3f(renderProgramLocations->camPosUniform, cpos.getX(), cpos.getY(), cpos.getZ());
+			glUniformMatrix4fv(renderProgramLocations->vMatrixUniform, 1, GL_FALSE, (float*) &vMatrix);
+			glUniformMatrix4fv(renderProgramLocations->vpMatrixUniform, 1, GL_FALSE, (float*) &vpMatrix);
+			glUniform4f(renderProgramLocations->materialColorUniform, 0.0f, 0.0f, 0.0f, 0.0f);
+			setupDynamicLighting(true);
 
-		glEnableVertexAttribArray(renderProgramLocations->vertexAttrib);
+			renderStaticMeshes(it->second.begin(), it->second.end());
 
-		glUniform3f(renderProgramLocations->camPosUniform, cpos.getX(), cpos.getY(), cpos.getZ());
+			ptr.release();
+		}
 
-		glUniform4f(renderProgramLocations->materialColorUniform, 0.0f, 0.0f, 0.0f, 0.0f);
+		for (AnimatedMeshIterator it = opaqueAnimMeshes.begin() ; it != opaqueAnimMeshes.end() ; it++) {
+			AdvancedShaderProgramCache::Pointer ptr = it->first;
+			AdvancedShaderProgramCacheEntry* entry = (AdvancedShaderProgramCacheEntry*) ptr.getEntry(true);
+			AdvancedShaderProgram* prog = entry->programs[OpaqueAnimatedShaderProgram];
+			prog->makeCurrent();
+			currentProgram = prog;
+			initializeUniforms(prog);
 
-		setupDynamicLighting(true);
+			applyShaderPluginUniformBuffers(prog);
+			glUniform3f(renderProgramLocations->camPosUniform, cpos.getX(), cpos.getY(), cpos.getZ());
+			glUniformMatrix4fv(renderProgramLocations->vMatrixUniform, 1, GL_FALSE, (float*) &vMatrix);
+			glUniformMatrix4fv(renderProgramLocations->vpMatrixUniform, 1, GL_FALSE, (float*) &vpMatrix);
+			glUniform4f(renderProgramLocations->materialColorUniform, 0.0f, 0.0f, 0.0f, 0.0f);
+			setupDynamicLighting(true);
 
-		renderStaticMeshes(opaqueStaticMeshes.begin(), opaqueStaticMeshes.end());
+			renderAnimatedMeshes(it->second.begin(), it->second.end());
 
-#ifndef GTA_CPU_ANIMATION
-		programs.opaqueAnimProgram->makeCurrent();
-		initializeUniforms(programs.opaqueAnimProgram);
-
-		glEnableVertexAttribArray(renderProgramLocations->vertexAttrib);
-
-		glUniform3f(renderProgramLocations->camPosUniform, cpos.getX(), cpos.getY(), cpos.getZ());
-
-		glUniform4f(renderProgramLocations->materialColorUniform, 0.0f, 0.0f, 0.0f, 0.0f);
-
-		setupDynamicLighting(true);
-#endif
-
-		renderAnimatedMeshes(opaqueAnimMeshes.begin(), opaqueAnimMeshes.end());
+			ptr.release();
+		}
 
 		if (!light->isShadowCastingEnabled())
 			glEnable(GL_STENCIL_TEST);
@@ -858,6 +1067,11 @@ void DefaultRenderer::render()
 
 	glDisable(GL_STENCIL_TEST);
 
+#ifdef TIME_RENDERING
+	e = GetTickcountMicroseconds();
+	uint64_t t4 = e-s;
+	s = GetTickcountMicroseconds();
+#endif
 
 
 	// ********** Render transparent objects **********
@@ -890,6 +1104,13 @@ void DefaultRenderer::render()
 #endif
 
 
+#ifdef TIME_RENDERING
+	e = GetTickcountMicroseconds();
+	uint64_t t5 = e-s;
+	s = GetTickcountMicroseconds();
+#endif
+
+
 	// Do the depth-peeling passes
 	for (int currentPass = 0 ; currentPass < dpNumPasses ; currentPass++) {
 		int inputIdx = (currentPass+1) % 2;
@@ -902,16 +1123,16 @@ void DefaultRenderer::render()
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// Bind the input depth texture to texture unit 1 (unit 0 is used by the render* methods)
-		glActiveTexture(GL_TEXTURE1);
+		// Bind the input depth texture to texture unit 0
+		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(dpTexTarget, fbos.dpPingPongDepthStencilTexes[inputIdx]);
 
-		// Bind the opaque depth texture to texture unit 2
-		glActiveTexture(GL_TEXTURE2);
+		// Bind the opaque depth texture to texture unit 1
+		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(dpTexTarget, fbos.dpOpaqueTexes[1]);
 
-		// Back to texture unit 0 (the render* methods rely on it to be active)
-		glActiveTexture(GL_TEXTURE0);
+		// Back to texture unit 2 (the render* methods rely on it to be active)
+		glActiveTexture(GL_TEXTURE2);
 
 
 
@@ -921,34 +1142,45 @@ void DefaultRenderer::render()
 		enabledLightBegin = lightSources.end();
 		enabledLightEnd = lightSources.end();
 
-		programs.transStaticProgram->makeCurrent();
-		dpSetupShaderUniforms(programs.transStaticProgram);
+		for (StaticMeshIterator it = transStaticMeshes.begin() ; it != transStaticMeshes.end() ; it++) {
+			AdvancedShaderProgramCache::Pointer ptr = it->first;
+			AdvancedShaderProgramCacheEntry* entry = (AdvancedShaderProgramCacheEntry*) ptr.getEntry(true);
+			AdvancedShaderProgram* prog = entry->programs[TransparentStaticShaderProgram];
+			prog->makeCurrent();
+			currentProgram = prog;
+			dpSetupShaderUniforms(prog);
+			initializeUniforms(prog);
 
-		glEnableVertexAttribArray(renderProgramLocations->vertexAttrib);
+			applyShaderPluginUniformBuffers(prog);
+			glUniform3f(renderProgramLocations->camPosUniform, cpos.getX(), cpos.getY(), cpos.getZ());
+			glUniformMatrix4fv(renderProgramLocations->vMatrixUniform, 1, GL_FALSE, (float*) &vMatrix);
+			glUniformMatrix4fv(renderProgramLocations->vpMatrixUniform, 1, GL_FALSE, (float*) &vpMatrix);
+			setupDynamicLighting(true);
 
-		initializeUniforms(programs.transStaticProgram);
+			renderStaticMeshes(it->second.begin(), it->second.end());
 
-		glUniform3f(renderProgramLocations->camPosUniform, cpos.getX(), cpos.getY(), cpos.getZ());
+			ptr.release();
+		}
 
-		setupDynamicLighting(true);
+		for (AnimatedMeshIterator it = transAnimMeshes.begin() ; it != transAnimMeshes.end() ; it++) {
+			AdvancedShaderProgramCache::Pointer ptr = it->first;
+			AdvancedShaderProgramCacheEntry* entry = (AdvancedShaderProgramCacheEntry*) ptr.getEntry(true);
+			AdvancedShaderProgram* prog = entry->programs[TransparentAnimatedShaderProgram];
+			prog->makeCurrent();
+			currentProgram = prog;
+			dpSetupShaderUniforms(prog);
+			initializeUniforms(prog);
 
-		renderStaticMeshes(transStaticMeshes.begin(), transStaticMeshes.end());
+			applyShaderPluginUniformBuffers(prog);
+			glUniform3f(renderProgramLocations->camPosUniform, cpos.getX(), cpos.getY(), cpos.getZ());
+			glUniformMatrix4fv(renderProgramLocations->vMatrixUniform, 1, GL_FALSE, (float*) &vMatrix);
+			glUniformMatrix4fv(renderProgramLocations->vpMatrixUniform, 1, GL_FALSE, (float*) &vpMatrix);
+			setupDynamicLighting(true);
 
+			renderAnimatedMeshes(it->second.begin(), it->second.end());
 
-		programs.transAnimProgram->makeCurrent();
-		dpSetupShaderUniforms(programs.transAnimProgram);
-
-		glEnableVertexAttribArray(renderProgramLocations->vertexAttrib);
-
-		initializeUniforms(programs.transAnimProgram);
-
-		glUniform3f(renderProgramLocations->camPosUniform, cpos.getX(), cpos.getY(), cpos.getZ());
-
-		setupDynamicLighting(true);
-
-		renderAnimatedMeshes(transAnimMeshes.begin(), transAnimMeshes.end());
-
-		//glFrameTerminatorGREMEDY();
+			ptr.release();
+		}
 
 		// Dynamic lighting passes
 
@@ -974,32 +1206,47 @@ void DefaultRenderer::render()
 			enabledLightEnd = lit;
 			enabledLightEnd++;
 
-			programs.transStaticProgram->makeCurrent();
-			dpSetupShaderUniforms(programs.transStaticProgram);
+			for (StaticMeshIterator it = transStaticMeshes.begin() ; it != transStaticMeshes.end() ; it++) {
+				AdvancedShaderProgramCache::Pointer ptr = it->first;
+				AdvancedShaderProgramCacheEntry* entry = (AdvancedShaderProgramCacheEntry*) ptr.getEntry(true);
+				AdvancedShaderProgram* prog = entry->programs[TransparentStaticShaderProgram];
+				prog->makeCurrent();
+				currentProgram = prog;
+				dpSetupShaderUniforms(prog);
+				initializeUniforms(prog);
 
-			initializeUniforms(programs.transStaticProgram);
+				applyShaderPluginUniformBuffers(prog);
+				glUniform3f(renderProgramLocations->camPosUniform, cpos.getX(), cpos.getY(), cpos.getZ());
+				glUniformMatrix4fv(renderProgramLocations->vMatrixUniform, 1, GL_FALSE, (float*) &vMatrix);
+				glUniformMatrix4fv(renderProgramLocations->vpMatrixUniform, 1, GL_FALSE, (float*) &vpMatrix);
+				glUniform4f(renderProgramLocations->materialColorUniform, 0.0f, 0.0f, 0.0f, 0.0f);
+				setupDynamicLighting(true);
 
-			glUniform3f(renderProgramLocations->camPosUniform, cpos.getX(), cpos.getY(), cpos.getZ());
+				renderStaticMeshes(it->second.begin(), it->second.end());
 
-			glUniform4f(renderProgramLocations->materialColorUniform, 0.0f, 0.0f, 0.0f, 0.0f);
+				ptr.release();
+			}
 
-			setupDynamicLighting(true);
+			for (AnimatedMeshIterator it = transAnimMeshes.begin() ; it != transAnimMeshes.end() ; it++) {
+				AdvancedShaderProgramCache::Pointer ptr = it->first;
+				AdvancedShaderProgramCacheEntry* entry = (AdvancedShaderProgramCacheEntry*) ptr.getEntry(true);
+				AdvancedShaderProgram* prog = entry->programs[TransparentAnimatedShaderProgram];
+				prog->makeCurrent();
+				currentProgram = prog;
+				dpSetupShaderUniforms(prog);
+				initializeUniforms(prog);
 
-			renderStaticMeshes(transStaticMeshes.begin(), transStaticMeshes.end());
+				applyShaderPluginUniformBuffers(prog);
+				glUniform3f(renderProgramLocations->camPosUniform, cpos.getX(), cpos.getY(), cpos.getZ());
+				glUniformMatrix4fv(renderProgramLocations->vMatrixUniform, 1, GL_FALSE, (float*) &vMatrix);
+				glUniformMatrix4fv(renderProgramLocations->vpMatrixUniform, 1, GL_FALSE, (float*) &vpMatrix);
+				glUniform4f(renderProgramLocations->materialColorUniform, 0.0f, 0.0f, 0.0f, 0.0f);
+				setupDynamicLighting(true);
 
+				renderAnimatedMeshes(it->second.begin(), it->second.end());
 
-			programs.transAnimProgram->makeCurrent();
-			dpSetupShaderUniforms(programs.transAnimProgram);
-
-			initializeUniforms(programs.transAnimProgram);
-
-			glUniform3f(renderProgramLocations->camPosUniform, cpos.getX(), cpos.getY(), cpos.getZ());
-
-			glUniform4f(renderProgramLocations->materialColorUniform, 0.0f, 0.0f, 0.0f, 0.0f);
-
-			setupDynamicLighting(true);
-
-			renderAnimatedMeshes(transAnimMeshes.begin(), transAnimMeshes.end());
+				ptr.release();
+			}
 
 			if (!light->isShadowCastingEnabled())
 				glEnable(GL_STENCIL_TEST);
@@ -1009,6 +1256,13 @@ void DefaultRenderer::render()
 		glDepthMask(GL_TRUE);
 
 
+		glDisableVertexAttribArray(VertexAttributeLocationVertex);
+		glDisableVertexAttribArray(VertexAttributeLocationNormal);
+		glDisableVertexAttribArray(VertexAttributeLocationTexCoord);
+		glDisableVertexAttribArray(VertexAttributeLocationVertexColor);
+		glDisableVertexAttribArray(VertexAttributeLocationBoneIndex);
+		glDisableVertexAttribArray(VertexAttributeLocationBoneWeight);
+		glDisableVertexAttribArray(VertexAttributeLocationSubmeshIndex);
 
 		// Our front-to-back blending equation. The source alpha is premultiplied in the fragment shader
 		glBlendFuncSeparate(GL_DST_ALPHA, GL_ONE, GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);
@@ -1024,6 +1278,7 @@ void DefaultRenderer::render()
 		glEnableVertexAttribArray(dpShaderLocations.dpBlendLayerVertexAttrib);
 		glVertexAttribPointer(dpShaderLocations.dpBlendLayerVertexAttrib, 2, GL_FLOAT, GL_FALSE, 0, (void*) 0);
 
+		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(dpTexTarget, fbos.dpPingPongColorTexes[outputIdx]);
 		glUniform1i(dpShaderLocations.dpBlendLayerTexUniform, 0);
 
@@ -1033,6 +1288,13 @@ void DefaultRenderer::render()
 
 		glEnable(GL_DEPTH_TEST);
 	}
+
+
+#ifdef TIME_RENDERING
+	e = GetTickcountMicroseconds();
+	uint64_t t6 = e-s;
+	s = GetTickcountMicroseconds();
+#endif
 
 
 	// ********** Blend opaque and transparent layers together **********
@@ -1050,6 +1312,7 @@ void DefaultRenderer::render()
 	glEnableVertexAttribArray(dpShaderLocations.dpBlendFinalVertexAttrib);
 	glVertexAttribPointer(dpShaderLocations.dpBlendFinalVertexAttrib, 2, GL_FLOAT, GL_FALSE, 0, (void*) 0);
 
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(dpTexTarget, fbos.dpOpaqueTexes[0]);
 	glUniform1i(dpShaderLocations.dpBlendFinalTexUniform, 0);
 
@@ -1062,34 +1325,33 @@ void DefaultRenderer::render()
 	glDisable(GL_BLEND);
 
 
-
-	glDisableVertexAttribArray(renderProgramLocations->vertexAttrib);
-
-
-	if (renderProgramLocations->normalAttrib != -1)
-		glDisableVertexAttribArray(renderProgramLocations->normalAttrib);
-	if (renderProgramLocations->colorAttrib != -1)
-		glDisableVertexAttribArray(renderProgramLocations->colorAttrib);
-	if (renderProgramLocations->texCoordAttrib != -1)
-		glDisableVertexAttribArray(renderProgramLocations->texCoordAttrib);
-
-
-
 	gtaglBindFramebuffer(GTAGL_FRAMEBUFFER, 0);
 
+#ifdef TIME_RENDERING
+	e = GetTickcountMicroseconds();
+	uint64_t t7 = e-s;
+	s = GetTickcountMicroseconds();
+#endif
 
-	for (StaticMeshIterator it = opaqueStaticMeshes.begin() ; it != opaqueStaticMeshes.end() ; it++) {
+#endif
+
+	for (list<RenderingEntity*>::iterator it = renderingEntityDisposalList.begin() ; it != renderingEntityDisposalList.end() ; it++) {
 		delete *it;
 	}
-	for (StaticMeshIterator it = transStaticMeshes.begin() ; it != transStaticMeshes.end() ; it++) {
-		delete *it;
-	}
-	for (AnimatedMeshIterator it = opaqueAnimMeshes.begin() ; it != opaqueAnimMeshes.end() ; it++) {
-		delete *it;
-	}
-	for (AnimatedMeshIterator it = transAnimMeshes.begin() ; it != transAnimMeshes.end() ; it++) {
-		delete *it;
-	}
+
+#ifdef TIME_RENDERING
+	e = GetTickcountMicroseconds();
+	uint64_t t8 = e-s;
+	s = GetTickcountMicroseconds();
+#endif
+
+	renderingEntityDisposalList.clear();
+
+#ifdef TIME_RENDERING
+	e = GetTickcountMicroseconds();
+	uint64_t t9 = e-s;
+	s = GetTickcountMicroseconds();
+#endif
 
 
 	opaqueStaticMeshes.clear();
@@ -1098,142 +1360,205 @@ void DefaultRenderer::render()
 	transAnimMeshes.clear();
 
 	lightSources.clear();
+
+	numObjects = 0;
+
+#ifdef TIME_RENDERING
+	e = GetTickcountMicroseconds();
+	uint64_t t10 = e-s;
+
+	absE = GetTickcountMicroseconds();
+
+	fprintf(stderr, "=== RENDER TIMING ===\n");
+	fprintf(stderr, "Absolute:        %uus\n", (unsigned int) (absE-absS));
+	fprintf(stderr, "T1:              %uus\n", (unsigned int) t1);
+	fprintf(stderr, "T2:              %uus\n", (unsigned int) t2);
+	fprintf(stderr, "T3:              %uus\n", (unsigned int) t3);
+	fprintf(stderr, "T4:              %uus\n", (unsigned int) t4);
+	fprintf(stderr, "T5:              %uus\n", (unsigned int) t5);
+	fprintf(stderr, "T6:              %uus\n", (unsigned int) t6);
+	fprintf(stderr, "T7:              %uus\n", (unsigned int) t7);
+	fprintf(stderr, "T8:              %uus\n", (unsigned int) t8);
+	fprintf(stderr, "T9:              %uus\n", (unsigned int) t9);
+	fprintf(stderr, "T10:             %uus\n", (unsigned int) t10);
+
+	fprintf(stderr, "\n");
+#endif
 }
 
 
-void DefaultRenderer::renderStaticMeshes(StaticMeshIterator beg, StaticMeshIterator end)
+void DefaultRenderer::renderStaticMeshes(list<StaticRenderingMeshEntry>::iterator beg, list<StaticRenderingMeshEntry>::iterator end)
 {
+	GLuint currentBuf = 0;
+
 	glUniform4f(renderProgramLocations->matAmbientReflectionUniform, 1.0f, 1.0f, 1.0f, 1.0f);
 	glUniform4f(renderProgramLocations->matDiffuseReflectionUniform, 1.0f, 1.0f, 1.0f, 1.0f);
 	glUniform4f(renderProgramLocations->matSpecularReflectionUniform, 1.0f, 1.0f, 1.0f, 1.0f);
 
-	GLuint curDataBuf = 0;
-	int curNOffs = -1;
-	int curTCOffs = -1;
-	int curVCOffs = -1;
+	for (list<StaticRenderingMeshEntry>::iterator it = beg ; it != end ; it++) {
+		StaticRenderingMeshEntry& entry = *it;
+		RenderingMesh* smesh = entry.mesh;
 
-	for (StaticMeshIterator it = beg ; it != end ; it++) {
-		StaticRenderingMesh* smesh = *it;
+		uint32_t flags = smesh->getFlags();
 
-
-		int nOffs = smesh->getNormalOffset();
-		int tcOffs = smesh->getTexCoordOffset();
 		int vcOffs = smesh->getVertexColorOffset();
 
-		GLuint dataBuf = smesh->getDataBuffer();
+		GLuint dbuf = smesh->getDataBuffer();
 
-		bool sameBuf = true;
+		if (dbuf != currentBuf) {
+			glBindBuffer(GL_ARRAY_BUFFER, dbuf);
 
-		if (curDataBuf == 0  ||  dataBuf != curDataBuf) {
-			glBindBuffer(GL_ARRAY_BUFFER, dataBuf);
-			glVertexAttribPointer(renderProgramLocations->vertexAttrib, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+			glEnableVertexAttribArray(Renderer::VertexAttributeLocationVertex);
+			glVertexAttribPointer(Renderer::VertexAttributeLocationVertex, 3, GL_FLOAT, GL_FALSE,
+					smesh->getVertexStride(), (void*) smesh->getVertexOffset());
 
-			curDataBuf = dataBuf;
-			sameBuf = false;
-		}
+			int nOffs = smesh->getNormalOffset();
+			int tcOffs = smesh->getTexCoordOffset();
+			int smOffs = smesh->getSubmeshIDOffset();
 
-		if (!sameBuf  ||  nOffs != curNOffs) {
-			if (renderProgramLocations->normalAttrib != -1) {
-				if (nOffs != -1) {
-					glEnableVertexAttribArray(renderProgramLocations->normalAttrib);
-					glVertexAttribPointer(renderProgramLocations->normalAttrib, 3, GL_FLOAT, GL_FALSE, 0, (void*) nOffs);
-				} else {
-					glDisableVertexAttribArray(renderProgramLocations->normalAttrib);
-				}
+			if (nOffs != -1) {
+				glEnableVertexAttribArray(Renderer::VertexAttributeLocationNormal);
+				glVertexAttribPointer(Renderer::VertexAttributeLocationNormal, 3, GL_FLOAT, GL_FALSE,
+						smesh->getNormalStride(), (void*) nOffs);
+			} else {
+				glDisableVertexAttribArray(Renderer::VertexAttributeLocationNormal);
 			}
 
-			curNOffs = nOffs;
-		}
-
-		if (!sameBuf  ||  tcOffs != curTCOffs) {
-			if (renderProgramLocations->texCoordAttrib != -1) {
-				if (tcOffs != -1) {
-					glEnableVertexAttribArray(renderProgramLocations->texCoordAttrib);
-					glVertexAttribPointer(renderProgramLocations->texCoordAttrib, 2, GL_FLOAT, GL_FALSE, 0, (void*) tcOffs);
-				} else {
-					glDisableVertexAttribArray(renderProgramLocations->texCoordAttrib);
-				}
+			if (tcOffs != -1) {
+				glEnableVertexAttribArray(Renderer::VertexAttributeLocationTexCoord);
+				glVertexAttribPointer(Renderer::VertexAttributeLocationTexCoord, 2, GL_FLOAT, GL_FALSE,
+						smesh->getTexCoordStride(), (void*) tcOffs);
+			} else {
+				glDisableVertexAttribArray(Renderer::VertexAttributeLocationTexCoord);
 			}
 
-			curTCOffs = tcOffs;
-		}
-
-		if (!sameBuf  ||  vcOffs != curVCOffs) {
-			if (renderProgramLocations->colorAttrib != -1) {
-				if (vcOffs != -1) {
-					glEnableVertexAttribArray(renderProgramLocations->colorAttrib);
-					glVertexAttribPointer(renderProgramLocations->colorAttrib, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, (void*) vcOffs);
-				} else {
-					glDisableVertexAttribArray(renderProgramLocations->colorAttrib);
-				}
+			if (vcOffs != -1) {
+				glEnableVertexAttribArray(Renderer::VertexAttributeLocationVertexColor);
+				glVertexAttribPointer(Renderer::VertexAttributeLocationVertexColor, 4, GL_UNSIGNED_BYTE, GL_TRUE,
+						smesh->getVertexColorStride(), (void*) vcOffs);
+			} else {
+				glDisableVertexAttribArray(Renderer::VertexAttributeLocationVertexColor);
 			}
 
-			curVCOffs = vcOffs;
+			if (smOffs != -1) {
+				glEnableVertexAttribArray(Renderer::VertexAttributeLocationSubmeshIndex);
+				glVertexAttribIPointer(Renderer::VertexAttributeLocationSubmeshIndex, 1, GL_UNSIGNED_BYTE,
+						smesh->getSubmeshIDStride(), (void*) smOffs);
+			} else {
+				glDisableVertexAttribArray(Renderer::VertexAttributeLocationSubmeshIndex);
+			}
+
+			currentBuf = dbuf;
 		}
 
+		Matrix4 mm = smesh->getModelMatrix();
 
-		const Matrix4& mm = smesh->getModelMatrix();
-
-		Matrix4 mvMatrix = vMatrix * mm;
-		Matrix4 mvpMatrix = vpMatrix * mm;
-
-		glUniformMatrix4fv(renderProgramLocations->mvMatrixUniform, 1, GL_FALSE, (float*) &mvMatrix);
-		glUniformMatrix4fv(renderProgramLocations->mvpMatrixUniform, 1, GL_FALSE, (float*) &mvpMatrix);
-
+		glUniformMatrix4fv(renderProgramLocations->mMatrixUniform, 1, GL_FALSE, (float*) &mm);
+		glUniformMatrix4fv(renderProgramLocations->mvMatrixUniform, 1, GL_FALSE, (float*) (mvMatrices + entry.id));
+		glUniformMatrix4fv(renderProgramLocations->mvpMatrixUniform, 1, GL_FALSE, (float*) (mvpMatrices + entry.id));
+		glUniformMatrix4fv(renderProgramLocations->normalMvMatrixUniform, 1, GL_FALSE, (float*) (normalMatrices + entry.id));
 
 		glUniform1i(renderProgramLocations->vertexColorsUniform, (vcOffs != -1) ? 1 : 0);
 
-
-		GLuint tex = smesh->getTexture();
-
-		//glActiveTexture(GL_TEXTURE0);
-
-		if (tex != 0) {
-			glBindTexture(GL_TEXTURE_2D, tex);
-			glUniform1i(renderProgramLocations->texturedUniform, 1);
-			glUniform1i(renderProgramLocations->textureUniform, 0);
-		} else {
-			glUniform1i(renderProgramLocations->texturedUniform, 0);
+		if ((flags & RenderingMesh::EnableShaderPluginUniformBuffers)  !=  0) {
+			smesh->getPluginRegistry().applyUniformBuffers(currentProgram);
 		}
 
-		uint8_t r, g, b, a;
-		smesh->getMaterialColor(r, g, b, a);
+		GLenum polyMode = smesh->getPrimitiveFormat();
 
-		if (globalAmbientLightEnabled) {
-			glUniform4f(renderProgramLocations->materialColorUniform,
-					r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
+		size_t numSubmeshes = smesh->getSubmeshCount();
+		size_t submeshOffs = 0;
+
+		RenderingMesh::SubmeshIterator sbeg, send;
+		sbeg = smesh->getSubmeshBegin();
+		send = smesh->getSubmeshEnd();
+
+		GLuint indexOffs = 0;
+
+		while (submeshOffs < numSubmeshes) {
+			GLint texturedVals[NUM_SUBMESHES];
+			GLint textureVals[NUM_SUBMESHES];
+			float matColors[NUM_SUBMESHES*4];
+
+			GLuint numIndices = 0;
+			GLsizei indexCounts[NUM_SUBMESHES];
+			GLvoid* indexOffsets[NUM_SUBMESHES];
+			GLint baseVertices[NUM_SUBMESHES];
+
+			uint8_t numPassSubmeshes = numSubmeshes-submeshOffs;
+
+			if (numPassSubmeshes > NUM_SUBMESHES)
+				numPassSubmeshes = NUM_SUBMESHES;
+
+
+			for (uint8_t j = 0 ; j < numPassSubmeshes ; j++, sbeg++) {
+				RenderingSubmesh* submesh = *sbeg;
+
+				GLuint tex = submesh->getTexture();
+
+				if (tex != 0) {
+					glActiveTexture(GL_TEXTURE2 + j);
+					glBindTexture(GL_TEXTURE_2D, tex);
+					texturedVals[j] = 1;
+					textureVals[j] = j+2;
+				} else {
+					texturedVals[j] = 0;
+				}
+
+				uint8_t r, g, b, a;
+				submesh->getMaterialColor(r, g, b, a);
+
+				if (!globalAmbientLightEnabled) {
+					r = 0;
+					g = 0;
+					b = 0;
+					a = 0;
+				}
+
+				matColors[j*4] = r / 255.0f;
+				matColors[j*4 + 1] = g / 255.0f;
+				matColors[j*4 + 2] = b / 255.0f;
+				matColors[j*4 + 3] = a / 255.0f;
+
+				indexCounts[j] = submesh->getIndexCount();
+				indexOffsets[j] = (GLvoid*) indexOffs;
+				baseVertices[j] = smesh->getVertexCount() * (submeshOffs + j);
+
+				indexOffs += submesh->getIndexCount() * 4;
+
+				numIndices += submesh->getIndexCount();
+			}
+
+			// This is necessary, because OpenGL performs some sanity checks on all samplers in the current shader when
+			// the draw functions are called, and if some samplers are uninitialized, these checks will very likely fail
+			// (as uninitialized samplers seem to default to GL_TEXTURE0, which is used by depth peeling code with a
+			// GL_TEXTURE_RECTANGLE format that is incompatible to the sampler2Ds used in the core shaders).
+			for (uint8_t j = numPassSubmeshes ; j < NUM_SUBMESHES ; j++) {
+				textureVals[j] = 2;
+			}
+
+			glUniform1i(renderProgramLocations->submeshOffsetUniform, submeshOffs);
+			glUniform1iv(renderProgramLocations->texturedUniform, numPassSubmeshes, texturedVals);
+			glUniform1iv(renderProgramLocations->textureUniform, NUM_SUBMESHES, textureVals);
+			glUniform4fv(renderProgramLocations->materialColorUniform, numPassSubmeshes, matColors);
+
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, smesh->getIndexBuffer());
+
+			glMultiDrawElementsBaseVertex(polyMode, indexCounts, GL_UNSIGNED_INT, indexOffsets, numPassSubmeshes, baseVertices);
+
+			submeshOffs += numPassSubmeshes;
 		}
-
-
-		GLenum polyMode;
-
-		switch (smesh->getPrimitiveFormat()) {
-		case RenderingPrimitiveTriangles:
-			polyMode = GL_TRIANGLES;
-			break;
-		case RenderingPrimitiveTriangleStrip:
-			polyMode = GL_TRIANGLE_STRIP;
-			break;
-		case RenderingPrimitiveLines:
-			polyMode = GL_LINES;
-			break;
-		case RenderingPrimitivePoints:
-			polyMode = GL_POINTS;
-			break;
-		}
-
-
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, smesh->getIndexBuffer());
-
-		glDrawRangeElements(polyMode, 0, smesh->getVertexCount()-1, smesh->getIndexCount(), GL_UNSIGNED_INT, (void*) 0);
 	}
 }
 
 
-void DefaultRenderer::renderAnimatedMeshes(AnimatedMeshIterator beg, AnimatedMeshIterator end)
+void DefaultRenderer::renderAnimatedMeshes(list<AnimatedRenderingMeshEntry>::iterator beg, list<AnimatedRenderingMeshEntry>::iterator end)
 {
-	for (AnimatedMeshIterator it = beg ; it != end ; it++) {
-		AnimatedRenderingMesh* amesh = *it;
+	GLuint currentBuf = 0;
+
+	for (list<AnimatedRenderingMeshEntry>::iterator it = beg ; it != end ; it++) {
+		AnimatedRenderingMeshEntry& entry = *it;
+		RenderingMesh* amesh = entry.mesh;
 
 
 		glUniform4f(renderProgramLocations->matAmbientReflectionUniform, 1.0f, 1.0f, 1.0f, 1.0f);
@@ -1241,62 +1566,73 @@ void DefaultRenderer::renderAnimatedMeshes(AnimatedMeshIterator beg, AnimatedMes
 		glUniform4f(renderProgramLocations->matSpecularReflectionUniform, 1.0f, 1.0f, 1.0f, 1.0f);
 
 
-		glBindBuffer(GL_ARRAY_BUFFER, amesh->getDataBuffer());
-
-		glVertexAttribPointer(renderProgramLocations->vertexAttrib, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
-
-
-		int nOffs = amesh->getNormalOffset();
-		int tcOffs = amesh->getTexCoordOffset();
 		int vcOffs = amesh->getVertexColorOffset();
-		int biOffs = amesh->getBoneIndexOffset();
-		int bwOffs = amesh->getBoneWeightOffset();
 
-		if (renderProgramLocations->normalAttrib != -1) {
+		GLuint dbuf = amesh->getDataBuffer();
+
+		if (dbuf != currentBuf) {
+			glBindBuffer(GL_ARRAY_BUFFER, dbuf);
+
+			glEnableVertexAttribArray(Renderer::VertexAttributeLocationVertex);
+			glVertexAttribPointer(Renderer::VertexAttributeLocationVertex, 3, GL_FLOAT, GL_FALSE,
+					amesh->getVertexStride(), (void*) amesh->getVertexOffset());
+
+			int nOffs = amesh->getNormalOffset();
+			int tcOffs = amesh->getTexCoordOffset();
+			int biOffs = amesh->getBoneIndexOffset();
+			int bwOffs = amesh->getBoneWeightOffset();
+			int smOffs = amesh->getSubmeshIDOffset();
+
 			if (nOffs != -1) {
-				glEnableVertexAttribArray(renderProgramLocations->normalAttrib);
-				glVertexAttribPointer(renderProgramLocations->normalAttrib, 3, GL_FLOAT, GL_FALSE, 0, (void*) nOffs);
+				glEnableVertexAttribArray(Renderer::VertexAttributeLocationNormal);
+				glVertexAttribPointer(Renderer::VertexAttributeLocationNormal, 3, GL_FLOAT, GL_FALSE,
+						amesh->getNormalStride(), (void*) nOffs);
 			} else {
-				glDisableVertexAttribArray(renderProgramLocations->normalAttrib);
+				glDisableVertexAttribArray(Renderer::VertexAttributeLocationNormal);
 			}
-		}
 
-		if (renderProgramLocations->texCoordAttrib != -1) {
 			if (tcOffs != -1) {
-				glEnableVertexAttribArray(renderProgramLocations->texCoordAttrib);
-				glVertexAttribPointer(renderProgramLocations->texCoordAttrib, 2, GL_FLOAT, GL_FALSE, 0, (void*) tcOffs);
+				glEnableVertexAttribArray(Renderer::VertexAttributeLocationTexCoord);
+				glVertexAttribPointer(Renderer::VertexAttributeLocationTexCoord, 2, GL_FLOAT, GL_FALSE,
+						amesh->getTexCoordStride(), (void*) tcOffs);
 			} else {
-				glDisableVertexAttribArray(renderProgramLocations->texCoordAttrib);
+				glDisableVertexAttribArray(Renderer::VertexAttributeLocationTexCoord);
 			}
-		}
 
-		if (renderProgramLocations->colorAttrib != -1) {
 			if (vcOffs != -1) {
-				glEnableVertexAttribArray(renderProgramLocations->colorAttrib);
-				glVertexAttribPointer(renderProgramLocations->colorAttrib, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, (void*) vcOffs);
+				glEnableVertexAttribArray(Renderer::VertexAttributeLocationVertexColor);
+				glVertexAttribPointer(Renderer::VertexAttributeLocationVertexColor, 4, GL_UNSIGNED_BYTE, GL_TRUE,
+						amesh->getVertexColorStride(), (void*) vcOffs);
 			} else {
-				glDisableVertexAttribArray(renderProgramLocations->colorAttrib);
+				glDisableVertexAttribArray(Renderer::VertexAttributeLocationVertexColor);
 			}
-		}
 
-		if (renderProgramLocations->boneIndexAttrib != -1) {
 			if (biOffs != -1) {
-				glEnableVertexAttribArray(renderProgramLocations->boneIndexAttrib);
-				glVertexAttribPointer(renderProgramLocations->boneIndexAttrib, 4, GL_UNSIGNED_BYTE, GL_FALSE, 0, (void*) biOffs);
+				glEnableVertexAttribArray(Renderer::VertexAttributeLocationBoneIndex);
+				glVertexAttribPointer(Renderer::VertexAttributeLocationBoneIndex, 4, GL_UNSIGNED_BYTE, GL_FALSE,
+						amesh->getBoneIndexStride(), (void*) biOffs);
 			} else {
-				glDisableVertexAttribArray(renderProgramLocations->boneIndexAttrib);
+				glDisableVertexAttribArray(Renderer::VertexAttributeLocationBoneIndex);
 			}
-		}
 
-		if (renderProgramLocations->boneWeightAttrib != -1) {
 			if (bwOffs != -1) {
-				glEnableVertexAttribArray(renderProgramLocations->boneWeightAttrib);
-				glVertexAttribPointer(renderProgramLocations->boneWeightAttrib, 4, GL_FLOAT, GL_FALSE, 0, (void*) bwOffs);
+				glEnableVertexAttribArray(Renderer::VertexAttributeLocationBoneWeight);
+				glVertexAttribPointer(Renderer::VertexAttributeLocationBoneWeight, 4, GL_FLOAT, GL_FALSE,
+						amesh->getBoneWeightStride(), (void*) bwOffs);
 			} else {
-				glDisableVertexAttribArray(renderProgramLocations->boneWeightAttrib);
+				glDisableVertexAttribArray(Renderer::VertexAttributeLocationBoneWeight);
 			}
-		}
 
+			if (smOffs != -1) {
+				glEnableVertexAttribArray(Renderer::VertexAttributeLocationSubmeshIndex);
+				glVertexAttribIPointer(Renderer::VertexAttributeLocationSubmeshIndex, 1, GL_UNSIGNED_BYTE,
+						amesh->getSubmeshIDStride(), (void*) smOffs);
+			} else {
+				glDisableVertexAttribArray(Renderer::VertexAttributeLocationSubmeshIndex);
+			}
+
+			currentBuf = dbuf;
+		}
 
 		int16_t boneIdx = amesh->getBoneIndex();
 
@@ -1308,67 +1644,100 @@ void DefaultRenderer::renderAnimatedMeshes(AnimatedMeshIterator beg, AnimatedMes
 			glUniform1i(renderProgramLocations->boneUniform, boneIdx);
 		}
 
+		Matrix4 mm = amesh->getModelMatrix();
+
 		glUniformMatrix4fv(renderProgramLocations->boneMatUniform, amesh->getBoneCount(), GL_FALSE, (float*) amesh->getBoneMatrices());
-
-
-		Matrix4 mvMatrix = vMatrix * amesh->getModelMatrix();
-		Matrix4 mvpMatrix = vpMatrix * amesh->getModelMatrix();
-
-		const float* matData = mvMatrix.toArray();
-		glUniformMatrix4fv(renderProgramLocations->mvMatrixUniform, 1, GL_FALSE, matData);
-
-		matData = mvpMatrix.toArray();
-		glUniformMatrix4fv(renderProgramLocations->mvpMatrixUniform, 1, GL_FALSE, matData);
-
+		glUniformMatrix4fv(renderProgramLocations->mMatrixUniform, 1, GL_FALSE, (float*) &mm);
+		glUniformMatrix4fv(renderProgramLocations->mvMatrixUniform, 1, GL_FALSE, (float*) (mvMatrices + entry.id));
+		glUniformMatrix4fv(renderProgramLocations->mvpMatrixUniform, 1, GL_FALSE, (float*) (mvpMatrices + entry.id));
+		glUniformMatrix4fv(renderProgramLocations->normalMvMatrixUniform, 1, GL_FALSE, (float*) (normalMatrices + entry.id));
 
 		glUniform1i(renderProgramLocations->vertexColorsUniform, (vcOffs != -1) ? 1 : 0);
 
 
-		GLuint tex = amesh->getTexture();
+		GLenum polyMode = amesh->getPrimitiveFormat();
 
-		glActiveTexture(GL_TEXTURE0);
+		size_t numSubmeshes = amesh->getSubmeshCount();
+		size_t submeshOffs = 0;
 
-		if (tex != 0) {
-			glBindTexture(GL_TEXTURE_2D, tex);
-			glUniform1i(renderProgramLocations->texturedUniform, 1);
-			glUniform1i(renderProgramLocations->textureUniform, 0);
-		} else {
-			glUniform1i(renderProgramLocations->texturedUniform, 0);
+		RenderingMesh::SubmeshIterator sbeg, send;
+		sbeg = amesh->getSubmeshBegin();
+		send = amesh->getSubmeshEnd();
+
+		GLuint indexOffs = 0;
+
+		while (submeshOffs < numSubmeshes) {
+			GLint texturedVals[NUM_SUBMESHES];
+			GLint textureVals[NUM_SUBMESHES];
+			float matColors[NUM_SUBMESHES*4];
+
+			GLuint numIndices = 0;
+			GLsizei indexCounts[NUM_SUBMESHES];
+			GLvoid* indexOffsets[NUM_SUBMESHES];
+			GLint baseVertices[NUM_SUBMESHES];
+
+			uint8_t numPassSubmeshes = numSubmeshes-submeshOffs;
+
+			if (numPassSubmeshes > NUM_SUBMESHES)
+				numPassSubmeshes = NUM_SUBMESHES;
+
+
+			for (uint8_t j = 0 ; j < numPassSubmeshes ; j++, sbeg++) {
+				RenderingSubmesh* submesh = *sbeg;
+
+				GLuint tex = submesh->getTexture();
+
+				if (tex != 0) {
+					glActiveTexture(GL_TEXTURE2 + j);
+					glBindTexture(GL_TEXTURE_2D, tex);
+					texturedVals[j] = 1;
+					textureVals[j] = j+2;
+				} else {
+					texturedVals[j] = 0;
+				}
+
+				uint8_t r, g, b, a;
+				submesh->getMaterialColor(r, g, b, a);
+
+				if (!globalAmbientLightEnabled) {
+					r = 0;
+					g = 0;
+					b = 0;
+					a = 0;
+				}
+
+				matColors[j*4] = r / 255.0f;
+				matColors[j*4 + 1] = g / 255.0f;
+				matColors[j*4 + 2] = b / 255.0f;
+				matColors[j*4 + 3] = a / 255.0f;
+
+				indexCounts[j] = submesh->getIndexCount();
+				indexOffsets[j] = (GLvoid*) indexOffs;
+				baseVertices[j] = amesh->getVertexCount() * (submeshOffs + j);
+
+				indexOffs += submesh->getIndexCount() * 4;
+
+				numIndices += submesh->getIndexCount();
+			}
+
+			// This is necessary, because OpenGL performs some sanity checks on all samplers in the current shader when
+			// the draw functions are called, and if some samplers are uninitialized, these checks will very likely fail
+			// (as uninitialized samplers seem to default to GL_TEXTURE0, which is used by depth peeling code with a
+			// GL_TEXTURE_RECTANGLE format that is incompatible to the sampler2Ds used in the core shaders).
+			for (uint8_t j = numPassSubmeshes ; j < NUM_SUBMESHES ; j++) {
+				textureVals[j] = 2;
+			}
+
+			glUniform1i(renderProgramLocations->submeshOffsetUniform, submeshOffs);
+			glUniform1iv(renderProgramLocations->texturedUniform, numPassSubmeshes, texturedVals);
+			glUniform1iv(renderProgramLocations->textureUniform, NUM_SUBMESHES, textureVals);
+			glUniform4fv(renderProgramLocations->materialColorUniform, numPassSubmeshes, matColors);
+
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, amesh->getIndexBuffer());
+
+			glMultiDrawElementsBaseVertex(polyMode, indexCounts, GL_UNSIGNED_INT, indexOffsets, numPassSubmeshes, baseVertices);
+
+			submeshOffs += numPassSubmeshes;
 		}
-
-		uint8_t r, g, b, a;
-		amesh->getMaterialColor(r, g, b, a);
-
-		if (globalAmbientLightEnabled) {
-			glUniform4f(renderProgramLocations->materialColorUniform,
-					r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
-		} else {
-			//glUniform4f(renderProgramLocations->materialColorUniform, 0.0f, 0.0f, 0.0f, 0.0f);
-		}
-
-
-		GLenum polyMode;
-
-		switch (amesh->getPrimitiveFormat()) {
-		case RenderingPrimitivePoints:
-			polyMode = GL_POINTS;
-			break;
-		case RenderingPrimitiveLines:
-			polyMode = GL_LINES;
-			break;
-		case RenderingPrimitiveTriangles:
-			polyMode = GL_TRIANGLES;
-			break;
-		case RenderingPrimitiveTriangleStrip:
-			polyMode = GL_TRIANGLE_STRIP;
-			break;
-		}
-
-
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, amesh->getIndexBuffer());
-
-		GLException::checkError("Before drawing (NR)");
-
-		glDrawRangeElements(polyMode, 0, amesh->getVertexCount()-1, amesh->getIndexCount(), GL_UNSIGNED_INT, (void*) 0);
 	}
 }

@@ -23,13 +23,15 @@
 #ifndef RENDERING_H_
 #define RENDERING_H_
 
+#include "../gl.h"
+
 
 enum RenderingPrimitiveFormat
 {
-	RenderingPrimitivePoints,
-	RenderingPrimitiveLines,
-	RenderingPrimitiveTriangles,
-	RenderingPrimitiveTriangleStrip,
+	RenderingPrimitivePoints = GL_POINTS,
+	RenderingPrimitiveLines = GL_LINES,
+	RenderingPrimitiveTriangles = GL_TRIANGLES,
+	RenderingPrimitiveTriangleStrip = GL_TRIANGLE_STRIP,
 };
 
 

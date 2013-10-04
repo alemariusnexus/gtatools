@@ -61,12 +61,15 @@ inline void strtoupper(char* dest, const char* src)
 }
 
 
+
+void rtrim(char* str, const char* chrs);
+
 /**	\brief Trims chr from the right end of str.
  *
  * 	@param str The string to trim.
  * 	@param chr The cahracter to remove from the end of str.
  */
-void rtrim(char* str, char chr);
+inline void rtrim(char* str, char chr) { char b[2]; b[0] = chr; b[1] = '\0'; rtrim(str, b); }
 
 const char* ltrim(const char* str, char chr);
 

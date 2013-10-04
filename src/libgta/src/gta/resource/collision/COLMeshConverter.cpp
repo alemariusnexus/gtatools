@@ -39,7 +39,7 @@ Mesh* COLMeshConverter::convert(const float* vertices, int vertexCount, const CO
 	Mesh* mesh = new Mesh(modelVertexCount, VertexFormatTriangles, MeshVertexColors, modelVertices, NULL,
 			NULL, modelColors);
 	Submesh* submesh = new Submesh(mesh, modelIndexCount, modelIndices);
-	mesh->addSubmesh(submesh);
+	mesh->link();
 
 	return mesh;
 }
@@ -82,7 +82,7 @@ Mesh* COLMeshConverter::convert(const COLSphere& sphere)
 	Mesh* mesh = new Mesh(vertexCount, VertexFormatTriangles, 0, dataBuffer, -1, -1, vertexCount*3*4);
 
 	Submesh* submesh = new Submesh(mesh, indexCount, indices);
-	mesh->addSubmesh(submesh);
+	mesh->link();
 
 	const Vector3& center = sphere.getCenter();
 	mesh->setBounds(center[0], center[1], center[2], sphere.getRadius());
@@ -127,7 +127,7 @@ Mesh* COLMeshConverter::convert(const COLBox& box)
 	Mesh* mesh = new Mesh(vertexCount, VertexFormatTriangles, 0, dataBuffer, -1, -1, vertexCount*3*4);
 
 	Submesh* submesh = new Submesh(mesh, indexCount, indices);
-	mesh->addSubmesh(submesh);
+	mesh->link();
 
 	//mesh->setBounds(center[0], center[1], center[2], sphere.getRadius());
 
@@ -259,7 +259,6 @@ Mesh* COLMeshConverter::convert(const COLModel& model)
     }
 
     Submesh* submesh = new Submesh(mesh, modelIndexCount, modelIndices);
-    mesh->addSubmesh(submesh);
     vertexOffset = modelVertexCount;
 
     for (int i = 0 ; i < sphereCount ; i++) {
@@ -270,7 +269,6 @@ Mesh* COLMeshConverter::convert(const COLModel& model)
     	}
 
     	Submesh* submesh = new Submesh(mesh, indexCount, indices);
-    	mesh->addSubmesh(submesh);
     	vertexOffset += sphereVertexCounts[i];
     }
 
@@ -282,9 +280,10 @@ Mesh* COLMeshConverter::convert(const COLModel& model)
     	}
 
         Submesh* submesh = new Submesh(mesh, indexCount, indices);
-        mesh->addSubmesh(submesh);
         vertexOffset += boxVertexCounts[i];
     }
+
+    mesh->link();
 
     const COLBounds& bounds = model.getBounds();
     const Vector3& center = bounds.getCenter();

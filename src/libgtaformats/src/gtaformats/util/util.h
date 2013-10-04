@@ -153,6 +153,19 @@ inline unsigned int GetNextPowerOfTwo(unsigned int v)
 	return v+1;
 }
 
+inline unsigned int RoundToMultiple(unsigned int val, unsigned int multiple)
+{
+	if (multiple == 0)
+		return val;
+
+	unsigned int rem = val % multiple;
+
+	if (rem == 0)
+		return val;
+
+	return val + multiple - rem;
+}
+
 void SleepMilliseconds(unsigned int time);
 
 #endif /* UTIL_H_ */

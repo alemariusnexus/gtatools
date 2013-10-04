@@ -65,6 +65,7 @@ MeshClump::MeshClump(const DFFMesh* mesh)
 	for (DFFMesh::ConstGeometryIterator it = mesh->getGeometryBegin() ; it != mesh->getGeometryEnd() ; it++) {
 		const DFFGeometry* geom = *it;
 		Mesh* mesh = new Mesh(*geom);
+		mesh->link();
 		MeshFrame* frame = NULL;
 
 		if (geom->getAssociatedFrame()) {

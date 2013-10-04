@@ -24,30 +24,133 @@
 #define DEFAULTRENDERER_H_
 
 #include "Renderer.h"
-#include "StaticRenderingMesh.h"
-#include "AnimatedRenderingMesh.h"
+#include "RenderingMesh.h"
+#include "AdvancedShaderProgram.h"
+#include "AdvancedShader.h"
+#include "ShaderPlugin.h"
+#include "ShaderPluginRegistry.h"
 #include "../Shader.h"
 #include "../ShaderProgram.h"
 #include "../scene/objects/LightSource.h"
+#include "../resource/ResourceCache.h"
 #include <list>
+#include <set>
+#include <map>
 
 using std::list;
+using std::set;
+using std::multimap;
+
 
 
 class DefaultRenderer : public Renderer
 {
 private:
-	typedef list<StaticRenderingMesh*> StaticMeshList;
+	enum AdvancedShaderProgramID
+	{
+		OpaqueStaticShaderProgram = 0,
+		TransparentStaticShaderProgram = 1,
+		OpaqueAnimatedShaderProgram = 2,
+		TransparentAnimatedShaderProgram = 3,
+		//DepthPeelingBlendLayerShaderProgram = 4,
+		//DepthPeelingBlendFinalShaderProgram = 5,
+
+		AdvancedShaderProgramIDCount
+	};
+
+	class AdvancedShaderProgramCacheLess
+	{
+	public:
+		bool operator()(const ShaderPluginRegistry& r1, const ShaderPluginRegistry& r2) const { return r1 < r2; }
+	};
+
+	class AdvancedShaderProgramCacheEqual
+	{
+	public:
+		bool operator()(const ShaderPluginRegistry& r1, const ShaderPluginRegistry& r2) const { return r1 == r2; }
+	};
+
+	class AdvancedShaderProgramCacheHash
+	{
+	public:
+		size_t operator()(const ShaderPluginRegistry& r) const { return r.getHash(); }
+	};
+
+private:
+	typedef ResourceCache<ShaderPluginRegistry,
+			AdvancedShaderProgramCacheLess,
+			AdvancedShaderProgramCacheHash,
+			AdvancedShaderProgramCacheEqual>
+			AdvancedShaderProgramCache;
+
+	struct StaticRenderingMeshEntry
+	{
+		RenderingMesh* mesh;
+		uint32_t id;
+	};
+
+	struct AnimatedRenderingMeshEntry
+	{
+		RenderingMesh* mesh;
+		uint32_t id;
+	};
+
+private:
+	/*typedef list<StaticRenderingMesh*> StaticMeshList;
 	typedef StaticMeshList::iterator StaticMeshIterator;
 	typedef StaticMeshList::const_iterator ConstStaticMeshIterator;
 
 	typedef list<AnimatedRenderingMesh*> AnimatedMeshList;
 	typedef AnimatedMeshList::iterator AnimatedMeshIterator;
-	typedef AnimatedMeshList::const_iterator ConstAnimatedMeshIterator;
+	typedef AnimatedMeshList::const_iterator ConstAnimatedMeshIterator;*/
+
+	typedef map<AdvancedShaderProgramCache::Pointer, list<StaticRenderingMeshEntry> > StaticMeshMap;
+	typedef StaticMeshMap::iterator StaticMeshIterator;
+	typedef StaticMeshMap::const_iterator ConstStaticMeshIterator;
+
+	typedef map<AdvancedShaderProgramCache::Pointer, list<AnimatedRenderingMeshEntry> > AnimatedMeshMap;
+	typedef AnimatedMeshMap::iterator AnimatedMeshIterator;
+	typedef AnimatedMeshMap::const_iterator ConstAnimatedMeshIterator;
 
 	typedef list<LightSource*> LightSourceList;
 	typedef LightSourceList::iterator LightSourceIterator;
 	typedef LightSourceList::const_iterator ConstLightSourceIterator;
+
+private:
+	class AdvancedShaderProgramCacheEntry : public AdvancedShaderProgramCache::Entry
+	{
+	public:
+		AdvancedShaderProgramCacheEntry(DefaultRenderer* renderer) : renderer(renderer) {}
+		virtual ~AdvancedShaderProgramCacheEntry()
+		{
+			for (size_t i = 0 ; i < AdvancedShaderProgramIDCount ; i++) {
+				renderer->spLocs.erase(programs[i]);
+				delete programs[i];
+			}
+		}
+
+		virtual cachesize_t getSize() const { return 1; }
+
+	public:
+		AdvancedShaderProgram* programs[AdvancedShaderProgramIDCount];
+
+	private:
+		DefaultRenderer* renderer;
+	};
+
+	class AdvancedShaderProgramCacheLoader : public AdvancedShaderProgramCache::EntryLoader
+	{
+	public:
+		AdvancedShaderProgramCacheLoader(DefaultRenderer* renderer) : renderer(renderer) {}
+		virtual AdvancedShaderProgramCache::Entry* load(ShaderPluginRegistry r)
+		{
+			AdvancedShaderProgramCacheEntry* entry = renderer->buildShaderPrograms(r);
+			return entry;
+		}
+
+	private:
+		DefaultRenderer* renderer;
+	};
 
 private:
 	struct LightSourceUniformLocations
@@ -68,6 +171,9 @@ private:
 	struct ShaderProgramLocations
 	{
 		GLint camPosUniform;
+		GLint mMatrixUniform;
+		GLint vMatrixUniform;
+		GLint vpMatrixUniform;
 		GLint mvMatrixUniform;
 		GLint mvpMatrixUniform;
 		GLint normalMvMatrixUniform;
@@ -82,17 +188,21 @@ private:
 		GLint globalAmbientLightUniform;
 		GLint dynamicLightingEnabledUniform;
 
+		GLint boneMatUniform;
+		GLint boneUniform;
+
+		GLint boneMatSizeUniform;
+
+		GLint submeshOffsetUniform;
+
 		GLint vertexAttrib;
 		GLint normalAttrib;
 		GLint colorAttrib;
 		GLint texCoordAttrib;
-
-		GLint boneMatUniform;
-		GLint boneUniform;
 		GLint boneWeightAttrib;
 		GLint boneIndexAttrib;
 
-		GLint boneMatSizeUniform;
+		GLuint matrixUBIndex;
 
 		LightSourceUniformLocations lightSources[10];
 	};
@@ -108,62 +218,77 @@ public:
 
 	virtual void render();
 
+	virtual ShaderPluginRegistry& getDepthPeelingBlendLayerPluginRegistry() { return dpBlendLayerPluginRegistry; }
+	virtual const ShaderPluginRegistry& getDepthPeelingBlendLayerPluginRegistry() const { return dpBlendLayerPluginRegistry; }
+	virtual void setDepthPeelingBlendLayerPluginRegistry(const ShaderPluginRegistry& reg) { dpBlendLayerPluginRegistry = reg; }
+
+	virtual ShaderPluginRegistry& getDepthPeelingBlendFinalPluginRegistry() { return dpBlendFinalPluginRegistry; }
+	virtual const ShaderPluginRegistry& getDepthPeelingBlendFinalPluginRegistry() const { return dpBlendFinalPluginRegistry; }
+	virtual void setDepthPeelingBlendFinalPluginRegistry(const ShaderPluginRegistry& reg) { dpBlendFinalPluginRegistry = reg; }
+
 private:
 	void setupShaders();
 	void setupFBOs();
 	void setupBuffers();
 
-	void initializeUniforms(ShaderProgram* program);
+	void initializeUniforms(AdvancedShaderProgram* program);
 	void setupDynamicLighting(bool enabled);
-	void dpSetupShaderUniforms(ShaderProgram* program);
+	void dpSetupShaderUniforms(AdvancedShaderProgram* program);
+	void bindFixedShaderProgramLocations(AdvancedShaderProgram* program);
+	void applyShaderPluginUniformBuffers(AdvancedShaderProgram* program);
 
 	void renderShadowVolumes(LightSource* light) {}
 
-	void renderStaticMeshes(StaticMeshIterator beg, StaticMeshIterator end);
-	void renderAnimatedMeshes(AnimatedMeshIterator beg, AnimatedMeshIterator end);
+	void renderStaticMeshes(list<StaticRenderingMeshEntry>::iterator beg, list<StaticRenderingMeshEntry>::iterator end);
+	void renderAnimatedMeshes(list<AnimatedRenderingMeshEntry>::iterator beg, list<AnimatedRenderingMeshEntry>::iterator end);
+
+	AdvancedShaderProgramCacheEntry* buildShaderPrograms(const ShaderPluginRegistry& pluginReg);
+	void updateMiscShaderPrograms();
 
 private:
-	StaticMeshList opaqueStaticMeshes;
-	StaticMeshList transStaticMeshes;
-	AnimatedMeshList opaqueAnimMeshes;
-	AnimatedMeshList transAnimMeshes;
+	StaticMeshMap opaqueStaticMeshes;
+	StaticMeshMap transStaticMeshes;
+	AnimatedMeshMap opaqueAnimMeshes;
+	AnimatedMeshMap transAnimMeshes;
+
+	list<RenderingEntity*> renderingEntityDisposalList;
 
 	LightSourceList lightSources;
 
 	struct {
-		Shader* shadeVertexShader;
-		Shader* shadeFragmentShader;
-		Shader* vertexDefaultShader;
-		Shader* fragmentDefaultShader;
-		Shader* animShadeVertexShader;
-		Shader* animShadeFragmentShader;
-		Shader* lightingVertexShader;
-		Shader* svVertexShader;
-		Shader* svFragmentShader;
-		Shader* svBlendVertexShader;
-		Shader* svBlendFragmentShader;
+		AdvancedShader* shadeVertexShader;
+		AdvancedShader* shadeFragmentShader;
+		AdvancedShader* vertexDefaultShader;
+		AdvancedShader* fragmentDefaultShader;
+		AdvancedShader* animShadeVertexShader;
+		AdvancedShader* animShadeFragmentShader;
+		AdvancedShader* lightingVertexShader;
+		AdvancedShader* svVertexShader;
+		AdvancedShader* svFragmentShader;
+		AdvancedShader* svBlendVertexShader;
+		AdvancedShader* svBlendFragmentShader;
 
-		Shader* dpPeelLayerVertexShader;
-		Shader* dpPeelLayerFragmentShader;
-		Shader* dpBlendLayerVertexShader;
-		Shader* dpBlendLayerFragmentShader;
-		Shader* dpBlendFinalVertexShader;
-		Shader* dpBlendFinalFragmentShader;
+		AdvancedShader* dpPeelLayerVertexShader;
+		AdvancedShader* dpPeelLayerFragmentShader;
+		AdvancedShader* dpBlendLayerVertexShader;
+		AdvancedShader* dpBlendLayerFragmentShader;
+		AdvancedShader* dpBlendFinalVertexShader;
+		AdvancedShader* dpBlendFinalFragmentShader;
 	} shaders;
 
 	struct {
-		ShaderProgram* opaqueStaticProgram;
-		ShaderProgram* transStaticProgram;
+		AdvancedShaderProgram* svProgram;
+		AdvancedShaderProgram* svBlendProgram;
 
-		ShaderProgram* opaqueAnimProgram;
-		ShaderProgram* transAnimProgram;
-
-		ShaderProgram* svProgram;
-		ShaderProgram* svBlendProgram;
-
-		ShaderProgram* dpBlendLayerProgram;
-		ShaderProgram* dpBlendFinalProgram;
+		AdvancedShaderProgram* dpBlendLayerProgram;
+		AdvancedShaderProgram* dpBlendFinalProgram;
 	} programs;
+
+	ShaderPluginRegistry dpBlendLayerLinkedPluginRegistry;
+	ShaderPluginRegistry dpBlendFinalLinkedPluginRegistry;
+
+	ShaderPluginRegistry dpBlendLayerPluginRegistry;
+	ShaderPluginRegistry dpBlendFinalPluginRegistry;
 
 	struct {
 		GLuint dpFBO;
@@ -189,13 +314,25 @@ private:
 
 	GLint maxVertexUniformComponents;
 
-	map<ShaderProgram*, ShaderProgramLocations> spLocs;
+	map<AdvancedShaderProgram*, ShaderProgramLocations> spLocs;
 	ShaderProgramLocations* renderProgramLocations;
 
 	bool globalAmbientLightEnabled;
 	LightSourceIterator enabledLightBegin, enabledLightEnd;
 
 	Matrix4 vMatrix, pMatrix, vpMatrix, vRotationMatrix;
+
+	AdvancedShaderProgramCache* programCache;
+	//ShaderPlugin* testPlugin;
+
+	size_t numObjects;
+
+	size_t currentMatrixAllocSize;
+	Matrix4* mvMatrices;
+	Matrix4* mvpMatrices;
+	Matrix4* normalMatrices;
+
+	AdvancedShaderProgram* currentProgram;
 
 public:
 	int dpNumPasses;

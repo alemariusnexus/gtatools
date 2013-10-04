@@ -68,9 +68,14 @@ public:
 			const float* normals = NULL, const float* texCoords = NULL, const uint8_t* vertexColors = NULL,
 			const uint8_t* boneIndices = NULL, const float* boneWeights = NULL);
 	Mesh(const DFFGeometry& geometry, bool autoSubmeshes = true);
-	Mesh(int vertexCount, VertexFormat vertexFormat, int flags, GLuint dataBuffer, int normalOffset = -1,
-			int texCoordOffset = -1, int vertexColorOffset = -1, int boneIndexOffset = -1,
-			int boneWeightOffset = 0);
+	Mesh(int vertexCount, VertexFormat vertexFormat, int flags,
+			GLuint dataBuffer, GLuint dataBufferSize,
+			int vertexOffset = 0, int vertexStride = 0,
+			int normalOffset = -1, int normalStride = -1,
+			int texCoordOffset = -1, int texCoordStride = -1,
+			int vertexColorOffset = -1, int vertexColorStride = -1,
+			int boneIndexOffset = -1, int boneIndexStride = -1,
+			int boneWeightOffset = 0, int boneWeightStride = 0);
 	~Mesh();
 
 	int getFlags() const { return flags; }
@@ -82,25 +87,41 @@ public:
 
 	int getVertexCount() const { return vertexCount; }
 
-	int getVertexOffset() const { return 0; }
+	int getVertexOffset() const { return vertexOffs; }
+
+	int getVertexStride() const { return vertexStride; }
+
+	int getSubmeshIDOffset() const { return submeshIDOffs; }
+
+	int getSubmeshIDStride() const { return submeshIDStride; }
 
 	int getNormalOffset() const { return normalOffs; }
 
+	int getNormalStride() const { return normalStride; }
+
 	int getTexCoordOffset() const { return texCoordOffs; }
+
+	int getTexCoordStride() const { return texCoordStride; }
 
 	int getVertexColorOffset() const { return vertexColorOffs; }
 
+	int getVertexColorStride() const { return vertexColorStride; }
+
 	int getBoneIndexOffset() const { return boneIndexOffs; }
+
+	int getBoneIndexStride() const { return boneIndexStride; }
 
 	int getBoneWeightOffset() const { return boneWeightOffs; }
 
-	GLuint getDataBuffer() const { return dataBuffer; }
+	int getBoneWeightStride() const { return boneWeightStride; }
+
+	GLuint getDataBuffer() const { const_cast<Mesh*>(this)->link(); return dataBuffer; }
 
 	void bindDataBuffer();
 
-	int getDataBufferSize() const;
+	GLuint getIndexBuffer() const { const_cast<Mesh*>(this)->link(); return indexBuffer; }
 
-	void addSubmesh(Submesh* submesh);
+	int getDataBufferSize() const;
 
 	SubmeshIterator getSubmeshBegin() { return submeshes.begin(); }
 
@@ -128,24 +149,42 @@ public:
 
 	void setFrame(MeshFrame* f) { frame = f; }
 
+	void link();
+
 private:
 	void init(int flags, const float* vertices, const float* normals, const float* texCoords,
 			const uint8_t* vertexColors, const uint8_t* boneIndices, const float* boneWeights);
+
+	void addSubmesh(Submesh* submesh);
 
 private:
 	int flags;
 	VertexFormat vertexFormat;
 	int vertexCount;
 	GLuint dataBuffer;
+	GLuint dataBufferSingleSize;
+	GLuint indexBuffer;
+	bool isLinked;
 	vector<Submesh*> submeshes;
 	vector<Material*> materials;
 	float bounds[4];
+	int vertexOffs;
+	int vertexStride;
+	int submeshIDOffs;
+	int submeshIDStride;
 	int normalOffs;
+	int normalStride;
 	int texCoordOffs;
+	int texCoordStride;
 	int vertexColorOffs;
+	int vertexColorStride;
 	int boneIndexOffs;
+	int boneIndexStride;
 	int boneWeightOffs;
+	int boneWeightStride;
 	MeshFrame* frame;
+
+	friend class Submesh;
 };
 
 #endif /* MESH_H_ */

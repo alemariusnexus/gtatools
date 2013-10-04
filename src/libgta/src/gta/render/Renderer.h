@@ -23,6 +23,7 @@
 #ifndef RENDERER_H_
 #define RENDERER_H_
 
+#include <gta/config.h>
 #include "RenderingEntity.h"
 #include "../scene/objects/LightSource.h"
 #include <list>
@@ -33,6 +34,19 @@ using std::list;
 
 class Renderer {
 public:
+	enum VertexAttributeLocation
+	{
+		VertexAttributeLocationVertex = 0,
+		VertexAttributeLocationNormal = 1,
+		VertexAttributeLocationTexCoord = 2,
+		VertexAttributeLocationVertexColor = 3,
+		VertexAttributeLocationBoneIndex = 4,
+		VertexAttributeLocationBoneWeight = 5,
+		VertexAttributeLocationSubmeshIndex = 6
+	};
+
+public:
+	virtual ~Renderer() {}
 	virtual void enqueueForRendering(list<RenderingEntity*>::iterator beg, list<RenderingEntity*>::iterator end) = 0;
 	virtual void enqueueForRendering(list<LightSource*>::iterator beg, list<LightSource*>::iterator end) = 0;
 	virtual void render() = 0;

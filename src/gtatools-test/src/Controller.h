@@ -25,6 +25,7 @@
 
 #include <SDL.h>
 #include <gtaformats/util/File.h>
+#include <gta/scene/parts/VisualSceneObject.h>
 
 
 class Controller {
@@ -36,6 +37,7 @@ public:
 	void keyPressed(SDL_keysym evt);
 	void keyReleased(SDL_keysym evt);
 	void mouseButtonPressed(Uint8 button, int x, int y);
+	void mouseButtonDoubleClicked(int x, int y);
 	void mouseButtonReleased(Uint8 button, int x, int y);
 	void mouseMotion(int x, int y);
 
@@ -53,6 +55,8 @@ private:
 	//BulletGLDebugDraw* debugDrawer;
 	bool programRunning;
 	bool forceStatisticsUpdate;
+
+	VisualSceneObject* lastSelectedObj;
 };
 
 #endif /* CONTROLLER_H_ */

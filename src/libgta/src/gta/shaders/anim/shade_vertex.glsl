@@ -20,9 +20,6 @@
 	GPLADDITIONS.
  */
 
-uniform bool Textured;
-uniform vec4 MaterialColor;
-uniform bool VertexColors;
 uniform int Bone;
 
 #ifdef GTAGL_BONE_MATRIX_UNIFORM_ARRAY_100
@@ -39,16 +36,27 @@ uniform mat4 MVMatrix;
 uniform mat4 MVPMatrix;
 uniform mat4 NormalMVMatrix;
 
+uniform bool HasVertexColors;
+uniform vec4 MaterialAmbientReflection;
+uniform vec4 MaterialDiffuseReflection;
+uniform vec4 MaterialSpecularReflection;
+
+uniform bool IsTextured[NUM_SUBMESHES];
+uniform vec4 MaterialColor[NUM_SUBMESHES];
+
+uniform int SubmeshOffset;
+
 ATTRIBUTE vec4 Vertex;
 ATTRIBUTE vec3 Normal;
 ATTRIBUTE vec2 TexCoord;
 ATTRIBUTE vec4 Color;
-
 ATTRIBUTE vec4 BoneIndices;
 ATTRIBUTE vec4 BoneWeights;
+ATTRIBUTE int SubmeshIndex;
 
 VARYING vec2 FragTexCoord;
 VARYING vec4 FragColor;
+flat VARYING int FragSubmeshIndex;
 
 
 
@@ -64,6 +72,10 @@ void ShadeVertex()
 	int size = TexSize;
 #endif
 #endif
+
+	int actualSubmeshIndex = SubmeshIndex - SubmeshOffset;
+	
+	FragSubmeshIndex = actualSubmeshIndex;
 
 	vec4 animatedVertex;
 	vec4 animatedNormal;
@@ -159,7 +171,7 @@ void ShadeVertex()
     
     FragTexCoord = TexCoord;
     
-    FragColor = MaterialColor * Color;
+    FragColor = MaterialColor[actualSubmeshIndex] * Color;
     
     CalculateVertexLighting(FragColor, eVertex, eNormal);
 }

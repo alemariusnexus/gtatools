@@ -32,26 +32,40 @@
 
 
 class Submesh {
+private:
+	struct UniformData
+	{
+		uint32_t hasVertexColors;
+		uint32_t isTextured;
+		Vector4 materialColor;
+		Vector4 matAmbientReflection;
+		Vector4 matDiffuseReflection;
+		Vector4 matSpecularReflection;
+	};
+
 public:
 	Submesh(Mesh* mesh, int indexCount, uint32_t* indices);
 	Submesh(Mesh* mesh, const DFFGeometryPart& part);
 	~Submesh();
 	Material* getMaterial() { return material; }
 	void setMaterial(Material* mat);
-	GLuint getIndexBuffer() const { return indexBuffer; }
-	void bindIndexBuffer();
+	GLuint getIndexOffset() const { return indexOffset; }
+	bool isLinked() const { return indices == NULL; }
 	int getIndexCount() const { return indexCount; }
 
 	int guessSize() const { return indexCount*4 + sizeof(Submesh); }
 
 private:
-	void init(uint32_t* indices);
+	void setLinked(GLuint indexOffset);
 
 private:
 	Mesh* mesh;
 	Material* material;
 	int indexCount;
-	GLuint indexBuffer;
+	uint32_t* indices;
+	GLuint indexOffset;
+
+	friend class Mesh;
 };
 
 #endif /* SUBMESH_H_ */

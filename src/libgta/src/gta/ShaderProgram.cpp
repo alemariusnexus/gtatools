@@ -167,7 +167,9 @@ void ShaderProgram::link()
 	glesForceAttachShader(combinedFShader);
 #endif
 
+	GLException::checkError("Before Linking");
 	glLinkProgram(program);
+	GLException::checkError("After Linking");
 
 	GLint status;
 	glGetProgramiv(program, GL_LINK_STATUS, &status);
@@ -196,12 +198,18 @@ void ShaderProgram::link()
 			char* log = new char[maxLength];
 			glGetProgramInfoLog(program, maxLength, &actualLength, log);
 
-			printf("Successfully compiled shader program \"%s\" [#%d]. Build log:\n==========\n%s\n==========\n",
-					name.get() ? name.get() : "[UNNAMED]", program, log);
+			CString clog = CString::from(log);
+			clog.trim();
 
-			delete[] log;
+			if (clog.length() != 0) {
+				printf("\nSuccessfully compiled shader program \"%s\" [#%d]. Build log:\n==========\n%s\n==========\n\n",
+						name.get() ? name.get() : "[UNNAMED]", program, clog.get());
+			} else {
+				printf("Successfully compiled shader program \"%s\" [#%d]. Build log is empty\n",
+						name.get() ? name.get() : "[UNNAMED]", program);
+			}
 		} else {
-			printf("Successfully compiled shader program \"%s\" [#%d]. Build log is empty\n",
+			printf("\nSuccessfully compiled shader program \"%s\" [#%d]. Build log is empty\n\n",
 					name.get() ? name.get() : "[UNNAMED]", program);
 		}
 	}
@@ -246,6 +254,20 @@ void ShaderProgram::detachShader(Shader* shader)
 }
 
 
+void ShaderProgram::detachAllShaders()
+{
+#ifndef GTA_USE_OPENGL_ES
+	for (ShaderIterator it = shaders.begin() ; it != shaders.end() ; it++) {
+		Shader* shader = *it;
+
+		glDetachShader(program, shader->getGLIdentifier());
+	}
+#endif
+
+	shaders.clear();
+}
+
+
 void ShaderProgram::makeCurrent()
 {
 	glUseProgram(program);
@@ -266,6 +288,12 @@ GLint ShaderProgram::getAttributeLocation(const CString& name) const
 }
 
 
+void ShaderProgram::bindAttributeLocation(GLuint index, const CString& name)
+{
+	glBindAttribLocation(program, index, name.get());
+}
+
+
 GLint ShaderProgram::getUniformLocation(const CString& name) const
 {
 	AttribUniformMap::const_iterator it = uniformCache.find(name);
@@ -277,6 +305,26 @@ GLint ShaderProgram::getUniformLocation(const CString& name) const
 	}
 
 	return it->second;
+}
+
+
+GLuint ShaderProgram::getUniformBlockIndex(const CString& name) const
+{
+	UniformBlockMap::const_iterator it = uniformBlocks.find(name);
+
+	if (it == uniformBlocks.end()) {
+		GLuint idx = glGetUniformBlockIndex(program, name.get());
+		const_cast<ShaderProgram*>(this)->uniformBlocks.insert(pair<CString, GLuint>(name, idx));
+		return idx;
+	}
+
+	return it->second;
+}
+
+
+void ShaderProgram::setUniformBlockBinding(GLuint blockIndex, GLuint bindingPoint)
+{
+	glUniformBlockBinding(program, blockIndex, bindingPoint);
 }
 
 

@@ -73,7 +73,7 @@ Mesh* MeshGenerator::createBox(const Vector3& min, const Vector3& max)
 	createBox(vertices, vcount, indices, indCount, min, max);
 	Mesh* mesh = new Mesh(vcount, VertexFormatTriangles, 0, vertices);
 	Submesh* submesh = new Submesh(mesh, indCount, indices);
-	mesh->addSubmesh(submesh);
+	mesh->link();
 	delete[] vertices;
 	delete[] indices;
 	return mesh;
@@ -195,7 +195,7 @@ Mesh* MeshGenerator::createSphere(float radius, int slices, int stacks, const Ve
 	Mesh* mesh = new Mesh(vcount, VertexFormatTriangles, MeshNormals, vertices, normals);
 	mesh->setBounds(offset.getX(), offset.getY(), offset.getZ(), radius);
 	Submesh* submesh = new Submesh(mesh, indCount, indices);
-	mesh->addSubmesh(submesh);
+	mesh->link();
 	delete[] vertices;
 	delete[] normals;
 	delete[] indices;

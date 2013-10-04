@@ -22,14 +22,19 @@
 
 #include "RenderingEntityGenerator.h"
 
-#include "DefaultStaticRenderingMesh.h"
-#include "AnimatedRenderingMesh.h"
+#include "DefaultRenderingMesh.h"
 
 #include "../scene/objects/AnimatedMapSceneObject.h"
 #include "../scene/objects/MapSceneObject.h"
 
 #include "../Animator.h"
 
+
+
+
+RenderingEntityGenerator::RenderingEntityGenerator()
+{
+}
 
 
 void RenderingEntityGenerator::generate(list<VisualSceneObject*>::iterator beg, list<VisualSceneObject*>::iterator end, list<RenderingEntity*>& outList)
@@ -64,6 +69,7 @@ void RenderingEntityGenerator::generateFromMapSceneObject(MapSceneObject* mobj, 
 
 	for (MapSceneObject::LODInstanceMapIterator it = beg ; it != end ; it++) {
 		MapSceneObjectLODInstance* lodInst = *it;
+
 		generateFromStaticMapSceneObjectLODInstance(mobj, lodInst, outList);
 	}
 }
@@ -131,6 +137,33 @@ void RenderingEntityGenerator::generateFromStaticMapSceneObjectLODInstance(MapSc
 			break;
 		}
 
+		uint32_t flags = RenderingMesh::EnableShaderPluginUniformBuffers;
+
+		if (lodInst->hasAlphaTransparency()  ||  mobj->selected)
+			flags |= RenderingMesh::HasTransparency;
+
+		DefaultRenderingMesh* rm = new DefaultRenderingMesh (
+				rpf,
+				flags,
+				mesh->getVertexCount(), 0, NULL, 0,
+				mesh->getDataBuffer(), mesh->getIndexBuffer(),
+				mesh->getVertexOffset(), mesh->getVertexStride(),
+				mesh->getSubmeshIDOffset(), mesh->getSubmeshIDStride(),
+				mesh->getNormalOffset(), mesh->getNormalStride(),
+				mesh->getTexCoordOffset(), mesh->getTexCoordStride(),
+				mesh->getVertexColorOffset(), mesh->getVertexColorStride(),
+				-1, 0,
+				-1, 0
+				);
+		rm->setPluginRegistry(mobj->getShaderPluginRegistry());
+
+		rm->setModelMatrix(fModelMat);
+
+		rm->meshPtr = mptr->clone();
+		rm->meshPtr->lock();
+
+		mptr->release();
+
 		Mesh::SubmeshIterator sit;
 		for (sit = mesh->getSubmeshBegin() ; sit != mesh->getSubmeshEnd() ; sit++) {
 			Submesh* submesh = *sit;
@@ -144,9 +177,12 @@ void RenderingEntityGenerator::generateFromStaticMapSceneObjectLODInstance(MapSc
 			uint8_t b = 255;
 			uint8_t a = 255;
 
+			bool texLocked = false;
+
 			if (mat) {
 				if (mat->isTextured()) {
 					Texture* tex = texSrc->getTexture(mat->getTexture(), true);
+					texLocked = true;
 
 					if (tex)
 						oglTex = tex->getGLTexture();
@@ -155,41 +191,27 @@ void RenderingEntityGenerator::generateFromStaticMapSceneObjectLODInstance(MapSc
 				mat->getColor(r, g, b, a);
 			}
 
-			if (mobj->selected) {
+			/*if (mobj->selected) {
 				a = 127;
-			}
+			}*/
 
-			DefaultStaticRenderingMesh* rm = new DefaultStaticRenderingMesh (
-					rpf,
-					mesh->getVertexCount(), submesh->getIndexCount(),
-					mesh->getDataBuffer(), submesh->getIndexBuffer(),
-					mesh->getNormalOffset(), mesh->getTexCoordOffset(), mesh->getVertexColorOffset(),
-					oglTex
-					);
+			RenderingSubmesh* sm = new RenderingSubmesh(rm, submesh->getIndexCount(), submesh->getIndexOffset(), oglTex);
 
-			rm->setModelMatrix(fModelMat);
-			rm->setMaterialColor(r, g, b, a);
-
-			rm->setHasTransparency(lodInst->hasAlphaTransparency());
-
-			if (mobj->selected)
-				rm->setHasTransparency(true);
-
-			rm->meshPtr = mptr->clone();
-			rm->meshPtr->lock();
+			sm->setMaterialColor(r, g, b, a);
 
 			if (texSrc) {
-				rm->texSrc = texSrc->clone();
-				rm->texSrc->lock();
+				sm->texSrc = texSrc->clone();
+				sm->texSrc->lock();
 			}
 
-			mptr->release();
-
-			if (texSrc)
+			if (texLocked)
 				texSrc->release();
 
-			outList.push_back(rm);
+			/*if (mobj->selected)
+				rm->setHasTransparency(true);*/
 		}
+
+		outList.push_back(rm);
 	}
 }
 
@@ -280,6 +302,38 @@ void RenderingEntityGenerator::generateFromAnimatedMapSceneObjectLODInstance(Ani
 			break;
 		}
 
+		Matrix4* boneMatsCpy = new Matrix4[boneCount];
+		memcpy(boneMatsCpy, boneMats, boneCount*sizeof(Matrix4));
+
+		uint32_t flags = RenderingMesh::IsAnimated | RenderingMesh::EnableShaderPluginUniformBuffers;
+
+		if (lodInst->hasAlphaTransparency()  ||  aobj->selected)
+			flags |= RenderingMesh::HasTransparency;
+
+		DefaultRenderingMesh* rm = new DefaultRenderingMesh (
+				rpf,
+				flags,
+				mesh->getVertexCount(), boneCount,
+				boneMatsCpy,
+				boneIdx,
+				mesh->getDataBuffer(), mesh->getIndexBuffer(),
+				mesh->getVertexOffset(), mesh->getVertexStride(),
+				mesh->getSubmeshIDOffset(), mesh->getSubmeshIDStride(),
+				mesh->getNormalOffset(), mesh->getNormalStride(),
+				mesh->getTexCoordOffset(), mesh->getTexCoordStride(),
+				mesh->getVertexColorOffset(), mesh->getVertexColorStride(),
+				mesh->getBoneIndexOffset(), mesh->getBoneIndexStride(),
+				mesh->getBoneWeightOffset(), mesh->getBoneWeightStride()
+				);
+		rm->setPluginRegistry(aobj->getShaderPluginRegistry());
+
+		rm->setModelMatrix(fModelMat);
+
+		rm->meshPtr = mptr->clone();
+		rm->meshPtr->lock();
+
+		mptr->release();
+
 		Mesh::SubmeshIterator sit;
 		for (sit = mesh->getSubmeshBegin() ; sit != mesh->getSubmeshEnd() ; sit++) {
 			Submesh* submesh = *sit;
@@ -293,9 +347,12 @@ void RenderingEntityGenerator::generateFromAnimatedMapSceneObjectLODInstance(Ani
 			uint8_t b = 255;
 			uint8_t a = 255;
 
+			bool texLocked = false;
+
 			if (mat) {
 				if (mat->isTextured()) {
 					Texture* tex = texSrc->getTexture(mat->getTexture(), true);
+					texLocked = true;
 
 					if (tex)
 						oglTex = tex->getGLTexture();
@@ -304,33 +361,19 @@ void RenderingEntityGenerator::generateFromAnimatedMapSceneObjectLODInstance(Ani
 				mat->getColor(r, g, b, a);
 			}
 
-			Matrix4* boneMatsCpy = new Matrix4[boneCount];
-			memcpy(boneMatsCpy, boneMats, boneCount*sizeof(Matrix4));
+			RenderingSubmesh* sm = new RenderingSubmesh(rm, submesh->getIndexCount(), submesh->getIndexOffset(), oglTex);
 
-			AnimatedRenderingMesh* rm = new AnimatedRenderingMesh (
-					rpf,
-					mesh->getVertexCount(), submesh->getIndexCount(), boneCount,
-					boneMatsCpy,
-					boneIdx,
-					mesh->getDataBuffer(), submesh->getIndexBuffer(),
-					mesh->getNormalOffset(), mesh->getTexCoordOffset(), mesh->getVertexColorOffset(),
-					mesh->getBoneIndexOffset(), mesh->getBoneWeightOffset(),
-					oglTex
-					);
-			rm->setModelMatrix(fModelMat);
-			rm->setMaterialColor(r, g, b, a);
+			sm->setMaterialColor(r, g, b, a);
 
-			rm->setHasTransparency(lodInst->hasAlphaTransparency());
+			if (texSrc) {
+				sm->texSrc = texSrc->clone();
+				sm->texSrc->lock();
+			}
 
-			/*rm->meshPtr = mptr->clone();
-			rm->meshPtr->lock();
-			rm->texSrc = texSrc->clone();
-			rm->texSrc->lock();
-
-			mptr->release();
-			texSrc->release();*/
-
-			outList.push_back(rm);
+			if (texLocked)
+				texSrc->release();
 		}
+
+		outList.push_back(rm);
 	}
 }
