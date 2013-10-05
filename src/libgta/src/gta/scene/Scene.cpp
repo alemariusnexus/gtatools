@@ -144,7 +144,6 @@ void Scene::update(uint64_t timePassed)
 			aobj->increaseAnimationTime(timePassed / 1000.0f);
 	}
 
-	//printf("timeVal = %u\n", timeVal);
 	testBuf.setUniformInt("Time", timeVal);
 
 	timeVal += timePassed;

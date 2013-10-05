@@ -25,6 +25,11 @@
 
 
 
+StreamingManager::StreamingManager()
+		: updateCounter(0)
+{
+}
+
 
 void StreamingManager::addViewpoint(StreamingViewpoint* vp)
 {
@@ -57,7 +62,11 @@ void StreamingManager::update()
 {
 	pvs.calculatePVS();
 
-	changedObjects.clear();
+	uint8_t curIdx = updateCounter % 2;
+	uint8_t nextIdx = 1 - curIdx;
+
+	newlyVisibleObjects.clear();
+	lastVisibleObjects[nextIdx].clear();
 
 	for (ViewpointList::iterator it = vps.begin() ; it != vps.end() ; it++) {
 		StreamingViewpoint* vp = *it;
@@ -72,14 +81,32 @@ void StreamingManager::update()
 		}
 	}
 
-	for (ObjectList::iterator it = changedObjects.begin() ; it != changedObjects.end() ; it++) {
+	calculateStreamingChanges(newlyVisibleObjects.begin(), newlyVisibleObjects.end());
+	calculateStreamingChanges(lastVisibleObjects[curIdx].begin(), lastVisibleObjects[curIdx].end());
+
+	updateCounter++;
+}
+
+
+void StreamingManager::calculateStreamingChanges(ObjectList::iterator beg, ObjectList::iterator end)
+{
+	uint8_t nextIdx = 1 - (updateCounter % 2);
+
+	ObjectList& nextLastVisibleObjects = lastVisibleObjects[nextIdx];
+
+	for (ObjectList::iterator it = beg ; it != end ; it++) {
 		SceneObject* obj = *it;
 
-		uint32_t changedBuckets = obj->visibleBuckets ^ obj->lastVisibleBuckets;
-		uint32_t inBuckets = changedBuckets & obj->visibleBuckets;
-		uint32_t outBuckets = changedBuckets & obj->lastVisibleBuckets;
+		if (obj->visibleBuckets != 0)
+			nextLastVisibleObjects.push_back(obj);
 
-		streamed(obj, inBuckets, outBuckets);
+		if (obj->visibleBuckets != obj->lastVisibleBuckets) {
+			uint32_t changedBuckets = obj->visibleBuckets ^ obj->lastVisibleBuckets;
+			uint32_t inBuckets = changedBuckets & obj->visibleBuckets;
+			uint32_t outBuckets = changedBuckets & obj->lastVisibleBuckets;
+
+			streamed(obj, inBuckets, outBuckets);
+		}
 
 		obj->lastVisibleBuckets = obj->visibleBuckets;
 		obj->visibleBuckets = 0;
@@ -144,13 +171,11 @@ void StreamingManager::processObjects(StreamingViewpoint* svp, ItType beg, ItTyp
 		if (visible) {
 			uint32_t newBuckets = obj->visibleBuckets | (buckets & objBuckets);
 
-			if (newBuckets != obj->visibleBuckets) {
-				if (obj->visibleBuckets == obj->lastVisibleBuckets) {
-					changedObjects.push_back(obj);
-				}
-
-				obj->visibleBuckets = newBuckets;
+			if (obj->lastVisibleBuckets == 0  &&  obj->visibleBuckets == 0  &&  newBuckets != 0) {
+				newlyVisibleObjects.push_back(obj);
 			}
+
+			obj->visibleBuckets = newBuckets;
 		}
 	}
 }
