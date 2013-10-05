@@ -55,6 +55,7 @@ private:
 	typedef list<StreamingListener*> ListenerList;
 
 public:
+	StreamingManager();
 	void addViewpoint(StreamingViewpoint* vp);
 	void addSceneObject(SceneObject* obj);
 	void addStreamingListener(StreamingListener* l);
@@ -65,6 +66,7 @@ private:
 	template <class ItType>
 	void processObjects(StreamingViewpoint* svp, ItType beg, ItType end);
 
+	void calculateStreamingChanges(ObjectList::iterator beg, ObjectList::iterator end);
 	void streamed(SceneObject* obj, uint32_t inBuckets, uint32_t outBuckets);
 
 private:
@@ -72,8 +74,11 @@ private:
 	ViewpointList vps;
 	ObjectList objects;
 	ObjectList dynamicObjects;
-	ObjectList changedObjects;
+	//ObjectList changedObjects;
+	ObjectList newlyVisibleObjects;
+	ObjectList lastVisibleObjects[2];
 	ListenerList listeners;
+	uint32_t updateCounter;
 };
 
 #endif /* STREAMINGMANAGER_H_ */

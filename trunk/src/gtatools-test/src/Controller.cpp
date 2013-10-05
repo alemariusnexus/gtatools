@@ -741,16 +741,8 @@ void Controller::init()
 	// V Y+
 	//cam->setPosition(0.0f, 0.0f, 0.0f);
 
-	cam->setPosition(2100.095459f, 1719.237549f, 38.219982f);
-	cam->lookAt(Vector3(-0.605025f, 0.735448f, -0.305059f), Vector3(-0.193806f, 0.235585f, 0.952333f));
-
-	//cam->setPosition(2392.345215f, -1.829378f, 33.771557f);
-
-	//cam->setPosition(162.309998f, -201.011093f, 35.131886f);
-	//cam->lookAt(Vector3(0.757422f, 0.506264f, -0.412321f), Vector3(0.342802f, 0.229130f, 0.911053f));
-
-	//cam->setPosition(1850.157104f, -1260.398071f, 19.490332f);
-	//cam->lookAt(Vector3(0.982754f, 0.018874f, -0.183951f), Vector3(0.179001f, 0.003437f, 0.983843f));
+	cam->setPosition(-1955.232544f, -58.526737f, 49.788841f);
+	cam->lookAt(Vector3(0.595735f, 0.704997f, -0.384810f), Vector3(0.248370f, 0.293923f, 0.922996f));
 
 	GLException::checkError("After init");
 }
@@ -1009,6 +1001,10 @@ void Controller::keyPressed(SDL_keysym evt)
 		sl->setShadowCastingEnabled(!sl->isShadowCastingEnabled());
 	} else if (k == SDLK_g) {
 		engine->setFreezeVisibility(!engine->isVisibilityFrozen());
+	} else if (k == SDLK_t) {
+		Camera* cam = engine->getCamera();
+		cam->setPosition(Vector3(0.0f, 0.0f, 50.0f));
+		cam->lookAt(Vector3::UnitX, Vector3::UnitZ);
 	}
 }
 
