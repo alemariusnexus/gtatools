@@ -36,6 +36,60 @@ using std::vector;
 using std::list;
 
 
+
+/**
+ *
+ *	LOD Hierarchies:
+ *
+ *	A LOD hierarchy is a bunch of objects with different streaming distances that represent different
+ *	levels of detail (LOD) of the same object, and of which usually at most one is active, based on
+ *	the distance of the camera to the object. Suppose you have three objects, OBJ100, OBJ250, OBJ500,
+ *	forming a LOD hierarchy, where the number in each object's name describes its streaming distance.
+ *	A LOD hierarchy of these objects typically looks like this:
+ *
+ *	OBJ100
+ *	|
+ *	----OBJ250
+ *	    |
+ *	    ----OBJ500
+ *
+ *	The object with the lowest streaming distance (which should be the most detailed one), OBJ100, is
+ *	called the "LOD root", whereas the one with the highest streaming distance (which should be the
+ *	least detailed one), OBJ500, is called a "LOD leaf". The "LOD parent" of a given object is the
+ *	object with the next LOWER streaming distance. The parent of OBJ500 is therefore OBJ250, and the
+ *	parent of OBJ250 is OBJ100.
+ *
+ *	In San Andreas, it is possible that a LOD hierarchy looks like this:
+ *
+ *	OBJ100_1
+ *	|
+ *	----OBJ250
+ *	    |
+ *	    ----OBJ500
+ *
+ *	OBJ100_2
+ *	|
+ *	----OBJ250
+ *	    |
+ *	    ----OBJ500
+ *
+ *	This means that a single child object (OBJ250) may have multiple parent objects (OBJ100_1 and
+ *	OBJ100_2). This is not supported by gtatools. Therefore, whenever an object has multiple parents,
+ *	it is copied along with all of its children for each parent but the first. The above hierarchy
+ *	would be converted to the following:
+ *
+ *	OBJ100_1
+ *	|
+ *	----OBJ250
+ *	    |
+ *	    ----OBJ500
+ *
+ *	OBJ100_2
+ *	|
+ *	----OBJ250_2
+ *	    |
+ *	    ----OBJ500_2
+ */
 class EngineIPLLoader
 {
 private:
@@ -44,7 +98,9 @@ private:
 		MapSceneObjectLODInstance* lodInst;
 		//MapSceneObject* rootObj;
 		int32_t saLodIndex;
-		bool topLevel;
+		bool isLeaf;
+		bool isRoot;
+		bool hasAssociatedParent;
 		char* vcModelName;
 		Vector3 pos;
 		Quaternion rot;

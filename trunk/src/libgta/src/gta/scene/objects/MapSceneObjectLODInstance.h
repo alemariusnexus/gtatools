@@ -34,7 +34,7 @@ class MapSceneObjectLODInstance
 public:
 	MapSceneObjectLODInstance(MapItemDefinition* def) : def(def), obj(NULL) {}
 	MapSceneObjectLODInstance(const MapSceneObjectLODInstance& other)
-			: def(other.def), obj(NULL), mm(other.mm) {}
+			: def(other.def), obj(NULL), relativeMM(other.relativeMM), mm(other.mm) {}
 	float getStreamingDistance() const { return def->getDrawDistance(); }
 	MapItemDefinition* getDefinition() { return def; }
 	const MapItemDefinition* getDefinition() const { return def; }

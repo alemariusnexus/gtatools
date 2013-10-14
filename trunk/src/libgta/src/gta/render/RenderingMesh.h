@@ -144,6 +144,9 @@ protected:
 
 
 	friend class RenderingSubmesh;
+
+public:
+	bool special;
 };
 
 #endif /* RENDERINGMESH_H_ */

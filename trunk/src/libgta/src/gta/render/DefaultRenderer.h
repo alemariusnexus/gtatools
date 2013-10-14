@@ -334,6 +334,8 @@ private:
 
 	AdvancedShaderProgram* currentProgram;
 
+	GLuint dummyTex;
+
 public:
 	int dpNumPasses;
 };

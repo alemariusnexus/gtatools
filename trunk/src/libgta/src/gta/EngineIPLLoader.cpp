@@ -129,6 +129,8 @@ void EngineIPLLoader::load(const File& file, Scene::ObjectList& objects, GameInf
 							Quaternion rot(rw, rx, ry, rz);
 
 							IndexedSceneObject* iobj = new IndexedSceneObject;
+							iobj->isRoot = true;
+							iobj->hasAssociatedParent = false;
 							iobj->id = id;
 							iobj->pos = pos;
 							iobj->rot = rot;
@@ -140,7 +142,7 @@ void EngineIPLLoader::load(const File& file, Scene::ObjectList& objects, GameInf
 
 							if (ver == GameInfo::GTASA) {
 								iobj->saLodIndex = inst->getLOD();
-								iobj->topLevel = (inst->getLOD() == -1);
+								iobj->isLeaf = (inst->getLOD() == -1);
 								saLocalObjs.push_back(iobj);
 							} else if (ver == GameInfo::GTAVC) {
 								iobj->vcModelName = lModelName;
@@ -148,18 +150,19 @@ void EngineIPLLoader::load(const File& file, Scene::ObjectList& objects, GameInf
 								vcLocalObjs.insert(pair<const char*, IndexedSceneObject*>(
 										iobj->vcModelName, iobj));
 
+								// TODO This seems to be the wrong way round.
 								if (
 											iobj->vcModelName[0] == 'l'
 										&&  iobj->vcModelName[1] == 'o'
 										&&  iobj->vcModelName[2] == 'd'
 								) {
-									iobj->topLevel = false;
+									iobj->isLeaf = false;
 								} else {
-									iobj->topLevel = true;
+									iobj->isLeaf = true;
 								}
 							} else {
 								iobj->saLodIndex = -1;
-								iobj->topLevel = true;
+								iobj->isLeaf = true;
 								saLocalObjs.push_back(iobj);
 							}
 
@@ -198,10 +201,41 @@ void EngineIPLLoader::load(const File& file, Scene::ObjectList& objects, GameInf
 		// *			BUILD LOD HIERARCHY FOR GTA SA				*
 		// **********************************************************
 
+		// Key is the IPL local index of the hierarchy's root object
 		map<uint32_t, TemporaryLODHierarchy*> tmpHierarchies;
 
 		if (ver == GameInfo::GTASA) {
-			vector<IndexedSceneObject*>::iterator it;
+			uint32_t nextUnusedIdx = saLocalObjs.size();
+
+			// Find the root objects
+			uint32_t numObjs = saLocalObjs.size();
+
+			for (uint32_t saLocalIdx = 0 ; saLocalIdx < numObjs ; saLocalIdx++) {
+				IndexedSceneObject* iobj = *it;
+
+				if (iobj  &&  !iobj->isLeaf) {
+					IndexedSceneObject* ciobj = saLocalObjs[iobj->saLodIndex];
+
+					if (ciobj->hasAssociatedParent) {
+						// Copy ciobj and all its children.
+
+						IndexedSceneObject* iobjOrig = ciobj;
+						do {
+							IndexedSceneObject* iobjCpy = new IndexedSceneObject;
+							iobjCpy->lodInst = new MapSceneObjectLODInstance(*iobjOrig->lodInst);
+							iobjCpy->saLodIndex = nextUsedIdx+1;
+
+						} while (iobjOrig);
+					} else {
+						ciobj->isRoot = false;
+						ciobj->hasAssociatedParent = true;
+					}
+				}
+			}
+
+
+
+			/*vector<IndexedSceneObject*>::iterator it;
 
 			uint32_t nextUnusedIdx = saLocalObjs.size();
 
@@ -249,7 +283,7 @@ void EngineIPLLoader::load(const File& file, Scene::ObjectList& objects, GameInf
 						// There are a few cases in San Andreas where multiple object instances share the
 						// SAME LOD parent instance. libgta, however, does not support multiple LOD children
 						// unless they all have exactly the same streaming distance. To support these cases
-						// nonetheless, we just remove all but the first of these children from their parent
+						// nonetheless, we just remove all but the last of these children from their parent
 						// and place them as new top-level objects here.
 
 						IndexedSceneObject* lodParent = saLocalObjs[iobj->saLodIndex];
@@ -258,6 +292,40 @@ void EngineIPLLoader::load(const File& file, Scene::ObjectList& objects, GameInf
 										pair<IndexedSceneObject*, IndexedSceneObject*>(lodParent, iobj));
 
 						if (!ares.second) {
+							// Apparently, the correct way to do this is to remove all but the LAST of the LOD
+							// children from their parent. Previously, all but the FIRST were removed, but this
+							// lead to problems with certain objects (consider objects with IDs 11216, 10933
+							// and 11229 in SFSe.ipl, but note that the objects' coordinates can be somewhat
+							// misleading as to which object is the correct child).
+
+#if 0
+							IndexedSceneObject* prevChild = ares.first->second;
+							ares.first->second = iobj;
+
+							list<IndexedSceneObject*>::iterator iit;
+							for (iit = h->insts.begin() ; iit != h->insts.end() ; iit++) {
+								IndexedSceneObject* hiobj = *iit;
+								if (hiobj == prevChild) {
+									h->insts.erase(iit);
+									break;
+								}
+							}
+
+							uint32_t newIdx = nextUnusedIdx++;
+
+							prevChild->saLodIndex = -1;
+							prevChild->topLevel = true;
+							prevChild->defInfo = new SceneObjectDefinitionInfo(*lodBase->defInfo);
+							prevChild->defInfo->setID(newIdx);
+
+							TemporaryLODHierarchy* fakeH = new TemporaryLODHierarchy;
+							fakeH->animated = prevChild->lodInst->getDefinition()->getType() == ItemTypeAnimatedMapItem;
+							fakeH->topLevelInst = prevChild;
+							fakeH->insts.push_back(prevChild);
+							tmpHierarchies.insert(pair<uint32_t, TemporaryLODHierarchy*>(newIdx, fakeH));
+
+							continue;
+#else
 							list<IndexedSceneObject*>::iterator iit;
 							for (iit = h->insts.begin() ; iit != h->insts.end() ; iit++) {
 								IndexedSceneObject* hiobj = *iit;
@@ -267,16 +335,21 @@ void EngineIPLLoader::load(const File& file, Scene::ObjectList& objects, GameInf
 								}
 							}
 
+							uint32_t newIdx = nextUnusedIdx++;
+
 							iobj->saLodIndex = -1;
 							iobj->topLevel = true;
 							iobj->defInfo = new SceneObjectDefinitionInfo(*lodBase->defInfo);
+							iobj->defInfo->setID(newIdx);
 
 							TemporaryLODHierarchy* fakeH = new TemporaryLODHierarchy;
 							fakeH->animated = iobj->lodInst->getDefinition()->getType() == ItemTypeAnimatedMapItem;
 							fakeH->topLevelInst = iobj;
 							fakeH->insts.push_back(iobj);
+							tmpHierarchies.insert(pair<uint32_t, TemporaryLODHierarchy*>(newIdx, fakeH));
 
 							continue;
+#endif
 						}
 					}
 
@@ -309,9 +382,6 @@ void EngineIPLLoader::load(const File& file, Scene::ObjectList& objects, GameInf
 
 				MapSceneObject* obj;
 
-				/*printf("Yoyoyo: (%.3f, %.3f, %.3f),   (%.3f, %.3f, %.3f, %.3f)\n",
-						h->topLevelInst->pos.getX(), h->topLevelInst->pos.getY(), h->topLevelInst->pos.getZ(),
-						h->topLevelInst->rot.getW(), h->topLevelInst->rot.getX(), h->topLevelInst->rot.getY(), h->topLevelInst->rot.getZ());*/
 				Matrix4 modelMatrix = Matrix4::fromQuaternionVector(bottomIobj->pos, bottomIobj->rot);
 
 				if (h->animated) {
@@ -328,6 +398,10 @@ void EngineIPLLoader::load(const File& file, Scene::ObjectList& objects, GameInf
 
 				Matrix4 invModelMatrix = modelMatrix.inverse();
 
+				if (h->topLevelInst->id == 3716) {
+					obj->special = true;
+				}
+
 				for (iit = h->insts.begin() ; iit != h->insts.end() ; iit++) {
 					IndexedSceneObject* iobj = *iit;
 
@@ -336,7 +410,6 @@ void EngineIPLLoader::load(const File& file, Scene::ObjectList& objects, GameInf
 					if (lodInst->getSceneObject())
 						lodInst = new MapSceneObjectLODInstance(*lodInst);
 
-					//if (!iobj->topLevel) {
 					if (iobj != bottomIobj) {
 						Matrix4 relMat = invModelMatrix * Matrix4::fromQuaternionVector(iobj->pos, iobj->rot);
 						lodInst->setRelativeModelMatrix(relMat);
@@ -348,10 +421,8 @@ void EngineIPLLoader::load(const File& file, Scene::ObjectList& objects, GameInf
 					delete iobj;
 				}
 
-
-
 				objects.push_back(obj);
-			}
+			}*/
 		}
 
 

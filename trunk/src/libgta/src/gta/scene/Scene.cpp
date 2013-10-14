@@ -94,11 +94,11 @@ void Scene::addSceneObject(SceneObject* obj)
 	MapSceneObject* mobj = dynamic_cast<MapSceneObject*>(obj);
 
 	if (mobj) {
-		ShaderPluginRegistry reg = testReg;
+		//ShaderPluginRegistry reg = testReg;
 		//UniformBuffer* buf = new UniformBuffer;
 		//buf->setUniformInt("TestIndex", objIndex);
 		//reg.addUniformBuffer(buf);
-		mobj->setShaderPluginRegistry(reg);
+		//mobj->setShaderPluginRegistry(reg);
 	}
 }
 

@@ -9,9 +9,9 @@
 
 
 const char* TestShaderPlugin::hooks[] = {
-		//"FragmentPostProcessing"
-		"VertexPreProcessing",
-		"VertexPostProcessing"
+		"FragmentPostProcessing"
+		//"VertexPreProcessing",
+		//"VertexPostProcessing"
 		//"VertexPostModelTransformationProcessing"
 };
 

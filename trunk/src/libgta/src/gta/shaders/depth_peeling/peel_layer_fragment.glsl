@@ -37,6 +37,7 @@ uniform ivec2 TexDimensions;
 #endif
 
 
+
 #ifdef GTAGL_3_1_SUPPORTED
 #define DEPTH_THRESHOLD 0.0000000003
 #else

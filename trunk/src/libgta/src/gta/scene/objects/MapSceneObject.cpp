@@ -27,7 +27,7 @@
 
 MapSceneObject::MapSceneObject()
 		: enabled(true), defInfo(NULL), rb(NULL), visibleInstBeg(lodInsts.end()),
-		  visibleInstEnd(lodInsts.end()), mass(0.0f), maxStreamingDist(0.0f), boundsValid(false)
+		  visibleInstEnd(lodInsts.end()), mass(0.0f), maxStreamingDist(0.0f), boundsValid(false), special(false)
 {
 	btRigidBody::btRigidBodyConstructionInfo info(0.0f, this, NULL);
 	rb = new btRigidBody(info);
@@ -39,7 +39,7 @@ MapSceneObject::MapSceneObject(const MapSceneObject& other)
 		  defInfo(other.defInfo ? new SceneObjectDefinitionInfo(*other.defInfo) : NULL), rb(NULL),
 		  visibleInstBeg(lodInsts.end()), visibleInstEnd(lodInsts.end()), mass(other.mass),
 		  maxStreamingDist(0.0f), boundsValid(other.boundsValid), boundsCenter(other.boundsCenter),
-		  boundsRadius(other.boundsRadius)
+		  boundsRadius(other.boundsRadius), special(other.special)
 {
 	btRigidBody::btRigidBodyConstructionInfo info(mass, this, NULL);
 	rb = new btRigidBody(info);
