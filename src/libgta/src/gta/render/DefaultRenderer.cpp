@@ -565,6 +565,13 @@ void DefaultRenderer::setupBuffers()
 	glGenBuffers(1, &planeDataBuf);
 	glBindBuffer(GL_ARRAY_BUFFER, planeDataBuf);
 	glBufferData(GL_ARRAY_BUFFER, 4*2*sizeof(float), planeData, GL_STATIC_DRAW);
+
+	glGenTextures(1, &dummyTex);
+	glBindTexture(GL_TEXTURE_2D, dummyTex);
+	uint8_t dummyTexData[] = {
+			255, 255, 255, 255
+	};
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, dummyTexData);
 }
 
 
@@ -1110,7 +1117,6 @@ void DefaultRenderer::render()
 	s = GetTickcountMicroseconds();
 #endif
 
-
 	// Do the depth-peeling passes
 	for (int currentPass = 0 ; currentPass < dpNumPasses ; currentPass++) {
 		int inputIdx = (currentPass+1) % 2;
@@ -1490,6 +1496,7 @@ void DefaultRenderer::renderStaticMeshes(list<StaticRenderingMeshEntry>::iterato
 			if (numPassSubmeshes > NUM_SUBMESHES)
 				numPassSubmeshes = NUM_SUBMESHES;
 
+			GLint dummyTexUnit = -1;
 
 			for (uint8_t j = 0 ; j < numPassSubmeshes ; j++, sbeg++) {
 				RenderingSubmesh* submesh = *sbeg;
@@ -1501,6 +1508,7 @@ void DefaultRenderer::renderStaticMeshes(list<StaticRenderingMeshEntry>::iterato
 					glBindTexture(GL_TEXTURE_2D, tex);
 					texturedVals[j] = 1;
 					textureVals[j] = j+2;
+					dummyTexUnit = j+2;
 				} else {
 					texturedVals[j] = 0;
 				}
@@ -1533,8 +1541,16 @@ void DefaultRenderer::renderStaticMeshes(list<StaticRenderingMeshEntry>::iterato
 			// the draw functions are called, and if some samplers are uninitialized, these checks will very likely fail
 			// (as uninitialized samplers seem to default to GL_TEXTURE0, which is used by depth peeling code with a
 			// GL_TEXTURE_RECTANGLE format that is incompatible to the sampler2Ds used in the core shaders).
-			for (uint8_t j = numPassSubmeshes ; j < NUM_SUBMESHES ; j++) {
-				textureVals[j] = 2;
+			if (dummyTexUnit == -1) {
+				dummyTexUnit = 2;
+				glActiveTexture(GL_TEXTURE2);
+				glBindTexture(GL_TEXTURE_2D, dummyTex);
+			}
+
+			for (uint8_t j = 0 ; j < NUM_SUBMESHES ; j++) {
+				if (j >= numPassSubmeshes  ||  texturedVals[j] == 0) {
+					textureVals[j] = dummyTexUnit;
+				}
 			}
 
 			glUniform1i(renderProgramLocations->submeshOffsetUniform, submeshOffs);
@@ -1681,6 +1697,7 @@ void DefaultRenderer::renderAnimatedMeshes(list<AnimatedRenderingMeshEntry>::ite
 			if (numPassSubmeshes > NUM_SUBMESHES)
 				numPassSubmeshes = NUM_SUBMESHES;
 
+			GLint dummyTexUnit = -1;
 
 			for (uint8_t j = 0 ; j < numPassSubmeshes ; j++, sbeg++) {
 				RenderingSubmesh* submesh = *sbeg;
@@ -1692,6 +1709,7 @@ void DefaultRenderer::renderAnimatedMeshes(list<AnimatedRenderingMeshEntry>::ite
 					glBindTexture(GL_TEXTURE_2D, tex);
 					texturedVals[j] = 1;
 					textureVals[j] = j+2;
+					dummyTexUnit = j+2;
 				} else {
 					texturedVals[j] = 0;
 				}
@@ -1724,8 +1742,16 @@ void DefaultRenderer::renderAnimatedMeshes(list<AnimatedRenderingMeshEntry>::ite
 			// the draw functions are called, and if some samplers are uninitialized, these checks will very likely fail
 			// (as uninitialized samplers seem to default to GL_TEXTURE0, which is used by depth peeling code with a
 			// GL_TEXTURE_RECTANGLE format that is incompatible to the sampler2Ds used in the core shaders).
-			for (uint8_t j = numPassSubmeshes ; j < NUM_SUBMESHES ; j++) {
-				textureVals[j] = 2;
+			if (dummyTexUnit == -1) {
+				dummyTexUnit = 2;
+				glActiveTexture(GL_TEXTURE2);
+				glBindTexture(GL_TEXTURE_2D, dummyTex);
+			}
+
+			for (uint8_t j = 0 ; j < NUM_SUBMESHES ; j++) {
+				if (j >= numPassSubmeshes  ||  texturedVals[j] == 0) {
+					textureVals[j] = dummyTexUnit;
+				}
 			}
 
 			glUniform1i(renderProgramLocations->submeshOffsetUniform, submeshOffs);

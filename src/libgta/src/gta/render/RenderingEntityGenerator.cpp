@@ -58,6 +58,8 @@ void RenderingEntityGenerator::generate(list<VisualSceneObject*>::iterator beg, 
 			continue;
 		}
 	}
+
+	//exit(0);
 }
 
 
@@ -157,6 +159,11 @@ void RenderingEntityGenerator::generateFromStaticMapSceneObjectLODInstance(MapSc
 				);
 		rm->setPluginRegistry(mobj->getShaderPluginRegistry());
 
+		if (mobj->special) {
+			//rm->setFlags(rm->getFlags() & ~RenderingMesh::HasTransparency);
+			rm->special = true;
+		}
+
 		rm->setModelMatrix(fModelMat);
 
 		rm->meshPtr = mptr->clone();
@@ -190,6 +197,8 @@ void RenderingEntityGenerator::generateFromStaticMapSceneObjectLODInstance(MapSc
 
 				mat->getColor(r, g, b, a);
 			}
+
+			//fprintf(stderr, "Bullendreck: %u\n", oglTex);
 
 			/*if (mobj->selected) {
 				a = 127;

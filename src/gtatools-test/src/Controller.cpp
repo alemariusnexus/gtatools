@@ -75,7 +75,6 @@
 #include <gta/resource/smesh/ManagedShadowMeshPointer.h>
 #include <gta/scene/raycasting/RayCaster.h>
 #include <gta/scene/raycasting/CollisionRayCastingHandler.h>
-#include <gta/render/DPTestShaderPlugin.h>
 
 
 
@@ -266,7 +265,8 @@ void Controller::init()
 
 	switch (gameInfo.getVersionMode()) {
 	case GameInfo::GTASA:
-		engine->loadDAT(File(GTASA_PATH "/data/gta.dat"), File(GTASA_PATH));
+		//engine->loadDAT(File(GTASA_PATH "/data/gta.dat"), File(GTASA_PATH));
+		engine->loadDAT(File(GTASA_PATH "/data/test.dat"), File(GTASA_PATH));
 		break;
 
 	case GameInfo::GTAVC:
@@ -277,6 +277,9 @@ void Controller::init()
 		engine->loadDAT(File(GTASA_PATH "/data/gta3.dat"), File(GTASA_PATH));
 		break;
 	}
+
+
+	selPlugin = new TestShaderPlugin(0);
 
 	//engine->loadDAT(File(GTASA_PATH "/data/test.dat"), File(GTASA_PATH));
 
@@ -653,10 +656,10 @@ void Controller::init()
 
 	if (!pvsBuilt) {
 		printf("Building PVS data from scratch. This may take some time...\n");
-		pvs->calculateSections(500.0f, 500.0f, 2000.0f);
+		pvs->calculateSections(5000.0f, 5000.0f, 2000.0f);
 		pvs->calculatePVS(8);
 		printf("Writing PVS data to file '%s'\n", pvsFile.getPath()->toString().get());
-		pvs->save(pvsFile);
+		//pvs->save(pvsFile);
 		printf("PVS data successfully built!\n");
 
 		pvsBuilt = true;
@@ -741,8 +744,17 @@ void Controller::init()
 	// V Y+
 	//cam->setPosition(0.0f, 0.0f, 0.0f);
 
-	cam->setPosition(-1955.232544f, -58.526737f, 49.788841f);
-	cam->lookAt(Vector3(0.595735f, 0.704997f, -0.384810f), Vector3(0.248370f, 0.293923f, 0.922996f));
+	//cam->setPosition(-1955.232544f, -58.526737f, 49.788841f);
+	//cam->lookAt(Vector3(0.595735f, 0.704997f, -0.384810f), Vector3(0.248370f, 0.293923f, 0.922996f));
+
+	//cam->setPosition(-2067.237549f, -2.653352f, 115.438286f);
+	//cam->lookAt(Vector3(0.860327f, -0.065335f, -0.505538f), Vector3(0.499779f, -0.037955f, 0.865321f));
+
+	//cam->setPosition(-2076.432861f, -1.954256f, 120.847687f);
+	//cam->lookAt(Vector3(0.860327f, -0.065335f, -0.505538f), Vector3(0.499779f, -0.037955f, 0.865321f));
+
+	cam->setPosition(2148.097168f, -1520.077026f, 58.264038f);
+	cam->lookAt(Vector3(0.065757f, -0.875112f, -0.479432f), Vector3(0.035923f, -0.478085f, 0.877579f));
 
 	GLException::checkError("After init");
 }
@@ -762,9 +774,6 @@ void Controller::reshape(int w, int h)
 
 	DefaultRenderer* renderer = new DefaultRenderer;
 	engine->getScene()->setRenderer(renderer);
-
-	DPTestShaderPlugin* plugin = new DPTestShaderPlugin;
-	renderer->getDepthPeelingBlendLayerPluginRegistry().installPlugin(plugin);
 
 
 	float l = aspect*-0.7;
@@ -983,11 +992,6 @@ void Controller::keyPressed(SDL_keysym evt)
 			glEnable(GL_CULL_FACE);
 		}
 	} else if (k == SDLK_b) {
-		/*if (wireframe)
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		else
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);*/
-
 		wireframe = !wireframe;
 	} else if (k == SDLK_u) {
 		Camera* cam = Engine::getInstance()->getCamera();
@@ -1003,8 +1007,8 @@ void Controller::keyPressed(SDL_keysym evt)
 		engine->setFreezeVisibility(!engine->isVisibilityFrozen());
 	} else if (k == SDLK_t) {
 		Camera* cam = engine->getCamera();
-		cam->setPosition(Vector3(0.0f, 0.0f, 50.0f));
-		cam->lookAt(Vector3::UnitX, Vector3::UnitZ);
+		cam->setPosition(Vector3(0.0f, 0.0f, 0.0f));
+		cam->lookAt(Vector3::NegativeUnitY, Vector3::UnitZ);
 	}
 }
 
@@ -1074,13 +1078,16 @@ void Controller::mouseButtonDoubleClicked(int x, int y)
 	rc.castRay(point1, rayDir, RayCaster::Sorted | RayCaster::CalculateIntersectionPosition, 1);
 
 	if (lastSelectedObj) {
-		lastSelectedObj->selected = false;
+		//lastSelectedObj->selected = false;
+		dynamic_cast<MapSceneObject*>(lastSelectedObj)->getShaderPluginRegistry().uninstallPlugin(selPlugin);
 	}
 
 	if (rch.getResultBegin() != rch.getResultEnd()) {
 		CollisionRayCastingHandler<Scene::ObjectIterator>::ObjectResult& res = *rch.getResultBegin();
 		VisualSceneObject* vobj = dynamic_cast<VisualSceneObject*>(res.obj);
-		vobj->selected = true;
+		MapSceneObject* mobj = dynamic_cast<MapSceneObject*>(vobj);
+		//vobj->selected = true;
+		mobj->getShaderPluginRegistry().installPlugin(selPlugin);
 		lastSelectedObj = vobj;
 	} else {
 		lastSelectedObj = NULL;

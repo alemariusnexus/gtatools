@@ -148,6 +148,9 @@ private:
 	bool boundsValid;
 
 	ShaderPluginRegistry shaderPluginReg;
+
+public:
+	bool special;
 };
 
 #endif /* MAPSCENEOBJECT_H_ */

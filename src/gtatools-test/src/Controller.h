@@ -26,6 +26,7 @@
 #include <SDL.h>
 #include <gtaformats/util/File.h>
 #include <gta/scene/parts/VisualSceneObject.h>
+#include <gta/render/TestShaderPlugin.h>
 
 
 class Controller {
@@ -57,6 +58,8 @@ private:
 	bool forceStatisticsUpdate;
 
 	VisualSceneObject* lastSelectedObj;
+
+	TestShaderPlugin* selPlugin;
 };
 
 #endif /* CONTROLLER_H_ */

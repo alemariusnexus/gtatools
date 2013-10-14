@@ -22,6 +22,7 @@
 
 #include "StreamingManager.h"
 #include "parts/VisualSceneObject.h"
+#include <algorithm>
 
 
 
@@ -71,14 +72,16 @@ void StreamingManager::update()
 	for (ViewpointList::iterator it = vps.begin() ; it != vps.end() ; it++) {
 		StreamingViewpoint* vp = *it;
 
-		PVSDatabase::PVSSceneObjectIterator pvBeg, pvEnd;
+		processObjects(vp, objects.begin(), objects.end());
+
+		/*PVSDatabase::PVSSceneObjectIterator pvBeg, pvEnd;
 
 		if (pvs.queryPVS(pvBeg, pvEnd, vp->getStreamingViewpointPosition(), vp->getStreamingDistanceMultiplier())) {
 			processObjects(vp, pvBeg, pvEnd);
 			processObjects(vp, dynamicObjects.begin(), dynamicObjects.end());
 		} else {
 			processObjects(vp, objects.begin(), objects.end());
-		}
+		}*/
 	}
 
 	calculateStreamingChanges(newlyVisibleObjects.begin(), newlyVisibleObjects.end());
@@ -125,7 +128,8 @@ void StreamingManager::processObjects(StreamingViewpoint* svp, ItType beg, ItTyp
 	Vector3 svpPos = svp->getStreamingViewpointPosition();
 	uint32_t flags = svp->getStreamingFlags();
 
-	bool fcEnabled = (flags & StreamingViewpoint::FrustumCulling)  !=  0;
+	//bool fcEnabled = (flags & StreamingViewpoint::FrustumCulling)  !=  0;
+	bool fcEnabled = false;
 
 	float sx = svpPos.getX();
 	float sy = svpPos.getY();

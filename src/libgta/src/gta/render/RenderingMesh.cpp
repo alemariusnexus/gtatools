@@ -49,7 +49,7 @@ RenderingMesh::RenderingMesh (
 		  boneWeightOffset(boneWeightOffset), boneWeightStride(boneWeightStride),
 		  modelMatrix(Matrix4::Identity),
 		  boneCount(boneCount), boneIndex(boneIndex),
-		  boneMatrices(boneMatrices)
+		  boneMatrices(boneMatrices), special(false)
 {
 }
 

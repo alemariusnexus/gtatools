@@ -76,15 +76,11 @@ CString& CString::ltrim(const char* chars)
 
 CString& CString::append(const CString& other)
 {
-	grow(length() + other.length() + 1);
+	if (other.get()) {
+		grow(length() + other.length() + 1);
+		strcat(cstr.get(), other.cstr.get());
+	}
 
-	strcat(cstr.get(), other.cstr.get());
-
-	/*size_t len = length() + other.length();
-	shared_array<char> cpy(new char[len+1]);
-	strcpy(cpy.get(), cstr.get());
-	strcat(cpy.get(), other.cstr.get());
-	cstr = cpy;*/
 	return *this;
 }
 

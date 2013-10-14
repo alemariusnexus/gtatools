@@ -40,24 +40,12 @@ flat VARYING int FragSubmeshIndex;
 
 HIGHP vec4 ShadeFragment()
 {
-	/*float v = 0.0;
-    
-    for (int i = 0 ; i < 2000 ; i++) {
-    	v += 0.1 + (v/2.0);
-    }
-    
-    v = 1.0 / v;
-    
-    vec4 vc = vec4(v, 0.0, 0.0, 0.0);*/
-    
     vec4 outColor;
 
 	if (IsTextured[FragSubmeshIndex]) {
-		//return vec4(1.0, 0.0, 0.0, 1.0);
-    	outColor = FragColor * gtaglTexture2D(Texture[FragSubmeshIndex], FragTexCoord) /*+ vc*/;
-    	//return FragColor;
+    	outColor = FragColor * gtaglTexture2D(Texture[FragSubmeshIndex], FragTexCoord);
     } else {
-    	outColor = FragColor /*+ vc*/;
+    	outColor = FragColor;
     }
     
     DispatchFragmentPostProcessing(outColor);

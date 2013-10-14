@@ -57,7 +57,7 @@ IPLWidget::IPLWidget(QWidget* parent, const File& file)
 				instCode.append(QString("%1, %2, %3, %4, %5, %6, %7, %8, %9, %10, %11\n")
 						.arg(inst->getID()).arg("UNKNOWN").arg(inst->getInterior()).arg(x).arg(y).arg(z)
 						.arg(rx).arg(ry).arg(rz).arg(rw).arg(inst->getLOD()));
-			} else if (type == IPL_TYPE_INSTANCE) {
+			} else if (type == IPL_TYPE_CAR) {
 				IPLCar* car = (IPLCar*) stmt;
 				float x, y, z;
 				car->getPosition(x, y, z);
