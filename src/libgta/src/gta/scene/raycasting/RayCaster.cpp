@@ -4,6 +4,7 @@
 #include <gtaformats/util/util.h>
 #include <list>
 #include <set>
+#include <vector>
 #include <algorithm>
 
 using std::list;

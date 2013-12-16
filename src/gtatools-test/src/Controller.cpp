@@ -265,8 +265,8 @@ void Controller::init()
 
 	switch (gameInfo.getVersionMode()) {
 	case GameInfo::GTASA:
-		//engine->loadDAT(File(GTASA_PATH "/data/gta.dat"), File(GTASA_PATH));
-		engine->loadDAT(File(GTASA_PATH "/data/test.dat"), File(GTASA_PATH));
+		engine->loadDAT(File(GTASA_PATH "/data/gta.dat"), File(GTASA_PATH));
+		//engine->loadDAT(File(GTASA_PATH "/data/test.dat"), File(GTASA_PATH));
 		break;
 
 	case GameInfo::GTAVC:
