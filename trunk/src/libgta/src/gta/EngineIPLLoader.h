@@ -111,7 +111,7 @@ private:
 	{
 		list<IndexedSceneObject*> insts;
 		map<IndexedSceneObject*, IndexedSceneObject*> parentChildAssociations;
-		IndexedSceneObject* topLevelInst;
+		IndexedSceneObject* rootInst;
 		bool animated;
 	};
 

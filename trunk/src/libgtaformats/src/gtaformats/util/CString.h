@@ -48,7 +48,7 @@ public:
 			strncpy(this->cstr.get(), cstr, len);
 		} else {
 			bufSize = 0;
-			this->cstr = shared_array<char>(NULL);
+			this->cstr = shared_array<char>((char*) NULL);
 		}
 	}
 	CString(const char* cstr)
@@ -60,11 +60,11 @@ public:
 			strcpy(this->cstr.get(), cstr);
 		} else {
 			bufSize = 0;
-			this->cstr = shared_array<char>(NULL);
+			this->cstr = shared_array<char>((char*) NULL);
 		}
 	}
 	CString(const CString& other) : cstr(other.cstr), bufSize(other.bufSize) {}
-	CString() : cstr(NULL), bufSize(0) {}
+	CString() : cstr((char*) NULL), bufSize(0) {}
 	size_t length() const { return cstr.get() ? strlen(cstr.get()) : 0; }
 	CString& lower() { ensureUniqueness(); strtolower(cstr.get(), cstr.get()); return *this; }
 	CString& upper() { ensureUniqueness(); strtoupper(cstr.get(), cstr.get()); return *this; }
