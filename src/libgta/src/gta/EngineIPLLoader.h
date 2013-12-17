@@ -96,8 +96,7 @@ private:
 	struct IndexedSceneObject
 	{
 		MapSceneObjectLODInstance* lodInst;
-		//MapSceneObject* rootObj;
-		int32_t saLodIndex;
+		int32_t saLodChildIndex;
 		bool isLeaf;
 		bool isRoot;
 		bool hasAssociatedParent;

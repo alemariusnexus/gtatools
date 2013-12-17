@@ -744,8 +744,8 @@ void Controller::init()
 	// V Y+
 	//cam->setPosition(0.0f, 0.0f, 0.0f);
 
-	//cam->setPosition(-1955.232544f, -58.526737f, 49.788841f);
-	//cam->lookAt(Vector3(0.595735f, 0.704997f, -0.384810f), Vector3(0.248370f, 0.293923f, 0.922996f));
+	cam->setPosition(-1955.232544f, -58.526737f, 49.788841f);
+	cam->lookAt(Vector3(0.595735f, 0.704997f, -0.384810f), Vector3(0.248370f, 0.293923f, 0.922996f));
 
 	//cam->setPosition(-2067.237549f, -2.653352f, 115.438286f);
 	//cam->lookAt(Vector3(0.860327f, -0.065335f, -0.505538f), Vector3(0.499779f, -0.037955f, 0.865321f));
@@ -753,8 +753,8 @@ void Controller::init()
 	//cam->setPosition(-2076.432861f, -1.954256f, 120.847687f);
 	//cam->lookAt(Vector3(0.860327f, -0.065335f, -0.505538f), Vector3(0.499779f, -0.037955f, 0.865321f));
 
-	cam->setPosition(2148.097168f, -1520.077026f, 58.264038f);
-	cam->lookAt(Vector3(0.065757f, -0.875112f, -0.479432f), Vector3(0.035923f, -0.478085f, 0.877579f));
+	//cam->setPosition(2148.097168f, -1520.077026f, 58.264038f);
+	//cam->lookAt(Vector3(0.065757f, -0.875112f, -0.479432f), Vector3(0.035923f, -0.478085f, 0.877579f));
 
 	GLException::checkError("After init");
 }
