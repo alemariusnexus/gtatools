@@ -23,21 +23,21 @@
 #ifndef IDEFORMATHANDLER_H_
 #define IDEFORMATHANDLER_H_
 
-#include "../FormatHandler.h"
+#include "../EntityHandler.h"
 #include "../../System.h"
 
-class IDEFormatHandler: public FormatHandler {
+class IDEFormatHandler: public EntityHandler {
 	Q_OBJECT
 
 public:
 	IDEFormatHandler();
-	virtual QString getFormatName(const File* file = NULL) const { return tr("Item Definition File (IDE)"); }
-	virtual QLinkedList<QString> getFileFormatExtensions() const { return QLinkedList<QString>() << "ide"; }
+	virtual QString getFileFormatName(const File& file) const { return tr("Item Definition File (IDE)"); }
+	virtual QLinkedList<QString> getFileFormatExtensions(const File& file) const { return QLinkedList<QString>() << "ide"; }
 	virtual bool canHandle(const EntityOpenRequest& req) const;
 	virtual DisplayedEntity* openEntity(const EntityOpenRequest& request);
 
 private slots:
-	void systemQuerySent(const SystemQuery& query, SystemQueryResult& result);
+	void systemQuerySent(const SystemQuery& query, QList<SystemQueryResult>& results);
 };
 
 #endif /* IDEFORMATHANDLER_H_ */

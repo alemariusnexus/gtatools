@@ -24,8 +24,8 @@
 #include "FileTree.h"
 #include "../System.h"
 #include "../ProfileManager.h"
-#include "../formats/FormatHandler.h"
-#include "../formats/FormatManager.h"
+#include "../formats/EntityHandler.h"
+#include "../formats/EntityManager.h"
 #include <QtCore/QLinkedList>
 #include <QtGui/QStandardItemModel>
 #include <QtCore/QTime>
@@ -49,6 +49,7 @@ FileTree::FileTree(QWidget* parent)
 			SLOT(currentProfileChanged(Profile*, Profile*)));
 	connect(sys, SIGNAL(entityOpened(DisplayedEntity*)), this,
 			SLOT(entityOpened(DisplayedEntity*)));
+	connect(sys, SIGNAL(configurationChanged()), this, SLOT(configurationChanged()));
 
 	currentProfileChanged(NULL, pm->getCurrentProfile());
 }
@@ -185,5 +186,14 @@ void FileTree::entityOpened(DisplayedEntity* ent)
 			}
 		}
 	}
+}
+
+
+void FileTree::configurationChanged()
+{
+	model->reload();
+	//QAbstractItemModel* m = QTreeView::model();
+	//setModel(NULL);
+	//setModel(m);
 }
 

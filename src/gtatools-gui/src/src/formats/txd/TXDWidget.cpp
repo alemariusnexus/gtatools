@@ -34,39 +34,42 @@
 
 
 TXDWidget::TXDWidget(DisplayedFile* dfile, const QString& selectedTex, QWidget* parent)
-		: QWidget(parent), dfile(dfile), compactTab(NULL)
+		: QWidget(parent), dfile(dfile)
 {
+	System* sys = System::getInstance();
+
 	File file = dfile->getFile();
 
 	ui.setupUi(this);
 	ui.mainSplitter->setSizes(QList<int>() << width()/4 << width()/4*3);
 
-	ui.rwbsWidget->loadFile(file);
+	displayWidget = new ImageDisplayWidget(ui.imageDisplayContainerWidget);
+	ui.imageDisplayContainerWidget->layout()->addWidget(displayWidget);
 
-	QWidget* displayContainer = ui.renderArea->takeWidget();
-	displayContainer->layout()->removeWidget(ui.displayLabel);
-	ui.renderArea->setWidget(ui.displayLabel);
-	delete displayContainer;
+	textureTableToolBar = new QToolBar(ui.textureTableContainerWidget);
 
-	ui.renderArea->viewport()->setMouseTracking(true);
+	textureTableSizeSlider = new QSlider(Qt::Horizontal, textureTableToolBar);
+	textureTableSizeSlider->setRange(25, 200);
+	connect(textureTableSizeSlider, SIGNAL(valueChanged(int)), this, SLOT(textureTableSizeChanged(int)));
+
+	textureTableToolBar->addWidget(textureTableSizeSlider);
+
+	ui.textureTableToolBarWidget->layout()->addWidget(textureTableToolBar);
+
+	ui.textureTable->verticalHeader()->setResizeMode(QHeaderView::Fixed);
 
 	loadConfigUiSettings();
 
 	extractAction = new QAction(tr("Extract textures..."), NULL);
 	connect(extractAction, SIGNAL(triggered(bool)), this, SLOT(textureExtractionRequested(bool)));
 
-	System* sys = System::getInstance();
+	connect(ui.mainSplitter, SIGNAL(splitterMoved(int, int)), this, SLOT(mainSplitterValueChanged(int, int)));
 
-	connect(ui.textureList, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)), this,
-			SLOT(textureActivated(QListWidgetItem*, QListWidgetItem*)));
-	connect(ui.textureList, SIGNAL(customContextMenuRequested(const QPoint&)), this,
-			SLOT(textureListContextMenuRequested(const QPoint&)));
+	connect(ui.textureTable, SIGNAL(currentCellChanged(int, int, int, int)), this,
+			SLOT(textureActivated(int, int, int, int)));
+	connect(ui.textureTable, SIGNAL(customContextMenuRequested(const QPoint&)), this,
+			SLOT(textureTableContextMenuRequested(const QPoint&)));
 	connect(sys, SIGNAL(configurationChanged()), this, SLOT(loadConfigUiSettings()));
-
-	connect(ui.rwbsWidget, SIGNAL(sectionChanged(RWSection*)), this, SLOT(sectionStructureChanged()));
-	connect(ui.rwbsWidget, SIGNAL(sectionInserted(RWSection*)), this, SLOT(sectionStructureChanged()));
-	connect(ui.rwbsWidget, SIGNAL(sectionRemoved(RWSection*, RWSection*)), this,
-			SLOT(sectionStructureChanged()));
 
 	connect(dfile, SIGNAL(saved()), this, SLOT(reloadHighLevelFile()));
 
@@ -91,17 +94,13 @@ TXDWidget::TXDWidget(DisplayedFile* dfile, const QString& selectedTex, QWidget* 
 	}
 
 	if (txd  &&  txd->getTextureCount() != 0) {
-		ui.textureList->setCurrentRow(currentRow);
+		ui.textureTable->setCurrentCell(currentRow, 0);
 	}
 }
 
 
 TXDWidget::~TXDWidget()
 {
-	if (compactTab) {
-		delete compactTab;
-	}
-
 	System* sys = System::getInstance();
 	sys->uninstallGUIModule(openGUIModule);
 	delete openGUIModule;
@@ -113,8 +112,13 @@ TXDWidget::~TXDWidget()
 
 void TXDWidget::reloadHighLevelFile()
 {
-	QListWidgetItem* curItem = ui.textureList->currentItem();
-	QString curTexName = curItem ? curItem->text().toLower() : QString();
+	int crow = ui.textureTable->currentRow();
+	QString curTexName;
+
+	if (crow != -1) {
+		QTableWidgetItem* curItem = ui.textureTable->item(crow, 0);
+		curTexName = curItem->text().toLower();
+	}
 
 	try {
 		txd = new TXDArchive(dfile->getFile());
@@ -123,18 +127,32 @@ void TXDWidget::reloadHighLevelFile()
 		System::getInstance()->log(LogEntry::error(errmsg, &ex));
 		txd = NULL;
 		ui.hlWidget->setEnabled(false);
-		ui.tabWidget->setTabEnabled(ui.tabWidget->indexOf(ui.hlWidget), false);
 	}
 
-	ui.textureList->clear();
+	ui.textureTable->clear();
 
 	int currentRow = -1;
 
 	if (txd) {
+		TXDFormatHandler* handler = TXDFormatHandler::getInstance();
+
+		ui.textureTable->setRowCount(txd->getTextureCount());
+
 		int i = 0;
 		for (TXDArchive::TextureIterator it = txd->getHeaderBegin() ; it != txd->getHeaderEnd() ; it++, i++) {
 			TXDTextureHeader* texture = *it;
-			ui.textureList->addItem(texture->getDiffuseName().get());
+
+			ui.textureTable->setItem(i, 0, new QTableWidgetItem(texture->getDiffuseName().get()));
+
+			uint8_t* rawData = txd->getTextureData(texture);
+			uint8_t* convData;
+			QImage image = handler->createImageFromTexture(texture, rawData, convData).copy();
+			delete[] rawData;
+			delete[] convData;
+			ImageDisplayLabel* disp = new ImageDisplayLabel(QPixmap::fromImage(image), ui.textureTable);
+			disp->setImageAutoScaling(true);
+			disp->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+			ui.textureTable->setCellWidget(i, 1, disp);
 
 			if (	!curTexName.isNull()
 					&&  curTexName.toLower() == QString(texture->getDiffuseName().get()).toLower()
@@ -142,18 +160,14 @@ void TXDWidget::reloadHighLevelFile()
 				currentRow = i;
 			}
 		}
+
+		ui.textureTable->resizeColumnToContents(0);
 	}
 
 	if (txd  &&  txd->getTextureCount() > 0  &&  currentRow != -1)
-		ui.textureList->setCurrentRow(currentRow);
+		ui.textureTable->setCurrentCell(currentRow, 0);
 	else
 		setDisplayedTexture(NULL);
-}
-
-
-void TXDWidget::saveTo(const File& file)
-{
-	ui.rwbsWidget->save(file);
 }
 
 
@@ -161,34 +175,8 @@ void TXDWidget::loadConfigUiSettings()
 {
 	QSettings settings;
 
-	if (settings.value("gui/compact_mode", false).toBool()) {
-		QLayout* layout = ui.displayWidget->layout();
-		layout->removeWidget(ui.infoWidget);
-		layout->removeWidget(ui.renderArea);
-
-		QTabWidget* tw = new QTabWidget;
-		tw->addTab(ui.infoWidget, tr("&Information"));
-		tw->addTab(ui.renderArea, tr("&Display"));
-		layout->addWidget(tw);
-
-		compactTab = tw;
-	} else {
-		if (compactTab) {
-			QLayout* layout = ui.displayWidget->layout();
-			layout->removeWidget(compactTab);
-			compactTab->removeTab(0);
-			compactTab->removeTab(1);
-			ui.infoWidget->setParent(ui.displayWidget);
-			ui.renderArea->setParent(ui.displayWidget);
-			delete compactTab;
-			layout->addWidget(ui.infoWidget);
-			layout->addWidget(ui.renderArea);
-			ui.infoWidget->show();
-			ui.renderArea->show();
-		}
-
-		compactTab = NULL;
-	}
+	ui.mainSplitter->restoreState(settings.value("gui_geometry_TXDWidget/mainSplitter_state").toByteArray());
+	textureTableSizeSlider->setValue(settings.value("gui_geometry_TXDWidget/textureTable_rowHeight", 100).toUInt());
 }
 
 
@@ -197,8 +185,8 @@ QLinkedList<TXDTextureHeader*> TXDWidget::getSelectedTextures()
 	QLinkedList<TXDTextureHeader*> list;
 
 	if (txd) {
-		for (int i = 0 ; i < ui.textureList->count() ; i++) {
-			if (ui.textureList->item(i)->isSelected()) {
+		for (int i = 0 ; i < ui.textureTable->rowCount() ; i++) {
+			if (ui.textureTable->item(i, 0)->isSelected()) {
 				list << txd->getHeader(i);
 			}
 		}
@@ -212,8 +200,11 @@ void TXDWidget::setDisplayedTexture(TXDTextureHeader* texture)
 {
 	if (texture) {
 		uint8_t* rawData = txd->getTextureData(texture);
-		ui.displayLabel->display(texture, rawData);
+		uint8_t* convData;
+		QImage image = TXDFormatHandler::getInstance()->createImageFromTexture(texture, rawData, convData);
 		delete[] rawData;
+		displayWidget->display(image.copy());
+		delete[] convData;
 
 		int32_t format = texture->getFullRasterFormat();
 		char formatDesc[32];
@@ -286,7 +277,7 @@ void TXDWidget::setDisplayedTexture(TXDTextureHeader* texture)
 
 		ui.wrapFlagsLabel->setText(uWrapStr.append("; ").append(vWrapStr));
 	} else {
-		ui.displayLabel->display(NULL, NULL);
+		//ui.displayLabel->display(NULL, NULL);
 		ui.formatLabel->setText("-");
 		ui.diffuseNameField->setText("-");
 		ui.alphaNameField->setText("-");
@@ -300,12 +291,10 @@ void TXDWidget::setDisplayedTexture(TXDTextureHeader* texture)
 }
 
 
-void TXDWidget::textureActivated(QListWidgetItem* item, QListWidgetItem* previous)
+void TXDWidget::textureActivated(int crow, int ccol, int prow, int pcol)
 {
-	int row = ui.textureList->currentRow();
-
-	if (row >= 0) {
-		TXDTextureHeader* texture = txd->getHeader(row);
+	if (crow >= 0) {
+		TXDTextureHeader* texture = txd->getHeader(crow);
 		setDisplayedTexture(texture);
 	} else {
 		setDisplayedTexture(NULL);
@@ -313,15 +302,15 @@ void TXDWidget::textureActivated(QListWidgetItem* item, QListWidgetItem* previou
 }
 
 
-void TXDWidget::textureListContextMenuRequested(const QPoint& pos)
+void TXDWidget::textureTableContextMenuRequested(const QPoint& pos)
 {
 	QLinkedList<TXDTextureHeader*> texes = getSelectedTextures();
 
 	if (texes.size() > 0) {
-		QMenu* menu = new QMenu(ui.textureList);
+		QMenu* menu = new QMenu(ui.textureTable);
 		menu->setAttribute(Qt::WA_DeleteOnClose);
 		menu->addAction(extractAction);
-		menu->popup(ui.textureList->mapToGlobal(pos));
+		menu->popup(ui.textureTable->mapToGlobal(pos));
 	}
 }
 
@@ -330,5 +319,23 @@ void TXDWidget::textureExtractionRequested(bool checked)
 {
 	QLinkedList<TXDTextureHeader*> texes = getSelectedTextures();
 	TXDFormatHandler::getInstance()->extractTexturesDialog(txd, texes, this);
+}
+
+
+void TXDWidget::textureTableSizeChanged(int size)
+{
+	QSettings settings;
+
+	settings.setValue("gui_geometry_TXDWidget/textureTable_rowHeight", size);
+
+	ui.textureTable->verticalHeader()->setDefaultSectionSize(size);
+}
+
+
+void TXDWidget::mainSplitterValueChanged(int pos, int idx)
+{
+	QSettings settings;
+
+	settings.setValue("gui_geometry_TXDWidget/mainSplitter_state", ui.mainSplitter->saveState());
 }
 

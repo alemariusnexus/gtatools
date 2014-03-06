@@ -22,3 +22,14 @@
 
 #include "Color4.h"
 
+
+
+void Color4::blend(const Color4& other, float otherRgbFactor, float thisRgbFactor, float otherAFactor, float thisAFactor)
+{
+	vec = Vector4 (
+			otherRgbFactor*other.getRed() + thisRgbFactor*getRed(),
+			otherRgbFactor*other.getGreen() + thisRgbFactor*getGreen(),
+			otherRgbFactor*other.getBlue() + thisRgbFactor*getBlue(),
+			otherAFactor*other.getAlpha() + thisAFactor*getAlpha()
+	);
+}

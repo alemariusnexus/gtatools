@@ -40,12 +40,18 @@
 #include <gta/resource/texture/TextureSource.h>
 #include <gta/scene/objects/MapSceneObject.h>
 #include <gta/scene/Scene.h>
+#include <gta/render/DefaultRenderer.h>
+#include <gta/render/RenderingEntity.h>
+#include <gta/render/TestShaderPlugin.h>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QKeyEvent>
 #include <QtCore/QPoint>
 #include "../../Profile.h"
 #include "../../ProfileManager.h"
 #include "../../gui/GLBaseWidget.h"
+#include <list>
+
+using std::list;
 
 
 
@@ -55,13 +61,17 @@ class DFFRenderWidget : public GLBaseWidget {
 public:
 	DFFRenderWidget(QWidget* parent);
 	virtual ~DFFRenderWidget();
-	void addGeometry(const DFFGeometry* geom, QLinkedList<const DFFGeometryPart*> parts);
+	/*void addGeometry(const DFFGeometry* geom, QLinkedList<const DFFGeometryPart*> parts);
 	void removeGeometry(const DFFGeometry* geom);
 	void setGeometryParts(const DFFGeometry* geom, QLinkedList<const DFFGeometryPart*> parts);
 	void clearGeometries();
-	bool isGeometryRendered(const DFFGeometry* geom) const { return objs.contains(geom); }
+	bool isGeometryRendered(const DFFGeometry* geom) const { return objs.contains(geom); }*/
 	void setTextureSource(TextureSource* source);
 	TextureSource* getTextureSource() const { return texSource; }
+
+	void displayMesh(DFFMesh* mesh);
+	void setGeometryEnabled(DFFGeometry* geom, bool enabled);
+	void setGeometryPartEnabled(DFFGeometryPart* part, bool enabled);
 
 protected:
 	virtual void initializeGL();
@@ -69,8 +79,7 @@ protected:
 	virtual void paintGL();
 
 private:
-	MapSceneObject* createSceneObject(const DFFGeometry* geom,
-			QLinkedList<const DFFGeometryPart*> parts);
+	void buildRenderingEntities();
 
 private slots:
 	void currentProfileChanged(Profile* oldProfile, Profile* newProfile);
@@ -78,11 +87,14 @@ private slots:
 	void texturedPropertyWasChanged(bool textured);
 
 private:
-	Scene* scene;
-	QMap<const DFFGeometry*, MapSceneObject*> objs;
+	MeshClump* displayedClump;
+	QSet<Mesh*> displayedMeshes;
+	QSet<Submesh*> displayedSubmeshes;
+	QMap<DFFGeometry*, Mesh*> geomMeshMap;
+	QMap<DFFGeometryPart*, Submesh*> partSubmeshMap;
+	list<RenderingEntity*> renderingEntities;
+	DefaultRenderer* renderer;
 	TextureSource* texSource;
-
-	GLint vertexAttrib, normalAttrib, texCoordAttrib, colorAttrib;
 };
 
 #endif /* DFFRENDERWIDGET_H_ */

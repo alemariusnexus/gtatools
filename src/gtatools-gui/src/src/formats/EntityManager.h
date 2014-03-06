@@ -20,29 +20,32 @@
 	GPLADDITIONS.
  */
 
-#ifndef TEXTUREDISPLAYER_H_
-#define TEXTUREDISPLAYER_H_
+#ifndef ENTITYMANAGER_H_
+#define ENTITYMANAGER_H_
 
-#include <QtGui/QLabel>
-#include <gtaformats/txd/TXDTextureHeader.h>
-#include <QtGui/QMouseEvent>
+#include "EntityHandler.h"
+#include "../EntityOpenRequest.h"
+#include <QtCore/QLinkedList>
 
 
-class TextureDisplayer : public QLabel {
-	Q_OBJECT
+class EntityManager {
+private:
+	typedef QLinkedList<EntityHandler*> HandlerList;
 
 public:
-	TextureDisplayer(QWidget* parent);
-	TextureDisplayer(TXDTextureHeader* texture, uint8_t* rawData, QWidget* parent);
-	~TextureDisplayer();
-	void display(TXDTextureHeader* texture, uint8_t* rawData);
+	static EntityManager* getInstance();
 
-protected:
-	virtual void mouseMoveEvent(QMouseEvent* evt);
+public:
+	void registerEntityHandler(EntityHandler* handler);
+	QLinkedList<EntityHandler*> getEntityHandlers() { return handlers; }
+	QLinkedList<EntityHandler*> getEntityHandlers(const EntityOpenRequest& req);
+	EntityHandler* getEntityHandler(const EntityOpenRequest& req);
 
 private:
-	TXDTextureHeader* texture;
-	uint8_t* data;
+	EntityManager();
+
+private:
+	HandlerList handlers;
 };
 
-#endif /* TEXTUREDISPLAYER_H_ */
+#endif /* ENTITYMANAGER_H_ */

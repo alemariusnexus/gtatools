@@ -22,30 +22,48 @@
 
 #include "RWBSSectionTree.h"
 #include <QtGui/QMenu>
+#include <QtGui/QMessageBox>
 #include "RWBSSectionDialog.h"
 
 
 
-RWBSSectionTree::RWBSSectionTree(QWidget* parent)
-		: QTreeView(parent)
+RWBSSectionTree::RWBSSectionTree(RWBSSectionModel* model, QWidget* parent)
+		: QTreeView(parent), model(model), undoStack(NULL)
 {
-	setModel(&model);
+	setModel(model);
+	setItemDelegate(&delegate);
 
 	addAction = new QAction(tr("Add Section"), this);
 	removeAction = new QAction(tr("Remove Section"), this);
 	editAction = new QAction(tr("Edit Section"), this);
+
+	QTreeView::addAction(addAction);
+	QTreeView::addAction(removeAction);
+	QTreeView::addAction(editAction);
 
 	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this,
 			SLOT(contextMenuRequested(const QPoint&)));
 	connect(addAction, SIGNAL(triggered(bool)), this, SLOT(addRequested(bool)));
 	connect(removeAction, SIGNAL(triggered(bool)), this, SLOT(removeRequested(bool)));
 	connect(editAction, SIGNAL(triggered(bool)), this, SLOT(editRequested(bool)));
-	connect(&model, SIGNAL(sectionRemoved(RWSection*, RWSection*)), this,
+	connect(model, SIGNAL(sectionRemoved(RWSection*, RWSection*)), this,
 			SIGNAL(sectionRemoved(RWSection*, RWSection*)));
-	connect(&model, SIGNAL(sectionInserted(RWSection*)), this,
+	connect(model, SIGNAL(sectionInserted(RWSection*)), this,
 			SIGNAL(sectionInserted(RWSection*)));
+	connect(model, SIGNAL(sectionUpdated(RWSection*, uint32_t, uint32_t, bool)), this,
+			SIGNAL(sectionUpdated(RWSection*, uint32_t, uint32_t, bool)));
 
 	setContextMenuPolicy(Qt::CustomContextMenu);
+}
+
+
+void RWBSSectionTree::setEditable(bool editable)
+{
+	this->editable = editable;
+
+	addAction->setEnabled(editable);
+	removeAction->setEnabled(editable);
+	editAction->setEnabled(editable);
 }
 
 
@@ -77,6 +95,9 @@ void RWBSSectionTree::contextMenuRequested(const QPoint& pos)
 
 void RWBSSectionTree::addRequested(bool)
 {
+	if (!editable)
+		return;
+
 	RWBSSectionDialog dialog(this);
 
 	if (contextSect)
@@ -87,27 +108,43 @@ void RWBSSectionTree::addRequested(bool)
 		bool container = dialog.isContainerSection();
 
 		RWSection* sect = new RWSection(id, dialog.getVersion());
-		model.insertSection(sect, contextSect);
 
 		if (!container)
 			sect->setData(new uint8_t[0], 0);
+
+		QUndoCommand* cmd = model->createInsertSectionCommand(sect, contextSect);
+
+		if (undoStack) {
+			undoStack->push(cmd);
+		} else {
+			cmd->redo();
+			delete cmd;
+		}
 	}
 }
 
 
 void RWBSSectionTree::removeRequested(bool)
 {
-	RWSection* parent = contextSect->getParent();
+	if (!editable)
+		return;
 
-	model.removeSection(contextSect);
+	QUndoCommand* cmd = model->createRemoveSectionCommand(contextSect);
 
-	if (parent)
-		delete contextSect;
+	if (undoStack) {
+		undoStack->push(cmd);
+	} else {
+		cmd->redo();
+		delete cmd;
+	}
 }
 
 
 void RWBSSectionTree::editRequested(bool)
 {
+	if (!editable)
+		return;
+
 	RWBSSectionDialog dialog(this);
 	dialog.setID(contextSect->getID());
 	dialog.setContainerSection(!contextSect->isDataSection());
@@ -120,17 +157,32 @@ void RWBSSectionTree::editRequested(bool)
 
 		RWSection* oldParent = contextSect->getParent();
 
-		contextSect->setID(id);
-		contextSect->setVersion(version);
+		if (contextSect->isDataSection()  &&  container  &&  !contextSect->canBeConvertedToContainerSection()) {
+			QMessageBox::critical(this, tr("Invalid Conversion"),
+					tr("This section can't be converted to a valid container section!"));
+			return;
+		}
 
-		emit sectionChanged(contextSect);
+		QUndoCommand* cmd = model->createUpdateSectionCommand(contextSect, id, version, container);
 
-		if (container != !contextSect->isDataSection()) {
+		if (undoStack) {
+			undoStack->push(cmd);
+		} else {
+			cmd->redo();
+			delete cmd;
+		}
+
+		//contextSect->setID(id);
+		//contextSect->setVersion(version);
+
+		//emit sectionChanged(contextSect);
+
+		/*if (container != !contextSect->isDataSection()) {
 			int index = model.removeSection(contextSect);
 			contextSect->setDataSection(!container);
 			model.insertSection(contextSect, oldParent, index);
 		} else {
 			model.applySectionChanges(contextSect);
-		}
+		}*/
 	}
 }

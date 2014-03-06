@@ -26,8 +26,11 @@
 #include "../util/math/Matrix3.h"
 #include "../util/math/Vector3.h"
 #include "../gta.h"
+#include "../col/COLLoader.h"
 #include <cstdio>
 #include <cstdlib>
+#include <sstream>
+
 
 
 
@@ -246,10 +249,11 @@ DFFMesh* DFFLoader::loadMesh(RWSection* clump)
 	for (i = 0 ; i < numFrames ; i++) {
 		IndexedDFFFrame& indexedFrame = indexedFrames[i];
 
-		if (indexedFrame.parentIdx != -1)
+		if (indexedFrame.parentIdx != -1) {
 			indexedFrames[indexedFrame.parentIdx].frame->addChild(indexedFrame.frame);
-		else
+		} else {
 			rootFrame->addChild(indexedFrame.frame);
+		}
 	}
 
 
@@ -358,6 +362,7 @@ DFFMesh* DFFLoader::loadMesh(RWSection* clump)
 		size_t size = vertexCount*3;
 		vertices = new float[size];
 		memcpy(vertices, geomData, size*4);
+
 
 #ifndef GTAFORMATS_LITTLE_ENDIAN
 		for (size_t i = 0 ; i < size ; i++) {
@@ -468,6 +473,7 @@ DFFMesh* DFFLoader::loadMesh(RWSection* clump)
 
 		for (uint32_t j = 0 ; j < splitCount ; j++) {
 			uint32_t idxCount = FromLittleEndian32(*((uint32_t*) msData));
+			//printf("Split %u: %u indices", j, idxCount);
 			uint32_t materialIdx = FromLittleEndian32(*((uint32_t*) (msData+4)));
 			msData += 8;
 
@@ -572,6 +578,32 @@ DFFMesh* DFFLoader::loadMesh(RWSection* clump)
 		uint32_t geomIdx = FromLittleEndian32(*((uint32_t*) (asData+4)));
 
 		mesh->getGeometry(geomIdx)->setAssociatedFrame(indexedFrames[frameIdx].frame);
+
+		atomicIt++;
+	}
+
+	mesh->integratedCOLModel = NULL;
+
+	atomicIt = clump->getChildBegin();
+	while (!mesh->integratedCOLModel  &&  (atomicIt = clump->nextChild(RW_SECTION_EXTENSION, atomicIt))  !=  clump->getChildEnd()) {
+		RWSection* ext = *atomicIt;
+
+		RWSection* colSect = ext->getChild(RW_SECTION_COLLISION_MODEL);
+
+		if (colSect) {
+			uint8_t* data = colSect->getData();
+
+			// TODO This is ridiculous. std::string makes a copy of the data, which is absolutely not needed...
+			std::string tmp((char*) data, colSect->getSize());
+			std::stringstream in(tmp);
+
+			COLLoader col;
+			COLModel* model = col.loadModel(&in);
+
+			if (model) {
+				mesh->integratedCOLModel = model;
+			}
+		}
 
 		atomicIt++;
 	}

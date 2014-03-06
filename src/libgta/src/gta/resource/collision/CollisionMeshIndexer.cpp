@@ -21,6 +21,7 @@
  */
 
 #include "CollisionMeshIndexer.h"
+#include <gtaformats/dff/DFFLoader.h>
 #include <gtaformats/gtacol.h>
 #include <gtaformats/util/strutil.h>
 #include <utility>
@@ -45,6 +46,26 @@ void CollisionMeshIndexer::resourceAdded(const File& file)
 		}
 
 		delete stream;
+	} else if (file.guessContentType() == CONTENT_TYPE_DFF) {
+		DFFLoader dff;
+
+		DFFMesh* mesh = dff.loadMesh(file);
+
+		COLModel* model = mesh->getIntegratedCOLModel();
+
+		if (model) {
+			CString fname = file.getPath()->getFileName();
+			char* lMeshName = new char[fname.length() + 1];
+			strtolower(lMeshName, fname.get());
+			*strrchr(lMeshName, '.') = '\0';
+
+			CollisionMeshIndexEntry* entry = new CollisionMeshIndexEntry;
+			entry->file = new File(file);
+			entry->index = 0;
+			index.insert(pair<CString, CollisionMeshIndexEntry*>(CString::from(lMeshName).lower(), entry));
+		}
+
+		delete mesh;
 	}
 }
 

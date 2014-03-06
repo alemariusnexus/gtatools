@@ -26,12 +26,15 @@
 #include <ui_TXDWidget.h>
 #include <gtaformats/util/File.h>
 #include <QtGui/QWidget>
-#include <QtGui/QListWidget>
+#include <QtGui/QTableWidget>
+#include <QtGui/QToolBar>
+#include <QtGui/QSlider>
 #include <gtaformats/txd/TXDArchive.h>
 #include <gtaformats/txd/TXDTextureHeader.h>
 #include "OpenTXDGUIModule.h"
 #include <QtCore/QLinkedList>
 #include "../../DisplayedFile.h"
+#include "../../gui/ImageDisplayWidget.h"
 
 
 
@@ -47,25 +50,26 @@ public:
 private:
 	void setDisplayedTexture(TXDTextureHeader* texture);
 
-public slots:
-	void saveTo(const File& file);
-
 private slots:
-	void textureActivated(QListWidgetItem* item, QListWidgetItem* previous);
-	void textureListContextMenuRequested(const QPoint& pos);
+	//void textureActivated(QTableWidgetItem* item, QTableWidgetItem* previous);
+	void textureActivated(int crow, int ccol, int prow, int pcol);
+	void textureTableContextMenuRequested(const QPoint& pos);
+	void textureTableSizeChanged(int size);
 	void textureExtractionRequested(bool checked);
 	void loadConfigUiSettings();
-	void sectionStructureChanged() { dfile->setHasChanges(true); }
 	void reloadHighLevelFile();
+	void mainSplitterValueChanged(int pos, int idx);
 
 private:
 	DisplayedFile* dfile;
 	QAction* extractAction;
 	OpenTXDGUIModule* openGUIModule;
-	QTabWidget* compactTab;
 	Ui_TXDWidget ui;
 	TXDArchive* txd;
 	TXDTextureHeader** textures;
+	ImageDisplayWidget* displayWidget;
+	QToolBar* textureTableToolBar;
+	QSlider* textureTableSizeSlider;
 };
 
 #endif /* TXDWIDGET_H_ */

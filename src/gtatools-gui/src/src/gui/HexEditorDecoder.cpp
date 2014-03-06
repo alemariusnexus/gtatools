@@ -30,7 +30,7 @@
 
 
 HexEditorDecoder::HexEditorDecoder(QWidget* parent)
-		: QWidget(parent)
+		: QWidget(parent), editable(true)
 {
 	ui.setupUi(this);
 
@@ -49,6 +49,43 @@ HexEditorDecoder::HexEditorDecoder(QWidget* parent)
 	ui.float32Field->setValidator(new QDoubleValidator(this));
 	ui.float64Field->setValidator(new QDoubleValidator(this));
 	ui.binaryField->setInputMask("Bbbbbbbbb bbbbbbbb bbbbbbbb bbbbbbbb");
+
+	//QString numSizeAlphabet("-0123456789");
+
+	QFont font("Monospace");
+	font.setStyleHint(QFont::Monospace);
+
+	ui.signed8Field->setFont(font);
+	ui.unsigned8Field->setFont(font);
+	ui.signed16Field->setFont(font);
+	ui.unsigned16Field->setFont(font);
+	ui.signed32Field->setFont(font);
+	ui.unsigned32Field->setFont(font);
+	ui.signed64Field->setFont(font);
+	ui.unsigned64Field->setFont(font);
+
+	/*ui.signed8Field->setSizeAlphabet(numSizeAlphabet);
+	ui.unsigned8Field->setSizeAlphabet(numSizeAlphabet);
+	ui.signed16Field->setSizeAlphabet(numSizeAlphabet);
+	ui.unsigned16Field->setSizeAlphabet(numSizeAlphabet);
+	ui.signed32Field->setSizeAlphabet(numSizeAlphabet);
+	ui.unsigned32Field->setSizeAlphabet(numSizeAlphabet);
+	ui.signed64Field->setSizeAlphabet(numSizeAlphabet);
+	ui.unsigned64Field->setSizeAlphabet(numSizeAlphabet);*/
+
+	ui.signed8Field->setSizeInCharacters(4);
+	ui.unsigned8Field->setSizeInCharacters(3);
+	ui.signed16Field->setSizeInCharacters(6);
+	ui.unsigned16Field->setSizeInCharacters(5);
+	ui.signed32Field->setSizeInCharacters(11);
+	ui.unsigned32Field->setSizeInCharacters(10);
+	ui.signed64Field->setSizeInCharacters(21);
+	ui.unsigned64Field->setSizeInCharacters(20);
+	ui.float32Field->setSizeInCharacters(20);
+	ui.float64Field->setSizeInCharacters(20);
+	ui.binaryField->setSizeInCharacters(20);
+	ui.asciiField->setSizeInCharacters(20);
+
 
 	connect(ui.signed8Field, SIGNAL(editingFinished()), this, SLOT(editedSigned8()));
 	connect(ui.signed16Field, SIGNAL(editingFinished()), this, SLOT(editedSigned16()));
@@ -164,6 +201,25 @@ void HexEditorDecoder::display()
 	ui.float32Field->setEnabled(dsize >= 4);
 	ui.float64Field->setEnabled(dsize >= 8);
 	ui.binaryField->setEnabled(dsize >= 1);
+}
+
+
+void HexEditorDecoder::setEditable(bool editable)
+{
+	this->editable = editable;
+
+	ui.signed8Field->setReadOnly(!editable);
+	ui.unsigned8Field->setReadOnly(!editable);
+	ui.signed16Field->setReadOnly(!editable);
+	ui.unsigned16Field->setReadOnly(!editable);
+	ui.signed32Field->setReadOnly(!editable);
+	ui.unsigned32Field->setReadOnly(!editable);
+	ui.signed64Field->setReadOnly(!editable);
+	ui.unsigned64Field->setReadOnly(!editable);
+	ui.float32Field->setReadOnly(!editable);
+	ui.float64Field->setReadOnly(!editable);
+	ui.binaryField->setReadOnly(!editable);
+	ui.asciiField->setReadOnly(!editable);
 }
 
 

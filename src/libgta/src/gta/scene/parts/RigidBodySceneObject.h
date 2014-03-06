@@ -34,8 +34,6 @@ class RigidBodySceneObject : public virtual SceneObject, public btMotionState
 public:
 	virtual void getWorldTransform(btTransform& trans) const;
 	virtual void setWorldTransform(const btTransform& trans);
-	virtual const btRigidBody* getRigidBody() const = 0;
-	virtual btRigidBody* getRigidBody() = 0;
 	virtual CollisionShapePointer* getCollisionShapePointer() = 0;
 	virtual float getMass() const = 0;
 	virtual void setMass(float m) = 0;

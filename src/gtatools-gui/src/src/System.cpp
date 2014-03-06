@@ -21,7 +21,7 @@
  */
 
 #include "System.h"
-#include "formats/FormatManager.h"
+#include "formats/EntityManager.h"
 #include <QtGui/QMessageBox>
 #include <QtCore/QFile>
 #include <QtCore/QDateTime>
@@ -41,7 +41,7 @@ System* System::instance = NULL;
 
 
 System::System()
-		: mainWindow(NULL), initializing(true), shuttingDown(false)
+		: mainWindow(NULL), currentEntity(NULL), initializing(true), shuttingDown(false)
 {
 	int dummyTexW = 16;
 	int dummyTexH = 16;
@@ -98,7 +98,7 @@ void System::initializeInstance()
 
 	connect(qApp, SIGNAL(lastWindowClosed()), this, SLOT(destroyInstance()));
 
-	FormatManager::getInstance();
+	EntityManager::getInstance();
 
 	initializing = false;
 
@@ -219,9 +219,9 @@ void System::forceUninstallGUIModule(GUIModule* module)
 }
 
 
-QList<SystemQueryResult*> System::sendSystemQuery(const SystemQuery& query)
+QList<SystemQueryResult> System::sendSystemQuery(const SystemQuery& query)
 {
-	QList<SystemQueryResult*> results;
+	QList<SystemQueryResult> results;
 	emit systemQuerySent(query, results);
 	return results;
 }
@@ -229,10 +229,153 @@ QList<SystemQueryResult*> System::sendSystemQuery(const SystemQuery& query)
 
 bool System::quit()
 {
+	while (!openEntities.isEmpty()) {
+		DisplayedEntity* entity = openEntities.first();
+
+		if (!closeEntity(entity, false)) {
+			return false;
+		}
+	}
+
 	// This will trigger signal qApp::lastWindowClosed(), which is connected to System::destroyInstance()
 	mainWindow->close();
 
 	return true;
+}
+
+
+DisplayedEntity* System::findSignatureOpenEntity(const QByteArray& sig)
+{
+	if (!sig.isEmpty()) {
+		for (QLinkedList<DisplayedEntity*>::iterator it = openEntities.begin() ; it != openEntities.end() ; it++) {
+			DisplayedEntity* oent = *it;
+			QByteArray osig = oent->getSignature();
+
+			if (!osig.isEmpty()  &&  sig.size() == osig.size()  &&  memcmp(sig.constData(), osig.constData(), sig.size()) == 0) {
+				return oent;
+			}
+		}
+	}
+
+	return NULL;
+}
+
+
+bool System::openEntity(const EntityOpenRequest& req)
+{
+	EntityManager* man = EntityManager::getInstance();
+
+	EntityHandler* handler = man->getEntityHandler(req);
+
+	if (!handler)
+		return false;
+
+	QByteArray sig = handler->getEntitySignatureAheadOfTime(req);
+	DisplayedEntity* oent = findSignatureOpenEntity(sig);
+
+	if (oent) {
+		changeCurrentEntity(oent);
+		return false;
+	}
+
+	DisplayedEntity* entity = handler->openEntity(req);
+
+	if (!entity)
+		return false;
+
+	sig = entity->getSignature();
+	oent = findSignatureOpenEntity(sig);
+
+	if (oent) {
+		changeCurrentEntity(oent);
+		delete entity;
+		return false;
+	}
+
+	openEntities << entity;
+
+	try {
+		emit entityOpened(entity);
+	} catch (...) {
+		closeEntity(entity, true);
+		return false;
+	}
+
+	changeCurrentEntity(entity);
+	return true;
+}
+
+
+bool System::closeEntity(DisplayedEntity* entity, bool force)
+{
+	if (!entity)
+		return false;
+
+	if (!force  &&  entity->hasUnsavedChanges()) {
+		QMessageBox::StandardButton res = QMessageBox::question(mainWindow, tr("Save changes?"),
+				tr("'%1' has unsaved changes. Do you want to save before closing?").arg(entity->getName()),
+				QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Yes);
+
+		if (res == QMessageBox::Yes) {
+			entity->saveChanges(false);
+		} else if (res == QMessageBox::No) {
+		} else {
+			return false;
+		}
+	}
+
+	DisplayedEntity* newCurrentEntity = NULL;
+
+	if (currentEntity == entity) {
+		for (QLinkedList<DisplayedEntity*>::iterator it = openEntities.begin() ; it != openEntities.end() ; it++) {
+			DisplayedEntity* oent = *it;
+
+			if (oent != entity) {
+				newCurrentEntity = oent;
+				break;
+			}
+		}
+	} else {
+		newCurrentEntity = currentEntity;
+	}
+
+	if (newCurrentEntity != currentEntity) {
+		changeCurrentEntity(newCurrentEntity);
+	}
+
+	openEntities.removeOne(entity);
+
+	emit entityClosed(entity);
+
+	delete entity;
+
+	return true;
+}
+
+
+void System::changeCurrentEntity(DisplayedEntity* entity)
+{
+	if (currentEntity == entity)
+		return;
+
+	DisplayedEntity* oldEntity = currentEntity;
+
+	emit currentEntityAboutToBeChanged(oldEntity, entity);
+
+	currentEntity = entity;
+
+	emit currentEntityChanged(oldEntity, entity);
+}
+
+
+bool System::openFile(const File& file)
+{
+	EntityOpenRequest req;
+
+	req.setAttribute("type", "file");
+	req.setAttribute("file", QString(file.getPath()->toString().get()));
+
+	return openEntity(req);
 }
 
 

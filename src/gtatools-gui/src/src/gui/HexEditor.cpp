@@ -21,6 +21,7 @@
  */
 
 #include "HexEditor.h"
+#include "HexEditorUndoCommand.h"
 #include <QtGui/QScrollBar>
 #include <QtGui/QPaintEvent>
 #include <algorithm>
@@ -31,15 +32,23 @@ using std::max;
 
 
 HexEditor::HexEditor(QWidget* parent)
-		: QAbstractScrollArea(parent), editor(new HexEditorPrivate(this)), scrollFactor(0)
+		: QAbstractScrollArea(parent), editor(new HexEditorPrivate(this)), scrollFactor(0), undoStack(NULL),
+		  undoDecorator(NULL)
 {
+	setUndoDecorator(NULL);
+
 	setViewport(editor);
+	connect(editor, SIGNAL(dataReplaced(int, int, const QByteArray&, const QByteArray&)), this,
+			SIGNAL(dataReplaced(int, int, const QByteArray&, const QByteArray&)));
 	connect(editor, SIGNAL(dataChanged(const QByteArray&)), this, SIGNAL(dataChanged(const QByteArray&)));
 	connect(editor, SIGNAL(cursorChanged(int, int)), this, SIGNAL(cursorChanged(int, int)));
 	connect(editor, SIGNAL(contentLineCountChanged(int)), this, SLOT(contentLineCountChanged(int)));
 	connect(editor, SIGNAL(cursorChanged(int, int)), this, SLOT(cursorChangedSlot(int, int)));
 	connect(verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(verticalScrollBarChanged(int)));
 	connect(&scrollTimer, SIGNAL(timeout()), this, SLOT(scroll()));
+
+	connect(this, SIGNAL(dataReplaced(int, int, const QByteArray&, const QByteArray&)), this,
+			SLOT(dataReplacedSlot(int, int, const QByteArray&, const QByteArray&)));
 
 	scrollTimer.start(50);
 }
@@ -137,4 +146,36 @@ void HexEditor::keyReleaseEvent(QKeyEvent* evt)
 void HexEditor::resizeEvent(QResizeEvent* evt)
 {
 	editor->resizeEvent(evt);
+}
+
+
+void HexEditor::dataReplacedSlot(int offset, int len, const QByteArray& oldData, const QByteArray& newData)
+{
+	HexEditorUndoCommand* cmd = new HexEditorUndoCommand(this, offset, len, oldData, newData, true);
+	undoDecorator->push(cmd);
+}
+
+
+void HexEditor::setUndoDecorator(UndoDecorator* decorator)
+{
+	if (!decorator)
+		decorator = &nullUndoDecorator;
+
+	if (undoDecorator)
+		disconnect(undoDecorator, SIGNAL(committed(QUndoCommand*)), this, SLOT(undoDecoratorCommitted(QUndoCommand*)));
+
+	undoDecorator = decorator;
+
+	connect(decorator, SIGNAL(committed(QUndoCommand*)), this, SLOT(undoDecoratorCommitted(QUndoCommand*)));
+}
+
+
+void HexEditor::undoDecoratorCommitted(QUndoCommand* cmd)
+{
+	if (undoStack) {
+		undoStack->push(cmd);
+	} else {
+		cmd->redo();
+		delete cmd;
+	}
 }

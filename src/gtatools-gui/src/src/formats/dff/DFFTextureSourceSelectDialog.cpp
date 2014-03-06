@@ -30,6 +30,8 @@ DFFTextureSourceSelectDialog::DFFTextureSourceSelectDialog(QWidget* parent)
 {
 	ui.setupUi(this);
 
+	ui.nameField->setFocus();
+
 	connect(ui.nameButton, SIGNAL(toggled(bool)), ui.nameField, SLOT(setEnabled(bool)));
 
 	connect(ui.pathButton, SIGNAL(toggled(bool)), ui.pathField, SLOT(setEnabled(bool)));

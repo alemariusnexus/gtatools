@@ -60,6 +60,7 @@ class MeshCacheLoader;
 class TextureCacheLoader;
 class CollisionMeshCacheLoader;
 class AnimationCacheLoader;
+class PhysicsCacheLoader;
 class MeshIndexer;
 class TextureIndexer;
 class CollisionMeshIndexer;
@@ -94,6 +95,7 @@ public:
 	StringResourceCache* getTextureCache() { return texCache; }
 	StringResourceCache* getCollisionMeshCache() { return colCache; }
 	StringResourceCache* getAnimationCache() { return animCache; }
+	StringResourceCache* getPhysicsCache() { return physicsCache; }
 
 	MeshIndexer* getMeshIndexer() { return meshIndexer; }
 	TextureIndexer* getTextureIndexer() { return texIndexer; }
@@ -163,11 +165,13 @@ private:
 	TextureCacheLoader* texCacheLoader;
 	CollisionMeshCacheLoader* colCacheLoader;
 	AnimationCacheLoader* animCacheLoader;
+	PhysicsCacheLoader* physicsCacheLoader;
 
 	StringResourceCache* meshCache;
 	StringResourceCache* texCache;
 	StringResourceCache* colCache;
 	StringResourceCache* animCache;
+	StringResourceCache* physicsCache;
 
 	int8_t gameHours, gameMinutes;
 

@@ -20,53 +20,53 @@
 	GPLADDITIONS.
  */
 
-#include "FormatManager.h"
+#include "EntityManager.h"
 #include "unrecog/UnrecognizedFormatHandler.h"
-#include "img/IMGFormatHandler.h"
 #include "txd/TXDFormatHandler.h"
+#include "gxt/GXTFormatHandler.h"
+#include "img/IMGFormatHandler.h"
 #include "ipl/IPLFormatHandler.h"
 #include "ide/IDEFormatHandler.h"
 #include "dff/DFFFormatHandler.h"
-#include "gxt/GXTFormatHandler.h"
-#include "col/COLFormatHandler.h"
-#include "ifp/IFPFormatHandler.h"
+/*#include "col/COLFormatHandler.h"
+#include "ifp/IFPFormatHandler.h"*/
 
 
 
-FormatManager::FormatManager()
+EntityManager::EntityManager()
 {
-	registerFormatHandler(new UnrecognizedFormatHandler());
-	registerFormatHandler(TXDFormatHandler::getInstance());
-	registerFormatHandler(new IMGFormatHandler);
-	registerFormatHandler(new IPLFormatHandler);
-	registerFormatHandler(new IDEFormatHandler);
-	registerFormatHandler(DFFFormatHandler::getInstance());
-	registerFormatHandler(GXTFormatHandler::getInstance());
-	registerFormatHandler(new COLFormatHandler);
-	registerFormatHandler(new IFPFormatHandler);
+	registerEntityHandler(new UnrecognizedFormatHandler());
+	registerEntityHandler(TXDFormatHandler::getInstance());
+	registerEntityHandler(GXTFormatHandler::getInstance());
+	registerEntityHandler(new IMGFormatHandler);
+	registerEntityHandler(new IPLFormatHandler);
+	registerEntityHandler(new IDEFormatHandler);
+	registerEntityHandler(DFFFormatHandler::getInstance());
+	/*registerEntityHandler(new COLFormatHandler);
+	registerEntityHandler(new IFPFormatHandler);*/
 }
 
 
-FormatManager* FormatManager::getInstance()
+EntityManager* EntityManager::getInstance()
 {
-	static FormatManager* manager = new FormatManager;
+	static EntityManager* manager = new EntityManager;
 	return manager;
 }
 
 
-void FormatManager::registerFormatHandler(FormatHandler* handler)
+void EntityManager::registerEntityHandler(EntityHandler* handler)
 {
 	handlers << handler;
 }
 
 
-QLinkedList<FormatHandler*> FormatManager::getHandlers(const EntityOpenRequest& req)
+QLinkedList<EntityHandler*> EntityManager::getEntityHandlers(const EntityOpenRequest& req)
 {
-	QLinkedList<FormatHandler*> list;
+	QLinkedList<EntityHandler*> list;
 
 	HandlerList::iterator it;
 	for (it = handlers.begin() ; it != handlers.end() ; it++) {
-		FormatHandler* handler = *it;
+		EntityHandler* handler = *it;
 		if (handler->canHandle(req)) {
 			list << handler;
 		}
@@ -76,15 +76,15 @@ QLinkedList<FormatHandler*> FormatManager::getHandlers(const EntityOpenRequest& 
 }
 
 
-FormatHandler* FormatManager::getHandler(const EntityOpenRequest& req)
+EntityHandler* EntityManager::getEntityHandler(const EntityOpenRequest& req)
 {
 	HandlerList::iterator it;
 
 	int bestSuitability = 0;
-	FormatHandler* bestHandler = NULL;
+	EntityHandler* bestHandler = NULL;
 
 	for (it = handlers.begin() ; it != handlers.end() ; it++) {
-		FormatHandler* handler = *it;
+		EntityHandler* handler = *it;
 		if (handler->canHandle(req)) {
 			int suitability = handler->getSuitability(req);
 

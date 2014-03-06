@@ -27,22 +27,28 @@
 
 
 
-QString IPLFormatHandler::getFormatName(const File* file) const
+QString IPLFormatHandler::getFileFormatName(const File& file) const
 {
-	if (file) {
-		IPLReader ipl(*file);
+	IPLReader ipl(file);
 
-		if (ipl.isBinary()) {
-			return tr("Binary Item Placement File (IPL)");
-		}
+	if (ipl.isBinary()) {
+		return tr("Binary Item Placement File (IPL)");
+	} else {
+		return tr("Item Placement File (IPL)");
 	}
-
-	return tr("Item Placement File (IPL)");
 }
 
 
 bool IPLFormatHandler::canHandle(const EntityOpenRequest& req) const
 {
+	QVariant typeVar = req.getAttribute("type");
+
+	if (typeVar.isNull())
+		return false;
+
+	if (typeVar.toString() != "file")
+		return false;
+
 	QVariant fileVar = req.getAttribute("file");
 
 	if (fileVar.isNull())

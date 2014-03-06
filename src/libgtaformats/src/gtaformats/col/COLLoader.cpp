@@ -201,12 +201,20 @@ COLModel* COLLoader::loadModel(istream* stream)
 			face.indices[1] = indices[1];
 			face.indices[2] = indices[2];
 
+			if (strcmp(model->name, "maps0H0") == 0) {
+				printf("Face %u:   %u, %u, %u\n", i, indices[0], indices[1], indices[2]);
+			}
+
 			if (face.indices[0] > greatestVertexIndex)
 				greatestVertexIndex = face.indices[0];
 			if (face.indices[1] > greatestVertexIndex)
 				greatestVertexIndex = face.indices[1];
 			if (face.indices[2] > greatestVertexIndex)
 				greatestVertexIndex = face.indices[2];
+		}
+
+		if (strcmp(model->name, "maps0H0") == 0) {
+			exit(0);
 		}
 
 		uint32_t numVertices = numFaces == 0 ? 0 : greatestVertexIndex+1;

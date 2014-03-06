@@ -237,8 +237,8 @@ public:
 	/**	\brief Builds a translation matrix.
 	 *
 	 * 	@param x Translation along the x axis.
-	 * 	@param x Translation along the y axis.
-	 * 	@param x Translation along the z axis.
+	 * 	@param y Translation along the y axis.
+	 * 	@param z Translation along the z axis.
 	 * 	@return The translation matrix.
 	 */
 	static Matrix4 translation(float x, float y, float z);

@@ -38,11 +38,16 @@ public:
 	int getTextureSourceCount() const { return ui.list->count(); }
 	QString getTextureSource(int idx, bool& path) const;
 
+private:
+	void updateMoveButtonState();
+
 private slots:
 	void currentSourceChanged(QListWidgetItem* item, QListWidgetItem* prev);
 	void addRequested();
 	void editRequested();
 	void removeRequested();
+	void moveUpRequested();
+	void moveDownRequested();
 
 private:
 	Ui_DFFTextureSourceDialog ui;

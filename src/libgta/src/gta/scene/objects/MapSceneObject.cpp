@@ -31,6 +31,8 @@ MapSceneObject::MapSceneObject()
 {
 	btRigidBody::btRigidBodyConstructionInfo info(0.0f, this, NULL);
 	rb = new btRigidBody(info);
+	rb->setRestitution(1.0f);
+	rb->setFriction(1.0f);
 }
 
 
@@ -257,5 +259,13 @@ bool MapSceneObject::hasAlphaTransparency() const
 	} else {
 		return getLODInstance()->hasAlphaTransparency();
 	}
+}
+
+
+void MapSceneObject::lockRigidBodyCollisionShape(bool locked)
+{
+	CollisionShapePointer* colPtr = getCollisionShapePointer();
+
+	CollisionModel* model = colPtr->get(true);
 }
 

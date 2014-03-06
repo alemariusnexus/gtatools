@@ -20,8 +20,8 @@
 	GPLADDITIONS.
  */
 
-#ifndef FORMATHANDLER_H_
-#define FORMATHANDLER_H_
+#ifndef ENTITYHANDLER_H_
+#define ENTITYHANDLER_H_
 
 #include <gtaformats/util/File.h>
 #include <QtCore/QString>
@@ -39,19 +39,20 @@ class DisplayedFile;
 
 
 
-class FormatHandler : public QObject {
+class EntityHandler : public QObject {
 	Q_OBJECT
 
 public:
-	FormatHandler() {}
-	virtual ~FormatHandler() {}
-	virtual QString getFormatName(const File* file = NULL) const = 0;
-	virtual QLinkedList<QString> getFileFormatExtensions() const = 0;
+	EntityHandler() {}
+	virtual ~EntityHandler() {}
+	virtual QString getFileFormatName(const File& file) const = 0;
+	virtual QLinkedList<QString> getFileFormatExtensions(const File& file) const = 0;
 	virtual bool canHandle(const EntityOpenRequest& req) const = 0;
 	virtual DisplayedEntity* openEntity(const EntityOpenRequest& request) { return NULL; }
 	virtual int getSuitability(const EntityOpenRequest& req) const { return 10000; }
+	virtual QByteArray getEntitySignatureAheadOfTime(const EntityOpenRequest& req) { return QByteArray(); }
 
 	virtual QString buildFileDialogFilter() const;
 };
 
-#endif /* FORMATHANDLER_H_ */
+#endif /* ENTITYHANDLER_H_ */

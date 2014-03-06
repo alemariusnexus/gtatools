@@ -27,13 +27,89 @@
 
 void RWBSSectionModel::addRootSection(RWSection* sect)
 {
-	rootSects << sect;
+	insertSection(sect, NULL);
 }
 
 
 void RWBSSectionModel::removeRootSection(RWSection* sect)
 {
-	rootSects.removeOne(sect);
+	removeSection(sect);
+}
+
+
+QUndoCommand* RWBSSectionModel::createInsertSectionCommand(RWSection* sect, RWSection* parent, int index)
+{
+	if (index == -1) {
+		if (parent)
+			index = parent->getChildCount();
+		else
+			index = rootSects.count();
+	}
+
+	return new RWBSSectionInsertCommand(this, parent, sect, index);
+}
+
+
+QUndoCommand* RWBSSectionModel::createRemoveSectionCommand(RWSection* sect)
+{
+	return new RWBSSectionRemoveCommand(this, sect->getParent(),
+			sect->getParent() ? sect->getParent()->indexOf(sect) : getRootSectionIndex(sect));
+}
+
+
+QUndoCommand* RWBSSectionModel::createClearCommand()
+{
+	CompoundUndoCommand* cmd = new CompoundUndoCommand;
+
+	for (SectIterator it = rootSects.begin() ; it != rootSects.end() ; it++) {
+		QUndoCommand* rcmd = createRemoveSectionCommand(*it);
+		cmd->addCommand(rcmd);
+	}
+
+	return cmd;
+}
+
+
+QUndoCommand* RWBSSectionModel::createUpdateSectionCommand(RWSection* sect, uint32_t id, uint32_t version, bool container)
+{
+	return new RWBSSectionUpdateCommand(this, sect, id, version, container);
+}
+
+
+void RWBSSectionModel::updateSection(RWSection* sect, uint32_t id, uint32_t version, bool container)
+{
+	uint32_t oldId = sect->getID();
+	uint32_t oldVer = sect->getVersion();
+	bool oldCont = sect->isContainerSection();
+
+	emit layoutAboutToBeChanged();
+
+	QModelIndex oldIdx = getSectionIndex(sect);
+	QList<QModelIndex> oldChildIndices;
+
+	if (oldCont  &&  !container) {
+		buildModelIndexListRecurse(oldChildIndices, oldIdx);
+	}
+
+	sect->setID(id);
+	sect->setVersion(version);
+	sect->setContainerSection(container);
+
+	QModelIndex newIdx = getSectionIndex(sect);
+
+	changePersistentIndex(oldIdx, newIdx);
+
+	if (oldCont  &&  !container) {
+		for (QList<QModelIndex>::iterator it = oldChildIndices.begin() ; it != oldChildIndices.end() ; it++) {
+			QModelIndex oldChildIdx = *it;
+
+			changePersistentIndex(oldChildIdx, QModelIndex());
+		}
+	}
+
+	emit sectionUpdated(sect, oldId, oldVer, oldCont);
+
+	emit layoutChanged();
 }
 
 
@@ -50,10 +126,11 @@ void RWBSSectionModel::insertSection(RWSection* sect, RWSection* parent, int ind
 
 	beginInsertRows(parentIdx, index, index);
 
-	if (parent)
+	if (parent) {
 		parent->insertChild(parent->getChildBegin() + index, sect);
-	else
+	} else {
 		rootSects.insert(index, sect);
+	}
 
 	endInsertRows();
 
@@ -86,6 +163,26 @@ int RWBSSectionModel::removeSection(RWSection* sect)
 	emit sectionRemoved(sect, parent);
 
 	return index;
+}
+
+
+void RWBSSectionModel::buildModelIndexListRecurse(QList<QModelIndex>& indices, QModelIndex idx)
+{
+	int rc = rowCount(idx);
+	int cc = columnCount(idx);
+
+	for (int i = 0 ; i < rc ; i++) {
+		for (int j = 0 ; j < cc ; j++) {
+			QModelIndex childIdx = index(i, j, idx);
+
+			if (childIdx.isValid()) {
+				indices << childIdx;
+			}
+		}
+
+		QModelIndex childIdx = index(i, 0, idx);
+		buildModelIndexListRecurse(indices, childIdx);
+	}
 }
 
 
@@ -129,7 +226,7 @@ QVariant RWBSSectionModel::data(const QModelIndex& index, int role) const
 		if (index.column() == 0) {
 			char sectName[RW_MAX_SECTION_NAME];
 			RWGetSectionName(sect->getID(), sectName);
-			return QString(tr("%1 [0x%2, %3 bytes @ 0x%4]"))
+			return QString(tr("<b>%1</b> [0x%2, %3 bytes @ 0x%4]"))
 					.arg((strncmp(sectName, "RW_", 3) == 0) ? sectName+11 : sectName) // Without RW_SECTION_
 					.arg(QString("%1").arg(sect->getID(), 0, 16, QChar('0')).toUpper())
 					.arg(sect->getSize())

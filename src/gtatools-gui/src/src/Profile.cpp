@@ -28,6 +28,7 @@
 #include <utility>
 #include <gtaformats/gtaide.h>
 #include <gtaformats/util/strutil.h>
+#include <gtaformats/dat/ResourceDATLoader.h>
 #include <gta/render/DefaultRenderer.h>
 #include <gta/scene/visibility/PVSDatabase.h>
 #include <QtCore/QTimer>
@@ -44,14 +45,11 @@ Profile::Profile(const QString& name)
 {
 	connect(ProfileManager::getInstance(), SIGNAL(currentProfileChanged(Profile*, Profile*)), this,
 			SLOT(currentProfileChanged(Profile*, Profile*)));
-
-	scene = new Scene;
 }
 
 
 Profile::~Profile()
 {
-	delete scene;
 }
 
 
@@ -224,14 +222,24 @@ void Profile::loadSingleDAT()
 		File* file = datLoadingQueue.dequeue();
 		Engine* engine = Engine::getInstance();
 
-		Scene* oldScene = engine->getScene();
+		istream* in = file->openInputStream(istream::in);
+		ResourceDATLoader dat(gameInfo.getRootDirectory());
+
+		ResourceDATLoader::Entry e;
+		while (dat.loadEntry(in, e)) {
+			if (e.type == ResourceDATLoader::IDE  ||  e.type == ResourceDATLoader::IMG  ||  e.type == ResourceDATLoader::TXD) {
+				engine->addResource(e.resolvedFile);
+			}
+		}
+
+		/*Scene* oldScene = engine->getScene();
 		if (engine->getScene() != scene)
 			engine->setScene(scene);
 
 		engine->loadDAT(*file, gameInfo.getRootDirectory());
 
 		if (oldScene != scene)
-			engine->setScene(oldScene);
+			engine->setScene(oldScene);*/
 
 		QTimer::singleShot(0, this, SLOT(loadSingleDAT()));
 	} else {
@@ -247,13 +255,13 @@ void Profile::currentProfileChanged(Profile* oldProfile, Profile* newProfile)
 	if (oldProfile == this  &&  newProfile != this) {
 		interruptResourceLoading();
 		engine->clearResources();
-		disconnect(System::getInstance(), SIGNAL(systemQuerySent(const SystemQuery&, SystemQueryResult&)),
-				this, SLOT(systemQuerySent(const SystemQuery&, SystemQueryResult&)));
+		disconnect(System::getInstance(), SIGNAL(systemQuerySent(const SystemQuery&, QList<SystemQueryResult>&)),
+				this, SLOT(systemQuerySent(const SystemQuery&, QList<SystemQueryResult>&)));
 		engine->removeResourceObserver(this);
 	} else if (oldProfile != this  &&  newProfile == this) {
 		//connect(this, SIGNAL(resourceAdded(const File&)), this, SLOT(resourceAddedSlot(const File&)));
-		connect(System::getInstance(), SIGNAL(systemQuerySent(const SystemQuery&, SystemQueryResult&)),
-				this, SLOT(systemQuerySent(const SystemQuery&, SystemQueryResult&)));
+		connect(System::getInstance(), SIGNAL(systemQuerySent(const SystemQuery&, QList<SystemQueryResult>&)),
+				this, SLOT(systemQuerySent(const SystemQuery&, QList<SystemQueryResult>&)));
 		engine->setDefaultGameInfo(gameInfo);
 		engine->addResourceObserver(this);
 		loadResourceIndex();
@@ -497,24 +505,23 @@ bool Profile::setDATFiles(const QLinkedList<File>& files)
 }
 
 
-void Profile::systemQuerySent(const SystemQuery& query, SystemQueryResult& result)
+void Profile::systemQuerySent(const SystemQuery& query, QList<SystemQueryResult>& results)
 {
-	if (!result.isSuccessful()) {
-		if (query.getName() == "FindMeshTextures") {
-			QString meshName = query["meshName"].toString();
-			char** textures;
-			int numTexes = findTexturesForMesh(LowerHash(meshName.toAscii().constData()), textures);
-			QStringList texNames;
+	if (query.getName() == "FindMeshTextures") {
+		QString meshName = query["meshName"].toString();
+		char** textures;
+		int numTexes = findTexturesForMesh(LowerHash(meshName.toAscii().constData()), textures);
+		QStringList texNames;
 
-			for (int i = 0 ; i < numTexes ; i++) {
-				texNames << textures[i];
-			}
-
-			delete[] textures;
-
-			result["textures"] = QVariant(texNames);
-			result.setSuccessful(true);
+		for (int i = 0 ; i < numTexes ; i++) {
+			texNames << textures[i];
 		}
+
+		delete[] textures;
+
+		SystemQueryResult res;
+		res["textures"] = QVariant(texNames);
+		results << res;
 	}
 }
 

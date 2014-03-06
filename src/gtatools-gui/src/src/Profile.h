@@ -102,7 +102,7 @@ private slots:
 	void loadSingleDAT();
 	void currentProfileChanged(Profile* oldProfile, Profile* newProfile);
 	void resourcesInitialized();
-	void systemQuerySent(const SystemQuery& query, SystemQueryResult& result);
+	void systemQuerySent(const SystemQuery& query, QList<SystemQueryResult>& results);
 
 signals:
 	//void changed();
@@ -128,7 +128,6 @@ private:
 	Task* resourceLoadingTask;
 	Task* datLoadingTask;
 	bool stopResourceLoading;
-	Scene* scene;
 };
 
 //Q_DECLARE_METATYPE(Profile)

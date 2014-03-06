@@ -21,10 +21,19 @@
  */
 
 #include "DisplayedFile.h"
-#include "formats/FormatHandler.h"
+#include "formats/EntityHandler.h"
 #include "System.h"
 #include <QtGui/QFileDialog>
 
+
+
+DisplayedFile::DisplayedFile(const File& file, EntityHandler* handler, QWidget* widget)
+		: DisplayedEntity(), file(file), widget(widget), handler(handler)
+{
+	signature = QByteArray("DisplayedFile");
+	signature.append((const char*) handler, sizeof(const char*));
+	signature.append(file.getPath()->toString().get());
+}
 
 
 DisplayedFile::~DisplayedFile()
@@ -34,9 +43,9 @@ DisplayedFile::~DisplayedFile()
 }
 
 
-bool DisplayedFile::doSave(bool useLast)
+bool DisplayedFile::doSaveChanges(bool letUserChooseFile)
 {
-	if (!useLast) {
+	if (letUserChooseFile) {
 		QString filter = handler->buildFileDialogFilter();
 
 		QString fname = QFileDialog::getSaveFileName(System::getInstance()->getMainWindow(),
@@ -45,11 +54,16 @@ bool DisplayedFile::doSave(bool useLast)
 		if (!fname.isNull()) {
 			File file(fname.toLocal8Bit().constData());
 			this->file = file;
+
+			DisplayedEntity::doSaveChanges(false);
+
 			return true;
 		}
 
 		return false;
 	} else {
+		DisplayedEntity::doSaveChanges(false);
+
 		return true;
 	}
 }
@@ -57,5 +71,5 @@ bool DisplayedFile::doSave(bool useLast)
 
 QString DisplayedFile::getFormatName() const
 {
-	return handler->getFormatName(&file);
+	return handler->getFileFormatName(file);
 }

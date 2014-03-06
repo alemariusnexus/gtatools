@@ -26,6 +26,7 @@
 #include <gta/config.h>
 #include <gtaformats/col/COLModel.h>
 #include "../ResourceCache.h"
+#include <btBulletCollisionCommon.h>
 
 
 class CollisionMesh

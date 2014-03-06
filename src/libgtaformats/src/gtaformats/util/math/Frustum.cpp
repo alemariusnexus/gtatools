@@ -41,13 +41,6 @@ void Frustum::calculateProjectionMatrix()
 	if (projMatValid)
 		return;
 
-	/*projMat = Matrix4 (
-		2*nnear/(right-left),		0,							0,								0,
-		0,							2*nnear/(top-bottom),		0, 								0,
-		(right+left)/(right-left),	(top+bottom)/(top-bottom),	(-(ffar+nnear))/(ffar-nnear),		-1,
-		0,							0,							(-2*ffar*nnear)/(ffar-nnear),		0
-	);*/
-
 	projMat = Matrix4 (
 		2*nnear/(right-left),		0,							0,								0,
 		0,							2*nnear/(top-bottom),		0, 								0,

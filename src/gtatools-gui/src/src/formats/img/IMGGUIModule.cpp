@@ -109,7 +109,7 @@ void IMGGUIModule::buildFileTreeMenu(const QLinkedList<File*>& files, QMenu& men
 }
 
 
-void IMGGUIModule::currentEntityChanged(DisplayedEntity* dent, DisplayedEntity* prev)
+void IMGGUIModule::currentEntityChanged(DisplayedEntity* prev, DisplayedEntity* dent)
 {
 	QMenu* fileMenu = mainWindow->getFileMenu();
 

@@ -66,6 +66,12 @@ private:
 	CXX0XHash<std::string> strHash;
 };
 
+template <>
+class CXX0XHash<void*> {
+public:
+	size_t operator()(const void* ptr) const { return (size_t) ptr; }
+};
+
 
 
 #else

@@ -27,30 +27,31 @@
 #include <gtaformats/util/File.h>
 
 
-class FormatHandler;
+class EntityHandler;
 
 
 class DisplayedFile : public DisplayedEntity {
 	Q_OBJECT
 
 public:
-	DisplayedFile(const File& file, FormatHandler* handler, QWidget* widget = NULL)
-			: DisplayedEntity(), file(file), widget(widget), handler(handler) {}
+	DisplayedFile(const File& file, EntityHandler* handler, QWidget* widget);
 	~DisplayedFile();
 	virtual QString getFormatName() const;
 	virtual QWidget* getWidget() const { return widget; }
 	void setWidget(QWidget* widget) { this->widget = widget; }
 	virtual File getFile() const { return file; }
 	virtual QString getName() const { return file.getPath()->getFileName().get(); }
-	FormatHandler* getFormatHandler() { return handler; }
+	EntityHandler* getEntityHandler() { return handler; }
+	virtual QByteArray getSignature() const { return signature; }
 
 protected:
-	virtual bool doSave(bool useLast);
+	virtual bool doSaveChanges(bool letUserChooseFile);
 
 private:
 	File file;
 	QWidget* widget;
-	FormatHandler* handler;
+	EntityHandler* handler;
+	QByteArray signature;
 };
 
 #endif /* DISPLAYEDFILE_H_ */

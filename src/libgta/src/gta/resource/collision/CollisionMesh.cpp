@@ -44,3 +44,4 @@ cachesize_t CollisionMesh::getCacheSize() const
 {
 	return sizeof(CollisionMesh) + numVertices*3*sizeof(float) + numFaces*3*sizeof(uint32_t);
 }
+

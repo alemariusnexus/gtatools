@@ -25,14 +25,15 @@
 #include "resource/texture/ManagedTextureSource.h"
 #include "resource/collision/ManagedCollisionShapePointer.h"
 #include "resource/smesh/ManagedShadowMeshPointer.h"
+#include "resource/physics/ManagedPhysicsPointer.h"
 #include "gl.h"
 #include "GLException.h"
 
 
 
 StaticMapItemDefinition::StaticMapItemDefinition(MeshPointer* meshPtr, TextureSource* texSrc,
-		CollisionShapePointer* colPtr, ShadowMeshPointer* smeshPtr, float drawDist, unsigned int flags)
-		: MapItemDefinition(meshPtr, texSrc, colPtr, smeshPtr, drawDist, flags), initedProgram(NULL)
+		CollisionShapePointer* colPtr, ShadowMeshPointer* smeshPtr, PhysicsPointer* pptr, float drawDist, unsigned int flags)
+		: MapItemDefinition(meshPtr, texSrc, colPtr, smeshPtr, pptr, drawDist, flags), initedProgram(NULL)
 {
 }
 
@@ -47,6 +48,7 @@ StaticMapItemDefinition::StaticMapItemDefinition(IDEStaticObject& object)
 	texSrc = new ManagedTextureSource(CString(object.getTXDArchiveName()).lower());
 	colPtr = new ManagedCollisionShapePointer(lMeshName);
 	smeshPtr = new ManagedShadowMeshPointer(lMeshName);
+	physicsPtr = new ManagedPhysicsPointer(lMeshName);
 
 	if (	(object.getFlags() & (IDEStaticObject::AlphaTransparency1 | IDEStaticObject::AlphaTransparency2))
 			!= 0
@@ -62,4 +64,5 @@ StaticMapItemDefinition::~StaticMapItemDefinition()
 	delete texSrc;
 	delete colPtr;
 	delete smeshPtr;
+	delete physicsPtr;
 }

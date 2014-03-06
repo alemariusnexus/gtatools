@@ -30,6 +30,7 @@
 #include <gta/ShaderProgram.h>
 #include <gta/resource/ResourceCache.h>
 #include <gta/scene/Scene.h>
+#include <gta/resource/collision/COLMeshConverter.h>
 #include <gtaformats/util/util.h>
 #include <gtaformats/util/strutil.h>
 #include <cstdio>
@@ -41,6 +42,7 @@
 #include <gta/resource/texture/NullTextureSource.h>
 #include <gta/resource/mesh/StaticMeshPointer.h>
 #include <gta/resource/collision/StaticCollisionShapePointer.h>
+#include <gta/resource/physics/StaticPhysicsPointer.h>
 #include <gta/StaticMapItemDefinition.h>
 #include <gta/ItemManager.h>
 #include <gta/render/DefaultRenderer.h>
@@ -54,8 +56,10 @@
 #include <gtaformats/ifp/IFPObject.h>
 #include <gtaformats/ifp/IFPRotTransFrame.h>
 #include <gtaformats/ifp/IFPRotTransScaleFrame.h>
+#include <gtaformats/col/COLLoader.h>
 #include <gtaformats/util/Exception.h>
 #include <gtaformats/util/CRC32.h>
+#include <gtaformats/util/DefaultFileFinder.h>
 #include <gtaformats/util/math/project.h>
 #include <gta/resource/animation/ManagedAnimationPackagePointer.h>
 #include <gta/gldebug.h>
@@ -68,6 +72,8 @@
 #include <gta/scene/objects/AmbientLightSource.h>
 #include <gta/scene/objects/AnimatedMapSceneObject.h>
 #include <gta/scene/objects/MapSceneObject.h>
+#include <gta/scene/objects/SimpleDynamicSceneObject.h>
+#include <gta/scene/objects/Vehicle.h>
 #include <gta/AnimatedMapItemDefinition.h>
 #include <gta/resource/animation/AnimationCacheEntry.h>
 #include <gta/resource/smesh/ShadowMesh.h>
@@ -89,7 +95,8 @@ Controller::Controller()
 		: lastFrameStart(0), lastMeasuredFrameStart(0), moveFactor(1.0f),
 		  moveForwardFactor(0.0f), moveSidewardFactor(0.0f), moveUpFactor(0.0f), firstFrame(true),
 		  framesSinceLastMeasure(0), lastMouseX(-1), lastMouseY(-1), printCacheStatistics(false),
-		  programRunning(true), forceStatisticsUpdate(false),
+		  programRunning(true), forceStatisticsUpdate(false), freeRunning(true), increaseTime(false),
+		  increaseTimeHold(false),
 		  lastSelectedObj(NULL)
 {
 }
@@ -162,19 +169,15 @@ void Controller::init()
 
 	printf("Initializing Bullet...\n");
 
-	btDefaultCollisionConfiguration* config = new btDefaultCollisionConfiguration();
-	btCollisionDispatcher* dispatcher = new btCollisionDispatcher(config);
-	btBroadphaseInterface* broadphase = new btDbvtBroadphase();
-	btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver();
-	btDiscreteDynamicsWorld* world = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, config);
 
-	world->setGravity(btVector3(0.0f, 0.0f, -9.81f));
+
+	//world->setGravity(btVector3(0.0f, 0.0f, -9.81f));
 
 #ifndef GT_USE_OPENGL_ES
 	glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
 	glEnable(GL_LINE_SMOOTH);
 #endif
-	glLineWidth(1.0f);
+	glLineWidth(0.5f);
 
 	gtaglInit();
 
@@ -205,7 +208,7 @@ void Controller::init()
 
 	Scene* scene = new Scene;
 
-	scene->setPhysicsWorld(world);
+	//scene->setPhysicsWorld(world);
 
 	Camera* cam = new Camera;
 	engine->setCamera(cam);
@@ -258,7 +261,7 @@ void Controller::init()
 
 	addResource(File(GTASA_PATH "/anim/ped.ifp"));
 	//engine->addResource(File(GTASA_PATH ""));
-	//engine->addResource(File(GTASA_PATH "/models/generic/vehicle.txd"));
+	engine->addResource(File(GTASA_PATH "/models/generic/vehicle.txd"));
 
 	printf("Loading DAT files...\n");
 	engine->loadDAT(File(GTASA_PATH "/data/default.dat"), File(GTASA_PATH));
@@ -275,6 +278,7 @@ void Controller::init()
 
 	case GameInfo::GTAIII:
 		engine->loadDAT(File(GTASA_PATH "/data/gta3.dat"), File(GTASA_PATH));
+		//engine->loadDAT(File(GTASA_PATH "/data/test.dat"), File(GTASA_PATH));
 		break;
 	}
 
@@ -381,7 +385,7 @@ void Controller::init()
 			ManagedTextureSource* texSrc = new ManagedTextureSource(AnimationData[i*4 + 1]);
 			ManagedAnimationPackagePointer* animPtr = new ManagedAnimationPackagePointer(AnimationData[i*4 + 2]);
 
-			AnimatedMapItemDefinition* def = new AnimatedMapItemDefinition(meshPtr, texSrc, NULL, NULL, animPtr, 100.0f, 0);
+			AnimatedMapItemDefinition* def = new AnimatedMapItemDefinition(meshPtr, texSrc, NULL, NULL, NULL, animPtr, 100.0f, 0);
 
 			AnimatedMapSceneObject* obj = new AnimatedMapSceneObject;
 
@@ -396,7 +400,60 @@ void Controller::init()
 	}
 
 
+	TextureIndexer* txdIdx = TextureIndexer::getInstance();
 
+	TextureArchive* infernusArchive = txdIdx->findArchive("infernus");
+	TextureArchive* vehicleArchive = txdIdx->findArchive("vehicle");
+
+	printf("VA: %p\n", vehicleArchive);
+
+	infernusArchive->setParent(vehicleArchive);
+
+
+
+	/*float testRadius = 5.0f;
+
+	MeshGenerator mg;
+
+	Mesh* mesh = mg.createSphere(testRadius, 10, 10);
+
+	for (Mesh::SubmeshIterator it = mesh->getSubmeshBegin() ; it != mesh->getSubmeshEnd() ; it++) {
+		Submesh* submesh = *it;
+		Material* mat = new Material;
+		mat->setColor(255, 0, 0, 50);
+		mesh->addMaterial(mat);
+		submesh->setMaterial(mat);
+	}
+
+	MeshClump* clump = new MeshClump;
+
+	MeshFrame* rootFrame = new MeshFrame;
+	clump->setRootFrame(rootFrame);
+
+	clump->addMesh(mesh);
+
+	StaticMeshPointer* meshPtr = new StaticMeshPointer(clump);
+
+	btSphereShape* shape = new btSphereShape(testRadius);
+	StaticPhysicsPointer* physPtr = new StaticPhysicsPointer(shape);
+
+	SimpleDynamicSceneObject* sdObj = new SimpleDynamicSceneObject(meshPtr, NULL, NULL, NULL, physPtr, 250.0f, 20.0f, Matrix4::translation(100.0f, -100.0f, 100.0f));
+	btRigidBody* rb = sdObj->getRigidBody();
+
+	rb->setRestitution(1.0f);
+	rb->forceActivationState(DISABLE_DEACTIVATION);
+	rb->setLinearVelocity(btVector3(20.0f, 0.0f, 0.0f));
+	//rb->applyForce(btVector3(1.0f, 0.0f, 0.0f), btVector3(0.0f, 0.0f, 0.0f));
+
+	sdObj->setBoundingSphere(Vector3::Zero, testRadius);
+
+	scene->addSceneObject(sdObj);*/
+
+	/*veh = new Vehicle("infernus", Matrix4::translation(0.0f, 0.0f, 500.0f) * Matrix4::rotationY(0.5f));
+
+	veh->setBoundingSphere(Vector3::Zero, 25.0f);
+
+	scene->addSceneObject(veh);*/
 
 	/*MeshGenerator mg;
 
@@ -619,6 +676,7 @@ void Controller::init()
 
 
 
+
 	PVSDatabase* pvs = scene->getStreamingManager()->getPVSDatabase();
 
 	File pvsFile(GTASA_PATH "/visibility.pvs");
@@ -656,7 +714,7 @@ void Controller::init()
 
 	if (!pvsBuilt) {
 		printf("Building PVS data from scratch. This may take some time...\n");
-		pvs->calculateSections(5000.0f, 5000.0f, 2000.0f);
+		pvs->calculateSections(500.0f, 500.0f, 2000.0f);
 		pvs->calculatePVS(8);
 		printf("Writing PVS data to file '%s'\n", pvsFile.getPath()->toString().get());
 		//pvs->save(pvsFile);
@@ -742,10 +800,10 @@ void Controller::init()
 
 	// <------ X+
 	// V Y+
-	//cam->setPosition(0.0f, 0.0f, 0.0f);
+	cam->setPosition(0.0f, 0.0f, 20.0f);
 
-	cam->setPosition(-1955.232544f, -58.526737f, 49.788841f);
-	cam->lookAt(Vector3(0.595735f, 0.704997f, -0.384810f), Vector3(0.248370f, 0.293923f, 0.922996f));
+	//cam->setPosition(-1955.232544f, -58.526737f, 49.788841f);
+	//cam->lookAt(Vector3(0.595735f, 0.704997f, -0.384810f), Vector3(0.248370f, 0.293923f, 0.922996f));
 
 	//cam->setPosition(-2067.237549f, -2.653352f, 115.438286f);
 	//cam->lookAt(Vector3(0.860327f, -0.065335f, -0.505538f), Vector3(0.499779f, -0.037955f, 0.865321f));
@@ -755,6 +813,9 @@ void Controller::init()
 
 	//cam->setPosition(2148.097168f, -1520.077026f, 58.264038f);
 	//cam->lookAt(Vector3(0.065757f, -0.875112f, -0.479432f), Vector3(0.035923f, -0.478085f, 0.877579f));
+
+	//cam->setPosition(-110.013428f, -270.041931f, 23.978954f);
+	//cam->lookAt(Vector3(0.068262f, -0.908477f, -0.412323f), Vector3(0.031236f, -0.415701f, 0.908965f));
 
 	GLException::checkError("After init");
 }
@@ -816,9 +877,25 @@ bool Controller::paint()
 		timePassed = time - lastFrameStart;
 	}
 
+#if 1
 	cam->move(timeFactor*moveForwardFactor*moveFactor);
 	cam->moveSideways(timeFactor*moveSidewardFactor*moveFactor);
 	cam->moveUp(timeFactor*moveUpFactor*moveFactor);
+#else
+	Vector3 cpos(0.0f, -5.0f, 2.5f);
+	cpos = veh->getModelMatrix() * cpos;
+
+	cam->setPosition(cpos);
+
+	Vector3 target(0.0f, 1.0f, -0.5f);
+	Vector3 up(0.0f, 0.0f, 1.0f);
+
+	cam->lookAt(target, up);
+#endif
+
+	//Matrix4 mm = veh->getModelMatrix();
+	//const float* a = mm.toArray();
+	//veh->setModelMatrix(Matrix4::translation(a[12], a[13]+0.25f, a[14]));
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -898,7 +975,16 @@ bool Controller::paint()
 	}
 
 	s = GetTickcountMicroseconds();
-	engine->advanceFrame(timePassed);
+
+	if (freeRunning  ||  increaseTime) {
+		engine->advanceFrame(timePassed);
+
+		if (!increaseTimeHold)
+			increaseTime = false;
+	} else {
+		engine->advanceFrame(0);
+	}
+
 	e = GetTickcountMicroseconds();
 
 	absE = GetTickcountMicroseconds();
@@ -937,8 +1023,6 @@ void Controller::addResource(const File& file)
 	}
 }
 
-
-bool wireframe = false;
 
 
 void Controller::keyPressed(SDL_keysym evt)
@@ -992,7 +1076,8 @@ void Controller::keyPressed(SDL_keysym evt)
 			glEnable(GL_CULL_FACE);
 		}
 	} else if (k == SDLK_b) {
-		wireframe = !wireframe;
+		Renderer* renderer = engine->getScene()->getRenderer();
+		renderer->setWireframeRendering(!renderer->isWireframeRendering());
 	} else if (k == SDLK_u) {
 		Camera* cam = Engine::getInstance()->getCamera();
 		lightPos = Vector4(cam->getPosition(), 0.0f);
@@ -1009,6 +1094,14 @@ void Controller::keyPressed(SDL_keysym evt)
 		Camera* cam = engine->getCamera();
 		cam->setPosition(Vector3(0.0f, 0.0f, 0.0f));
 		cam->lookAt(Vector3::NegativeUnitY, Vector3::UnitZ);
+	} else if (k == SDLK_h) {
+		freeRunning = !freeRunning;
+	} else if (k == SDLK_0) {
+		increaseTime = true;
+		increaseTimeHold = true;
+	} else if (k == SDLK_9) {
+		increaseTime = true;
+		increaseTimeHold = false;
 	}
 }
 
@@ -1030,6 +1123,9 @@ void Controller::keyReleased(SDL_keysym evt)
 	case SDLK_q:
 	case SDLK_y:
 		moveUpFactor = 0.0f;
+		break;
+	case SDLK_0:
+		increaseTimeHold = false;
 		break;
 	default:
 		break;

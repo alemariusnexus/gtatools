@@ -34,6 +34,7 @@
 #include "FileSearchDialog.h"
 #include "VersionDialog.h"
 #include "PVSDialog.h"
+#include "../DisplayedEntityHandler.h"
 
 
 
@@ -96,6 +97,14 @@ DefaultGUIModule::DefaultGUIModule()
 	pvsAction = new QAction(tr("Build PVS Data"), NULL);
 	connect(pvsAction, SIGNAL(triggered(bool)), this, SLOT(onBuildPVS(bool)));
 
+	undoAction = undoGroup.createUndoAction(NULL);
+	undoAction->setShortcut(QKeySequence::Undo);
+
+	redoAction = undoGroup.createRedoAction(NULL);
+	redoAction->setShortcut(QKeySequence::Redo);
+
+	undoGroup.addStack(&dummyUndoStack);
+
 	connect(sys, SIGNAL(entityOpened(DisplayedEntity*)), this, SLOT(entityOpened(DisplayedEntity*)));
 	connect(sys, SIGNAL(entityClosed(DisplayedEntity*)), this, SLOT(entityClosed(DisplayedEntity*)));
 	connect(sys, SIGNAL(currentEntityChanged(DisplayedEntity*, DisplayedEntity*)), this,
@@ -155,11 +164,15 @@ void DefaultGUIModule::doInstall()
 	versionInfoAction->setParent(mainWindow);
 	systemOpenAction->setParent(mainWindow);
 	pvsAction->setParent(mainWindow);
+	undoAction->setParent(mainWindow);
+	redoAction->setParent(mainWindow);
 
 	fileMenu->addAction(fileOpenAction);
 	fileMenu->addAction(fileCloseAction);
 	fileMenu->addAction(fileSaveAction);
 	fileMenu->addAction(fileSaveAsAction);
+	editMenu->addAction(undoAction);
+	editMenu->addAction(redoAction);
 	editMenu->addAction(searchFileAction);
 	settingsMenu->addAction(settingsAction);
 	helpMenu->addAction(aboutQtAction);
@@ -357,28 +370,37 @@ void DefaultGUIModule::onFileOpen(bool checked)
 
 void DefaultGUIModule::onFileClose(bool checked)
 {
-	System::getInstance()->closeCurrentEntity();
+	System* sys = System::getInstance();
+
+	sys->closeEntity(sys->getCurrentEntity());
 }
 
 
 void DefaultGUIModule::onFileSave(bool checked)
 {
 	DisplayedEntity* dent = System::getInstance()->getCurrentEntity();
-	dent->save(true);
+	dent->saveChanges(false);
 }
 
 
 void DefaultGUIModule::onFileSaveAs(bool checked)
 {
 	DisplayedEntity* dent = System::getInstance()->getCurrentEntity();
-	dent->save(false);
+	dent->saveChanges(true);
 }
 
 
 void DefaultGUIModule::entityOpened(DisplayedEntity* ent)
 {
 	fileCloseAction->setEnabled(true);
-	connect(ent, SIGNAL(changeStatusChanged()), this, SLOT(entityChangeStatusChanged()));
+
+	connect(ent, SIGNAL(hasUnsavedChangesStateChanged(bool)), this, SLOT(entityHasUnsavedChangesStateChanged(bool)));
+	connect(ent, SIGNAL(currentEditHandlerChanged(DisplayedEntityHandler*, DisplayedEntityHandler*)), this,
+			SLOT(entityCurrentEditHandlerChanged(DisplayedEntityHandler*, DisplayedEntityHandler*)));
+
+	if (ent->getCurrentEditHandler()) {
+		undoGroup.addStack(ent->getCurrentEditHandler()->getUndoStack());
+	}
 }
 
 
@@ -390,21 +412,72 @@ void DefaultGUIModule::entityClosed(DisplayedEntity* ent)
 		fileCloseAction->setEnabled(false);
 	}
 
+	if (ent->getCurrentEditHandler()) {
+		undoGroup.removeStack(ent->getCurrentEditHandler()->getUndoStack());
+	}
+
+	entityLastReleasedEditLockHandlers.remove(ent);
+
 	disconnect(ent, NULL, this, NULL);
 }
 
 
-void DefaultGUIModule::currentEntityChanged(DisplayedEntity* current, DisplayedEntity* prev)
+void DefaultGUIModule::currentEntityChanged(DisplayedEntity* prev, DisplayedEntity* current)
 {
-	fileSaveAction->setEnabled(current  &&  current->canSave()  &&  current->hasChanges());
+	fileSaveAction->setEnabled(current  &&  current->canSave()  &&  current->hasUnsavedChanges());
 	fileSaveAsAction->setEnabled(current  &&  current->canSave());
+
+	if (current  &&  current->getCurrentEditHandler()) {
+		undoGroup.setActiveStack(current->getCurrentEditHandler()->getUndoStack());
+	} else {
+		if (current) {
+			// Special case: See comment in entityCurrentEditHandlerChanged()
+
+			QMap<DisplayedEntity*, DisplayedEntityHandler*>::iterator it = entityLastReleasedEditLockHandlers.find(current);
+
+			if (it == entityLastReleasedEditLockHandlers.end()) {
+				undoGroup.setActiveStack(&dummyUndoStack);
+			} else {
+				DisplayedEntityHandler* oldHandler = it.value();
+				undoGroup.setActiveStack(oldHandler->getUndoStack());
+			}
+		} else {
+			undoGroup.setActiveStack(&dummyUndoStack);
+		}
+	}
 }
 
 
-void DefaultGUIModule::entityChangeStatusChanged()
+void DefaultGUIModule::entityHasUnsavedChangesStateChanged(bool hasChanges)
 {
 	DisplayedEntity* dent = (DisplayedEntity*) sender();
-	fileSaveAction->setEnabled(dent->hasChanges());
+	fileSaveAction->setEnabled(dent->canSave()  &&  dent->hasUnsavedChanges());
+}
+
+
+void DefaultGUIModule::entityCurrentEditHandlerChanged(DisplayedEntityHandler* oldHandler, DisplayedEntityHandler* newHandler)
+{
+	DisplayedEntity* entity = (DisplayedEntity*) sender();
+
+	if (oldHandler  &&  !newHandler) {
+		// Special case: This means that the oldHandler has released its edit lock. As long as no other handler
+		// acquires a lock, it should still be possible to redo changes on the oldHandler's QUndoStack.
+
+		entityLastReleasedEditLockHandlers.insert(entity, oldHandler);
+	} else {
+		if (oldHandler) {
+			undoGroup.removeStack(oldHandler->getUndoStack());
+		}
+
+		if (newHandler) {
+			undoGroup.addStack(newHandler->getUndoStack());
+
+			if (System::getInstance()->getCurrentEntity() == entity)
+				undoGroup.setActiveStack(newHandler->getUndoStack());
+		}
+
+		entityLastReleasedEditLockHandlers.remove(entity);
+	}
 }
 
 

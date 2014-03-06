@@ -23,17 +23,17 @@
 #ifndef UNRECOGNIZEDFORMATHANDLER_H_
 #define UNRECOGNIZEDFORMATHANDLER_H_
 
-#include "../FormatHandler.h"
+#include "../EntityHandler.h"
 #include "../../DisplayedFile.h"
 
 
 
-class UnrecognizedFormatHandler : public FormatHandler {
+class UnrecognizedFormatHandler : public EntityHandler {
 	Q_OBJECT
 
 public:
-	virtual QString getFormatName(const File* file = NULL) const { return tr("Unrecognized File"); }
-	virtual QLinkedList<QString> getFileFormatExtensions() const { return QLinkedList<QString>(); }
+	virtual QString getFileFormatName(const File& file) const { return tr("Unrecognized File"); }
+	virtual QLinkedList<QString> getFileFormatExtensions(const File& file) const { return QLinkedList<QString>(); }
 	virtual bool canHandle(const EntityOpenRequest& req) const { return !req.getAttribute("file").isNull(); }
 	virtual int getSuitability(const EntityOpenRequest& req) const { return 10; }
 	virtual DisplayedEntity* openEntity(const EntityOpenRequest& request)

@@ -80,6 +80,7 @@ public:
 
 	virtual const btRigidBody* getRigidBody() const { return rb; }
 	virtual btRigidBody* getRigidBody() { return rb; }
+	virtual void lockRigidBodyCollisionShape(bool locked);
 	virtual CollisionShapePointer* getCollisionShapePointer()
 			{ return getLODInstance()->getDefinition()->getCollisionShapePointer(); }
 

@@ -23,47 +23,95 @@
 #include "RWBSWidget.h"
 #include "RWBSGUIModule.h"
 #include "../../System.h"
+#include "../../gui/HexEditorUndoCommand.h"
+#include <QtCore/QSettings>
+#include <QtGui/QPushButton>
 
 
 
 RWBSWidget::RWBSWidget(QWidget* parent)
-		: QWidget(parent), currentSection(NULL), openingSection(false)
+		: QWidget(parent), model(new RWBSSectionModel), currentSection(NULL), openingSection(false), undoStack(NULL),
+		  editorUndoDecorator(this)
 {
 	ui.setupUi(this);
 
-	ui.splitter->setSizes(QList<int>() << width()/4 << width()/4 * 3);
+	/*HexEditorBlock* blk1 = new HexEditorBlock(5, 7);
+	blk1->setBackgroundBrush(QBrush(QColor(180, 0, 0, 100)));
+
+	HexEditorBlock* blk2 = new HexEditorBlock(19, 37);
+	blk2->setBackgroundBrush(QBrush(QColor(0, 0, 180, 100)));
+	blk2->setBorderType(HexEditorBlock::ThinBorder);
+
+	QList<int> subdivs;
+	subdivs << 4 << 8 << 12 << 16;
+	blk2->setSubdivisions(subdivs);
+
+	HexEditorBlock* blk3 = new HexEditorBlock(9, 23);
+	blk3->setBackgroundBrush(QBrush(QColor(0, 0, 180, 100)));
+	blk3->setBorderType(HexEditorBlock::ThinBorder);
+
+	editorDoc.addBlock(blk1);
+	editorDoc.addBlock(blk2);
+	editorDoc.addBlock(blk3);*/
+
+	ui.editor->setDocument(&editorDoc);
+
+	sectionTree = new RWBSSectionTree(model, ui.sectionTreeContainerWidget);
+	ui.sectionTreeContainerWidget->layout()->addWidget(sectionTree);
+
+	ui.editor->setUndoDecorator(&editorUndoDecorator);
 
 	ui.decoder->connectToEditor(ui.editor);
 
-	connect(ui.sectionTree, SIGNAL(activated(const QModelIndex&)), this,
+	QSettings settings;
+	ui.mainSplitter->restoreState(settings.value("gui_geometry_RWBSWidget/mainSplitter_state").toByteArray());
+	ui.treeEditorSplitter->restoreState(settings.value("gui_geometry_RWBSWidget/treeEditorSplitter_state").toByteArray());
+
+	setCurrentSection(NULL);
+	sectionTree->setEnabled(false);
+
+	setEditable(true);
+
+	connect(ui.mainSplitter, SIGNAL(splitterMoved(int, int)), this, SLOT(mainSplitterValueChanged(int, int)));
+	connect(ui.treeEditorSplitter, SIGNAL(splitterMoved(int, int)), this, SLOT(treeEditorSplitterValueChanged(int, int)));
+
+	connect(sectionTree, SIGNAL(activated(const QModelIndex&)), this,
 			SLOT(sectionActivated(const QModelIndex&)));
-	connect(ui.editor, SIGNAL(dataChanged(const QByteArray&)), this,
-			SLOT(sectionDataChanged(const QByteArray&)));
+	connect(ui.editor, SIGNAL(dataReplaced(int, int, const QByteArray&, const QByteArray&)), this,
+			SLOT(sectionDataReplaced(int, int, const QByteArray&, const QByteArray&)));
 
-	connect(ui.sectionTree, SIGNAL(sectionChanged(RWSection*)), this, SIGNAL(sectionChanged(RWSection*)));
+	connect(sectionTree, SIGNAL(sectionUpdated(RWSection*, uint32_t, uint32_t, bool)), this,
+			SIGNAL(sectionUpdated(RWSection*, uint32_t, uint32_t, bool)));
+	connect(sectionTree, SIGNAL(sectionUpdated(RWSection*, uint32_t, uint32_t, bool)), this,
+			SLOT(sectionUpdatedSlot(RWSection*, uint32_t, uint32_t, bool)));
 
-	connect(ui.sectionTree, SIGNAL(sectionRemoved(RWSection*, RWSection*)), this,
+	connect(sectionTree, SIGNAL(sectionRemoved(RWSection*, RWSection*)), this,
 			SLOT(sectionRemovedSlot(RWSection*)));
-	connect(ui.sectionTree, SIGNAL(sectionRemoved(RWSection*, RWSection*)), this,
+	connect(sectionTree, SIGNAL(sectionRemoved(RWSection*, RWSection*)), this,
 			SIGNAL(sectionRemoved(RWSection*, RWSection*)));
 
-	connect(ui.sectionTree, SIGNAL(sectionInserted(RWSection*)), this, SIGNAL(sectionInserted(RWSection*)));
+	connect(sectionTree, SIGNAL(sectionInserted(RWSection*)), this, SIGNAL(sectionInserted(RWSection*)));
+}
+
+
+RWBSWidget::~RWBSWidget()
+{
 }
 
 
 void RWBSWidget::showEvent(QShowEvent* evt)
 {
-	RWBSGUIModule* guiModule = RWBSGUIModule::getInstance();
+	/*RWBSGUIModule* guiModule = RWBSGUIModule::getInstance();
 	guiModule->setEditor(ui.editor);
-	System::getInstance()->installGUIModule(guiModule);
+	System::getInstance()->installGUIModule(guiModule);*/
 }
 
 
 void RWBSWidget::hideEvent(QHideEvent* evt)
 {
-	RWBSGUIModule* guiModule = RWBSGUIModule::getInstance();
+	/*RWBSGUIModule* guiModule = RWBSGUIModule::getInstance();
 	guiModule->setEditor(NULL);
-	System::getInstance()->uninstallGUIModule(guiModule);
+	System::getInstance()->uninstallGUIModule(guiModule);*/
 }
 
 
@@ -73,11 +121,18 @@ void RWBSWidget::loadFile(const File& file)
 
 	uint64_t offset = 0;
 
+	QList<RWSection*> sects;
+
 	RWSection* sect = NULL;
 	while ((sect = RWSection::readSection(stream, sect))  !=  NULL) {
-		addRootSection(sect);
 		sect->computeAbsoluteOffsets(offset);
 		offset += sect->getSize() + 12;
+		addRootSection(new RWSection(*sect));
+		sects << sect;
+	}
+
+	for (QList<RWSection*>::iterator it = sects.begin() ; it != sects.end() ; it++) {
+		delete (*it);
 	}
 
 	delete stream;
@@ -86,7 +141,83 @@ void RWBSWidget::loadFile(const File& file)
 
 void RWBSWidget::addRootSection(RWSection* sect)
 {
-	ui.sectionTree->getModel()->addRootSection(sect);
+	/*model->addRootSection(sect);
+	sectionTree->setModel(NULL);
+	sectionTree->setModel(ui.sectionTree->getModel());*/
+
+	if (undoStack) {
+		undoStack->clear();
+	}
+
+	QUndoCommand* cmd = model->createAddRootSectionCommand(sect);
+	cmd->redo();
+	delete cmd;
+
+	sectionTree->setModel(NULL);
+	sectionTree->setModel(model);
+
+	sectionTree->setEnabled(true);
+}
+
+
+void RWBSWidget::clear()
+{
+	if (undoStack) {
+		undoStack->clear();
+	}
+
+	QUndoCommand* cmd = model->createClearCommand();
+	cmd->redo();
+	delete cmd;
+
+	sectionTree->setModel(NULL);
+	sectionTree->setModel(model);
+
+	setCurrentSection(NULL);
+
+	sectionTree->setEnabled(false);
+}
+
+
+void RWBSWidget::setCurrentSection(RWSection* sect)
+{
+	RWSection* oldSect = currentSection;
+
+	currentSection = sect;
+
+	editorUndoDecorator.blockUndo();
+
+	if (sect) {
+		openingSection = true;
+
+		if (sect->isDataSection()) {
+			ui.editor->setEnabled(true);
+			ui.decoder->setEnabled(true);
+			editorDoc.setData(QByteArray((const char*) sect->getData(), sect->getSize()));
+		} else {
+			editorDoc.setData(QByteArray());
+			ui.editor->setEnabled(false);
+			ui.decoder->setEnabled(false);
+		}
+
+		openingSection = false;
+	} else {
+		editorDoc.setData(QByteArray());
+		ui.editor->setEnabled(false);
+		ui.decoder->setEnabled(false);
+	}
+
+	editorUndoDecorator.unblockUndo();
+
+	if (sect) {
+		QModelIndex idx = model->getSectionIndex(sect);
+
+		sectionTree->setCurrentIndex(idx);
+	} else {
+		sectionTree->setCurrentIndex(QModelIndex());
+	}
+
+	emit currentSectionChanged(oldSect, currentSection);
 }
 
 
@@ -137,6 +268,16 @@ void RWBSWidget::save(const File& file)
 }
 
 
+void RWBSWidget::setEditable(bool editable)
+{
+	this->editable = editable;
+
+	ui.editor->setEditable(editable);
+	ui.decoder->setEditable(editable);
+	sectionTree->setEditable(editable);
+}
+
+
 void RWBSWidget::applyChanges()
 {
 	if (currentSection) {
@@ -159,36 +300,52 @@ void RWBSWidget::sectionActivated(const QModelIndex& index)
 	applyChanges();
 
 	RWSection* sect = (RWSection*) index.internalPointer();
-	currentSection = sect;
-
-	if (sect) {
-		openingSection = true;
-
-		if (sect->isDataSection()) {
-			ui.editor->setEnabled(true);
-			ui.editor->setData(QByteArray((const char*) sect->getData(), sect->getSize()));
-		} else {
-			ui.editor->setData(QByteArray());
-			ui.editor->setEnabled(false);
-		}
-
-		openingSection = false;
-	}
+	setCurrentSection(sect);
 }
 
 
-void RWBSWidget::sectionDataChanged(const QByteArray& data)
+void RWBSWidget::sectionDataReplaced(int offset, int len, const QByteArray& oldData, const QByteArray& newData)
 {
 	if (!openingSection)
-		emit sectionChanged(currentSection);
+		emit sectionDataChanged(currentSection);
 }
 
 
 void RWBSWidget::sectionRemovedSlot(RWSection* sect)
 {
 	if (currentSection == sect) {
-		ui.editor->setData(QByteArray());
-		ui.editor->setEnabled(false);
-		currentSection = NULL;
+		setCurrentSection(NULL);
 	}
+}
+
+
+void RWBSWidget::sectionUpdatedSlot(RWSection* sect, uint32_t oldID, uint32_t oldVersion, bool oldContainer)
+{
+	if (oldContainer != sect->isContainerSection()) {
+		setCurrentSection(sect);
+	}
+}
+
+
+void RWBSWidget::mainSplitterValueChanged(int pos, int idx)
+{
+	QSettings settings;
+
+	settings.setValue("gui_geometry_RWBSWidget/mainSplitter_state", ui.mainSplitter->saveState());
+}
+
+
+void RWBSWidget::treeEditorSplitterValueChanged(int pos, int idx)
+{
+	QSettings settings;
+
+	settings.setValue("gui_geometry_RWBSWidget/treeEditorSplitter_state", ui.treeEditorSplitter->saveState());
+}
+
+
+void RWBSWidget::setUndoStack(QUndoStack* undoStack)
+{
+	this->undoStack = undoStack;
+	ui.editor->setUndoStack(undoStack);
+	sectionTree->setUndoStack(undoStack);
 }

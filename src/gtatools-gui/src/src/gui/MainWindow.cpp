@@ -24,8 +24,8 @@
 #include "MainWindow.h"
 #include "FileItemModel.h"
 #include "../ProfileManager.h"
-#include "../formats/FormatManager.h"
-#include "../formats/FormatHandler.h"
+#include "../formats/EntityManager.h"
+#include "../formats/EntityHandler.h"
 #include <QtGui/QBoxLayout>
 #include <QtCore/QList>
 #include <QtCore/QSettings>
@@ -33,6 +33,7 @@
 #include <QtGui/QMenu>
 #include "../formats/txd/TXDGUIModule.h"
 #include "../formats/ide/IDEGUIModule.h"
+#include "../formats/rwbs/RWBSGUIModule.h"
 #include "../System.h"
 #include "DefaultGUIModule.h"
 #include <QtGui/QProgressBar>
@@ -66,8 +67,18 @@ MainWindow::MainWindow()
 	setTabPosition(Qt::TopDockWidgetArea, QTabWidget::North);
 
 	sys->installGUIModule(new DefaultGUIModule);
-	sys->installGUIModule(new TXDGUIModule);
-	sys->installGUIModule(IDEGUIModule::getInstance());
+
+	centralTabber = new QTabWidget(this);
+	centralTabber->setTabsClosable(true);
+	setCentralWidget(centralTabber);
+
+	//setCentralWidget(new QWidget);
+	//centralWidget()->hide();
+
+	// TODO Reactivate
+	sys->installGUIModule(RWBSGUIModule::getInstance());
+	//sys->installGUIModule(new TXDGUIModule);
+	//sys->installGUIModule(IDEGUIModule::getInstance());
 }
 
 
@@ -81,12 +92,25 @@ void MainWindow::initialize()
 			SLOT(currentEntityChanged(DisplayedEntity*, DisplayedEntity*)));
 	connect(sys, SIGNAL(configurationChanged()), this, SLOT(configurationChanged()));
 
+	connect(centralTabber, SIGNAL(tabCloseRequested(int)), this, SLOT(centralTabWidgetCloseRequested(int)));
+	connect(centralTabber, SIGNAL(currentChanged(int)), this, SLOT(centralTabWidgetCurrentChanged(int)));
+
 	QSettings settings;
 
+	// show() must be executed before restoreGeometry(), because some stupid X11 window managers don't restore the
+	// maximized state otherwise.
 	restoreGeometry(settings.value("gui/mainwindow_geometry").toByteArray());
-	restoreState(settings.value("gui/mainwindow_state").toByteArray());
+
+	QTimer::singleShot(500, this, SLOT(loadWindowState()));
 
 	setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
+}
+
+
+void MainWindow::loadWindowState()
+{
+	QSettings settings;
+	restoreState(settings.value("gui/mainwindow_state").toByteArray());
 }
 
 
@@ -193,6 +217,105 @@ void MainWindow::closeEvent(QCloseEvent* evt)
 
 	if (!System::getInstance()->quit()) {
 		evt->ignore();
+	}
+}
+
+
+void MainWindow::openEntity(DisplayedEntity* entity)
+{
+	QWidget* widget = entity->getWidget();
+
+	if (widget) {
+		centralTabber->addTab(widget, entity->getName());
+		entityWidgets[entity] = widget;
+	}
+
+	connect(entity, SIGNAL(hasUnsavedChangesStateChanged(bool)), this, SLOT(entityChangeStatusChanged(bool)));
+}
+
+
+void MainWindow::closeEntity(DisplayedEntity* entity)
+{
+	QMap<DisplayedEntity*, QWidget*>::iterator it = entityWidgets.find(entity);
+
+	if (it != entityWidgets.end()) {
+		QWidget* w = it.value();
+		centralTabber->removeTab(centralTabber->indexOf(w));
+		entityWidgets.erase(it);
+	}
+
+	disconnect(entity, SIGNAL(hasUnsavedChangesStateChanged(bool)), this, SLOT(entityChangeStatusChanged(bool)));
+}
+
+
+void MainWindow::currentEntityChanged(DisplayedEntity* oe, DisplayedEntity* ne)
+{
+	if (!ne)
+		return;
+
+	QMap<DisplayedEntity*, QWidget*>::iterator it = entityWidgets.find(ne);
+
+	if (it != entityWidgets.end()) {
+		QWidget* w = it.value();
+		centralTabber->setCurrentWidget(w);
+	}
+}
+
+
+void MainWindow::centralTabWidgetCloseRequested(int index)
+{
+	QWidget* w = centralTabber->widget(index);
+
+	for (QMap<DisplayedEntity*, QWidget*>::iterator it = entityWidgets.begin() ; it != entityWidgets.end() ; it++) {
+		if (it.value() == w) {
+			DisplayedEntity* ent = it.key();
+
+			System* sys = System::getInstance();
+
+			sys->closeEntity(ent);
+
+			break;
+		}
+	}
+}
+
+
+void MainWindow::centralTabWidgetCurrentChanged(int index)
+{
+	QWidget* w = centralTabber->widget(index);
+
+	for (QMap<DisplayedEntity*, QWidget*>::iterator it = entityWidgets.begin() ; it != entityWidgets.end() ; it++) {
+		if (it.value() == w) {
+			DisplayedEntity* ent = it.key();
+
+			System* sys = System::getInstance();
+
+			sys->changeCurrentEntity(ent);
+
+			break;
+		}
+	}
+}
+
+
+void MainWindow::entityChangeStatusChanged(bool hasChanges)
+{
+	DisplayedEntity* entity = (DisplayedEntity*) sender();
+
+	QMap<DisplayedEntity*, QWidget*>::iterator it = entityWidgets.find(entity);
+
+	if (it != entityWidgets.end()) {
+		QWidget* w = it.value();
+
+		QString text;
+
+		if (entity->hasUnsavedChanges()) {
+			text = QString("%1*").arg(entity->getName());
+		} else {
+			text = entity->getName();
+		}
+
+		centralTabber->setTabText(centralTabber->indexOf(w), text);
 	}
 }
 

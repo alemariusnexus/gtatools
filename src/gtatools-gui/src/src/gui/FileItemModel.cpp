@@ -22,7 +22,7 @@
 
 #include <gtatools-gui/config.h>
 #include "FileItemModel.h"
-#include "../formats/FormatManager.h"
+#include "../formats/EntityManager.h"
 #include <cstring>
 #include <QtGui/QProgressDialog>
 #include <QtCore/QSettings>
@@ -153,11 +153,12 @@ QVariant FileItemModel::data(const QModelIndex& index, int role) const
 			return tr("Directory");
 		} else {
 			EntityOpenRequest req;
+			req.setAttribute("type", "file");
 			req.setAttribute("file", QString(realFile->getPath()->toString().get()));
-			FormatHandler* handler = FormatManager::getInstance()->getHandler(req);
+			EntityHandler* handler = EntityManager::getInstance()->getEntityHandler(req);
 
 			if (handler) {
-				return handler->getFormatName(realFile);
+				return handler->getFileFormatName(*realFile);
 			} else {
 				return tr("Unrecognized File");
 			}
@@ -214,5 +215,15 @@ QModelIndex FileItemModel::parent(const QModelIndex& index) const
 	} else {
 		return createIndex(rootFiles.indexOf(parent), 0, parent);
 	}
+}
+
+
+void FileItemModel::reload()
+{
+	QSettings settings;
+
+	emit layoutAboutToBeChanged();
+	showFileType = settings.value("gui/file_tree_types", true).toBool();
+	emit layoutChanged();
 }
 

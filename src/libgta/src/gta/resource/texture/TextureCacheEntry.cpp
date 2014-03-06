@@ -168,8 +168,17 @@ Texture* TextureCacheEntry::getTexture(const CString& texName)
 
 	int idx = binary_search(texKeys, hash, 0, numTexes-1);
 
-	if (idx == -1)
-		return NULL;
+	/*if (idx == -1)
+		return NULL;*/
+
+	if (idx == -1) {
+		if (parentPtr.isValid()) {
+			TextureCacheEntry* parentEntry = (TextureCacheEntry*) parentPtr.getEntry(true);
+			return parentEntry->getTexture(texName);
+		} else {
+			return NULL;
+		}
+	}
 
 	return texValues[idx];
 

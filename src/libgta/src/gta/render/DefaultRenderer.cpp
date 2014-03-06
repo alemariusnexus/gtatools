@@ -856,6 +856,8 @@ void DefaultRenderer::render()
 	s = GetTickcountMicroseconds();
 #endif
 
+#if 1
+
 	if (numObjects > currentMatrixAllocSize  ||  !mvMatrices) {
 		currentMatrixAllocSize = numObjects + 100;
 
@@ -927,6 +929,10 @@ void DefaultRenderer::render()
 
 	updateMiscShaderPrograms();
 
+	if (wireframeRendering)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	else
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	// **********************************************
 	// *											*
@@ -1279,6 +1285,9 @@ void DefaultRenderer::render()
 
 		gtaglBindFramebuffer(GTAGL_FRAMEBUFFER, 0);
 
+		if (wireframeRendering)
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
 		// Render a screen-size plane with the contents of the output color buffer
 		glBindBuffer(GL_ARRAY_BUFFER, planeDataBuf);
 		glEnableVertexAttribArray(dpShaderLocations.dpBlendLayerVertexAttrib);
@@ -1293,6 +1302,9 @@ void DefaultRenderer::render()
 		glDisableVertexAttribArray(dpShaderLocations.dpBlendLayerVertexAttrib);
 
 		glEnable(GL_DEPTH_TEST);
+
+		if (wireframeRendering)
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
 
 
@@ -1304,6 +1316,9 @@ void DefaultRenderer::render()
 
 
 	// ********** Blend opaque and transparent layers together **********
+
+	if (wireframeRendering)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	glDisable(GL_DEPTH_TEST);
 
@@ -1330,6 +1345,8 @@ void DefaultRenderer::render()
 
 	glDisable(GL_BLEND);
 
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
 
 	gtaglBindFramebuffer(GTAGL_FRAMEBUFFER, 0);
 
@@ -1337,6 +1354,8 @@ void DefaultRenderer::render()
 	e = GetTickcountMicroseconds();
 	uint64_t t7 = e-s;
 	s = GetTickcountMicroseconds();
+#endif
+
 #endif
 
 #endif

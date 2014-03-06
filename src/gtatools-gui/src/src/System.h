@@ -72,19 +72,33 @@ public:
 	bool isShuttingDown() const { return shuttingDown; }
 	MainWindow* getMainWindow() { return mainWindow; }
 
+	bool openEntity(const EntityOpenRequest& req);
+	bool closeEntity(DisplayedEntity* entity, bool force = false);
+	void changeCurrentEntity(DisplayedEntity* entity);
+	DisplayedEntity* getCurrentEntity() { return currentEntity; }
+	bool hasOpenEntity() const { return !openEntities.empty(); }
+
+	bool openFile(const File& file);
+
 signals:
 	void configurationChanged();
 	void installedGUIModule(GUIModule* module);
 	void uninstalledGUIModule(GUIModule* module);
 	void entryLogged(const LogEntry& entry);
-	void systemQuerySent(const SystemQuery& query, QList<SystemQueryResult*>& result);
+	void systemQuerySent(const SystemQuery& query, QList<SystemQueryResult>& results);
 	void aboutToQuit();
 	void initializationDone();
+
+	void entityOpened(DisplayedEntity* entity);
+	void entityClosed(DisplayedEntity* entity);
+	void currentEntityAboutToBeChanged(DisplayedEntity* oldEnt, DisplayedEntity* newEnt);
+	void currentEntityChanged(DisplayedEntity* oldEnt, DisplayedEntity* newEnt);
 
 private:
 	System();
 	void setMainWindow(MainWindow* mw) { mainWindow = mw; }
 	void initializeInstance();
+	DisplayedEntity* findSignatureOpenEntity(const QByteArray& sig);
 
 private slots:
 	void destroyInstance();
@@ -95,6 +109,8 @@ private:
 private:
 	MainWindow* mainWindow;
 	QLinkedList<GUIModule*> installedGUIModules;
+	QLinkedList<DisplayedEntity*> openEntities;
+	DisplayedEntity* currentEntity;
 	QGLWidget* sharedWidget;
 	QImage dummyTexImage;
 	bool initializing, shuttingDown;

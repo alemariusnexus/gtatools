@@ -36,6 +36,8 @@ GLBaseWidget::GLBaseWidget(QWidget* parent)
 		  viewW(-1), viewH(-1), lastX(-1), lastY(-1), moveFactor(1.0f), initialized(false)
 {
 	setFocusPolicy(Qt::ClickFocus);
+
+	setMinimumSize(1, 1);
 }
 
 
@@ -105,7 +107,7 @@ void GLBaseWidget::paintGL()
 	engine->setViewportSize(viewW, viewH);
 
 #ifndef GTATOOLS_GUI_USE_OPENGL_ES
-	glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
+	//glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
 #endif
 }
 

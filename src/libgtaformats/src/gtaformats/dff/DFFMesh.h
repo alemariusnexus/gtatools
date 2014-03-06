@@ -24,6 +24,7 @@
 #define DFFMODEL_H_
 
 #include <gtaformats/config.h>
+#include "../col/COLModel.h"
 #include "DFFGeometry.h"
 #include "DFFFrame.h"
 #include <vector>
@@ -90,10 +91,14 @@ public:
 
 	void mirrorUVHorizontal();
 
+	COLModel* getIntegratedCOLModel() { return integratedCOLModel; }
+	const COLModel* getIntegratedCOLModel() const { return integratedCOLModel; }
+
 private:
 	DFFFrame rootFrame;
 	vector<DFFGeometry*> geometries;
 	int32_t boneCount;
+	COLModel* integratedCOLModel;
 };
 
 #endif /* DFFMODEL_H_ */

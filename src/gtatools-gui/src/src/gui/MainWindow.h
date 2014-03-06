@@ -72,6 +72,13 @@ private slots:
 	void configurationChanged();
 	void dockWidgetViewChanged(bool checked);
 	void dockWidgetVisibilityChanged(bool visible);
+	void openEntity(DisplayedEntity* entity);
+	void closeEntity(DisplayedEntity* entity);
+	void currentEntityChanged(DisplayedEntity* oe, DisplayedEntity* ne);
+	void centralTabWidgetCloseRequested(int index);
+	void centralTabWidgetCurrentChanged(int index);
+	void loadWindowState();
+	void entityChangeStatusChanged(bool hasChanges);
 
 public slots:
 	void taskLabelShouldAdjust();
@@ -82,6 +89,8 @@ private:
 	Ui_MainWindow ui;
 	QLabel* taskLabel;
 	QProgressBar* progressBar;
+	QTabWidget* centralTabber;
+	QMap<DisplayedEntity*, QWidget*> entityWidgets;
 };
 
 #endif /* MAINWINDOW_H_ */

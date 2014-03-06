@@ -23,7 +23,7 @@
 #ifndef GXTFORMATHANDLER_H_
 #define GXTFORMATHANDLER_H_
 
-#include "../FormatHandler.h"
+#include "../EntityHandler.h"
 #include <gtaformats/gxt/GXTTable.h>
 #include <QtCore/QLinkedList>
 #include <QtCore/QMap>
@@ -31,15 +31,15 @@
 
 
 
-class GXTFormatHandler : public FormatHandler {
+class GXTFormatHandler : public EntityHandler {
 	Q_OBJECT
 
 public:
 	static GXTFormatHandler* getInstance();
 
 public:
-	virtual QString getFormatName(const File* file = NULL) const { return tr("GXT Text File"); }
-	virtual QLinkedList<QString> getFileFormatExtensions() const { return QLinkedList<QString>() << "gxt"; }
+	virtual QString getFileFormatName(const File& file) const { return tr("GXT Text File"); }
+	virtual QLinkedList<QString> getFileFormatExtensions(const File& file) const { return QLinkedList<QString>() << "gxt"; }
 	virtual bool canHandle(const EntityOpenRequest& req) const;
 	virtual DisplayedEntity* openEntity(const EntityOpenRequest& request);
 	void iniExport(const File& file, const QLinkedList<GXTTable*>& tables);

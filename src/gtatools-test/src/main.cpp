@@ -28,6 +28,8 @@
 #include <gtaformats/util/strutil.h>
 #include <gtaformats/util/math/intersection.h>
 #include <gtaformats/util/math/project.h>
+#include <gtaformats/util/DefaultFileFinder.h>
+#include <gtaformats/gtadff.h>
 #include <gtaformats/gtaide.h>
 #include <gtaformats/gtaipl.h>
 #include <gtaformats/gtacol.h>

@@ -66,7 +66,7 @@ void PVSDialog::buttonClicked(QAbstractButton* button)
 		float sy = (float) ui.ySizeBox->value();
 		float sz = (float) ui.zSizeBox->value();
 
-		PVSDatabase* pvs = scene->getPVSDatabase();
+		PVSDatabase* pvs = scene->getStreamingManager()->getPVSDatabase();
 		pvs->addProgressObserver(this);
 
 		task = System::getInstance()->createTask();
@@ -91,26 +91,6 @@ void PVSDialog::buttonClicked(QAbstractButton* button)
 			accept();
 		}
 
-		/*PVSData pvs(scene);
-		pvs.setSectionSize(sx, sy, sz);
-		pvs.addProgressObserver(this);
-
-		task = System::getInstance()->createTask();
-		task->start(0, 100, tr("Building PVS data..."));
-
-		pvs.build();
-
-		delete task;
-
-		QString fname = QFileDialog::getSaveFileName(this, tr("Select destination file"), QString(),
-				tr("PVS files (*.pvs)"));
-
-		if (!fname.isNull()) {
-			File file(fname.toLocal8Bit().constData());
-			pvs.serialize(file);
-
-			accept();
-		}*/
 		accept();
 	} else {
 		reject();

@@ -31,13 +31,21 @@
 
 IDEFormatHandler::IDEFormatHandler()
 {
-	connect(System::getInstance(), SIGNAL(systemQuerySent(const SystemQuery&, SystemQueryResult&)), this,
-			SLOT(systemQuerySent(const SystemQuery&, SystemQueryResult&)));
+	connect(System::getInstance(), SIGNAL(systemQuerySent(const SystemQuery&, QList<SystemQueryResult>&)), this,
+			SLOT(systemQuerySent(const SystemQuery&, QList<SystemQueryResult>&)));
 }
 
 
 bool IDEFormatHandler::canHandle(const EntityOpenRequest& req) const
 {
+	QVariant typeVar = req.getAttribute("type");
+
+	if (typeVar.isNull())
+		return false;
+
+	if (typeVar.toString() != "file")
+		return false;
+
 	QVariant fileVar = req.getAttribute("file");
 
 	if (fileVar.isNull())
@@ -58,22 +66,23 @@ DisplayedEntity* IDEFormatHandler::openEntity(const EntityOpenRequest& request)
 }
 
 
-void IDEFormatHandler::systemQuerySent(const SystemQuery& query, SystemQueryResult& result)
+void IDEFormatHandler::systemQuerySent(const SystemQuery& query, QList<SystemQueryResult>& results)
 {
-	if (!result.isSuccessful()) {
-		if (query.getName() == "FindItemDefinition") {
-			int id = query["id"].toInt();
+	if (query.getName() == "FindItemDefinition") {
+		int id = query["id"].toInt();
 
-			IDEFileFinder finder(id, IDETypeGroupAll);
-			File* toBeOpened = GUI::getInstance()->findFile(&finder);
+		IDEFileFinder finder(id, IDETypeGroupAll);
+		File* toBeOpened = GUI::getInstance()->findFile(&finder);
 
-			if (toBeOpened) {
-				int line = finder.getMatchedLine(*toBeOpened);
-				result["file"] = toBeOpened->getPath()->toString().get();
-				result["line"] = line;
-				delete toBeOpened;
-				result.setSuccessful(true);
-			}
+		if (toBeOpened) {
+			SystemQueryResult result;
+
+			int line = finder.getMatchedLine(*toBeOpened);
+			result["file"] = toBeOpened->getPath()->toString().get();
+			result["line"] = line;
+			delete toBeOpened;
+
+			results << result;
 		}
 	}
 }

@@ -21,10 +21,11 @@
  */
 
 #include "CollisionMeshCacheLoader.h"
-#include "COLBulletConverter.h"
 #include "CollisionModel.h"
 #include "CollisionMeshCacheEntry.h"
 #include "../smesh/ShadowMesh.h"
+#include <gtaformats/col/COLLoader.h>
+#include <gtaformats/dff/DFFLoader.h>
 
 
 
@@ -43,10 +44,20 @@ Engine::StringResourceCache::Entry* CollisionMeshCacheLoader::load(CString name)
 		return NULL;
 	}
 
-	COLLoader col;
-	istream* stream = entry->file->openInputStream(istream::binary);
-	col.skip(stream, entry->index);
-	COLModel* model = col.loadModel(stream);
+	DFFMesh* dffMesh = NULL;
+	COLModel* model;
+
+	if (entry->file->guessContentType() == CONTENT_TYPE_COL) {
+		COLLoader col;
+		istream* stream = entry->file->openInputStream(istream::binary);
+		col.skip(stream, entry->index);
+		model = col.loadModel(stream);
+		delete stream;
+	} else {
+		DFFLoader dff;
+		dffMesh = dff.loadMesh(*entry->file);
+		model = dffMesh->getIntegratedCOLModel();
+	}
 
 	CollisionModel* mmodel = new CollisionModel(*model);
 	cachesize_t size = mmodel->getCacheSize();
@@ -58,8 +69,11 @@ Engine::StringResourceCache::Entry* CollisionMeshCacheLoader::load(CString name)
 		smesh = new ShadowMesh(*csmesh);
 	}
 
-	delete model;
-	delete stream;
+	if (dffMesh) {
+		delete dffMesh;
+	} else {
+		delete model;
+	}
 
 	CollisionMeshCacheEntry* cacheEntry = new CollisionMeshCacheEntry(mmodel, smesh, size);
 	return cacheEntry;

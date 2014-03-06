@@ -239,6 +239,9 @@ public:
 
 	void setBone(DFFBone* bone) { this->bone = bone; }
 
+
+	void printDebug(int ind = 0);
+
 private:
 	/**	\brief Internal.
 	 *

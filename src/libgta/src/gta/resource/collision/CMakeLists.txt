@@ -20,7 +20,7 @@
 
 
 SET(FILES
-    CollisionMeshIndexer CollisionMeshCacheEntry CollisionMeshCacheLoader COLBulletConverter
+    CollisionMeshIndexer CollisionMeshCacheEntry CollisionMeshCacheLoader CollisionModelBulletConverter
     CollisionShapePointer COLMeshConverter ManagedCollisionShapePointer CollisionBox
     CollisionMesh CollisionSphere CollisionModel)
 

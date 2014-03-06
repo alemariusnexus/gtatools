@@ -21,10 +21,14 @@
  */
 
 #include "HexEditorPrivate.h"
+#include "HexEditorContentTraverser.h"
+#include <gtaformats/util/Color4.h>
+#include <gtaformats/util/util.h>
 #include <QtGui/QPainter>
 #include <QtGui/QPaintEvent>
 #include <QtGui/QApplication>
 #include <QtGui/QClipboard>
+#include <QtGui/QToolTip>
 #include <QtCore/QByteArray>
 #include <QtCore/QFile>
 #include <cstdio>
@@ -37,11 +41,13 @@ using std::max;
 
 
 HexEditorPrivate::HexEditorPrivate(QWidget* parent)
-		: QWidget(parent), enabledParts(DefaultParts), data(QByteArray()), addrHexGapSize(20),
+		: QWidget(parent), enabledParts(DefaultParts), doc(NULL), docCreatedHere(false), addrHexGapSize(20),
 		  hexAsciiGapSize(20), numAddressChars(8), cursorPos(0), cursorAnchor(0), overwriteMode(true),
 		  temporaryOverwriteMode(false), cursorBlink(false), cursorAscii(false), numLines(0), bytesPerLine(0),
-		  lineDisplayOffset(0), currentByteEdited(false)
+		  lineDisplayOffset(0), currentByteEdited(false), editable(true)
 {
+	setData(QByteArray());
+
 	QFont font("", 10);
 	font.setFixedPitch(true);
 	font.setKerning(false);
@@ -53,6 +59,19 @@ HexEditorPrivate::HexEditorPrivate(QWidget* parent)
 
 	connect(&cursorBlinkTimer, SIGNAL(timeout()), this, SLOT(updateCursorBlink()));
 	cursorBlinkTimer.start(500);
+
+	//setMouseTracking(true);
+
+	connect(this, SIGNAL(dataReplaced(int, int, const QByteArray&, const QByteArray&)), this,
+			SLOT(dataReplacedSlot(int, int, const QByteArray&, const QByteArray&)));
+}
+
+
+void HexEditorPrivate::setData(const QByteArray& data)
+{
+	HexEditorDocument* doc = new HexEditorDocument(data);
+	setDocument(doc);
+	docCreatedHere = true;
 }
 
 
@@ -60,12 +79,9 @@ void HexEditorPrivate::loadData(const File& file)
 {
 	QFile qfile(file.getPath()->toString().get());
 	qfile.open(QFile::ReadOnly);
-	data = qfile.readAll();
+	QByteArray data = qfile.readAll();
 	qfile.close();
-	recomputeGeometry();
-	update();
-	setCursorPosition(0);
-	emit dataChanged(data);
+	setData(data);
 }
 
 
@@ -91,6 +107,28 @@ void HexEditorPrivate::setFont(const QFont& font)
 }
 
 
+void HexEditorPrivate::setDocument(HexEditorDocument* doc)
+{
+	if (this->doc) {
+		disconnect(this->doc, NULL, this, NULL);
+
+		if (docCreatedHere)
+			delete this->doc;
+	}
+
+	this->doc = doc;
+
+	connect(doc, SIGNAL(dataChanged(const QByteArray&)), this, SIGNAL(dataChanged(const QByteArray&)));
+	connect(doc, SIGNAL(dataReplaced(int, int, const QByteArray&, const QByteArray&)), this,
+			SIGNAL(dataReplaced(int, int, const QByteArray&, const QByteArray&)));
+
+	recomputeGeometry();
+	update();
+	setCursorPosition(0);
+	emit dataChanged(doc->getData());
+}
+
+
 void HexEditorPrivate::updateCursorBlink()
 {
 	if (bytesPerLine != 0) {
@@ -113,14 +151,14 @@ void HexEditorPrivate::setCursor(int cpos, int anchor)
 {
 	if (cpos < 0) {
 		cpos = 0;
-	} else if (cpos > data.size()) {
-		cpos = data.size();
+	} else if (cpos > doc->size()) {
+		cpos = doc->size();
 	}
 
 	if (anchor < 0) {
 		anchor = 0;
-	} else if (anchor > data.size()) {
-		anchor = data.size();
+	} else if (anchor > doc->size()) {
+		anchor = doc->size();
 	}
 
 	// Erase the old cursor
@@ -174,7 +212,7 @@ int HexEditorPrivate::calculateOffset(int x, int y) const
 		col = 0;
 	}
 
-	int lastLineBytes = data.size() % bytesPerLine;
+	int lastLineBytes = doc->size() % bytesPerLine;
 
 	// Check that the line and column are valid.
 	if (	(line < numLines  ||  (line == numLines  &&  col == 0))
@@ -244,7 +282,7 @@ int HexEditorPrivate::calculateLineEndOffset(int line)
 		if (line == numLines-1) {
 			offset += bytesPerLine-1;
 		} else {
-			offset += (data.size() % bytesPerLine);
+			offset += (doc->getData().size() % bytesPerLine);
 		}
 	} else {
 		offset += bytesPerLine-1;
@@ -256,6 +294,11 @@ int HexEditorPrivate::calculateLineEndOffset(int line)
 
 void HexEditorPrivate::updateLines(int first, int last)
 {
+	if (first != 0)
+		first--;
+	if (last != getNumberOfLines()-1)
+		last++;
+
 	if (first < lineDisplayOffset)
 		first = lineDisplayOffset;
 
@@ -277,10 +320,7 @@ void HexEditorPrivate::updateRange(int offset, int len)
 
 void HexEditorPrivate::insert(int offset, const QByteArray& data)
 {
-	this->data.insert(offset, data);
-	recomputeVerticalGeometry();
-	update();
-	emit dataChanged(data);
+	replace(offset, 0, data);
 }
 
 
@@ -295,18 +335,27 @@ void HexEditorPrivate::insert(const QByteArray& data)
 
 void HexEditorPrivate::remove(int offset, int len)
 {
-	data.remove(offset, len);
-	recomputeVerticalGeometry();
-	update();
-	emit dataChanged(data);
+	replace(offset, len, QByteArray());
 }
 
 
 void HexEditorPrivate::replace(int offset, int len, const QByteArray& data)
 {
-	this->data.replace(offset, len, data);
+	doc->replace(offset, len, data);
+}
 
-	if (len == data.size()) {
+
+QByteArray HexEditorPrivate::getSelectedData() const
+{
+	int start = min(cursorPos, cursorAnchor);
+	int end = max(cursorPos, cursorAnchor);
+	return doc->getData().mid(start, end-start);
+}
+
+
+void HexEditorPrivate::dataReplacedSlot(int offset, int len, const QByteArray& oldData, const QByteArray& newData)
+{
+	if (len == newData.size()) {
 		// No characters were added or removed, so we may just update the lines which were changed.
 		if (bytesPerLine != 0) {
 			int startLine = offset / bytesPerLine;
@@ -319,16 +368,6 @@ void HexEditorPrivate::replace(int offset, int len, const QByteArray& data)
 		recomputeVerticalGeometry();
 		update();
 	}
-
-	emit dataChanged(data);
-}
-
-
-QByteArray HexEditorPrivate::getSelectedData() const
-{
-	int start = min(cursorPos, cursorAnchor);
-	int end = max(cursorPos, cursorAnchor);
-	return data.mid(start, end-start);
 }
 
 
@@ -354,6 +393,21 @@ void HexEditorPrivate::mouseMoveEvent(QMouseEvent* evt)
 	int y = min(evt->y(), height());
 	int offs = calculateOffset(x, y);
 	setCursor(offs, cursorAnchor);
+
+	/*int x = min(evt->x(), width());
+	int y = min(evt->y(), height());
+	int offs = calculateOffset(x, y);
+
+	if ((evt->buttons() & Qt::LeftButton)  !=  0) {
+		setCursor(offs, cursorAnchor);
+	}
+
+	HexEditorBlock* block;
+	int subdiv;
+
+	calculateBlockAndSubdivision(x, y, block, subdiv);
+
+	updateCurrentBlockAndSubdivision(block, subdiv);*/
 }
 
 
@@ -363,6 +417,9 @@ void HexEditorPrivate::keyPressEvent(QKeyEvent* evt)
 
 	if (cursorAscii  &&  c >= 0x20  &&  c <= 0x7E) {
 		// Insert or replace an ASCII character.
+
+		if (!editable)
+			return;
 
 		if (cursorPos != cursorAnchor) {
 			int start = min(cursorPos, cursorAnchor);
@@ -388,6 +445,9 @@ void HexEditorPrivate::keyPressEvent(QKeyEvent* evt)
 	} else if (!cursorAscii  &&  ((c >= '0'  &&  c <= '9')  ||  (c >= 'a'  &&  c <= 'f'))) {
 		// Insert or replace a hex-character
 
+		if (!editable)
+			return;
+
 		if (cursorPos != cursorAnchor) {
 			int start = min(cursorPos, cursorAnchor);
 			int end = max(cursorPos, cursorAnchor);
@@ -401,13 +461,13 @@ void HexEditorPrivate::keyPressEvent(QKeyEvent* evt)
 		}
 
 		if (overwriteMode) {
-			QByteArray hex = data.mid(cursorPos, 1).toHex();
+			QByteArray hex = doc->getData().mid(cursorPos, 1).toHex();
 
 			// If a byte shall be overwritten, the first key pressed will change the lower 4 bits. If then
 			// another hex-key is hit, the previously entered 4 bits will become the upper half, and the new
 			// key becomes the lower 4 bits. When the first key is hit, we enter a state (currentByteEdited
 			// = true) which will be left when the cursor changes or the second key is pressed.
-			if (cursorPos == data.size()) {
+			if (cursorPos == doc->getData().size()) {
 				append(QByteArray::fromHex(QByteArray("0").append(c)));
 				currentByteEdited = true;
 			} else {
@@ -445,6 +505,9 @@ void HexEditorPrivate::keyPressEvent(QKeyEvent* evt)
 	}
 
 	if (evt->matches(QKeySequence::Delete)) {
+		if (!editable)
+			return;
+
 		if (cursorPos == cursorAnchor) {
 			remove(cursorPos, 1);
 		} else {
@@ -454,6 +517,9 @@ void HexEditorPrivate::keyPressEvent(QKeyEvent* evt)
 			setCursorPosition(min(cursorPos, cursorAnchor));
 		}
 	} else if (evt->key() == Qt::Key_Backspace) {
+		if (!editable)
+			return;
+
 		if (cursorPos == cursorAnchor) {
 			remove(cursorPos-1, 1);
 		} else {
@@ -465,7 +531,7 @@ void HexEditorPrivate::keyPressEvent(QKeyEvent* evt)
 	} else if (evt->key() == Qt::Key_Insert) {
 		setOverwriteMode(!overwriteMode);
 	} else if (evt->matches(QKeySequence::MoveToEndOfDocument)) {
-		setCursorPosition(data.size());
+		setCursorPosition(doc->getData().size());
 	} else if (evt->matches(QKeySequence::MoveToEndOfLine)) {
 		setCursorPosition(calculateLineEndOffset(cursorPos / bytesPerLine));
 	} else if (evt->matches(QKeySequence::MoveToNextChar)) {
@@ -485,9 +551,9 @@ void HexEditorPrivate::keyPressEvent(QKeyEvent* evt)
 	} else if (evt->matches(QKeySequence::MoveToStartOfLine)) {
 		setCursorPosition(calculateLineStartOffset(cursorPos / bytesPerLine));
 	} else if (evt->matches(QKeySequence::SelectAll)) {
-		setCursor(0, data.size());
+		setCursor(0, doc->getData().size());
 	} else if (evt->matches(QKeySequence::SelectEndOfDocument)) {
-		setCursor(data.size(), cursorAnchor);
+		setCursor(doc->getData().size(), cursorAnchor);
 	} else if (evt->matches(QKeySequence::SelectEndOfLine)) {
 		setCursor(calculateLineEndOffset(cursorPos / bytesPerLine)+1, cursorAnchor);
 	} else if (evt->matches(QKeySequence::SelectNextChar)) {
@@ -523,13 +589,16 @@ void HexEditorPrivate::keyPressEvent(QKeyEvent* evt)
 		QClipboard* cb = QApplication::clipboard();
 		cb->setText(selText);
 
-		if (evt->matches(QKeySequence::Cut)) {
+		if (evt->matches(QKeySequence::Cut)  &&  editable) {
 			int start = min(cursorPos, cursorAnchor);
 			int end = max(cursorPos, cursorAnchor);
 			remove(start, end-start);
 			setCursorPosition(start);
 		}
 	} else if (evt->matches(QKeySequence::Paste)) {
+		if (!editable)
+			return;
+
 		QClipboard* cb = QApplication::clipboard();
 		QString text = cb->text();
 		QByteArray data = QByteArray::fromHex(text.toAscii());
@@ -575,7 +644,7 @@ void HexEditorPrivate::recomputeVerticalGeometry()
 {
 	// Calculate the number of lines. If the content is empty, we still assume to have one line.
 	// Yes, we really need double precision here!
-	numLines = max((int) ceil((double) data.size() / bytesPerLine), 1);
+	numLines = max((int) ceil((double) doc->getData().size() / bytesPerLine), 1);
 
 	updateContentLineCount(numLines);
 }
@@ -599,6 +668,8 @@ void HexEditorPrivate::paintEvent(QPaintEvent* evt)
 	// Fill the background. The address area background is overwritten later.
 	painter.fillRect(rect, palette().color(QPalette::Base));
 
+	//painter.setClipRect(rect);
+
 	// Calculate the start and end lines to be redrawn. These are really just the lines to be redrawn, and
 	// NOT the entire visible line range!
 	// Theses values are counted from zero!
@@ -606,10 +677,17 @@ void HexEditorPrivate::paintEvent(QPaintEvent* evt)
 	// line, so that the cursor can be placed there to add new values (?: operator in second min() argument).
 	int startLine = rect.y() / charH + lineDisplayOffset;
 	int endLine = min((int) ((rect.y() + rect.height()) / charH + 1 + lineDisplayOffset),
-			(data.size() % bytesPerLine) == 0 ? numLines : numLines-1);
+			(doc->getData().size() % bytesPerLine) == 0 ? numLines : numLines-1);
 
-	if (data.size() == 0)
+	if (doc->getData().size() == 0)
 		endLine = startLine;
+
+	QPen origPen = painter.pen();
+
+	// This must have the thickness of the thickest border that is to be supported (see the decrement/increment of
+	// startLine/endLine below for more details).
+	QPen rectPen(QColor(Qt::black));
+	rectPen.setWidth(3);
 
 	// Fill the background of the address area
 	if (isAddressAreaEnabled()) {
@@ -631,11 +709,31 @@ void HexEditorPrivate::paintEvent(QPaintEvent* evt)
 				numAddressChars*charW + addrHexGapSize/2, rect.y() + rect.height()));
 	}
 
-	QBrush selBrush(QColor(Qt::blue).lighter(180));
-	QBrush defBrush = painter.background();
+	QColor selColor = QColor(Qt::blue);
+	selColor.setAlpha(75);
+	rstate.selBrush = QBrush(selColor);
+	rstate.defBrush = painter.background();
 
-	QPen evenColPen(evenColColor);
-	QPen oddColPen(oddColColor);
+	rstate.evenColPen = QPen(evenColColor);
+	rstate.oddColPen = QPen(oddColColor);
+
+	QRect clipRect(rect);
+
+	// We will actually paint a small part of the line before and the line after the requested range, because if we have
+	// HexEditorBlocks with borders enabled, these borders can extend to at most one additional line, and by overpainting
+	// the requested line range with a white rectangle in the beginning of paintEvent(), we might have overwritten these
+	// borders, so we'll just paint this small part where borders could have been again.
+	if (startLine != 0) {
+		startLine--;
+		clipRect.setTop(clipRect.top() - floor(rectPen.width()*0.5f));
+	}
+	if (endLine == getNumberOfLines()-1) {
+		endLine++;
+		clipRect.setBottom(clipRect.bottom() + floor(rectPen.width()*0.5f));
+	}
+
+	// Don't overpaint too much. Still a hack, but... meh.
+	painter.setClipRect(clipRect);
 
 	// This algorithm was originally written to work with a 'start-length' range of the selection.
 	int selStart = min(cursorPos, cursorAnchor);
@@ -645,68 +743,94 @@ void HexEditorPrivate::paintEvent(QPaintEvent* evt)
 		selStart = -1;
 	}
 
-	QPen origPen = painter.pen();
+	painter.setBackgroundMode(Qt::TransparentMode);
+
+	// Draw the selection block.
+	if (selLen > 0) {
+		drawBlock(&painter, rstate.selBrush, startLine, endLine, selStart, selLen, QList<int>(), -1, false);
+	}
+
+
+	// Now, draw all HexEditorBlocks that lie inside the requested line range, including borders.
+	QList<HexEditorBlock*> blocks = doc->getEffectiveBlocks(startLine*bytesPerLine, (endLine-startLine)*bytesPerLine);
+
+	for (QList<HexEditorBlock*>::iterator it = blocks.begin() ; it != blocks.end() ; it++) {
+		HexEditorBlock* block = *it;
+
+		QBrush brush = block->getBackgroundBrush();
+
+		QPen pen(block->getBorderColor());
+
+		bool border = true;
+
+		switch (block->getBorderType()) {
+		case HexEditorBlock::NoBorder:
+			border = false;
+			break;
+
+		case HexEditorBlock::ThinBorder:
+			pen.setWidth(1);
+			painter.setPen(pen);
+			break;
+
+		case HexEditorBlock::MediumBorder:
+			pen.setWidth(2);
+			painter.setPen(pen);
+			break;
+
+		case HexEditorBlock::ThickBorder:
+			pen.setWidth(3);
+			painter.setPen(pen);
+			break;
+		}
+
+		drawBlock(&painter, brush, startLine, endLine, block->getOffset(), block->getLength(), block->getSubdivisions(), -1, border);
+
+		/*if (block == currentBlock) {
+			QList<int> subdivs = block->getSubdivisions();
+
+			int csdEnd = currentBlockSubdivision >= subdivs.size() ? block->getLength() : subdivs[currentBlockSubdivision];
+			int csdStart = currentBlockSubdivision == 0 ? 0 : subdivs[currentBlockSubdivision-1];
+
+			QBrush csdBrush = brush;
+			csdBrush.setColor(csdBrush.color().darker(150));
+			drawBlock(&painter, csdBrush, startLine, endLine, csdStart+block->getOffset(), csdEnd-csdStart, QList<int>(), -1, false);
+		}*/
+	}
 
 	if (isHexAreaEnabled()) {
+		painter.setBackground(rstate.defBrush);
+
 		// Paint the hex area
 		for (int line = startLine ; line <= endLine ; line++) {
 			int yPos = (line-lineDisplayOffset) * charH + charAsc;
-			int nextSize = 2*charW;
 
 			// Paint a single hex line
-			for (int col = 0 ; col < bytesPerLine  &&  line*bytesPerLine + col < data.size() ; col++) {
+			for (int col = 0 ; col < bytesPerLine  &&  line*bytesPerLine + col < doc->getData().size() ; col++) {
 				int xPos = hexStartX + col*3*charW - charW;
 				int pos = line*bytesPerLine + col;
-				bool spaceDrawn = false;
 
-				if (col%2 == 0) {
-					painter.setPen(evenColPen);
-				} else {
-					painter.setPen(oddColPen);
-				}
 
-				if (selStart != -1  &&  pos >= selStart  &&  pos < selStart+selLen) {
-					// This character is inside the current selection.
-					if (pos == selStart  &&  col != 0) {
-						// If this is the first byte of the selection AND if it is not the first byte in the line,
-						// we draw the preceding space without highlighting background, because the selection
-						// shall not include a space on the front.
-						painter.drawText(QPoint(xPos, yPos), " ");
-						xPos += charW;
-						spaceDrawn = true;
-					}
+				if (col%2 == 0)
+					painter.setPen(rstate.evenColPen);
+				else
+					painter.setPen(rstate.oddColPen);
 
-					painter.setBackground(selBrush);
-					painter.setBackgroundMode(Qt::OpaqueMode);
-				} else {
-					// This character is outside the current selection.
-					painter.setBackground(defBrush);
-					painter.setBackgroundMode(Qt::TransparentMode);
-				}
-
-				if (col == 0) {
-					QByteArray hex = data.mid(line*bytesPerLine + col, 1).toHex().toUpper();
-					painter.drawText(QPoint(xPos + charW, yPos), hex);
-					nextSize += charW;
-				} else {
+				if (col != 0) {
 					// Every byte but the first one in the line gets a preceding space.
-					QByteArray hex = data.mid(line*bytesPerLine + col, 1).toHex().toUpper();
 
-					if (!spaceDrawn)
-						hex.prepend(' ');
-
-					painter.drawText(QPoint(xPos, yPos), hex);
-
-					if (!spaceDrawn)
-						xPos += charW;
+					painter.drawText(QPoint(xPos, yPos), " ");
 				}
+
+				QByteArray hex = doc->getData().mid(line*bytesPerLine + col, 1).toHex().toUpper();
+				painter.drawText(QPoint(xPos + charW, yPos), hex);
 			}
 		}
 	}
 
 	painter.setPen(origPen);
 
-	painter.setBackground(defBrush);
+	painter.setBackground(rstate.defBrush);
 	painter.setBackgroundMode(Qt::TransparentMode);
 
 	if (isHexAreaEnabled()  &&  isASCIIAreaEnabled()) {
@@ -717,7 +841,7 @@ void HexEditorPrivate::paintEvent(QPaintEvent* evt)
 	if (isASCIIAreaEnabled()) {
 		// Paint the ASCII area
 		for (int line = startLine ; line <= endLine ; line++) {
-			QByteArray ascii = data.mid(line*bytesPerLine, bytesPerLine);
+			QByteArray ascii = doc->getData().mid(line*bytesPerLine, bytesPerLine);
 
 			int offsStart = line*bytesPerLine;
 			int offsEnd = calculateLineEndOffset(line);
@@ -729,65 +853,14 @@ void HexEditorPrivate::paintEvent(QPaintEvent* evt)
 				}
 			}
 
-			int hlStart = -1, hlLen = 0;
-
-			if (selStart != -1) {
-				if (offsStart <= selStart) {
-					// Selection starts in or after current line
-					if (offsEnd >= selStart) {
-						// Selection starts in current line
-						hlStart = selStart;
-						hlLen = min(selLen, (offsEnd-hlStart+1));
-					} else {
-						// Selection starts after current line
-						hlStart = -1;
-						hlLen = 0;
-					}
-				} else {
-					// Selection starts before current line
-					if (offsStart >= selStart+selLen) {
-						// Selection advances into or through current line
-						hlStart = -1;
-						hlLen = 0;
-					} else {
-						// Selection is completely before current line.
-						hlStart = offsStart;
-						hlLen = min(selStart+selLen - offsStart, offsEnd-offsStart+1);
-					}
-				}
-			}
-
 			int yPos = (line-lineDisplayOffset) * charH + charAsc;
 
-			if (hlStart == -1) {
-				painter.drawText(QPoint(asciiStartX, yPos), ascii);
-			} else {
-				// If this line is (partially or completely) highlighted, we have to split the text to be able
-				// to draw only part of the line as selected.
-				hlStart -= offsStart;
-
-				// Draw text before selection
-				painter.drawText(QPoint(asciiStartX, yPos), ascii.left(hlStart));
-
-				painter.setBackground(selBrush);
-				painter.setBackgroundMode(Qt::OpaqueMode);
-
-				// Draw the selection text
-				painter.drawText(QPoint(asciiStartX+hlStart*charW, yPos),
-						ascii.mid(hlStart, hlLen));
-
-				painter.setBackground(defBrush);
-				painter.setBackgroundMode(Qt::TransparentMode);
-
-				// Draw text after selection
-				painter.drawText(QPoint(asciiStartX+(hlStart+hlLen)*charW, yPos),
-						ascii.mid(hlStart+hlLen, (offsEnd-offsStart+1) - (hlStart+hlLen)));
-			}
+			painter.drawText(QPoint(asciiStartX, yPos), ascii);
 		}
 	}
 
 	// Paint cursor
-	if (cursorBlink) {
+	if (cursorBlink  &&  isEnabled()) {
 		int cursorLine = (float) cursorPos / bytesPerLine;
 
 		if (cursorLine >= startLine  &&  cursorLine <= endLine) {
@@ -828,3 +901,170 @@ void HexEditorPrivate::paintEvent(QPaintEvent* evt)
 		}
 	}
 }
+
+
+bool HexEditorPrivate::event(QEvent* evt)
+{
+	/*if (evt->type() == QEvent::ToolTip) {
+		QHelpEvent* hevt = (QHelpEvent*) evt;
+		QPoint pos = hevt->pos();
+
+		int offset = calculateOffset(pos);
+
+		if (offset == -1) {
+			evt->ignore();
+		} else {
+			QList<HexEditorBlock*> blocks = doc->getEffectiveBlocks(offset, 1);
+
+			QToolTip::showText(hevt->globalPos(), QString("Number of Blocks: %1").arg(blocks.size()), this);
+		}
+
+		return true;
+	}*/
+
+	return QWidget::event(evt);
+}
+
+
+void HexEditorPrivate::drawBlock(QPainter* painter, const QBrush& brush, int startLine, int endLine, int offset, int len,
+		const QList<int>& subdivs, int activeSubdiv, bool border)
+{
+	int bStartLine = min(max(offset / bytesPerLine, startLine), getNumberOfLines()-1);
+	int bEndLine = min(min((offset+len-1) / bytesPerLine, endLine), getNumberOfLines()-1);
+
+	int firstLineCharOffset = (bStartLine == offset / bytesPerLine) ? offset % bytesPerLine : 0;
+	int lastLineCharOffset = (bEndLine == (offset+len) / bytesPerLine) ? (offset+len) % bytesPerLine : bytesPerLine;
+
+	if (firstLineCharOffset >= doc->size())
+		return;
+
+	lastLineCharOffset = min(lastLineCharOffset, (int) (doc->size() - bEndLine*bytesPerLine));
+
+	QList<int>::const_iterator sit = qLowerBound(subdivs.begin(), subdivs.end(), bStartLine*bytesPerLine - offset);
+	int subdivIdx = sit - subdivs.begin();
+
+	for (int line = bStartLine ; line <= bEndLine ; line++) {
+		int yPos = (line-lineDisplayOffset) * charH;
+		int xPosHexS, xPosHexE;
+		int xPosAsciiS, xPosAsciiE;
+
+		if (line == bStartLine) {
+			xPosHexS = hexStartX + firstLineCharOffset*3*charW;
+			xPosAsciiS = asciiStartX + firstLineCharOffset*charW;
+		} else {
+			xPosHexS = hexStartX;
+			xPosAsciiS = asciiStartX;
+		}
+
+		if (line == bEndLine) {
+			xPosHexE = hexStartX + lastLineCharOffset*3*charW - charW;
+			xPosAsciiE = asciiStartX + lastLineCharOffset*charW;
+		} else {
+			xPosHexE = hexStartX + bytesPerLine*3*charW - charW;
+			xPosAsciiE = asciiStartX + bytesPerLine*charW;
+		}
+
+		painter->fillRect(xPosHexS, yPos, xPosHexE-xPosHexS, charH, brush);
+		painter->fillRect(xPosAsciiS, yPos, xPosAsciiE-xPosAsciiS, charH, brush);
+
+		if (border) {
+			float pw = painter->pen().widthF();
+			int pwOffs = floor(pw*0.5f);
+
+			painter->drawRect(xPosHexS, yPos, xPosHexE-xPosHexS, charH);
+
+			/*// Vertical start line
+			painter->drawLine(xPosHexS - pwOffs, yPos, xPosHexS - pwOffs, yPos+charH);
+			painter->drawLine(xPosAsciiS - pwOffs, yPos, xPosAsciiS - pwOffs, yPos+charH);
+
+			// Vertical end line
+			painter->drawLine(xPosHexE+pwOffs, yPos, xPosHexE+pwOffs, yPos+charH);
+			painter->drawLine(xPosAsciiE+pwOffs, yPos, xPosAsciiE+pwOffs, yPos+charH);
+
+			if (line == bStartLine) {
+				// Horizontal top line
+				painter->drawLine(xPosHexS-pwOffs, yPos, xPosHexE+pwOffs, yPos);
+				painter->drawLine(xPosAsciiS-pwOffs, yPos, xPosAsciiE+pwOffs, yPos);
+			} else if (line == bStartLine+1) {
+				// Horizontal second line top line
+				int firstLineXPosHexS = min((int) (hexStartX + firstLineCharOffset*3*charW), xPosHexE);
+				int firstLineXPosAsciiS = min((int) (asciiStartX + firstLineCharOffset*charW), xPosAsciiE);
+				painter->drawLine(xPosHexS-pwOffs, yPos, firstLineXPosHexS-pwOffs, yPos);
+				painter->drawLine(xPosAsciiS-pwOffs, yPos, firstLineXPosAsciiS-pwOffs, yPos);
+			}
+
+			if (line == bEndLine) {
+				// Horizontal bottom line
+				painter->drawLine(xPosHexS-pwOffs, yPos+charH, xPosHexE+pwOffs, yPos+charH);
+				painter->drawLine(xPosAsciiS-pwOffs, yPos+charH, xPosAsciiE+pwOffs, yPos+charH);
+			} else if (line == bEndLine-1) {
+				// Horizontal second-to-last line bottom line
+				int lastLineXPosHexE = max((int) (hexStartX + lastLineCharOffset*3*charW - charW), xPosHexS);
+				int lastLineXPosAsciiE = max((int) (asciiStartX + lastLineCharOffset*charW), xPosAsciiS);
+				painter->drawLine(lastLineXPosHexE+pwOffs, yPos+charH, xPosHexE+pwOffs, yPos+charH);
+				painter->drawLine(lastLineXPosAsciiE+pwOffs, yPos+charH, xPosAsciiE+pwOffs, yPos+charH);
+			}*/
+		}
+
+		while (sit != subdivs.end()  &&  *sit+offset < (line+1)*bytesPerLine) {
+			int sdOffs = *sit + offset;
+
+			int xPosHexSd = hexStartX + (sdOffs % bytesPerLine)*3*charW - charW/2;
+
+			painter->drawLine(xPosHexSd, yPos, xPosHexSd, yPos+charH);
+
+			sit++;
+			subdivIdx++;
+		}
+	}
+}
+
+
+/*void HexEditorPrivate::updateCurrentBlockAndSubdivision(HexEditorBlock* block, int subdiv)
+{
+	if (block == currentBlock  &&  subdiv == currentBlockSubdivision)
+		return;
+
+	HexEditorBlock* oldBlock = currentBlock;
+	int oldSubdiv = currentBlockSubdivision;
+
+	currentBlock = block;
+	currentBlockSubdivision = subdiv;
+
+	if (oldBlock) {
+		int offs, len;
+		oldBlock->getSubdivisionRange(oldSubdiv, offs, len);
+
+		updateRange(offs, len);
+	}
+
+	if (block) {
+		int offs, len;
+		block->getSubdivisionRange(subdiv, offs, len);
+
+		updateRange(offs, len);
+	}
+}
+
+
+bool HexEditorPrivate::calculateBlockAndSubdivision(const QPoint& pos, HexEditorBlock*& block, int& subdiv)
+{
+
+	int offs = calculateOffset(pos - QPoint(charW/2, 0));
+
+	QList<HexEditorBlock*> blocks = doc->getEffectiveBlocks(offs, 0);
+
+	if (!blocks.isEmpty()) {
+		block = blocks[0];
+		QList<int> subdivs = block->getSubdivisions();
+		QList<int>::const_iterator it = qUpperBound(subdivs.begin(), subdivs.end(), offs - block->getOffset());
+
+		subdiv = it - subdivs.begin();
+		return true;
+	} else {
+		block = NULL;
+		subdiv = -1;
+		return false;
+	}
+}*/
+
