@@ -35,13 +35,16 @@
 #include <gta/StaticMapItemDefinition.h>
 #include <gta/scene/Scene.h>
 #include <gta/render/DefaultRenderer.h>
+#include <gta/render/DefaultRenderingMesh.h>
+#include <gta/render/RenderingSubmesh.h>
+#include <gta/resource/mesh/Mesh.h>
 #include <gta/scene/visibility/PVSDatabase.h>
 
 
 
 
 DFFRenderWidget::DFFRenderWidget(QWidget* parent)
-		: GLBaseWidget(parent), scene(NULL), texSource(NULL)
+		: GLBaseWidget(parent), displayedClump(NULL), renderer(NULL), texSource(NULL)
 {
 	setFocusPolicy(Qt::ClickFocus);
 
@@ -62,12 +65,17 @@ DFFRenderWidget::DFFRenderWidget(QWidget* parent)
 
 DFFRenderWidget::~DFFRenderWidget()
 {
-	clearGeometries();
-
-	if (scene) {
-		DefaultRenderer* renderer = (DefaultRenderer*) scene->getRenderer();
+	if (renderer)
 		delete renderer;
-		delete scene;
+
+	if (displayedClump) {
+		delete displayedClump;
+
+		for (list<RenderingEntity*>::iterator it = renderingEntities.begin() ; it != renderingEntities.end() ; it++) {
+			delete *it;
+		}
+
+		renderingEntities.clear();
 	}
 
 	if (texSource)
@@ -75,81 +83,189 @@ DFFRenderWidget::~DFFRenderWidget()
 }
 
 
-MapSceneObject* DFFRenderWidget::createSceneObject(const DFFGeometry* geom,
-		QLinkedList<const DFFGeometryPart*> parts)
+void DFFRenderWidget::displayMesh(DFFMesh* mesh)
 {
 	makeCurrent();
 
-	TextureSource* texSrc = texSource;
+	gtaglInit();
 
-	if (!textured)
-		texSrc = NULL;
+	if (displayedClump)
+		delete displayedClump;
 
-	if (texSrc)
-		texSrc = texSrc->clone();
+	displayedClump = new MeshClump(mesh);
 
-	Mesh* mesh;
+	displayedMeshes.clear();
+	displayedSubmeshes.clear();
 
-	mesh = new Mesh(*geom, false);
+	MeshClump::MeshIterator mit = displayedClump->getMeshBegin();
+	DFFMesh::GeometryIterator git = mesh->getGeometryBegin();
 
-	for (QLinkedList<const DFFGeometryPart*>::iterator it = parts.begin() ; it != parts.end() ; it++) {
-		Submesh* submesh = new Submesh(mesh, **it);
-		mesh->addSubmesh(submesh);
-	}
+	for (; mit != displayedClump->getMeshEnd()  &&  git != mesh->getGeometryEnd() ; mit++, git++) {
+		Mesh* mesh = *mit;
+		DFFGeometry* geom = *git;
 
-	MeshClump* clump = new MeshClump;
-	clump->addMesh(mesh);
+		geomMeshMap.insert(geom, mesh);
+		//displayedMeshes.insert(mesh);
 
-	StaticMapItemDefinition* def = new StaticMapItemDefinition(new StaticMeshPointer(clump), texSrc, NULL,
-			NULL, 5000.0f);
-	MapSceneObject* obj = new MapSceneObject;
-	MapSceneObjectLODInstance* inst = new MapSceneObjectLODInstance(def);
-	obj->addLODInstance(inst);
+		Mesh::SubmeshIterator sit = mesh->getSubmeshBegin();
+		DFFGeometry::PartIterator pit = geom->getPartBegin();
 
-	return obj;
-}
+		for (; sit != mesh->getSubmeshEnd()  &&  pit != geom->getPartEnd() ; sit++, pit++) {
+			Submesh* submesh = *sit;
+			DFFGeometryPart* part = *pit;
 
-
-void DFFRenderWidget::addGeometry(const DFFGeometry* geom, QLinkedList<const DFFGeometryPart*> parts)
-{
-	makeCurrent();
-	MapSceneObject* obj = createSceneObject(geom, parts);
-	objs[geom] = obj;
-}
-
-
-void DFFRenderWidget::removeGeometry(const DFFGeometry* geom)
-{
-	makeCurrent();
-	QMap<const DFFGeometry*, MapSceneObject*>::iterator it = objs.find(geom);
-
-	if (it != objs.end()) {
-		MapSceneObject* obj = it.value();
-		MapItemDefinition* def = obj->getLODInstance()->getDefinition();
-		MeshClump* clump = **def->getMeshPointer();
-		delete clump;
-		delete def;
-		delete obj;
-		objs.erase(it);
+			partSubmeshMap.insert(part, submesh);
+			displayedSubmeshes.insert(submesh);
+		}
 	}
 }
 
 
-void DFFRenderWidget::setGeometryParts(const DFFGeometry* geom,
-			QLinkedList<const DFFGeometryPart*> parts)
+void DFFRenderWidget::setGeometryEnabled(DFFGeometry* geom, bool enabled)
 {
-	makeCurrent();
-	removeGeometry(geom);
-	addGeometry(geom, parts);
+	QMap<DFFGeometry*, Mesh*>::iterator mit = geomMeshMap.find(geom);
+
+	if (mit == geomMeshMap.end()) {
+		return;
+	}
+
+	Mesh* mesh = mit.value();
+
+	QSet<Mesh*>::iterator it = displayedMeshes.find(mesh);
+
+	if (enabled) {
+		if (it == displayedMeshes.end()) {
+			displayedMeshes.insert(mesh);
+		}
+	} else {
+		if (it != displayedMeshes.end()) {
+			displayedMeshes.erase(it);
+		}
+	}
 }
 
 
-void DFFRenderWidget::clearGeometries()
+void DFFRenderWidget::setGeometryPartEnabled(DFFGeometryPart* part, bool enabled)
 {
-	makeCurrent();
-	while (objs.size() != 0) {
-		const DFFGeometry* geom = objs.begin().key();
-		removeGeometry(geom);
+	QMap<DFFGeometryPart*, Submesh*>::iterator mit = partSubmeshMap.find(part);
+
+	if (mit == partSubmeshMap.end()) {
+		return;
+	}
+
+	Submesh* submesh = mit.value();
+
+	QSet<Submesh*>::iterator it = displayedSubmeshes.find(submesh);
+
+	if (enabled) {
+		if (it == displayedSubmeshes.end()) {
+			displayedSubmeshes.insert(submesh);
+		}
+	} else {
+		if (it == displayedSubmeshes.end()) {
+			displayedSubmeshes.erase(it);
+		}
+	}
+}
+
+
+void DFFRenderWidget::buildRenderingEntities()
+{
+	renderingEntities.clear();
+
+	if (!displayedClump)
+		return;
+
+	for (MeshClump::MeshIterator it = displayedClump->getMeshBegin() ; it != displayedClump->getMeshEnd() ; it++) {
+		Mesh* mesh = *it;
+
+		if (!displayedMeshes.contains(mesh))
+			continue;
+
+		Matrix4 fModelMat = Matrix4::Identity;
+
+		MeshFrame* frame = mesh->getFrame();
+
+		if (frame) {
+			fModelMat = fModelMat * frame->getAbsoluteModelMatrix();
+		}
+
+		RenderingPrimitiveFormat rpf;
+
+		switch (mesh->getVertexFormat()) {
+		case VertexFormatPoints:
+			rpf = RenderingPrimitivePoints;
+			break;
+		case VertexFormatLines:
+			rpf = RenderingPrimitiveLines;
+			break;
+		case VertexFormatTriangles:
+			rpf = RenderingPrimitiveTriangles;
+			break;
+		case VertexFormatTriangleStrips:
+			rpf = RenderingPrimitiveTriangleStrip;
+			break;
+		}
+
+		//uint32_t flags = RenderingMesh::EnableShaderPluginUniformBuffers | RenderingMesh::HasTransparency;
+		uint32_t flags = RenderingMesh::EnableShaderPluginUniformBuffers;
+
+		DefaultRenderingMesh* rm = new DefaultRenderingMesh (
+				rpf,
+				flags,
+				mesh->getVertexCount(), 0, NULL, 0,
+				mesh->getDataBuffer(), mesh->getIndexBuffer(),
+				mesh->getVertexOffset(), mesh->getVertexStride(),
+				mesh->getSubmeshIDOffset(), mesh->getSubmeshIDStride(),
+				mesh->getNormalOffset(), mesh->getNormalStride(),
+				mesh->getTexCoordOffset(), mesh->getTexCoordStride(),
+				mesh->getVertexColorOffset(), mesh->getVertexColorStride(),
+				-1, 0,
+				-1, 0
+				);
+
+		rm->setModelMatrix(fModelMat);
+
+
+		for (Mesh::SubmeshIterator sit = mesh->getSubmeshBegin() ; sit != mesh->getSubmeshEnd() ; sit++) {
+			Submesh* submesh = *sit;
+
+			if (!displayedSubmeshes.contains(submesh))
+				continue;
+
+			Material* mat = submesh->getMaterial();
+
+			GLuint oglTex = 0;
+
+			uint8_t r = 255;
+			uint8_t g = 255;
+			uint8_t b = 255;
+			uint8_t a = 255;
+
+			bool texLocked = false;
+
+			if (mat) {
+				if (mat->isTextured()) {
+					if (texSource) {
+						Texture* tex = texSource->getTexture(mat->getTexture(), true);
+						texLocked = true;
+						if (tex)
+							oglTex = tex->getGLTexture();
+					}
+				}
+
+				mat->getColor(r, g, b, a);
+			}
+
+			RenderingSubmesh* sm = new RenderingSubmesh(rm, submesh->getIndexCount(), submesh->getIndexOffset(), oglTex);
+
+			sm->setMaterialColor(r, g, b, a);
+
+			if (texLocked)
+				texSource->release();
+		}
+
+		renderingEntities.push_back(rm);
 	}
 }
 
@@ -163,22 +279,16 @@ void DFFRenderWidget::initializeGL()
 
 		GLBaseWidget::initializeGL();
 
-		if (!scene) {
-			scene = new Scene;
-			scene->addStreamingViewpoint(&cam);
-
-			DefaultRenderer* renderer = new DefaultRenderer;
-			scene->setRenderer(renderer);
-
-			cam.move(-2.0f);
-		}
-
 		glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
 
 		glEnable(GL_DEPTH_TEST);
-
 		glEnable(GL_BLEND);
+
+		glDepthFunc(GL_LEQUAL);
+
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		cam.move(-2.0f);
 
 		GLException::checkError();
 	} catch (Exception& ex) {
@@ -191,32 +301,30 @@ void DFFRenderWidget::resizeGL(int w, int h)
 {
 	GLBaseWidget::resizeGL(w, h);
 
-	DefaultRenderer* renderer = (DefaultRenderer*) scene->getRenderer();
-
 	Engine* engine = Engine::getInstance();
 	engine->setViewportSize(getViewportWidth(), getViewportHeight());
+
+	if (renderer)
+		delete renderer;
+
+	renderer = new DefaultRenderer;
 }
 
 
 void DFFRenderWidget::paintGL()
 {
 	try {
+		renderer->setWireframeRendering(wireframe);
+
 		GLBaseWidget::paintGL();
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		Engine* engine = Engine::getInstance();
-		engine->setScene(scene);
+		buildRenderingEntities();
 
-		scene->clear();
+		renderer->enqueueForRendering(renderingEntities.begin(), renderingEntities.end());
 
-		QMap<const DFFGeometry*, MapSceneObject*>::iterator it;
-		for (it = objs.begin() ; it != objs.end() ; it++) {
-			MapSceneObject* obj = it.value();
-			scene->addSceneObject(obj);
-		}
-
-		engine->renderFrame();
+		renderer->render();
 
 		GLException::checkError();
 	} catch (Exception& ex) {
@@ -231,21 +339,6 @@ void DFFRenderWidget::setTextureSource(TextureSource* source)
 		delete texSource;
 
 	texSource = source;
-
-	QMap<const DFFGeometry*, MapSceneObject*>::iterator it;
-	for (it = objs.begin() ; it != objs.end() ; it++) {
-		MapSceneObject* obj = it.value();
-		MapItemDefinition* def = obj->getLODInstance()->getDefinition();
-
-		if (textured) {
-			if (texSource)
-				def->setTextureSource(texSource->clone());
-			else
-				def->setTextureSource(NULL);
-		} else {
-			def->setTextureSource(NULL);
-		}
-	}
 }
 
 

@@ -24,8 +24,11 @@
 #define HEXEDITOR_H_
 
 #include "HexEditorPrivate.h"
+#include "../UndoDecorator.h"
+#include "../NullUndoDecorator.h"
 #include <QtGui/QAbstractScrollArea>
 #include <QtGui/QScrollBar>
+#include <QtGui/QUndoStack>
 #include <QtCore/QTimer>
 
 
@@ -34,6 +37,10 @@ class HexEditor : public QAbstractScrollArea {
 
 public:
 	HexEditor(QWidget* parent = NULL);
+
+	void setDocument(HexEditorDocument* doc) { editor->setDocument(doc); }
+	HexEditorDocument* getDocument() { return editor->getDocument(); }
+	const HexEditorDocument* getDocument() const { return editor->getDocument(); }
 
 	void setData(const QByteArray& data) { editor->setData(data); }
 	void loadData(const File& file) { editor->loadData(file); }
@@ -96,11 +103,23 @@ public:
 	void ensureLineVisible(int line);
 	void ensureVisible(int offset) { ensureLineVisible(offset / getBytesPerLine()); }
 
+	void setEditable(bool editable) { editor->setEditable(editable); }
+	bool isEditable() const { return editor->isEditable(); }
+
+	void setUndoStack(QUndoStack* undoStack) { this->undoStack = undoStack; }
+	QUndoStack* getUndoStack() { return undoStack; }
+	const QUndoStack* getUndoStack() const { return undoStack; }
+
+	void setUndoDecorator(UndoDecorator* decorator);
+	UndoDecorator* getUndoDecorator() { return undoDecorator; }
+	const UndoDecorator* getUndoDecorator() const { return undoDecorator; }
+
 public slots:
 	void replace(const QByteArray& data) { editor->replace(data); }
 
 signals:
 	void dataChanged(const QByteArray& data);
+	void dataReplaced(int offset, int len, const QByteArray& oldData, const QByteArray& newData);
 	void cursorChanged(int pos, int anchor);
 
 protected:
@@ -117,11 +136,16 @@ private slots:
 	void verticalScrollBarChanged(int value);
 	void cursorChangedSlot(int pos, int anchor);
 	void scroll();
+	void dataReplacedSlot(int offset, int len, const QByteArray& oldData, const QByteArray& newData);
+	void undoDecoratorCommitted(QUndoCommand* cmd);
 
 public:
 	HexEditorPrivate* editor;
 	QTimer scrollTimer;
 	int scrollFactor;
+	QUndoStack* undoStack;
+	UndoDecorator* undoDecorator;
+	NullUndoDecorator nullUndoDecorator;
 };
 
 #endif /* HEXEDITOR_H_ */

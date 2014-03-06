@@ -46,9 +46,6 @@ public:
 	DFFWidget(DisplayedFile* dfile, QWidget* parent);
 	~DFFWidget();
 
-public slots:
-	void saveTo(const File& file) { ui.rwbsWidget->save(file); }
-
 private:
 	void clearMaterialList();
 	void clearGeometryPartList();
@@ -75,7 +72,6 @@ private slots:
 	void texSrcChanged(int index);
 	void xmlDumpRequested();
 	void updateLayoutType();
-	void sectionStructureChanged() { dfile->setHasChanges(true); }
 
 private:
 	Ui_DFFWidget ui;

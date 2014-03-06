@@ -117,6 +117,8 @@ public:
 	 */
 	File(const File& parent, const CString& child);
 
+	File();
+
 	/**	\brief Destructor.
 	 */
 	~File();

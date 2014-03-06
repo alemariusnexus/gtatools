@@ -37,8 +37,8 @@ public:
 	const Vector3& getMinimum() const { return min; }
 	Vector3& getMaximum() { return max; }
 	const Vector3& getMaximum() const { return max; }
-	void setMinimum(const Vector3& m) { min = m; }
-	void setMaximum(const Vector3& m) { max = m; }
+	void setMinimum(const Vector3& min) { this->min = min; }
+	void setMaximum(const Vector3& max) { this->max = max; }
 
 private:
 	Vector3 min;

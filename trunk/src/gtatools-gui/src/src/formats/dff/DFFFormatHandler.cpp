@@ -47,6 +47,14 @@ DFFFormatHandler::DFFFormatHandler()
 
 bool DFFFormatHandler::canHandle(const EntityOpenRequest& req) const
 {
+	QVariant typeVar = req.getAttribute("type");
+
+	if (typeVar.isNull())
+		return false;
+
+	if (typeVar.toString() != "file")
+		return false;
+
 	QVariant fileVar = req.getAttribute("file");
 
 	if (fileVar.isNull())
@@ -74,6 +82,12 @@ DisplayedEntity* DFFFormatHandler::openEntity(const EntityOpenRequest& request)
 	}
 
 	dfile->setWidget(widget);
+
+	SystemQuery query("RWBSRegisterFile");
+	query.setProperty("dfile", QVariant::fromValue<void*>(dfile));
+	query.setProperty("writable", true);
+
+	System::getInstance()->sendSystemQuery(query);
 
 	return dfile;
 }

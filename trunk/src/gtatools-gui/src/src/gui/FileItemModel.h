@@ -51,6 +51,8 @@ public:
 	QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const;
 	QModelIndex parent(const QModelIndex& parent) const;
 
+	void reload();
+
 private:
 	Profile* profile;
 	QList<StaticFile*> rootFiles;

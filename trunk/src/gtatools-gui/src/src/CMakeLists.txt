@@ -29,11 +29,14 @@ SET(SRCS ${SRCS}
     src/main.cpp src/Profile.cpp src/ProfileManager.cpp src/System.cpp
     src/Task.cpp src/EntityOpenRequest.cpp src/RegexFileFinder.cpp src/TaskFileFinder.cpp
     src/MainApplication.cpp src/Int64Validator.cpp src/UInt64Validator.cpp
-    src/DisplayedEntity.cpp src/DisplayedFile.cpp
+    src/DisplayedEntity.cpp src/DisplayedEntityHandler.cpp src/DefaultDisplayedEntityHandler.cpp
+    src/DisplayedFile.cpp src/TestWindow.cpp src/UndoDecorator.cpp src/BatchingUndoDecorator.cpp
     PARENT_SCOPE)
 SET(MOC_SRCS ${MOC_SRCS}
     src/ProfileManager.h src/Profile.h src/System.h src/Task.h src/MainApplication.h
-    src/Int64Validator.h src/UInt64Validator.h src/DisplayedEntity.h src/DisplayedFile.h
+    src/Int64Validator.h src/UInt64Validator.h src/DisplayedEntity.h src/DisplayedEntityHandler.h
+    src/DefaultDisplayedEntityHandler.h src/DisplayedFile.h src/TestWindow.h src/UndoDecorator.h
+    src/BatchingUndoDecorator.h
     PARENT_SCOPE)
 SET(UIC_SRCS ${UIC_SRCS} PARENT_SCOPE)
 SET(INCS ${INCS} PARENT_SCOPE)

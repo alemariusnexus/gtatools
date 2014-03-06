@@ -21,31 +21,19 @@
  */
 
 #include "DisplayedEntity.h"
-#include "formats/FormatHandler.h"
 #include "System.h"
+#include "DisplayedEntityHandler.h"
 
 
 
 DisplayedEntity::DisplayedEntity()
-		: changes(false)
+		: currentEditHandler(NULL)
 {
 	System* sys = System::getInstance();
 
 	connect(sys, SIGNAL(entityClosed(DisplayedEntity*)), this, SLOT(entityClosed(DisplayedEntity*)));
 	connect(sys, SIGNAL(currentEntityChanged(DisplayedEntity*, DisplayedEntity*)), this,
 			SLOT(currentEntityChanged(DisplayedEntity*, DisplayedEntity*)));
-}
-
-
-bool DisplayedEntity::save(bool useLast)
-{
-	if (doSave(useLast)) {
-		emit saved();
-		setHasChanges(false);
-		return true;
-	}
-
-	return false;
 }
 
 
@@ -56,10 +44,124 @@ void DisplayedEntity::entityClosed(DisplayedEntity* ent)
 }
 
 
-void DisplayedEntity::currentEntityChanged(DisplayedEntity* current, DisplayedEntity* prev)
+void DisplayedEntity::currentEntityChanged(DisplayedEntity* prev, DisplayedEntity* current)
 {
 	if (current == this  &&  prev != this)
 		emit madeCurrent();
 	else if (prev == this  &&  current != this)
 		emit lostCurrent(current);
 }
+
+
+void DisplayedEntity::registerHandler(DisplayedEntityHandler* handler)
+{
+	handlers << handler;
+}
+
+
+void DisplayedEntity::unregisterHandler(DisplayedEntityHandler* handler)
+{
+	handlers.removeOne(handler);
+}
+
+
+bool DisplayedEntity::canAcquireEditLock(const DisplayedEntityHandler* handler) const
+{
+	return currentEditHandler == handler  ||  currentEditHandler == NULL;
+}
+
+
+bool DisplayedEntity::acquireEditLock(DisplayedEntityHandler* handler)
+{
+	if (!canAcquireEditLock(handler))
+		return false;
+
+	DisplayedEntityHandler* oldHandler = currentEditHandler;
+
+	currentEditHandler = handler;
+
+	if (handler != oldHandler) {
+		connect(handler, SIGNAL(hasUnsavedChangesStateChanged(bool)), this, SIGNAL(hasUnsavedChangesStateChanged(bool)));
+
+		emit currentEditHandlerChanged(oldHandler, handler);
+	}
+
+	return true;
+}
+
+
+bool DisplayedEntity::releaseEditLock(DisplayedEntityHandler* handler)
+{
+	if (currentEditHandler == NULL)
+		return true;
+	if (currentEditHandler != handler)
+		return false;
+
+	currentEditHandler = NULL;
+
+	disconnect(handler, SIGNAL(hasUnsavedChangesStateChanged(bool)), this, SIGNAL(hasUnsavedChangesStateChanged(bool)));
+
+	emit currentEditHandlerChanged(handler, NULL);
+
+	for (QLinkedList<DisplayedEntityHandler*>::iterator it = handlers.begin() ; it != handlers.end() ; it++) {
+		DisplayedEntityHandler* h = *it;
+
+		if (h != handler) {
+			h->editLockAcquisitionReleasedExternally();
+		}
+	}
+
+	return true;
+}
+
+
+bool DisplayedEntity::saveChanges(DisplayedEntityHandler* handler, bool letUserChooseFile)
+{
+	if (currentEditHandler != handler)
+		return false;
+
+	if (doSaveChanges(letUserChooseFile)) {
+		for (QLinkedList<DisplayedEntityHandler*>::iterator it = handlers.begin() ; it != handlers.end() ; it++) {
+			DisplayedEntityHandler* h = *it;
+
+			if (h != handler) {
+				h->changesSavedExternally();
+			}
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
+
+bool DisplayedEntity::doSaveChanges(bool letUserChooseFile)
+{
+	if (!currentEditHandler)
+		return false;
+
+	return currentEditHandler->doSaveChanges();
+}
+
+
+bool DisplayedEntity::hasUnsavedChanges() const
+{
+	return currentEditHandler != NULL  &&  currentEditHandler->hasUnsavedChanges();
+}
+
+
+bool DisplayedEntity::saveChanges(bool letUserChooseFile)
+{
+	if (!currentEditHandler)
+		return false;
+
+	return currentEditHandler->saveChanges(letUserChooseFile);
+}
+
+
+bool DisplayedEntity::canSave()
+{
+	return currentEditHandler != NULL;
+}
+

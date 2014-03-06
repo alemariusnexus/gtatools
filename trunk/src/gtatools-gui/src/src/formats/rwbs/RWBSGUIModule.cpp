@@ -31,11 +31,29 @@ RWBSGUIModule::RWBSGUIModule()
 	gotoAction = new QAction(tr("Goto Offset..."), NULL);
 	gotoAction->setShortcut(QKeySequence(tr("Ctrl+G")));
 	connect(gotoAction, SIGNAL(triggered()), this, SLOT(gotoRequested()));
+
+	utilDockWidget = new QDockWidget(tr("RenderWare Binary Stream File View"));
+	utilDockWidget->setObjectName("rwbsUtilDock");
+
+	analyzerDockWidget = new QDockWidget(tr("RenderWare Binary Stream Analyzer View"));
+	analyzerDockWidget->setObjectName("rwbsAnalyzerDock");
+
+	utilWidget = new RWBSUtilityWidget(utilDockWidget);
+	utilDockWidget->setWidget(utilWidget);
+
+	analyzerWidget = new RWBSAnalyzerWidget(analyzerDockWidget);
+	analyzerDockWidget->setWidget(analyzerWidget);
 }
 
 
 void RWBSGUIModule::doInstall()
 {
+	mainWindow->addDockWidget(Qt::BottomDockWidgetArea, utilDockWidget);
+	utilDockWidget->setParent(mainWindow);
+
+	/*mainWindow->addDockWidget(Qt::BottomDockWidgetArea, analyzerDockWidget);
+	analyzerDockWidget->setParent(mainWindow);*/
+
 	QMenu* editMenu = mainWindow->getEditMenu();
 
 	editMenu->addAction(gotoAction);
@@ -46,6 +64,12 @@ void RWBSGUIModule::doInstall()
 
 void RWBSGUIModule::doUninstall()
 {
+	mainWindow->removeDockWidget(utilDockWidget);
+	utilDockWidget->setParent(NULL);
+
+	/*mainWindow->removeDockWidget(analyzerDockWidget);
+	analyzerDockWidget->setParent(NULL);*/
+
 	QMenu* editMenu = mainWindow->getEditMenu();
 
 	editMenu->removeAction(gotoAction);

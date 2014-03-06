@@ -72,16 +72,6 @@ DFFWidget::DFFWidget(DisplayedFile* dfile, QWidget* parent)
 
 	File file = dfile->getFile();
 
-	try {
-		ui.rwbsWidget->loadFile(file);
-	} catch (RWBSException ex) {
-		System::getInstance()->log(LogEntry::error(QString(tr("Error opening the DFF file: %1"))
-				.arg(ex.getMessage()), &ex));
-		mesh = NULL;
-		ui.llWidget->setEnabled(false);
-		ui.tabWidget->setTabEnabled(ui.tabWidget->indexOf(ui.llWidget), false);
-	}
-
 	renderContainerWidget = new GLContainerWidget(ui.renderContainerWidget);
 	renderContainerWidget->setWindowTitle(tr("%1 - DFF Rendering")
 			.arg(file.getPath()->getFileName().get()));
@@ -113,11 +103,6 @@ DFFWidget::DFFWidget(DisplayedFile* dfile, QWidget* parent)
 
 	connect(guiModule, SIGNAL(dumpRequested()), this, SLOT(xmlDumpRequested()));
 	connect(System::getInstance(), SIGNAL(configurationChanged()), this, SLOT(updateLayoutType()));
-
-	connect(ui.rwbsWidget, SIGNAL(sectionChanged(RWSection*)), this, SLOT(sectionStructureChanged()));
-	connect(ui.rwbsWidget, SIGNAL(sectionInserted(RWSection*)), this, SLOT(sectionStructureChanged()));
-	connect(ui.rwbsWidget, SIGNAL(sectionRemoved(RWSection*, RWSection*)), this,
-			SLOT(sectionStructureChanged()));
 
 	connect(dfile, SIGNAL(saved()), this, SLOT(reloadHighLevelFile()));
 }
@@ -151,8 +136,6 @@ void DFFWidget::reloadHighLevelFile()
 {
 	setCurrentGeometry(NULL);
 
-	renderWidget->clearGeometries();
-
 	if (frameModel)
 		delete frameModel;
 	if (geomModel)
@@ -166,12 +149,14 @@ void DFFWidget::reloadHighLevelFile()
 
 	try {
 		mesh = dff.loadMesh(file);
+		setEnabled(true);
 	} catch (DFFException ex) {
 		System::getInstance()->log(LogEntry::error(QString(tr("Error opening the DFF file: %1"))
 				.arg(ex.getMessage()), &ex));
 		mesh = NULL;
-		ui.hlWidget->setEnabled(false);
-		ui.tabWidget->setTabEnabled(ui.tabWidget->indexOf(ui.hlWidget), false);
+		setEnabled(false);
+		//ui.hlWidget->setEnabled(false);
+		//ui.tabWidget->setTabEnabled(ui.tabWidget->indexOf(ui.hlWidget), false);
 	}
 
 	// Load the frame tree
@@ -189,6 +174,8 @@ void DFFWidget::reloadHighLevelFile()
 		geomModel = new DFFGeometryItemModel(mesh);
 		ui.geometryTree->setModel(geomModel);
 
+		renderWidget->displayMesh(mesh);
+
 		connect(ui.geometryTree->selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
 				this, SLOT(geometryTreeItemSelected(const QModelIndex&, const QModelIndex&)));
 
@@ -205,18 +192,24 @@ void DFFWidget::reloadHighLevelFile()
 		SystemQuery query("FindMeshTextures");
 		query["meshName"] = meshName;
 
-		SystemQueryResult result = sys->sendSystemQuery(query);
-		QStringList texes = result["textures"].toStringList();
+		QList<SystemQueryResult> results = sys->sendSystemQuery(query);
 
-		if (result.isSuccessful()) {
-			for (QStringList::iterator it = texes.begin() ; it != texes.end() ; it++) {
-				QString tex = *it;
-				ui.texSourceBox->addItem(tex, false);
-			}
+		QStringList texes;
 
-			if (texes.size() > 0)
-				texSrcChanged(0);
+		for (unsigned int i = 0 ; i < results.size() ; i++) {
+			SystemQueryResult res = results[i];
+			QStringList subTexes = res["textures"].toStringList();
+
+			texes.append(subTexes);
 		}
+
+		for (QStringList::iterator it = texes.begin() ; it != texes.end() ; it++) {
+			QString tex = *it;
+			ui.texSourceBox->addItem(tex, false);
+		}
+
+		if (texes.size() > 0)
+			texSrcChanged(0);
 
 		delete[] meshName;
 	}
@@ -588,13 +581,7 @@ void DFFWidget::textureSelected(int index)
 
 void DFFWidget::geometryDisplayStateChanged(DFFGeometry* geom, bool displayed)
 {
-	if (displayed) {
-		QLinkedList<const DFFGeometryPart*> displayedParts;
-		geomModel->getDisplayedGeometryParts(geom, displayedParts);
-		renderWidget->addGeometry(geom, displayedParts);
-	} else {
-		renderWidget->removeGeometry(geom);
-	}
+	renderWidget->setGeometryEnabled(geom, displayed);
 
 	renderWidget->updateGL();
 }
@@ -602,12 +589,15 @@ void DFFWidget::geometryDisplayStateChanged(DFFGeometry* geom, bool displayed)
 
 void DFFWidget::geometryPartDisplayStateChanged(DFFGeometryPart* part, bool displayed)
 {
-	if (renderWidget->isGeometryRendered(part->getGeometry())) {
+	/*if (renderWidget->isGeometryRendered(part->getGeometry())) {
 		QLinkedList<const DFFGeometryPart*> displayedParts;
 		geomModel->getDisplayedGeometryParts(part->getGeometry(), displayedParts);
 		renderWidget->setGeometryParts(part->getGeometry(), displayedParts);
 		renderWidget->updateGL();
-	}
+	}*/
+
+	renderWidget->setGeometryPartEnabled(part, displayed);
+	renderWidget->updateGL();
 }
 
 

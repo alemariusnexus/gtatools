@@ -23,7 +23,7 @@
 #ifndef TXDFORMATHANDLER_H_
 #define TXDFORMATHANDLER_H_
 
-#include "../FormatHandler.h"
+#include "../EntityHandler.h"
 #include <QtGui/QImage>
 #include <gtaformats/txd/TXDArchive.h>
 #include <gtaformats/txd/TXDTextureHeader.h>
@@ -35,15 +35,15 @@
 
 
 
-class TXDFormatHandler: public FormatHandler {
+class TXDFormatHandler: public EntityHandler {
 	Q_OBJECT
 
 public:
 	static TXDFormatHandler* getInstance();
 
 public:
-	virtual QString getFormatName(const File* file = NULL) const { return tr("Texture Dictionary (TXD)"); };
-	virtual QLinkedList<QString> getFileFormatExtensions() const { return QLinkedList<QString>() << "txd"; }
+	virtual QString getFileFormatName(const File& file) const { return tr("Texture Dictionary (TXD)"); };
+	virtual QLinkedList<QString> getFileFormatExtensions(const File& file) const { return QLinkedList<QString>() << "txd"; }
 	virtual bool canHandle(const EntityOpenRequest& req) const;
 	virtual DisplayedEntity* openEntity(const EntityOpenRequest& request);
 
@@ -52,7 +52,7 @@ public:
 	QImage createImageFromTexture(TXDTextureHeader* tex, uint8_t* data, uint8_t*& resultData);
 
 private slots:
-	void systemQuerySent(const SystemQuery& query, SystemQueryResult& result);
+	void systemQuerySent(const SystemQuery& query, QList<SystemQueryResult>& results);
 
 private:
 	TXDFormatHandler();

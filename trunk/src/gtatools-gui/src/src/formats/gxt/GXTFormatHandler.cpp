@@ -41,6 +41,14 @@ GXTFormatHandler* GXTFormatHandler::getInstance()
 
 bool GXTFormatHandler::canHandle(const EntityOpenRequest& req) const
 {
+	QVariant typeVar = req.getAttribute("type");
+
+	if (typeVar.isNull())
+		return false;
+
+	if (typeVar.toString() != "file")
+		return false;
+
 	QVariant fileVar = req.getAttribute("file");
 
 	if (fileVar.isNull())

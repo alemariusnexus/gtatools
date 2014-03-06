@@ -49,6 +49,7 @@
 #include "gui/GLContainerWidget.h"
 #include <fstream>
 #include <gtaformats/util/util.h>
+#include "TestWindow.h"
 
 using std::ofstream;
 
@@ -96,6 +97,10 @@ int main(int argc, char** argv)
 		QTranslator trans;
 		trans.load(":/gtatools-gui_" + QLocale::system().name());
 		app.installTranslator(&trans);
+
+		/*TestWindow* w = new TestWindow;
+		w->resize(1000, 700);
+		w->show();*/
 
 		System::initialize();
 

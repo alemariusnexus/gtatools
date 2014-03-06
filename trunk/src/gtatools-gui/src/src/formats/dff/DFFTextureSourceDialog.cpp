@@ -33,6 +33,8 @@ DFFTextureSourceDialog::DFFTextureSourceDialog(QWidget* parent)
 	connect(ui.addButton, SIGNAL(pressed()), this, SLOT(addRequested()));
 	connect(ui.editButton, SIGNAL(pressed()), this, SLOT(editRequested()));
 	connect(ui.removeButton, SIGNAL(pressed()), this, SLOT(removeRequested()));
+	connect(ui.moveUpButton, SIGNAL(pressed()), this, SLOT(moveUpRequested()));
+	connect(ui.moveDownButton, SIGNAL(pressed()), this, SLOT(moveDownRequested()));
 	connect(ui.list, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)), this,
 			SLOT(currentSourceChanged(QListWidgetItem*, QListWidgetItem*)));
 }
@@ -49,6 +51,8 @@ void DFFTextureSourceDialog::currentSourceChanged(QListWidgetItem* item, QListWi
 {
 	ui.removeButton->setEnabled(item != NULL);
 	ui.editButton->setEnabled(item != NULL);
+
+	updateMoveButtonState();
 }
 
 
@@ -57,6 +61,8 @@ void DFFTextureSourceDialog::addTextureSource(QString source, bool path)
 	QListWidgetItem* item = new QListWidgetItem(source);
 	item->setData(Qt::UserRole, path);
 	ui.list->addItem(item);
+
+	updateMoveButtonState();
 }
 
 
@@ -65,6 +71,15 @@ QString DFFTextureSourceDialog::getTextureSource(int idx, bool& path) const
 	QListWidgetItem* item = ui.list->item(idx);
 	path = item->data(Qt::UserRole).toBool();
 	return item->text();
+}
+
+
+void DFFTextureSourceDialog::updateMoveButtonState()
+{
+	int numItems = ui.list->count();
+
+	ui.moveUpButton->setEnabled(ui.list->currentItem() != NULL  &&  ui.list->currentRow() != 0);
+	ui.moveDownButton->setEnabled(ui.list->currentItem() != NULL  &&  ui.list->currentRow() < numItems-1);
 }
 
 
@@ -98,4 +113,28 @@ void DFFTextureSourceDialog::removeRequested()
 	QListWidgetItem* item = ui.list->currentItem();
 	ui.list->takeItem(ui.list->row(item));
 	delete item;
+
+	updateMoveButtonState();
+}
+
+
+void DFFTextureSourceDialog::moveUpRequested()
+{
+	int curIdx = ui.list->currentRow();
+	QListWidgetItem* item = ui.list->takeItem(curIdx);
+	ui.list->insertItem(curIdx-1, item);
+	ui.list->setCurrentRow(curIdx-1);
+
+	updateMoveButtonState();
+}
+
+
+void DFFTextureSourceDialog::moveDownRequested()
+{
+	int curIdx = ui.list->currentRow();
+	QListWidgetItem* item = ui.list->takeItem(curIdx);
+	ui.list->insertItem(curIdx+1, item);
+	ui.list->setCurrentRow(curIdx+1);
+
+	updateMoveButtonState();
 }

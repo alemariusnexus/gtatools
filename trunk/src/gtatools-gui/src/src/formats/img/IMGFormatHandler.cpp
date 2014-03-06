@@ -40,18 +40,14 @@ IMGFormatHandler::~IMGFormatHandler()
 }
 
 
-QString IMGFormatHandler::getFormatName(const File* file) const
+QString IMGFormatHandler::getFileFormatName(const File& file) const
 {
-	if (!file) {
-		return tr("IMG Archive");
-	}
-
-	FileContentType type = file->guessContentType();
+	FileContentType type = file.guessContentType();
 
 	if (type == CONTENT_TYPE_DIR) {
 		return tr("IMG Archive Header (DIR)");
 	} else {
-		IMGArchive::IMGVersion ver = IMGArchive::guessIMGVersion(*file);
+		IMGArchive::IMGVersion ver = IMGArchive::guessIMGVersion(file);
 
 		if (ver == IMGArchive::VER1) {
 			return tr("IMG Archive Version 1 (GTA III/VC)");
@@ -64,6 +60,14 @@ QString IMGFormatHandler::getFormatName(const File* file) const
 
 bool IMGFormatHandler::canHandle(const EntityOpenRequest& req) const
 {
+	QVariant typeVar = req.getAttribute("type");
+
+	if (typeVar.isNull())
+		return false;
+
+	if (typeVar.toString() != "file")
+		return false;
+
 	QVariant fileVar = req.getAttribute("file");
 
 	if (fileVar.isNull())

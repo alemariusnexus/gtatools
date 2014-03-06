@@ -26,8 +26,10 @@
 #include "GUIModule.h"
 #include "MainWindow.h"
 #include <QtCore/QObject>
+#include <QtCore/QMap>
 #include <QtGui/QAction>
 #include <QtGui/QMenu>
+#include <QtGui/QUndoGroup>
 #include "../EntityOpenRequest.h"
 #include "FileTree.h"
 #include <QtGui/QDockWidget>
@@ -61,8 +63,8 @@ private slots:
 	void onFileSaveAs(bool checked);
 	void entityOpened(DisplayedEntity* ent);
 	void entityClosed(DisplayedEntity* ent);
-	void currentEntityChanged(DisplayedEntity* current, DisplayedEntity* prev);
-	void entityChangeStatusChanged();
+	void currentEntityChanged(DisplayedEntity* prev, DisplayedEntity* current);
+	void entityHasUnsavedChangesStateChanged(bool hasChanges);
 	void onSearchFile(bool checked);
 	void profileAdded(Profile* profile);
 	void profileRemoved(Profile* profile);
@@ -70,6 +72,7 @@ private slots:
 	void profileNameChanged(const QString& oldName, const QString& newName);
 	void currentProfileChanged(Profile* oldProfile, Profile* newProfile);
 	void onBuildPVS(bool checked);
+	void entityCurrentEditHandlerChanged(DisplayedEntityHandler* oldHandler, DisplayedEntityHandler* newHandler);
 
 private:
 	LogConsole* logConsole;
@@ -85,9 +88,14 @@ private:
 	QAction* searchFileAction;
 	QAction* systemOpenAction;
 	QAction* pvsAction;
+	QAction* undoAction;
+	QAction* redoAction;
 	QMenu* profileSwitchMenu;
 	QLinkedList<File*> contextFiles;
 	QDockWidget* logConsoleDock;
+	QUndoGroup undoGroup;
+	QUndoStack dummyUndoStack;
+	QMap<DisplayedEntity*, DisplayedEntityHandler*> entityLastReleasedEditLockHandlers;
 
 	FileTree* fileTree;
 	QDockWidget* fileTreeDock;

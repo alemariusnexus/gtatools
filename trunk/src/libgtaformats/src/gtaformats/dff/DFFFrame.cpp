@@ -194,3 +194,16 @@ void DFFFrame::invalidateLTM()
 	}
 }
 
+
+void DFFFrame::printDebug(int ind)
+{
+	for (int i = 0 ; i < ind ; i++)
+		printf(" ");
+
+	printf("%s\n", name.get() ? name.get() : "[UNNAMED]");
+
+	for (ChildIterator it = children.begin() ; it != children.end() ; it++) {
+		(*it)->printDebug(ind+4);
+	}
+}
+

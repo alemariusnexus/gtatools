@@ -18,15 +18,20 @@
 # Additional permissions are granted, which are listed in the file
 # GPLADDITIONS.
 
+ADD_SUBDIRECTORY(script)
+
 SET(SRCS ${SRCS}
     src/formats/rwbs/RWBSWidget.cpp src/formats/rwbs/RWBSSectionModel.cpp src/formats/rwbs/RWBSGUIModule.cpp
     src/formats/rwbs/RWBSSectionTree.cpp src/formats/rwbs/RWBSSectionDialog.cpp
+    src/formats/rwbs/RWBSUtilityWidget.cpp src/formats/rwbs/RWBSAnalyzer.cpp src/formats/rwbs/RWBSAnalyzerWidget.cpp
+    src/formats/rwbs/RWBSAnalyzerWidget.cpp
     PARENT_SCOPE)
 SET(MOC_SRCS ${MOC_SRCS}
     src/formats/rwbs/RWBSWidget.h src/formats/rwbs/RWBSSectionModel.h src/formats/rwbs/RWBSGUIModule.h
-    src/formats/rwbs/RWBSSectionTree.h src/formats/rwbs/RWBSSectionDialog.h
+    src/formats/rwbs/RWBSSectionTree.h src/formats/rwbs/RWBSSectionDialog.h src/formats/rwbs/RWBSUtilityWidget.h
+    src/formats/rwbs/RWBSAnalyzer.h src/formats/rwbs/RWBSAnalyzerWidget.h src/formats/rwbs/RWBSAnalyzerWidget.h
     PARENT_SCOPE)
 SET(UIC_SRCS ${UIC_SRCS}
-    src/formats/rwbs/RWBSWidget.ui src/formats/rwbs/RWBSSectionDialog.ui
+    src/formats/rwbs/RWBSWidget.ui src/formats/rwbs/RWBSSectionDialog.ui src/formats/rwbs/RWBSAnalyzerWidget.ui
     PARENT_SCOPE)
 SET(INCS ${INCS} src/formats/rwbs PARENT_SCOPE)

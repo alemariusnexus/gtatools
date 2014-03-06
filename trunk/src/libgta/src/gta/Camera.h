@@ -57,7 +57,8 @@ public:
 
 	virtual Vector3 getStreamingViewpointPosition() const { return getPosition(); }
 	virtual uint32_t getStreamingFlags() const { return FrustumCulling; }
-	virtual uint32_t getBuckets() const { return StreamingManager::VisibleBucket; }
+	//virtual uint32_t getStreamingFlags() const { return 0; }
+	virtual uint32_t getBuckets() const { return StreamingManager::VisibleBucket | StreamingManager::PhysicsBucket; }
 	virtual float getStreamingDistanceMultiplier() const { return 1.0f; }
 	virtual Frustum getCullingFrustum() const { return frustum; }
 

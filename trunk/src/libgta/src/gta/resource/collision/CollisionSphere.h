@@ -25,6 +25,7 @@
 
 #include <gta/config.h>
 #include <gtaformats/col/COLSphere.h>
+#include <btBulletCollisionCommon.h>
 
 
 class CollisionSphere
@@ -38,6 +39,9 @@ public:
 	float getRadius() const { return radius; }
 	void setCenter(const Vector3& c) { center = c; }
 	void setRadius(float r) { radius = r; }
+
+private:
+	void updateBulletShape();
 
 private:
 	Vector3 center;

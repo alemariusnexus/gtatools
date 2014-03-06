@@ -29,6 +29,7 @@
 #include "resource/collision/CollisionShapePointer.h"
 #include "resource/mesh/Submesh.h"
 #include "resource/smesh/ShadowMeshPointer.h"
+#include "resource/physics/PhysicsPointer.h"
 
 
 class MapItemDefinition : public ItemDefinition {
@@ -40,17 +41,19 @@ public:
 
 public:
 	MapItemDefinition(MeshPointer* mptr, TextureSource* tsrc, CollisionShapePointer* cptr,
-			ShadowMeshPointer* smptr, float dd, unsigned int flags)
-			: meshPtr(mptr), texSrc(tsrc), colPtr(cptr), smeshPtr(smptr), drawDist(dd), flags(flags) {}
-	MapItemDefinition() : meshPtr(NULL), texSrc(NULL), colPtr(NULL), drawDist(0.0f), flags(0) {}
+			ShadowMeshPointer* smptr, PhysicsPointer* pptr, float dd, unsigned int flags)
+			: meshPtr(mptr), texSrc(tsrc), colPtr(cptr), smeshPtr(smptr), physicsPtr(pptr), drawDist(dd), flags(flags) {}
+	MapItemDefinition() : meshPtr(NULL), texSrc(NULL), colPtr(NULL), physicsPtr(NULL), drawDist(0.0f), flags(0) {}
 	MeshPointer* getMeshPointer() { return meshPtr; }
 	TextureSource* getTextureSource() { return texSrc; }
 	CollisionShapePointer* getCollisionShapePointer() { return colPtr; }
 	ShadowMeshPointer* getShadowMeshPointer() { return smeshPtr; }
+	PhysicsPointer* getPhysicsPointer() { return physicsPtr; }
 	void setMeshPointer(MeshPointer* p) { meshPtr = p; }
 	void setTextureSource(TextureSource* s) { texSrc = s; }
 	void setCollisionShapePointer(CollisionShapePointer* p) { colPtr = p; }
 	void setShadowMeshPointer(ShadowMeshPointer* p) { smeshPtr = p; }
+	void setPhysicsPointer(PhysicsPointer* p) { physicsPtr = p; }
 	float getDrawDistance() const { return drawDist; }
 	unsigned int getFlags() const { return flags; }
 	bool hasAlphaTransparency() const { return (flags & AlphaTransparency) != 0; }
@@ -60,6 +63,7 @@ protected:
 	TextureSource* texSrc;
 	CollisionShapePointer* colPtr;
 	ShadowMeshPointer* smeshPtr;
+	PhysicsPointer* physicsPtr;
 	float drawDist;
 	unsigned int flags;
 };

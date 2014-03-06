@@ -30,7 +30,7 @@
 class StaticMapItemDefinition : public MapItemDefinition {
 public:
 	StaticMapItemDefinition(MeshPointer* meshPtr, TextureSource* texSrc, CollisionShapePointer* colPtr,
-			ShadowMeshPointer* smeshPtr, float drawDist, unsigned int flags = 0);
+			ShadowMeshPointer* smeshPtr, PhysicsPointer* pptr, float drawDist, unsigned int flags = 0);
 	StaticMapItemDefinition(IDEStaticObject& object);
 	~StaticMapItemDefinition();
 	virtual int getType() const { return ItemTypeStaticMapItem; }

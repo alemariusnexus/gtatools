@@ -31,6 +31,7 @@
 #include "resource/collision/CollisionMeshIndexer.h"
 #include "resource/animation/AnimationCacheLoader.h"
 #include "resource/animation/AnimationIndexer.h"
+#include "resource/physics/PhysicsCacheLoader.h"
 #include "ItemManager.h"
 #include "scene/Scene.h"
 #include "scene/SceneObjectDefinitionInfo.h"
@@ -42,6 +43,7 @@
 #include <gtaformats/util/util.h>
 #include <gtaformats/ipl/IPLReader.h>
 #include <gtaformats/ipl/IPLInstance.h>
+#include <gtaformats/dat/ResourceDATLoader.h>
 #include "MapItemDefinition.h"
 #include "render/DefaultShaderPluginAPI.h"
 #include <cstdio>
@@ -96,11 +98,13 @@ Engine::Engine()
 	texCacheLoader = new TextureCacheLoader(texIndexer);
 	colCacheLoader = new CollisionMeshCacheLoader(colIndexer);
 	animCacheLoader = new AnimationCacheLoader(animIndexer);
+	physicsCacheLoader = new PhysicsCacheLoader;
 
 	meshCache = new StringResourceCache(meshCacheLoader, 0);
 	texCache = new StringResourceCache(texCacheLoader, 0);
 	colCache = new StringResourceCache(colCacheLoader, 0);
 	animCache = new StringResourceCache(animCacheLoader, 0);
+	physicsCache = new StringResourceCache(physicsCacheLoader, 0);
 
 	addResourceObserver(meshIndexer);
 	addResourceObserver(texIndexer);
@@ -237,42 +241,20 @@ void Engine::loadDAT(const File& file, const File& rootDir, GameInfo gameInfo)
 	if (!gameInfo.isValid())
 		gameInfo = defGameInfo;
 
-	istream* dat = file.openInputStream();
-	char line[1024];
+	istream* stream = file.openInputStream();
 
-	while (!dat->eof()) {
-		dat->getline(line, sizeof(line));
-		streamoff numChars = dat->gcount();
+	ResourceDATLoader dat(rootDir);
 
-		if (numChars >= 2  &&  line[numChars-2] == '\r') {
-			line[numChars-2] = '\0';
-		}
-
-
-		if (line[0] == '\0') {
-			continue;
-		}
-
-		if (strncmp(line, "IDE", 3) == 0) {
-			FilePath path(*rootDir.getPath(), line+4, FilePath::BackslashAsSeparator | FilePath::CorrectCase);
-			File ide(&path, false);
-			addResource(ide);
-		} else if (strncmp(line, "IPL", 3) == 0) {
-			FilePath path(*rootDir.getPath(), line+4, FilePath::BackslashAsSeparator | FilePath::CorrectCase);
-			File ipl(&path, false);
-			iplRecurse(&ipl, rootDir, gameInfo);
-		} else if (strncmp(line, "IMG", 3) == 0) {
-			FilePath path(*rootDir.getPath(), line+4, FilePath::BackslashAsSeparator | FilePath::CorrectCase);
-			File img(&path, false);
-			addResource(img);
-		} else if (strncmp(line, "TEXDICTION", 10) == 0) {
-			FilePath path(*rootDir.getPath(), line+11, FilePath::BackslashAsSeparator | FilePath::CorrectCase);
-			File txd(&path, false);
-			addResource(txd);
+	ResourceDATLoader::Entry e;
+	while (dat.loadEntry(stream, e)) {
+		if (e.type == ResourceDATLoader::IPL) {
+			iplRecurse(&e.resolvedFile, rootDir, gameInfo);
+		} else {
+			addResource(e.resolvedFile);
 		}
 	}
 
-	delete dat;
+	delete stream;
 }
 
 

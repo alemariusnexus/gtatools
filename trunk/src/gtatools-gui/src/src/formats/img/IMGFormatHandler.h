@@ -23,18 +23,18 @@
 #ifndef IMGFORMATHANDLER_H_
 #define IMGFORMATHANDLER_H_
 
-#include "../FormatHandler.h"
+#include "../EntityHandler.h"
 #include "IMGGUIModule.h"
 
 
-class IMGFormatHandler : public FormatHandler {
+class IMGFormatHandler : public EntityHandler {
 	Q_OBJECT
 
 public:
 	IMGFormatHandler();
 	virtual ~IMGFormatHandler();
-	virtual QString getFormatName(const File* file = NULL) const;
-	virtual QLinkedList<QString> getFileFormatExtensions() const { return QLinkedList<QString>() << "img" << "dir"; }
+	virtual QString getFileFormatName(const File& file) const;
+	virtual QLinkedList<QString> getFileFormatExtensions(const File& file) const { return QLinkedList<QString>() << "img" << "dir"; }
 	virtual bool canHandle(const EntityOpenRequest& req) const;
 
 private:

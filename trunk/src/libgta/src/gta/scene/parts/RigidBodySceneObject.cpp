@@ -21,13 +21,22 @@
  */
 
 #include "RigidBodySceneObject.h"
+#include "../objects/SimpleDynamicSceneObject.h"
 
 
 
 
 void RigidBodySceneObject::getWorldTransform(btTransform& trans) const
 {
+	const SimpleDynamicSceneObject* sdObj = dynamic_cast<const SimpleDynamicSceneObject*>(this);
+
 	const Matrix4& mm = getModelMatrix();
+
+	if (sdObj) {
+		const float* a = mm.toArray();
+		printf("Yeah, here we go: %f, %f, %f!\n", a[12], a[13], a[14]);
+	}
+
 	trans.setFromOpenGLMatrix((const float*) &mm);
 
 	/*if (getStreamingDistance() == 503.456f) {

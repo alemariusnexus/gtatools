@@ -27,6 +27,7 @@
 #include <gtaformats/util/File.h>
 #include <gta/scene/parts/VisualSceneObject.h>
 #include <gta/render/TestShaderPlugin.h>
+#include <gta/scene/objects/Vehicle.h>
 
 
 class Controller {
@@ -56,10 +57,15 @@ private:
 	//BulletGLDebugDraw* debugDrawer;
 	bool programRunning;
 	bool forceStatisticsUpdate;
+	bool freeRunning;
+	bool increaseTime;
+	bool increaseTimeHold;
 
 	VisualSceneObject* lastSelectedObj;
 
 	TestShaderPlugin* selPlugin;
+
+	Vehicle* veh;
 };
 
 #endif /* CONTROLLER_H_ */

@@ -23,7 +23,7 @@
 #ifndef DFFFORMATHANDLER_H_
 #define DFFFORMATHANDLER_H_
 
-#include "../FormatHandler.h"
+#include "../EntityHandler.h"
 #include <QtOpenGL/qgl.h>
 #include <gtaformats/dff/DFFMesh.h>
 #include <gtaformats/dff/DFFFrame.h>
@@ -31,15 +31,15 @@
 #include <QtGui/QWidget>
 
 
-class DFFFormatHandler: public FormatHandler {
+class DFFFormatHandler: public EntityHandler {
 	Q_OBJECT
 
 public:
 	static DFFFormatHandler* getInstance();
 
 public:
-	virtual QString getFormatName(const File* file = NULL) const { return tr("DFF Mesh"); }
-	virtual QLinkedList<QString> getFileFormatExtensions() const { return QLinkedList<QString>() << "dff"; }
+	virtual QString getFileFormatName(const File& file) const { return tr("DFF Mesh"); }
+	virtual QLinkedList<QString> getFileFormatExtensions(const File& file) const { return QLinkedList<QString>() << "dff"; }
 	virtual bool canHandle(const EntityOpenRequest& req) const;
 	virtual DisplayedEntity* openEntity(const EntityOpenRequest& request);
 

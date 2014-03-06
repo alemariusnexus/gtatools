@@ -91,6 +91,13 @@ File::File(const File& parent, const CString& child)
 }
 
 
+File::File()
+		: path(new FilePath(".")), autoDeletePath(true),
+		  archivePtr(shared_ptr< shared_ptr<IMGArchive> > (new shared_ptr<IMGArchive>))
+{
+}
+
+
 File::~File()
 {
 	if (autoDeletePath) {

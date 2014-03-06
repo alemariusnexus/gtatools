@@ -65,6 +65,7 @@ public:
 	RWSection(int32_t id, int32_t version);
 	RWSection(int32_t id, RWSection* parent);
 	RWSection(uint8_t* rawData);
+	RWSection(const RWSection& other);
 	~RWSection();
 
 	int32_t getID() const { return id; }
@@ -73,8 +74,11 @@ public:
 	uint64_t getAbsoluteOffset() const { return offset; }
 	void setAbsoluteOffset(uint64_t offset) { this->offset = offset; }
 	RWSection* getParent() { return parent; }
+	const RWSection* getParent() const { return parent; }
 	uint8_t* getData() { ensureData(); return data; }
 	bool isDataSection() const { return data != NULL; }
+	bool isContainerSection() const { return !isDataSection(); }
+	bool canBeConvertedToContainerSection() const;
 
 	void computeAbsoluteOffsets(uint64_t offset = 0);
 
@@ -91,14 +95,17 @@ public:
 	ChildIterator nextChild(int32_t id, ChildIterator it);
 	ChildIterator getChildIterator(int32_t id);
 	ChildIterator getLastChildIterator(int32_t id);
+	ChildIterator getChildIteratorByIndex(uint32_t idx) { return idx > children.size() ? children.end() : children.begin() + idx; }
 	int getChildCount() { ensureContainer(); return children.size(); }
 	RWSection* getChild(int32_t id);
 	RWSection* getLastChild(int32_t id);
 	RWSection& operator[](int32_t id) { return *getChild(id); }
 	int indexOf(const RWSection* child)
 			{ ensureContainer(); return find(children.begin(), children.end(), child) - children.begin(); }
+	RWSection* getChildByIndex(uint32_t idx) { return idx >= children.size() ? NULL : children[idx]; }
 
 	void setDataSection(bool ds) { if (ds) ensureData(); else ensureContainer(); }
+	void setContainerSection(bool cs) { setDataSection(!cs); }
 
 	void toRawData(uint8_t* data);
 	uint8_t* toRawData() { uint8_t* data = new uint8_t[size+12]; toRawData(data); return data; }

@@ -72,6 +72,23 @@ RWSection::RWSection(uint8_t* rawData)
 }
 
 
+RWSection::RWSection(const RWSection& other)
+		: id(other.id), size(other.size), version(other.version), offset(other.offset), parent(other.parent),
+		  data(other.data ? new uint8_t[size] : NULL)
+{
+	if (data) {
+		memcpy(data, other.data, size);
+	}
+
+	for (ConstChildIterator it = other.children.begin() ; it != other.children.end() ; it++) {
+		const RWSection* child = *it;
+		RWSection* childCpy = new RWSection(*child);
+		childCpy->parent = this;
+		children.push_back(childCpy);
+	}
+}
+
+
 RWSection* RWSection::readSection(istream* stream, RWSection* lastRead, int i)
 {
 	// Check if there is data to read
@@ -139,6 +156,21 @@ void RWSection::ensureContainer()
 	uint8_t* data = this->data;
 
 	while (numRead < size) {
+		if (size-numRead < 12) {
+			uint8_t* offsetData = data;
+
+			for (ChildIterator it = children.begin() ; it != children.end() ; it++) {
+				RWSection* child = *it;
+				child->toRawData(offsetData);
+				offsetData += child->size + 12;
+				delete child;
+			}
+
+			children.clear();
+
+			throw RWBSException("Invalid container section: Dangling data at section end", __FILE__, __LINE__);
+		}
+
 		RWSection* child = new RWSection(data);
 		child->parent = this;
 		children.push_back(child);
@@ -209,6 +241,37 @@ RWSection::~RWSection()
 			delete *it;
 		}
 	}
+}
+
+
+bool RWSection::canBeConvertedToContainerSection() const
+{
+	if (isContainerSection())
+		return true;
+
+	int32_t numRead = 0;
+	uint8_t* data = this->data;
+
+	while (numRead < size) {
+		if (size-numRead < 12) {
+			return false;
+		}
+
+		RWSection* child = NULL;
+
+		try {
+			child = new RWSection(data);
+		} catch (RWBSException& ex) {
+			return false;
+		}
+
+		numRead += 12 + child->size;
+		data += 12 + child->size;
+
+		delete child;
+	}
+
+	return true;
 }
 
 

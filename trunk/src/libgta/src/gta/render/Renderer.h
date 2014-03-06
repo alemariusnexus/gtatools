@@ -46,6 +46,7 @@ public:
 	};
 
 public:
+	Renderer() : wireframeRendering(false) {}
 	virtual ~Renderer() {}
 	virtual void enqueueForRendering(list<RenderingEntity*>::iterator beg, list<RenderingEntity*>::iterator end) = 0;
 	virtual void enqueueForRendering(list<LightSource*>::iterator beg, list<LightSource*>::iterator end) = 0;
@@ -64,6 +65,12 @@ public:
 		l.push_back(ls);
 		enqueueForRendering(l.begin(), l.end());
 	}
+
+	virtual void setWireframeRendering(bool wireframe) { wireframeRendering = wireframe; }
+	virtual bool isWireframeRendering() const { return wireframeRendering; }
+
+protected:
+	bool wireframeRendering;
 };
 
 #endif /* RENDERER_H_ */

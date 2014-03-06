@@ -49,13 +49,21 @@ TXDFormatHandler* TXDFormatHandler::getInstance()
 
 TXDFormatHandler::TXDFormatHandler()
 {
-	connect(System::getInstance(), SIGNAL(systemQuerySent(const SystemQuery&, SystemQueryResult&)), this,
-			SLOT(systemQuerySent(const SystemQuery&, SystemQueryResult&)));
+	connect(System::getInstance(), SIGNAL(systemQuerySent(const SystemQuery&, QList<SystemQueryResult>&)), this,
+			SLOT(systemQuerySent(const SystemQuery&, QList<SystemQueryResult>&)));
 }
 
 
 bool TXDFormatHandler::canHandle(const EntityOpenRequest& req) const
 {
+	QVariant typeVar = req.getAttribute("type");
+
+	if (typeVar.isNull())
+		return false;
+
+	if (typeVar.toString() != "file")
+		return false;
+
 	QVariant fileVar = req.getAttribute("file");
 
 	if (fileVar.isNull())
@@ -88,6 +96,11 @@ DisplayedEntity* TXDFormatHandler::openEntity(const EntityOpenRequest& request)
 	}
 
 	dfile->setWidget(widget);
+
+	SystemQuery query("RWBSRegisterFile");
+	query.setProperty("dfile", QVariant::fromValue((void*) dfile));
+	query.setProperty("writable", true);
+	System::getInstance()->sendSystemQuery(query);
 
 	return dfile;
 }
@@ -179,38 +192,38 @@ QImage TXDFormatHandler::createImageFromTexture(TXDTextureHeader* tex, uint8_t* 
 }
 
 
-void TXDFormatHandler::systemQuerySent(const SystemQuery& query, SystemQueryResult& result)
+void TXDFormatHandler::systemQuerySent(const SystemQuery& query, QList<SystemQueryResult>& results)
 {
-	if (!result.isSuccessful()) {
-		if (query.getName() == "FindAndOpenTexture") {
-			QString tex = query["texture"].toString();
-			QString txdName = query["txdName"].toString();
+	if (query.getName() == "FindAndOpenTexture") {
+		QString tex = query["texture"].toString();
+		QString txdName = query["txdName"].toString();
 
-			QString txdFileName = QString(txdName).append(".txd");
+		QString txdFileName = QString(txdName).append(".txd");
 
-			FileFinder* txdFinder = NULL;
+		FileFinder* txdFinder = NULL;
 
-			if (!txdName.isNull())
-				txdFinder = new DefaultFileFinder(txdFileName.toAscii().constData(), false);
+		if (!txdName.isNull())
+			txdFinder = new DefaultFileFinder(txdFileName.toAscii().constData(), false);
 
-			DefaultFileFinder texFinder(tex.toAscii().constData(), false);
+		DefaultFileFinder texFinder(tex.toAscii().constData(), false);
 
-			TextureFileFinder finder(&texFinder, txdFinder);
+		TextureFileFinder finder(&texFinder, txdFinder);
 
-			File* file = GUI::getInstance()->findFile(&finder, NULL);
+		File* file = GUI::getInstance()->findFile(&finder, NULL);
 
-			if (file) {
-				result["txdFile"] = QString(file->getPath()->toString().get());
+		if (file) {
+			SystemQueryResult result;
 
-				System* sys = System::getInstance();
-				EntityOpenRequest req;
-				req.setAttribute("file", QString(file->getPath()->toString().get()));
-				req.setAttribute("texture", finder.getMatchedTexture(*file));
-				delete file;
-				sys->openEntity(req);
+			result["txdFile"] = QString(file->getPath()->toString().get());
 
-				result.setSuccessful(true);
-			}
+			System* sys = System::getInstance();
+			EntityOpenRequest req;
+			req.setAttribute("file", QString(file->getPath()->toString().get()));
+			req.setAttribute("texture", finder.getMatchedTexture(*file));
+			delete file;
+			sys->openEntity(req);
+
+			results << result;
 		}
 	}
 }

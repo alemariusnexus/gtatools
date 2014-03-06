@@ -26,6 +26,7 @@
 
 #include "../scene/objects/AnimatedMapSceneObject.h"
 #include "../scene/objects/MapSceneObject.h"
+#include "../scene/objects/SimpleDynamicSceneObject.h"
 
 #include "../Animator.h"
 
@@ -57,9 +58,139 @@ void RenderingEntityGenerator::generate(list<VisualSceneObject*>::iterator beg, 
 			generateFromMapSceneObject(mobj, outList);
 			continue;
 		}
+
+		SimpleDynamicSceneObject* sdobj = dynamic_cast<SimpleDynamicSceneObject*>(sobj);
+
+		if (sdobj) {
+			generateFromSimpleDynamicSceneObject(sdobj, outList);
+			continue;
+		}
+
+		Vehicle* veh = dynamic_cast<Vehicle*>(sobj);
+
+		if (veh) {
+			generateFromVehicle(veh, outList);
+			continue;
+		}
+	}
+}
+
+
+RenderingSubmesh* RenderingEntityGenerator::generateFromSubmesh(Submesh* submesh, TextureSource* texSrc, RenderingMesh* rmesh, bool debug)
+{
+	Material* mat = submesh->getMaterial();
+
+	GLuint oglTex = 0;
+
+	uint8_t r = 255;
+	uint8_t g = 255;
+	uint8_t b = 255;
+	uint8_t a = 255;
+
+	bool texLocked = false;
+
+	if (mat) {
+		if (mat->isTextured()) {
+			Texture* tex = texSrc->getTexture(mat->getTexture(), true);
+			texLocked = true;
+			if (tex)
+				oglTex = tex->getGLTexture();
+		}
+
+		mat->getColor(r, g, b, a);
 	}
 
-	//exit(0);
+	RenderingSubmesh* sm = new RenderingSubmesh(rmesh, submesh->getIndexCount(), submesh->getIndexOffset(), oglTex);
+
+	sm->setMaterialColor(r, g, b, a);
+
+	if (texSrc) {
+		sm->texSrc = texSrc->clone();
+		sm->texSrc->lock();
+	}
+
+	if (texLocked)
+		texSrc->release();
+
+	return sm;
+}
+
+
+RenderingMesh* RenderingEntityGenerator::generateFromMesh(Mesh* mesh, MeshPointer* mptr, TextureSource* texSrc,
+		const Matrix4& modelMat, bool transparent, MeshFrame* frame)
+{
+	Matrix4 fModelMat = modelMat;
+
+	bool isChassis = false;
+
+	if (frame) {
+		fModelMat = fModelMat * frame->getAbsoluteModelMatrix();
+
+		if (frame->getName().lower() == "chassis") {
+			isChassis = true;
+		}
+	}
+
+	RenderingPrimitiveFormat rpf;
+
+	switch (mesh->getVertexFormat()) {
+	case VertexFormatPoints:
+		rpf = RenderingPrimitivePoints;
+		break;
+	case VertexFormatLines:
+		rpf = RenderingPrimitiveLines;
+		break;
+	case VertexFormatTriangles:
+		rpf = RenderingPrimitiveTriangles;
+		break;
+	case VertexFormatTriangleStrips:
+		rpf = RenderingPrimitiveTriangleStrip;
+		break;
+	}
+
+	uint32_t flags = RenderingMesh::EnableShaderPluginUniformBuffers;
+
+	if (transparent)
+		flags |= RenderingMesh::HasTransparency;
+
+	DefaultRenderingMesh* rm = new DefaultRenderingMesh (
+			rpf,
+			flags,
+			mesh->getVertexCount(), 0, NULL, 0,
+			mesh->getDataBuffer(), mesh->getIndexBuffer(),
+			mesh->getVertexOffset(), mesh->getVertexStride(),
+			mesh->getSubmeshIDOffset(), mesh->getSubmeshIDStride(),
+			mesh->getNormalOffset(), mesh->getNormalStride(),
+			mesh->getTexCoordOffset(), mesh->getTexCoordStride(),
+			mesh->getVertexColorOffset(), mesh->getVertexColorStride(),
+			-1, 0,
+			-1, 0
+			);
+
+	rm->setModelMatrix(fModelMat);
+
+	rm->meshPtr = mptr->clone();
+	rm->meshPtr->lock();
+
+	mptr->release();
+
+	uint32_t numSubmeshes = 0;
+
+	Mesh::SubmeshIterator sit;
+	for (sit = mesh->getSubmeshBegin() ; sit != mesh->getSubmeshEnd() ; sit++) {
+		Submesh* submesh = *sit;
+
+		bool debug = false;
+
+		if (isChassis  &&  numSubmeshes == 0)
+			debug = true;
+
+		generateFromSubmesh(submesh, texSrc, rm, debug);
+
+		numSubmeshes++;
+	}
+
+	return rm;
 }
 
 
@@ -114,111 +245,20 @@ void RenderingEntityGenerator::generateFromStaticMapSceneObjectLODInstance(MapSc
 	for (mit = meshClump->getMeshBegin() ; mit != meshClump->getMeshEnd() ; mit++) {
 		Mesh* mesh = *mit;
 
-		MeshFrame* frame = mesh->getFrame();
+		// TODO: We only render the last mesh of a mesh clump for static objects. Don't know
+		// if this is how it's supposed to be, but at least some mesh clumps in GTA3 have
+		// different meshes (actually: DFFGeometries) that represent different levels of
+		// physical damage for the object, where the physically intact one seems to be the
+		// last in all cases (actually, it's more likely a naming system with suffixes.
+		// Should investigate more...)
+		MeshClump::MeshIterator nit = mit;
+		nit++;
 
-		Matrix4 fModelMat = modelMat;
+		if (nit != meshClump->getMeshEnd())
+			continue;
 
-		if (frame) {
-
-		}
-
-		RenderingPrimitiveFormat rpf;
-
-		switch (mesh->getVertexFormat()) {
-		case VertexFormatPoints:
-			rpf = RenderingPrimitivePoints;
-			break;
-		case VertexFormatLines:
-			rpf = RenderingPrimitiveLines;
-			break;
-		case VertexFormatTriangles:
-			rpf = RenderingPrimitiveTriangles;
-			break;
-		case VertexFormatTriangleStrips:
-			rpf = RenderingPrimitiveTriangleStrip;
-			break;
-		}
-
-		uint32_t flags = RenderingMesh::EnableShaderPluginUniformBuffers;
-
-		if (lodInst->hasAlphaTransparency()  ||  mobj->selected)
-			flags |= RenderingMesh::HasTransparency;
-
-		DefaultRenderingMesh* rm = new DefaultRenderingMesh (
-				rpf,
-				flags,
-				mesh->getVertexCount(), 0, NULL, 0,
-				mesh->getDataBuffer(), mesh->getIndexBuffer(),
-				mesh->getVertexOffset(), mesh->getVertexStride(),
-				mesh->getSubmeshIDOffset(), mesh->getSubmeshIDStride(),
-				mesh->getNormalOffset(), mesh->getNormalStride(),
-				mesh->getTexCoordOffset(), mesh->getTexCoordStride(),
-				mesh->getVertexColorOffset(), mesh->getVertexColorStride(),
-				-1, 0,
-				-1, 0
-				);
+		RenderingMesh* rm = generateFromMesh(mesh, mptr, texSrc, modelMat, lodInst->hasAlphaTransparency(), mesh->getFrame());
 		rm->setPluginRegistry(mobj->getShaderPluginRegistry());
-
-		if (mobj->special) {
-			//rm->setFlags(rm->getFlags() & ~RenderingMesh::HasTransparency);
-			rm->special = true;
-		}
-
-		rm->setModelMatrix(fModelMat);
-
-		rm->meshPtr = mptr->clone();
-		rm->meshPtr->lock();
-
-		mptr->release();
-
-		Mesh::SubmeshIterator sit;
-		for (sit = mesh->getSubmeshBegin() ; sit != mesh->getSubmeshEnd() ; sit++) {
-			Submesh* submesh = *sit;
-
-			Material* mat = submesh->getMaterial();
-
-			GLuint oglTex = 0;
-
-			uint8_t r = 255;
-			uint8_t g = 255;
-			uint8_t b = 255;
-			uint8_t a = 255;
-
-			bool texLocked = false;
-
-			if (mat) {
-				if (mat->isTextured()) {
-					Texture* tex = texSrc->getTexture(mat->getTexture(), true);
-					texLocked = true;
-
-					if (tex)
-						oglTex = tex->getGLTexture();
-				}
-
-				mat->getColor(r, g, b, a);
-			}
-
-			//fprintf(stderr, "Bullendreck: %u\n", oglTex);
-
-			/*if (mobj->selected) {
-				a = 127;
-			}*/
-
-			RenderingSubmesh* sm = new RenderingSubmesh(rm, submesh->getIndexCount(), submesh->getIndexOffset(), oglTex);
-
-			sm->setMaterialColor(r, g, b, a);
-
-			if (texSrc) {
-				sm->texSrc = texSrc->clone();
-				sm->texSrc->lock();
-			}
-
-			if (texLocked)
-				texSrc->release();
-
-			/*if (mobj->selected)
-				rm->setHasTransparency(true);*/
-		}
 
 		outList.push_back(rm);
 	}
@@ -347,42 +387,120 @@ void RenderingEntityGenerator::generateFromAnimatedMapSceneObjectLODInstance(Ani
 		for (sit = mesh->getSubmeshBegin() ; sit != mesh->getSubmeshEnd() ; sit++) {
 			Submesh* submesh = *sit;
 
-			Material* mat = submesh->getMaterial();
-
-			GLuint oglTex = 0;
-
-			uint8_t r = 255;
-			uint8_t g = 255;
-			uint8_t b = 255;
-			uint8_t a = 255;
-
-			bool texLocked = false;
-
-			if (mat) {
-				if (mat->isTextured()) {
-					Texture* tex = texSrc->getTexture(mat->getTexture(), true);
-					texLocked = true;
-
-					if (tex)
-						oglTex = tex->getGLTexture();
-				}
-
-				mat->getColor(r, g, b, a);
-			}
-
-			RenderingSubmesh* sm = new RenderingSubmesh(rm, submesh->getIndexCount(), submesh->getIndexOffset(), oglTex);
-
-			sm->setMaterialColor(r, g, b, a);
-
-			if (texSrc) {
-				sm->texSrc = texSrc->clone();
-				sm->texSrc->lock();
-			}
-
-			if (texLocked)
-				texSrc->release();
+			generateFromSubmesh(submesh, texSrc, rm);
 		}
 
 		outList.push_back(rm);
 	}
+}
+
+
+void RenderingEntityGenerator::generateFromSimpleDynamicSceneObject(SimpleDynamicSceneObject* obj, list<RenderingEntity*>& outList)
+{
+	MeshPointer* mptr = obj->getMeshPointer();
+	MeshClump* meshClump = mptr->get(true);
+
+	if (!meshClump)
+		return;
+
+	TextureSource* texSrc = obj->getTextureSource();
+
+	Matrix4 modelMat = obj->getModelMatrix();
+
+	MeshClump::MeshIterator mit;
+	for (mit = meshClump->getMeshBegin() ; mit != meshClump->getMeshEnd() ; mit++) {
+		Mesh* mesh = *mit;
+
+		// TODO: We only render the last mesh of a mesh clump for static objects. Don't know
+		// if this is how it's supposed to be, but at least some mesh clumps in GTA3 have
+		// different meshes (actually: DFFGeometries) that represent different levels of
+		// physical damage for the object, where the physically intact one seems to be the
+		// last in all cases (actually, it's more likely a naming system with suffixes.
+		// Should investigate more...)
+		MeshClump::MeshIterator nit = mit;
+		nit++;
+
+		if (nit != meshClump->getMeshEnd())
+			continue;
+
+		RenderingMesh* rm = generateFromMesh(mesh, mptr, texSrc, modelMat, obj->hasAlphaTransparency(), mesh->getFrame());
+		rm->setPluginRegistry(obj->getShaderPluginRegistry());
+
+		outList.push_back(rm);
+	}
+}
+
+
+
+
+
+
+
+
+void RenderingEntityGenerator::generateFromVehicle(Vehicle* veh, list<RenderingEntity*>& outList)
+{
+	MeshPointer* mptr = veh->getMeshPointer();
+	MeshClump* clump = **mptr;
+
+	TextureSource* texSrc = veh->getTextureSource();
+
+	Matrix4 modelMat = veh->getModelMatrix();
+
+	Mesh* chassisMesh = clump->getMeshByName("chassis");
+	RenderingMesh* chassis = generateFromMesh(chassisMesh, mptr, texSrc, modelMat, veh->hasAlphaTransparency(),
+			chassisMesh->getFrame());
+	chassis->setPluginRegistry(veh->getShaderPluginRegistry());
+
+	for (RenderingMesh::SubmeshIterator it = chassis->getSubmeshBegin() ; it != chassis->getSubmeshEnd() ; it++) {
+		RenderingSubmesh* sm = *it;
+
+		if (sm->getTexture() == 0)
+			sm->setMaterialColor(255, 0, 0, 255);
+	}
+
+	outList.push_back(chassis);
+
+
+	Mesh* wheelMesh = clump->getMeshByName("wheel");
+
+	RenderingMesh* lfWheel = generateFromMesh(wheelMesh, mptr, texSrc, modelMat, veh->hasAlphaTransparency(),
+			clump->getRootFrame()->getChildByName("wheel_lf_dummy", true));
+	lfWheel->setPluginRegistry(veh->getShaderPluginRegistry());
+	outList.push_back(lfWheel);
+
+	RenderingMesh* rfWheel = generateFromMesh(wheelMesh, mptr, texSrc, modelMat, veh->hasAlphaTransparency(),
+			clump->getRootFrame()->getChildByName("wheel_rf_dummy", true));
+	rfWheel->setPluginRegistry(veh->getShaderPluginRegistry());
+	outList.push_back(rfWheel);
+
+	RenderingMesh* lbWheel = generateFromMesh(wheelMesh, mptr, texSrc, modelMat, veh->hasAlphaTransparency(),
+			clump->getRootFrame()->getChildByName("wheel_lb_dummy", true));
+	lbWheel->setPluginRegistry(veh->getShaderPluginRegistry());
+	outList.push_back(lbWheel);
+
+	RenderingMesh* rbWheel = generateFromMesh(wheelMesh, mptr, texSrc, modelMat, veh->hasAlphaTransparency(),
+			clump->getRootFrame()->getChildByName("wheel_rb_dummy", true));
+	rbWheel->setPluginRegistry(veh->getShaderPluginRegistry());
+	outList.push_back(rbWheel);
+
+
+	Mesh* bonnetMesh = clump->getMeshByName("bonnet_ok");
+
+	RenderingMesh* bonnet = generateFromMesh(bonnetMesh, mptr, texSrc, modelMat, veh->hasAlphaTransparency(), bonnetMesh->getFrame());
+	bonnet->setPluginRegistry(veh->getShaderPluginRegistry());
+	outList.push_back(bonnet);
+
+
+	Mesh* lfDoorMesh = clump->getMeshByName("door_lf_ok");
+
+	RenderingMesh* lfDoor = generateFromMesh(lfDoorMesh, mptr, texSrc, modelMat, veh->hasAlphaTransparency(), lfDoorMesh->getFrame());
+	lfDoor->setPluginRegistry(veh->getShaderPluginRegistry());
+	outList.push_back(lfDoor);
+
+
+	Mesh* rfDoorMesh = clump->getMeshByName("door_rf_ok");
+
+	RenderingMesh* rfDoor = generateFromMesh(rfDoorMesh, mptr, texSrc, modelMat, veh->hasAlphaTransparency(), rfDoorMesh->getFrame());
+	rfDoor->setPluginRegistry(veh->getShaderPluginRegistry());
+	outList.push_back(rfDoor);
 }

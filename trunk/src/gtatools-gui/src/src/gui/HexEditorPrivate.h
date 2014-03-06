@@ -26,12 +26,22 @@
 #include <QtCore/QTimer>
 #include <QtGui/QWidget>
 #include <QtGui/QFontMetrics>
+#include <QtGui/QPen>
+#include <QtGui/QBrush>
 #include <gtaformats/util/File.h>
 #include <cmath>
+#include "HexEditorDocument.h"
 
 
 class HexEditorPrivate : public QWidget {
 	Q_OBJECT
+
+private:
+	struct RenderingState
+	{
+		QBrush defBrush, selBrush;
+		QPen evenColPen, oddColPen;
+	};
 
 public:
 	enum EditorParts
@@ -46,11 +56,13 @@ public:
 public:
 	HexEditorPrivate(QWidget* parent = NULL);
 
-	void setData(const QByteArray& data)
-			{ this->data = data; recomputeGeometry(); update(); setCursorPosition(0); emit dataChanged(data); }
+	void setDocument(HexEditorDocument* doc);
+	HexEditorDocument* getDocument() { return doc; }
+
+	void setData(const QByteArray& data);
 	void loadData(const File& file);
-	int getDataSize() const { return data.size(); }
-	QByteArray getData() const { return data; }
+	int getDataSize() const { return doc->getData().size(); }
+	QByteArray getData() const { return doc->getData(); }
 	QByteArray getSelectedData() const;
 
 	void setAddressHexGapSize(int size) { addrHexGapSize = size; }
@@ -115,7 +127,10 @@ public:
 	void replace(int offset, const QByteArray& data) { replace(offset, data.size(), data); }
 	void replace(int offset, char c) { replace(offset, QByteArray(1, c)); }
 	void prepend(const QByteArray& data) { insert(0, data); }
-	void append(const QByteArray& data) { insert(this->data.size(), data); }
+	void append(const QByteArray& data) { insert(doc->getData().size(), data); }
+
+	void setEditable(bool editable) { this->editable = editable; }
+	bool isEditable() const { return editable; }
 
 public slots:
 	void replace(const QByteArray& data) { replace(cursorPos, data); }
@@ -126,25 +141,36 @@ protected:
 	virtual void mouseMoveEvent(QMouseEvent* evt);
 	virtual void keyPressEvent(QKeyEvent* evt);
 	virtual void resizeEvent(QResizeEvent* evt);
+	virtual bool event(QEvent* evt);
 
 signals:
 	void contentLineCountChanged(int lines);
 	void dataChanged(const QByteArray& data);
+	void dataReplaced(int offset, int len, const QByteArray& oldData, const QByteArray& newData);
 	void cursorChanged(int pos, int anchor);
 
 private slots:
 	void updateCursorBlink();
+	void dataReplacedSlot(int offset, int len, const QByteArray& oldData, const QByteArray& newData);
 
 private:
 	void updateContentLineCount(int lines);
 	void recomputeGeometry();
 	void recomputeVerticalGeometry();
+	void drawBlock(QPainter* painter, const QBrush& brush, int startLine, int endLine, int offset, int len,
+			const QList<int>& subdivs, int activeSubdiv, bool border);
+	/*void updateCurrentBlockAndSubdivision(HexEditorBlock* block, int subdiv);
+	bool calculateBlockAndSubdivision(const QPoint& pos, HexEditorBlock*& block, int& subdiv);
+	bool calculateBlockAndSubdivision(int x, int y, HexEditorBlock*& block, int& subdiv)
+			{ return calculateBlockAndSubdivision(QPoint(x, y), block, subdiv); }*/
 
 private:
 	int enabledParts;
 	QTimer cursorBlinkTimer;
 	float charW, charH, charAsc, charDesc;
-	QByteArray data;
+	//QByteArray data;
+	HexEditorDocument* doc;
+	bool docCreatedHere;
 	int addrHexGapSize;
 	int hexAsciiGapSize;
 	int numAddressChars;
@@ -161,9 +187,15 @@ private:
 	QColor evenColColor, oddColColor;
 	bool currentByteEdited;
 	int mouseSelStart;
+	//HexEditorBlock* currentBlock;
+	//int currentBlockSubdivision;
+
+	RenderingState rstate;
 
 	int hexWidth, asciiWidth;
 	int addrStartX, hexStartX, asciiStartX;
+
+	bool editable;
 
 private:
 	friend class HexEditor;

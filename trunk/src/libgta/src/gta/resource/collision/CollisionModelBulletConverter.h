@@ -20,21 +20,26 @@
 	GPLADDITIONS.
  */
 
-#ifndef COLBULLETCONVERTER_H_
-#define COLBULLETCONVERTER_H_
+#ifndef COLLISIONMODELBULLETCONVERTER_H_
+#define COLLISIONMODELBULLETCONVERTER_H_
 
 #include <btBulletDynamicsCommon.h>
 #include <gtaformats/gtacol.h>
 #include "../ResourceCache.h"
+#include "CollisionBox.h"
+#include "CollisionSphere.h"
+#include "CollisionMesh.h"
+#include "CollisionModel.h"
 
 
-class COLBulletConverter {
+class CollisionModelBulletConverter {
 public:
-	btCollisionShape* convert(const COLSphere& sphere, cachesize_t* cacheSize = NULL);
-	btCollisionShape* convert(const COLBox& box, cachesize_t* cacheSize = NULL);
-	btCollisionShape* convert(const float* vertices, int vertexCount, const COLFace* faces, int faceCount,
+	btCollisionShape* convert(const CollisionSphere* sphere, cachesize_t* cacheSize = NULL);
+	btCollisionShape* convert(const CollisionBox* box, cachesize_t* cacheSize = NULL);
+	btCollisionShape* convert(const float* vertices, int vertexCount, const uint32_t* indices, int faceCount,
 			cachesize_t* cacheSize = NULL);
-	btCollisionShape* convert(const COLModel& model, cachesize_t* cacheSize = NULL);
+	btCollisionShape* convert(const CollisionMesh* mesh, cachesize_t* cacheSize = NULL);
+	btCollisionShape* convert(const CollisionModel* model, cachesize_t* cacheSize = NULL);
 };
 
-#endif /* COLBULLETCONVERTER_H_ */
+#endif /* COLLISIONMODELBULLETCONVERTER_H_ */

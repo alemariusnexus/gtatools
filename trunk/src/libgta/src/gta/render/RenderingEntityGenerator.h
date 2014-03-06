@@ -27,6 +27,10 @@
 #include "../scene/parts/VisualSceneObject.h"
 #include "../scene/objects/MapSceneObject.h"
 #include "../scene/objects/AnimatedMapSceneObject.h"
+#include "../scene/objects/SimpleDynamicSceneObject.h"
+#include "../scene/objects/Vehicle.h"
+#include "RenderingMesh.h"
+#include "RenderingSubmesh.h"
 #include "TestShaderPlugin.h"
 #include "ShaderPluginRegistry.h"
 #include <gtaformats/util/math/Matrix4.h>
@@ -47,10 +51,16 @@ public:
 	void generate(list<VisualSceneObject*>::iterator beg, list<VisualSceneObject*>::iterator end, list<RenderingEntity*>& outList);
 
 private:
+	RenderingSubmesh* generateFromSubmesh(Submesh* submesh, TextureSource* texSrc, RenderingMesh* rmesh, bool debug = false);
+	RenderingMesh* generateFromMesh(Mesh* mesh, MeshPointer* mptr, TextureSource* texSrc, const Matrix4& modelMat, bool transparent,
+			MeshFrame* frame);
+
 	void generateFromMapSceneObject(MapSceneObject* mobj, list<RenderingEntity*>& outList);
 	void generateFromAnimatedMapSceneObject(AnimatedMapSceneObject* aobj, list<RenderingEntity*>& outList);
 	void generateFromStaticMapSceneObjectLODInstance(MapSceneObject* mobj, MapSceneObjectLODInstance* lodInst, list<RenderingEntity*>& outList);
 	void generateFromAnimatedMapSceneObjectLODInstance(AnimatedMapSceneObject* aobj, MapSceneObjectLODInstance* lodInst, list<RenderingEntity*>& outList);
+	void generateFromSimpleDynamicSceneObject(SimpleDynamicSceneObject* obj, list<RenderingEntity*>& outList);
+	void generateFromVehicle(Vehicle* veh, list<RenderingEntity*>& outList);
 
 private:
 	Matrix4 vMatrix;

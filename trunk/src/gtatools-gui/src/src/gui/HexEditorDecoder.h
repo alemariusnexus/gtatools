@@ -25,6 +25,7 @@
 
 #include <gtatools-gui/config.h>
 #include <ui_HexEditorDecoder.h>
+#include <QtGui/QWidget>
 #include "HexEditor.h"
 #include <QtCore/QtEndian>
 #include <gtaformats/util/util.h>
@@ -38,6 +39,8 @@ public:
 	HexEditorDecoder(QWidget* parent = NULL);
 	void connectToEditor(HexEditor* editor);
 	void setData(const QByteArray& data) { this->data = data.left(8); }
+	void setEditable(bool editable);
+	bool isEditable() const { return editable; }
 
 signals:
 	void dataChanged(const QByteArray& data);
@@ -79,6 +82,7 @@ private slots:
 private:
 	Ui_HexEditorDecoder ui;
 	QByteArray data;
+	bool editable;
 };
 
 #endif /* HEXEDITORDECODER_H_ */

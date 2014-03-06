@@ -25,7 +25,10 @@
 
 #include "../../gui/GUIModule.h"
 #include "../../gui/HexEditor.h"
+#include "RWBSUtilityWidget.h"
+#include "RWBSAnalyzerWidget.h"
 #include <QtGui/QAction>
+#include <QtGui/QDockWidget>
 
 
 class RWBSGUIModule : public GUIModule {
@@ -36,6 +39,8 @@ public:
 
 public:
 	void setEditor(HexEditor* editor) { this->editor = editor; }
+	RWBSUtilityWidget* getUtilityWidget() { return utilWidget; }
+	RWBSAnalyzerWidget* getAnalyzerWidget() { return analyzerWidget; }
 
 private:
 	RWBSGUIModule();
@@ -50,6 +55,10 @@ private slots:
 private:
 	QAction* gotoAction;
 	HexEditor* editor;
+	QDockWidget* utilDockWidget;
+	QDockWidget* analyzerDockWidget;
+	RWBSUtilityWidget* utilWidget;
+	RWBSAnalyzerWidget* analyzerWidget;
 };
 
 #endif /* RWBSGUIMODULE_H_ */

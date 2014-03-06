@@ -34,6 +34,7 @@
 #include <map>
 #include <algorithm>
 #include "objects/MapSceneObject.h"
+#include "objects/Vehicle.h"
 
 using std::ofstream;
 using std::min;
@@ -59,11 +60,19 @@ Scene::Scene()
 		: streamer(new StreamingManager()), renderer(NULL), reGenerator(new RenderingEntityGenerator),
 		  pvsEnabled(false), fcEnabled(true), physicsWorld(NULL), freezeVisibility(false)
 {
+	btDefaultCollisionConfiguration* config = new btDefaultCollisionConfiguration();
+	btCollisionDispatcher* dispatcher = new btCollisionDispatcher(config);
+	btBroadphaseInterface* broadphase = new btDbvtBroadphase();
+	btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver();
+	physicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, config);
+
+	physicsWorld->setGravity(btVector3(0.0f, 0.0f, -9.81f));
+
 	streamer->addStreamingListener(this);
 
 	testPlugin = new TestShaderPlugin(0);
-	testPlugin->addUniformBuffer(&testBuf);
-	testReg.installPlugin(testPlugin);
+	//testPlugin->addUniformBuffer(&testBuf);
+	//testReg.installPlugin(testPlugin);
 
 	timeVal = 0;
 }
@@ -93,6 +102,7 @@ void Scene::addSceneObject(SceneObject* obj)
 
 	MapSceneObject* mobj = dynamic_cast<MapSceneObject*>(obj);
 
+
 	if (mobj) {
 		//ShaderPluginRegistry reg = testReg;
 		//UniformBuffer* buf = new UniformBuffer;
@@ -116,6 +126,86 @@ void Scene::streamed(SceneObject* obj, uint32_t inBuckets, uint32_t outBuckets)
 		curVisObjs.push_back(dynamic_cast<VisualSceneObject*>(obj));
 	} else if ((outBuckets & StreamingManager::VisibleBucket)  !=  0) {
 		curVisObjs.remove(dynamic_cast<VisualSceneObject*>(obj));
+	}
+
+	if ((inBuckets & StreamingManager::PhysicsBucket)  !=  0) {
+		/*MapSceneObject* mobj = dynamic_cast<MapSceneObject*>(obj);
+		SimpleDynamicSceneObject* sdObj = dynamic_cast<SimpleDynamicSceneObject*>(obj);
+		Vehicle* veh = dynamic_cast<Vehicle*>(obj);
+
+		if (mobj) {
+			MapItemDefinition* def = mobj->getLODInstance()->getDefinition();
+			PhysicsPointer* pptr = def->getPhysicsPointer();
+
+			btRigidBody* rb = mobj->getRigidBody();
+			btCollisionShape* shape = pptr->get(true);
+
+			rb->setCollisionShape(shape);
+
+			physicsWorld->addRigidBody(rb);
+		} else if (sdObj) {
+			btRigidBody* rb = sdObj->getRigidBody();
+
+			PhysicsPointer* pptr = sdObj->getPhysicsPointer();
+
+			btCollisionShape* shape = pptr->get(true);
+			rb->setCollisionShape(shape);
+
+			physicsWorld->addRigidBody(rb);
+		} else if (veh) {
+			//btRigidBody* rb = veh->getRigidBody();
+
+			PhysicsPointer* pptr = veh->getPhysicsPointer();
+
+			btCollisionShape* shape = pptr->get(true);
+
+			btVector3 inertia(0.0f, 0.0f, 0.0f);
+			shape->calculateLocalInertia(1.0f, inertia);
+
+			btRigidBody::btRigidBodyConstructionInfo info(veh->getMass(), veh, shape, inertia);
+			btRigidBody* rb = new btRigidBody(info);
+			rb->setRestitution(0.2f);
+			rb->setCcdMotionThreshold(0.00001f);
+			rb->setCcdSweptSphereRadius(5.0f);
+
+			delete veh->getRigidBody();
+			veh->setRigidBody(rb);
+
+			physicsWorld->addRigidBody(rb);
+		}*/
+	} else if ((outBuckets & StreamingManager::PhysicsBucket)  !=  0) {
+		/*MapSceneObject* mobj = dynamic_cast<MapSceneObject*>(obj);
+		SimpleDynamicSceneObject* sdObj = dynamic_cast<SimpleDynamicSceneObject*>(obj);
+		Vehicle* veh = dynamic_cast<Vehicle*>(obj);
+
+		if (mobj) {
+			MapItemDefinition* def = mobj->getLODInstance()->getDefinition();
+			PhysicsPointer* pptr = def->getPhysicsPointer();
+			pptr->release();
+
+			btRigidBody* rb = mobj->getRigidBody();
+			rb->setCollisionShape(NULL);
+
+			physicsWorld->removeRigidBody(rb);
+		} else if (sdObj) {
+			btRigidBody* rb = sdObj->getRigidBody();
+
+			PhysicsPointer* pptr = sdObj->getPhysicsPointer();
+			pptr->release();
+
+			rb->setCollisionShape(NULL);
+
+			physicsWorld->removeRigidBody(rb);
+		} else if (veh) {
+			btRigidBody* rb = veh->getRigidBody();
+
+			PhysicsPointer* pptr = veh->getPhysicsPointer();
+			pptr->release();
+
+			rb->setCollisionShape(NULL);
+
+			physicsWorld->removeRigidBody(rb);
+		}*/
 	}
 }
 
@@ -144,7 +234,8 @@ void Scene::update(uint64_t timePassed)
 			aobj->increaseAnimationTime(timePassed / 1000.0f);
 	}
 
-	testBuf.setUniformInt("Time", timeVal);
+	physicsWorld->stepSimulation(timePassed/1000.0f);
+	//testBuf.setUniformInt("Time", timeVal);
 
 	timeVal += timePassed;
 }

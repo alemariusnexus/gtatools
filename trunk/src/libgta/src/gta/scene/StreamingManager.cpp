@@ -72,16 +72,16 @@ void StreamingManager::update()
 	for (ViewpointList::iterator it = vps.begin() ; it != vps.end() ; it++) {
 		StreamingViewpoint* vp = *it;
 
-		processObjects(vp, objects.begin(), objects.end());
+		//processObjects(vp, objects.begin(), objects.end());
 
-		/*PVSDatabase::PVSSceneObjectIterator pvBeg, pvEnd;
+		PVSDatabase::PVSSceneObjectIterator pvBeg, pvEnd;
 
 		if (pvs.queryPVS(pvBeg, pvEnd, vp->getStreamingViewpointPosition(), vp->getStreamingDistanceMultiplier())) {
 			processObjects(vp, pvBeg, pvEnd);
 			processObjects(vp, dynamicObjects.begin(), dynamicObjects.end());
 		} else {
 			processObjects(vp, objects.begin(), objects.end());
-		}*/
+		}
 	}
 
 	calculateStreamingChanges(newlyVisibleObjects.begin(), newlyVisibleObjects.end());
@@ -128,8 +128,7 @@ void StreamingManager::processObjects(StreamingViewpoint* svp, ItType beg, ItTyp
 	Vector3 svpPos = svp->getStreamingViewpointPosition();
 	uint32_t flags = svp->getStreamingFlags();
 
-	//bool fcEnabled = (flags & StreamingViewpoint::FrustumCulling)  !=  0;
-	bool fcEnabled = false;
+	bool fcEnabled = (flags & StreamingViewpoint::FrustumCulling)  !=  0;
 
 	float sx = svpPos.getX();
 	float sy = svpPos.getY();

@@ -20,32 +20,26 @@
 	GPLADDITIONS.
  */
 
-#ifndef FORMATMANAGER_H_
-#define FORMATMANAGER_H_
+#include "EntityHandler.h"
 
-#include "FormatHandler.h"
-#include "../EntityOpenRequest.h"
-#include <QtCore/QLinkedList>
+QString EntityHandler::buildFileDialogFilter() const
+{
+	/*QString filter = getFileFormatName(NULL) + " (";
 
+	QLinkedList<QString> exts = getFileFormatExtensions();
+	QLinkedList<QString>::iterator it;
 
-class FormatManager {
-private:
-	typedef QLinkedList<FormatHandler*> HandlerList;
+	bool first = true;
+	for (it = exts.begin() ; it != exts.end() ; it++) {
+		if (!first)
+			filter.append(' ');
 
-public:
-	static FormatManager* getInstance();
+		filter.append("*.").append(*it);
+		first = false;
+	}
 
-public:
-	void registerFormatHandler(FormatHandler* provider);
-	QLinkedList<FormatHandler*> getHandlers() { return handlers; }
-	QLinkedList<FormatHandler*> getHandlers(const EntityOpenRequest& req);
-	FormatHandler* getHandler(const EntityOpenRequest& req);
+	filter.append(')');
 
-private:
-	FormatManager();
-
-private:
-	HandlerList handlers;
-};
-
-#endif /* FORMATMANAGER_H_ */
+	return filter;*/
+	return QString();
+}

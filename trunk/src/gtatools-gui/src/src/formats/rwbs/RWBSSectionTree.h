@@ -25,7 +25,9 @@
 
 #include <QtGui/QTreeView>
 #include <QtGui/QAction>
+#include <QtGui/QUndoCommand>
 #include "RWBSSectionModel.h"
+#include "../../gui/HTMLItemViewDelegate.h"
 
 
 
@@ -33,8 +35,11 @@ class RWBSSectionTree : public QTreeView {
 	Q_OBJECT
 
 public:
-	RWBSSectionTree(QWidget* parent = NULL);
-	RWBSSectionModel* getModel() { return &model; }
+	RWBSSectionTree(RWBSSectionModel* model, QWidget* parent = NULL);
+	RWBSSectionModel* getModel() { return model; }
+	void setEditable(bool editable);
+	bool isEditable() const { return editable; }
+	void setUndoStack(QUndoStack* undoStack) { this->undoStack = undoStack; }
 
 private slots:
 	void contextMenuRequested(const QPoint& pos);
@@ -43,16 +48,19 @@ private slots:
 	void editRequested(bool);
 
 signals:
-	void sectionChanged(RWSection* sect);
 	void sectionRemoved(RWSection* sect, RWSection* oldParent);
 	void sectionInserted(RWSection* sect);
+	void sectionUpdated(RWSection* sect, uint32_t oldID, uint32_t oldVersion, bool oldContainer);
 
 private:
-	RWBSSectionModel model;
+	RWBSSectionModel* model;
+	HTMLItemViewDelegate delegate;
 	QAction* addAction;
 	QAction* removeAction;
 	QAction* editAction;
 	RWSection* contextSect;
+	bool editable;
+	QUndoStack* undoStack;
 };
 
 #endif /* RWBSSECTIONTREE_H_ */

@@ -23,14 +23,14 @@
 #ifndef IPLFORMATHANDLER_H_
 #define IPLFORMATHANDLER_H_
 
-#include "../FormatHandler.h"
+#include "../EntityHandler.h"
 
-class IPLFormatHandler: public FormatHandler {
+class IPLFormatHandler: public EntityHandler {
 	Q_OBJECT
 
 public:
-	virtual QString getFormatName(const File* file = NULL) const;
-	virtual QLinkedList<QString> getFileFormatExtensions() const { return QLinkedList<QString>() << "ipl"; }
+	virtual QString getFileFormatName(const File& file) const;
+	virtual QLinkedList<QString> getFileFormatExtensions(const File&) const { return QLinkedList<QString>() << "ipl"; }
 	virtual bool canHandle(const EntityOpenRequest& req) const;
 	virtual DisplayedEntity* openEntity(const EntityOpenRequest& request);
 };

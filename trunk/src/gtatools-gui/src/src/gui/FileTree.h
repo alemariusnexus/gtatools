@@ -55,6 +55,7 @@ private slots:
 	void currentProfileResourceAdded(const File& file) { reload(); }
 	void currentProfileResourceRemoved(const File& file) { reload(); }
 	void entityOpened(DisplayedEntity* ent);
+	void configurationChanged();
 
 private:
 	QSortFilterProxyModel* proxyModel;

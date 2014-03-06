@@ -28,9 +28,9 @@
 #include <QtGui/QWidget>
 #include <QtCore/QLinkedList>
 #include <QtCore/QList>
-#include "../formats/FormatHandler.h"
 #include <QtGui/QProgressDialog>
 #include "../Task.h"
+#include <gtaformats/util/FileFinder.h>
 
 
 

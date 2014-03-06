@@ -249,12 +249,17 @@ void IPLWidget::instanceTableCellDoubleClicked(int row, int col)
 		int id = item->text().toInt();
 		SystemQuery query("FindItemDefinition");
 		query["id"] = id;
-		SystemQueryResult result = System::getInstance()->sendSystemQuery(query);
+		QList<SystemQueryResult> results = System::getInstance()->sendSystemQuery(query);
 
-		if (result.isSuccessful()) {
+		// TODO Allow the user to choose one of the results
+
+		if (!results.empty()) {
+			SystemQueryResult result = results.first();
+
 			File file(result["file"].toString().toAscii().constData());
 			int line = result["line"].toInt();
 			EntityOpenRequest req;
+			req.setAttribute("type", "file");
 			req.setAttribute("file", QString(file.getPath()->toString().get()));
 			req.setAttribute("line", line);
 			System::getInstance()->openEntity(req);

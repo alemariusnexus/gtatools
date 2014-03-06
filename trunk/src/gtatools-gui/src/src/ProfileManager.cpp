@@ -90,7 +90,7 @@ Profile* ProfileManager::setCurrentProfile(Profile* profile)
 		System* sys = System::getInstance();
 
 		while (sys->hasOpenEntity())
-			sys->closeCurrentEntity();
+			sys->closeEntity(sys->getCurrentEntity());
 
 		Profile* oldProfile = currentProfile;
 		currentProfile = profile;
