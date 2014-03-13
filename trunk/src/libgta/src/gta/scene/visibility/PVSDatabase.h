@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -30,21 +30,23 @@
 #include "../SceneObjectDefinitionInfo.h"
 #include "../parts/PVSSceneObject.h"
 #include <vector>
-#include <gtaformats/util/util.h>
-#include <gtaformats/util/File.h>
-#include <gtaformats/util/ProgressObserver.h>
-#include <gtaformats/util/thread/Thread.h>
-#include <gtaformats/util/thread/Mutex.h>
+#include <nxcommon/util.h>
+#include <nxcommon/file/File.h>
+#include <nxcommon/ProgressObserver.h>
+#include <nxcommon/thread/Thread.h>
+#include <nxcommon/thread/Mutex.h>
 #include <istream>
 #include <ostream>
 #include <algorithm>
 #include <utility>
+#include <list>
 
 using std::istream;
 using std::ostream;
 using std::vector;
 using std::distance;
 using std::pair;
+using std::list;
 
 
 

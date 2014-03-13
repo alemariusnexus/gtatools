@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -23,7 +23,7 @@
 #ifndef ENTITYOPENREQUEST_H_
 #define ENTITYOPENREQUEST_H_
 
-#include <gtaformats/util/File.h>
+#include <nxcommon/file/File.h>
 #include <QtCore/QHash>
 #include <QtCore/QString>
 #include <QtCore/QVariant>

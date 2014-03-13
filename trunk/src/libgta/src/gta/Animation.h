@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -26,8 +26,8 @@
 #include <gta/config.h>
 #include "AnimationBone.h"
 #include <gtaformats/ifp/IFPAnimation.h>
-#include <gtaformats/util/strutil.h>
-#include <gtaformats/util/CString.h>
+#include <nxcommon/strutil.h>
+#include <nxcommon/CString.h>
 #include <map>
 #include <vector>
 #include <algorithm>

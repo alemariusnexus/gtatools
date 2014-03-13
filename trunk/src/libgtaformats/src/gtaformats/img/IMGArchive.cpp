@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats.
 
@@ -25,17 +25,18 @@
 #include <string>
 #include <cstring>
 #include <vector>
-#include "../util/stream/RangedStream.h"
-#include "../util/File.h"
+#include <nxcommon/file/File.h>
+#include <nxcommon/stream/RangedStream.h>
+#include <nxcommon/util.h>
 #include <algorithm>
 #include <cmath>
 #include <utility>
 #include <iterator>
-#include "../util/stream/streamutil.h"
-#include "../util/stream/StreamReader.h"
-#include "../util/stream/EndianSwappingStreamReader.h"
-#include "../util/stream/StreamWriter.h"
-#include "../util/stream/EndianSwappingStreamWriter.h"
+#include <nxcommon/stream/streamutil.h>
+#include <nxcommon/stream/StreamReader.h>
+#include <nxcommon/stream/EndianSwappingStreamReader.h>
+#include <nxcommon/stream/StreamWriter.h>
+#include <nxcommon/stream/EndianSwappingStreamWriter.h>
 
 using std::iostream;
 using std::string;
@@ -74,16 +75,11 @@ IMGArchive::IMGArchive(istream* stream, int mode)
 IMGArchive::IMGArchive(const File& file, int mode)
 		: mode(mode)
 {
-	const FilePath* path = file.getPath();
+	FilePath path = file.getPath();
 	FileContentType type = file.guessContentType();
 
 	if (type == CONTENT_TYPE_DIR) {
-		char* imgFilePath = new char[path->toString().length() + 1];
-		int basePathLen = path->toString().length() - 3;
-		strncpy(imgFilePath, path->toString().get(), basePathLen);
-		strcpy(imgFilePath+basePathLen, "img");
-		File imgFile(imgFilePath);
-		delete[] imgFilePath;
+		File imgFile(path.getDirectoryPath(), path.getFullBaseFileName().append(".img"));
 
 		if ((mode & ReadOnly)  !=  0) {
 			dirStream = file.openInputStream(istream::binary);
@@ -105,12 +101,7 @@ IMGArchive::IMGArchive(const File& file, int mode)
 			dirStream = imgStream;
 			readHeader();
 		} else {
-			char* dirFilePath = new char[path->toString().length() + 1];
-			int basePathLen = path->toString().length() - 3;
-			strncpy(dirFilePath, path->toString().get(), basePathLen);
-			strcpy(dirFilePath+basePathLen, "dir");
-			File dirFile(dirFilePath);
-			delete[] dirFilePath;
+			File dirFile(path.getDirectoryPath(), path.getFullBaseFileName().append(".dir"));
 
 			if ((mode & ReadOnly)  !=  0) {
 				dirStream = dirFile.openInputStream(istream::binary);
@@ -232,23 +223,13 @@ IMGArchive* IMGArchive::createArchive(const File& file, IMGVersion version, int 
 {
 	if (version == VER1) {
 		if (file.guessContentType() == CONTENT_TYPE_DIR) {
-			const char* dirPath = file.getPath()->toString().get();
-			char* imgPath = new char[strlen(dirPath)+1];
-			int baseLen = strlen(dirPath) - file.getPath()->getExtension().length();
-			strncpy(imgPath, dirPath, baseLen);
-			strcpy(imgPath+baseLen, "img");
-			File imgFile(imgPath);
-			delete[] imgPath;
+			File imgFile(file.getPath().getDirectoryPath(), file.getFullBaseFileName().append(".img"));
+
 			return createArchive(file.openInputOutputStream(iostream::binary),
 					imgFile.openInputOutputStream(iostream::binary), mode);
 		} else {
-			const char* imgPath = file.getPath()->toString().get();
-			char* dirPath = new char[strlen(imgPath)+1];
-			int baseLen = strlen(imgPath) - file.getPath()->getExtension().length();
-			strncpy(dirPath, imgPath, baseLen);
-			strcpy(dirPath+baseLen, "dir");
-			File dirFile(dirPath);
-			delete[] dirPath;
+			File dirFile(file.getPath().getDirectoryPath(), file.getFullBaseFileName().append(".dir"));
+
 			return createArchive(dirFile.openInputOutputStream(iostream::binary),
 					file.openInputOutputStream(iostream::binary), mode);
 		}

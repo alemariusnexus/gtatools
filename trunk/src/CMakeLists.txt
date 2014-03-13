@@ -1,4 +1,4 @@
-# Copyright 2010-2013 David "Alemarius Nexus" Lerch
+# Copyright 2010-2014 David "Alemarius Nexus" Lerch
 # 
 # This file is part of gtatools.
 #
@@ -23,6 +23,10 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 PROJECT(gtatools C CXX)
 
+SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR})
+
+INCLUDE(Utilities.cmake)
+
 SET(GTATOOLS_VERSION_MAJOR "0") # Major version, must be numeric
 SET(GTATOOLS_VERSION_MINOR "2") # Minor version, must be numeric
 SET(GTATOOLS_VERSION_SUFFIX "-dev") # A suffix for the version string, could e.g. be 'b' for beta versions, or empty
@@ -39,16 +43,20 @@ SET(CPACK_SOURCE_IGNORE_FILES "\\\\.svn;.*~")
 
 FIND_PACKAGE(Subversion)
 
-SET(_CMAKE_HAVE_SVNREV OFF)
-IF(IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.svn")
+SET(_CMAKE_GTATOOLS_HAVE_SVNREV OFF)
+IF(EXISTS "${CMAKE_SOURCE_DIR}/.svn" OR EXISTS "${CMAKE_SOURCE_DIR}/../.svn")
     IF(Subversion_FOUND)
         Subversion_WC_INFO(${CMAKE_SOURCE_DIR} Project)
         SET(GTATOOLS_VERSION_SVNREV "${Project_WC_REVISION}")
-        SET(_CMAKE_HAVE_SVNREV ON)
+        SET(_CMAKE_GTATOOLS_HAVE_SVNREV ON)
+    ELSE(Subversion_FOUND)
+        MESSAGE(WARNING "Subversion client not found. The current subversion revision number will not be available to gtatools!")
     ENDIF(Subversion_FOUND)
-ENDIF(IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.svn")
+ENDIF(EXISTS "${CMAKE_SOURCE_DIR}/.svn" OR EXISTS "${CMAKE_SOURCE_DIR}/../.svn")
 
 IF(GTATOOLS_VERSION_SVNREV)
+    MESSAGE(STATUS "Subversion revision of gtatools is r${GTATOOLS_VERSION_SVNREV}.")
+    
     SET(GTATOOLS_VERSION "${GTATOOLS_VERSION_MAJOR}.${GTATOOLS_VERSION_MINOR}${GTATOOLS_VERSION_SUFFIX}-r${GTATOOLS_VERSION_SVNREV}")
 ELSE(GTATOOLS_VERSION_SVNREV)
     SET(GTATOOLS_VERSION "${GTATOOLS_VERSION_MAJOR}.${GTATOOLS_VERSION_MINOR}${GTATOOLS_VERSION_SUFFIX}")
@@ -83,6 +91,11 @@ INCLUDE(CPack)
 SET(ADDITIONAL_INSTALL_FILES "" CACHE STRING "Paths to files which will be additionally installed to the bin subdirectory.")
 SET(ADDITIONAL_INSTALL_FILES_ENABLED OFF CACHE BOOL "Set true to enable ADDITIONAL_INSTALL_FILES")
 
+
+IF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/nxcommon/src/CMakeLists.txt")
+    MESSAGE(STATUS "Building integrated nxcommon.")
+    ADD_SUBDIRECTORY(nxcommon/src nxcommon/build)
+ENDIF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/nxcommon/src/CMakeLists.txt")
 
 IF(LIBGTAFORMATS_BUILD)
     ADD_SUBDIRECTORY(libgtaformats/src libgtaformats/build)

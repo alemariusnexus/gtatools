@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -26,24 +26,15 @@
 #include <gta/config.h>
 #include "ItemDefinition.h"
 #include "resource/ResourceObserver.h"
-
-#ifdef CXX0X_AVAILABLE
 #include <unordered_map>
+
 using std::unordered_map;
-#else
-#include <map>
-using std::map;
-#endif
 
 
 
 class ItemManager : public ResourceObserver {
 private:
-#ifdef CXX0X_AVAILABLE
 	typedef unordered_map<int32_t, ItemDefinition*> ItemMap;
-#else
-	typedef map<int32_t, ItemDefinition*> ItemMap;
-#endif
 
 public:
 	static ItemManager* getInstance() { static ItemManager inst; return &inst; }

@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -27,7 +27,7 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
 #include "../../DisplayedFile.h"
-#include <gtaformats/util/Exception.h>
+#include <nxcommon/exception/Exception.h>
 #include "../../System.h"
 
 
@@ -81,7 +81,7 @@ DisplayedEntity* GXTFormatHandler::openEntity(const EntityOpenRequest& request)
 
 void GXTFormatHandler::iniExport(const File& file, const QLinkedList<GXTTable*>& tables)
 {
-	QFile qfile(file.getPath()->toString().get());
+	QFile qfile(file.getPath().toString().get());
 
 	if (qfile.open(QFile::WriteOnly | QFile::Truncate)) {
 		QTextStream stream(&qfile);

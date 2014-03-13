@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -39,7 +39,7 @@ AnimationIndexer::~AnimationIndexer()
 void AnimationIndexer::resourceAdded(const File& file)
 {
 	if (file.guessContentType() == CONTENT_TYPE_IFP) {
-		CString fname = file.getPath()->getFileName();
+		CString fname = file.getPath().getFileName();
 		size_t len = fname.length();
 		CString lname(fname.get(), len-4);
 		lname.lower();

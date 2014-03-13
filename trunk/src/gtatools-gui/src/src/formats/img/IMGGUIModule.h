@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -40,7 +40,7 @@ public:
 public:
 	IMGGUIModule();
 	virtual ~IMGGUIModule();
-	virtual void buildFileTreeMenu(const QLinkedList<File*>& files, QMenu& menu);
+	virtual void buildFileTreeMenu(const QLinkedList<File>& files, QMenu& menu);
 	void openFileChanged(const File& file);
 
 private:

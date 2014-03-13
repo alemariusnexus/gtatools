@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats-test.
 
@@ -21,23 +21,23 @@
  */
 
 #include "global.h"
-#include <gtaformats/util/util.h>
-#include <gtaformats/util/strutil.h>
-#include <gtaformats/util/CString.h>
-#include <gtaformats/util/Cache.h>
-#include <gtaformats/util/CLIParser.h>
-#include <gtaformats/util/CRC32.h>
+#include <nxcommon/util.h>
+#include <nxcommon/strutil.h>
+#include <nxcommon/CString.h>
+#include <nxcommon/Cache.h>
+#include <nxcommon/CLIParser.h>
+#include <nxcommon/CRC32.h>
 #include <gtaformats/gta.h>
-#include <gtaformats/util/File.h>
+#include <nxcommon/file/File.h>
 #include <vector>
 #include <algorithm>
-#include <gtaformats/util/math/intersection.h>
-#include <gtaformats/util/math/Matrix3.h>
-#include <gtaformats/util/math/Matrix4.h>
-#include <gtaformats/util/math/Quaternion.h>
-#include <gtaformats/util/math/Vector3.h>
-#include <gtaformats/util/math/Vector4.h>
-#include <gtaformats/util/math/project.h>
+#include <nxcommon/math/intersection.h>
+#include <nxcommon/math/Matrix3.h>
+#include <nxcommon/math/Matrix4.h>
+#include <nxcommon/math/Quaternion.h>
+#include <nxcommon/math/Vector3.h>
+#include <nxcommon/math/Vector4.h>
+#include <nxcommon/math/project.h>
 
 using std::vector;
 using std::find;
@@ -732,10 +732,10 @@ TEST(UtilTest, CheckFile)
 {
 	File testFile("/home/alemariusnexus/A Path With Whitespaces/hello.txt");
 
-	const FilePath* testPath = testFile.getPath();
+	FilePath testPath = testFile.getPath();
 
-	EXPECT_EQ(CString("hello.txt"), testPath->getFileName());
-	EXPECT_EQ(CString("txt"), testPath->getExtension());
+	EXPECT_EQ(CString("hello.txt"), testPath.getFileName());
+	EXPECT_EQ(CString("txt"), testPath.getExtension());
 
 
 	File file = File::createTemporaryFile();
@@ -766,13 +766,11 @@ TEST(UtilTest, CheckFile)
 	File f2(f1, "data");
 	File f3(f1, "data/maps");
 
-	File* f3Parent = f3.getParent();
-	EXPECT_EQ(f2, *f3Parent);
-	delete f3Parent;
+	File f3Parent = f3.getParent();
+	EXPECT_EQ(f2, f3Parent);
 
-	File* f2Parent = f2.getParent();
-	EXPECT_EQ(f1, *f2Parent);
-	delete f2Parent;
+	File f2Parent = f2.getParent();
+	EXPECT_EQ(f1, f2Parent);
 
 	EXPECT_TRUE(f2.isChildOf(f1));
 	EXPECT_FALSE(f3.isChildOf(f1));
@@ -799,12 +797,10 @@ TEST(UtilTest, CheckFile)
 
 	EXPECT_TRUE(gtasaRoot.isDirectory());
 	EXPECT_TRUE(f4.isRegularFile());
-	EXPECT_FALSE(f4.isArchiveFile());
+	EXPECT_FALSE(f4.isArchiveDirectory());
 
 
 	File f5(gtasaRoot, "models/grass");
-	FileIterator* it = f5.getIterator();
-	File* child;
 	int childCount = f5.getChildCount();
 
 	const char* expectedNames[] = {
@@ -823,20 +819,16 @@ TEST(UtilTest, CheckFile)
 
 	EXPECT_EQ(vecExNames.size(), childCount);
 
-	while ((child = it->next())  !=  NULL) {
+	for (File child : f5.getChildren()) {
 		vector<CString>::iterator it = find(vecExNames.begin(), vecExNames.end(),
-				CString(child->getPath()->getFileName()));
+				CString(child.getPath().getFileName()));
 
 		EXPECT_NE(vecExNames.end(), it);
 
 		if (it != vecExNames.end()) {
 			vecExNames.erase(it);
 		}
-
-		delete child;
 	}
-
-	delete it;
 
 	EXPECT_TRUE(vecExNames.empty());
 

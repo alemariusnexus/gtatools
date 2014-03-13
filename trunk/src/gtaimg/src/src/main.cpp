@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaimg.
 
@@ -20,12 +20,12 @@
 	GPLADDITIONS.
  */
 
-#include <gtaformats/util/CLIParser.h>
+#include <nxcommon/CLIParser.h>
 #include <cstdio>
 #include <vector>
-#include <gtaformats/util/strutil.h>
-#include <gtaformats/util/File.h>
-#include <gtaformats/util/FilePath.h>
+#include <nxcommon/strutil.h>
+#include <nxcommon/file/File.h>
+#include <nxcommon/file/FilePath.h>
 #include <gtaformats/img/IMGArchive.h>
 #include <gtaformats/img/IMGException.h>
 #include "WildcardFilter.h"
@@ -417,7 +417,7 @@ int main(int argc, char** argv)
 
 				if (file  &&  !file->exists()) {
 					fprintf(stderr, "ERROR: Input file %s does not exist!\n",
-							file->getPath()->toString().get());
+							file->getPath().toString().get());
 					return 2;
 				}
 			}
@@ -496,7 +496,7 @@ int main(int argc, char** argv)
 							ostream::binary | ostream::out | ostream::in);
 
 					if (verbose)
-						printf("DIR file: %s", ifile.dirFile->getPath()->toString().get());
+						printf("DIR file: %s", ifile.dirFile->getPath().toString().get());
 				} else {
 					if (ifile.dirFileIsStdout) {
 						// TODO Implement
@@ -513,9 +513,9 @@ int main(int argc, char** argv)
 							return 7;
 						}
 
-						const char* imgPath = file->getPath()->toString().get();
+						const char* imgPath = file->getPath().toString().get();
 						char* dirPath = new char[strlen(imgPath)+1];
-						int baseLen = strlen(imgPath) - file->getPath()->getExtension().length();
+						int baseLen = strlen(imgPath) - file->getPath().getExtension().length();
 						strncpy(dirPath, imgPath, baseLen);
 						strcpy(dirPath+baseLen, "dir");
 						File dirFile(dirPath);
@@ -525,7 +525,7 @@ int main(int argc, char** argv)
 								ostream::binary | ostream::out | ostream::in);
 
 						if (verbose)
-							printf("DIR file: %s", dirFile.getPath()->toString().get());
+							printf("DIR file: %s", dirFile.getPath().toString().get());
 					}
 				}
 
@@ -533,7 +533,7 @@ int main(int argc, char** argv)
 					imgStream = file->openInputOutputStream(ostream::binary | ostream::out | ostream::in);
 
 					if (verbose)
-						printf(", IMG file: %s)", file->getPath()->toString().get());
+						printf(", IMG file: %s)", file->getPath().toString().get());
 				} else {
 					// TODO Implement
 					//imgStream = &cout;
@@ -562,7 +562,7 @@ int main(int argc, char** argv)
 					imgStream = file->openInputOutputStream(ostream::binary | ostream::out | ostream::in);
 
 					if (verbose)
-						printf("%s\n", file->getPath()->toString().get());
+						printf("%s\n", file->getPath().toString().get());
 				} else {
 					// TODO Implement
 					//imgStream = &cout;
@@ -639,14 +639,14 @@ int main(int argc, char** argv)
 				}
 			}
 		} catch (IMGException ex) {
-			fprintf(stderr, "ERROR opening IMG file %s: %s\n", file ? file->getPath()->toString().get()
+			fprintf(stderr, "ERROR opening IMG file %s: %s\n", file ? file->getPath().toString().get()
 					: "(stdin)", ex.what());
 			return 5;
 		}
 
 		if (command == CommandShowHeader) {
 			if (file) {
-				printf("%s\n", file->getPath()->toString().get());
+				printf("%s\n", file->getPath().toString().get());
 			} else {
 				printf("stdin:\n");
 			}
@@ -688,12 +688,12 @@ int main(int argc, char** argv)
 								) {
 									if (verbose)
 										printf("to %s...\n",
-												pattern->destination->getPath()->toString().get());
+												pattern->destination->getPath().toString().get());
 
-									out = new ofstream(pattern->destination->getPath()->toString().get(),
+									out = new ofstream(pattern->destination->getPath().toString().get(),
 											ofstream::out | ofstream::binary | ofstream::app);
 								} else {
-									FilePath outPath(*pattern->destination->getPath(), entry.name);
+									FilePath outPath(pattern->destination->getPath(), entry.name);
 
 									if (verbose)
 										printf("to %s...\n", outPath.toString().get());
@@ -787,7 +787,7 @@ int main(int argc, char** argv)
 
 				File file(fpath);
 
-				CString fname = file.getPath()->getFileName();
+				CString fname = file.getPath().getFileName();
 
 				IMGArchive::EntryIterator it = img->getEntryByName(fname.get());
 

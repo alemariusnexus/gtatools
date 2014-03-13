@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats.
 
@@ -25,10 +25,12 @@
 
 #include "../rwbs/RWSection.h"
 #include "TXDTextureHeader.h"
+#include <nxcommon/StringComparator.h>
+#include <nxcommon/CString.h>
 #include <istream>
 #include <map>
-#include "../util/strutil.h"
-#include "../util/File.h"
+#include <nxcommon/strutil.h>
+#include <nxcommon/file/File.h>
 
 using std::istream;
 using std::map;

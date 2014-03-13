@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -24,8 +24,8 @@
 #define ANIMATIONFRAME_H_
 
 #include <gta/config.h>
-#include <gtaformats/util/math/Vector3.h>
-#include <gtaformats/util/math/Quaternion.h>
+#include <nxcommon/math/Vector3.h>
+#include <nxcommon/math/Quaternion.h>
 #include <gtaformats/ifp/IFPRotFrame.h>
 #include <gtaformats/ifp/IFPRotTransFrame.h>
 #include <gtaformats/ifp/IFPRotTransScaleFrame.h>

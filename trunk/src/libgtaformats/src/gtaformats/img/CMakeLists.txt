@@ -1,4 +1,4 @@
-# Copyright 2010-2013 David "Alemarius Nexus" Lerch
+# Copyright 2010-2014 David "Alemarius Nexus" Lerch
 # 
 # This file is part of gtaformats.
 #
@@ -19,7 +19,7 @@
 # GPLADDITIONS.
 
 
-SET(FILES IMGArchive IMGException)
+SET(FILES IMGArchive IMGException IMGArchiveHandler IMGArchiveChildIterator)
 
 FOREACH(FILE ${FILES})
     SET(SRCS ${SRCS} "gtaformats/img/${FILE}")

@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -22,7 +22,7 @@
 
 #include "GXTGUIModule.h"
 #include <QtGui/QFileDialog>
-#include <gtaformats/util/File.h>
+#include <nxcommon/file/File.h>
 #include <QtCore/QSettings>
 #include "../../gui/MainWindow.h"
 #include "GXTFormatHandler.h"
@@ -91,7 +91,7 @@ void GXTGUIModule::onIniExport(bool checked)
 {
 	File* gxtFile = gxtWidget->getOpenFile();
 	QString fpath = QFileDialog::getSaveFileName(mainWindow, tr("Select a destination file"),
-			QString("%1.ini").arg(gxtFile->getPath()->getFileName().get()), tr("INI Files (*.ini)"));
+			QString("%1.ini").arg(gxtFile->getPath().getFileName().get()), tr("INI Files (*.ini)"));
 
 	if (!fpath.isNull()) {
 		File file(fpath.toLocal8Bit().constData());

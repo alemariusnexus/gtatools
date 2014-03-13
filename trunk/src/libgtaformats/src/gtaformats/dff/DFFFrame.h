@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats.
 
@@ -25,10 +25,10 @@
 
 #include <gtaformats/config.h>
 #include <cstdlib>
-#include "../util/CString.h"
-#include "../util/math/Matrix3.h"
-#include "../util/math/Matrix4.h"
-#include "../util/math/Vector3.h"
+#include <nxcommon/CString.h>
+#include <nxcommon/math/Matrix3.h>
+#include <nxcommon/math/Matrix4.h>
+#include <nxcommon/math/Vector3.h>
 #include "DFFBone.h"
 #include <vector>
 

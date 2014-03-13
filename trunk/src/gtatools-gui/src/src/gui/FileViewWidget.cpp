@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -65,7 +65,7 @@ void FileViewWidget::updateFile()
 {
 	File file = dfile->getFile();
 
-	ui.fileNameLabel->setText(QString(file.getPath()->getFileName().get()));
+	ui.fileNameLabel->setText(QString(file.getPath().getFileName().get()));
 
 	if (file.isDirectory()) {
 		ui.fileTypeLabel->setText(QString(tr("Directory")));

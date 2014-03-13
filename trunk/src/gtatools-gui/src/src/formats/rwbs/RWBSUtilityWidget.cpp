@@ -1,5 +1,28 @@
+/*
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
+
+	This file is part of gtatools-gui.
+
+	gtatools-gui is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	gtatools-gui is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with gtatools-gui.  If not, see <http://www.gnu.org/licenses/>.
+
+	Additional permissions are granted, which are listed in the file
+	GPLADDITIONS.
+ */
+
 #include "RWBSUtilityWidget.h"
 #include "RWBSGUIModule.h"
+#include <gtaformats/img/IMGArchive.h>
 #include <QtGui/QVBoxLayout>
 #include "../../System.h"
 
@@ -182,12 +205,12 @@ bool RWBSUtilityWidget::applyChanges(DisplayedFile* dfile)
 		entry.rwbsWidget->applyChanges();
 
 		File file = dfile->getFile();
-		File* pfile = file.getParent();
+		File pfile = file.getParent();
 
-		if (pfile->isArchiveFile()) {
-			IMGArchive img(*pfile, IMGArchive::ReadWrite);
+		if (pfile.isArchiveDirectory()) {
+			IMGArchive img(pfile, IMGArchive::ReadWrite);
 
-			IMGArchive::EntryIterator eit = img.getEntryByName(file.getPath()->getFileName().get());
+			IMGArchive::EntryIterator eit = img.getEntryByName(file.getPath().getFileName().get());
 
 			if (eit != img.getEntryEnd()) {
 				size_t size = 0;
@@ -222,8 +245,6 @@ bool RWBSUtilityWidget::applyChanges(DisplayedFile* dfile)
 
 			delete stream;
 		}
-
-		delete pfile;
 
 		entry.hasChanges = false;
 	}

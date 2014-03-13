@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -26,8 +26,8 @@
 #include <QtCore/QObject>
 #include <QtCore/QLinkedList>
 #include <QtGui/QWidget>
-#include <gtaformats/util/FileFinder.h>
-#include <gtaformats/util/File.h>
+#include <nxcommon/file/FileFinder.h>
+#include <nxcommon/file/File.h>
 
 
 
@@ -39,9 +39,9 @@ public:
 	static GUI* getInstance();
 
 public:
-	File* findFile(const QLinkedList<File*>& rootFiles, FileFinder* finder, QWidget* parent = NULL);
-	File* findFile(FileFinder* finder, QWidget* parent = NULL);
-	bool findAndOpenFile(const QLinkedList<File*>& rootFiles, FileFinder* finder, QWidget* parent = NULL);
+	File findFile(const QLinkedList<File>& rootFiles, FileFinder* finder, QWidget* parent = NULL);
+	File findFile(FileFinder* finder, QWidget* parent = NULL);
+	bool findAndOpenFile(const QLinkedList<File>& rootFiles, FileFinder* finder, QWidget* parent = NULL);
 	bool findAndOpenFile(FileFinder* finder, QWidget* parent = NULL);
 
 private:

@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatxd.
 
@@ -20,10 +20,10 @@
 	GPLADDITIONS.
  */
 
-#include <gtaformats/util/CLIParser.h>
+#include <nxcommon/CLIParser.h>
 #include <gtaformats/gtatxd.h>
-#include <gtaformats/util/File.h>
-#include <gtaformats/util/strutil.h>
+#include <nxcommon/file/File.h>
+#include <nxcommon/strutil.h>
 #include <cstdio>
 #include <vector>
 #include <iostream>
@@ -204,7 +204,7 @@ int main(int argc, char** argv)
 
 				if (!file->exists()) {
 					fprintf(stderr, "ERROR: Input file %s does not exist!\n",
-							file->getPath()->toString().get());
+							file->getPath().toString().get());
 					return 2;
 				}
 
@@ -242,7 +242,7 @@ int main(int argc, char** argv)
 				if (	!currentOutputFile->exists()
 						||  !currentOutputFile->isDirectory()
 				) {
-					CString ext = currentOutputFile->getPath()->getExtension();
+					CString ext = currentOutputFile->getPath().getExtension();
 					char* lExt = new char[ext.length() + 1];
 					strtolower(lExt, ext.get());
 
@@ -574,7 +574,7 @@ void extractTexture(const ExtractOptions& opts, TXDArchive* txd, TXDTextureHeade
 		int packedW, packedH;
 		uint8_t* packed = buildPackedMipmap(opts, tex, data, packedW, packedH);
 
-		ostream* out = new ofstream(dest->getPath()->toString().get(), ofstream::out | ofstream::binary);
+		ostream* out = new ofstream(dest->getPath().toString().get(), ofstream::out | ofstream::binary);
 
 		png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL,
 				NULL);
@@ -667,7 +667,7 @@ void extractTexture(const ExtractOptions& opts, TXDArchive* txd, TXDTextureHeade
 								||  !dest->isDirectory()
 						) {
 							// Plain file
-							out = new ofstream(dest->getPath()->toString().get(),
+							out = new ofstream(dest->getPath().toString().get(),
 									ofstream::out | ofstream::binary | ofstream::app);
 						} else {
 							char fname[50];
@@ -684,7 +684,7 @@ void extractTexture(const ExtractOptions& opts, TXDArchive* txd, TXDTextureHeade
 								break;
 							}
 
-							FilePath path(*dest->getPath(), fname);
+							FilePath path(dest->getPath(), fname);
 
 							out = new ofstream(path.toString().get(), ofstream::out | ofstream::binary);
 						}

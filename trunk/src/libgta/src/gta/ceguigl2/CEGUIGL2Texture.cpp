@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -21,7 +21,7 @@
  */
 
 #include "CEGUIGL2Texture.h"
-#include <gtaformats/util/util.h>
+#include <nxcommon/util.h>
 #include "CEGUIGL2Renderer.h"
 #include "CEGUIGL2TextureTarget.h"
 

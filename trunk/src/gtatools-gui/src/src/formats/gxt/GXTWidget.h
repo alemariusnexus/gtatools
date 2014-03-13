@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -29,7 +29,7 @@
 #include <QtCore/QVector>
 #include <QtGui/QSortFilterProxyModel>
 #include <ui_GXTWidget.h>
-#include <gtaformats/util/File.h>
+#include <nxcommon/file/File.h>
 #include "GXTTableModel.h"
 #include "GXTGUIModule.h"
 #include <QtCore/QSettings>

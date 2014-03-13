@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -24,19 +24,14 @@
 #define MESHINDEXER_H_
 
 #include <gta/config.h>
-#include <gtaformats/util/File.h>
-#include <gtaformats/util/cxx0xhash.h>
-#include <gtaformats/util/CString.h>
+#include <nxcommon/file/File.h>
+#include <nxcommon/cxx11hash.h>
+#include <nxcommon/CString.h>
 #include "../../Engine.h"
 #include "../ResourceObserver.h"
-
-#ifdef CXX0X_AVAILABLE
 #include <unordered_map>
+
 using std::unordered_map;
-#else
-#include <map>
-using std::map;
-#endif
 
 
 class MeshIndexer : public ResourceObserver {
@@ -47,11 +42,7 @@ public:
 	};
 
 private:
-#ifdef CXX0X_AVAILABLE
-	typedef unordered_map<CString, IndexEntry, CXX0XHash<CString> > IndexMap;
-#else
-	typedef map<CString, IndexEntry> IndexMap;
-#endif
+	typedef unordered_map<CString, IndexEntry, CXX11Hash<CString> > IndexMap;
 
 public:
 	~MeshIndexer();

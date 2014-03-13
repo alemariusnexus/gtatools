@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -29,14 +29,14 @@
 #include <QtGui/QInputDialog>
 #include <QtGui/QMessageBox>
 #include "../../System.h"
-#include <gtaformats/util/DefaultFileFinder.h>
+#include <nxcommon/file/DefaultFileFinder.h>
 #include "../../RegexFileFinder.h"
 #include "../../gui/GUI.h"
 #include <QtCore/QSettings>
 
 
 
-TextureSearchDialog::TextureSearchDialog(QWidget* parent, const QLinkedList<File*>& rootFiles)
+TextureSearchDialog::TextureSearchDialog(QWidget* parent, const QLinkedList<File>& rootFiles)
 		: QDialog(parent), rootFiles(rootFiles), finder(NULL)
 {
 	ui.setupUi(this);
@@ -101,16 +101,15 @@ void TextureSearchDialog::onSearch(bool checked)
 
 	finder = new TextureFileFinder(texFinder, txdFinder);
 
-	File* toBeOpened = GUI::getInstance()->findFile(finder, this);
+	File toBeOpened = GUI::getInstance()->findFile(finder, this);
 	bool closeDialog = false;
 
-	if (toBeOpened) {
+	if (!toBeOpened.isNull()) {
 		EntityOpenRequest req;
-		req.setAttribute("file", QString(toBeOpened->getPath()->toString().get()));
-		const char* matchedTex = finder->getMatchedTexture(*toBeOpened);
+		req.setAttribute("file", QString(toBeOpened.getPath().toString().get()));
+		const char* matchedTex = finder->getMatchedTexture(toBeOpened);
 		req.setAttribute("texture", matchedTex);
 		System::getInstance()->openEntity(req);
-		delete toBeOpened;
 		closeDialog = true;
 	}
 

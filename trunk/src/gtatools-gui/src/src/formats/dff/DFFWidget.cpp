@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -30,7 +30,7 @@
 #include <QtCore/QTextStream>
 #include "DFFFormatHandler.h"
 #include <QtCore/QSettings>
-#include <gtaformats/util/strutil.h>
+#include <nxcommon/strutil.h>
 #include <gta/resource/texture/ManagedTextureSource.h>
 #include <gta/resource/texture/StaticTextureSource.h>
 #include <QtGui/QMessageBox>
@@ -74,7 +74,7 @@ DFFWidget::DFFWidget(DisplayedFile* dfile, QWidget* parent)
 
 	renderContainerWidget = new GLContainerWidget(ui.renderContainerWidget);
 	renderContainerWidget->setWindowTitle(tr("%1 - DFF Rendering")
-			.arg(file.getPath()->getFileName().get()));
+			.arg(file.getPath().getFileName().get()));
 	ui.renderContainerWidget->layout()->addWidget(renderContainerWidget);
 	renderWidget = new DFFRenderWidget(renderContainerWidget);
 	renderContainerWidget->setGLWidget(renderWidget);
@@ -185,8 +185,8 @@ void DFFWidget::reloadHighLevelFile()
 				SLOT(geometryPartDisplayStateChanged(DFFGeometryPart*, bool)));
 
 		// Search for the mesh texture
-		char* meshName = new char[file.getPath()->getFileName().length() + 1];
-		strtolower(meshName, file.getPath()->getFileName().get());
+		char* meshName = new char[file.getPath().getFileName().length() + 1];
+		strtolower(meshName, file.getPath().getFileName().get());
 		meshName[strlen(meshName)-4] = '\0';
 
 		SystemQuery query("FindMeshTextures");

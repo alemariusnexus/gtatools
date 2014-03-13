@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -24,7 +24,7 @@
 #define RWBSWIDGET_H_
 
 #include <ui_RWBSWidget.h>
-#include <gtaformats/util/File.h>
+#include <nxcommon/file/File.h>
 #include <gtaformats/rwbs/RWSection.h>
 #include "RWBSSectionModel.h"
 #include "RWBSSectionTree.h"

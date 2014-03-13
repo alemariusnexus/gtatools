@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -23,9 +23,9 @@
 #ifndef COLLISIONMESHCACHEENTRY_H_
 #define COLLISIONMESHCACHEENTRY_H_
 
-#include "../ResourceCache.h"
+#include <nxcommon/ResourceCache.h>
 #include "CollisionModel.h"
-#include <gtaformats/util/strutil.h>
+#include <nxcommon/strutil.h>
 #include "../smesh/ShadowMesh.h"
 #include "../../Engine.h"
 

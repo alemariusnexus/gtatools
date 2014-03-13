@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -25,8 +25,8 @@
 #include <QtCore/QSettings>
 #include <QtCore/QString>
 #include <QtCore/QTimer>
-#include <gtaformats/util/File.h>
-#include <gtaformats/util/OutOfBoundsException.h>
+#include <nxcommon/file/File.h>
+#include <nxcommon/exception/OutOfBoundsException.h>
 #include "System.h"
 
 
@@ -128,7 +128,7 @@ void ProfileManager::saveProfiles()
 
 		settings.setValue(QString("name"), profile->getName());
 		settings.setValue(QString("root"),
-				profile->getGameInfo().getRootDirectory().getPath()->toString().get());
+				profile->getGameInfo().getRootDirectory().getPath().toString().get());
 
 		QString verStr;
 
@@ -151,19 +151,19 @@ void ProfileManager::saveProfiles()
 		int j = 0;
 
 		for (rit = profile->getResourceBegin() ; rit != profile->getResourceEnd() ; rit++, j++) {
-			settings.setValue(QString("resource%2").arg(j), (*rit)->getPath()->toString().get());
+			settings.setValue(QString("resource%2").arg(j), rit->getPath().toString().get());
 		}
 
 		j = 0;
 
 		for (rit = profile->getSearchResourceBegin() ; rit != profile->getSearchResourceEnd() ; rit++, j++) {
-			settings.setValue(QString("search_resource%2").arg(j), (*rit)->getPath()->toString().get());
+			settings.setValue(QString("search_resource%2").arg(j), rit->getPath().toString().get());
 		}
 
 		j = 0;
 
 		for (rit = profile->getDATFilesBegin() ; rit != profile->getDATFilesEnd() ; rit++, j++) {
-			settings.setValue(QString("dat_file%2").arg(j), (*rit)->getPath()->toString().get());
+			settings.setValue(QString("dat_file%2").arg(j), rit->getPath().toString().get());
 		}
 
 		settings.endGroup();

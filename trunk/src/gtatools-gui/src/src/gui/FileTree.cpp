@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -105,10 +105,10 @@ void FileTree::fileSelected(const QModelIndex& index)
 	}
 
 	System* sys = System::getInstance();
-	File* file = static_cast<StaticFile*>(proxyModel->mapToSource(index).internalPointer())->getFile();
+	File file = static_cast<StaticFile*>(proxyModel->mapToSource(index).internalPointer())->getFile();
 
-	if (!file->isDirectory()) {
-		sys->openFile(*file);
+	if (!file.isDirectory()) {
+		sys->openFile(file);
 	}
 }
 
@@ -117,7 +117,7 @@ void FileTree::contextMenuRequested(const QPoint& pos)
 {
 	System* sys = System::getInstance();
 
-	QLinkedList<File*> selectedFiles;
+	QLinkedList<File> selectedFiles;
 	QModelIndexList sel = selectionModel()->selectedIndexes();
 	QModelIndexList::iterator iit;
 
@@ -127,7 +127,7 @@ void FileTree::contextMenuRequested(const QPoint& pos)
 		}
 
 		QModelIndex idx = proxyModel->mapToSource(*iit);
-		File* file = model->getFileForIndex(idx);
+		File file = model->getFileForIndex(idx);
 		selectedFiles << file;
 	}
 
@@ -176,7 +176,7 @@ void FileTree::entityOpened(DisplayedEntity* ent)
 			QModelIndex cur = currentIndex();
 			cur = proxyModel->mapToSource(cur);
 
-			if (!cur.isValid()  ||  *model->getFileForIndex(cur) != file->getFile()) {
+			if (!cur.isValid()  ||  model->getFileForIndex(cur) != file->getFile()) {
 				QModelIndex index = model->indexOf(file->getFile(), rootIndex());
 
 				if (index.isValid()) {

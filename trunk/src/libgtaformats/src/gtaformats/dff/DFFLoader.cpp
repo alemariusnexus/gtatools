@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats.
 
@@ -22,9 +22,9 @@
 
 #include "DFFLoader.h"
 #include "DFFException.h"
-#include "../util/util.h"
-#include "../util/math/Matrix3.h"
-#include "../util/math/Vector3.h"
+#include <nxcommon/util.h>
+#include <nxcommon/math/Matrix3.h>
+#include <nxcommon/math/Vector3.h>
 #include "../gta.h"
 #include "../col/COLLoader.h"
 #include <cstdio>

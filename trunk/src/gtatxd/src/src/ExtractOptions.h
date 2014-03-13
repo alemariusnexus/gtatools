@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatxd.
 
@@ -26,7 +26,7 @@
 #include "TextureFilter.h"
 #include "MipmapRange.h"
 #include <vector>
-#include <gtaformats/util/File.h>
+#include <nxcommon/file/File.h>
 
 
 using std::vector;

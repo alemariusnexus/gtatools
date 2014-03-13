@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -25,7 +25,7 @@
 
 #include <btBulletDynamicsCommon.h>
 #include <gtaformats/gtacol.h>
-#include "../ResourceCache.h"
+#include <nxcommon/ResourceCache.h>
 #include "CollisionBox.h"
 #include "CollisionSphere.h"
 #include "CollisionMesh.h"

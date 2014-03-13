@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -24,7 +24,7 @@
 #include <gtaformats/ipl/IPLReader.h>
 #include <gtaformats/ipl/IPLInstance.h>
 #include <gtaformats/ipl/IPLCar.h>
-#include <gtaformats/util/DefaultFileFinder.h>
+#include <nxcommon/file/DefaultFileFinder.h>
 #include "../../System.h"
 #include "../../gui/GUI.h"
 
@@ -206,7 +206,7 @@ IPLWidget::IPLWidget(QWidget* parent, const File& file)
 		char* elem;
 
 		sys->log(LogEntry::error(tr("Parsing errors in IPL file %1:")
-				.arg(file.getPath()->getFileName().get())));
+				.arg(file.getPath().getFileName().get())));
 
 		while ((elem = log->nextMessage())  !=  NULL) {
 			sys->log(LogEntry::error(QString("\t%1").arg(elem)));
@@ -260,7 +260,7 @@ void IPLWidget::instanceTableCellDoubleClicked(int row, int col)
 			int line = result["line"].toInt();
 			EntityOpenRequest req;
 			req.setAttribute("type", "file");
-			req.setAttribute("file", QString(file.getPath()->toString().get()));
+			req.setAttribute("file", QString(file.getPath().toString().get()));
 			req.setAttribute("line", line);
 			System::getInstance()->openEntity(req);
 		}

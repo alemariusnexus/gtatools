@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -26,7 +26,7 @@
 #include <ui_TextureSearchDialog.h>
 #include <QtGui/QDialog>
 #include <QtCore/QLinkedList>
-#include <gtaformats/util/File.h>
+#include <nxcommon/file/File.h>
 #include <QtGui/QProgressDialog>
 #include "../../Task.h"
 #include "TextureFileFinder.h"
@@ -44,7 +44,7 @@ private:
 	};
 
 public:
-	TextureSearchDialog(QWidget* parent, const QLinkedList<File*>& rootFiles);
+	TextureSearchDialog(QWidget* parent, const QLinkedList<File>& rootFiles);
 
 private slots:
 	void onCancel(bool checked);
@@ -52,7 +52,7 @@ private slots:
 
 private:
 	Ui_TextureSearchDialog ui;
-	QLinkedList<File*> rootFiles;
+	QLinkedList<File> rootFiles;
 	TextureFileFinder* finder;
 };
 

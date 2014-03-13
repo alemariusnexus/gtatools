@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -25,13 +25,13 @@
 #define STATICTEXTURESOURCE_H_
 
 #include "TextureSource.h"
-#include <gtaformats/util/CString.h>
+#include <nxcommon/CString.h>
 #include <gtaformats/txd/TXDArchive.h>
 #include <map>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 using std::map;
-using boost::shared_ptr;
+using std::shared_ptr;
 
 
 class StaticTextureSource : public TextureSource {

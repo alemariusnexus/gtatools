@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -29,11 +29,11 @@
 #include "PVSVisibilitySet.h"
 #include <algorithm>
 #include <set>
-#include <gtaformats/util/stream/StreamReader.h>
-#include <gtaformats/util/stream/EndianSwappingStreamReader.h>
-#include <gtaformats/util/stream/StreamWriter.h>
-#include <gtaformats/util/stream/EndianSwappingStreamWriter.h>
-#include <gtaformats/util/CRC32.h>
+#include <nxcommon/stream/StreamReader.h>
+#include <nxcommon/stream/EndianSwappingStreamReader.h>
+#include <nxcommon/stream/StreamWriter.h>
+#include <nxcommon/stream/EndianSwappingStreamWriter.h>
+#include <nxcommon/CRC32.h>
 #include "../../Engine.h"
 #include "../../EngineException.h"
 
@@ -412,7 +412,7 @@ PVSDatabase::LoadingResult PVSDatabase::load(istream* stream, const File& rootDi
 		File sourceFile(rootDir, relPath);
 
 		if (validateCRC  &&  sourceFile.physicallyExists()) {
-			//printf("Checking %s: %X vs. %X\n", sourceFile.getPath()->getFileName().get(), sourceFile.crc32(), checksum);
+			//printf("Checking %s: %X vs. %X\n", sourceFile.getPath().getFileName().get(), sourceFile.crc32(), checksum);
 			if (sourceFile.crc32() != checksum) {
 				upToDate = false;
 			}

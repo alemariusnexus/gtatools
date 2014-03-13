@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -24,6 +24,7 @@
 #include "RWBSGUIModule.h"
 #include "../../System.h"
 #include "../../gui/HexEditorUndoCommand.h"
+#include <gtaformats/img/IMGArchive.h>
 #include <QtCore/QSettings>
 #include <QtGui/QPushButton>
 
@@ -225,12 +226,12 @@ void RWBSWidget::save(const File& file)
 {
 	applyChanges();
 
-	File* pfile = file.getParent();
+	File pfile = file.getParent();
 
-	if (pfile->isArchiveFile()) {
-		IMGArchive img(*pfile, IMGArchive::ReadWrite);
+	if (pfile.isArchiveDirectory()) {
+		IMGArchive img(pfile, IMGArchive::ReadWrite);
 
-		IMGArchive::EntryIterator eit = img.getEntryByName(file.getPath()->getFileName().get());
+		IMGArchive::EntryIterator eit = img.getEntryByName(file.getPath().getFileName().get());
 
 		if (eit != img.getEntryEnd()) {
 			size_t size = 0;
@@ -263,8 +264,6 @@ void RWBSWidget::save(const File& file)
 
 		delete stream;
 	}
-
-	delete pfile;
 }
 
 

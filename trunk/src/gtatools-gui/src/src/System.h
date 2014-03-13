@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -25,8 +25,8 @@
 
 #include <gta/gl.h>
 #include <QtCore/QObject>
-#include <gtaformats/util/File.h>
-#include <gtaformats/util/Exception.h>
+#include <nxcommon/file/File.h>
+#include <nxcommon/exception/Exception.h>
 #include "gui/GUIModule.h"
 #include <QtCore/QLinkedList>
 #include "gui/MainWindow.h"
@@ -40,7 +40,7 @@
 #include "SystemQueryResult.h"
 #include "DisplayedEntity.h"
 #include "DisplayedFile.h"
-#include <gtaformats/util/FileFinder.h>
+#include <nxcommon/file/FileFinder.h>
 #include <QtGui/QImage>
 #include "LogEntry.h"
 

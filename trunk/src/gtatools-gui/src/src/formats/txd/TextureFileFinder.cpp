@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -23,7 +23,7 @@
 #include "TextureFileFinder.h"
 #include <gtaformats/txd/TXDArchive.h>
 #include <gtaformats/txd/TXDTextureHeader.h>
-#include <gtaformats/util/Exception.h>
+#include <nxcommon/exception/Exception.h>
 
 
 
@@ -60,8 +60,8 @@ bool TextureFileFinder::matches(const File& file)
 
 		for (TXDArchive::TextureIterator it = txd.getHeaderBegin() ; it != txd.getHeaderEnd() ; it++) {
 			TXDTextureHeader* tex = *it;
-			FilePath pseudoPath(*file.getPath(), tex->getDiffuseName().get());
-			File pseudoFile(&pseudoPath, false);
+			FilePath pseudoPath(file.getPath(), tex->getDiffuseName().get());
+			File pseudoFile(pseudoPath);
 			bool matches = textureBackend->matches(pseudoFile);
 
 			if (matches) {

@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -23,7 +23,7 @@
 #include "CollisionMeshIndexer.h"
 #include <gtaformats/dff/DFFLoader.h>
 #include <gtaformats/gtacol.h>
-#include <gtaformats/util/strutil.h>
+#include <nxcommon/strutil.h>
 #include <utility>
 
 using std::pair;
@@ -54,7 +54,7 @@ void CollisionMeshIndexer::resourceAdded(const File& file)
 		COLModel* model = mesh->getIntegratedCOLModel();
 
 		if (model) {
-			CString fname = file.getPath()->getFileName();
+			CString fname = file.getPath().getFileName();
 			char* lMeshName = new char[fname.length() + 1];
 			strtolower(lMeshName, fname.get());
 			*strrchr(lMeshName, '.') = '\0';

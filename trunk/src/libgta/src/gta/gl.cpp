@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -28,11 +28,11 @@
 #include <cstring>
 #include <cstdio>
 #include "GLException.h"
-#include <gtaformats/util/StringComparator.h>
-#include <boost/shared_array.hpp>
+#include <nxcommon/StringComparator.h>
+#include <memory>
 
 using std::set;
-using boost::shared_array;
+using std::shared_ptr;
 
 
 

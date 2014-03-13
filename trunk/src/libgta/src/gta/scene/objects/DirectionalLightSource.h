@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -24,7 +24,7 @@
 #define DIRECTIONALLIGHTSOURCE_H_
 
 #include "LightSource.h"
-#include <gtaformats/util/math/Vector3.h>
+#include <nxcommon/math/Vector3.h>
 
 
 class DirectionalLightSource : public LightSource

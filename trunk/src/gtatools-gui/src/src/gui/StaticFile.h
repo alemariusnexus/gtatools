@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -23,7 +23,7 @@
 #ifndef STATICFILE_H_
 #define STATICFILE_H_
 
-#include <gtaformats/util/File.h>
+#include <nxcommon/file/File.h>
 #include <QtCore/QList>
 
 
@@ -43,22 +43,22 @@ private:
 public:
 	StaticFile(const File& file);
 	~StaticFile();
-	File* getFile() const { return file; }
+	File getFile() const { return file; }
 	StaticFile* getParent() const { return parent; }
 	int getChildCount() { ensureChildrenAvailable(); return children.size(); }
 	StaticFile* getChild(int idx) { ensureChildrenAvailable(); return children[idx]; }
 	ChildIterator getChildBegin() { return children.begin(); }
 	ChildIterator getChildEnd() { return children.end(); }
 	int indexOf(StaticFile* child) { ensureChildrenAvailable(); return children.indexOf(child); }
-	CString toString() const { return file->getPath()->getFileName(); }
+	CString toString() const { return file.getPath().getFileName(); }
 
 private:
-	StaticFile(File* file, StaticFile* parent, Type type = Unknown);
+	StaticFile(const File& file, StaticFile* parent, Type type = Unknown);
 	void loadChildren();
 	void ensureChildrenAvailable();
 
 private:
-	File* file;
+	File file;
 	StaticFile* parent;
 	ChildList children;
 	bool childrenInited;

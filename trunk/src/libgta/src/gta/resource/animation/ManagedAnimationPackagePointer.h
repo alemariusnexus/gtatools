@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -24,8 +24,8 @@
 #define MANAGEDANIMATIONPACKAGEPOINTER_H_
 
 #include "AnimationPackagePointer.h"
-#include <gtaformats/util/CString.h>
-#include "../ResourceCache.h"
+#include <nxcommon/CString.h>
+#include <nxcommon/ResourceCache.h>
 #include "../../Engine.h"
 
 

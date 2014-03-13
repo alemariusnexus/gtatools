@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -21,7 +21,7 @@
  */
 
 #include "DefaultIPLStreamingFileProvider.h"
-#include <gtaformats/util/CString.h>
+#include <nxcommon/CString.h>
 #include <cstring>
 
 
@@ -34,7 +34,7 @@ void DefaultIPLStreamingFileProvider::addSearchDirectory(const File& file)
 
 void DefaultIPLStreamingFileProvider::findStreamingFiles(const File& file, StreamingFileList& sfiles)
 {
-	CString fname = file.getPath()->getFileName();
+	CString fname = file.getPath().getFileName();
 
 	CString baseName = fname.substr(0, fname.length()-4);
 

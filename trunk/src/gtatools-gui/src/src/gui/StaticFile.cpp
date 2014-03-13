@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -27,11 +27,11 @@
 
 
 StaticFile::StaticFile(const File& file)
-		: file(new File(file)), parent(NULL), childrenInited(false)
+		: file(file), parent(NULL), childrenInited(false)
 {
 	if (file.isDirectory()) {
 		type = Directory;
-	} else if (file.isArchiveFile()) {
+	} else if (file.isArchiveDirectory()) {
 		type = Archive;
 	} else {
 		type = Node;
@@ -39,15 +39,15 @@ StaticFile::StaticFile(const File& file)
 }
 
 
-StaticFile::StaticFile(File* file, StaticFile* parent, Type type)
+StaticFile::StaticFile(const File& file, StaticFile* parent, Type type)
 		: file(file), parent(parent), childrenInited(false)
 {
 	if (type != Unknown) {
 		this->type = type;
 	} else {
-		if (file->isDirectory()) {
+		if (file.isDirectory()) {
 			this->type = Directory;
-		} else if (file->isArchiveFile()) {
+		} else if (file.isArchiveDirectory()) {
 			this->type = Archive;
 		} else {
 			this->type = Node;
@@ -63,29 +63,21 @@ StaticFile::~StaticFile()
 	for (it = children.begin() ; it != children.end() ; it++) {
 		delete *it;
 	}
-
-	if (file)
-		delete file;
 }
 
 
 void StaticFile::loadChildren()
 {
 	if (type != Node) {
-		FileIterator* it = file->getIterator();
-		File* child;
-
 		if (type != Archive) {
-			while ((child = it->next())  !=  NULL) {
+			for (File child : file.getChildren()) {
 				children << new StaticFile(child, this);
 			}
 		} else {
-			while ((child = it->next())  !=  NULL) {
+			for (File child : file.getChildren()) {
 				children << new StaticFile(child, this, Node);
 			}
 		}
-
-		delete it;
 	}
 
 	childrenInited = true;

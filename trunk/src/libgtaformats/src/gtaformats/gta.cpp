@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats.
 
@@ -21,7 +21,7 @@
  */
 
 #include "gta.h"
-#include "util/CRC32.h"
+#include <nxcommon/CRC32.h>
 #include <cstring>
 #include <cstdlib>
 #include <cstdio>

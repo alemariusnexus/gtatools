@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-test.
 
@@ -28,11 +28,11 @@
 #include <gta/GLException.h>
 #include <gta/Shader.h>
 #include <gta/ShaderProgram.h>
-#include <gta/resource/ResourceCache.h>
+#include <nxcommon/ResourceCache.h>
 #include <gta/scene/Scene.h>
 #include <gta/resource/collision/COLMeshConverter.h>
-#include <gtaformats/util/util.h>
-#include <gtaformats/util/strutil.h>
+#include <nxcommon/util.h>
+#include <nxcommon/strutil.h>
 #include <cstdio>
 #include <algorithm>
 #include <btBulletDynamicsCommon.h>
@@ -48,7 +48,7 @@
 #include <gta/render/DefaultRenderer.h>
 #include <gta/resource/texture/TextureIndexer.h>
 #include <gta/resource/texture/TextureArchive.h>
-#include <gtaformats/util/math/Quaternion.h>
+#include <nxcommon/math/Quaternion.h>
 #include <gta/MeshGenerator.h>
 #include <gtaformats/ifp/IFPAnimation.h>
 #include <gtaformats/ifp/IFPRotFrame.h>
@@ -57,10 +57,10 @@
 #include <gtaformats/ifp/IFPRotTransFrame.h>
 #include <gtaformats/ifp/IFPRotTransScaleFrame.h>
 #include <gtaformats/col/COLLoader.h>
-#include <gtaformats/util/Exception.h>
-#include <gtaformats/util/CRC32.h>
-#include <gtaformats/util/DefaultFileFinder.h>
-#include <gtaformats/util/math/project.h>
+#include <nxcommon/exception/Exception.h>
+#include <nxcommon/CRC32.h>
+#include <nxcommon/file/DefaultFileFinder.h>
+#include <nxcommon/math/project.h>
 #include <gta/resource/animation/ManagedAnimationPackagePointer.h>
 #include <gta/gldebug.h>
 #include <gta/scene/visibility/PVSDatabase.h>
@@ -149,6 +149,18 @@ void Controller::init()
 {
 	Engine* engine = Engine::getInstance();
 
+
+	/*File dir(GTASA_PATH "/models/gta3.img");
+
+	printf("\n\n---------- GTA3.IMG ----------\n");
+	for (File child : dir.getChildren()) {
+		printf("%s\n", child.getPath().getFileName().get());
+	}
+	printf("---------- END GTA3.IMG ----------\n\n");
+
+	exit(0);*/
+
+
 	GameInfo::VersionMode ver;
 
 	File rootDir(GTASA_PATH);
@@ -223,11 +235,9 @@ void Controller::init()
 	if (gameInfo.getVersionMode() == GameInfo::GTASA) {
 		DefaultIPLStreamingFileProvider* sfProv = new DefaultIPLStreamingFileProvider;
 		File gta3imgFile(GTASA_PATH "/models/gta3.img");
-		gta3imgFile.preloadIMG();
 		sfProv->addSearchDirectory(gta3imgFile);
 
 		File gtaintimgFile(GTASA_PATH "/models/gta_int.img");
-		gtaintimgFile.preloadIMG();
 		sfProv->addSearchDirectory(gtaintimgFile);
 
 		engine->getIPLLoader()->setStreamingFileProvider(sfProv);
@@ -405,7 +415,7 @@ void Controller::init()
 	TextureArchive* infernusArchive = txdIdx->findArchive("infernus");
 	TextureArchive* vehicleArchive = txdIdx->findArchive("vehicle");
 
-	printf("VA: %p\n", vehicleArchive);
+	printf("IA: %p,   VA: %p\n", infernusArchive, vehicleArchive);
 
 	infernusArchive->setParent(vehicleArchive);
 
@@ -684,7 +694,7 @@ void Controller::init()
 	bool pvsBuilt = false;
 
 	if (pvsFile.exists()) {
-		printf("Loading PVS data from file '%s'...\n", pvsFile.getPath()->toString().get());
+		printf("Loading PVS data from file '%s'...\n", pvsFile.getPath().toString().get());
 
 		PVSDatabase::LoadingResult res = pvs->load(pvsFile, engine->getDefaultGameInfo().getRootDirectory());
 
@@ -716,7 +726,7 @@ void Controller::init()
 		printf("Building PVS data from scratch. This may take some time...\n");
 		pvs->calculateSections(500.0f, 500.0f, 2000.0f);
 		pvs->calculatePVS(8);
-		printf("Writing PVS data to file '%s'\n", pvsFile.getPath()->toString().get());
+		printf("Writing PVS data to file '%s'\n", pvsFile.getPath().toString().get());
 		//pvs->save(pvsFile);
 		printf("PVS data successfully built!\n");
 
@@ -1001,23 +1011,17 @@ bool Controller::paint()
 
 void Controller::addResource(const File& file)
 {
-	if (file.isArchiveFile()  ||  file.isDirectory()) {
+	if (file.isDirectoryOrArchiveDirectory()) {
 		if (file.guessContentType() != CONTENT_TYPE_DIR) {
-			FileIterator* it = file.getIterator();
-			File* child;
-
-			while ((child = it->next())  !=  NULL) {
-				addResource(*child);
-				delete child;
+			for (File child : file.getChildren()) {
+				addResource(child);
 			}
-
-			delete it;
 		}
 	} else {
 		try {
 			Engine::getInstance()->addResource(file);
 		} catch (Exception& ex) {
-			fprintf(stderr, "ERROR loading resource file %s: %s\n", file.getPath()->toString().get(),
+			fprintf(stderr, "ERROR loading resource file %s: %s\n", file.getPath().toString().get(),
 					ex.what());
 		}
 	}

@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -23,7 +23,7 @@
 #ifndef MESHCACHEENTRY_H_
 #define MESHCACHEENTRY_H_
 
-#include "../ResourceCache.h"
+#include <nxcommon/ResourceCache.h>
 #include "MeshClump.h"
 #include "../../Engine.h"
 

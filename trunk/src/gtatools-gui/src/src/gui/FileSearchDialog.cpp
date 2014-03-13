@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -28,7 +28,7 @@
 #include "../RegexFileFinder.h"
 #include "../TaskFileFinder.h"
 #include "GUI.h"
-#include <gtaformats/util/DefaultFileFinder.h>
+#include <nxcommon/file/DefaultFileFinder.h>
 #include <QtCore/QRegExp>
 #include <QtCore/QSettings>
 #include <QtCore/QLinkedList>

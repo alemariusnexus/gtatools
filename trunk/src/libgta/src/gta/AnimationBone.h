@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -27,7 +27,7 @@
 #include "AnimationFrame.h"
 #include <vector>
 #include <gtaformats/ifp/IFPObject.h>
-#include <gtaformats/util/math/Matrix4.h>
+#include <nxcommon/math/Matrix4.h>
 
 using std::vector;
 

@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -47,8 +47,8 @@ Engine::StringResourceCache::Entry* MeshCacheLoader::load(CString key)
 	try {
 		dffMesh = dff.loadMesh(*ientry.file);
 	} catch (Exception ex) {
-		char* errmsg = new char[64 + ientry.file->getPath()->toString().length()];
-		sprintf(errmsg, "Exception thrown during loading of DFF mesh %s.", ientry.file->getPath()->toString().get());
+		char* errmsg = new char[64 + ientry.file->getPath().toString().length()];
+		sprintf(errmsg, "Exception thrown during loading of DFF mesh %s.", ientry.file->getPath().toString().get());
 		EngineException eex(errmsg, __FILE__, __LINE__, &ex);
 		delete[] errmsg;
 		throw eex;
@@ -71,7 +71,7 @@ Engine::StringResourceCache::Entry* MeshCacheLoader::load(CString key)
 		return NULL;
 	}
 
-	//printf("%s : %d\n", ientry->file->getPath()->toString().get(), ientry->index);
+	//printf("%s : %d\n", ientry->file->getPath().toString().get(), ientry->index);
 
 	COLLoader col;
 	istream* stream = ientry->file->openInputStream(istream::binary);

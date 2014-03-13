@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -25,8 +25,8 @@
 
 #include "VisualSceneObject.h"
 #include "../../AnimatedMapItemDefinition.h"
-#include <gtaformats/util/math/Matrix4.h>
-#include <gtaformats/util/CString.h>
+#include <nxcommon/math/Matrix4.h>
+#include <nxcommon/CString.h>
 
 
 class AnimatedSceneObject : public virtual VisualSceneObject {

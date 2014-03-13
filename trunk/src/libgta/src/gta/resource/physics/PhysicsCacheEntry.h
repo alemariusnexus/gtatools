@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -23,8 +23,8 @@
 #ifndef PHYSICSCACHEENTRY_H_
 #define PHYSICSCACHEENTRY_H_
 
-#include "../ResourceCache.h"
-#include <gtaformats/util/strutil.h>
+#include <nxcommon/ResourceCache.h>
+#include <nxcommon/strutil.h>
 #include "../../Engine.h"
 #include <btBulletCollisionCommon.h>
 
