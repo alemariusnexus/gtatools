@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -32,7 +32,7 @@
 #include "../Shader.h"
 #include "../ShaderProgram.h"
 #include "../scene/objects/LightSource.h"
-#include "../resource/ResourceCache.h"
+#include <nxcommon/ResourceCache.h>
 #include <list>
 #include <set>
 #include <map>

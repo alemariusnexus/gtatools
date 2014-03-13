@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -24,7 +24,7 @@
 #define SCENEOBJECTFILEGROUP_H_
 
 #include <gta/config.h>
-#include <gtaformats/util/CRC32.h>
+#include <nxcommon/CRC32.h>
 #include "SceneObjectGroupDependency.h"
 #include <map>
 #include <vector>

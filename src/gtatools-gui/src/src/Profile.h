@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -29,7 +29,7 @@
 #include <QtCore/QFile>
 #include <QtCore/QMetaType>
 #include <QtCore/QQueue>
-#include <gtaformats/util/File.h>
+#include <nxcommon/file/File.h>
 #include <gta/resource/ResourceObserver.h>
 #include <gta/Engine.h>
 #include <gta/scene/Scene.h>
@@ -47,7 +47,7 @@ class Profile : public QObject, public ResourceObserver
 	Q_OBJECT
 
 public:
-	typedef QLinkedList<File*>::iterator ResourceIterator;
+	typedef QLinkedList<File>::iterator ResourceIterator;
 
 private:
 	typedef multimap<hash_t, char*> MeshTexMap;
@@ -68,14 +68,14 @@ public:
 	ResourceIterator getSearchResourceEnd() { return searchResources.end(); }
 	ResourceIterator getDATFilesBegin() { return datFiles.begin(); }
 	ResourceIterator getDATFilesEnd() { return datFiles.end(); }
-	QLinkedList<File*>& getResources() { return resources; }
-	QLinkedList<File*>& getSearchResources() { return searchResources; }
+	QLinkedList<File>& getResources() { return resources; }
+	QLinkedList<File>& getSearchResources() { return searchResources; }
 	int getResourceCount() const { return resources.size(); }
 	int getSearchResourceCount() const { return searchResources.size(); }
 	int getDATFileCount() const { return datFiles.size(); }
 	void setGameInfo(const GameInfo& info);
 	GameInfo getGameInfo() { return gameInfo; }
-	QLinkedList<File*> getResources() const { return resources; }
+	QLinkedList<File> getResources() const { return resources; }
 	QString getName() const { return name; }
 	ResourceIterator removeResource(ResourceIterator it);
 	ResourceIterator removeSearchResource(ResourceIterator it);
@@ -117,14 +117,14 @@ signals:
 	void searchResourceRemoved(const File& file);
 
 private:
-	QLinkedList<File*> searchResources;
-	QLinkedList<File*> resources;
+	QLinkedList<File> searchResources;
+	QLinkedList<File> resources;
 	QString name;
 	MeshTexMap meshTextures;
 	GameInfo gameInfo;
-	QLinkedList<File*> datFiles;
-	QQueue<File*> resourceLoadingQueue;
-	QQueue<File*> datLoadingQueue;
+	QLinkedList<File> datFiles;
+	QQueue<File> resourceLoadingQueue;
+	QQueue<File> datLoadingQueue;
 	Task* resourceLoadingTask;
 	Task* datLoadingTask;
 	bool stopResourceLoading;

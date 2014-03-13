@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -24,7 +24,7 @@
 #define SHADERPROGRAM_H_
 
 #include <gta/config.h>
-#include <gtaformats/util/StringComparator.h>
+#include <nxcommon/StringComparator.h>
 #include <vector>
 #include <map>
 #include "gl.h"

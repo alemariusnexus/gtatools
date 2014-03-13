@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -31,7 +31,7 @@
 #include "StreamingViewpoint.h"
 #include "StreamingManager.h"
 #include "visibility/PVSDatabase.h"
-#include <gtaformats/util/StringComparator.h>
+#include <nxcommon/StringComparator.h>
 #include "../ShaderProgram.h"
 #include "../render/TestShaderPlugin.h"
 #include "../render/ShaderPluginRegistry.h"

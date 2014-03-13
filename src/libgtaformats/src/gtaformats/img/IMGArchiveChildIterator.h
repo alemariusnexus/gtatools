@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats.
 
@@ -20,35 +20,29 @@
 	GPLADDITIONS.
  */
 
-#include "Mutex.h"
+#ifndef IMGARCHIVECHILDITERATOR_H_
+#define IMGARCHIVECHILDITERATOR_H_
+
+#include <nxcommon/file/File.h>
+#include <nxcommon/file/ArchiveChildIterator.h>
+#include "IMGArchive.h"
+#include <memory>
+
+using std::shared_ptr;
 
 
-Mutex::Mutex()
+
+
+class IMGArchiveChildIterator : public ArchiveChildIterator
 {
-#ifdef _POSIX_VERSION
-	pthread_mutex_init(&posixMutex, NULL);
-#else
-	InitializeCriticalSection(&winCriticalSection);
-#endif
-}
+public:
+	IMGArchiveChildIterator(const File& archiveFile, const shared_ptr<IMGArchive>& img);
+	virtual File getNext() const;
 
+private:
+	File archiveFile;
+	shared_ptr<IMGArchive> img;
+	IMGArchive::EntryIterator currentIt;
+};
 
-void Mutex::lock()
-{
-#ifdef _POSIX_VERSION
-	pthread_mutex_lock(&posixMutex);
-#else
-	EnterCriticalSection(&winCriticalSection);
-#endif
-}
-
-
-void Mutex::unlock()
-{
-#ifdef _POSIX_VERSION
-	pthread_mutex_unlock(&posixMutex);
-#else
-	LeaveCriticalSection(&winCriticalSection);
-#endif
-}
-
+#endif /* IMGARCHIVECHILDITERATOR_H_ */

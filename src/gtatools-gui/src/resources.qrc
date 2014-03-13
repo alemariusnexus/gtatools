@@ -16,6 +16,5 @@
         <file>src/resource/document-save.png</file>
         <file>src/resource/document-save-as.png</file>
         <file>src/resource/view-fullscreen.png</file>
-        <file>src/resource/scriptsys.lua</file>
     </qresource>
 </RCC>

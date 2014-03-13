@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -26,9 +26,9 @@
 #include <gta/config.h>
 #include "MeshPointer.h"
 #include "MeshClump.h"
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
-using boost::shared_ptr;
+using std::shared_ptr;
 
 
 class StaticMeshPointer : public MeshPointer {

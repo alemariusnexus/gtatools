@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -30,7 +30,7 @@
 #include <QtOpenGL/qgl.h>
 #include <QtGui/QWidget>
 #include <gtaformats/gtadff.h>
-#include <gtaformats/util/math/Matrix4.h>
+#include <nxcommon/math/Matrix4.h>
 #include <gta/resource/mesh/Mesh.h>
 #include <gta/ItemDefinition.h>
 #include <gta/MapItemDefinition.h>

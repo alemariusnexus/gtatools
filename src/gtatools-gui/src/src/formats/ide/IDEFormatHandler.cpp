@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -72,15 +72,14 @@ void IDEFormatHandler::systemQuerySent(const SystemQuery& query, QList<SystemQue
 		int id = query["id"].toInt();
 
 		IDEFileFinder finder(id, IDETypeGroupAll);
-		File* toBeOpened = GUI::getInstance()->findFile(&finder);
+		File toBeOpened = GUI::getInstance()->findFile(&finder);
 
-		if (toBeOpened) {
+		if (!toBeOpened.isNull()) {
 			SystemQueryResult result;
 
-			int line = finder.getMatchedLine(*toBeOpened);
-			result["file"] = toBeOpened->getPath()->toString().get();
+			int line = finder.getMatchedLine(toBeOpened);
+			result["file"] = toBeOpened.getPath().toString().get();
 			result["line"] = line;
-			delete toBeOpened;
 
 			results << result;
 		}

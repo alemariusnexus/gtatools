@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -36,38 +36,35 @@ GUI* GUI::getInstance()
 }
 
 
-File* GUI::findFile(const QLinkedList<File*>& rootFiles, FileFinder* finder, QWidget* parent)
+File GUI::findFile(const QLinkedList<File>& rootFiles, FileFinder* finder, QWidget* parent)
 {
-	vector<File*> files;
+	vector<File> files;
 
-	QLinkedList<File*>::const_iterator it;
+	QLinkedList<File>::const_iterator it;
 	int numFiles = 0;
 
 	for (it = rootFiles.begin() ; it != rootFiles.end() ; it++) {
-		File* file = *it;
-		numFiles += file->getChildCount(true, true) + 1;
+		File file = *it;
+		numFiles += file.getChildCount(true, true) + 1;
 	}
 
 	TaskFileFinder* proxyFinder = new TaskFileFinder(finder, tr("Searching files..."), numFiles, false);
 
 	for (it = rootFiles.begin() ; it != rootFiles.end() ; it++) {
-		File* file = *it;
+		File file = *it;
 
-		if (file->isDirectory()) {
-			file->findChildren(*proxyFinder, files, true, true);
+		if (file.isDirectoryOrArchiveDirectory()) {
+			file.findChildren(*proxyFinder, files, true, true);
 		} else {
-			if (proxyFinder->matches(*file)) {
-				files.push_back(new File(*file));
+			if (proxyFinder->matches(file)) {
+				files.push_back(file);
 			}
 		}
 
 		if (finder->isInterrupted()) {
-			vector<File*>::iterator it;
-			for (it = files.begin() ; it != files.end() ; it++) {
-				delete *it;
-			}
+			vector<File>::iterator it;
 			delete proxyFinder;
-			return NULL;
+			return File();
 		}
 	}
 
@@ -75,12 +72,11 @@ File* GUI::findFile(const QLinkedList<File*>& rootFiles, FileFinder* finder, QWi
 
 	if (files.size() > 1) {
 		QStringList options;
-		vector<File*>::iterator it;
+		vector<File>::iterator it;
 
 		for (it = files.begin() ; it != files.end() ; it++) {
-			File* file = *it;
-			options << file->getPath()->toString().get();
-			delete file;
+			File file = *it;
+			options << file.getPath().toString().get();
 		}
 
 		bool ok;
@@ -88,21 +84,21 @@ File* GUI::findFile(const QLinkedList<File*>& rootFiles, FileFinder* finder, QWi
 				tr("Please select the file you want to open:"), options, 0, false, &ok);
 
 		if (ok) {
-			File* file = new File(selected.toLocal8Bit().constData());
+			File file(selected.toLocal8Bit().constData());
 			return file;
 		}
 	} else if (files.size() == 1) {
-		File* file = *files.begin();
+		File file = *files.begin();
 		return file;
 	} else {
 		QMessageBox::information(parent, tr("File Not Found"), tr("The requested file was not found!"));
 	}
 
-	return NULL;
+	return File();
 }
 
 
-File* GUI::findFile(FileFinder* finder, QWidget* parent)
+File GUI::findFile(FileFinder* finder, QWidget* parent)
 {
 	Profile* profile = ProfileManager::getInstance()->getCurrentProfile();
 
@@ -110,24 +106,21 @@ File* GUI::findFile(FileFinder* finder, QWidget* parent)
 		return findFile(profile->getSearchResources(), finder, parent);
 	}
 
-	return NULL;
+	return File();
 }
 
 
-bool GUI::findAndOpenFile(const QLinkedList<File*>& rootFiles, FileFinder* finder, QWidget* parent)
+bool GUI::findAndOpenFile(const QLinkedList<File>& rootFiles, FileFinder* finder, QWidget* parent)
 {
-	File* file = findFile(rootFiles, finder, parent);
+	File file = findFile(rootFiles, finder, parent);
 
-	if (file) {
+	if (!file.isNull()) {
 		EntityOpenRequest req;
 		req.setAttribute("type", "file");
-		req.setAttribute("file", QString(file->getPath()->toString().get()));
+		req.setAttribute("file", QString(file.getPath().toString().get()));
 		System::getInstance()->openEntity(req);
-		delete file;
 		return true;
 	}
-
-	return false;
 }
 
 

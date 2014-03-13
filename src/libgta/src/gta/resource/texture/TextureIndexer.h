@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -24,18 +24,13 @@
 #define TEXTUREINDEXER_H_
 
 #include <gta/config.h>
-#include <gtaformats/util/cxx0xhash.h>
+#include <nxcommon/cxx11hash.h>
 #include "../ResourceObserver.h"
 #include "TextureArchive.h"
 #include "../../Engine.h"
-
-#ifdef CXX0X_AVAILABLE
 #include <unordered_map>
+
 using std::unordered_map;
-#else
-#include <map>
-using std::map;
-#endif
 
 
 struct TextureIndexEntry
@@ -47,11 +42,7 @@ struct TextureIndexEntry
 
 class TextureIndexer : public ResourceObserver {
 private:
-#ifdef CXX0X_AVAILABLE
-	typedef unordered_map<CString, TextureArchive*, CXX0XHash<CString> > ArchiveMap;
-#else
-	typedef map<CString, TextureArchive*> ArchiveMap;
-#endif
+	typedef unordered_map<CString, TextureArchive*, CXX11Hash<CString> > ArchiveMap;
 
 public:
 	static TextureIndexer* getInstance()

@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -27,7 +27,7 @@
 #include "System.h"
 #include <utility>
 #include <gtaformats/gtaide.h>
-#include <gtaformats/util/strutil.h>
+#include <nxcommon/strutil.h>
 #include <gtaformats/dat/ResourceDATLoader.h>
 #include <gta/render/DefaultRenderer.h>
 #include <gta/scene/visibility/PVSDatabase.h>
@@ -61,7 +61,7 @@ bool Profile::isCurrent() const
 
 void Profile::addResource(const File& resource)
 {
-	resources << new File(resource);
+	resources << resource;
 	//addResourceRecurse(resource);
 	emit engineResourceAdded(resource);
 }
@@ -69,14 +69,14 @@ void Profile::addResource(const File& resource)
 
 void Profile::addSearchResource(const File& resource)
 {
-	searchResources << new File(resource);
+	searchResources << resource;
 	emit searchResourceAdded(resource);
 }
 
 
 void Profile::addDATFile(const File& file)
 {
-	datFiles << new File(file);
+	datFiles << file;
 	emit datFileAdded(file);
 }
 
@@ -107,9 +107,7 @@ void Profile::interruptResourceLoading()
 {
 	stopResourceLoading = true;
 
-	while (resourceLoadingQueue.size() != 0) {
-		delete resourceLoadingQueue.dequeue();
-	}
+	resourceLoadingQueue.clear();
 }
 
 
@@ -137,12 +135,12 @@ void Profile::doLoadResourceIndex()
 	engine->clearResources();
 
 	for (it = resources.begin() ; it != resources.end()  &&  !stopResourceLoading ; it++) {
-		File* resFile = *it;
-		loadResourceRecurse(*resFile);
+		File resFile = *it;
+		loadResourceRecurse(resFile);
 	}
 
 	for (it = datFiles.begin() ; it != datFiles.end() ; it++) {
-		File* file = *it;
+		File file = *it;
 		datLoadingQueue.enqueue(file);
 	}
 
@@ -159,25 +157,21 @@ void Profile::loadResourceRecurse(const File& file)
 	Engine* engine = Engine::getInstance();
 	System* sys = System::getInstance();
 
-	if (file.isDirectory()  ||  file.isArchiveFile()) {
-		FileIterator* it = file.getIterator();
+	if (file.isDirectoryOrArchiveDirectory()) {
+		for (File child : file.getChildren()) {
+			if (stopResourceLoading)
+				break;
 
-		File* child;
-		while ((child = it->next())  !=  NULL  &&  !stopResourceLoading) {
-			if (child->guessContentType() != CONTENT_TYPE_DIR) {
-				loadResourceRecurse(*child);
+			if (child.guessContentType() != CONTENT_TYPE_DIR) {
+				loadResourceRecurse(child);
 			}
-
-			delete child;
 		}
-
-		delete it;
 	} else {
 		try {
-			resourceLoadingQueue.enqueue(new File(file));
+			resourceLoadingQueue.enqueue(file);
 		} catch (Exception& ex) {
 			sys->log(LogEntry::warning(tr("Error loading resource file %1: %2. The resource file will not be "
-					"used for certain operations.").arg(file.getPath()->toString().get()).arg(ex.getMessage()),
+					"used for certain operations.").arg(file.getPath().toString().get()).arg(ex.getMessage()),
 					&ex));
 		}
 	}
@@ -189,18 +183,16 @@ void Profile::loadSingleResource()
 	System* sys = System::getInstance();
 
 	if (resourceLoadingQueue.size() != 0) {
-		File* file = resourceLoadingQueue.dequeue();
+		File file = resourceLoadingQueue.dequeue();
 		Engine* engine = Engine::getInstance();
 
 		try {
-			engine->addResource(*file);
+			engine->addResource(file);
 		} catch (Exception& ex) {
 			sys->log(LogEntry::warning(tr("Error loading resource file %1: %2. The resource file will not be "
-					"used for certain operations.").arg(file->getPath()->toString().get()).arg(ex.getMessage()),
+					"used for certain operations.").arg(file.getPath().toString().get()).arg(ex.getMessage()),
 					&ex));
 		}
-
-		delete file;
 
 		resourceLoadingTask->update(resourceLoadingTask->getValue() + 1);
 
@@ -219,10 +211,10 @@ void Profile::loadSingleResource()
 void Profile::loadSingleDAT()
 {
 	if (!datLoadingQueue.empty()) {
-		File* file = datLoadingQueue.dequeue();
+		File file = datLoadingQueue.dequeue();
 		Engine* engine = Engine::getInstance();
 
-		istream* in = file->openInputStream(istream::in);
+		istream* in = file.openInputStream(istream::in);
 		ResourceDATLoader dat(gameInfo.getRootDirectory());
 
 		ResourceDATLoader::Entry e;
@@ -271,30 +263,27 @@ void Profile::currentProfileChanged(Profile* oldProfile, Profile* newProfile)
 
 Profile::ResourceIterator Profile::removeResource(ResourceIterator it)
 {
-	File* file = *it;
+	File file = *it;
 	ResourceIterator next = resources.erase(it);
-	emit engineResourceRemoved(*file);
-	delete file;
+	emit engineResourceRemoved(file);
 	return next;
 }
 
 
 Profile::ResourceIterator Profile::removeSearchResource(ResourceIterator it)
 {
-	File* file = *it;
+	File file = *it;
 	ResourceIterator next = searchResources.erase(it);
-	emit searchResourceRemoved(*file);
-	delete file;
+	emit searchResourceRemoved(file);
 	return next;
 }
 
 
 Profile::ResourceIterator Profile::removeDATFile(ResourceIterator it)
 {
-	File* file = *it;
+	File file = *it;
 	ResourceIterator next = datFiles.erase(it);
-	emit datFileRemoved(*file);
-	delete file;
+	emit datFileRemoved(file);
 	return next;
 }
 
@@ -326,9 +315,9 @@ bool Profile::containsFile(const File& file)
 {
 	ResourceIterator it;
 	for (it = getResourceBegin() ; it != getResourceEnd() ; it++) {
-		File* res = *it;
+		File res = *it;
 
-		if (file.isChildOf(*res, true)) {
+		if (file.isChildOf(res, true)) {
 			return true;
 		}
 	}
@@ -413,12 +402,12 @@ bool Profile::setResources(const QLinkedList<File>& resources)
 	QLinkedList<File> oldResources;
 	ResourceIterator rit;
 	for (rit = this->resources.begin() ; rit != this->resources.end() ; rit++) {
-		oldResources << **rit;
+		oldResources << *rit;
 	}
 
 	// First, search for removed files
 	for (rit = this->resources.begin() ; rit != this->resources.end() ;) {
-		if (!resources.contains(**rit)) {
+		if (!resources.contains(*rit)) {
 			rit = removeResource(rit);
 			hasChanges = true;
 		} else {
@@ -446,12 +435,12 @@ bool Profile::setSearchResources(const QLinkedList<File>& resources)
 	QLinkedList<File> oldResources;
 	ResourceIterator rit;
 	for (rit = this->searchResources.begin() ; rit != this->searchResources.end() ; rit++) {
-		oldResources << **rit;
+		oldResources << *rit;
 	}
 
 	// First, search for removed files
 	for (rit = this->searchResources.begin() ; rit != this->searchResources.end() ;) {
-		if (!resources.contains(**rit)) {
+		if (!resources.contains(*rit)) {
 			rit = removeSearchResource(rit);
 			hasChanges = true;
 		} else {
@@ -479,12 +468,12 @@ bool Profile::setDATFiles(const QLinkedList<File>& files)
 	QLinkedList<File> oldFiles;
 	ResourceIterator rit;
 	for (rit = this->datFiles.begin() ; rit != this->datFiles.end() ; rit++) {
-		oldFiles << **rit;
+		oldFiles << *rit;
 	}
 
 	// First, search for removed files
 	for (rit = this->datFiles.begin() ; rit != this->datFiles.end() ;) {
-		if (!files.contains(**rit)) {
+		if (!files.contains(*rit)) {
 			rit = removeDATFile(rit);
 			hasChanges = true;
 		} else {

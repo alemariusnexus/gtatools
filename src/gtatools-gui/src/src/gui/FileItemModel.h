@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -27,7 +27,7 @@
 #include <QtCore/QMap>
 #include <QtCore/QList>
 #include "../Profile.h"
-#include <gtaformats/util/File.h>
+#include <nxcommon/file/File.h>
 #include "StaticFile.h"
 #include <QtGui/QWidget>
 
@@ -41,7 +41,7 @@ public:
 	virtual ~FileItemModel();
 
 	QModelIndex indexOf(const File& file, const QModelIndex& start);
-	File* getFileForIndex(const QModelIndex& index);
+	File getFileForIndex(const QModelIndex& index);
 
 	int rowCount(const QModelIndex& parent = QModelIndex()) const;
 	int columnCount(const QModelIndex& parent = QModelIndex()) const { return showFileType ? 2 : 1; }

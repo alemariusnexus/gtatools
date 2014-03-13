@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -23,7 +23,7 @@
 #ifndef LOGENTRY_H_
 #define LOGENTRY_H_
 
-#include <gtaformats/util/Exception.h>
+#include <nxcommon/exception/Exception.h>
 #include <QtCore/QString>
 
 

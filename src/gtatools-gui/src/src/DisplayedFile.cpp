@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -32,7 +32,7 @@ DisplayedFile::DisplayedFile(const File& file, EntityHandler* handler, QWidget* 
 {
 	signature = QByteArray("DisplayedFile");
 	signature.append((const char*) handler, sizeof(const char*));
-	signature.append(file.getPath()->toString().get());
+	signature.append(file.getPath().toString().get());
 }
 
 
@@ -49,7 +49,7 @@ bool DisplayedFile::doSaveChanges(bool letUserChooseFile)
 		QString filter = handler->buildFileDialogFilter();
 
 		QString fname = QFileDialog::getSaveFileName(System::getInstance()->getMainWindow(),
-				tr("Select file"), file.getPath()->toString().get(), filter);
+				tr("Select file"), file.getPath().toString().get(), filter);
 
 		if (!fname.isNull()) {
 			File file(fname.toLocal8Bit().constData());

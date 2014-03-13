@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats.
 
@@ -27,7 +27,7 @@
 #include "DFFGeometryPart.h"
 #include "DFFMaterial.h"
 #include "DFFFrame.h"
-#include "../util/math/Matrix4.h"
+#include <nxcommon/math/Matrix4.h>
 #include <vector>
 #include <algorithm>
 

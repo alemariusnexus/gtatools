@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats.
 
@@ -26,10 +26,10 @@
 #include "IPLInstance.h"
 #include "IPLCar.h"
 #include <cstdio>
-#include "../util/stream/StreamReader.h"
-#include "../util/stream/EndianSwappingStreamReader.h"
-#include "../util/stream/StreamWriter.h"
-#include "../util/stream/EndianSwappingStreamWriter.h"
+#include <nxcommon/stream/StreamReader.h>
+#include <nxcommon/stream/EndianSwappingStreamReader.h>
+#include <nxcommon/stream/StreamWriter.h>
+#include <nxcommon/stream/EndianSwappingStreamWriter.h>
 
 
 using std::string;

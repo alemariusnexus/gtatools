@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats.
 
@@ -23,8 +23,8 @@
 #include "TXDArchive.h"
 #include "TXDException.h"
 #include <utility>
-#include "../util/strutil.h"
-#include "../util/util.h"
+#include <nxcommon/util.h>
+#include <nxcommon/strutil.h>
 #include <algorithm>
 #include "../gta.h"
 

@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaimg.
 
@@ -21,7 +21,7 @@
  */
 
 #include "WildcardFilter.h"
-#include <gtaformats/util/strutil.h>
+#include <nxcommon/strutil.h>
 #include <cstring>
 
 

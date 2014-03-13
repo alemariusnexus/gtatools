@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -72,27 +72,21 @@ void IMGGUIModule::doUninstall()
 }
 
 
-void IMGGUIModule::buildFileTreeMenu(const QLinkedList<File*>& files, QMenu& menu)
+void IMGGUIModule::buildFileTreeMenu(const QLinkedList<File>& files, QMenu& menu)
 {
-	QLinkedList<File*>::const_iterator it;
+	QLinkedList<File>::const_iterator it;
 	QLinkedList<File> toBeExtracted;
 	bool allExtractable = true;
 
 	for (it = files.begin() ; it != files.end() ; it++) {
-		File* file = *it;
+		File file = *it;
 
-		if (file->isArchiveFile()) {
-			FileIterator* it = file->getIterator();
-			File* child;
-
-			while ((child = it->next())  !=  NULL) {
-				toBeExtracted << *child;
-				delete child;
+		if (file.isArchiveDirectory()) {
+			for (File child : file.getChildren()) {
+				toBeExtracted << child;
 			}
-
-			delete it;
-		} else if (file->getPath()->isIMGPath()) {
-			toBeExtracted << *file;
+		} else if (file.isArchiveEntry()) {
+			toBeExtracted << file;
 		} else {
 			allExtractable = false;
 			break;
@@ -115,7 +109,7 @@ void IMGGUIModule::currentEntityChanged(DisplayedEntity* prev, DisplayedEntity* 
 
 	DisplayedFile* dfile = dynamic_cast<DisplayedFile*>(dent);
 
-	if (dfile  &&  (dfile->getFile().getPath()->isIMGPath()  ||  dfile->getFile().isArchiveFile())) {
+	if (dfile  &&  (dfile->getFile().isArchiveEntry()  ||  dfile->getFile().isArchiveDirectory())) {
 		if (!menuExists) {
 			fileMenu->addAction(extractAction);
 			menuExists = true;
@@ -141,7 +135,7 @@ void IMGGUIModule::extract(const QLinkedList<File>& files)
 		if (files.size() == 1) {
 			File file = files.first();
 			QString fname = QFileDialog::getSaveFileName(mainWindow, tr("Choose a destination file"),
-					file.getPath()->getFileName().get());
+					file.getPath().getFileName().get());
 
 			if (!fname.isEmpty()) {
 				QFile dfile(fname);
@@ -178,7 +172,7 @@ void IMGGUIModule::extract(const QLinkedList<File>& files)
 				for (it = files.begin() ; it != files.end() ; it++) {
 					File file = *it;
 					QString fname = dname;
-					fname.append("/").append(file.getPath()->getFileName().get());
+					fname.append("/").append(file.getPath().getFileName().get());
 					QFile dfile(fname);
 
 					if (dfile.open(QFile::WriteOnly | QFile::Truncate)) {
@@ -221,16 +215,10 @@ void IMGGUIModule::onExtract(bool)
 		File file = dfile->getFile();
 		QLinkedList<File> files;
 
-		if (file.isArchiveFile()) {
-			FileIterator* it = file.getIterator();
-			File* child;
-
-			while ((child = it->next())  !=  NULL) {
-				files << *child;
-				delete child;
+		if (file.isArchiveDirectory()) {
+			for (File child : file.getChildren()) {
+				files << child;
 			}
-
-			delete it;
 		} else {
 			files << file;
 		}

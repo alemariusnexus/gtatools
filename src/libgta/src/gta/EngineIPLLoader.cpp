@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -78,9 +78,8 @@ void EngineIPLLoader::load(const File& file, Scene::ObjectList& objects, GameInf
 			File sfile = streamingFiles.front();
 			streamingFiles.pop();
 
-			FilePath* relPath = sfile.getPath()->relativeTo(*info.getRootDirectory().getPath());
-			SceneObjectFileGroup* group = new SceneObjectFileGroup(relPath->toString());
-			delete relPath;
+			File relFile = sfile.relativeTo(info.getRootDirectory());
+			SceneObjectFileGroup* group = new SceneObjectFileGroup(relFile.getPath().toString());
 
 			group->setChecksum(sfile.crc32());
 

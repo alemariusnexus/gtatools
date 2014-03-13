@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -33,7 +33,7 @@
 #include "TextureSearchDialog.h"
 #include <gtaformats/txd/TXDConverter.h>
 #include "../../DisplayedFile.h"
-#include <gtaformats/util/DefaultFileFinder.h>
+#include <nxcommon/file/DefaultFileFinder.h>
 #include "TextureFileFinder.h"
 #include "../../gui/GUI.h"
 
@@ -159,7 +159,7 @@ bool TXDFormatHandler::extractTexturesDialog(TXDArchive* txd, const QLinkedList<
 }
 
 
-bool TXDFormatHandler::findTextureDialog(const QLinkedList<File*>& files, QWidget* parent)
+bool TXDFormatHandler::findTextureDialog(const QLinkedList<File>& files, QWidget* parent)
 {
 	TextureSearchDialog dlg(parent, files);
 	return dlg.exec() == QDialog::Accepted;
@@ -209,18 +209,17 @@ void TXDFormatHandler::systemQuerySent(const SystemQuery& query, QList<SystemQue
 
 		TextureFileFinder finder(&texFinder, txdFinder);
 
-		File* file = GUI::getInstance()->findFile(&finder, NULL);
+		File file = GUI::getInstance()->findFile(&finder, NULL);
 
-		if (file) {
+		if (!file.isNull()) {
 			SystemQueryResult result;
 
-			result["txdFile"] = QString(file->getPath()->toString().get());
+			result["txdFile"] = QString(file.getPath().toString().get());
 
 			System* sys = System::getInstance();
 			EntityOpenRequest req;
-			req.setAttribute("file", QString(file->getPath()->toString().get()));
-			req.setAttribute("texture", finder.getMatchedTexture(*file));
-			delete file;
+			req.setAttribute("file", QString(file.getPath().toString().get()));
+			req.setAttribute("texture", finder.getMatchedTexture(file));
 			sys->openEntity(req);
 
 			results << result;

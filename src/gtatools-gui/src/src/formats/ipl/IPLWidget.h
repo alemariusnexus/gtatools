@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -25,7 +25,7 @@
 
 #include <QtGui/QWidget>
 #include <ui_IPLWidget.h>
-#include <gtaformats/util/File.h>
+#include <nxcommon/file/File.h>
 #include <QtGui/QBrush>
 
 

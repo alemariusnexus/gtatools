@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats.
 
@@ -23,7 +23,7 @@
 #ifndef IFPEXCEPTION_H_
 #define IFPEXCEPTION_H_
 
-#include "../util/Exception.h"
+#include <nxcommon/exception/Exception.h>
 
 
 class IFPException : public Exception

@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -33,7 +33,7 @@
 #include "RenderingSubmesh.h"
 #include "TestShaderPlugin.h"
 #include "ShaderPluginRegistry.h"
-#include <gtaformats/util/math/Matrix4.h>
+#include <nxcommon/math/Matrix4.h>
 #include <list>
 #include <map>
 #include <set>

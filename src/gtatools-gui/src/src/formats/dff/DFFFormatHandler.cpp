@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -100,7 +100,7 @@ void DFFFormatHandler::xmlDumpDialog(const DFFMesh& mesh, QWidget* parent)
 	DisplayedFile* dfile = dynamic_cast<DisplayedFile*>(sys->getCurrentEntity());
 
 	QString filePath = QFileDialog::getSaveFileName(parent, tr("Choose a destination file"),
-			QString(dfile->getFile().getPath()->getFileName().get()).append(".xml"),
+			QString(dfile->getFile().getPath().getFileName().get()).append(".xml"),
 					tr("XML Files (*.xml)"));
 
 	if (!filePath.isEmpty()) {

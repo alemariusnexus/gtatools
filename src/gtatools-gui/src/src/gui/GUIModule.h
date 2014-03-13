@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -25,7 +25,7 @@
 
 #include <QtCore/QObject>
 #include <QtGui/QMenu>
-#include <gtaformats/util/File.h>
+#include <nxcommon/file/File.h>
 #include <QtCore/QLinkedList>
 
 
@@ -39,7 +39,7 @@ class GUIModule : public QObject {
 public:
 	GUIModule() : mainWindow(NULL), installCount(0) {};
 	virtual ~GUIModule();
-	virtual void buildFileTreeMenu(const QLinkedList<File*>& files, QMenu& menu) {}
+	virtual void buildFileTreeMenu(const QLinkedList<File>& files, QMenu& menu) {}
 	int getInstallCount() const { return installCount; }
 
 private:

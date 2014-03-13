@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats-test.
 
@@ -25,8 +25,8 @@
 #include <gtaformats/txd/TXDConverter.h>
 #include <gtaformats/txd/TXDException.h>
 #include <gtaformats/txd/TXDTextureHeader.h>
-#include <gtaformats/util/CRC32.h>
-#include <gtaformats/util/image.h>
+#include <nxcommon/CRC32.h>
+#include <nxcommon/image.h>
 #include <png.h>
 
 
@@ -214,14 +214,14 @@ void TestTXDConversion(TXDTextureHeader* tex, uint8_t* rawData, const File& conv
 	if (!convDirBefore.exists()) {
 		if (!convDirBefore.mkdirs()) {
 			ADD_FAILURE() << "Unable to create TXD conversion directory "
-					<< convDirBefore.getPath()->toString().get();
+					<< convDirBefore.getPath().toString().get();
 			return;
 		}
 	}
 	if (!convDirAfter.exists()) {
 		if (!convDirAfter.mkdirs()) {
 			ADD_FAILURE() << "Unable to create TXD conversion directory "
-					<< convDirAfter.getPath()->toString().get();
+					<< convDirAfter.getPath().toString().get();
 			return;
 		}
 	}
@@ -508,7 +508,7 @@ TEST(TXDConversionTest, CheckOriginalTXDConversion)
 	for (unsigned int i = 0 ; i < sizeof(tests) / sizeof(ConversionTest) ; i++) {
 		ConversionTest& test = tests[i];
 
-		File convDir(testRootDir, File(test.relPath.get()).getPath()->getFileName());
+		File convDir(testRootDir, File(test.relPath.get()).getPath().getFileName());
 
 		File txdFile("");
 
@@ -563,7 +563,7 @@ TEST(TXDConversionTest, CheckOriginalTXDConversion)
 		for (vector<CString>::iterator tit = texVec.begin() ; tit != texVec.end() ; tit++) {
 			CString exName = *tit;
 			ADD_FAILURE() << "No texture of name " << exName.get() << " was found in TXD archive "
-					<< txdFile.getPath()->toString().get();
+					<< txdFile.getPath().toString().get();
 		}
 	}
 }

@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats.
 
@@ -26,7 +26,7 @@
 #include "IFPRotFrame.h"
 #include "IFPRotTransFrame.h"
 #include "IFPRotTransScaleFrame.h"
-#include "../util/CString.h"
+#include <nxcommon/CString.h>
 #include <vector>
 
 using std::vector;

@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -74,7 +74,7 @@ void TXDGUIModule::doUninstall()
 }
 
 
-void TXDGUIModule::buildFileTreeMenu(const QLinkedList<File*>& files, QMenu& menu)
+void TXDGUIModule::buildFileTreeMenu(const QLinkedList<File>& files, QMenu& menu)
 {
 	contextFiles = files;
 	menu.addAction(findTextureInFileAction);
@@ -83,13 +83,13 @@ void TXDGUIModule::buildFileTreeMenu(const QLinkedList<File*>& files, QMenu& men
 
 void TXDGUIModule::onFindTexture(bool checked)
 {
-	QLinkedList<File*> files;
+	QLinkedList<File> files;
 
 	Profile* profile = ProfileManager::getInstance()->getCurrentProfile();
 	Profile::ResourceIterator it;
 
 	for (it = profile->getResourceBegin() ; it != profile->getResourceEnd() ; it++) {
-		File* resfile = *it;
+		File resfile = *it;
 		files << resfile;
 	}
 

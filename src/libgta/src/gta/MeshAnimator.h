@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -24,8 +24,8 @@
 #define MESHANIMATOR_H_
 
 #include <gta/config.h>
-#include <gtaformats/util/math/Matrix4.h>
-#include <gtaformats/util/File.h>
+#include <nxcommon/math/Matrix4.h>
+#include <nxcommon/file/File.h>
 
 
 class MeshAnimator

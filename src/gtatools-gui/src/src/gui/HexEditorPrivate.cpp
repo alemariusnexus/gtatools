@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -22,8 +22,8 @@
 
 #include "HexEditorPrivate.h"
 #include "HexEditorContentTraverser.h"
-#include <gtaformats/util/Color4.h>
-#include <gtaformats/util/util.h>
+#include <nxcommon/Color4.h>
+#include <nxcommon/util.h>
 #include <QtGui/QPainter>
 #include <QtGui/QPaintEvent>
 #include <QtGui/QApplication>
@@ -46,12 +46,12 @@ HexEditorPrivate::HexEditorPrivate(QWidget* parent)
 		  temporaryOverwriteMode(false), cursorBlink(false), cursorAscii(false), numLines(0), bytesPerLine(0),
 		  lineDisplayOffset(0), currentByteEdited(false), editable(true)
 {
-	setData(QByteArray());
-
 	QFont font("", 10);
 	font.setFixedPitch(true);
 	font.setKerning(false);
 	setFont(font);
+
+	setData(QByteArray());
 
 	setAddressColor(QColor(Qt::lightGray).lighter(100));
 	setEvenColumnColor(palette().color(QPalette::Text));
@@ -77,7 +77,7 @@ void HexEditorPrivate::setData(const QByteArray& data)
 
 void HexEditorPrivate::loadData(const File& file)
 {
-	QFile qfile(file.getPath()->toString().get());
+	QFile qfile(file.getPath().toString().get());
 	qfile.open(QFile::ReadOnly);
 	QByteArray data = qfile.readAll();
 	qfile.close();
@@ -94,6 +94,8 @@ void HexEditorPrivate::updateContentLineCount(int num)
 
 void HexEditorPrivate::setFont(const QFont& font)
 {
+	printf("#### setFont()\n");
+
 	QWidget::setFont(font);
 
 	QFontMetricsF fm(font);

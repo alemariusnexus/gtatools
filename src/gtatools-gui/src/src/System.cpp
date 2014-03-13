@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -32,7 +32,7 @@
 #include "ProfileManager.h"
 #include <gta/scene/Scene.h>
 #include <gta/scene/visibility/PVSDatabase.h>
-#include <gta/resource/ResourceCache.h>
+#include <nxcommon/ResourceCache.h>
 
 
 
@@ -373,7 +373,7 @@ bool System::openFile(const File& file)
 	EntityOpenRequest req;
 
 	req.setAttribute("type", "file");
-	req.setAttribute("file", QString(file.getPath()->toString().get()));
+	req.setAttribute("file", QString(file.getPath().toString().get()));
 
 	return openEntity(req);
 }

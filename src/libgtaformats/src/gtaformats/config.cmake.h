@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats.
 
@@ -23,40 +23,16 @@
 #ifndef GF_CONFIG_H_
 #define GF_CONFIG_H_
 
-#ifdef _MSC_VER
-#	pragma warning(disable : 4996)
-#endif
-
-#if defined(__unix) || defined(__unix__) || defined(__APPLE__)
-#include <unistd.h>
-#endif
-
-#include "gtaformats_stdint.h"
-
-
-#define PI 3.141593f
-
-
-#if defined(__GNUC__)  &&  defined(__GXX_EXPERIMENTAL_CXX0X__)
-#define CXX0X_AVAILABLE
-#endif
+#include <nxcommon/config.h>
 
 
 #cmakedefine GTAFORMATS_ENABLE_PVRTEXLIB
 #cmakedefine GTAFORMATS_ENABLE_SQUISH
-#cmakedefine EXCEPTION_POSITION_INFO
-#cmakedefine _CMAKE_HAVE_SVNREV
+#cmakedefine _CMAKE_GTATOOLS_HAVE_SVNREV
 
-// Special check on Mac OS X to allow building of universal binaries.
-#ifdef __APPLE__
-#ifdef __powerpc
+#ifdef NXCOMMON_BIG_ENDIAN
 #define GTAFORMATS_BIG_ENDIAN
-#endif
 #else
-#cmakedefine GTAFORMATS_BIG_ENDIAN
-#endif
-
-#ifndef GTAFORMATS_BIG_ENDIAN
 #define GTAFORMATS_LITTLE_ENDIAN
 #endif
 
@@ -64,7 +40,7 @@
 #define GTATOOLS_VERSION_MINOR ${GTATOOLS_VERSION_MINOR}
 #define GTATOOLS_VERSION_SUFFIX "${GTATOOLS_VERSION_SUFFIX}"
 
-#ifdef _CMAKE_HAVE_SVNREV
+#ifdef _CMAKE_GTATOOLS_HAVE_SVNREV
 #define GTATOOLS_VERSION_SVNREV ${GTATOOLS_VERSION_SVNREV}
 #endif
 

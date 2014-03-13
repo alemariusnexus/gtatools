@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -48,7 +48,7 @@ public:
 	virtual DisplayedEntity* openEntity(const EntityOpenRequest& request);
 
 	bool extractTexturesDialog(TXDArchive* txd, const QLinkedList<TXDTextureHeader*>& texes, QWidget* parent);
-	bool findTextureDialog(const QLinkedList<File*>& files, QWidget* parent);
+	bool findTextureDialog(const QLinkedList<File>& files, QWidget* parent);
 	QImage createImageFromTexture(TXDTextureHeader* tex, uint8_t* data, uint8_t*& resultData);
 
 private slots:

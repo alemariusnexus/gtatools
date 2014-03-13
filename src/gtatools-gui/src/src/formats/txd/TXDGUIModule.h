@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -35,7 +35,7 @@ class TXDGUIModule : public GUIModule {
 public:
 	TXDGUIModule();
 	virtual ~TXDGUIModule();
-	virtual void buildFileTreeMenu(const QLinkedList<File*>& files, QMenu& menu);
+	virtual void buildFileTreeMenu(const QLinkedList<File>& files, QMenu& menu);
 
 private:
 	virtual void doInstall();
@@ -47,7 +47,7 @@ private slots:
 	void currentProfileChanged(Profile* oldProfile, Profile* newProfile);
 
 private:
-	QLinkedList<File*> contextFiles;
+	QLinkedList<File> contextFiles;
 	QAction* findTextureAction;
 	QAction* findTextureInFileAction;
 };

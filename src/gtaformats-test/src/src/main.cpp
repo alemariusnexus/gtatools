@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats-test.
 
@@ -25,16 +25,16 @@
 #undef GLOBAL_H_DEF
 
 #include <cstdio>
-#include <gtaformats/util/CLIParser.h>
-#include <gtaformats/util/File.h>
+#include <nxcommon/CLIParser.h>
+#include <nxcommon/file/File.h>
+#include <nxcommon/file/FileSystem.h>
+#include <gtaformats/img/IMGArchiveHandler.h>
 
 
 
 
 int main(int argc, char** argv)
 {
-	printf("Eins\n");
-	exit(0);
 	testing::InitGoogleTest(&argc, argv);
 
 	CLIParser cli;
@@ -82,10 +82,11 @@ int main(int argc, char** argv)
 	}
 
 	if (testRootDir.getChildCount(false, false) != 0) {
-		fprintf(stderr, "WARNING: Testing root directory is not empty. It is recommended to use en empty "
+		fprintf(stderr, "WARNING: Testing root directory is not empty. It is recommended to use an empty "
 				"one for gtaformats-test!\n");
 	}
 
+	FileSystem::getInstance()->registerArchiveHandler(IMGArchiveHandler::getInstance());
 
 	return RUN_ALL_TESTS();
 }

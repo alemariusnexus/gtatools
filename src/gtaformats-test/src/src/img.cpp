@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats-test.
 
@@ -21,10 +21,10 @@
  */
 
 #include "global.h"
-#include <gtaformats/util/File.h>
+#include <nxcommon/file/File.h>
 #include <gtaformats/img/IMGArchive.h>
-#include <gtaformats/util/CRC32.h>
-#include <gtaformats/util/CString.h>
+#include <nxcommon/CRC32.h>
+#include <nxcommon/CString.h>
 #include <algorithm>
 
 using std::min;
@@ -54,7 +54,7 @@ void TestIMGContents(IMGArchive* img, IMGExpectedEntry* exEntries, unsigned int 
 			continue;
 
 		IMGArchive::EntryIterator it = img->getEntryByName(File(exEntry.name.get())
-				.getPath()->getFileName().get());
+				.getPath().getFileName().get());
 
 		EXPECT_NE(img->getEntryEnd(), it) << "Test entry #" << i << " (" << exEntry.name.get() << ")"
 				<< " not found!";
@@ -116,7 +116,7 @@ unsigned int FillIMG(IMGArchive* img)
 
 		File inFile(gtasaRoot, exEntry.name.get());
 
-		IMGArchive::EntryIterator it = img->addEntry(File(exEntry.name.get()).getPath()->getFileName().get(),
+		IMGArchive::EntryIterator it = img->addEntry(File(exEntry.name.get()).getPath().getFileName().get(),
 				IMG_BYTES2BLOCKS(inFile.getSize()));
 
 		iostream* stream = (iostream*) img->gotoEntry(it);
@@ -180,13 +180,13 @@ void TestIMGOrder(IMGArchive* img, const char** entries, unsigned int numEntries
 IMGExpectedEntry* FindExpectedEntry(const CString& name, IMGExpectedEntry* exEntries,
 		unsigned int numExEntries)
 {
-	CString baseName = File(name.get()).getPath()->getFileName();
+	CString baseName = File(name.get()).getPath().getFileName();
 
 	for (unsigned int i = 0 ; i < numExEntries ; i++) {
 		IMGExpectedEntry* exEntry = exEntries+i;
 
 		if (	exEntry->name.get()
-				&& File(exEntry->name).getPath()->getFileName() == baseName
+				&& File(exEntry->name).getPath().getFileName() == baseName
 		) {
 			return exEntry;
 		}
@@ -483,7 +483,7 @@ TEST(IMGWriteTest, CheckAddRemoveRename)
 
 	for (unsigned int i = 0 ; i < numToAdd ; i++) {
 		entries[i] = new IMGEntry;
-		strcpy(entries[i]->name, File(entriesToAdd[i].name.get()).getPath()->getFileName().get());
+		strcpy(entries[i]->name, File(entriesToAdd[i].name.get()).getPath().getFileName().get());
 		entries[i]->size = entriesToAdd[i].size;
 	}
 
@@ -498,7 +498,7 @@ TEST(IMGWriteTest, CheckAddRemoveRename)
 	for (unsigned int i = 0 ; i < numToAdd ; i++) {
 		IMGExpectedEntry& entry = entriesToAdd[i];
 
-		iostream* stream = (iostream*) img->gotoEntry(File(entry.name.get()).getPath()->getFileName().get());
+		iostream* stream = (iostream*) img->gotoEntry(File(entry.name.get()).getPath().getFileName().get());
 
 		EXPECT_TRUE(stream != NULL);
 

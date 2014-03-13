@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -26,9 +26,9 @@
 #include <gta/config.h>
 #include "MeshPointer.h"
 #include <gtaformats/config.h>
-#include <gtaformats/util/CString.h>
+#include <nxcommon/CString.h>
 #include "../../Engine.h"
-#include "../ResourceCache.h"
+#include <nxcommon/ResourceCache.h>
 
 
 class ManagedMeshPointer : public MeshPointer {

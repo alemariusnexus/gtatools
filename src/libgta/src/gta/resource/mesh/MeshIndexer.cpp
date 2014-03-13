@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -22,7 +22,7 @@
 
 #include "MeshIndexer.h"
 #include <cstring>
-#include <gtaformats/util/strutil.h>
+#include <nxcommon/strutil.h>
 #include <utility>
 #include <gtaformats/col/COLLoader.h>
 
@@ -45,7 +45,7 @@ MeshIndexer::~MeshIndexer()
 void MeshIndexer::resourceAdded(const File& file)
 {
 	if (file.guessContentType() == CONTENT_TYPE_DFF) {
-		CString fname = file.getPath()->getFileName();
+		CString fname = file.getPath().getFileName();
 		char* lMeshName = new char[fname.length() + 1];
 		strtolower(lMeshName, fname.get());
 		*strrchr(lMeshName, '.') = '\0';

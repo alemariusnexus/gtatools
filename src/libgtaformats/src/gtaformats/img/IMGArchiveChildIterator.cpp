@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats.
 
@@ -20,26 +20,25 @@
 	GPLADDITIONS.
  */
 
-#ifndef DEFAULTFILEFINDER_H_
-#define DEFAULTFILEFINDER_H_
-
-#include <gtaformats/config.h>
-#include "FileFinder.h"
+#include "IMGArchiveChildIterator.h"
 
 
 
-class DefaultFileFinder : public FileFinder {
-public:
-	DefaultFileFinder(const char* pattern, bool caseSensitive = true, bool exactMatch = true);
-	void setExactMatch(bool em) { exactMatch = em; }
-	bool isCaseSensitive() const { return caseSensitive; }
-	bool isExactMatch() const { return exactMatch; }
-	virtual bool matches(const File& file);
 
-private:
-	char* pattern;
-	bool caseSensitive;
-	bool exactMatch;
-};
+IMGArchiveChildIterator::IMGArchiveChildIterator(const File& archiveFile, const shared_ptr<IMGArchive>& img)
+		: archiveFile(archiveFile), img(img), currentIt(img->getEntryBegin())
+{
+}
 
-#endif /* DEFAULTFILEFINDER_H_ */
+
+File IMGArchiveChildIterator::getNext() const
+{
+	if (currentIt == img->getEntryEnd())
+		return File();
+
+	File retFile(archiveFile, CString((*currentIt)->name));
+
+	const_cast<IMGArchiveChildIterator*>(this)->currentIt++;
+
+	return retFile;
+}

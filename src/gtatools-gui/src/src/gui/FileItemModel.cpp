@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -39,7 +39,7 @@ FileItemModel::FileItemModel(Profile* profile, QWidget* parent)
 		Profile::ResourceIterator it;
 
 		for (it = profile->getSearchResourceBegin() ; it != profile->getSearchResourceEnd() ; it++) {
-			rootFiles << new StaticFile(**it);
+			rootFiles << new StaticFile(*it);
 		}
 	}
 }
@@ -59,17 +59,17 @@ QModelIndex FileItemModel::indexOf(const File& file, const QModelIndex& start)
 {
 	int rc = rowCount(start);
 
-	QString ipath(file.getPath()->toString().get());
+	QString ipath(file.getPath().toString().get());
 
 	for (int i = 0 ; i < rc ; i++) {
 		QModelIndex child = index(i, 0, start);
 
 		StaticFile* sf = static_cast<StaticFile*>(child.internalPointer());
 
-		if (*sf->getFile() == file) {
+		if (sf->getFile() == file) {
 			return child;
 		} else {
-			if (file.isChildOf(*sf->getFile(), true)) {
+			if (file.isChildOf(sf->getFile(), true)) {
 				return indexOf(file, child);
 			}
 		}
@@ -79,7 +79,7 @@ QModelIndex FileItemModel::indexOf(const File& file, const QModelIndex& start)
 }
 
 
-File* FileItemModel::getFileForIndex(const QModelIndex& index)
+File FileItemModel::getFileForIndex(const QModelIndex& index)
 {
 	return static_cast<StaticFile*>(index.internalPointer())->getFile();
 }
@@ -147,18 +147,18 @@ QVariant FileItemModel::data(const QModelIndex& index, int role) const
 		return QVariant(file->toString().get());
 		break;
 	case 1:
-		File* realFile = file->getFile();
+		File realFile = file->getFile();
 
-		if (realFile->isDirectory()) {
+		if (realFile.isDirectory()) {
 			return tr("Directory");
 		} else {
 			EntityOpenRequest req;
 			req.setAttribute("type", "file");
-			req.setAttribute("file", QString(realFile->getPath()->toString().get()));
+			req.setAttribute("file", QString(realFile.getPath().toString().get()));
 			EntityHandler* handler = EntityManager::getInstance()->getEntityHandler(req);
 
 			if (handler) {
-				return handler->getFileFormatName(*realFile);
+				return handler->getFileFormatName(realFile);
 			} else {
 				return tr("Unrecognized File");
 			}

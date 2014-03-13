@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -23,8 +23,8 @@
 #ifndef MESHFRAME_H_
 #define MESHFRAME_H_
 
-#include <gtaformats/util/math/Matrix4.h>
-#include <gtaformats/util/CString.h>
+#include <nxcommon/math/Matrix4.h>
+#include <nxcommon/CString.h>
 #include <gtaformats/dff/DFFFrame.h>
 #include <vector>
 #include <algorithm>

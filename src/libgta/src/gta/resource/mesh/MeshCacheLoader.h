@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -23,10 +23,10 @@
 #ifndef MESHCACHELOADER_H_
 #define MESHCACHELOADER_H_
 
-#include "../ResourceCache.h"
+#include <nxcommon/ResourceCache.h>
 #include "MeshIndexer.h"
 #include "../collision/CollisionMeshIndexer.h"
-#include <gtaformats/util/CString.h>
+#include <nxcommon/CString.h>
 
 
 class MeshCacheLoader : public Engine::StringResourceCache::EntryLoader {

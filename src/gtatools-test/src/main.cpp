@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-test.
 
@@ -23,12 +23,12 @@
 #include <gta/gl.h>
 #include <cstdio>
 #include <fstream>
-#include <gtaformats/util/math/Matrix4.h>
-#include <gtaformats/util/util.h>
-#include <gtaformats/util/strutil.h>
-#include <gtaformats/util/math/intersection.h>
-#include <gtaformats/util/math/project.h>
-#include <gtaformats/util/DefaultFileFinder.h>
+#include <nxcommon/math/Matrix4.h>
+#include <nxcommon/util.h>
+#include <nxcommon/strutil.h>
+#include <nxcommon/math/intersection.h>
+#include <nxcommon/math/project.h>
+#include <nxcommon/file/DefaultFileFinder.h>
 #include <gtaformats/gtadff.h>
 #include <gtaformats/gtaide.h>
 #include <gtaformats/gtaipl.h>
@@ -47,7 +47,7 @@
 #include <climits>
 #include <set>
 #include <gta/ItemManager.h>
-#include <gta/resource/ResourceCache.h>
+#include <nxcommon/ResourceCache.h>
 #include <gta/scene/Scene.h>
 #include <iostream>
 #include <gta/GLException.h>

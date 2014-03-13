@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -28,7 +28,7 @@
 #include <gtaformats/ide/IDEAnimation.h>
 #include <gtaformats/ide/IDEPedestrian.h>
 #include <gtaformats/ide/IDEWeapon.h>
-#include <gtaformats/util/DefaultFileFinder.h>
+#include <nxcommon/file/DefaultFileFinder.h>
 #include <QtCore/QRegExp>
 #include <QtGui/QMessageBox>
 #include <QtGui/QInputDialog>
@@ -253,7 +253,7 @@ IDEWidget::IDEWidget(QWidget* parent, const EntityOpenRequest& request)
 		char* elem;
 
 		sys->log(LogEntry::error(tr("Parsing errors in IDE file %1:")
-				.arg(file.getPath()->getFileName().get())));
+				.arg(file.getPath().getFileName().get())));
 
 		while ((elem = log->nextMessage())  !=  NULL) {
 			sys->log(LogEntry::error(QString("\t%1").arg(elem)));

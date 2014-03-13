@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtaformats.
 
@@ -25,7 +25,7 @@
 
 #include "DFFMesh.h"
 #include "../rwbs/RWSection.h"
-#include "../util/File.h"
+#include <nxcommon/file/File.h>
 
 
 

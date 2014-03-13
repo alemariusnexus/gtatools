@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -29,7 +29,7 @@
 #include "gui/FileItemModel.h"
 #include "Profile.h"
 #include "ProfileManager.h"
-#include <gtaformats/util/File.h>
+#include <nxcommon/file/File.h>
 #include "gui/MainWindow.h"
 #include <QtCore/QSettings>
 #include "Profile.h"
@@ -38,41 +38,37 @@
 #include <QtCore/QTranslator>
 #include <QtCore/QLibraryInfo>
 #include "System.h"
-#include <gtaformats/util/Exception.h>
+#include <nxcommon/exception/Exception.h>
 #include <QtGui/QMessageBox>
 #include <QtCore/QTimer>
 #include <gta/Engine.h>
-#include <gta/resource/ResourceCache.h>
+#include <nxcommon/ResourceCache.h>
 #include <signal.h>
-#include <gtaformats/util/util.h>
+#include <nxcommon/util.h>
 #include "formats/dff/DFFRenderWidget.h"
 #include "gui/GLContainerWidget.h"
 #include <fstream>
-#include <gtaformats/util/util.h>
+#include <nxcommon/util.h>
+#include <nxcommon/file/DefaultFileFinder.h>
 #include "TestWindow.h"
 
 using std::ofstream;
 
 
 
-void listRecurse(File* file, int ind = 0)
+void listRecurse(const File& file, int ind = 0)
 {
-	FileIterator* it = file->getIterator();
-	File* child;
-
-	while ((child = it->next())  !=  NULL) {
+	for (File child : file.getChildren()) {
 		for (int i = 0 ; i < ind ; i++) {
 			printf("  ");
 		}
 
-		printf("%s\n", child->getPath()->getFileName().get());
+		printf("%s\n", child.getPath().getFileName().get());
 
-		if (child->isDirectory()) {
+		if (child.isDirectory()) {
 			listRecurse(child, ind+1);
 		}
 	}
-
-	delete it;
 }
 
 

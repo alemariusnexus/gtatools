@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -26,7 +26,7 @@
 #include <gta/config.h>
 #include "Camera.h"
 #include "GameInfo.h"
-#include "resource/ResourceCache.h"
+#include <nxcommon/ResourceCache.h>
 #include "EngineIPLLoader.h"
 #include "scene/parts/VisualSceneObject.h"
 #include "ViewportObserver.h"
@@ -36,14 +36,14 @@
 #include <vector>
 #include <string>
 #include <gtaformats/gta.h>
-#include <gtaformats/util/math/Matrix4.h>
-#include <gtaformats/util/strutil.h>
-#include <gtaformats/util/File.h>
-#include <gtaformats/util/cxx0xhash.h>
-#include <gtaformats/util/CString.h>
+#include <nxcommon/math/Matrix4.h>
+#include <nxcommon/strutil.h>
+#include <nxcommon/file/File.h>
+#include <nxcommon/cxx11hash.h>
+#include <nxcommon/CString.h>
 #include <btBulletDynamicsCommon.h>
 #include <functional>
-#include <boost/shared_array.hpp>
+#include <memory>
 
 using std::locale;
 using std::collate;
@@ -52,7 +52,7 @@ using std::vector;
 using std::string;
 using std::less;
 using std::equal_to;
-using boost::shared_array;
+using std::shared_ptr;
 
 
 class ResourceObserver;
@@ -76,7 +76,7 @@ template<class K, class Compare, class MapHash, class KeyEqual> class ResourceCa
 
 class Engine {
 public:
-	typedef ResourceCache<CString, StringComparator, CXX0XHash<CString>, StringEqual> StringResourceCache;
+	typedef ResourceCache<CString, StringComparator, CXX11Hash<CString>, StringEqual> StringResourceCache;
 
 public:
 	static Engine* getInstance();

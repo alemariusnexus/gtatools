@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -25,7 +25,7 @@
 #include <gtaformats/gxt/GXTLoader.h>
 #include <gtaformats/gxt/GXTTable.h>
 #include <gtaformats/gta.h>
-#include <gtaformats/util/util.h>
+#include <nxcommon/util.h>
 #include <QtCore/QSettings>
 #include <QtGui/QMessageBox>
 #include <cstdio>
@@ -121,7 +121,7 @@ void GXTWidget::displayTable(const QString& tablename)
 	model = new GXTTableModel;
 
 	GXTTable* table = tables[tablename];
-	model->addLanguageTable(gxtFile->getPath()->getFileName().get(), table);
+	model->addLanguageTable(gxtFile->getPath().getFileName().get(), table);
 
 	proxyModel->setSourceModel(model);
 	ui.table->setModel(proxyModel);

@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -23,7 +23,7 @@
 #include "TextureIndexer.h"
 #include <gtaformats/txd/TXDArchive.h>
 #include <gtaformats/txd/TXDTextureHeader.h>
-#include <gtaformats/util/strutil.h>
+#include <nxcommon/strutil.h>
 #include <cstring>
 #include <cstdio>
 #include <utility>
@@ -41,7 +41,7 @@ TextureIndexer::~TextureIndexer()
 void TextureIndexer::resourceAdded(const File& file)
 {
 	if (file.guessContentType() == CONTENT_TYPE_TXD) {
-		CString fname = file.getPath()->getFileName();
+		CString fname = file.getPath().getFileName();
 		char* txdName = new char[fname.length() + 1];
 		strtolower(txdName, fname.get());
 		*strchr(txdName, '.') = '\0';
@@ -56,7 +56,7 @@ void TextureIndexer::resourceAdded(const File& file)
 		if (archives.find(txdName) != archives.end()) {
 			char* oldPath = dbgArchivePaths.find(txdName)->second;
 			fprintf(stderr, "WARNING: Conflicting resources: A TXD archive with the same name as %s was "
-					"already added! Previous resource: %s\n", file.getPath()->toString().get(), oldPath);
+					"already added! Previous resource: %s\n", file.getPath().toString().get(), oldPath);
 		}
 #endif
 
@@ -64,8 +64,8 @@ void TextureIndexer::resourceAdded(const File& file)
 		archives[lTxdName] = archive;
 
 #ifndef NDEBUG
-		char* path = new char[file.getPath()->toString().length() + 1];
-		strcpy(path, file.getPath()->toString().get());
+		char* path = new char[file.getPath().toString().length() + 1];
+		strcpy(path, file.getPath().toString().get());
 		dbgArchivePaths.insert(pair<CString, char*>(lTxdName, path));
 #endif
 	}

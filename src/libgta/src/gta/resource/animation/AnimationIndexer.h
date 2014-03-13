@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -25,9 +25,9 @@
 
 #include "../ResourceObserver.h"
 #include <map>
-#include <gtaformats/util/strutil.h>
-#include <gtaformats/util/CString.h>
-#include <gtaformats/util/File.h>
+#include <nxcommon/strutil.h>
+#include <nxcommon/CString.h>
+#include <nxcommon/file/File.h>
 
 using std::map;
 

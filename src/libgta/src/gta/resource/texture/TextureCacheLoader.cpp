@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -26,7 +26,7 @@
 #include <gtaformats/txd/TXDArchive.h>
 #include <gtaformats/txd/TXDTextureHeader.h>
 #include <gtaformats/txd/TXDConverter.h>
-#include <gtaformats/util/strutil.h>
+#include <nxcommon/strutil.h>
 #include "../../gl.h"
 #include "../../EngineException.h"
 #include "../../GLException.h"

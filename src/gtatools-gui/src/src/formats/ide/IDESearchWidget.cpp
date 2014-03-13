@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -25,7 +25,7 @@
 #include "../../gui/GUI.h"
 #include "../../System.h"
 #include "../../RegexFileFinder.h"
-#include <gtaformats/util/DefaultFileFinder.h>
+#include <nxcommon/file/DefaultFileFinder.h>
 #include <QtCore/QSettings>
 
 
@@ -110,26 +110,25 @@ void IDESearchWidget::onSearch(bool checked)
 	}
 
 	finder = new IDEFileFinder(id, types, meshFinder, txdFinder);
-	File* toBeOpened = GUI::getInstance()->findFile(finder, this);
+	File toBeOpened = GUI::getInstance()->findFile(finder, this);
 
 	if (meshFinder)
 		delete meshFinder;
 	if (txdFinder)
 		delete txdFinder;
 
-	if (toBeOpened) {
-		int line = finder->getMatchedLine(*toBeOpened);
+	if (!toBeOpened.isNull()) {
+		int line = finder->getMatchedLine(toBeOpened);
 		EntityOpenRequest req;
-		req.setAttribute("file", QString(toBeOpened->getPath()->toString().get()));
+		req.setAttribute("file", QString(toBeOpened.getPath().toString().get()));
 		req.setAttribute("line", line);
 		System::getInstance()->openEntity(req);
 	}
 
-	delete toBeOpened;
 	delete finder;
 	finder = NULL;
 
-	if (toBeOpened) {
+	if (!toBeOpened.isNull()) {
 		close();
 	} else {
 		ui.searchButton->setEnabled(true);

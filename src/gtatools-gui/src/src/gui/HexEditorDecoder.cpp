@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of gtatools-gui.
 
@@ -25,7 +25,7 @@
 #include <QtGui/QDoubleValidator>
 #include "../Int64Validator.h"
 #include "../UInt64Validator.h"
-#include <gtaformats/util/util.h>
+#include <nxcommon/util.h>
 
 
 

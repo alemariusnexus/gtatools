@@ -1,5 +1,5 @@
 /*
-	Copyright 2010-2013 David "Alemarius Nexus" Lerch
+	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 
 	This file is part of libgta.
 
@@ -22,7 +22,8 @@
 
 #include "Engine.h"
 #include "resource/ResourceObserver.h"
-#include "resource/ResourceCache.h"
+#include <nxcommon/ResourceCache.h>
+#include <nxcommon/file/FileSystem.h>
 #include "resource/mesh/MeshCacheLoader.h"
 #include "resource/mesh/MeshIndexer.h"
 #include "resource/texture/TextureCacheLoader.h"
@@ -38,12 +39,13 @@
 #include "scene/objects/MapSceneObject.h"
 #include "GLException.h"
 #include "EngineException.h"
-#include <gtaformats/util/File.h>
-#include <gtaformats/util/strutil.h>
-#include <gtaformats/util/util.h>
+#include <nxcommon/file/File.h>
+#include <nxcommon/strutil.h>
+#include <nxcommon/util.h>
 #include <gtaformats/ipl/IPLReader.h>
 #include <gtaformats/ipl/IPLInstance.h>
 #include <gtaformats/dat/ResourceDATLoader.h>
+#include <gtaformats/img/IMGArchiveHandler.h>
 #include "MapItemDefinition.h"
 #include "render/DefaultShaderPluginAPI.h"
 #include <cstdio>
@@ -89,6 +91,8 @@ Engine::Engine()
 		: defGameInfo(GameInfo()), camera(NULL), scene(NULL), gameHours(8), gameMinutes(0), viewWidth(-1),
 		  viewHeight(-1), testMem(0), freezeVisibility(false), shaderPluginAPI(new DefaultShaderPluginAPI)
 {
+	FileSystem::getInstance()->registerArchiveHandler(IMGArchiveHandler::getInstance());
+
 	meshIndexer = new MeshIndexer;
 	texIndexer = TextureIndexer::getInstance();
 	colIndexer = new CollisionMeshIndexer;
@@ -116,22 +120,16 @@ Engine::Engine()
 
 void Engine::addResource(const File& file, void (*callback)())
 {
-	if (file.isDirectory()  ||  file.isArchiveFile()) {
-		FileIterator* it = file.getIterator();
-		File* child;
-
-		while ((child = it->next())  !=  NULL) {
+	if (file.isDirectoryOrArchiveDirectory()) {
+		for (File child : file.getChildren()) {
 			// Don't load DIR files. Otherwise, addResource would be called both for the IMG and the DIR file.
 			// Because the IMGArchive automatically handles both of them, this would be a double-loading, and
 			// so we don't load DIRs, but only IMG files (a DIR file without an IMG doesn't make sense, so
 			// this is safe).
-			if (child->guessContentType() != CONTENT_TYPE_DIR) {
-				addResource(*child, callback);
+			if (child.guessContentType() != CONTENT_TYPE_DIR) {
+				addResource(child, callback);
 			}
-			delete child;
 		}
-
-		delete it;
 	} else {
 		vector<ResourceObserver*>::iterator it;
 
@@ -266,15 +264,9 @@ void Engine::iplRecurse(File* file, const File& rootDir, GameInfo gameInfo)
 	File gta3img(rootDir, "/models/gta3.img");
 
 	if (file->isDirectory()) {
-		FileIterator* it = file->getIterator();
-		File* child;
-
-		while ((child = it->next())  !=  NULL) {
-			iplRecurse(child, rootDir);
-			delete child;
+		for (File child : file->getChildren()) {
+			iplRecurse(&child, rootDir);
 		}
-
-		delete it;
 	} else {
 		Scene::ObjectList objs;
 		iplLoader.load(*file, objs, gameInfo);
