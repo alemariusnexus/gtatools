@@ -68,7 +68,7 @@ void luaS_createclass(lua_State* lua, const CString& name, bool inherit)
 
 void luaS_createclass(lua_State* lua, const CString& name, const CString& baseName)
 {
-	if (baseName.get()) {
+	if (!baseName.isNull()) {
 		lua_getglobal(lua, baseName.get());
 		luaS_createclass(lua, name, true);
 	} else {

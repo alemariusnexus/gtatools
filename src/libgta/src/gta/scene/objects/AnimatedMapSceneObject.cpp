@@ -40,7 +40,7 @@ AnimatedMapSceneObject::AnimatedMapSceneObject(const AnimatedMapSceneObject& oth
 
 CString AnimatedMapSceneObject::getCurrentAnimation() const
 {
-	if (curAnim.get()) {
+	if (!curAnim.isNull()) {
 		return curAnim;
 	} else if (autoPickDefaultAnim) {
 		ConstLODInstanceMapIterator beg, end;

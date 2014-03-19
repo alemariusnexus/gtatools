@@ -74,7 +74,7 @@ Animation::~Animation()
 
 AnimationBone* Animation::getBoneByName(const CString& name)
 {
-	if (name.get() == NULL)
+	if (name.isNull())
 		return NULL;
 	return boneNameMap[name];
 }

@@ -281,7 +281,7 @@ void RenderingEntityGenerator::generateFromAnimatedMapSceneObjectLODInstance(Ani
 
 	Animation* anim = NULL;
 
-	if (canimName.get()  &&  apkg) {
+	if (!canimName.isNull()  &&  apkg) {
 		anim = apkg->find(canimName);
 	}
 

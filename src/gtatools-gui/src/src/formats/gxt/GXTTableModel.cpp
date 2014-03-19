@@ -83,9 +83,10 @@ QVariant GXTTableModel::data(const QModelIndex& index, int role) const
 
 		for (it = langTables.begin() ; it != langTables.end() ; it++) {
 			GXTTable* table = it.value();
-			const char* keyName = table->getKeyName(hash).get();
+			CString cKeyName = table->getKeyName(hash);
+			const char* keyName = cKeyName.get();
 
-			if (keyName) {
+			if (!cKeyName.isNull()) {
 				return QVariant(QString("%1 [0x%2]").arg(keyName).arg(hashStr));
 			}
 		}

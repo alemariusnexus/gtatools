@@ -170,10 +170,10 @@ void Shader::compile()
 		char* log = new char[maxLength];
 		glGetShaderInfoLog(shader, maxLength, &actualLength, log);
 
-		size_t nameLen = name.get() ? name.length() : 16;
+		size_t nameLen = !name.isNull() ? name.length() : 16;
 		char* errmsg = new char[actualLength + nameLen + 64];
 		sprintf(errmsg, "Error compiling shader \"%s\" [#%d]. Info log:\n\n%s",
-				name.get() ? name.get() : "[UNNAMED]", shader, log);
+				!name.isNull() ? name.get() : "[UNNAMED]", shader, log);
 		delete[] log;
 		GLException ex(errmsg, __FILE__, __LINE__);
 		delete[] errmsg;
@@ -192,14 +192,14 @@ void Shader::compile()
 
 			if (clog.length() != 0) {
 				printf("\nSuccessfully compiled shader \"%s\" [#%d]. Build log:\n==========\n%s\n==========\n\n",
-						name.get() ? name.get() : "[UNNAMED]", shader, clog.get());
+						!name.isNull() ? name.get() : "[UNNAMED]", shader, clog.get());
 			} else {
 				printf("Successfully compiled shader \"%s\" [#%d]. Build log is empty\n",
-						name.get() ? name.get() : "[UNNAMED]", shader);
+						!name.isNull() ? name.get() : "[UNNAMED]", shader);
 			}
 		} else {
 			printf("\nSuccessfully compiled shader \"%s\" [#%d]. Build log is empty\n\n",
-					name.get() ? name.get() : "[UNNAMED]", shader);
+					!name.isNull() ? name.get() : "[UNNAMED]", shader);
 		}
 	}
 }

@@ -52,7 +52,7 @@ void frameRecurse(DFFFrame* parent, int numInd)
 			printf("  ");
 		}
 
-		if (frame->getName().get()) {
+		if (!frame->getName().isNull()) {
 			printf("%s\n", frame->getName().get());
 		} else {
 			printf("(Unnamed)\n");
@@ -431,7 +431,7 @@ void DFFWidget::setCurrentMaterial(DFFMaterial* mat)
 
 			QString texName = QString("Texture %1").arg(i+1);
 
-			if (tex->getDiffuseName().get()) {
+			if (!tex->getDiffuseName().isNull()) {
 				texName += QString(" [%1]").arg(tex->getDiffuseName().get());
 			}
 
@@ -452,7 +452,7 @@ void DFFWidget::setCurrentTexture(DFFTexture* tex)
 	if (tex) {
 		ui.textureOpenButton->setEnabled(true);
 		ui.textureDiffuseNameLabel->setText(tex->getDiffuseName().get());
-		ui.textureAlphaNameLabel->setText(tex->getAlphaName().get() ? tex->getAlphaName().get() : "-");
+		ui.textureAlphaNameLabel->setText(!tex->getAlphaName().isNull() ? tex->getAlphaName().get() : "-");
 		ui.textureFilterFlagsLabel->setText(QString("%1b").arg(tex->getFilterModeFlags(), 0, 2));
 	} else {
 		ui.textureOpenButton->setEnabled(false);

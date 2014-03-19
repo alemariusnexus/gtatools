@@ -181,10 +181,10 @@ void ShaderProgram::link()
 		char* log = new char[maxLength];
 		glGetProgramInfoLog(program, maxLength, &actualLength, log);
 
-		size_t nameLen = name.get() ? name.length() : 16;
+		size_t nameLen = !name.isNull() ? name.length() : 16;
 		char* errmsg = new char[actualLength + 64 + nameLen];
 		sprintf(errmsg, "Error linking shader program \"%s\" [#%d]. Info log:\n\n%s",
-				name.get() ? name.get() : "[UNNAMED]", program, log);
+				!name.isNull() ? name.get() : "[UNNAMED]", program, log);
 		GLException ex(errmsg, __FILE__, __LINE__);
 		delete[] errmsg;
 		delete[] log;
@@ -203,14 +203,14 @@ void ShaderProgram::link()
 
 			if (clog.length() != 0) {
 				printf("\nSuccessfully compiled shader program \"%s\" [#%d]. Build log:\n==========\n%s\n==========\n\n",
-						name.get() ? name.get() : "[UNNAMED]", program, clog.get());
+						!name.isNull() ? name.get() : "[UNNAMED]", program, clog.get());
 			} else {
 				printf("Successfully compiled shader program \"%s\" [#%d]. Build log is empty\n",
-						name.get() ? name.get() : "[UNNAMED]", program);
+						!name.isNull() ? name.get() : "[UNNAMED]", program);
 			}
 		} else {
 			printf("\nSuccessfully compiled shader program \"%s\" [#%d]. Build log is empty\n\n",
-					name.get() ? name.get() : "[UNNAMED]", program);
+					!name.isNull() ? name.get() : "[UNNAMED]", program);
 		}
 	}
 }

@@ -19,4 +19,4 @@
 # GPLADDITIONS.
 
 
-SET(SRCS ${SRCS} src/main src/img src/util src/txd PARENT_SCOPE)
+SET(SRCS ${SRCS} src/main src/img src/util src/txd src/printhelpers PARENT_SCOPE)
