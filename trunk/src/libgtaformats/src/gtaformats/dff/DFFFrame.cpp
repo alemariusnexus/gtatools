@@ -200,7 +200,7 @@ void DFFFrame::printDebug(int ind)
 	for (int i = 0 ; i < ind ; i++)
 		printf(" ");
 
-	printf("%s\n", name.get() ? name.get() : "[UNNAMED]");
+	printf("%s\n", name.isNull() ? "[UNNAMED]" : name.get());
 
 	for (ChildIterator it = children.begin() ; it != children.end() ; it++) {
 		(*it)->printDebug(ind+4);

@@ -59,7 +59,7 @@ QVariant IFPFrameItemModel::data(const QModelIndex& index, int role) const
 	MeshFrame* frame = (MeshFrame*) index.internalPointer();
 
 	if (role == Qt::DisplayRole) {
-		if (frame->getName().get() == NULL) {
+		if (frame->getName().isNull()) {
 			//int row = frame->getParent() == NULL ? frame->getParent()->indexOf(frame) : mesh->indexOf(frame);
 
 			int row = frame->getParent()->indexOf(frame);

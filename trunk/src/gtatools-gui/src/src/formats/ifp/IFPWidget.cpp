@@ -65,7 +65,7 @@ void IFPWidget::currentAnimChanged(int row)
 	for (IFPAnimation::ObjectIterator it = anim->getObjectBegin() ; it != anim->getObjectEnd() ; it++) {
 		IFPObject* obj = *it;
 
-		ui.objList->addItem(obj->getName().get() ? obj->getName().get() : "[UNNAMED]");
+		ui.objList->addItem(!obj->getName().isNull() ? obj->getName().get() : "[UNNAMED]");
 	}
 }
 

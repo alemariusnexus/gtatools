@@ -433,7 +433,7 @@ void listTexture(const ListOptions& opts, TXDArchive* txd, TXDTextureHeader* tex
 	char sep = cs ? ',' : ' ';
 
 	printf("%-*s%c%-*s", cs ? 0 : 32, tex->getDiffuseName().get() ? tex->getDiffuseName().get() : "-", sep,
-			cs ? 0 : 32, tex->getAlphaName().get() ? tex->getAlphaName().get() : "-");
+			cs ? 0 : 32, !tex->getAlphaName().isNull() ? tex->getAlphaName().get() : "-");
 
 	if ((opts.getListSections() & RasterFormat)  !=  0) {
 		char rasterFormat[19];

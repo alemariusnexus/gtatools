@@ -59,7 +59,7 @@ QVariant DFFFrameItemModel::data(const QModelIndex& index, int role) const
 	DFFFrame* frame = (DFFFrame*) index.internalPointer();
 
 	if (role == Qt::DisplayRole) {
-		if (frame->getName().get() == NULL) {
+		if (frame->getName().isNull()) {
 			//int row = frame->getParent() == NULL ? frame->getParent()->indexOf(frame) : mesh->indexOf(frame);
 			int row = frame->getParent()->indexOf(frame);
 			return tr("Unnamed %1").arg(row+1);

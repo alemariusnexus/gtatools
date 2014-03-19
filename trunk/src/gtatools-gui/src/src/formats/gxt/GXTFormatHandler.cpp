@@ -97,9 +97,10 @@ void GXTFormatHandler::iniExport(const File& file, const QLinkedList<GXTTable*>&
 			for (it = table->getFirstEntry() ; it != table->getLastEntry() ; it++) {
 				crc32_t keyHash = it->first;
 				QString value = QString::fromUtf8(it->second);
-				const char* key = table->getKeyName(keyHash).get();
+				CString ckey = table->getKeyName(keyHash);
+				const char* key = ckey.get();
 
-				if (key) {
+				if (!ckey.isNull()) {
 					stream << key << "=" << value << "\n";
 				} else {
 					QString keyHashStr = QString("%1").arg((uint32_t) keyHash, 8, 16, QLatin1Char('0'));

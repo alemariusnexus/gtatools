@@ -144,7 +144,7 @@ void DFFFormatHandler::xmlDumpDialog(const DFFMesh& mesh, QWidget* parent)
 							QStringList framePath;
 
 							do {
-								if (frame->getName().get()) {
+								if (!frame->getName().isNull()) {
 									framePath.insert(0, frame->getName().get());
 								} else {
 									if (!frame->isRoot()) {
@@ -272,7 +272,7 @@ void DFFFormatHandler::xmlDumpDialog(const DFFMesh& mesh, QWidget* parent)
 									xml << "            <texture diffusename=\""
 											<< tex->getDiffuseName().get() << "\" ";
 
-									if (tex->getAlphaName().get()) {
+									if (!tex->getAlphaName().isNull()) {
 										xml << "alphaname=\"" << tex->getAlphaName().get() << "\" ";
 									}
 
@@ -348,7 +348,7 @@ void DFFFormatHandler::xmlDumpFrame(const DFFFrame* frame, QTextStream& xml, int
 
 	xml << ind << "<frame";
 
-	if (frame->getName().get()) {
+	if (!frame->getName().isNull()) {
 		xml << " name=\"" << frame->getName().get() << "\"";
 	}
 

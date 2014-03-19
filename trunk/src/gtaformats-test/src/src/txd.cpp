@@ -536,7 +536,7 @@ TEST(TXDConversionTest, CheckOriginalTXDConversion)
 
 		vector<CString> texVec;
 
-		for (unsigned int j = 0 ; test.texes[j].get() != NULL ; j++) {
+		for (unsigned int j = 0 ; !test.texes[j].isNull() ; j++) {
 			texVec.push_back(test.texes[j]);
 		}
 

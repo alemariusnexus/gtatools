@@ -65,7 +65,7 @@ bool TextureFileFinder::matches(const File& file)
 			bool matches = textureBackend->matches(pseudoFile);
 
 			if (matches) {
-				char* texNameCpy = new char[strlen(tex->getDiffuseName().get())+1];
+				char* texNameCpy = new char[tex->getDiffuseName().length()+1];
 				strcpy(texNameCpy, tex->getDiffuseName().get());
 				textureMap[file] = texNameCpy;
 				return true;

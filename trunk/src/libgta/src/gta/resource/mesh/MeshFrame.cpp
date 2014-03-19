@@ -34,7 +34,7 @@ MeshFrame::MeshFrame(const DFFFrame* frame)
 		  boneID(frame->getBone() ? frame->getBone()->getIndex() : -1),
 		  boneNum(frame->getBone() ? frame->getBone()->getNumber() : -1), parent(NULL)
 {
-	if (frame->getName().get()) {
+	if (!frame->getName().isNull()) {
 		name = frame->getName().lower();
 	}
 
@@ -64,7 +64,7 @@ void MeshFrame::dump(int level)
 		printf("  ");
 	}
 
-	if (name.get())
+	if (!name.isNull())
 		printf("%s\n", name.get());
 	else
 		printf("[UNNAMED]\n");
@@ -102,7 +102,7 @@ MeshFrame* MeshFrame::getChildByName(const CString& name, bool recursive)
 	for (ChildIterator it = children.begin() ; it != children.end() ; it++) {
 		MeshFrame* child = *it;
 
-		if (child->name.get()  &&  child->name.lower().trim() == name)
+		if (!child->name.isNull()  &&  child->name.lower().trim() == name)
 			return child;
 
 		if (recursive) {

@@ -50,7 +50,7 @@ void TestIMGContents(IMGArchive* img, IMGExpectedEntry* exEntries, unsigned int 
 	for (unsigned int i = 0 ; i < numExEntries ; i++) {
 		IMGExpectedEntry& exEntry = exEntries[i];
 
-		if (!exEntry.name.get())
+		if (exEntry.name.isNull())
 			continue;
 
 		IMGArchive::EntryIterator it = img->getEntryByName(File(exEntry.name.get())
@@ -185,7 +185,7 @@ IMGExpectedEntry* FindExpectedEntry(const CString& name, IMGExpectedEntry* exEnt
 	for (unsigned int i = 0 ; i < numExEntries ; i++) {
 		IMGExpectedEntry* exEntry = exEntries+i;
 
-		if (	exEntry->name.get()
+		if (	!exEntry->name.isNull()
 				&& File(exEntry->name).getPath().getFileName() == baseName
 		) {
 			return exEntry;

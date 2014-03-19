@@ -217,7 +217,7 @@ CString RWBSScriptByteReader::readString(size_t len)
 		delete[] buf;
 		return CString();
 	} else {
-		return CString::from(buf, len+1);
+		return CString::from(buf);
 	}
 }
 
