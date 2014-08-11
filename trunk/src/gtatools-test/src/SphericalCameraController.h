@@ -20,10 +20,34 @@
 	GPLADDITIONS.
  */
 
-varying vec4 FragColor;
+#ifndef SPHERICALCAMERACONTROLLER_H_
+#define SPHERICALCAMERACONTROLLER_H_
+
+#include <gta/Camera.h>
+#include <nxcommon/math/Vector3.h>
 
 
-void main()
+
+class SphericalCameraController
 {
-	gl_FragColor = FragColor;
-}
+public:
+	SphericalCameraController();
+	void apply();
+
+	void setCenter(const Vector3& center);
+	void setRadius(float radius);
+	void setAzimuth(float azimuth);
+	void setInclination(float inclination);
+
+	void rotateAzimuth(float azimuth);
+	void rotateInclination(float inclination);
+	void move(float radius);
+
+private:
+	Vector3 center;
+	float radius;
+	float azimuth;
+	float inclination;
+};
+
+#endif /* SPHERICALCAMERACONTROLLER_H_ */

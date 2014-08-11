@@ -39,14 +39,14 @@ BulletGLDebugDraw::BulletGLDebugDraw()
 		  lineVertices(new float[BT_GL_DEBUG_DRAW_REALLOC_SIZE*3]),
 		  lineColors(new float[BT_GL_DEBUG_DRAW_REALLOC_SIZE*3])
 {
-	/*Shader* vertexShader = new Shader(GL_VERTEX_SHADER);
-	vertexShader->loadSourceCode((const char*) res_btgldebugdraw_vertex_shader_data,
-			sizeof(res_btgldebugdraw_vertex_shader_data));
+	Shader* vertexShader = new Shader(GL_VERTEX_SHADER);
+	vertexShader->loadSourceCode(CString((const char*) res_btgldebugdraw_vertex_shader_data,
+			sizeof(res_btgldebugdraw_vertex_shader_data)));
 	vertexShader->compile();
 
 	Shader* fragmentShader = new Shader(GL_FRAGMENT_SHADER);
-	fragmentShader->loadSourceCode((const char*) res_btgldebugdraw_fragment_shader_data,
-			sizeof(res_btgldebugdraw_fragment_shader_data));
+	fragmentShader->loadSourceCode(CString((const char*) res_btgldebugdraw_fragment_shader_data,
+			sizeof(res_btgldebugdraw_fragment_shader_data)));
 	fragmentShader->compile();
 
 	program = new ShaderProgram;
@@ -54,23 +54,33 @@ BulletGLDebugDraw::BulletGLDebugDraw()
 	program->attachShader(fragmentShader);
 	program->link();
 
-	Engine::getInstance()->setCurrentShaderProgram(program);*/
-
-	program = Engine::getInstance()->getCurrentShaderProgram();
+	program->makeCurrent();
 
 	vertexAttrib = program->getAttributeLocation("Vertex");
 	colorAttrib = program->getAttributeLocation("Color");
 	vertexColorsUniform = program->getUniformLocation("VertexColors");
 	texturedUniform = program->getUniformLocation("Textured");
+	mvpMatrixUniform = program->getUniformLocation("MVPMatrix");
 
 	glEnableVertexAttribArray(vertexAttrib);
 	glEnableVertexAttribArray(colorAttrib);
 }
 
 
+void BulletGLDebugDraw::drawLine(const btVector3& from,const btVector3& to,const btVector3& fromColor, const btVector3& toColor)
+{
+	glBegin(GL_LINES);
+		glColor3f(fromColor.getX(), fromColor.getY(), fromColor.getZ());
+		glVertex3d(from.getX(), from.getY(), from.getZ());
+		glColor3f(toColor.getX(), toColor.getY(), toColor.getZ());
+		glVertex3d(to.getX(), to.getY(), to.getZ());
+	glEnd();
+}
+
+
 void BulletGLDebugDraw::drawLine(const btVector3& from, const btVector3& to, const btVector3& color)
 {
-	float vertices[] = {
+	/*float vertices[] = {
 			from.getX(), from.getY(), from.getZ(),
 			to.getX(), to.getY(), to.getZ()
 	};
@@ -84,7 +94,24 @@ void BulletGLDebugDraw::drawLine(const btVector3& from, const btVector3& to, con
 	memcpy(lineVertices + lineVerticesOffset*3, vertices, 2*3*sizeof(float));
 	memcpy(lineColors + lineVerticesOffset*3, colors, 2*3*sizeof(float));
 
-	lineVerticesOffset += 2;
+	lineVerticesOffset += 2;*/
+
+	drawLine(from, to, color, color);
+}
+
+
+void BulletGLDebugDraw::drawTriangle(const btVector3& a,const btVector3& b,const btVector3& c,const btVector3& color,btScalar alpha)
+{
+	{
+		const btVector3	n=btCross(b-a,c-a).normalized();
+		glBegin(GL_TRIANGLES);
+		glColor4f(color.getX(), color.getY(), color.getZ(),alpha);
+		glNormal3d(n.getX(),n.getY(),n.getZ());
+		glVertex3d(a.getX(),a.getY(),a.getZ());
+		glVertex3d(b.getX(),b.getY(),b.getZ());
+		glVertex3d(c.getX(),c.getY(),c.getZ());
+		glEnd();
+	}
 }
 
 
@@ -135,9 +162,7 @@ void BulletGLDebugDraw::reallocLineVertices(int numAddVertices)
 
 void BulletGLDebugDraw::flush()
 {
-	return;
-
-	// TODO Using glBufferData with zero size seems to cause problems at least with the PowerVR X11 Linux
+	/*// TODO Using glBufferData with zero size seems to cause problems at least with the PowerVR X11 Linux
 	// driver in GLES2
 	if (lineVerticesOffset != 0) {
 		uint32_t* indices = new uint32_t[lineVerticesOffset];
@@ -177,5 +202,29 @@ void BulletGLDebugDraw::flush()
 		glDeleteBuffers(1, &indexBuffer);
 	}
 
-	lineVerticesOffset = 0;
+	lineVerticesOffset = 0;*/
+}
+
+
+void BulletGLDebugDraw::update()
+{
+	//program->makeCurrent();
+
+	glUseProgram(0);
+
+	Engine* engine = Engine::getInstance();
+	Camera* cam = engine->getCamera();
+
+	Matrix4 pMatrix = engine->getProjectionMatrix();
+	Matrix4 vMatrix = Matrix4::lookAt(cam->getTarget(), cam->getUp())
+			* Matrix4::translation(-cam->getPosition());
+	Matrix4 mvpMatrix = pMatrix * vMatrix;
+
+	//glUniformMatrix4fv(mvpMatrixUniform, 1, GL_FALSE, (float*) (&mvpMatrix));
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadMatrixf(pMatrix.toArray());
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadMatrixf(vMatrix.toArray());
 }

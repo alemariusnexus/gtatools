@@ -31,5 +31,6 @@ ADD_SUBDIRECTORY(img)
 ADD_SUBDIRECTORY(ipl)
 ADD_SUBDIRECTORY(rwbs)
 ADD_SUBDIRECTORY(txd)
+#ADD_SUBDIRECTORY(handling) # Still unfinished!
 
 ADD_SOURCES(gta GTASectionFileReader)

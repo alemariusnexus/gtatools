@@ -1,5 +1,3 @@
-#version 120
-
 /*
 	Copyright 2010-2014 David "Alemarius Nexus" Lerch
 

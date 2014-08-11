@@ -27,7 +27,7 @@
 #include <QtGui/QWidget>
 #include <QtGui/QTextEdit>
 #include <gtaformats/rwbs/RWSection.h>
-#include <gta/script/luasys.h>
+#include <nxcommon/script/luasys.h>
 
 
 

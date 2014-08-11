@@ -91,6 +91,9 @@
 
 
 
+
+
+
 Controller::Controller()
 		: lastFrameStart(0), lastMeasuredFrameStart(0), moveFactor(1.0f),
 		  moveForwardFactor(0.0f), moveSidewardFactor(0.0f), moveUpFactor(0.0f), firstFrame(true),
@@ -230,6 +233,9 @@ void Controller::init()
 	//TestViewpoint* vp1 = new TestViewpoint(Vector3(500.0f, 0.0f, 0.0f), 1.0f);
 	//scene->addStreamingViewpoint(vp1);
 
+	debugDrawer = new BulletGLDebugDraw;
+	scene->getPhysicsWorld()->setDebugDrawer(debugDrawer);
+
 	engine->setScene(scene);
 
 	if (gameInfo.getVersionMode() == GameInfo::GTASA) {
@@ -258,6 +264,7 @@ void Controller::init()
 	engine->getTextureCache()->resize(150 * 1000000); // 150MB
 	engine->getCollisionMeshCache()->resize(30 * 1000000);
 	engine->getAnimationCache()->resize(100 * 1000000);
+	engine->getPhysicsCache()->resize(100 * 1000000);
 
 
 	printf("Loading resources...\n");
@@ -419,6 +426,10 @@ void Controller::init()
 
 	infernusArchive->setParent(vehicleArchive);
 
+
+	//veh = new VehicleController;
+
+	//veh->init();
 
 
 	/*float testRadius = 5.0f;
@@ -810,7 +821,10 @@ void Controller::init()
 
 	// <------ X+
 	// V Y+
-	cam->setPosition(0.0f, 0.0f, 20.0f);
+	Vector3 dir(0.0f, 2.0f, -1.0f);
+	dir.normalize();
+	cam->setPosition(0.0f, -7.5f, 205.0f);
+	cam->lookAt(dir, Vector3::UnitX.cross(dir));
 
 	//cam->setPosition(-1955.232544f, -58.526737f, 49.788841f);
 	//cam->lookAt(Vector3(0.595735f, 0.704997f, -0.384810f), Vector3(0.248370f, 0.293923f, 0.922996f));
@@ -995,9 +1009,14 @@ bool Controller::paint()
 		engine->advanceFrame(0);
 	}
 
+	//veh->update(timePassed);
+	//veh->update();
+
 	e = GetTickcountMicroseconds();
 
 	absE = GetTickcountMicroseconds();
+
+	//printf("Frame Time: %ums\n", (unsigned int) ((absE-absS) / 1000.0f));
 
 	//printf("Took %uus (%uus / %uus)\n", (unsigned int) (absE-absS), (unsigned int) t1, (unsigned int) (e-s));
 
@@ -1032,6 +1051,8 @@ void Controller::addResource(const File& file)
 void Controller::keyPressed(SDL_keysym evt)
 {
 	Engine* engine = Engine::getInstance();
+
+	//veh->keyPressed(evt);
 
 	SDLKey k = evt.sym;
 
@@ -1112,6 +1133,8 @@ void Controller::keyPressed(SDL_keysym evt)
 
 void Controller::keyReleased(SDL_keysym evt)
 {
+	//veh->keyReleased(evt);
+
 	SDLKey k = evt.sym;
 
 	switch (k) {
@@ -1139,6 +1162,8 @@ void Controller::keyReleased(SDL_keysym evt)
 
 void Controller::mouseButtonPressed(Uint8 button, int x, int y)
 {
+	//veh->mouseButtonPressed(button, x, y);
+
 	if (button == SDL_BUTTON_LEFT) {
 		lastMouseX = x;
 		lastMouseY = y;
@@ -1148,6 +1173,8 @@ void Controller::mouseButtonPressed(Uint8 button, int x, int y)
 
 void Controller::mouseButtonDoubleClicked(int x, int y)
 {
+	//veh->mouseButtonDoubleClicked(x, y);
+
 	Engine* engine = Engine::getInstance();
 	Camera* cam = engine->getCamera();
 	Matrix4 pMatrix = engine->getProjectionMatrix();
@@ -1264,6 +1291,8 @@ void Controller::mouseButtonDoubleClicked(int x, int y)
 
 void Controller::mouseButtonReleased(Uint8 button, int x, int y)
 {
+	//veh->mouseButtonReleased(button, x, y);
+
 	if (button == SDL_BUTTON_LEFT) {
 		lastMouseX = -1;
 		lastMouseY = -1;
@@ -1273,6 +1302,8 @@ void Controller::mouseButtonReleased(Uint8 button, int x, int y)
 
 void Controller::mouseMotion(int x, int y)
 {
+	//veh->mouseMotion(x, y);
+
 	Engine* engine = Engine::getInstance();
 	Camera* cam = engine->getCamera();
 

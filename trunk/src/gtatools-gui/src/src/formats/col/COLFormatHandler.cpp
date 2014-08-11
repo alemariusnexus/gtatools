@@ -47,6 +47,7 @@ DisplayedEntity* COLFormatHandler::openEntity(const EntityOpenRequest& request)
 	File file(request.getAttribute("file").toString().toLocal8Bit().constData());
 
 	try {
+		printf("Opening COL\n");
 		widget = new COLWidget(file, NULL);
 	} catch (Exception& ex) {
 		System::getInstance()->log(LogEntry::error(QString(tr("Error opening COL file: %1"))

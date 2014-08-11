@@ -326,6 +326,8 @@ void DFFRenderWidget::paintGL()
 
 		renderer->render();
 
+		renderingEntities.clear();
+
 		GLException::checkError();
 	} catch (Exception& ex) {
 		System::getInstance()->unhandeledException(ex);

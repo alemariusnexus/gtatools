@@ -30,11 +30,37 @@
 #include "../../resource/collision/CollisionShapePointer.h"
 #include "../../resource/physics/PhysicsPointer.h"
 #include "../../scene/StreamingManager.h"
+#include <vector>
+
+using std::vector;
 
 
 
 class Vehicle : public virtual VisualSceneObject, public virtual RigidBodySceneObject
 {
+public:
+	struct WheelInfo
+	{
+		CString dummyName;
+		Vector3 restPosition;
+		Vector3 restPositionWS;
+		float radius;
+		float maxSuspensionCompression;
+		float maxSuspensionRelaxation;
+		float currentSuspensionOffset;
+		float suspensionStiffness;
+		float suspensionDamping;
+		Vector3 contactPoint;
+		Vector3 contactPointWS;
+		Vector3 contactNormalWS;
+		float contactDist;
+		float suspensionVelocity;
+		float clippedInvContactDotSuspension;
+		float suspensionForce;
+		bool inContact;
+		Matrix4 transformMat;
+	};
+
 public:
 	Vehicle(const CString& modelName, const Matrix4& mm);
 	virtual SceneObject* clone() const { return new Vehicle(*this); }
@@ -67,6 +93,32 @@ public:
 	btRigidBody* getRigidBody() { return rb; }
 	void setRigidBody(btRigidBody* rb) { this->rb = rb; }
 
+	virtual void getWorldTransform(btTransform& trans) const;
+	virtual void setWorldTransform(const btTransform& trans);
+
+	void streamIn(btDiscreteDynamicsWorld* physWorld);
+	void streamOut(btDiscreteDynamicsWorld* physWorld);
+	void updatePhysics(btDiscreteDynamicsWorld* physWorld, uint64_t timePassed);
+
+	Vector3 getCenterOfMassOffset() const { return centerOfMassOffset; }
+
+	void setForce(float val);
+	void setSteeringAngle(float steering);
+
+	float getSteeringAngle() const { return steeringAngle; }
+
+	vector<WheelInfo>::iterator getWheelBegin() { return wheels.begin(); }
+	vector<WheelInfo>::const_iterator getWheelBegin() const { return wheels.begin(); }
+
+	vector<WheelInfo>::iterator getWheelEnd() { return wheels.end(); }
+	vector<WheelInfo>::const_iterator getWheelEnd() const { return wheels.end(); }
+
+private:
+	void createWheel(const CString& dummyName);
+	void updateWheel(WheelInfo& wheel);
+	bool castWheelRay(btDiscreteDynamicsWorld* physWorld, WheelInfo& wheel);
+	void updateWheelSuspension(WheelInfo& wheel, float timeStep);
+
 private:
 	btRigidBody* rb;
 	float streamingDist;
@@ -83,6 +135,18 @@ private:
 	CollisionShapePointer* colPtr;
 	ShadowMeshPointer* smeshPtr;
 	PhysicsPointer* physicsPtr;
+
+	Vector3 centerOfMassOffset;
+	float force;
+	float steeringAngle;
+
+	vector<WheelInfo> wheels;
+
+	Vector3 forward, forwardWS;
+	Vector3 right, rightWS;
+	Vector3 up, upWS;
+
+	Matrix3 basis;
 };
 
 #endif /* VEHICLE_H_ */

@@ -23,7 +23,7 @@
 #ifndef SCRIPTRWSECTION_H_
 #define SCRIPTRWSECTION_H_
 
-#include <gta/script/ScriptObject.h>
+#include <nxcommon/script/ScriptObject.h>
 #include <gtaformats/rwbs/RWSection.h>
 
 

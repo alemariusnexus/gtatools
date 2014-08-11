@@ -21,9 +21,9 @@
  */
 
 #include "RWBSScriptByteReader.h"
-#include <gta/script/math/ScriptVector3.h>
-#include <gta/script/math/ScriptVector4.h>
-#include <gta/script/math/ScriptMatrix4.h>
+#include <nxcommon/script/math/ScriptVector3.h>
+#include <nxcommon/script/math/ScriptVector4.h>
+#include <nxcommon/script/math/ScriptMatrix4.h>
 #include <memory>
 
 using std::dynamic_pointer_cast;

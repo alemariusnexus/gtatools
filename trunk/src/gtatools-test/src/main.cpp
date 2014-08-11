@@ -300,6 +300,8 @@ int main(int argc, char** argv)
 
 		bool running = true;
 		while (running) {
+			uint64_t s = GetTickcount();
+
 			if (!renderer.paint()) {
 				break;
 			}
@@ -379,6 +381,10 @@ int main(int argc, char** argv)
 			if (hasMMEvt) {
 				renderer.mouseMotion(lastMMEvt.motion.x, lastMMEvt.motion.y);
 			}
+
+			uint64_t e = GetTickcount();
+
+			//printf("Actual Frame Time: %ums\n", (unsigned int) (e-s));
 		}
 
 		SDL_Quit();

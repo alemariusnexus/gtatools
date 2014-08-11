@@ -31,13 +31,14 @@ class ManagedPhysicsPointer : public PhysicsPointer
 {
 public:
 	ManagedPhysicsPointer(const CString& name)
-			: ptr(Engine::getInstance()->getPhysicsCache()->getEntryPointer(name)) {}
-	ManagedPhysicsPointer(const ManagedPhysicsPointer& other) : ptr(other.ptr) {}
+			: ptr(Engine::getInstance()->getPhysicsCache()->getEntryPointer(name)), isTest(name == CString("infernus")) {}
+	ManagedPhysicsPointer(const ManagedPhysicsPointer& other) : ptr(other.ptr), isTest(other.isTest) {}
 	virtual PhysicsPointer* clone() const { return new ManagedPhysicsPointer(*this); }
 	virtual btCollisionShape* get(bool lock = false);
 
 private:
 	Engine::StringResourceCache::Pointer ptr;
+	bool isTest;
 };
 
 #endif /* MANAGEDPHYSICSPOINTER_H_ */

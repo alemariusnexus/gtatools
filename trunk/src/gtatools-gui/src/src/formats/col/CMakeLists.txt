@@ -20,11 +20,12 @@
 
 SET(SRCS ${SRCS}
     src/formats/col/COLFormatHandler.cpp src/formats/col/COLWidget.cpp
-    src/formats/col/COLSphereBoxRenderWidget.cpp src/formats/col/COLGUIModule.cpp
-    src/formats/col/COLMeshRenderWidget.cpp
+    src/formats/col/COLGUIModule.cpp src/formats/col/COLRenderWidget.cpp
+    src/formats/col/COLEntityItemModel.cpp
     PARENT_SCOPE)
 SET(MOC_SRCS ${MOC_SRCS}
-    src/formats/col/COLFormatHandler.h src/formats/col/COLWidget.h src/formats/col/COLSphereBoxRenderWidget.h
-    src/formats/col/COLGUIModule.h src/formats/col/COLMeshRenderWidget.h
+    src/formats/col/COLFormatHandler.h src/formats/col/COLWidget.h
+    src/formats/col/COLGUIModule.h src/formats/col/COLRenderWidget.h
+    src/formats/col/COLEntityItemModel.h
     PARENT_SCOPE)
 SET(UIC_SRCS ${UIC_SRCS} src/formats/col/COLWidget.ui PARENT_SCOPE)

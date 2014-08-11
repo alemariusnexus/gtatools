@@ -23,7 +23,7 @@
 #include "RWBSAnalyzer.h"
 #include "script/RWBSScriptByteReader.h"
 #include "script/ScriptRWSection.h"
-#include <gta/script/math/luamath.h>
+#include <nxcommon/script/math/luamath.h>
 
 
 

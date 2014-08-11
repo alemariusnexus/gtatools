@@ -53,7 +53,7 @@ public:
 private:
 	RenderingSubmesh* generateFromSubmesh(Submesh* submesh, TextureSource* texSrc, RenderingMesh* rmesh, bool debug = false);
 	RenderingMesh* generateFromMesh(Mesh* mesh, MeshPointer* mptr, TextureSource* texSrc, const Matrix4& modelMat, bool transparent,
-			MeshFrame* frame);
+			MeshFrame* frame, Matrix4 preMulMat = Matrix4::Identity);
 
 	void generateFromMapSceneObject(MapSceneObject* mobj, list<RenderingEntity*>& outList);
 	void generateFromAnimatedMapSceneObject(AnimatedMapSceneObject* aobj, list<RenderingEntity*>& outList);
