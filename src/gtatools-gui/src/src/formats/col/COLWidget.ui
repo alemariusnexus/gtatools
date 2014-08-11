@@ -36,7 +36,7 @@
       </sizepolicy>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="generalInfoTab">
       <property name="enabled">
@@ -159,6 +159,42 @@
          <property name="text">
           <string notr="true">-</string>
          </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
+       <string>Collision Mesh</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <item>
+        <widget class="QSplitter" name="collisionMeshMainSplitter">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <widget class="QWidget" name="widget" native="true">
+          <layout class="QVBoxLayout" name="verticalLayout">
+           <item>
+            <widget class="QWidget" name="widget_3" native="true"/>
+           </item>
+           <item>
+            <widget class="QTreeView" name="entityTree"/>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="widget_2" native="true">
+          <layout class="QVBoxLayout" name="verticalLayout_2">
+           <item>
+            <widget class="QWidget" name="renderWidgetContainer" native="true">
+             <layout class="QVBoxLayout" name="verticalLayout_5"/>
+            </widget>
+           </item>
+           <item>
+            <widget class="QWidget" name="selectionInfoWidget" native="true"/>
+           </item>
+          </layout>
+         </widget>
         </widget>
        </item>
       </layout>
@@ -425,7 +461,7 @@
      </widget>
      <widget class="QWidget" name="vmeshTab">
       <attribute name="title">
-       <string>Vertex Mesh</string>
+       <string>Collision Mesh</string>
       </attribute>
       <layout class="QHBoxLayout" name="horizontalLayout_4">
        <item>

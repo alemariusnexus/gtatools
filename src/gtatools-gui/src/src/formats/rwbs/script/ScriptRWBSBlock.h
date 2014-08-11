@@ -23,8 +23,8 @@
 #ifndef SCRIPTRWBSBLOCK_H_
 #define SCRIPTRWBSBLOCK_H_
 
-#include <gta/script/ScriptObject.h>
-#include <gta/script/luasys.h>
+#include <nxcommon/script/ScriptObject.h>
+#include <nxcommon/script/luasys.h>
 #include <algorithm>
 
 

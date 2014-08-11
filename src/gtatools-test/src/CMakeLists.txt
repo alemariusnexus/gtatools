@@ -160,7 +160,7 @@ SET(INCLUDES ${INCLUDES} "${CMAKE_BINARY_DIR}/config")
 SET(ADDITIONAL_INSTALL_FILES "" CACHE STRING "Paths to files which will be additionally installed to the bin subdirectory.")
 SET(ADDITIONAL_INSTALL_FILES_ENABLED OFF CACHE BOOL "Set true to enable ADDITIONAL_INSTALL_FILES")
 
-SET(SRCS main Controller)
+SET(SRCS main Controller VehicleController SphericalCameraController BulletGLDebugDraw)
 
 FILE(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/config/gtatools-test")
 CONFIGURE_FILE(config.cmake.h "${CMAKE_BINARY_DIR}/config/gtatools-test/config.h")

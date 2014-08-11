@@ -124,7 +124,9 @@ Mesh* COLMeshConverter::convert(const COLBox& box)
 	glBufferSubData(GL_ARRAY_BUFFER, 0, vertexCount*3*4, vertices);
 	glBufferSubData(GL_ARRAY_BUFFER, vertexCount*3*4, vertexCount*4, colors);
 
-	Mesh* mesh = new Mesh(vertexCount, VertexFormatTriangles, 0, dataBuffer, -1, -1, vertexCount*3*4);
+	//Mesh* mesh = new Mesh(vertexCount, VertexFormatTriangles, 0, dataBuffer, -1, -1, vertexCount*3*4);
+	Mesh* mesh = new Mesh(vertexCount, VertexFormatTriangles, 0, dataBuffer, vertexCount*3*4 + vertexCount*4,
+			0, 0, -1, -1, -1, -1, vertexCount*3*4, 0);
 
 	Submesh* submesh = new Submesh(mesh, indexCount, indices);
 	mesh->link();
@@ -207,8 +209,11 @@ Mesh* COLMeshConverter::convert(const COLModel& model)
     glBufferSubData(GL_ARRAY_BUFFER, colorOffset, modelVertexCount*4, modelColors);
     vertexOffset = modelVertexCount;
 
-    Mesh* mesh = new Mesh(vertexCount, VertexFormatTriangles, MeshVertexColors, dataBuffer, -1, -1,
-    		colorOffset);
+    /*Mesh* mesh = new Mesh(vertexCount, VertexFormatTriangles, MeshVertexColors, dataBuffer, -1, -1,
+    		colorOffset);*/
+
+    Mesh* mesh = new Mesh(vertexCount, VertexFormatTriangles, 0, dataBuffer, vertexCount*3*4 + vertexCount*4,
+			0, 0, -1, -1, -1, -1, vertexCount*3*4, 0);
 
     uint8_t r, g, b;
 

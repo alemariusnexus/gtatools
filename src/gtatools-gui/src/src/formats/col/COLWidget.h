@@ -28,9 +28,9 @@
 #include "ui_COLWidget.h"
 #include <gtaformats/gtacol.h>
 #include <QtCore/QList>
-#include "COLSphereBoxRenderWidget.h"
-#include "COLMeshRenderWidget.h"
+#include "COLRenderWidget.h"
 #include "../../gui/GLContainerWidget.h"
+#include "COLEntityItemModel.h"
 
 class COLWidget : public QWidget
 {
@@ -41,23 +41,23 @@ public:
     ~COLWidget();
 
 private:
-    void updateVertexMesh();
+    //void updateVertexMesh();
 
 private slots:
     void currentModelChanged(int index);
-    void faceGroupsToggled(bool status);
-    void faceGroupSelectionChanged();
-    void currentMeshChanged(int index);
-	void shadowMeshFaceSelectionChanged(int prevIdx, int idx);
-	void vertexMeshFaceSelectionChanged(int prevIdx, int idx);
+    //void faceGroupsToggled(bool status);
+    //void faceGroupSelectionChanged();
+    //void currentMeshChanged(int index);
+	//void shadowMeshFaceSelectionChanged(int prevIdx, int idx);
+	//void vertexMeshFaceSelectionChanged(int prevIdx, int idx);
 	void updateLayoutType();
+	void loadConfigUiSettings();
+	void collisionMeshMainSplitterValueChanged(int pos, int idx);
 
 private:
     Ui::COLWidget ui;
     QList<COLModel*> models;
-    COLSphereBoxRenderWidget* sphereBoxRenderer;
-    COLMeshRenderWidget* meshRenderer;
-    COLMeshRenderWidget* shadowMeshRenderer;
+    COLRenderWidget* renderWidget;
     QList<int> vmeshFaceIndexMap;
     bool currentlyCompact;
 
@@ -65,9 +65,8 @@ private:
     QTabWidget* vmeshTabber;
     QTabWidget* smeshTabber;
 
-    GLContainerWidget* sphereBoxRendererContainer;
-    GLContainerWidget* meshRendererContainer;
-    GLContainerWidget* shadowMeshRendererContainer;
+    GLContainerWidget* renderContainer;
+    COLEntityItemModel* entityModel;
 };
 
 #endif // COLWIDGET_H

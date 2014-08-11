@@ -191,8 +191,6 @@ CREATE_RESOURCE(gta/shaders/anim/shade_fragment.glsl anim_shade_fragment_shader)
 
 CREATE_RESOURCE(gta/shaders/lighting_vertex.glsl lighting_vertex_shader)
 
-CREATE_RESOURCE(gta/script/scriptsys.lua scriptsys_script)
-
 ADD_LIBRARY(gta STATIC ${SRCS})
 TARGET_LINK_LIBRARIES(gta ${LIBRARIES})
 

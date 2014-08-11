@@ -69,11 +69,18 @@ public:
 
 	btRigidBody* getRigidBody() { return rb; }
 
+	void setCenterOfMassOffset(const Vector3& comOffset);
+
+	virtual void getWorldTransform(btTransform& trans) const;
+	virtual void setWorldTransform(const btTransform& trans);
+
 private:
 	btRigidBody* rb;
 	float streamingDist;
 	float mass;
 	Matrix4 mm;
+
+	Vector3 comOffset;
 
 	Vector3 boundingSphereCenter;
 	float boundingSphereRadius;

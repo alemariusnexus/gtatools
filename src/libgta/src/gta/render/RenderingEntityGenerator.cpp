@@ -117,18 +117,20 @@ RenderingSubmesh* RenderingEntityGenerator::generateFromSubmesh(Submesh* submesh
 
 
 RenderingMesh* RenderingEntityGenerator::generateFromMesh(Mesh* mesh, MeshPointer* mptr, TextureSource* texSrc,
-		const Matrix4& modelMat, bool transparent, MeshFrame* frame)
+		const Matrix4& modelMat, bool transparent, MeshFrame* frame, Matrix4 preMulMat)
 {
 	Matrix4 fModelMat = modelMat;
 
 	bool isChassis = false;
 
 	if (frame) {
-		fModelMat = fModelMat * frame->getAbsoluteModelMatrix();
+		fModelMat = fModelMat * frame->getAbsoluteModelMatrix() * preMulMat;
 
 		if (frame->getName().lower() == "chassis") {
 			isChassis = true;
 		}
+	} else {
+		fModelMat = fModelMat * preMulMat;
 	}
 
 	RenderingPrimitiveFormat rpf;
@@ -444,6 +446,7 @@ void RenderingEntityGenerator::generateFromVehicle(Vehicle* veh, list<RenderingE
 
 	TextureSource* texSrc = veh->getTextureSource();
 
+	//Matrix4 modelMat = Matrix4::translation(-veh->getCenterOfMassOffset()) * veh->getModelMatrix();
 	Matrix4 modelMat = veh->getModelMatrix();
 
 	Mesh* chassisMesh = clump->getMeshByName("chassis");
@@ -461,27 +464,38 @@ void RenderingEntityGenerator::generateFromVehicle(Vehicle* veh, list<RenderingE
 	outList.push_back(chassis);
 
 
+	//Matrix4 wheelPreMultMat = Matrix4::rotationZ(veh->getSteeringAngle());
+
 	Mesh* wheelMesh = clump->getMeshByName("wheel");
 
-	RenderingMesh* lfWheel = generateFromMesh(wheelMesh, mptr, texSrc, modelMat, veh->hasAlphaTransparency(),
-			clump->getRootFrame()->getChildByName("wheel_lf_dummy", true));
+	for (vector<Vehicle::WheelInfo>::iterator it = veh->getWheelBegin() ; it != veh->getWheelEnd() ; it++) {
+		Vehicle::WheelInfo wheel = *it;
+
+		RenderingMesh* wheelRmesh = generateFromMesh(wheelMesh, mptr, texSrc, modelMat, veh->hasAlphaTransparency(),
+				clump->getRootFrame()->getChildByName(wheel.dummyName, true), wheel.transformMat);
+		wheelRmesh->setPluginRegistry(veh->getShaderPluginRegistry());
+		outList.push_back(wheelRmesh);
+	}
+
+	/*RenderingMesh* lfWheel = generateFromMesh(wheelMesh, mptr, texSrc, modelMat, veh->hasAlphaTransparency(),
+			clump->getRootFrame()->getChildByName("wheel_lf_dummy", true), wheelPreMultMat);
 	lfWheel->setPluginRegistry(veh->getShaderPluginRegistry());
 	outList.push_back(lfWheel);
 
 	RenderingMesh* rfWheel = generateFromMesh(wheelMesh, mptr, texSrc, modelMat, veh->hasAlphaTransparency(),
-			clump->getRootFrame()->getChildByName("wheel_rf_dummy", true));
+			clump->getRootFrame()->getChildByName("wheel_rf_dummy", true), wheelPreMultMat);
 	rfWheel->setPluginRegistry(veh->getShaderPluginRegistry());
 	outList.push_back(rfWheel);
 
 	RenderingMesh* lbWheel = generateFromMesh(wheelMesh, mptr, texSrc, modelMat, veh->hasAlphaTransparency(),
-			clump->getRootFrame()->getChildByName("wheel_lb_dummy", true));
+			clump->getRootFrame()->getChildByName("wheel_lb_dummy", true), wheelPreMultMat);
 	lbWheel->setPluginRegistry(veh->getShaderPluginRegistry());
 	outList.push_back(lbWheel);
 
 	RenderingMesh* rbWheel = generateFromMesh(wheelMesh, mptr, texSrc, modelMat, veh->hasAlphaTransparency(),
-			clump->getRootFrame()->getChildByName("wheel_rb_dummy", true));
+			clump->getRootFrame()->getChildByName("wheel_rb_dummy", true), wheelPreMultMat);
 	rbWheel->setPluginRegistry(veh->getShaderPluginRegistry());
-	outList.push_back(rbWheel);
+	outList.push_back(rbWheel);*/
 
 
 	Mesh* bonnetMesh = clump->getMeshByName("bonnet_ok");

@@ -66,7 +66,7 @@ Scene::Scene()
 	btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver();
 	physicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, config);
 
-	physicsWorld->setGravity(btVector3(0.0f, 0.0f, -9.81f));
+	physicsWorld->setGravity(btVector3(0.0f, 0.0f, -15.81f));
 
 	streamer->addStreamingListener(this);
 
@@ -129,7 +129,7 @@ void Scene::streamed(SceneObject* obj, uint32_t inBuckets, uint32_t outBuckets)
 	}
 
 	if ((inBuckets & StreamingManager::PhysicsBucket)  !=  0) {
-		/*MapSceneObject* mobj = dynamic_cast<MapSceneObject*>(obj);
+		MapSceneObject* mobj = dynamic_cast<MapSceneObject*>(obj);
 		SimpleDynamicSceneObject* sdObj = dynamic_cast<SimpleDynamicSceneObject*>(obj);
 		Vehicle* veh = dynamic_cast<Vehicle*>(obj);
 
@@ -137,12 +137,14 @@ void Scene::streamed(SceneObject* obj, uint32_t inBuckets, uint32_t outBuckets)
 			MapItemDefinition* def = mobj->getLODInstance()->getDefinition();
 			PhysicsPointer* pptr = def->getPhysicsPointer();
 
-			btRigidBody* rb = mobj->getRigidBody();
-			btCollisionShape* shape = pptr->get(true);
+			if (pptr) {
+				btRigidBody* rb = mobj->getRigidBody();
+				btCollisionShape* shape = pptr->get(true);
 
-			rb->setCollisionShape(shape);
+				rb->setCollisionShape(shape);
 
-			physicsWorld->addRigidBody(rb);
+				physicsWorld->addRigidBody(rb);
+			}
 		} else if (sdObj) {
 			btRigidBody* rb = sdObj->getRigidBody();
 
@@ -153,7 +155,9 @@ void Scene::streamed(SceneObject* obj, uint32_t inBuckets, uint32_t outBuckets)
 
 			physicsWorld->addRigidBody(rb);
 		} else if (veh) {
-			//btRigidBody* rb = veh->getRigidBody();
+			veh->streamIn(physicsWorld);
+
+			/*//btRigidBody* rb = veh->getRigidBody();
 
 			PhysicsPointer* pptr = veh->getPhysicsPointer();
 
@@ -171,22 +175,25 @@ void Scene::streamed(SceneObject* obj, uint32_t inBuckets, uint32_t outBuckets)
 			delete veh->getRigidBody();
 			veh->setRigidBody(rb);
 
-			physicsWorld->addRigidBody(rb);
-		}*/
+			physicsWorld->addRigidBody(rb);*/
+		}
 	} else if ((outBuckets & StreamingManager::PhysicsBucket)  !=  0) {
-		/*MapSceneObject* mobj = dynamic_cast<MapSceneObject*>(obj);
+		MapSceneObject* mobj = dynamic_cast<MapSceneObject*>(obj);
 		SimpleDynamicSceneObject* sdObj = dynamic_cast<SimpleDynamicSceneObject*>(obj);
 		Vehicle* veh = dynamic_cast<Vehicle*>(obj);
 
 		if (mobj) {
 			MapItemDefinition* def = mobj->getLODInstance()->getDefinition();
 			PhysicsPointer* pptr = def->getPhysicsPointer();
-			pptr->release();
 
-			btRigidBody* rb = mobj->getRigidBody();
-			rb->setCollisionShape(NULL);
+			if (pptr) {
+				pptr->release();
 
-			physicsWorld->removeRigidBody(rb);
+				btRigidBody* rb = mobj->getRigidBody();
+				rb->setCollisionShape(NULL);
+
+				physicsWorld->removeRigidBody(rb);
+			}
 		} else if (sdObj) {
 			btRigidBody* rb = sdObj->getRigidBody();
 
@@ -197,15 +204,17 @@ void Scene::streamed(SceneObject* obj, uint32_t inBuckets, uint32_t outBuckets)
 
 			physicsWorld->removeRigidBody(rb);
 		} else if (veh) {
-			btRigidBody* rb = veh->getRigidBody();
+			veh->streamOut(physicsWorld);
+
+			/*btRigidBody* rb = veh->getRigidBody();
 
 			PhysicsPointer* pptr = veh->getPhysicsPointer();
 			pptr->release();
 
 			rb->setCollisionShape(NULL);
 
-			physicsWorld->removeRigidBody(rb);
-		}*/
+			physicsWorld->removeRigidBody(rb);*/
+		}
 	}
 }
 

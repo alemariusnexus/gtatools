@@ -1,6 +1,6 @@
 # Copyright 2010-2014 David "Alemarius Nexus" Lerch
 # 
-# This file is part of libgta.
+# This file is part of gtaformats.
 #
 # gtaformats is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,12 +18,11 @@
 # Additional permissions are granted, which are listed in the file
 # GPLADDITIONS.
 
-SET(FILES
-    ScriptMatrix4 ScriptVector3 ScriptVector4 luamath
-    )
+
+SET(FILES HandlingEntry CarHandlingEntry HandlingReader)
 
 FOREACH(FILE ${FILES})
-    SET(SRCS ${SRCS} "gta/script/math/${FILE}")
+    SET(SRCS ${SRCS} "gtaformats/handling/${FILE}")
 ENDFOREACH(FILE)
 
 SET(SRCS ${SRCS} PARENT_SCOPE)

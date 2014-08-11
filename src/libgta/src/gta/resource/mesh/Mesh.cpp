@@ -108,6 +108,7 @@ Mesh::Mesh(int vertexCount, VertexFormat vertexFormat, int flags,
 		  dataBuffer(dataBuffer), dataBufferSingleSize(dataBufferSize), indexBuffer(0),
 		  isLinked(false),
 		  vertexOffs(vertexOffset), vertexStride(vertexStride),
+		  submeshIDOffs(-1), submeshIDStride(-1),
 		  normalOffs(normalOffset), normalStride(normalStride),
 		  texCoordOffs(texCoordOffset), texCoordStride(texCoordStride),
 		  vertexColorOffs(vertexColorOffset), vertexColorStride(vertexColorStride),
@@ -371,8 +372,10 @@ void Mesh::link()
 	for (uint8_t i = 0 ; i < numSubmeshes ; i++) {
 		memcpy(newData + i*dataBufferSingleSize, bufData, dataBufferSingleSize);
 
-		for (size_t j = 0 ; j < vertexCount ; j++) {
-			newData[i*dataBufferSingleSize + submeshIDOffs + j*submeshIDStride] = i;
+		if (submeshIDOffs != -1) {
+			for (size_t j = 0 ; j < vertexCount ; j++) {
+				newData[i*dataBufferSingleSize + submeshIDOffs + j*submeshIDStride] = i;
+			}
 		}
 	}
 

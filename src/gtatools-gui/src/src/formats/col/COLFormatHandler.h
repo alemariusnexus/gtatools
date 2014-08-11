@@ -23,15 +23,15 @@
 #ifndef COLFORMATHANDLER_H_
 #define COLFORMATHANDLER_H_
 
-#include "../FormatHandler.h"
+#include "../EntityHandler.h"
 
-class COLFormatHandler: public FormatHandler
+class COLFormatHandler: public EntityHandler
 {
 	Q_OBJECT
 
 public:
-	virtual QString getFormatName(const File* file = NULL) const { return tr("Collision File (COL)"); }
-	virtual QLinkedList<QString> getFileFormatExtensions() const { return QLinkedList<QString>() << "col"; }
+	virtual QString getFileFormatName(const File& file) const { return tr("Collision File (COL)"); }
+	virtual QLinkedList<QString> getFileFormatExtensions(const File& file) const { return QLinkedList<QString>() << "col"; }
 	virtual bool canHandle(const EntityOpenRequest& req) const;
 	virtual DisplayedEntity* openEntity(const EntityOpenRequest& request);
 };

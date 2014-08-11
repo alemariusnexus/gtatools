@@ -20,24 +20,27 @@
 	GPLADDITIONS.
  */
 
-#ifndef CONTROLLER_H_
-#define CONTROLLER_H_
+#ifndef VEHICLECONTROLLER_H_
+#define VEHICLECONTROLLER_H_
 
 #include <SDL.h>
-#include <nxcommon/file/File.h>
-#include <gta/scene/parts/VisualSceneObject.h>
-#include <gta/render/TestShaderPlugin.h>
+#include <gta/Engine.h>
+#include <gta/scene/Scene.h>
+#include <gta/scene/objects/SimpleDynamicSceneObject.h>
+#include <gta/scene/objects/MapSceneObject.h>
 #include <gta/scene/objects/Vehicle.h>
-#include "VehicleController.h"
-#include "BulletGLDebugDraw.h"
+#include "SphericalCameraController.h"
 
 
-class Controller {
+
+class VehicleController
+{
 public:
-	Controller();
+	VehicleController();
+
 	void init();
-	void reshape(int w, int h);
-	bool paint();
+	void update(uint64_t timePassed);
+
 	void keyPressed(SDL_keysym evt);
 	void keyReleased(SDL_keysym evt);
 	void mouseButtonPressed(Uint8 button, int x, int y);
@@ -46,29 +49,19 @@ public:
 	void mouseMotion(int x, int y);
 
 private:
-	void addResource(const File& file);
+	MapSceneObject* generateFloor();
 
 private:
-	uint64_t lastFrameStart, lastMeasuredFrameStart;
-	float moveFactor;
-	float moveForwardFactor, moveSidewardFactor, moveUpFactor;
-	bool firstFrame;
-	int framesSinceLastMeasure;
+	Engine* engine;
+	Scene* scene;
+	SimpleDynamicSceneObject* chassis;
+	bool forceActive;
+	bool torqueActive;
+	unsigned long numUpdates;
+	SphericalCameraController* scc;
+	Vehicle* veh;
+
 	int lastMouseX, lastMouseY;
-	bool printCacheStatistics;
-	BulletGLDebugDraw* debugDrawer;
-	bool programRunning;
-	bool forceStatisticsUpdate;
-	bool freeRunning;
-	bool increaseTime;
-	bool increaseTimeHold;
-
-	VisualSceneObject* lastSelectedObj;
-
-	TestShaderPlugin* selPlugin;
-
-	//Vehicle* veh;
-	VehicleController* veh;
 };
 
-#endif /* CONTROLLER_H_ */
+#endif /* VEHICLECONTROLLER_H_ */

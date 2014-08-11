@@ -30,7 +30,9 @@
 class BulletGLDebugDraw : public btIDebugDraw {
 public:
 	BulletGLDebugDraw();
+	virtual void drawLine(const btVector3& from,const btVector3& to,const btVector3& fromColor, const btVector3& toColor);
 	virtual void drawLine(const btVector3& from, const btVector3& to, const btVector3& color);
+	virtual void drawTriangle(const btVector3& a,const btVector3& b,const btVector3& c,const btVector3& color,btScalar alpha);
 	virtual void drawContactPoint(const btVector3& pointOnB, const btVector3& normalOnB, btScalar distance,
 			int lifeTime, const btVector3& color);
 	virtual void reportErrorWarning(const char* msg);
@@ -41,11 +43,12 @@ public:
 	ShaderProgram* getShaderProgram() { return program; }
 	void reallocLineVertices(int numAddVertices);
 	void flush();
+	void update();
 
 private:
 	ShaderProgram* program;
 	GLint vertexAttrib, colorAttrib;
-	GLuint vertexColorsUniform, texturedUniform;
+	GLuint vertexColorsUniform, texturedUniform, mvpMatrixUniform;
 	int debugMode;
 
 	int lineVerticesAllocCount, lineVerticesOffset;
