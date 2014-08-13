@@ -75,8 +75,10 @@ void listRecurse(const File& file, int ind = 0)
 int main(int argc, char** argv)
 {
 #ifdef _WIN32
-	freopen("stdout.log", "a", stdout);
-	freopen("stderr.log", "a", stderr);
+	printf("INFO: stdout/stderr are being redirected to files stdout.log and stderr.log from now on!\n");
+
+	/*freopen("stdout.log", "a", stdout);
+	freopen("stderr.log", "a", stderr);*/
 #endif
 
 	try {
@@ -101,7 +103,9 @@ int main(int argc, char** argv)
 		System::initialize();
 
 		try {
-			return app.exec();
+			int v = app.exec();
+
+			return v;
 		} catch (Exception& ex) {
 			System* sys = System::getInstance();
 			sys->unhandeledException(ex);

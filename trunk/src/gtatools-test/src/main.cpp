@@ -280,9 +280,14 @@ void initWindowSystem(int w, int h)
 int main(int argc, char** argv)
 {
 	try {
+		printf("Hallo Welt!\n");
+
 		if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 			printf("ERROR Initializing SDL\n");
 		}
+
+		freopen("CON", "w", stdout);
+		freopen("CON", "w", stderr);
 
 		SDL_EnableUNICODE(1);
 		//SDL_ShowCursor(SDL_DISABLE); // We'll use the CEGUI cursor
