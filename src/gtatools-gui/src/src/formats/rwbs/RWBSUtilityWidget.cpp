@@ -86,7 +86,6 @@ void RWBSUtilityWidget::setCurrentFile(DisplayedFile* dfile)
 	currentFile = dfile;
 
 	RWBSGUIModule* guiModule = RWBSGUIModule::getInstance();
-	RWBSAnalyzerWidget* analyzerWidget = guiModule->getAnalyzerWidget();
 
 	QList<RWSection*> rootSects;
 
@@ -104,8 +103,6 @@ void RWBSUtilityWidget::setCurrentFile(DisplayedFile* dfile)
 	} else {
 		setCurrentIndex(0);
 	}
-
-	analyzerWidget->setRootSections(rootSects);
 }
 
 
@@ -334,11 +331,8 @@ void RWBSUtilityWidget::entityUndoStackCleanStateChanged(bool clean)
 void RWBSUtilityWidget::sectionInserted(RWSection* sect)
 {
 	RWBSGUIModule* guiModule = RWBSGUIModule::getInstance();
-	RWBSAnalyzerWidget* analyzerWidget = guiModule->getAnalyzerWidget();
 
-	if (sect->getParent()) {
-		analyzerWidget->updateSection(sect->getParent());
-	} else {
+	if (!sect->getParent()) {
 		DisplayedFileEntry entry = openFiles[currentFile];
 
 		QList<RWSection*> rootSects;
@@ -347,8 +341,6 @@ void RWBSUtilityWidget::sectionInserted(RWSection* sect)
 			RWSection* sect = *it;
 			rootSects << sect;
 		}
-
-		analyzerWidget->setRootSections(rootSects);
 	}
 }
 
@@ -356,27 +348,18 @@ void RWBSUtilityWidget::sectionInserted(RWSection* sect)
 void RWBSUtilityWidget::sectionRemoved(RWSection* sect, RWSection* oldParent)
 {
 	RWBSGUIModule* guiModule = RWBSGUIModule::getInstance();
-	RWBSAnalyzerWidget* analyzerWidget = guiModule->getAnalyzerWidget();
-
-	analyzerWidget->updateSection(oldParent);
 }
 
 
 void RWBSUtilityWidget::sectionUpdated(RWSection* sect, uint32_t oldID, uint32_t oldVersion, bool oldContainer)
 {
 	RWBSGUIModule* guiModule = RWBSGUIModule::getInstance();
-	RWBSAnalyzerWidget* analyzerWidget = guiModule->getAnalyzerWidget();
-
-	analyzerWidget->updateSection(sect);
 }
 
 
 void RWBSUtilityWidget::sectionDataChanged(RWSection* sect)
 {
 	RWBSGUIModule* guiModule = RWBSGUIModule::getInstance();
-	RWBSAnalyzerWidget* analyzerWidget = guiModule->getAnalyzerWidget();
-
-	analyzerWidget->updateSection(sect);
 }
 
 
@@ -386,7 +369,4 @@ void RWBSUtilityWidget::currentSectionChanged(RWSection* oldSect, RWSection* new
 		return;
 
 	RWBSGUIModule* guiModule = RWBSGUIModule::getInstance();
-	RWBSAnalyzerWidget* analyzerWidget = guiModule->getAnalyzerWidget();
-
-	analyzerWidget->setCurrentSection(newSect);
 }

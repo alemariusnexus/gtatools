@@ -41,8 +41,8 @@ RWBSGUIModule::RWBSGUIModule()
 	utilWidget = new RWBSUtilityWidget(utilDockWidget);
 	utilDockWidget->setWidget(utilWidget);
 
-	analyzerWidget = new RWBSAnalyzerWidget(analyzerDockWidget);
-	analyzerDockWidget->setWidget(analyzerWidget);
+	/*analyzerWidget = new RWBSAnalyzerWidget(analyzerDockWidget);
+	analyzerDockWidget->setWidget(analyzerWidget);*/
 }
 
 

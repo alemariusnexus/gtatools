@@ -20,8 +20,8 @@
 
 IF(nxcommon_SOURCE_DIR)
     MESSAGE(STATUS "Building libnxcommon along with gtatools in ${nxcommon_SOURCE_DIR}")
-    SET(LIBNXCOMMON_LIBRARIES nxcommon CACHE FILEPATH "libnxcommon library file")
-    SET(LIBNXCOMMON_INCLUDE_DIRS "${nxcommon_SOURCE_DIR}" "${nxcommon_BINARY_DIR}" "${nxcommon_SOURCE_DIR}/nxcommon" CACHE PATH "libnxcommon include directories")
+    SET(LIBNXCOMMON_LIBRARIES nxcommon CACHE FILEPATH "libnxcommon library file" FORCE)
+    SET(LIBNXCOMMON_INCLUDE_DIRS "${nxcommon_SOURCE_DIR}" "${nxcommon_BINARY_DIR}" "${nxcommon_SOURCE_DIR}/nxcommon" CACHE PATH "libnxcommon include directories" FORCE)
 ELSE(nxcommon_SOURCE_DIR)
     MESSAGE(STATUS "Using external libnxcommon (to build it along with gtatools, place the nxcommon root folder as nxcommon in ${CMAKE_SOURCE_DIR}")
     FIND_LIBRARY(LIBNXCOMMON_LIBRARIES NAMES nxcommon libnxcommon)

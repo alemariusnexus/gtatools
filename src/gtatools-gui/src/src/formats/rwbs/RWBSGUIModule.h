@@ -40,7 +40,6 @@ public:
 public:
 	void setEditor(HexEditor* editor) { this->editor = editor; }
 	RWBSUtilityWidget* getUtilityWidget() { return utilWidget; }
-	RWBSAnalyzerWidget* getAnalyzerWidget() { return analyzerWidget; }
 
 private:
 	RWBSGUIModule();
@@ -58,7 +57,6 @@ private:
 	QDockWidget* utilDockWidget;
 	QDockWidget* analyzerDockWidget;
 	RWBSUtilityWidget* utilWidget;
-	RWBSAnalyzerWidget* analyzerWidget;
 };
 
 #endif /* RWBSGUIMODULE_H_ */
