@@ -29,6 +29,7 @@
 
 class MeshPointer {
 public:
+	virtual ~MeshPointer() {}
 	virtual MeshClump* get(bool lock = false) = 0;
 	virtual MeshPointer* clone() const = 0;
 	virtual void release() {}

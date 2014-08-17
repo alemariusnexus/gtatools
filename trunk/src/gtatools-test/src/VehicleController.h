@@ -39,7 +39,7 @@ public:
 	VehicleController();
 
 	void init();
-	void update(uint64_t timePassed);
+	uint64_t update(uint64_t timePassed);
 
 	void keyPressed(SDL_keysym evt);
 	void keyReleased(SDL_keysym evt);

@@ -36,6 +36,7 @@
 #include <gta/resource/physics/ManagedPhysicsPointer.h>
 #include <gta/StaticMapItemDefinition.h>
 #include <BulletDynamics/Vehicle/btRaycastVehicle.h>
+#include <BulletCollision/NarrowPhaseCollision/btRaycastCallback.h>
 
 
 
@@ -167,7 +168,7 @@ void VehicleController::init()
 
 	scene->addSceneObject(chassis);*/
 
-	//scene->addSceneObject(veh);
+	scene->addSceneObject(veh);
 
 	scc->setRadius(10.0f);
 	scc->setAzimuth(M_PI_2 + M_PI);
@@ -175,9 +176,9 @@ void VehicleController::init()
 }
 
 
-void VehicleController::update(uint64_t timePassed)
+uint64_t VehicleController::update(uint64_t timePassed)
 {
-#if 1
+#if 0
 	btDiscreteDynamicsWorld* physWorld = scene->getPhysicsWorld();
 
 	printf("Num: %u\n", (unsigned int) physWorld->getNumCollisionObjects());
@@ -197,6 +198,7 @@ void VehicleController::update(uint64_t timePassed)
 #endif
 
 	btDynamicsWorld::ClosestRayResultCallback cb(rayStart, rayEnd);
+	cb.m_flags = btTriangleRaycastCallback::kF_UseSubSimplexConvexCastRaytest;
 
 	physWorld->rayTest(rayStart, rayEnd, cb);
 
@@ -206,6 +208,7 @@ void VehicleController::update(uint64_t timePassed)
 		Vector3 altEnd = rayStart + (rayEnd-rayStart)*2.0f;
 
 		btDynamicsWorld::ClosestRayResultCallback acb(rayStart, altEnd);
+		acb.m_flags = btTriangleRaycastCallback::kF_UseSubSimplexConvexCastRaytest;
 
 		physWorld->rayTest(rayStart, altEnd, acb);
 
@@ -219,13 +222,15 @@ void VehicleController::update(uint64_t timePassed)
 	exit(0);
 #endif
 
-	if (forceActive) {
-		veh->setForce(50000.0f);
-	} else {
-		veh->setForce(0.0f);
-	}
+	if (timePassed != 0) {
+		if (forceActive) {
+			veh->setForce(50000.0f);
+		} else {
+			veh->setForce(0.0f);
+		}
 
-	veh->updatePhysics(scene->getPhysicsWorld(), timePassed);
+		veh->updatePhysics(scene->getPhysicsWorld(), timePassed);
+	}
 
 	/*btRigidBody* rb = chassis->getRigidBody();
 
@@ -277,6 +282,8 @@ void VehicleController::update(uint64_t timePassed)
 
 		exit(0);
 	}*/
+
+	return timePassed;
 }
 
 
@@ -286,8 +293,8 @@ void VehicleController::keyPressed(SDL_keysym evt)
 
 	btRigidBody* rb;
 
-	if (chassis) {
-		rb = chassis->getRigidBody();
+	if (veh) {
+		rb = veh->getRigidBody();
 	}
 
 	if (k == SDLK_UP) {
@@ -311,7 +318,7 @@ void VehicleController::keyPressed(SDL_keysym evt)
 		veh->setSteeringAngle(-M_PI*0.25f);
 	} else if (k == SDLK_SPACE) {
 		btTransform trf = rb->getWorldTransform();
-		trf = trf * btTransform(btMatrix3x3::getIdentity(), btVector3(0.0f, 0.0f, 25.0f));
+		trf = trf * btTransform(btMatrix3x3::getIdentity(), btVector3(0.0f, 0.0f, 5.0f));
 		rb->setWorldTransform(trf);
 		//chassis->setModelMatrix(chassis->getModelMatrix() * Matrix4::translation(0.0f, 0.0f, 25.0f));
 		rb->activate(true);

@@ -27,9 +27,9 @@
 
 
 
-Mesh* COLMeshConverter::convert(const float* vertices, int vertexCount, const COLFace* faces, int faceCount)
+Mesh* COLMeshConverter::convert(const float* vertices, unsigned int vertexCount, const COLFace* faces, unsigned int faceCount)
 {
-	int modelVertexCount, modelIndexCount;
+	unsigned int modelVertexCount, modelIndexCount;
 	float* modelVertices;
 	uint8_t* modelColors;
 	uint32_t* modelIndices;
@@ -41,6 +41,10 @@ Mesh* COLMeshConverter::convert(const float* vertices, int vertexCount, const CO
 	Submesh* submesh = new Submesh(mesh, modelIndexCount, modelIndices);
 	mesh->link();
 
+	delete[] modelVertices;
+	delete[] modelColors;
+	delete[] modelIndices;
+
 	return mesh;
 }
 
@@ -49,10 +53,10 @@ Mesh* COLMeshConverter::convert(const COLSphere& sphere)
 {
 	MeshGenerator gen;
 	float* vertices;
+	float* normals;
 	uint32_t* indices;
-	int vertexCount, indexCount;
-	// TODO Reenable
-	//gen.createSphere(vertices, normals, vertexCount, indices, indexCount, sphere.getRadius(), 4, 4);
+	unsigned int vertexCount, indexCount;
+	gen.createSphere(vertices, normals, vertexCount, indices, indexCount, sphere.getRadius(), 4, 4);
 
 	const COLSurface& surface = sphere.getSurface();
 	uint8_t matNum = surface.getMaterial();
@@ -60,7 +64,7 @@ Mesh* COLMeshConverter::convert(const COLSphere& sphere)
 	uint8_t r, g, b;
 	getMaterialColors(matNum, r, g, b);
 
-	for (int i = 0 ; i < vertexCount ; i++) {
+	for (unsigned int i = 0 ; i < vertexCount ; i++) {
 		colors[i*4] = r;
 		colors[i*4 + 1] = g;
 		colors[i*4 + 2] = b;
@@ -87,6 +91,10 @@ Mesh* COLMeshConverter::convert(const COLSphere& sphere)
 	const Vector3& center = sphere.getCenter();
 	mesh->setBounds(center[0], center[1], center[2], sphere.getRadius());
 
+	delete[] vertices;
+	delete[] normals;
+	delete[] indices;
+
 	return mesh;
 }
 
@@ -96,7 +104,7 @@ Mesh* COLMeshConverter::convert(const COLBox& box)
 	MeshGenerator gen;
 	float* vertices;
 	uint32_t* indices;
-	int vertexCount, indexCount;
+	unsigned int vertexCount, indexCount;
 	gen.createBox(vertices, vertexCount, indices, indexCount, box.getMinimum(), box.getMaximum());
 
 	const COLSurface& surface = box.getSurface();
@@ -105,7 +113,7 @@ Mesh* COLMeshConverter::convert(const COLBox& box)
 	uint8_t r, g, b;
 	getMaterialColors(matNum, r, g, b);
 
-	for (int i = 0 ; i < vertexCount ; i++) {
+	for (unsigned int i = 0 ; i < vertexCount ; i++) {
 		colors[i*4] = r;
 		colors[i*4 + 1] = g;
 		colors[i*4 + 2] = b;
@@ -133,6 +141,9 @@ Mesh* COLMeshConverter::convert(const COLBox& box)
 
 	//mesh->setBounds(center[0], center[1], center[2], sphere.getRadius());
 
+	delete[] vertices;
+	delete[] indices;
+
 	return mesh;
 }
 
@@ -146,53 +157,42 @@ Mesh* COLMeshConverter::convert(const COLModel& model)
     glGenBuffers(1, &dataBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, dataBuffer);
 
-    int vertexCount = 0;
-    int sphereCount = model.getSphereCount();
-    int boxCount = model.getBoxCount();
+    unsigned int vertexCount = 0;
+    uint32_t sphereCount = model.getSphereCount();
+    uint32_t boxCount = model.getBoxCount();
 
     float** boxVertexArrays = new float*[boxCount];
     float** sphereVertexArrays = new float*[sphereCount];
     uint32_t** boxIndexArrays = new uint32_t*[boxCount];
     uint32_t** sphereIndexArrays = new uint32_t*[sphereCount];
-    int* boxVertexCounts = new int[boxCount];
-    int* sphereVertexCounts = new int[sphereCount];
-    int* boxIndexCounts = new int[boxCount];
-    int* sphereIndexCounts = new int[sphereCount];
+    unsigned int* boxVertexCounts = new unsigned int[boxCount];
+    unsigned int* sphereVertexCounts = new unsigned int[sphereCount];
+    unsigned int* boxIndexCounts = new unsigned int[boxCount];
+    unsigned int* sphereIndexCounts = new unsigned int[sphereCount];
 
     MeshGenerator gen;
 
-    for (int i = 0 ; i < sphereCount ; i++) {
+    for (uint32_t i = 0 ; i < sphereCount ; i++) {
 		const COLSphere& sphere = spheres[i];
 		float* tmpNormals;
-		// TODO Reenable
 		gen.createSphere(sphereVertexArrays[i], tmpNormals, sphereVertexCounts[i], sphereIndexArrays[i],
 				sphereIndexCounts[i], sphere.getRadius(), 4, 4, sphere.getCenter());
 		delete[] tmpNormals;
-		/*gen.createSphere(sphereVertexArrays[i], sphereVertexCounts[i],
-               sphereIndexArrays[i], sphereIndexCounts[i], sphere.getRadius(), 4, 4);*/
         vertexCount += sphereVertexCounts[i];
     }
 
-    for (int i = 0 ; i < boxCount ; i++) {
+    for (uint32_t i = 0 ; i < boxCount ; i++) {
         const COLBox& box = boxes[i];
         gen.createBox(boxVertexArrays[i], boxVertexCounts[i], boxIndexArrays[i], boxIndexCounts[i],
                   box.getMinimum(), box.getMaximum());
         vertexCount += boxVertexCounts[i];
     }
 
-    /*int32_t* indices = new int32_t[model.getFaceCount()*3];
-    const COLFace* faces = model.getFaces();
-
-    for (int i = 0 ; i < model.getFaceCount() ; i++) {
-        const COLFace& face = faces[i];
-        memcpy(indices+i*3, face.getIndices(), 3*4);
-    }*/
-
-    int modelVertexCount;
+    unsigned int modelVertexCount;
     float* modelVertices;
     uint8_t* modelColors;
     uint32_t* modelIndices;
-    int modelIndexCount;
+    unsigned int modelIndexCount;
 
     convertVertexModel(model.getVertices(), model.getVertexCount(), model.getFaces(), model.getFaceCount(),
     		modelVertexCount, modelVertices, modelColors, modelIndices, modelIndexCount);
@@ -215,11 +215,14 @@ Mesh* COLMeshConverter::convert(const COLModel& model)
     Mesh* mesh = new Mesh(vertexCount, VertexFormatTriangles, 0, dataBuffer, vertexCount*3*4 + vertexCount*4,
 			0, 0, -1, -1, -1, -1, vertexCount*3*4, 0);
 
+    delete[] modelVertices;
+    delete[] modelColors;
+
     uint8_t r, g, b;
 
-    for (int i = 0 ; i < sphereCount ; i++) {
+    for (uint32_t i = 0 ; i < sphereCount ; i++) {
     	const COLSphere& sphere = spheres[i];
-    	int vertexCount = sphereVertexCounts[i];
+    	unsigned int vertexCount = sphereVertexCounts[i];
 
     	// Create the vertex colors array
     	uint8_t* colors = new uint8_t[vertexCount*4];
@@ -227,7 +230,7 @@ Mesh* COLMeshConverter::convert(const COLModel& model)
     	uint8_t matNum = surface.getMaterial();
     	getMaterialColors(matNum, r, g, b);
 
-        for (int j = 0 ; j < vertexCount ; j++) {
+        for (unsigned int j = 0 ; j < vertexCount ; j++) {
         	colors[j*4] = r;
         	colors[j*4+1] = g;
         	colors[j*4+2] = b;
@@ -238,11 +241,13 @@ Mesh* COLMeshConverter::convert(const COLModel& model)
         glBufferSubData(GL_ARRAY_BUFFER, vertexOffset*3*4, vertexCount*3*4, sphereVertexArrays[i]);
         glBufferSubData(GL_ARRAY_BUFFER, colorOffset + vertexOffset*4, vertexCount*4, colors);
         vertexOffset += vertexCount;
+
+        delete[] colors;
     }
 
-    for (int i = 0 ; i < boxCount ; i++) {
+    for (uint32_t i = 0 ; i < boxCount ; i++) {
         const COLBox& box = boxes[i];
-    	int vertexCount = boxVertexCounts[i];
+    	unsigned int vertexCount = boxVertexCounts[i];
 
     	// Create the vertex colors array
     	uint8_t* colors = new uint8_t[vertexCount*4];
@@ -250,7 +255,7 @@ Mesh* COLMeshConverter::convert(const COLModel& model)
     	uint8_t matNum = surface.getMaterial();
     	getMaterialColors(matNum, r, g, b);
 
-        for (int j = 0 ; j < vertexCount ; j++) {
+        for (unsigned int j = 0 ; j < vertexCount ; j++) {
         	colors[j*4] = r;
         	colors[j*4+1] = g;
         	colors[j*4+2] = b;
@@ -261,32 +266,52 @@ Mesh* COLMeshConverter::convert(const COLModel& model)
         glBufferSubData(GL_ARRAY_BUFFER, vertexOffset*3*4, vertexCount*3*4, boxVertexArrays[i]);
         glBufferSubData(GL_ARRAY_BUFFER, colorOffset + vertexOffset*4, vertexCount*4, colors);
         vertexOffset += vertexCount;
+
+        delete[] colors;
     }
 
     Submesh* submesh = new Submesh(mesh, modelIndexCount, modelIndices);
     vertexOffset = modelVertexCount;
 
-    for (int i = 0 ; i < sphereCount ; i++) {
-    	int indexCount = sphereIndexCounts[i];
+    delete[] modelIndices;
+
+    for (uint32_t i = 0 ; i < sphereCount ; i++) {
+    	unsigned int indexCount = sphereIndexCounts[i];
     	uint32_t* indices = sphereIndexArrays[i];
-    	for (int j = 0 ; j < indexCount ; j++) {
+    	for (unsigned int j = 0 ; j < indexCount ; j++) {
     		indices[j] += vertexOffset;
     	}
 
     	Submesh* submesh = new Submesh(mesh, indexCount, indices);
     	vertexOffset += sphereVertexCounts[i];
+
+    	delete[] sphereVertexArrays[i];
+    	delete[] sphereIndexArrays[i];
     }
 
-    for (int i = 0 ; i < boxCount ; i++) {
-    	int indexCount = boxIndexCounts[i];
+    delete[] sphereVertexArrays;
+    delete[] sphereIndexArrays;
+    delete[] sphereVertexCounts;
+    delete[] sphereIndexCounts;
+
+    for (uint32_t i = 0 ; i < boxCount ; i++) {
+    	unsigned int indexCount = boxIndexCounts[i];
     	uint32_t* indices = boxIndexArrays[i];
-    	for (int j = 0 ; j < indexCount ; j++) {
+    	for (unsigned int j = 0 ; j < indexCount ; j++) {
     		indices[j] += vertexOffset;
     	}
 
         Submesh* submesh = new Submesh(mesh, indexCount, indices);
         vertexOffset += boxVertexCounts[i];
+
+        delete[] boxVertexArrays[i];
+        delete[] boxIndexArrays[i];
     }
+
+    delete[] boxVertexArrays;
+    delete[] boxIndexArrays;
+    delete[] boxVertexCounts;
+    delete[] boxIndexCounts;
 
     mesh->link();
 
@@ -566,9 +591,9 @@ void COLMeshConverter::getMaterialColors(uint8_t mat, uint8_t& r, uint8_t& g, ui
 }
 
 
-void COLMeshConverter::convertVertexModel(const float* inVertices, int32_t inVertexCount,
-		const COLFace* inFaces, int32_t inFaceCount, int& outVertexCount, float*& outVertices,
-		uint8_t*& outColors, uint32_t*& outIndices, int32_t& outIndexCount)
+void COLMeshConverter::convertVertexModel(const float* inVertices, unsigned int inVertexCount,
+		const COLFace* inFaces, unsigned int inFaceCount, unsigned int& outVertexCount, float*& outVertices,
+		uint8_t*& outColors, uint32_t*& outIndices, unsigned int& outIndexCount)
 {
 	outVertexCount = inFaceCount*3;
 	outVertices = new float[outVertexCount*3];
@@ -576,7 +601,7 @@ void COLMeshConverter::convertVertexModel(const float* inVertices, int32_t inVer
 	outIndices = new uint32_t[outVertexCount];
 	outIndexCount = outVertexCount;
 
-	for (int32_t numFace = 0 ; numFace < inFaceCount ; numFace++) {
+	for (unsigned int numFace = 0 ; numFace < inFaceCount ; numFace++) {
 		const COLFace& face = inFaces[numFace];
 		const uint32_t* srcIndices = face.getIndices();
 

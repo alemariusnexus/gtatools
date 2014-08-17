@@ -662,7 +662,7 @@ int main(int argc, char** argv)
 			}
 
 			printf("  %d entries\n", img->getEntryCount());
-			printf("  %d blocks (= %d bytes)\n", img->getSize(), img->getSize() * IMG_BLOCK_SIZE);
+			printf("  %d blocks (= %ld bytes)\n", img->getSize(), img->getSize() * IMG_BLOCK_SIZE);
 		} else if (command == CommandList  ||  command == CommandExtract  ||  command == CommandRemove) {
 			vector<IMGArchive::EntryIterator> entriesToRemove;
 

@@ -26,7 +26,7 @@
 #include <nxcommon/math/Vector3.h>
 
 
-void MeshGenerator::createBox(float*& vertices, int& vertexCount, uint32_t*& indices, int& indexCount,
+void MeshGenerator::createBox(float*& vertices, unsigned int& vertexCount, uint32_t*& indices, unsigned int& indexCount,
 		const Vector3& min, const Vector3& max)
 {
     float minx = min.getX();
@@ -67,9 +67,9 @@ void MeshGenerator::createBox(float*& vertices, int& vertexCount, uint32_t*& ind
 Mesh* MeshGenerator::createBox(const Vector3& min, const Vector3& max)
 {
 	float* vertices;
-	int vcount;
+	unsigned int vcount;
 	uint32_t* indices;
-	int indCount;
+	unsigned int indCount;
 	createBox(vertices, vcount, indices, indCount, min, max);
 	Mesh* mesh = new Mesh(vcount, VertexFormatTriangles, 0, vertices);
 	Submesh* submesh = new Submesh(mesh, indCount, indices);
@@ -80,10 +80,11 @@ Mesh* MeshGenerator::createBox(const Vector3& min, const Vector3& max)
 }
 
 
-void MeshGenerator::createSphere(float*& vertices, float*& normals, int& vertexCount, uint32_t*& indices, int& indexCount,
-		float radius, int slices, int stacks, const Vector3& offset)
+void MeshGenerator::createSphere(float*& vertices, float*& normals, unsigned int& vertexCount,
+		uint32_t*& indices, unsigned int& indexCount, float radius, unsigned int slices, unsigned int stacks,
+		const Vector3& offset)
 {
-    int numVertices = (stacks-1)*slices+2;
+    unsigned int numVertices = (stacks-1)*slices+2;
     vertexCount = numVertices;
 	vertices = new float[numVertices*3];
 	normals = new float[numVertices*3];
@@ -94,15 +95,15 @@ void MeshGenerator::createSphere(float*& vertices, float*& normals, int& vertexC
 	float stackStepAngle = PI/stacks;
 	float sliceStepAngle = (2*PI)/slices;
 
-	int vertexOffset = 3;
-	int sv = 1; // Start Vertex
+	unsigned int vertexOffset = 3;
+	unsigned int sv = 1; // Start Vertex
 
-	for (int i = 1 ; i < stacks ; i++) {
+	for (unsigned int i = 1 ; i < stacks ; i++) {
 		float stackAngle = stackStepAngle*i;
 		float stackSin = sin(stackAngle);
 		float stackCos = cos(stackAngle);
 
-		for (int j = 0 ; j < slices ; j++) {
+		for (unsigned int j = 0 ; j < slices ; j++) {
 			float sliceAngle = sliceStepAngle*j;
 			vertices[vertexOffset] = cos(sliceAngle)*radius*stackSin;
 			vertices[vertexOffset+1] = sin(sliceAngle)*radius*stackSin;
@@ -116,13 +117,13 @@ void MeshGenerator::createSphere(float*& vertices, float*& normals, int& vertexC
 	vertices[vertexOffset+2] = -radius;
 
 
-	int numIndices = (2*slices*3) + (2*3*slices*(stacks-2));
+	unsigned int numIndices = (2*slices*3) + (2*3*slices*(stacks-2));
 	indexCount = numIndices;
-	int indexOffset = 0;
+	unsigned int indexOffset = 0;
 
 	indices = new uint32_t[numIndices];
 
-	for (int i = 0 ; i < slices-1 ; i++) {
+	for (unsigned int i = 0 ; i < slices-1 ; i++) {
 		indices[indexOffset++] = 0;
 		indices[indexOffset++] = i+1;
 		indices[indexOffset++] = i+2;
@@ -131,8 +132,8 @@ void MeshGenerator::createSphere(float*& vertices, float*& normals, int& vertexC
 	indices[indexOffset++] = slices;
 	indices[indexOffset++] = 1;
 
-	for (int i = 0 ; i < stacks-2 ; i++) {
-		for (int j = 0 ; j < slices-1 ; j++) {
+	for (unsigned int i = 0 ; i < stacks-2 ; i++) {
+		for (unsigned int j = 0 ; j < slices-1 ; j++) {
 			indices[indexOffset++] = sv + j + 1;
 			indices[indexOffset++] = sv + j;
 			indices[indexOffset++] = sv + slices + j;
@@ -151,7 +152,7 @@ void MeshGenerator::createSphere(float*& vertices, float*& normals, int& vertexC
 		sv += slices;
 	}
 
-	for (int i = 0 ; i < slices-1 ; i++) {
+	for (unsigned int i = 0 ; i < slices-1 ; i++) {
 		indices[indexOffset++] = sv+slices;
 		indices[indexOffset++] = sv+i+1;
 		indices[indexOffset++] = sv+i;
@@ -164,17 +165,9 @@ void MeshGenerator::createSphere(float*& vertices, float*& normals, int& vertexC
 	float oy = offset.getY();
 	float oz = offset.getZ();
 
-	for (int i = 0 ; i < vertexCount ; i++) {
+	for (unsigned int i = 0 ; i < vertexCount ; i++) {
 		Vector3 normal(vertices + i*3);
 		normal.normalize();
-		/*printf("(%f   %f   %f) normalized is (%f   %f   %f)\n", oldNormal.getX(), oldNormal.getY(), oldNormal.getZ(),
-				normal.getX(), normal.getY(), normal.getZ());*/
-		/*float len = normal.length();
-
-		if (len > 1.001f  ||  len < 0.999f) {
-			printf("FALSCH!\n");
-			exit(0);
-		}*/
 		memcpy((void*) (normals + i*3), &normal, 3*4);
 
 		vertices[i*3] += ox;
@@ -184,13 +177,13 @@ void MeshGenerator::createSphere(float*& vertices, float*& normals, int& vertexC
 }
 
 
-Mesh* MeshGenerator::createSphere(float radius, int slices, int stacks, const Vector3& offset)
+Mesh* MeshGenerator::createSphere(float radius, unsigned int slices, unsigned int stacks, const Vector3& offset)
 {
 	float* vertices;
 	float* normals;
-	int vcount;
+	unsigned int vcount;
 	uint32_t* indices;
-	int indCount;
+	unsigned int indCount;
 	createSphere(vertices, normals, vcount, indices, indCount, radius, slices, stacks, offset);
 	Mesh* mesh = new Mesh(vcount, VertexFormatTriangles, MeshNormals, vertices, normals);
 	mesh->setBounds(offset.getX(), offset.getY(), offset.getZ(), radius);

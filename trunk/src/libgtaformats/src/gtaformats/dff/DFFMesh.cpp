@@ -110,7 +110,7 @@ void DFFMesh::removeGeometries()
 
 DFFGeometry* DFFMesh::getGeometry(uint32_t idx)
 {
-	if (idx < 0  ||  idx >= geometries.size()) {
+	if (idx >= geometries.size()) {
 		throw OutOfBoundsException(idx, __FILE__, __LINE__);
 	}
 
@@ -120,7 +120,7 @@ DFFGeometry* DFFMesh::getGeometry(uint32_t idx)
 
 const DFFGeometry* DFFMesh::getGeometry(uint32_t idx) const
 {
-	if (idx < 0  ||  idx >= geometries.size()) {
+	if (idx >= geometries.size()) {
 		throw OutOfBoundsException(idx, __FILE__, __LINE__);
 	}
 

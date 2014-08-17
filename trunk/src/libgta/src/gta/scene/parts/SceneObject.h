@@ -40,7 +40,7 @@ public:
 	};
 
 public:
-	SceneObject() : visibleBuckets(0), lastVisibleBuckets(0) {}
+	SceneObject() : lastVisibleBuckets(0), visibleBuckets(0) {}
 	virtual ~SceneObject() {}
 	virtual SceneObject* clone() const = 0;
 	virtual typeflags_t getTypeFlags() const = 0;

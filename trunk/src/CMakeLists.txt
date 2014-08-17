@@ -20,12 +20,28 @@
 
 
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
 PROJECT(gtatools C CXX)
 
-SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR})
+IF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/nxcommon/src/CMakeLists.txt")
+    SET(NXCOMMON_BUILDING ON)
+ENDIF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/nxcommon/src/CMakeLists.txt")
 
-INCLUDE(Utilities.cmake)
+#IF(NXCOMMON_BUILDING)
+#    SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/nxcommon/src/cmakemodules)
+#ELSE()
+#    SET(NXCOMMON_CMAKE_MODULE_PATH "" CACHE PATH "Path to the nxcommon CMake module directory.")
+#    
+#    IF(NOT EXISTS "${NXCOMMON_CMAKE_MODULE_PATH}/NxUtilities.cmake")
+#        MESSAGE(FATAL_ERROR "NXCOMMON_CMAKE_MODULE_PATH is invalid. You need to set it in order to build gtatools.")
+#    ENDIF()
+#    
+#    SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${NXCOMMON_CMAKE_MODULE_PATH}")
+#ENDIF()
+#
+#SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmakemodules")
+#
+#INCLUDE(NxUtilities)
 
 SET(GTATOOLS_VERSION_MAJOR "0") # Major version, must be numeric
 SET(GTATOOLS_VERSION_MINOR "2") # Minor version, must be numeric
@@ -39,6 +55,12 @@ SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING")
 #SET(CPACK_PACKAGE_VERSION_PATCH ${GTATOOLS_VERSION_PATCH}${GTATOOLS_VERSION_SUFFIX})
 SET(CPACK_PACKAGE_VERSION "${GTATOOLS_VERSION_MAJOR}.${GTATOOLS_VERSION_MINOR}${GTATOOLS_VERSION_SUFFIX}")
 SET(CPACK_SOURCE_IGNORE_FILES "\\\\.svn;.*~")
+
+
+#ADD_DEFINITIONS(-D__STDC_LIMIT_MACROS -DUCHAR_TYPE=char16_t)
+
+# --std=c++11 is usually enough, but GTest sometimes complains on MinGW when we don't enable GNU extensions.
+#ADD_COMPILE_OPTIONS(--std=gnu++11)
 
 
 FIND_PACKAGE(Subversion)
@@ -67,7 +89,6 @@ SET(LIBGTAFORMATS_BUILD ON CACHE BOOL "Whether you want to build libgtaformats")
 SET(LIBGTA_BUILD ON CACHE BOOL "Whether you want to build libgta")
 SET(GTAIMG_BUILD ON CACHE BOOL "Whether you want to build gtaimg")
 SET(GTATXD_BUILD ON CACHE BOOL "Whether you want to build gtatxd")
-SET(GTADFF_BUILD OFF CACHE BOOL "Whether you want to build gtadff")
 SET(GTATOOLS_GUI_BUILD ON CACHE BOOL "Whether you want to build gtatools-gui")
 SET(GTATOOLS_TEST_BUILD OFF CACHE BOOL "Whether you want to build gtatools-test")
 SET(GTAFORMATS_TEST_BUILD OFF CACHE BOOL "Whether you want to build gtaformats-test")
@@ -92,42 +113,46 @@ SET(ADDITIONAL_INSTALL_FILES "" CACHE STRING "Paths to files which will be addit
 SET(ADDITIONAL_INSTALL_FILES_ENABLED OFF CACHE BOOL "Set true to enable ADDITIONAL_INSTALL_FILES")
 
 
-IF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/nxcommon/src/CMakeLists.txt")
+IF(NXCOMMON_BUILDING)
     MESSAGE(STATUS "Building integrated nxcommon.")
     ADD_SUBDIRECTORY(nxcommon/src nxcommon/build)
-ENDIF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/nxcommon/src/CMakeLists.txt")
+ENDIF()
+
+IF(NOT TARGET nxcommon)
+    FIND_PACKAGE(Nxcommon REQUIRED CONFIG)
+ENDIF()
+
+INCLUDE(NxUtilities)
+
+GLOBAL_ADD_MODULE_PATH(GTATOOLS "${CMAKE_CURRENT_SOURCE_DIR}/cmakemodules")
 
 IF(LIBGTAFORMATS_BUILD)
     ADD_SUBDIRECTORY(libgtaformats/src libgtaformats/build)
-ENDIF(LIBGTAFORMATS_BUILD)
+ENDIF()
 
 IF(LIBGTA_BUILD)
     ADD_SUBDIRECTORY(libgta/src libgta/build)
-ENDIF(LIBGTA_BUILD)
+ENDIF()
 
 IF(GTAIMG_BUILD)
     ADD_SUBDIRECTORY(gtaimg/src gtaimg/build)
-ENDIF(GTAIMG_BUILD)
+ENDIF()
 
 IF(GTATXD_BUILD)
     ADD_SUBDIRECTORY(gtatxd/src gtatxd/build)
-ENDIF(GTATXD_BUILD)
-
-IF(GTADFF_BUILD)
-    ADD_SUBDIRECTORY(gtadff/src gtadff/build)
-ENDIF(GTADFF_BUILD)
+ENDIF()
 
 IF(GTATOOLS_GUI_BUILD)
     ADD_SUBDIRECTORY(gtatools-gui/src gtatools-gui/build)
-ENDIF(GTATOOLS_GUI_BUILD)
+ENDIF()
 
 IF(GTATOOLS_TEST_BUILD)
     ADD_SUBDIRECTORY(gtatools-test/src gtatools-test/build)
-ENDIF(GTATOOLS_TEST_BUILD)
+ENDIF()
 
 IF(GTAFORMATS_TEST_BUILD)
     ADD_SUBDIRECTORY(gtaformats-test/src gtaformats-test/build)
-ENDIF(GTAFORMATS_TEST_BUILD)
+ENDIF()
 
 
 IF(ADDITIONAL_INSTALL_FILES_ENABLED AND ADDITIONAL_INSTALL_FILES)

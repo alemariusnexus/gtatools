@@ -29,6 +29,7 @@
 
 class TextureSource {
 public:
+	virtual ~TextureSource() {}
 	virtual Texture* getTexture(const CString& texHash, bool lock = false) = 0;
 	virtual TextureSource* clone() const = 0;
 	virtual void lock(bool lock = true) {}

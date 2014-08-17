@@ -232,8 +232,8 @@ bool CollisionRayCastingHandler<ItType>::nextBox(void* objUserPtr, BoxData& data
 	Vector3 min = box->getMinimum();
 	Vector3 max = box->getMaximum();
 
-	data.min = box->getMinimum();
-	data.max = box->getMaximum();
+	data.min = min;
+	data.max = max;
 
 	ctx->boxIts[ctx->boxIdx] = ctx->boxIt;
 

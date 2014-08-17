@@ -28,6 +28,7 @@
 
 class AnimationPackagePointer {
 public:
+	virtual ~AnimationPackagePointer() {}
 	virtual AnimationPackagePointer* clone() const = 0;
 	virtual AnimationPackage* get(bool lock = false) = 0;
 	virtual void release() {}

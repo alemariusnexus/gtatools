@@ -27,6 +27,7 @@
 
 class CollisionShapePointer {
 public:
+	virtual ~CollisionShapePointer() {}
 	virtual CollisionShapePointer* clone() const = 0;
 	virtual CollisionModel* get(bool lock = false) = 0;
 	virtual void release() {}

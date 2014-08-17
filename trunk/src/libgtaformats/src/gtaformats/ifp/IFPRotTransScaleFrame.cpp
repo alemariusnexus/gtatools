@@ -20,5 +20,5 @@
 	GPLADDITIONS.
  */
 
-#include "ifp/IFPRotTransScaleFrame.h"
+#include "IFPRotTransScaleFrame.h"
 

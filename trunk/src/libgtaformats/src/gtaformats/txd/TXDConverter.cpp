@@ -301,9 +301,9 @@ int32_t TXDConverter::convert(const TXDTextureHeader& from, const TXDTextureHead
 			}
 
 			if (toCompr == DXT1) {
-				CompressImage(outData, mipW, mipH, toData, kDxt1);
+				CompressImage(outData, mipW, mipH, toData, kDxt1 | dxtFlags);
 			} else {
-				CompressImage(outData, mipW, mipH, toData, kDxt3);
+				CompressImage(outData, mipW, mipH, toData, kDxt3 | dxtFlags);
 			}
 #endif
 		} else if (toCompr == PVRTC2  ||  toCompr == PVRTC4) {

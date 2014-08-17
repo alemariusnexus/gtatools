@@ -30,13 +30,13 @@
 
 class COLMeshConverter {
 public:
-	Mesh* convert(const float* vertices, int vertexCount, const COLFace* faces, int faceCount);
+	Mesh* convert(const float* vertices, unsigned int vertexCount, const COLFace* faces, unsigned int faceCount);
 	Mesh* convert(const COLModel& model);
 	Mesh* convert(const COLSphere& sphere);
 	Mesh* convert(const COLBox& box);
-	void convertVertexModel(const float* inVertices, int32_t inVertexCount, const COLFace* inFaces,
-			int32_t inFaceCount, int& outVertexCount, float*& outVertices, uint8_t*& outColors,
-			uint32_t*& outIndices, int32_t& outIndexCount);
+	void convertVertexModel(const float* inVertices, unsigned int inVertexCount, const COLFace* inFaces,
+			unsigned int inFaceCount, unsigned int& outVertexCount, float*& outVertices, uint8_t*& outColors,
+			uint32_t*& outIndices, unsigned int& outIndexCount);
 
 private:
 	void getMaterialColors(uint8_t mat, uint8_t& r, uint8_t& g, uint8_t& b);
