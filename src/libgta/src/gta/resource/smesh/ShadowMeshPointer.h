@@ -29,6 +29,7 @@
 class ShadowMeshPointer
 {
 public:
+	virtual ~ShadowMeshPointer() {}
 	virtual ShadowMeshPointer* clone() const = 0;
 	virtual ShadowMesh* get(bool lock = false) = 0;
 	virtual void release() {}

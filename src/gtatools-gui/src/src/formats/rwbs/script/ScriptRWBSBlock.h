@@ -32,7 +32,7 @@
 
 class ScriptRWBSBlock : public ScriptObject
 {
-	SCRIPTOBJECT_CREATE_HELPER_METHODS(ScriptRWBSBlock, "RWBlock")
+	SCRIPTOBJECT_DECLARE_HELPER_METHODS(ScriptRWBSBlock)
 
 public:
 	static void registerClass(lua_State* lua);

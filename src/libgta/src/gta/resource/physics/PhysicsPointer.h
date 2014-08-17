@@ -28,6 +28,7 @@
 
 class PhysicsPointer {
 public:
+	virtual ~PhysicsPointer() {}
 	virtual PhysicsPointer* clone() const = 0;
 	virtual btCollisionShape* get(bool lock = false) = 0;
 	virtual void release() {}

@@ -243,7 +243,7 @@ void Scene::update(uint64_t timePassed)
 			aobj->increaseAnimationTime(timePassed / 1000.0f);
 	}
 
-	physicsWorld->stepSimulation(timePassed/1000.0f);
+	physicsWorld->stepSimulation(timePassed/1000.0f, 0);
 	//testBuf.setUniformInt("Time", timeVal);
 
 	timeVal += timePassed;

@@ -26,6 +26,10 @@
 
 
 
+SCRIPTOBJECT_DEFINE_HELPER_METHODS(ScriptRWSection, "RWSection")
+
+
+
 
 void ScriptRWSection::registerClass(lua_State* lua)
 {

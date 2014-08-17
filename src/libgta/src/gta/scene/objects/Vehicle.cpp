@@ -26,11 +26,12 @@
 #include "../../resource/texture/ManagedTextureSource.h"
 #include "../../resource/collision/ManagedCollisionShapePointer.h"
 #include "../../resource/physics/ManagedPhysicsPointer.h"
+#include <BulletCollision/NarrowPhaseCollision/btRaycastCallback.h>
 
 
 
 Vehicle::Vehicle(const CString& modelName, const Matrix4& mm)
-		: streamingDist(1000.0f), mass(1400.0f), mm(mm), rb(NULL), force(0.0f), steeringAngle(0.0f)
+		: rb(NULL), streamingDist(1000.0f), mass(1400.0f), mm(mm), force(0.0f), steeringAngle(0.0f)
 {
 	Engine* engine = Engine::getInstance();
 
@@ -65,8 +66,34 @@ void Vehicle::createWheel(const CString& dummyName)
 
 	wheel.radius = bounds[3];
 
+	GLuint dataBuffer = wheelMesh->getDataBuffer();
+	glBindBuffer(GL_ARRAY_BUFFER, dataBuffer);
+	char* bufData = (char*) glMapBuffer(GL_ARRAY_BUFFER, GL_READ_ONLY);
+
+	int voffs = wheelMesh->getVertexOffset();
+	int vstride = wheelMesh->getVertexStride();
+	int vcount = wheelMesh->getVertexCount();
+
+	wheel.radius = 0.0f;
+
+	for (int i = 0 ; i < vcount ; i++) {
+		Vector3 vertex = *((Vector3*) (bufData + voffs + i*vstride));
+
+		float len = vertex.length();
+
+		if (len > wheel.radius) {
+			wheel.radius = len;
+		}
+	}
+
+	glUnmapBuffer(GL_ARRAY_BUFFER);
+
+	printf("Wheel radius: %f\n", wheel.radius);
+
 	wheel.maxSuspensionCompression = 0.1f;
 	wheel.maxSuspensionRelaxation = 0.25f;
+	//wheel.maxSuspensionCompression = 0.25f;
+	//wheel.maxSuspensionRelaxation = 0.1f;
 	wheel.suspensionStiffness = 1.2f;
 	wheel.suspensionDamping = 0.19f;
 
@@ -119,7 +146,8 @@ void Vehicle::streamIn(btDiscreteDynamicsWorld* physWorld)
 
 	btCollisionShape* actualShape = physicsPtr->get(true);
 
-	centerOfMassOffset = Vector3(0.0f, 0.0f, -0.25f);
+	//centerOfMassOffset = Vector3(0.0f, 0.0f, -0.25f);
+	centerOfMassOffset = Vector3(0.0f, 0.0f, 0.0f);
 
 	btCompoundShape* shiftShape = new btCompoundShape;
 	shiftShape->addChildShape(btTransform(btMatrix3x3::getIdentity(), centerOfMassOffset),
@@ -151,6 +179,7 @@ void Vehicle::updatePhysics(btDiscreteDynamicsWorld* physWorld, uint64_t timePas
 {
 	//rb->applyForce(btVector3(0.0f, force, 0.0f), btVector3(0.0f, 0.0f, 0.0f));
 
+#if 1
 	forward = Vector3::UnitY;
 	right = Vector3::UnitX;
 	up = Vector3::UnitZ;
@@ -160,6 +189,10 @@ void Vehicle::updatePhysics(btDiscreteDynamicsWorld* physWorld, uint64_t timePas
 	forwardWS = basis * forward;
 	rightWS = basis * right;
 	upWS = basis * up;
+
+	forwardWS.normalize();
+	rightWS.normalize();
+	upWS.normalize();
 
 	for (WheelInfo& wheel : wheels) {
 		updateWheel(wheel);
@@ -171,13 +204,14 @@ void Vehicle::updatePhysics(btDiscreteDynamicsWorld* physWorld, uint64_t timePas
 
 	// Update suspension
 
-#if 0
+#if 1
 	for (WheelInfo& wheel : wheels) {
 		updateWheelSuspension(wheel, timePassed / 1000.0f);
 	}
 #endif
 
 	rb->applyForce(forwardWS*force, Vector3::Zero);
+#endif
 
 	rb->activate();
 }
@@ -208,81 +242,54 @@ void Vehicle::updateWheel(WheelInfo& wheel)
 
 bool Vehicle::castWheelRay(btDiscreteDynamicsWorld* physWorld, WheelInfo& wheel)
 {
-	//btVector3 rayStart = wheel.restPositionWS;
-	//btVector3 rayEnd = rayStart - upWS*wheel.radius;
+	bool lbWheel = (wheel.dummyName == "wheel_lb_dummy");
 
-	Vector3 rayStart(-2.006414f, 93.087769f, 200.258331f);
-	Vector3 rayEnd(-2.006469f, 93.086464f, 199.886978f);
-
-	/*if (hasFixed) {
-		rayStart = fixedRayStart;
-		rayEnd = fixedRayEnd;
-	}*/
+	btVector3 rayStart = wheel.restPositionWS;
+	btVector3 rayEnd = rayStart - upWS*wheel.radius;
 
 	btDynamicsWorld::ClosestRayResultCallback cb(rayStart, rayEnd);
+	cb.m_flags = btTriangleRaycastCallback::kF_UseSubSimplexConvexCastRaytest;
 
 	physWorld->rayTest(rayStart, rayEnd, cb);
 
 	bool hasHit = false;
 
-	if (wheel.dummyName == "wheel_lf_dummy") {
-		/*printf("Casting ray (%f, %f, %f) -> (%f, %f, %f)\n", rayStart.getX(), rayStart.getY(), rayStart.getZ(),
-				rayEnd.getX(), rayEnd.getY(), rayEnd.getZ());*/
-		//printf("wheelDir: %f, %f, %f\n", -upWS.getX(), -upWS.getY(), -upWS.getZ());
-		//printf("wdl: %f\n", (-upWS).length());
+	/*if (lbWheel) {
+		printf("Casting ray (%.2f, %.2f, %.2f) -> (%.2f, %.2f, %.2f)\n", rayStart.getX(), rayStart.getY(), rayStart.getZ(),
+				rayEnd.getX(), rayEnd.getY(), rayEnd.getZ());
+	}*/
+
+	float r;
+	float num;
+
+	hasHit = IntersectRayPlane(rayStart, rayEnd-rayStart, Vector3::UnitZ, Vector3(0.0f, 0.0f, 200.0f), r, num);
+
+	if (r > 1.0f) {
+		hasHit = false;
 	}
 
-	if (cb.hasHit()) {
-		printf("Now it's hit!\n");
+	//if (cb.hasHit()) {
+	if (hasHit) {
+		//printf("Now it's hit: %f!\n", r);
 
-		//printf("Vector3 rayStart(%ff, %ff, %ff);\n", rayStart.getX(), rayStart.getY(), rayStart.getZ());
-		//printf("Vector3 rayEnd(%ff, %ff, %ff);\n", rayEnd.getX(), rayEnd.getY(), rayEnd.getZ());
+		/*const btRigidBody* colBody = btRigidBody::upcast(cb.m_collisionObject);
 
-		const btRigidBody* colBody = btRigidBody::upcast(cb.m_collisionObject);
+		if (lbWheel) {
+			printf("Vehicle %p has hit object %p\n", rb, colBody);
+		}*/
 
-		if (colBody  &&  colBody->hasContactResponse()) {
-			//printf("Hit at %f\n", cb.m_closestHitFraction);
+		wheel.contactNormalWS = Vector3::UnitZ;
+		wheel.contactPointWS = rayStart + (rayEnd-rayStart)*r;
+		wheel.contactDist = (rayEnd-rayStart).length() * r;
 
+		/*if (colBody  &&  colBody->hasContactResponse()) {
 			wheel.contactNormalWS = cb.m_hitNormalWorld.normalized();
 			wheel.contactPointWS = cb.m_hitPointWorld;
 			wheel.contactDist = cb.m_closestHitFraction * (rayEnd - rayStart).length();
 
 			hasHit = true;
-		} else {
-			//printf("Just not this!\n");
-		}
-	} else {
-		//printf("Hasn't hit\n");
-		//btVector3 altEnd = rayStart - upWS*wheel.radius*2.0f;
-		btVector3 altEnd = rayStart + (rayEnd-rayStart)*10.0f;
-		//btVector3 altEnd = rayEnd;
-		btDynamicsWorld::ClosestRayResultCallback acb(rayStart, altEnd);
-
-		physWorld->rayTest(rayStart, altEnd, acb);
-
-		if (acb.hasHit()) {
-			if (acb.m_closestHitFraction * (altEnd-rayStart).length() < (rayEnd-rayStart).length()) {
-				//printf("Vector3 rayStart(%ff, %ff, %ff);\n", rayStart.getX(), rayStart.getY(), rayStart.getZ());
-				//printf("Vector3 rayEnd(%ff, %ff, %ff);\n", rayEnd.getX(), rayEnd.getY(), rayEnd.getZ());
-				printf("Falsch...\n");
-
-				altEnd = rayEnd;
-				btDynamicsWorld::ClosestRayResultCallback acb2(rayStart, altEnd);
-
-				physWorld->rayTest(rayStart, altEnd, acb2);
-
-				//printf("Hit: %s\n", acb2.hasHit() ? "yes" : "no");
-			}
-			//printf("Alt hit: %f\n", (acb.m_closestHitFraction*(altEnd-rayStart).length()) / (rayEnd-rayStart).length());
-			/*printf("Alt hit dist: %f (%f) -> %f\n", acb.m_closestHitFraction * (altEnd-rayStart).length(), (rayEnd-rayStart).length(),
-					cb.m_closestHitFraction);*/
-		}
-
-		//printf("Not hit\n");
+		}*/
 	}
-
-	//printf("Wheel radius: %f\n", wheel.radius);
-	//printf("Len: %f\n", (rayEnd-rayStart).length());
 
 	if (hasHit) {
 		wheel.inContact = true;
@@ -290,7 +297,10 @@ bool Vehicle::castWheelRay(btDiscreteDynamicsWorld* physWorld, WheelInfo& wheel)
 
 		if (wheel.currentSuspensionOffset < -wheel.maxSuspensionCompression) {
 			wheel.currentSuspensionOffset = -wheel.maxSuspensionCompression;
-			//printf("Maxing out\n");
+		}
+
+		if (lbWheel) {
+			printf("Suspension Offset: %f\n", wheel.currentSuspensionOffset);
 		}
 
 		/*if (wheel.dummyName == "wheel_lf_dummy") {
@@ -327,9 +337,7 @@ bool Vehicle::castWheelRay(btDiscreteDynamicsWorld* physWorld, WheelInfo& wheel)
 		wheel.inContact = false;
 	}
 
-	if (wheel.dummyName == "wheel_lf_dummy") {
-		//printf("%f\n", wheel.currentSuspensionOffset);
-	}
+	//wheel.currentSuspensionOffset = wheel.maxSuspensionCompression;
 
 	return hasHit;
 }
@@ -337,8 +345,12 @@ bool Vehicle::castWheelRay(btDiscreteDynamicsWorld* physWorld, WheelInfo& wheel)
 
 void Vehicle::updateWheelSuspension(WheelInfo& wheel, float timeStep)
 {
+	bool lbWheel = (wheel.dummyName == "wheel_lb_dummy");
+
 	if (wheel.inContact) {
 		//printf("inContact\n");
+
+		//printf("inv: %f\n", wheel.clippedInvContactDotSuspension);
 
 		float force = -wheel.suspensionStiffness * wheel.currentSuspensionOffset * wheel.clippedInvContactDotSuspension;
 
@@ -353,8 +365,15 @@ void Vehicle::updateWheelSuspension(WheelInfo& wheel, float timeStep)
 		wheel.suspensionForce = 0.0f;
 	}
 
+	if (lbWheel) {
+		printf("Force: %f, dt: %f\n", wheel.suspensionForce, timeStep);
+	}
+
+	//rb->applyForce(wheel.contactNormalWS * force, wheel.contactPoint);
+
 	Vector3 impulse = wheel.contactNormalWS * wheel.suspensionForce * timeStep;
 
-	//printf("Impulse: %f, %f, %f\n", impulse.getX(), impulse.getY(), impulse.getZ());
+	/*if (lbWheel)
+		printf("Impulse: %f, %f, %f\n", impulse.getX(), impulse.getY(), impulse.getZ());*/
 	rb->applyImpulse(impulse, wheel.contactPoint);
 }

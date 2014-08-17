@@ -25,8 +25,8 @@
 
 
 AdvancedShaderProgram::AdvancedShaderProgram(const CString& programName)
-		: name(programName), vertexDispatchShader(NULL), fragmentDispatchShader(NULL),
-		  program(new ShaderProgram(programName)), shadersValid(false)
+		: name(programName), program(new ShaderProgram(programName)), vertexDispatchShader(NULL),
+		  fragmentDispatchShader(NULL), shadersValid(false)
 {
 }
 

@@ -41,7 +41,7 @@ ShaderPlugin::ShaderPlugin()
 	sprintf(tmpStr,
 			"#define GTAGL_SHADER_PLUGIN_ID %u\n"
 			"#define GTAGL_SHADER_PLUGIN\n\n",
-			uniqueID, uniqueID);
+			uniqueID);
 	vertexHeaderCode += tmpStr;
 	fragmentHeaderCode += tmpStr;
 

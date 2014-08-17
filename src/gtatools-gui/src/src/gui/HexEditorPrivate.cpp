@@ -688,7 +688,8 @@ void HexEditorPrivate::paintEvent(QPaintEvent* evt)
 
 	// This must have the thickness of the thickest border that is to be supported (see the decrement/increment of
 	// startLine/endLine below for more details).
-	QPen rectPen(QColor(Qt::black));
+	// Keep these additional parentheses. I have no idea why, but Clang complains when they are missing...
+	QPen rectPen((QColor(Qt::black)));
 	rectPen.setWidth(3);
 
 	// Fill the background of the address area

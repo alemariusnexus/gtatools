@@ -50,8 +50,8 @@ public:
 		sdist = 0.0f;
 	}
 	LightSource(const LightSource& other)
-			: pseudoModelMat(other.pseudoModelMat), enabled(other.enabled), sdist(other.sdist),
-			  shadowsEnabled(other.shadowsEnabled)
+			: pseudoModelMat(other.pseudoModelMat), enabled(other.enabled), shadowsEnabled(other.shadowsEnabled),
+			  sdist(other.sdist)
 			{ memcpy(&lightData, &other.lightData, sizeof(lightData)); }
 
 	void setEnabled(bool enabled) { this->enabled = enabled; }

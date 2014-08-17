@@ -28,6 +28,11 @@ using std::dynamic_pointer_cast;
 
 
 
+SCRIPTOBJECT_DEFINE_HELPER_METHODS(ScriptRWBSBlock, "RWBlock")
+
+
+
+
 void ScriptRWBSBlock::registerClass(lua_State* lua)
 {
 	createClass(lua);

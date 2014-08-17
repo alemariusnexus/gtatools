@@ -59,9 +59,9 @@
 
 
 DefaultRenderer::DefaultRenderer()
-		: globalAmbientLightEnabled(true), dpNumPasses(6), numObjects(0), currentMatrixAllocSize(5000),
+		: globalAmbientLightEnabled(true), numObjects(0), currentMatrixAllocSize(5000),
 		  mvMatrices(new Matrix4[currentMatrixAllocSize]), mvpMatrices(new Matrix4[currentMatrixAllocSize]),
-		  normalMatrices(new Matrix4[currentMatrixAllocSize])
+		  normalMatrices(new Matrix4[currentMatrixAllocSize]), dpNumPasses(6)
 {
 	programCache = new AdvancedShaderProgramCache(new AdvancedShaderProgramCacheLoader(this), 50);
 
@@ -1435,7 +1435,7 @@ void DefaultRenderer::renderStaticMeshes(list<StaticRenderingMeshEntry>::iterato
 
 			glEnableVertexAttribArray(Renderer::VertexAttributeLocationVertex);
 			glVertexAttribPointer(Renderer::VertexAttributeLocationVertex, 3, GL_FLOAT, GL_FALSE,
-					smesh->getVertexStride(), (void*) smesh->getVertexOffset());
+					smesh->getVertexStride(), (void*) (intptr_t) smesh->getVertexOffset());
 
 			int nOffs = smesh->getNormalOffset();
 			int tcOffs = smesh->getTexCoordOffset();
@@ -1444,7 +1444,7 @@ void DefaultRenderer::renderStaticMeshes(list<StaticRenderingMeshEntry>::iterato
 			if (nOffs != -1) {
 				glEnableVertexAttribArray(Renderer::VertexAttributeLocationNormal);
 				glVertexAttribPointer(Renderer::VertexAttributeLocationNormal, 3, GL_FLOAT, GL_FALSE,
-						smesh->getNormalStride(), (void*) nOffs);
+						smesh->getNormalStride(), (void*) (intptr_t) nOffs);
 			} else {
 				glDisableVertexAttribArray(Renderer::VertexAttributeLocationNormal);
 			}
@@ -1452,7 +1452,7 @@ void DefaultRenderer::renderStaticMeshes(list<StaticRenderingMeshEntry>::iterato
 			if (tcOffs != -1) {
 				glEnableVertexAttribArray(Renderer::VertexAttributeLocationTexCoord);
 				glVertexAttribPointer(Renderer::VertexAttributeLocationTexCoord, 2, GL_FLOAT, GL_FALSE,
-						smesh->getTexCoordStride(), (void*) tcOffs);
+						smesh->getTexCoordStride(), (void*) (intptr_t) tcOffs);
 			} else {
 				glDisableVertexAttribArray(Renderer::VertexAttributeLocationTexCoord);
 			}
@@ -1460,7 +1460,7 @@ void DefaultRenderer::renderStaticMeshes(list<StaticRenderingMeshEntry>::iterato
 			if (vcOffs != -1) {
 				glEnableVertexAttribArray(Renderer::VertexAttributeLocationVertexColor);
 				glVertexAttribPointer(Renderer::VertexAttributeLocationVertexColor, 4, GL_UNSIGNED_BYTE, GL_TRUE,
-						smesh->getVertexColorStride(), (void*) vcOffs);
+						smesh->getVertexColorStride(), (void*) (intptr_t) vcOffs);
 			} else {
 				glDisableVertexAttribArray(Renderer::VertexAttributeLocationVertexColor);
 			}
@@ -1468,7 +1468,7 @@ void DefaultRenderer::renderStaticMeshes(list<StaticRenderingMeshEntry>::iterato
 			if (smOffs != -1) {
 				glEnableVertexAttribArray(Renderer::VertexAttributeLocationSubmeshIndex);
 				glVertexAttribIPointer(Renderer::VertexAttributeLocationSubmeshIndex, 1, GL_UNSIGNED_BYTE,
-						smesh->getSubmeshIDStride(), (void*) smOffs);
+						smesh->getSubmeshIDStride(), (void*) (intptr_t) smOffs);
 			} else {
 				glDisableVertexAttribArray(Renderer::VertexAttributeLocationSubmeshIndex);
 			}
@@ -1548,7 +1548,7 @@ void DefaultRenderer::renderStaticMeshes(list<StaticRenderingMeshEntry>::iterato
 				matColors[j*4 + 3] = a / 255.0f;
 
 				indexCounts[j] = submesh->getIndexCount();
-				indexOffsets[j] = (GLvoid*) indexOffs;
+				indexOffsets[j] = (GLvoid*) (intptr_t) indexOffs;
 				baseVertices[j] = smesh->getVertexCount() * (submeshOffs + j);
 
 				indexOffs += submesh->getIndexCount() * 4;
@@ -1610,7 +1610,7 @@ void DefaultRenderer::renderAnimatedMeshes(list<AnimatedRenderingMeshEntry>::ite
 
 			glEnableVertexAttribArray(Renderer::VertexAttributeLocationVertex);
 			glVertexAttribPointer(Renderer::VertexAttributeLocationVertex, 3, GL_FLOAT, GL_FALSE,
-					amesh->getVertexStride(), (void*) amesh->getVertexOffset());
+					amesh->getVertexStride(), (void*) (intptr_t) amesh->getVertexOffset());
 
 			int nOffs = amesh->getNormalOffset();
 			int tcOffs = amesh->getTexCoordOffset();
@@ -1621,7 +1621,7 @@ void DefaultRenderer::renderAnimatedMeshes(list<AnimatedRenderingMeshEntry>::ite
 			if (nOffs != -1) {
 				glEnableVertexAttribArray(Renderer::VertexAttributeLocationNormal);
 				glVertexAttribPointer(Renderer::VertexAttributeLocationNormal, 3, GL_FLOAT, GL_FALSE,
-						amesh->getNormalStride(), (void*) nOffs);
+						amesh->getNormalStride(), (void*) (intptr_t) nOffs);
 			} else {
 				glDisableVertexAttribArray(Renderer::VertexAttributeLocationNormal);
 			}
@@ -1629,7 +1629,7 @@ void DefaultRenderer::renderAnimatedMeshes(list<AnimatedRenderingMeshEntry>::ite
 			if (tcOffs != -1) {
 				glEnableVertexAttribArray(Renderer::VertexAttributeLocationTexCoord);
 				glVertexAttribPointer(Renderer::VertexAttributeLocationTexCoord, 2, GL_FLOAT, GL_FALSE,
-						amesh->getTexCoordStride(), (void*) tcOffs);
+						amesh->getTexCoordStride(), (void*) (intptr_t) tcOffs);
 			} else {
 				glDisableVertexAttribArray(Renderer::VertexAttributeLocationTexCoord);
 			}
@@ -1637,7 +1637,7 @@ void DefaultRenderer::renderAnimatedMeshes(list<AnimatedRenderingMeshEntry>::ite
 			if (vcOffs != -1) {
 				glEnableVertexAttribArray(Renderer::VertexAttributeLocationVertexColor);
 				glVertexAttribPointer(Renderer::VertexAttributeLocationVertexColor, 4, GL_UNSIGNED_BYTE, GL_TRUE,
-						amesh->getVertexColorStride(), (void*) vcOffs);
+						amesh->getVertexColorStride(), (void*) (intptr_t) vcOffs);
 			} else {
 				glDisableVertexAttribArray(Renderer::VertexAttributeLocationVertexColor);
 			}
@@ -1645,7 +1645,7 @@ void DefaultRenderer::renderAnimatedMeshes(list<AnimatedRenderingMeshEntry>::ite
 			if (biOffs != -1) {
 				glEnableVertexAttribArray(Renderer::VertexAttributeLocationBoneIndex);
 				glVertexAttribPointer(Renderer::VertexAttributeLocationBoneIndex, 4, GL_UNSIGNED_BYTE, GL_FALSE,
-						amesh->getBoneIndexStride(), (void*) biOffs);
+						amesh->getBoneIndexStride(), (void*) (intptr_t) biOffs);
 			} else {
 				glDisableVertexAttribArray(Renderer::VertexAttributeLocationBoneIndex);
 			}
@@ -1653,7 +1653,7 @@ void DefaultRenderer::renderAnimatedMeshes(list<AnimatedRenderingMeshEntry>::ite
 			if (bwOffs != -1) {
 				glEnableVertexAttribArray(Renderer::VertexAttributeLocationBoneWeight);
 				glVertexAttribPointer(Renderer::VertexAttributeLocationBoneWeight, 4, GL_FLOAT, GL_FALSE,
-						amesh->getBoneWeightStride(), (void*) bwOffs);
+						amesh->getBoneWeightStride(), (void*) (intptr_t) bwOffs);
 			} else {
 				glDisableVertexAttribArray(Renderer::VertexAttributeLocationBoneWeight);
 			}
@@ -1661,7 +1661,7 @@ void DefaultRenderer::renderAnimatedMeshes(list<AnimatedRenderingMeshEntry>::ite
 			if (smOffs != -1) {
 				glEnableVertexAttribArray(Renderer::VertexAttributeLocationSubmeshIndex);
 				glVertexAttribIPointer(Renderer::VertexAttributeLocationSubmeshIndex, 1, GL_UNSIGNED_BYTE,
-						amesh->getSubmeshIDStride(), (void*) smOffs);
+						amesh->getSubmeshIDStride(), (void*) (intptr_t) smOffs);
 			} else {
 				glDisableVertexAttribArray(Renderer::VertexAttributeLocationSubmeshIndex);
 			}
@@ -1749,7 +1749,7 @@ void DefaultRenderer::renderAnimatedMeshes(list<AnimatedRenderingMeshEntry>::ite
 				matColors[j*4 + 3] = a / 255.0f;
 
 				indexCounts[j] = submesh->getIndexCount();
-				indexOffsets[j] = (GLvoid*) indexOffs;
+				indexOffsets[j] = (GLvoid*) (intptr_t) indexOffs;
 				baseVertices[j] = amesh->getVertexCount() * (submeshOffs + j);
 
 				indexOffs += submesh->getIndexCount() * 4;

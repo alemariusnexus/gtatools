@@ -48,6 +48,8 @@ bool Animator::checkBoneNumberValidity(MeshFrame* frame)
 		if (checkBoneNumberValidity(child))
 			return true;
 	}
+
+	return false;
 }
 
 

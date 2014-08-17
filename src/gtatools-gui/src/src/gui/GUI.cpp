@@ -121,6 +121,8 @@ bool GUI::findAndOpenFile(const QLinkedList<File>& rootFiles, FileFinder* finder
 		System::getInstance()->openEntity(req);
 		return true;
 	}
+
+	return false;
 }
 
 

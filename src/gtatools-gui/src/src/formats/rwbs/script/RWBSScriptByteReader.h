@@ -32,7 +32,7 @@
 
 class RWBSScriptByteReader : public ScriptObject
 {
-	SCRIPTOBJECT_CREATE_HELPER_METHODS(RWBSScriptByteReader, "ByteReader")
+	SCRIPTOBJECT_DECLARE_HELPER_METHODS(RWBSScriptByteReader)
 
 public:
 	static void registerClass(lua_State* lua);

@@ -98,9 +98,10 @@ Controller::Controller()
 		: lastFrameStart(0), lastMeasuredFrameStart(0), moveFactor(1.0f),
 		  moveForwardFactor(0.0f), moveSidewardFactor(0.0f), moveUpFactor(0.0f), firstFrame(true),
 		  framesSinceLastMeasure(0), lastMouseX(-1), lastMouseY(-1), printCacheStatistics(false),
-		  programRunning(true), forceStatisticsUpdate(false), freeRunning(true), increaseTime(false),
+		  programRunning(true), forceStatisticsUpdate(false), freeRunning(false), increaseTime(false),
 		  increaseTimeHold(false),
-		  lastSelectedObj(NULL)
+		  lastSelectedObj(NULL),
+		  lastPhysTimePassed(0)
 {
 }
 
@@ -427,16 +428,16 @@ void Controller::init()
 	infernusArchive->setParent(vehicleArchive);
 
 
-	//veh = new VehicleController;
+	veh = new VehicleController;
 
-	//veh->init();
+	veh->init();
 
 
-	/*float testRadius = 5.0f;
+	float testRadius = 0.371362;
 
 	MeshGenerator mg;
 
-	Mesh* mesh = mg.createSphere(testRadius, 10, 10);
+	Mesh* mesh = mg.createSphere(testRadius, 50, 50);
 
 	for (Mesh::SubmeshIterator it = mesh->getSubmeshBegin() ; it != mesh->getSubmeshEnd() ; it++) {
 		Submesh* submesh = *it;
@@ -458,17 +459,17 @@ void Controller::init()
 	btSphereShape* shape = new btSphereShape(testRadius);
 	StaticPhysicsPointer* physPtr = new StaticPhysicsPointer(shape);
 
-	SimpleDynamicSceneObject* sdObj = new SimpleDynamicSceneObject(meshPtr, NULL, NULL, NULL, physPtr, 250.0f, 20.0f, Matrix4::translation(100.0f, -100.0f, 100.0f));
+	SimpleDynamicSceneObject* sdObj = new SimpleDynamicSceneObject(meshPtr, NULL, NULL, NULL, physPtr, 250.0f, 20.0f, Matrix4::translation(2.0f, 2.0f, 204.5f));
 	btRigidBody* rb = sdObj->getRigidBody();
 
-	rb->setRestitution(1.0f);
+	rb->setRestitution(0.0f);
 	rb->forceActivationState(DISABLE_DEACTIVATION);
-	rb->setLinearVelocity(btVector3(20.0f, 0.0f, 0.0f));
+	//rb->setLinearVelocity(btVector3(20.0f, 0.0f, 0.0f));
 	//rb->applyForce(btVector3(1.0f, 0.0f, 0.0f), btVector3(0.0f, 0.0f, 0.0f));
 
 	sdObj->setBoundingSphere(Vector3::Zero, testRadius);
 
-	scene->addSceneObject(sdObj);*/
+	scene->addSceneObject(sdObj);
 
 	/*veh = new Vehicle("infernus", Matrix4::translation(0.0f, 0.0f, 500.0f) * Matrix4::rotationY(0.5f));
 
@@ -703,7 +704,7 @@ void Controller::init()
 	File pvsFile(GTASA_PATH "/visibility.pvs");
 
 	bool pvsBuilt = false;
-
+#if 0
 	if (pvsFile.exists()) {
 		printf("Loading PVS data from file '%s'...\n", pvsFile.getPath().toString().get());
 
@@ -732,7 +733,7 @@ void Controller::init()
 			}
 		}
 	}
-
+#endif
 	if (!pvsBuilt) {
 		printf("Building PVS data from scratch. This may take some time...\n");
 		pvs->calculateSections(500.0f, 500.0f, 2000.0f);
@@ -901,10 +902,12 @@ bool Controller::paint()
 		timePassed = time - lastFrameStart;
 	}
 
+	timePassed = (1.0f/60.0f) * 1000;
+
 #if 1
-	cam->move(timeFactor*moveForwardFactor*moveFactor);
-	cam->moveSideways(timeFactor*moveSidewardFactor*moveFactor);
-	cam->moveUp(timeFactor*moveUpFactor*moveFactor);
+	//cam->move(timeFactor*moveForwardFactor*moveFactor);
+	//cam->moveSideways(timeFactor*moveSidewardFactor*moveFactor);
+	//cam->moveUp(timeFactor*moveUpFactor*moveFactor);
 #else
 	Vector3 cpos(0.0f, -5.0f, 2.5f);
 	cpos = veh->getModelMatrix() * cpos;
@@ -1002,14 +1005,15 @@ bool Controller::paint()
 
 	if (freeRunning  ||  increaseTime) {
 		engine->advanceFrame(timePassed);
+		veh->update(timePassed);
 
 		if (!increaseTimeHold)
 			increaseTime = false;
 	} else {
 		engine->advanceFrame(0);
+		veh->update(0);
 	}
 
-	//veh->update(timePassed);
 	//veh->update();
 
 	e = GetTickcountMicroseconds();
@@ -1052,7 +1056,7 @@ void Controller::keyPressed(SDL_keysym evt)
 {
 	Engine* engine = Engine::getInstance();
 
-	//veh->keyPressed(evt);
+	veh->keyPressed(evt);
 
 	SDLKey k = evt.sym;
 
@@ -1133,7 +1137,7 @@ void Controller::keyPressed(SDL_keysym evt)
 
 void Controller::keyReleased(SDL_keysym evt)
 {
-	//veh->keyReleased(evt);
+	veh->keyReleased(evt);
 
 	SDLKey k = evt.sym;
 
@@ -1162,7 +1166,7 @@ void Controller::keyReleased(SDL_keysym evt)
 
 void Controller::mouseButtonPressed(Uint8 button, int x, int y)
 {
-	//veh->mouseButtonPressed(button, x, y);
+	veh->mouseButtonPressed(button, x, y);
 
 	if (button == SDL_BUTTON_LEFT) {
 		lastMouseX = x;
@@ -1173,7 +1177,7 @@ void Controller::mouseButtonPressed(Uint8 button, int x, int y)
 
 void Controller::mouseButtonDoubleClicked(int x, int y)
 {
-	//veh->mouseButtonDoubleClicked(x, y);
+	veh->mouseButtonDoubleClicked(x, y);
 
 	Engine* engine = Engine::getInstance();
 	Camera* cam = engine->getCamera();
@@ -1291,7 +1295,7 @@ void Controller::mouseButtonDoubleClicked(int x, int y)
 
 void Controller::mouseButtonReleased(Uint8 button, int x, int y)
 {
-	//veh->mouseButtonReleased(button, x, y);
+	veh->mouseButtonReleased(button, x, y);
 
 	if (button == SDL_BUTTON_LEFT) {
 		lastMouseX = -1;
@@ -1302,7 +1306,7 @@ void Controller::mouseButtonReleased(Uint8 button, int x, int y)
 
 void Controller::mouseMotion(int x, int y)
 {
-	//veh->mouseMotion(x, y);
+	veh->mouseMotion(x, y);
 
 	Engine* engine = Engine::getInstance();
 	Camera* cam = engine->getCamera();
@@ -1311,8 +1315,8 @@ void Controller::mouseMotion(int x, int y)
 		int xOffs = x - lastMouseX;
 		int yOffs = y - lastMouseY;
 
-		cam->rotateHorizontal(xOffs * -0.005f);
-		cam->rotateVertical(yOffs * 0.005f);
+		//cam->rotateHorizontal(xOffs * -0.005f);
+		//cam->rotateVertical(yOffs * 0.005f);
 
 		lastMouseX = x;
 		lastMouseY = y;

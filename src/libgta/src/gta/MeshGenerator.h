@@ -30,12 +30,12 @@
 
 class MeshGenerator {
 public:
-	void createBox(float*& vertices, int& vertexCount, uint32_t*& indices, int& indexCount,
+	void createBox(float*& vertices, unsigned int& vertexCount, uint32_t*& indices, unsigned int& indexCount,
 			const Vector3& min, const Vector3& max);
 	Mesh* createBox(const Vector3& min, const Vector3& max);
-    void createSphere(float*& vertices, float*& normals, int& vertexCount, uint32_t*& indices, int& indexCount,
-    		float radius, int slices, int stacks, const Vector3& offset = Vector3::Zero);
-    Mesh* createSphere(float radius, int slices, int stacks, const Vector3& offset = Vector3::Zero);
+    void createSphere(float*& vertices, float*& normals, unsigned int& vertexCount, uint32_t*& indices, unsigned int& indexCount,
+    		float radius, unsigned int slices, unsigned int stacks, const Vector3& offset = Vector3::Zero);
+    Mesh* createSphere(float radius, unsigned int slices, unsigned int stacks, const Vector3& offset = Vector3::Zero);
 };
 
 #endif /* MESHGENERATOR_H_ */

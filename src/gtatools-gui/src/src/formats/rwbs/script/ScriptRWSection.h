@@ -30,7 +30,7 @@
 
 class ScriptRWSection : public ScriptObject
 {
-	SCRIPTOBJECT_CREATE_HELPER_METHODS(ScriptRWSection, "RWSection")
+	SCRIPTOBJECT_DECLARE_HELPER_METHODS(ScriptRWSection)
 
 public:
 	virtual ~ScriptRWSection();

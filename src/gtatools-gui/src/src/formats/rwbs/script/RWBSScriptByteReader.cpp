@@ -31,6 +31,11 @@ using std::dynamic_pointer_cast;
 
 
 
+SCRIPTOBJECT_DEFINE_HELPER_METHODS(RWBSScriptByteReader, "ByteReader")
+
+
+
+
 template <typename T>
 int _readArrayNumImpl(lua_State* lua)
 {
