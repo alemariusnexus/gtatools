@@ -26,21 +26,17 @@
 
 
 CollisionModel::CollisionModel(const COLModel& model)
+		: name(model.getName())
 {
 	if (model.getFaceCount() != 0)
 		addMesh(new CollisionMesh(model));
 
-	const COLBox* colBoxes = model.getBoxes();
-	uint32_t numBoxes = model.getBoxCount();
-
-	const COLSphere* colSpheres = model.getSpheres();
-	uint32_t numSpheres = model.getSphereCount();
-
-	for (uint32_t i = 0 ; i < numBoxes ; i++)
-		addBox(new CollisionBox(colBoxes[i]));
-
-	for (uint32_t i = 0 ; i < numSpheres ; i++)
-		addSphere(new CollisionSphere(colSpheres[i]));
+	for (auto box : model.getBoxes()) {
+		addBox(new CollisionBox(box));
+	}
+	for (auto sphere : model.getSpheres()) {
+		addSphere(new CollisionSphere(sphere));
+	}
 
 	const COLBounds& bounds = model.getBounds();
 

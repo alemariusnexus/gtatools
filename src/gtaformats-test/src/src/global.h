@@ -26,6 +26,7 @@
 #include <gtest/gtest.h>
 #include <gtaformats/config.h>
 #include <nxcommon/file/File.h>
+#include "printhelpers.h"
 
 enum GTATestVersion {
 	TestGTAIII,

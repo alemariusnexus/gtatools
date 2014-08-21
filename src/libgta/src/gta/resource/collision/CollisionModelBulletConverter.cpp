@@ -90,6 +90,8 @@ btCollisionShape* CollisionModelBulletConverter::convert(const CollisionModel* m
 	if (cacheSize)
 		*cacheSize = sizeof(btCompoundShape);
 
+	bool convertedSomething = false;
+
 
 	for (CollisionModel::ConstSphereIterator it = model->getSphereBegin() ; it != model->getSphereEnd() ; it++) {
 		const CollisionSphere* sphere = *it;
@@ -98,6 +100,8 @@ btCollisionShape* CollisionModelBulletConverter::convert(const CollisionModel* m
 		btCollisionShape* sphereShape = convert(sphere, &sphereSize);
 		shape->addChildShape(btTransform(btQuaternion(0.0f, 0.0f, 0.0f, 1.0f),
 				btVector3(center.getX(), center.getY(), center.getZ())), sphereShape);
+
+		convertedSomething = true;
 
 		if (cacheSize)
 			*cacheSize += sphereSize;
@@ -113,6 +117,8 @@ btCollisionShape* CollisionModelBulletConverter::convert(const CollisionModel* m
 		shape->addChildShape(btTransform(btQuaternion(0.0f, 0.0f, 0.0f, 1.0f),
 				btVector3(center.getX(), center.getY(), center.getZ())), boxShape);
 
+		convertedSomething = true;
+
 		if (cacheSize)
 			*cacheSize += boxSize;
 	}
@@ -124,9 +130,17 @@ btCollisionShape* CollisionModelBulletConverter::convert(const CollisionModel* m
 			btCollisionShape* meshShape = convert(mesh, &size);
 			shape->addChildShape(btTransform(btQuaternion(0.0f, 0.0f, 0.0f, 1.0f)), meshShape);
 
+			convertedSomething = true;
+
 			if (cacheSize)
 				*cacheSize += size;
 		}
+	}
+
+	if (!convertedSomething) {
+		// I've been bitten by this before. Bullet crashes with an assertion failure when working with empty btCompoundShapes.
+		delete shape;
+		return new btEmptyShape;
 	}
 
 	return shape;

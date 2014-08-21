@@ -66,7 +66,7 @@ Scene::Scene()
 	btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver();
 	physicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, config);
 
-	physicsWorld->setGravity(btVector3(0.0f, 0.0f, -15.81f));
+	physicsWorld->setGravity(btVector3(0.0f, 0.0f, -9.81f));
 
 	streamer->addStreamingListener(this);
 

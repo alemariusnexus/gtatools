@@ -29,7 +29,7 @@
 
 class GXTException : public Exception {
 public:
-	GXTException(const char* message, const char* srcFile = NULL, int srcLine = -1,
+	GXTException(const CString& message, const CString& srcFile = CString(), int srcLine = -1,
 			Exception* nestedException = NULL)
 	: Exception(message, srcFile, srcLine, nestedException, "GXTException") {}
 };

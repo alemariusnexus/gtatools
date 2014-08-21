@@ -28,6 +28,10 @@
 #include "COLSurface.h"
 
 
+
+#pragma pack(push, 1)
+
+
 class COLSphere {
 	friend class COLLoader;
 
@@ -36,11 +40,9 @@ public:
 			: center(center), radius(radius), surface(surface) {}
 	COLSphere(const COLSphere& other) : center(other.center), radius(other.radius), surface(other.surface) {}
 	COLSphere() : radius(0.0f) {}
-	const Vector3& getCenter() const { return center; }
-	Vector3& getCenter() { return center; }
+	Vector3 getCenter() const { return center; }
 	float getRadius() const { return radius; }
-	const COLSurface& getSurface() const { return surface; }
-	COLSurface& getSurface() { return surface; }
+	COLSurface getSurface() const { return surface; }
 	void setCenter(const Vector3& center) { this->center = center; }
 	void setRadius(float radius) { this->radius = radius; }
 	void setSurface(const COLSurface& surface) { this->surface = surface; }
@@ -50,5 +52,8 @@ private:
 	float radius;
 	COLSurface surface;
 };
+
+
+#pragma pack(pop)
 
 #endif /* COLSPHERE_H_ */

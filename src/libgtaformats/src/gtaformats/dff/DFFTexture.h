@@ -32,7 +32,7 @@ private:
 	friend class DFFLoader;
 
 public:
-	DFFTexture(const CString& diffuseName, const CString& alphaName = NULL, uint16_t filterModeFlags = 0)
+	DFFTexture(const CString& diffuseName, const CString& alphaName = CString(), uint16_t filterModeFlags = 0)
 			: diffuseName(diffuseName), alphaName(alphaName), filterModeFlags(filterModeFlags) {}
 	DFFTexture(const DFFTexture& other);
 	~DFFTexture();

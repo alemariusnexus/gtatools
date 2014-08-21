@@ -67,7 +67,7 @@ DisplayedEntity* GXTFormatHandler::openEntity(const EntityOpenRequest& request)
 	try {
 		widget = new GXTWidget(request, NULL);
 	} catch (Exception& ex) {
-		System::getInstance()->log(LogEntry::error(tr("Error opening GXT file: %1").arg(ex.getMessage()),
+		System::getInstance()->log(LogEntry::error(tr("Error opening GXT file: %1").arg(ex.getMessage().get()),
 				&ex));
 		return NULL;
 	}

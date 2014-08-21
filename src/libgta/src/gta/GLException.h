@@ -31,11 +31,11 @@
 
 class GLException : public Exception {
 public:
-	static void checkError(const char* msg = NULL);
-	static void checkFramebufferStatus(GLenum target, const char* msg = NULL);
+	static void checkError(const CString& = CString());
+	static void checkFramebufferStatus(GLenum target, const CString& msg = CString());
 
 public:
-	GLException(const char* message, const char* srcFile = NULL, int srcLine = -1,
+	GLException(const CString& message, const CString& srcFile = CString(), int srcLine = -1,
 			Exception* nestedException = NULL)
 			: Exception(message, srcFile, srcLine, nestedException, "GLException") {}
 };

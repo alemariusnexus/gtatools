@@ -334,7 +334,9 @@ void TXDArchive::rename(TXDTextureHeader* header, const CString& name)
 
 void TXDArchive::addTexture(TXDTextureHeader* header, uint8_t* data)
 {
-	RWSection* texNativeSect = new RWSection(RW_SECTION_TEXTURENATIVE, 0);
+	RWSection* texNativeSect = new RWSection(RW_SECTION_TEXTURENATIVE, 0u);
+	texNativeSect->setVersion(texDict->getVersion());
+
 	RWSection* texNativeStructSect = new RWSection(RW_SECTION_STRUCT, texNativeSect);
 	RWSection* texNativeExtSect = new RWSection(RW_SECTION_EXTENSION, texNativeSect);
 	texNativeExtSect->setData(new uint8_t[0], 0); // Empty
@@ -352,7 +354,6 @@ void TXDArchive::addTexture(TXDTextureHeader* header, uint8_t* data)
 	}
 
 	texDict->insertChild(it, texNativeSect);
-	texNativeSect->setVersion(texDict->getVersion());
 
 	texHeaders.push_back(header);
 	texNativeMap.insert(pair<CString, RWSection*>(header->getDiffuseName().lower(), texNativeSect));

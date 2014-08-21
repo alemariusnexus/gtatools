@@ -28,6 +28,10 @@
 #include "COLSurface.h"
 
 
+
+#pragma pack(push, 1)
+
+
 class COLBox {
 	friend class COLLoader;
 
@@ -35,12 +39,9 @@ public:
 	COLBox(const Vector3& vmin, const Vector3& vmax, const COLSurface& surface) : vmin(vmin), vmax(vmax), surface(surface) {}
 	COLBox(const COLBox& other) : vmin(other.vmin), vmax(other.vmax), surface(other.surface) {}
 	COLBox() {}
-	const Vector3& getMinimum() const { return vmin; }
-	Vector3& getMinimum() { return vmin; }
-	const Vector3& getMaximum() const { return vmax; }
-	Vector3& getMaximum() { return vmax; }
-	const COLSurface& getSurface() const { return surface; }
-	COLSurface& getSurface() { return surface; }
+	Vector3 getMinimum() const { return vmin; }
+	Vector3 getMaximum() const { return vmax; }
+	COLSurface getSurface() const { return surface; }
 	void setMinimum(const Vector3& vec) { vmin = vec; }
 	void setMaximum(const Vector3& vec) { vmax = vec; }
 	void setSurface(const COLSurface& surface) { this->surface = surface; }
@@ -50,5 +51,8 @@ private:
 	Vector3 vmax;
 	COLSurface surface;
 };
+
+
+#pragma pack(pop)
 
 #endif /* COLBOX_H_ */

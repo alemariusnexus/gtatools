@@ -152,7 +152,7 @@ void DFFWidget::reloadHighLevelFile()
 		setEnabled(true);
 	} catch (DFFException ex) {
 		System::getInstance()->log(LogEntry::error(QString(tr("Error opening the DFF file: %1"))
-				.arg(ex.getMessage()), &ex));
+				.arg(ex.getMessage().get()), &ex));
 		mesh = NULL;
 		setEnabled(false);
 		//ui.hlWidget->setEnabled(false);

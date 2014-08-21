@@ -40,10 +40,10 @@ public:
 
 public:
 	LogEntry(const QString& msg, Type type = Error, Exception* ex = NULL)
-			: message(msg), ex(ex ? ex->copy() : NULL), type(type) {}
+			: message(msg), ex(ex ? ex->clone() : NULL), type(type) {}
 	~LogEntry() { if (ex) delete ex; }
 	void setMessage(const QString& msg) { message = msg; }
-	void setException(const Exception& ex) { this-> ex = ex.copy(); }
+	void setException(const Exception& ex) { this-> ex = ex.clone(); }
 	void setType(Type type) { this->type = type; }
 	QString getMessage() const { return message; }
 	Exception* getException() { return ex; }

@@ -25,10 +25,12 @@
 
 #include <gtaformats/config.h>
 #include "COLModel.h"
+#include "COLException.h"
 #include <nxcommon/file/File.h>
 #include <istream>
 
 using std::istream;
+using std::streamoff;
 
 
 
@@ -36,14 +38,28 @@ class COLLoader {
 public:
 	COLModel* loadModel(istream* stream);
 	COLModel* loadModel(const File& file);
-	bool loadModelName(istream* stream, char* name);
-	bool loadModelName(const File& file, char* name);
+	CString loadModelName(istream* stream);
+	CString loadModelName(const File& file);
 	COLVersion getVersion(istream* stream);
 	COLVersion getVersion(const File& file);
-	void skip(istream* stream, int numEntries);
+	void skip(istream* stream, size_t numEntries);
 
 private:
+	void throwPrematureEndException(istream* stream, COLModel* model)
+	{
+		CString errmsg("Premature end of COL model: Model ");
 
+		if (model  &&  !model->getName().isNull()) {
+			errmsg << model->getName() << " ";
+		}
+
+		errmsg << "ended at local offset " << (stream->tellg() - colStart) << " (absolute: " << stream->tellg() << ").";
+
+		throw COLException(errmsg, __FILE__, __LINE__);
+	}
+
+private:
+	streamoff colStart;
 };
 
 #endif /* COLLOADER_H_ */

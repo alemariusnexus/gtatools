@@ -43,6 +43,7 @@ int main(int argc, char** argv)
 	int gta3PathOpt = cli.addOption(0, "gta3-path", "Root directory of GTA III", true);
 	int gtavcPathOpt = cli.addOption(0, "gtavc-path", "Root directory of GTA VC", true);
 	int gtasaPathOpt = cli.addOption(0, "gtasa-path", "Root directory of GTA SA", true);
+	int testdirPathOpt = cli.addOption(0, "testdir", "Path to the root test directory 'testdir'", true);
 
 	argv++;
 	argc--;
@@ -64,7 +65,7 @@ int main(int argc, char** argv)
 		} else if (opt == gtasaPathOpt) {
 			gtasaEnabled = true;
 			gtasaRoot = File(arg);
-		} else if (opt == 0) {
+		} else if (opt == testdirPathOpt) {
 			testRootDir = File(arg);
 			testRootFound = true;
 		}

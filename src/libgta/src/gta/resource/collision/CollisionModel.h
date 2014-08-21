@@ -86,6 +86,8 @@ public:
 	cachesize_t getCacheSize() const;
 
 private:
+	CString name;
+
 	MeshList meshes;
 	BoxList boxes;
 	SphereList spheres;

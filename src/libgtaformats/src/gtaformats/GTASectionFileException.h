@@ -30,7 +30,7 @@
 
 class GTASectionFileException : public Exception {
 public:
-	GTASectionFileException(const char* message, const char* srcFile = NULL, int srcLine = -1,
+	GTASectionFileException(const CString& message, const CString& srcFile = CString(), int srcLine = -1,
 			Exception* nestedException = NULL)
 			: Exception(message, srcFile, srcLine, nestedException, "GTASectionFileException") {}
 };

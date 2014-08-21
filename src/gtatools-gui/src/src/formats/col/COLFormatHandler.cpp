@@ -51,7 +51,7 @@ DisplayedEntity* COLFormatHandler::openEntity(const EntityOpenRequest& request)
 		widget = new COLWidget(file, NULL);
 	} catch (Exception& ex) {
 		System::getInstance()->log(LogEntry::error(QString(tr("Error opening COL file: %1"))
-				.arg(ex.getMessage()), &ex));
+				.arg(ex.getMessage().get()), &ex));
 		return NULL;
 	}
 

@@ -34,6 +34,7 @@
 #include <gtaformats/gtaipl.h>
 #include <gtaformats/gtacol.h>
 #include <gtaformats/gtatxd.h>
+#include <gtaformats/gtaimg.h>
 #include <cmath>
 #include <gta/Camera.h>
 #include <gta/Shader.h>
@@ -393,10 +394,10 @@ int main(int argc, char** argv)
 		SDL_Quit();
 	} catch (Exception& ex) {
 		printf("Exception caught: %s\n", ex.what());
-		const char* bt = ex.getBacktrace();
+		CString bt = ex.getBacktrace();
 
-		if (bt) {
-			printf("STACK TRACE:\n----------------------------\n%s\n----------------------------\n", bt);
+		if (!bt.isNull()) {
+			printf("STACK TRACE:\n----------------------------\n%s\n----------------------------\n", bt.get());
 		}
 
 		exit(1);

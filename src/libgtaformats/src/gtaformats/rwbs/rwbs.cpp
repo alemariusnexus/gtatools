@@ -26,7 +26,7 @@
 
 
 
-bool RWGetSectionInfo(int32_t id, RWSectionInfo* info)
+bool RWGetSectionInfo(uint32_t id, RWSectionInfo* info)
 {
 	for (unsigned int i = 0 ; i < RW_NUM_KNOWN_SECTIONS ; i++) {
 		RWSectionInfo tmpInfo = RWKnownSections[i];
@@ -41,7 +41,7 @@ bool RWGetSectionInfo(int32_t id, RWSectionInfo* info)
 }
 
 
-bool RWGetSectionName(int32_t id, char* dest)
+bool RWGetSectionName(uint32_t id, char* dest)
 {
 	const char* prefix = "RW_SECTION_";
 

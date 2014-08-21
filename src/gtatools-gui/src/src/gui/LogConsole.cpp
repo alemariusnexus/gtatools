@@ -74,7 +74,7 @@ void LogConsole::entryLogged(const LogEntry& entry)
 	const Exception* ex = entry.getException();
 
 	if (ex) {
-		richMsg.append(QString(tr(" (caused by %1)")).arg(ex->getName()));
+		richMsg.append(QString(tr(" (caused by %1)")).arg(ex->getName().get()));
 	}
 
 	ui.logTextEdit->append(QString("<font color=\"%1\"><b>%2:</b> %3</font>").arg(colorStr).arg(typeStr)

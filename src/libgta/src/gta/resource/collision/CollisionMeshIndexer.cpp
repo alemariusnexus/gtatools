@@ -35,14 +35,14 @@ void CollisionMeshIndexer::resourceAdded(const File& file)
 	if (file.guessContentType() == CONTENT_TYPE_COL) {
 		COLLoader col;
 		istream* stream = file.openInputStream(istream::binary);
-		char name[20];
+		CString name;
 		int i = 0;
 
-		while (col.loadModelName(stream, name)) {
+		while (!(name = col.loadModelName(stream)).isNull()) {
 			CollisionMeshIndexEntry* entry = new CollisionMeshIndexEntry;
 			entry->file = new File(file);
 			entry->index = i++;
-			index.insert(pair<CString, CollisionMeshIndexEntry*>(CString(name).lower(), entry));
+			index.insert(pair<CString, CollisionMeshIndexEntry*>(name.lower(), entry));
 		}
 
 		delete stream;

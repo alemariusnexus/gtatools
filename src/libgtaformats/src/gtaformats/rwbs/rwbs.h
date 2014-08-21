@@ -27,6 +27,7 @@
 #include <cstring>
 #include <cstdio>
 #include <map>
+#include <nxcommon/CString.h>
 
 using std::map;
 
@@ -69,7 +70,7 @@ using std::map;
 
 struct RWSectionInfo
 {
-	int32_t id;
+	uint32_t id;
 	const char* name;
 	bool container;
 };
@@ -116,13 +117,15 @@ static RWSectionInfo RWKnownSections[] = {
 
 
 
-bool RWGetSectionInfo(int32_t id, RWSectionInfo* info);
+bool RWGetSectionInfo(uint32_t id, RWSectionInfo* info);
 
 
-bool RWGetSectionName(int32_t id, char* dest);
+bool RWGetSectionName(uint32_t id, char* dest);
+
+inline CString RWGetSectionName(uint32_t id) { CString name(128); RWGetSectionName(id, name.mget()); return name; }
 
 
-inline bool RWGetSectionShortName(int32_t id, char* dest)
+inline bool RWGetSectionShortName(uint32_t id, char* dest)
 {
 	RWSectionInfo info;
 	if (RWGetSectionInfo(id, &info)) {
@@ -134,11 +137,15 @@ inline bool RWGetSectionShortName(int32_t id, char* dest)
 	}
 }
 
+inline CString RWGetSectionShortName(uint32_t id) { CString name(128); RWGetSectionShortName(id, name.mget()); return name; }
 
-inline bool RWIsSectionContainer(int32_t id)
+
+
+
+inline bool RWIsSectionContainer(uint32_t id)
 		{ RWSectionInfo info; RWGetSectionInfo(id, &info); return info.container; }
 
 
-inline bool RWIsSectionKnown(int32_t id) { RWSectionInfo info; return RWGetSectionInfo(id, &info); }
+inline bool RWIsSectionKnown(uint32_t id) { RWSectionInfo info; return RWGetSectionInfo(id, &info); }
 
 #endif /* RWBS_H_ */

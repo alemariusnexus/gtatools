@@ -49,6 +49,11 @@ QVariant COLEntityItemModel::data(const QModelIndex& index, int role) const
 
 	void* iptr = index.internalPointer();
 
+	const COLFaceGroup* fgs = &(*model->getFaceGroups().begin());
+	const COLSphere* spheres = &(*model->getSpheres().begin());
+	const COLBox* boxes = &(*model->getBoxes().begin());
+	const COLFace* faces = &(*model->getFaces().begin());
+
 	if (iptr == &sphereCountDummy) {
 		if (role == Qt::DisplayRole) {
 			return tr("Spheres");
@@ -65,21 +70,21 @@ QVariant COLEntityItemModel::data(const QModelIndex& index, int role) const
 		if (role == Qt::DisplayRole) {
 			return tr("Faces");
 		}
-	} else if (iptr >= model->getFaceGroups()  &&  iptr <= model->getFaceGroups() + (model->getFaceGroupCount()-1)) {
+	} else if (iptr >= fgs  &&  iptr <= fgs + (model->getFaceGroupCount()-1)) {
 		if (role == Qt::DisplayRole) {
-			return tr("Face Group %1").arg(((const COLFaceGroup*) iptr) - model->getFaceGroups());
+			return tr("Face Group %1").arg(((const COLFaceGroup*) iptr) - fgs);
 		}
-	} else if (iptr >= model->getSpheres()  &&  iptr <= model->getSpheres() + (model->getSphereCount()-1)) {
+	} else if (iptr >= spheres  &&  iptr <= spheres + (model->getSphereCount()-1)) {
 		if (role == Qt::DisplayRole) {
-			return tr("Sphere %1").arg(((const COLSphere*) iptr) - model->getSpheres());
+			return tr("Sphere %1").arg(((const COLSphere*) iptr) - spheres);
 		}
-	} else if (iptr >= model->getBoxes()  &&  iptr <= model->getBoxes() + (model->getBoxCount()-1)) {
+	} else if (iptr >= boxes  &&  iptr <= boxes + (model->getBoxCount()-1)) {
 		if (role == Qt::DisplayRole) {
-			return tr("Box %1").arg(((const COLBox*) iptr) - model->getBoxes());
+			return tr("Box %1").arg(((const COLBox*) iptr) - boxes);
 		}
-	} else if (iptr >= model->getFaces()  &&  iptr <= model->getFaces() + (model->getFaceCount()-1)) {
+	} else if (iptr >= faces  &&  iptr <= faces + (model->getFaceCount()-1)) {
 		if (role == Qt::DisplayRole) {
-			return tr("Face %1").arg(((const COLFace*) iptr) - model->getFaces());
+			return tr("Face %1").arg(((const COLFace*) iptr) - faces);
 		}
 	}
 
@@ -99,6 +104,8 @@ int COLEntityItemModel::rowCount(const QModelIndex& index) const
 		return 3; // Spheres, Boxes, Faces/Face Groups
 	}
 
+	const COLFaceGroup* fgs = &(*model->getFaceGroups().begin());
+
 	void* iptr = index.internalPointer();
 
 	if (iptr == &sphereCountDummy) {
@@ -109,7 +116,7 @@ int COLEntityItemModel::rowCount(const QModelIndex& index) const
 		return model->getFaceGroupCount();
 	} else if (iptr == &faceCountDummy) {
 		return model->getFaceCount();
-	} else if (iptr >= model->getFaceGroups()  &&  iptr <= model->getFaceGroups() + (model->getFaceGroupCount()-1)) {
+	} else if (iptr >= fgs  &&  iptr <= fgs + (model->getFaceGroupCount()-1)) {
 		return ((const COLFaceGroup*) iptr)->getFaceCount();
 	}
 
@@ -123,20 +130,22 @@ QModelIndex COLEntityItemModel::index(int row, int column, const QModelIndex& pa
 		return QModelIndex();
 	}
 
+	const COLFaceGroup* fgs = &(*model->getFaceGroups().begin());
+
 	if (parent.isValid()) {
 		void * pptr = parent.internalPointer();
 
 		if (pptr == &sphereCountDummy) {
-			return createIndex(row, column, model->getSpheres() + row);
+			return createIndex(row, column, &(*model->getSpheres().begin()) + row);
 		} else if (pptr == &boxCountDummy) {
-			return createIndex(row, column, model->getBoxes() + row);
+			return createIndex(row, column, &(*model->getBoxes().begin()) + row);
 		} else if (pptr == &faceGroupCountDummy) {
-			return createIndex(row, column, model->getFaceGroups() + row);
+			return createIndex(row, column, &(*model->getFaceGroups().begin()) + row);
 		} else if (pptr == &faceCountDummy) {
-			return createIndex(row, column, model->getFaces() + row);
-		} else if (pptr >= model->getFaceGroups()  &&  pptr <= model->getFaceGroups() + (model->getFaceGroupCount()-1)) {
+			return createIndex(row, column, &(*model->getFaces().begin()) + row);
+		} else if (pptr >= fgs  &&  pptr <= fgs + (model->getFaceGroupCount()-1)) {
 			COLFaceGroup fg = *((const COLFaceGroup*) pptr);
-			return createIndex(row, column, model->getFaces() + fg.getStartFace() + row);
+			return createIndex(row, column, &(*model->getFaces().begin()) + fg.getStartFace() + row);
 		}
 	} else {
 		if (row == 0) {
@@ -144,7 +153,7 @@ QModelIndex COLEntityItemModel::index(int row, int column, const QModelIndex& pa
 		} else if (row == 1) {
 			return createIndex(row, column, (void*) &boxCountDummy);
 		} else {
-			if (model->getFaceGroups()) {
+			if (model->getFaceCount() != 0) {
 				return createIndex(row, column, (void*) &faceGroupCountDummy);
 			} else {
 				return createIndex(row, column, (void*) &faceCountDummy);
@@ -162,24 +171,28 @@ QModelIndex COLEntityItemModel::parent(const QModelIndex& index) const
 		return QModelIndex();
 	}
 
+	const COLFaceGroup* fgs = &(*model->getFaceGroups().begin());
+	const COLSphere* spheres = &(*model->getSpheres().begin());
+	const COLBox* boxes = &(*model->getBoxes().begin());
+	const COLFace* faces = &(*model->getFaces().begin());
+
 	void* iptr = index.internalPointer();
 
-	if (iptr >= model->getSpheres()  &&  iptr <= model->getSpheres() + (model->getSphereCount()-1)) {
+	if (iptr >= spheres  &&  iptr <= spheres + (model->getSphereCount()-1)) {
 		return this->index(0, 0);
-	} else if (iptr >= model->getBoxes()  &&  iptr <= model->getBoxes() + (model->getBoxCount()-1)) {
+	} else if (iptr >= boxes  &&  iptr <= boxes + (model->getBoxCount()-1)) {
 		return this->index(1, 0);
-	} else if (iptr >= model->getFaceGroups()  &&  iptr <= model->getFaceGroups() + (model->getFaceGroupCount()-1)) {
+	} else if (iptr >= fgs  &&  iptr <= fgs + (model->getFaceGroupCount()-1)) {
 		return this->index(2, 0);
-	} else if (iptr >= model->getFaces()  &&  iptr <= model->getFaces() + (model->getFaceCount()-1)) {
-		if (model->getFaceGroups()) {
-			uint32_t faceIdx = ((const COLFace*) iptr) - model->getFaces();
-			const COLFaceGroup* fgs = model->getFaceGroups();
+	} else if (iptr >= faces  &&  iptr <= faces + (model->getFaceCount()-1)) {
+		if (model->getFaceGroupCount() != 0) {
+			uint32_t faceIdx = ((const COLFace*) iptr) - faces;
 
 			for (uint32_t i = 0 ; i < model->getFaceGroupCount() ; i++) {
 				COLFaceGroup fg = fgs[i];
 
 				if (faceIdx >= fg.getStartFace()  &&  faceIdx <= fg.getEndFace()) {
-					return createIndex(i, 0, model->getFaceGroups() + i);
+					return createIndex(i, 0, (void*) (fgs + i));
 				}
 			}
 		} else {

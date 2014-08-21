@@ -666,10 +666,8 @@ int main(int argc, char** argv)
 		} else if (command == CommandList  ||  command == CommandExtract  ||  command == CommandRemove) {
 			vector<IMGArchive::EntryIterator> entriesToRemove;
 
-			//for (int i = 0 ; i < entryCount ; i++) {
-			for (IMGArchive::EntryIterator it = img->getEntryBegin() ; it != img->getEntryEnd() ; it++) {
-				const IMGEntry& entry = **it;
-
+			for (auto it : ItIt(*img)) {
+				const IMGEntry& entry = *it;
 				if (command == CommandExtract) {
 					for (int j = 0 ; j < numPatterns ; j++) {
 						ExtractPattern* pattern = exPatternArr[j];
@@ -771,7 +769,7 @@ int main(int argc, char** argv)
 				IMGArchive::EntryIterator eit = *it;
 
 				if (verbose)
-					printf("Removing %s...\n", (*eit)->name);
+					printf("Removing %s...\n", eit->name);
 
 				img->removeEntry(eit);
 			}
@@ -797,7 +795,7 @@ int main(int argc, char** argv)
 					continue;
 				}
 
-				IMGEntry* entry = *it;
+				IMGEntry& entry = *it;
 				File::filesize fsize = file.getSize();
 				int32_t newSize = IMG_BYTES2BLOCKS(fsize);
 
@@ -815,7 +813,7 @@ int main(int argc, char** argv)
 					if (verbose)
 						printf("Replacing entry %s (%d blocks)...\n", fname.get(), newSize);
 
-					if (newSize > entry->size) {
+					if (newSize > entry.size) {
 						img->resizeEntry(it, newSize);
 					}
 				}

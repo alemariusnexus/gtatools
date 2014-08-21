@@ -53,14 +53,17 @@ void TestIMGContents(IMGArchive* img, IMGExpectedEntry* exEntries, unsigned int 
 		if (exEntry.name.isNull())
 			continue;
 
-		IMGArchive::EntryIterator it = img->getEntryByName(File(exEntry.name.get())
-				.getPath().getFileName().get());
+		CString exName = File(exEntry.name.get()).getPath().getFileName().get();
+		IMGArchive::EntryIterator it = img->getEntryByName(exName);
 
 		EXPECT_NE(img->getEntryEnd(), it) << "Test entry #" << i << " (" << exEntry.name.get() << ")"
 				<< " not found!";
 
 		if (it != img->getEntryEnd()) {
-			EXPECT_EQ(exEntry.size, (*it)->size) << "Test entry #" << i << " (" << exEntry.name.get() << ") has "
+			EXPECT_EQ(exName, CString(it->name)) << "Test entry #" << i << ": getEntryByName() found wrong "
+					<< "entry!";
+
+			EXPECT_EQ(exEntry.size, it->size) << "Test entry #" << i << " (" << exEntry.name.get() << ") has "
 					<< "wrong size!";
 
 			if (exEntry.checksumLen > 0) {
@@ -163,7 +166,7 @@ void TestIMGOrder(IMGArchive* img, const char** entries, unsigned int numEntries
 	for (i = 1 ; i < numEntries  &&  it != img->getEntryEnd() ; i++) {
 		const char* entry = entries[i];
 
-		if (strcmp((*it)->name, entry) != 0) {
+		if (strcmp(it->name, entry) != 0) {
 			ADD_FAILURE() << "Order not correct!";
 			return;
 		}
@@ -479,19 +482,21 @@ TEST(IMGWriteTest, CheckAddRemoveRename)
 
 	unsigned int numToAdd = sizeof(entriesToAdd) / sizeof(IMGExpectedEntry);
 
-	IMGEntry** entries = new IMGEntry*[numToAdd];
+	IMGEntry* entries = new IMGEntry[numToAdd];
 
 	for (unsigned int i = 0 ; i < numToAdd ; i++) {
-		entries[i] = new IMGEntry;
-		strcpy(entries[i]->name, File(entriesToAdd[i].name.get()).getPath().getFileName().get());
-		entries[i]->size = entriesToAdd[i].size;
+		strcpy(entries[i].name, File(entriesToAdd[i].name.get()).getPath().getFileName().get());
+		entries[i].size = entriesToAdd[i].size;
 	}
 
-	int32_t numEntriesBefore = img->getEntryCount();
+	uint32_t numEntriesBefore = img->getEntryCount();
 
 	img->reserveHeaderSpace(numEntriesBefore + numToAdd);
 
-	ASSERT_TRUE(img->addEntries(entries, numToAdd)) << "Failed to add the entries!";
+	pair<IMGArchive::EntryIterator, IMGArchive::EntryIterator> res = img->addEntries(entries, entries+numToAdd);
+	ASSERT_EQ(numToAdd, std::distance(res.first, res.second)) << "Failed to add the entries!";
+
+	delete[] entries;
 
 	EXPECT_EQ(numEntriesBefore + numToAdd, img->getEntryCount()) << "Wrong entry count!";
 
@@ -695,7 +700,7 @@ TEST(IMGWriteTest, CheckResizePack)
 
 
 
-	int32_t numPacked = img->getSize() - img->pack();
+	uint32_t numPacked = img->getSize() - img->pack();
 	RecordProperty("pack_space_gained", numPacked);
 
 	{

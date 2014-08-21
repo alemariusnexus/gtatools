@@ -39,7 +39,9 @@ public:
 	 *	@param msg The error message.
 	 *	@param offset The offset at which the error happened (optional).
 	 */
-	TXDException(const char* message, const char* srcFile = NULL, int srcLine = -1, Exception* nestedException = NULL) throw();
+	TXDException(const CString& message, const CString& srcFile = CString(), int srcLine = -1,
+			Exception* nestedException = NULL) throw()
+			: Exception(message, srcFile, srcLine, nestedException, "TXDException") {}
 	TXDException(const TXDException& ex) : Exception(ex) {}
 };
 

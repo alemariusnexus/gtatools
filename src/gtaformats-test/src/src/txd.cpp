@@ -492,16 +492,16 @@ TEST(TXDConversionTest, CheckOriginalTXDConversion)
 
 	ConversionTest tests[] = {
 			{	TestGTASA, "models/misc.txd",
-				{"whee_rim64", "wheel_offroad64", "tyre64a", NULL}
+				{"whee_rim64", "wheel_offroad64", "tyre64a", CString()}
 			},
 			{	TestGTASA, "models/particle.txd",
-				{"wincrack_32", "white", "target256", "cloudhigh", "shad_exp", NULL}
+				{"wincrack_32", "white", "target256", "cloudhigh", "shad_exp", CString()}
 			},
 			{	TestGTASA, "models/gta3.img/bistro.txd",
-				{"Tablecloth", "vent_64", "Cutlery", "Coffemachine", "Candle_Holder", "Plate", NULL}
+				{"Tablecloth", "vent_64", "Cutlery", "Coffemachine", "Candle_Holder", "Plate", CString()}
 			},
 			{	TestGTAVC, "models/gta3.img/portabarrier.txd",
-				{"Stop2_64", "banding_blue_64HV", "cratetop128", "glass_64a", NULL}
+				{"Stop2_64", "banding_blue_64HV", "cratetop128", "glass_64a", CString()}
 			}
 	};
 

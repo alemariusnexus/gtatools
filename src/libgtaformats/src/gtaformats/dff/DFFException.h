@@ -31,8 +31,9 @@
  */
 class DFFException : public Exception {
 public:
-	DFFException(const char* msg, const char* srcFile = NULL, int srcLine = -1, Exception* nestedException = NULL) throw()
-			: Exception(msg, srcFile, srcLine, nestedException, "DFFException") {}
+	DFFException(const CString& message, const CString& srcFile = CString(), int srcLine = -1,
+			Exception* nestedException = NULL) throw()
+			: Exception(message, srcFile, srcLine, nestedException, "DFFException") {}
 	DFFException(const DFFException& ex) throw() : Exception(ex) {}
 };
 

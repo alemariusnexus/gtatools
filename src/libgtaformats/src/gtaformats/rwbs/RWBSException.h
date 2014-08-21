@@ -28,8 +28,9 @@
 
 class RWBSException : public Exception {
 public:
-	RWBSException(const char* msg, const char* srcFile = NULL, int line = -1, Exception* nestedEx = NULL)
-			: Exception(msg, srcFile, line, nestedEx, "RWBSException") {}
+	RWBSException(const CString& message, const CString& srcFile = CString(), int srcLine = -1,
+			Exception* nestedException = NULL)
+			: Exception(message, srcFile, srcLine, nestedException, "RWBSException") {}
 	RWBSException(const RWBSException& other) : Exception(other) {}
 };
 

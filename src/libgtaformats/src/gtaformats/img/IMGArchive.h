@@ -26,6 +26,8 @@
 #include <gtaformats/config.h>
 #include <nxcommon/strutil.h>
 #include <nxcommon/StringComparator.h>
+#include <nxcommon/iterator.h>
+#include <nxcommon/cxx11hash.h>
 #include <string>
 #include <algorithm>
 #include <cctype>
@@ -34,7 +36,11 @@
 #include <ostream>
 #include <iostream>
 #include <list>
+#include <vector>
 #include <map>
+#include <unordered_map>
+#include <utility>
+#include <memory>
 #include <cmath>
 
 class File;
@@ -43,35 +49,58 @@ using std::istream;
 using std::ostream;
 using std::iostream;
 using std::list;
+using std::vector;
 using std::map;
+using std::unordered_map;
+using std::pair;
+using std::shared_ptr;
 
 
 /**	\brief The size of a block in IMG files in bytes.
+ *
+ * 	Don't change this, it is fixed in the IMG file format.
  */
 #define IMG_BLOCK_SIZE 2048L
 
+/**	\brief Convert a number of IMG blocks to a number of bytes.
+ */
 #define IMG_BLOCKS2BYTES(n) ((n) * (uint64_t) (2048))
+
+/**	\brief Convert a number of bytes to a number of IMG blocks.
+ *
+ * 	This will always yield an integer. It is rounded up if necessary.
+ */
 #define IMG_BYTES2BLOCKS(n) ((uint32_t) ceil((n) / 2048.0f))
 
 
 
 
+#pragma pack(push, 1)
 
 /**	\brief An entry inside an IMGArchive.
+ *
+ * 	You should not change any of the values in here directly if the entry belongs to an IMGArchive. That can only be
+ * 	done through IMGArchive methods, or if the IMGEntry does not (yet) belong to an archive.
  */
 struct IMGEntry {
 	/**	\brief The offset of the entry, in IMG blocks.
+	 *
+	 * 	This is measured from the beginning of the IMG file in both VER1 and VER2.
 	 */
-	int32_t offset;
+	uint32_t offset;
 
 	/**	\brief The size of the entry, in IMG blocks.
 	 */
-	int32_t size;
+	uint32_t size;
 
 	/**	\brief The name of the entry (kind of a file name).
+	 *
+	 * 	It must be null-terminated.
 	 */
 	char name[24];
 };
+
+#pragma pack(pop)
 
 
 
@@ -100,13 +129,16 @@ struct IMGEntry {
  */
 class IMGArchive {
 private:
-	typedef list<IMGEntry*> EntryList;
-	typedef map<char*, EntryList::iterator, StringComparator> EntryMap;
+	typedef list<IMGEntry> EntryList;
 
 public:
 	typedef EntryList::iterator EntryIterator;
 	typedef EntryList::const_iterator ConstEntryIterator;
 
+private:
+	typedef unordered_map<CString, EntryIterator, CXX11Hash<CString> > EntryMap;
+
+public:
 	/**	\brief The different versions of IMG files.
 	 *
 	 * 	VER1 is used in GTA3 and GTA VC. VER2 is used in GTA SA only.
@@ -122,8 +154,6 @@ public:
 		ReadOnly = 1 << 0,				/*!< Only open the file for reading. All writing operations will
 											 throw an exception. */
 		ReadWrite = 1 << 1,				//!< Open the file for both reading and writing.
-		KeepStreamsOpen = 1 << 6,		/*!< Don't close/delete the streams in the destructor. If this is set,
-											 it's the callers responsibility to delete them. */
 		DisableNameZeroFill = 1 << 7	/*!< Disable filling up the entry name with zeroes after the first
 		 	 	 	 	 	 	 	 	 	 null terminator is found. */
 	};
@@ -175,18 +205,22 @@ public:
 	 * 	This writes out the IMG header to imgStream and leaves the archive empty. A new IMGArchive object is
 	 * 	then created with the given mode and returned.
 	 *
+	 * 	Ownership of the stream is taken by the new object.
+	 *
 	 * 	@param imgStream The stream to which the IMG file should be written. It becomes the new IMGArchive's
 	 * 		IMG stream.
 	 * 	@param mode The open mode.
 	 * 	@return The freshly created archive object.
 	 */
-	static IMGArchive* createArchive(iostream* imgStream, int mode = ReadWrite | KeepStreamsOpen);
+	static IMGArchive* createArchive(iostream* imgStream, int mode = ReadWrite);
 
 	/**	\brief Creates a new, empty VER1 IMG archive.
 	 *
 	 * 	This method actually does nothing, because VER1 IMG files have no IMG header. This means that even
 	 * 	an empty DIR/IMG pair is a valid VER1 archive which could directly be opened using the IMGArchive
 	 * 	constructor. This method is here for convenience.
+	 *
+	 * 	Ownership of both streams is taken by the new object.
 	 *
 	 * 	\note Because nothing is actually written by this method, if the streams are file streams to files
 	 * 		which don't exist yet, they won't be created by this method. Constructing an IMGArchive on such
@@ -201,13 +235,13 @@ public:
 	 * 	@return The freshly created archive object.
 	 */
 	static IMGArchive* createArchive(iostream* dirStream, iostream* imgStream,
-			int mode = ReadWrite | KeepStreamsOpen);
+			int mode = ReadWrite);
 
 	/**	\brief Creates a new, empty IMG archive.
 	 *
 	 * 	If version is VER2, an empty VER2 archive is created for the given file.
 	 *
-	 * 	If version is VER1, the correspinding DIR/IMG file is searched in the same directory using the same
+	 * 	If version is VER1, the corresponding DIR/IMG file is searched in the same directory using the same
 	 * 	file name, with the extension substituted by dir/img. A VER1 archive is then created using this
 	 * 	DIR/IMG pair.
 	 *
@@ -247,18 +281,22 @@ public:
 
 	/**	\brief Opens a VER2 archive from a stream.
 	 *
+	 * 	Ownership of the stream is taken by the new object.
+	 *
 	 *	@param stream The stream to read from.
 	 *	@param mode The open mode.
 	 */
-	IMGArchive(istream* stream, int mode = ReadOnly | KeepStreamsOpen);
+	IMGArchive(istream* stream, int mode = ReadOnly);
 
 	/**	\brief Creates a VER1 archive from a DIR and an IMG stream.
+	 *
+	 * 	Ownership of both streams is taken by the new object.
 	 *
 	 *	@param dirStream The stream from which to read the DIR data.
 	 *	@param imgStream The stream from which to read the IMG data.
 	 *	@param mode The open mode.
 	 */
-	IMGArchive(istream* dirStream, istream* imgStream, int mode = ReadOnly | KeepStreamsOpen);
+	IMGArchive(istream* dirStream, istream* imgStream, int mode = ReadOnly);
 
 	/**	\brief Opens an archive from a VER1 DIR and IMG file.
 	 *
@@ -270,8 +308,7 @@ public:
 
 	/**	\brief Deletes the archive.
 	 *
-	 *	This method calls sync(), frees any memory it allocated, and deletes the streams unless the archive
-	 *	was opened in KeepStreamsOpen mode.
+	 *	This method calls sync(), frees any memory it allocated, and deletes the streams.
 	 */
 	~IMGArchive();
 
@@ -280,31 +317,25 @@ public:
 	 * 	You can jump to any entry from anywhere you want. A new RangedStream will be created so that you can't
 	 * 	read beyond the bounds of the entry. However, that is just a filter stream, so the actual stream used
 	 * 	is the IMG stream. Therefore, you may not delete the IMG stream (which might be auto-generated by
-	 * 	IMGArchive constructors and might therefore be destroyed together with the IMGArchive if the archive
-	 * 	wasn't opened in KeepStreamsOpen mode) before you're finished using the returned stream.
+	 * 	IMGArchive constructors and will therefore be destroyed together with the IMGArchive) before you're
+	 * 	finished using the returned stream.
 	 *
 	 * 	@param it Iterator to the entry you want to go to.
-	 * 	@param autoCloseStream if true, when the returned RangedStream is deleted, the IMG stream will be
-	 * 		automatically deleted too. Only set this to true if you know that your IMG stream lives longer
-	 * 		than the IMGArchive, because attempts to use an IMGArchive with a deleted stream may result in
-	 * 		undefined behavior.
 	 * 	@return A new RangedStream that reads from the IMG stream. It's range is defined as the bounds of the
 	 * 		IMG entry, so you can't read beyond it.
 	 */
-	istream* gotoEntry(ConstEntryIterator it, bool autoCloseStream = false);
+	istream* gotoEntry(const ConstEntryIterator& it);
 
 	/**	\brief Goes to the first entry with the given name.
 	 *
 	 * 	You <b>should</b> see gotoEntry(ConstEntryIterator*, bool) for more details on behavior and parameters
 	 * 	of this method.
 	 *
-	 *	@param name The entry's name. Searching is performed case-sensitive.
-	 *	@param autoCloseStream Whether you want the RangedStream to automatically delete the IMG stream when
-	 *		deleted.
+	 *	@param name The entry's name. Searching is performed case-insensitive.
 	 *	@return A new RangedStream for the first entry with the given name or NULL, if it's not found.
-	 *	@see gotoEntry(ConstEntryIterator*, bool)
+	 *	@see gotoEntry(const ConstEntryIterator&)
 	 */
-	istream* gotoEntry(const char* name, bool autoCloseStream = false);
+	istream* gotoEntry(const CString& name);
 
 	/**	\brief Returns a ConstEntryIterator for the first entry with the given name.
 	 *
@@ -312,9 +343,9 @@ public:
 	 *
 	 *	@param name The name.
 	 *	@return The entry iterator or the end iterator, if it's not found.
-	 *	@see EntryIterator getEntryByName(const char*)
+	 *	@see EntryIterator getEntryByName(const CString&)
 	 */
-	ConstEntryIterator getEntryByName(const char* name) const;
+	ConstEntryIterator getEntryByName(const CString& name) const;
 
 	/**	\brief Returns an EntryIterator for the first entry with the given name.
 	 *
@@ -322,9 +353,9 @@ public:
 	 *
 	 *	@param name The name.
 	 *	@return The entry iterator or the end iterator, if it's not found.
-	 *	@see ConstEntryIterator getEntryByName(const char*)
+	 *	@see ConstEntryIterator getEntryByName(const CString&)
 	 */
-	EntryIterator getEntryByName(const char* name);
+	EntryIterator getEntryByName(const CString& name);
 
 	/**	\brief Returns an iterator to the beginning of the entry list.
 	 *
@@ -354,11 +385,27 @@ public:
 	 */
 	ConstEntryIterator getEntryEnd() const { return entries.end(); }
 
-	/**	\brief Returns the number of entries.
+	/**	\brief Synonym for getEntryBegin().
+	 */
+	EntryIterator begin() { return entries.begin(); }
+
+	/**	\brief Synonym for getEntryBegin().
+	 */
+	ConstEntryIterator begin() const { return entries.begin(); }
+
+	/**	\brief Synonym for getEntryEnd().
+	 */
+	EntryIterator end() { return entries.end(); }
+
+	/**	\brief Synonym for getEntryEnd().
+	 */
+	ConstEntryIterator end() const { return entries.end(); }
+
+	/**	\brief Returns the number of entries in the archive.
 	 *
 	 *	@return The number of entries.
 	 */
-	int32_t getEntryCount() const { return entries.size(); }
+	uint32_t getEntryCount() const { return entries.size(); }
 
 
 	/**	\brief Returns the IMG stream.
@@ -402,41 +449,41 @@ public:
 
 	/**	\brief Returns the number of blocks reserved for the entry header section.
 	 *
-	 * 	This is -1 for VER1 archives as well as for empty VER2 archives, because those don't have anything
+	 * 	This is 0 for VER1 archives as well as for empty VER2 archives, because those don't have anything
 	 * 	to reserve.
 	 *
-	 *	@return The number of blocks reserved for the header section or -1 if there's no need to reserve
+	 *	@return The number of blocks reserved for the header section or 0 if there's no need to reserve
 	 *		anything.
 	 */
-	int32_t getHeaderReservedSize() const;
+	uint32_t getHeaderReservedSize() const;
 
 	/**	\brief Returns the number of entries which fit in the reserved entry header section.
 	 *
-	 * 	This is -1 for VER1 archives as well as for empty VER2 archives.
+	 * 	This is 0 for VER1 archives as well as for empty VER2 archives.
 	 *
-	 * 	@return The number of entries which fit in the entry header section, or -1. This is not the number of
+	 * 	@return The number of entries which fit in the entry header section, or 0. This is not the number of
 	 * 		actual current entries.
 	 * 	@see getHeaderReservedSize()
 	 */
-	int32_t getReservedHeaderCount() const
+	uint32_t getReservedHeaderCount() const
 	{
-		int32_t res = getHeaderReservedSize();
-		if (res == -1) return -1;
-		// This has to be a VER2 archive (res would be -1 for VER1) => 8 bytes reserved for IMG header.
+		uint32_t res = getHeaderReservedSize();
+		if (res == 0) return 0;
+		// This has to be a VER2 archive (res would be 0 for VER1) => 8 bytes reserved for IMG header.
 		return (res * IMG_BLOCK_SIZE - 8) / sizeof(IMGEntry);
 	}
 
 	/**	\brief Returns the number of entries for which space is left in the entry header section.
 	 *
-	 * 	This is basically getReservedHeaderCount() - getEntryCount(), or -1 for VER1 archives as well as for
-	 * 	empty VER2 archives.
+	 * 	This is basically getReservedHeaderCount() - getEntryCount(), or UINT32_MAX for VER1 archives.
 	 *
-	 * 	@return The number of entries for which space is left in the entry header section, or -1.
+	 * 	@return The number of entries for which space is left in the entry header section, or UINT32_MAX
+	 * 		for VER1 archives.
 	 */
-	int32_t getReservedHeadersLeft() const
+	uint32_t getReservedHeadersLeft() const
 	{
-		int32_t res = getReservedHeaderCount();
-		if (res == -1) return -1;
+		uint32_t res = getReservedHeaderCount();
+		if (res == 0) return UINT32_MAX;
 		return res - entries.size();
 	}
 
@@ -459,42 +506,65 @@ public:
 	 *
 	 *	@param numHeaders The number of headers which should at least fit into the entry header section after
 	 *		this call.
-	 *	@return true if reserving was successfull, or if there was no need to reserve anything. false
+	 *	@return true if reserving was successful, or if there was no need to reserve anything. false
 	 *		otherwise.
 	 */
-	bool reserveHeaderSpace(int32_t numHeaders);
+	bool reserveHeaderSpace(uint32_t numHeaders);
 
 
 	/**	\brief Add new entries to the archive.
 	 *
-	 * 	This method adds the given entries with all content set to zeroes. Note that this method will not
-	 * 	attempt to resize the header section if the entries don't fit in it, but will return false and do
-	 * 	nothing in that case.
+	 * 	This method adds the given entries with all content set to zeroes. It will automatically resize the
+	 * 	header section if necessary.
+	 *
+	 * 	The arguments to this functions can be any InputIterator type that can be dereferenced to an IMGEntry
+	 * 	(NOT to an IMGEntry*).
 	 *
 	 * 	Each entry in the array should have a valid name and size assigned. The offsets will be automatically
 	 * 	calculated by this method.
 	 *
 	 * 	Zeroing the contents of the entries is done by a call to expandSize().
 	 *
-	 *	@param entries An array of entries to be added. When this method succeeds, ownership of the entry
-	 *		objects will be taken by the archive.
-	 *	@param num The number of entries in the array.
-	 *	@return true on success, false on failure. If the method fails, nothing will be changed.
+	 *	@param beg Beginning of the entry range.
+	 *	@param end Past-the-end iterator of the entry range.
+	 *	@return A pair that denotes the range of EntryIterators for the added entries (beginning and
+	 *		past-the-end iterator). If this method fails, both of these will be the end iterators and no
+	 *		entries will be added.
 	 *	@see addEntry()
 	 *	@see expandSize()
 	 */
-	bool addEntries(IMGEntry** entries, int32_t num);
+	template <class Iterator>
+	pair<EntryIterator, EntryIterator> addEntries(const Iterator& beg, const Iterator& end)
+	{
+		if (!reserveHeaderSpace(entries.size() + std::distance(beg, end))) {
+			return pair<EntryIterator, EntryIterator>(entries.end(), entries.end());
+		}
+
+		pair<EntryIterator, EntryIterator> res(entries.end(), entries.end());
+
+		EntryIterator entryIt = entries.end();
+
+		for (Iterator it = beg ; it != end ; it++) {
+			entryIt = doAddEntry(it->name, it->size);
+
+			if (it == beg) {
+				res.first = entryIt;
+			}
+		}
+
+		res.second = ++entryIt;
+
+		return res;
+	}
 
 	/**	\brief Adds a single new entry to the archive.
 	 *
-	 * 	This method is simply a convenience wrapper for addEntries().
-	 *
-	 * 	@param name The name of the new entry. Must be 23 characters or shorter and a null terminator.
+	 * 	@param name The name of the new entry. Must be 23 characters or shorter (excluding null-terminator)
 	 * 	@param size The size you want to allocate for the entry, in IMG blocks.
 	 * 	@return An iterator to the new entry, or the past-the-end iterator if the method failed.
 	 * 	@see addEntries()
 	 */
-	EntryIterator addEntry(const char* name, int32_t size);
+	EntryIterator addEntry(const CString& name, uint32_t size);
 
 	/**	\brief Changes the size of an entry.
 	 *
@@ -515,29 +585,39 @@ public:
 	 *	@see expandSize()
 	 *	@see pack()
 	 */
-	void resizeEntry(EntryIterator it, int32_t size);
+	void resizeEntry(const EntryIterator& it, uint32_t size);
 
 
 	/**	\brief Removes an entry from the archive.
 	 *
-	 * 	This simply removes it's entry header from the archive. It's content will however not be overwritten,
+	 * 	This simply removes it's entry header from the archive. Its content will however not be overwritten,
 	 * 	and it might creates 'holes' in the archive which only take up space. So be sure to not remove entries
 	 * 	too often and/or call pack() once in a while.
+	 *
+	 * 	Removing the end iterator is a no-op.
 	 *
 	 * 	@param it The iterator to the entry you wish to remove.
 	 * 	@see pack()
 	 */
-	void removeEntry(EntryIterator it);
+	void removeEntry(const EntryIterator& it);
 
 	/**	\brief Renames an entry.
 	 *
-	 *	This just changes it's name in the entry header. Using a name longer than 23 characters plus null
-	 *	terminator will throw an exception.
+	 *	This just changes it's name in the entry header. Using a name longer than 23 characters (excluding null
+	 *	terminator) will throw an exception.
 	 *
 	 *	@param it The iterator to the entry you wish to rename.
-	 *	@param name The new name. Maximum is 23 characters plus null termiantor.
+	 *	@param name The new name. Maximum is 23 characters excluding null termiantor.
 	 */
-	void renameEntry(EntryIterator it, const char* name);
+	void renameEntry(const EntryIterator& it, const CString& name);
+
+	/**	\brief Renames an entry.
+	 *
+	 * 	@param oldName The old name of the entry that is to be renamed.
+	 * 	@param newName The entry's new name.
+	 * 	@see renameEntry(EntryIterator, const CString&)
+	 */
+	void renameEntry(const CString& oldName, const CString& newName);
 
 	/**	\brief Move entries to a new position.
 	 *
@@ -546,14 +626,14 @@ public:
 	 * 	MoveMode selected.
 	 *
 	 * 	All iterators between moveBegin and moveEnd (including these two) are invalid after this method. Also,
-	 * 	all iterators
+	 * 	if the MoveSwap mode is used, all iterators in the second range are also invalidated.
 	 *
 	 * 	@param pos Iterator pointing to the entry before which the entries should be placed.
 	 * 	@param moveBegin Iterator to the first entry being moved.
 	 * 	@param moveEnd One past the iterator of the last entry to be moved.
 	 * 	@param MoveMode How entries are moved when there's not enough space at pos.
 	 */
-	void moveEntries(EntryIterator pos, EntryIterator moveBegin, EntryIterator moveEnd,
+	void moveEntries(const EntryIterator& pos, const EntryIterator& moveBegin, const EntryIterator& moveEnd,
 			MoveMode mmode = MoveToEnd);
 
 	/**	\brief Writes out changes to the header section.
@@ -572,14 +652,15 @@ public:
 
 	/**	\brief Packs the entries of this archive as tightly as possible.
 	 *
-	 *	This is used to eliminate 'holes' in the archive, as well as a too-big header section.
+	 *	This is used to eliminate 'holes' in the archive - defragmentation, remember? ;) -, as well as a
+	 *	too-big header section.
 	 *
 	 *	Packing is done by copying the whole content of the archive to a temporary file, and rewriting the
 	 *	whole archive, after offsets have been recalculated. Note that the packing is only as good as the
 	 *	choice of the entry sizes, because this method will never resize any entry. It only packs them
 	 *	together to fill holes, and resizes the entry header section to a minimum.
 	 *
-	 *	Because the IMGArchive does not know whether it's stream is a file or something else, the archive
+	 *	Because the IMGArchive does not know whether its stream is a file or something else, the archive
 	 *	is not actually truncated. If it's a file, it's size remains the same afterwards, but the blocks in
 	 *	the end might not be used anymore if packing had any effect. You have to manually truncate the file
 	 *	afterwards if you want to see a change in size. You can use the return value of this method to
@@ -587,16 +668,21 @@ public:
 	 *
 	 *	@return The new size of the archive, in blocks. Anything after this size may be truncated after
 	 *		this method.
+	 *	@see File::resize() may be used to truncate the file to its actual size after packing.
 	 */
-	int32_t pack();
+	uint32_t pack();
 
 	/**	\brief Return the size of this archive.
 	 *
-	 * 	This is the combined size of the header and content section.
+	 * 	This is the combined size of the header and content section. For VER1 files, it take into account
+	 * 	both the DIR and the IMG file.
 	 *
 	 * 	@return The size of this archive, in IMG blocks.
 	 */
-	int32_t getSize() const { return getDataEndOffset(); }
+	uint32_t getSize() const
+	{
+		return version == VER2 ? getDataEndOffset() : getDataEndOffset() + IMG_BYTES2BLOCKS(entries.size() * sizeof(IMGEntry));
+	}
 
 	/**	\brief Swap two consecutive ranges of entries.
 	 *
@@ -614,7 +700,7 @@ public:
 	 *		beginning of the second range.
 	 *	@param r2End Iterator pointing to one element past the end of the second range.
 	 */
-	void swapConsecutive(EntryIterator r1Begin, EntryIterator r1End, EntryIterator r2End);
+	void swapConsecutive(const EntryIterator& r1Begin, const EntryIterator& r1End, const EntryIterator& r2End);
 
 private:
 
@@ -640,10 +726,10 @@ private:
 	 *
 	 * 	@return The offset of the end of the data section, in IMG blocks.
 	 */
-	int32_t getDataEndOffset() const
+	uint32_t getDataEndOffset() const
 	{
 		if (entries.size() == 0) return headerReservedSpace;
-		ConstEntryIterator it = --entries.end(); IMGEntry* e = *it; return e->offset + e->size;
+		ConstEntryIterator it = --entries.end(); IMGEntry e = *it; return e.offset + e.size;
 	}
 
 
@@ -653,23 +739,26 @@ private:
 	 * 	This method just overwrites any content at newOffset (i.e. it does not move the entries which were
 	 * 	there before), so it should be used with caution.
 	 *
-	 * 	All iterators referring to moved entries are invalid after calling this method.
+	 * 	All iterators referring to moved entries are invalid after calling this method. All other iterators
+	 * 	renaim valid.
 	 *
 	 * 	@param pos The position before which the new entries are inserted.
 	 * 	@param moveBegin Iterator of the first entry to be moved.
 	 * 	@param moveEnd One past the iterator of the last entry to be moved.
 	 * 	@param newOffset The offset to store the first moved entry's contents, in IMG blocks.
 	 */
-	void forceMoveEntries(EntryIterator pos, EntryIterator moveBegin, EntryIterator moveEnd,
-			int32_t newOffset);
+	void forceMoveEntries(const EntryIterator& pos, const EntryIterator& moveBegin, const EntryIterator& moveEnd,
+			uint32_t newOffset);
 
 
 	/**	\brief Fills up the archive with zeroes in the end until it is size IMG blocks big.
 	 *
+	 * 	For VER1 files, this is just about the IMG file and does NOT include the DIR file.
+	 *
 	 * 	@param size The new size of the archive, in IMG blocks.
 	 * 	@see expandSize()
 	 */
-	void expandSize(int32_t size);
+	void expandSize(uint32_t size);
 
 	/**	\brief Fills up the archive with zeroes until it has the size denoted by the entry headers.
 	 *
@@ -679,7 +768,13 @@ private:
 	 */
 	void expandSize();
 
-	void zeroFill(int32_t size);
+	/**	\brief Add an entry without checking for enough reserved header size,
+	 *
+	 * 	@param name The name of the new entry.
+	 * 	@param size The size of the new entry, in IMG blocks.
+	 * 	@return Iterator to the new entry.
+	 */
+	EntryIterator doAddEntry(const CString& name, uint32_t size);
 
 private:
 	istream* imgStream;
@@ -690,9 +785,10 @@ private:
 	IMGVersion version;
 
 	// Only used to keep the setting for empty archives.
-	int32_t headerReservedSpace;
+	uint32_t headerReservedSpace;
 
 	int mode;
 };
+
 
 #endif /* IMGARCHIVE_H_ */

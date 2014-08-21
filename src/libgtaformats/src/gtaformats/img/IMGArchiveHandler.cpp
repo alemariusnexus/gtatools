@@ -136,19 +136,19 @@ istream* IMGArchiveHandler::openInputStream(const File& file, istream::openmode 
 	if (img == NULL)
 		return NULL;
 
-	IMGArchive::EntryIterator it = img->getEntryByName(file.getPath().getFileName().get());
+	IMGArchive::EntryIterator it = img->getEntryByName(file.getPath().getFileName());
 
 	if (it == img->getEntryEnd())
 			return NULL;
 
-	IMGEntry* entry = *it;
+	IMGEntry& entry = *it;
 	File base = getArchiveBaseFile(file);
 
 	istream* imgStream = base.openInputStream(istream::binary);
-	imgStream->seekg(IMG_BLOCKS2BYTES(entry->offset));
+	imgStream->seekg(IMG_BLOCKS2BYTES(entry.offset));
 
 	RangedStream<istream>* rstream = new RangedStream<istream>(imgStream,
-					IMG_BLOCKS2BYTES(entry->size), true);
+					IMG_BLOCKS2BYTES(entry.size), true);
 
 	return rstream;
 }
@@ -170,7 +170,7 @@ File::filesize IMGArchiveHandler::getSize(const File& file, bool& supported) con
 	}
 
 	supported = true;
-	return IMG_BLOCKS2BYTES((*it)->size);
+	return IMG_BLOCKS2BYTES(it->size);
 }
 
 

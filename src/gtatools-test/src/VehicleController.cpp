@@ -143,6 +143,7 @@ void VehicleController::init()
 	scene->addSceneObject(floor);
 
 	veh = new Vehicle("infernus", Matrix4::translation(0.0f, 0.0f, 205.0f));
+	veh->setBoundingSphere(Vector3::Zero, 25.0f);
 
 	/*ManagedMeshPointer* meshPtr = new ManagedMeshPointer("infernus");
 	ManagedTextureSource* texSrc = new ManagedTextureSource("infernus");

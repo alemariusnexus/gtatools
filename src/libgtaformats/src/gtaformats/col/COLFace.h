@@ -28,6 +28,11 @@
 #include <cstring>
 
 
+
+
+#pragma pack(push, 1)
+
+
 class COLFace {
 	friend class COLLoader;
 
@@ -49,5 +54,8 @@ private:
 	uint32_t indices[3];
 	COLSurface surface;
 };
+
+
+#pragma pack(pop)
 
 #endif /* COLFACE_H_ */

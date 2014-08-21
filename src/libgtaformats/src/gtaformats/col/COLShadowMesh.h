@@ -25,29 +25,37 @@
 
 #include <gtaformats/config.h>
 #include "COLFace.h"
+#include <vector>
+
+
+using std::vector;
+
 
 
 class COLShadowMesh {
 	friend class COLLoader;
 
 public:
-	COLShadowMesh(uint32_t numVertices, uint32_t numFaces, float* vertices, COLFace* faces)
-			: numVertices(numVertices), numFaces(numFaces), vertices(vertices), faces(faces) {}
+	COLShadowMesh(uint32_t numVertices, float* vertices)
+			: numVertices(numVertices), vertices(vertices) {}
 	COLShadowMesh(const COLShadowMesh& other);
+	~COLShadowMesh();
 	uint32_t getVertexCount() const { return numVertices; }
-	uint32_t getFaceCount() const { return numFaces; }
+	size_t getFaceCount() const { return faces.size(); }
 	const float* getVertices() const { return vertices; }
 	float* getVertices() { return vertices; }
-	const COLFace* getFaces() const { return faces; }
-	COLFace* getFaces() { return faces; }
+	const vector<COLFace>& getFaces() const { return faces; }
+	vector<COLFace>& getFaces() { return faces; }
 	void setVertices(uint32_t num, float* vertices) { numVertices = num; this->vertices = vertices; }
-	void setFaces(uint32_t num, COLFace* faces) { numFaces = num; this->faces = faces; }
+	void setFaces(const vector<COLFace>& faces) { this->faces = faces; }
+
+private:
+	COLShadowMesh() {}
 
 private:
 	uint32_t numVertices;
-	uint32_t numFaces;
 	float* vertices;
-	COLFace* faces;
+	vector<COLFace> faces;
 };
 
 #endif /* COLSHADOWMESH_H_ */

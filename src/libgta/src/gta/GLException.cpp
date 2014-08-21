@@ -28,7 +28,7 @@
 
 
 
-void GLException::checkError(const char* msg)
+void GLException::checkError(const CString& msg)
 {
 	return;
 	GLenum error = glGetError();
@@ -60,7 +60,7 @@ void GLException::checkError(const char* msg)
 		printf("Buffer memory before exception: %u bytes\n", Engine::getInstance()->getTestMem());
 
 		char* errmsg = new char[128+strlen(msg)];
-		sprintf(errmsg, "OpenGL error %s (%u) [%s]", errname, error, msg);
+		sprintf(errmsg, "OpenGL error %s (%u) [%s]", errname, error, msg.get());
 		GLException ex(errmsg, __FILE__, __LINE__);
 		delete[] errmsg;
 		throw ex;
@@ -96,9 +96,9 @@ void GLException::checkError(const char* msg)
 
 		char* errmsg;
 
-		if (msg) {
-			errmsg = new char[strlen(errname) + strlen(msg) + 64];
-			strcpy(errmsg, msg);
+		if (!msg.isNull()) {
+			errmsg = new char[strlen(errname) + strlen(msg.get()) + 64];
+			strcpy(errmsg, msg.get());
 			strcat(errmsg, ": ");
 		} else {
 			errmsg = new char[strlen(errname) + 64];
@@ -116,7 +116,7 @@ void GLException::checkError(const char* msg)
 }
 
 
-void GLException::checkFramebufferStatus(GLenum target, const char* msg)
+void GLException::checkFramebufferStatus(GLenum target, const CString& msg)
 {
 	GLenum status;
 
@@ -131,7 +131,7 @@ void GLException::checkFramebufferStatus(GLenum target, const char* msg)
 #endif
 
 	if (status != GL_FRAMEBUFFER_COMPLETE) {
-		char* errmsg = new char[256 + strlen(msg)];
+		char* errmsg = new char[256 + strlen(msg.get())];
 		strcpy(errmsg, "Error: OpenGL Framebuffer is incomplete. glCheckFramebufferStatus returned ");
 
 		switch (status) {
@@ -171,8 +171,8 @@ void GLException::checkFramebufferStatus(GLenum target, const char* msg)
 			strcat(errmsg, submsg);
 		}
 
-		char* submsg = new char[8 + strlen(msg)];
-		sprintf(submsg, " [%s]!", msg);
+		char* submsg = new char[8 + strlen(msg.get())];
+		sprintf(submsg, " [%s]!", msg.get());
 		strcat(errmsg, submsg);
 		delete[] submsg;
 

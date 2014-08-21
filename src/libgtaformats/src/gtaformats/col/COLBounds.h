@@ -27,6 +27,10 @@
 #include <nxcommon/math/Vector3.h>
 
 
+
+#pragma pack(push, 1)
+
+
 class COLBounds {
 	friend class COLLoader;
 
@@ -54,5 +58,8 @@ private:
 	Vector3 center;
 	float radius;
 };
+
+
+#pragma pack(pop)
 
 #endif /* COLBOUNDS_H_ */

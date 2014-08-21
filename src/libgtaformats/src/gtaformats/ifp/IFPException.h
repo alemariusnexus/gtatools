@@ -29,8 +29,9 @@
 class IFPException : public Exception
 {
 public:
-	IFPException(const char* msg, const char* srcFile = NULL, int srcLine = -1, Exception* nestedException = NULL) throw()
-			: Exception(msg, srcFile, srcLine, nestedException, "IFPException") {}
+	IFPException(const CString& message, const CString& srcFile = CString(), int srcLine = -1,
+			Exception* nestedException = NULL) throw()
+			: Exception(message, srcFile, srcLine, nestedException, "IFPException") {}
 	IFPException(const IFPException& other) throw() : Exception(other) {}
 };
 

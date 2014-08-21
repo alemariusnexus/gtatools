@@ -130,11 +130,11 @@ void System::unhandeledException(Exception& ex)
 	QDateTime dt = QDateTime::currentDateTime();
 
 	QString logfileName(QString("exception-%1.log").arg(dt.toTime_t()));
-	const char* bt = ex.getBacktrace();
+	CString bt = ex.getBacktrace();
 	QFile logfile(logfileName);
 	logfile.open(QFile::WriteOnly);
 
-	printf("%s\n%s\n", ex.what(), ex.getBacktrace());
+	printf("%s\n%s\n", ex.what(), bt.get());
 
 	logfile.write("UNHANDELED EXCEPTION REPORT ");
 	logfile.write(dt.toString(Qt::ISODate).toAscii().constData());
@@ -145,8 +145,8 @@ void System::unhandeledException(Exception& ex)
 	logfile.write(ex.what());
 	logfile.write("\n\nBacktrace:\n\n");
 
-	if (bt) {
-		logfile.write(bt);
+	if (!bt.isNull()) {
+		logfile.write(bt.get());
 	} else {
 		logfile.write("[Backtrace not supported on this system]");
 	}

@@ -123,7 +123,7 @@ void TXDWidget::reloadHighLevelFile()
 	try {
 		txd = new TXDArchive(dfile->getFile());
 	} catch (TXDException ex) {
-		QString errmsg = tr("Error opening the TXD file: %1").arg(ex.getMessage());
+		QString errmsg = tr("Error opening the TXD file: %1").arg(ex.getMessage().get());
 		System::getInstance()->log(LogEntry::error(errmsg, &ex));
 		txd = NULL;
 		ui.hlWidget->setEnabled(false);

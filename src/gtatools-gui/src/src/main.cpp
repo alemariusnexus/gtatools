@@ -113,8 +113,8 @@ int main(int argc, char** argv)
 	} catch (Exception& ex) {
 		fprintf(stderr, "### Caught unhandeled exception ###\n%s\n", ex.what());
 
-		if (ex.getBacktrace()) {
-			fprintf(stderr, "### Backtrace ###\n%s\n", ex.getBacktrace());
+		if (!ex.getBacktrace().isNull()) {
+			fprintf(stderr, "### Backtrace ###\n%s\n", ex.getBacktrace().get());
 		}
 	}
 }

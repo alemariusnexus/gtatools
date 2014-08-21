@@ -29,7 +29,7 @@
 
 class EngineException : public Exception {
 public:
-	EngineException(const char* message, const char* srcFile = NULL, int srcLine = -1,
+	EngineException(const CString& message, const CString& srcFile = CString(), int srcLine = -1,
 			Exception* nestedException = NULL)
 			: Exception(message, srcFile, srcLine, nestedException, "EngineException") {}
 };

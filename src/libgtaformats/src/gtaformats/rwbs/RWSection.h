@@ -39,18 +39,16 @@ using std::ostream;
 
 
 class RWSection {
-private:
-	typedef vector<RWSection*> ChildList;
-
 public:
+	typedef vector<RWSection*> ChildList;
 	typedef ChildList::iterator ChildIterator;
 	typedef ChildList::const_iterator ConstChildIterator;
 
 public:
-	static RWSection* readSection(istream* stream, RWSection* lastRead = NULL, int i = 0);
+	static RWSection* readSection(istream* stream, RWSection* lastRead = NULL);
 
 private:
-	static bool isContainerSection(int32_t id)
+	static bool isContainerSection(uint32_t id)
 	{
 		return (
 			id == RW_SECTION_CLUMP  ||  id == RW_SECTION_FRAMELIST  ||  id == RW_SECTION_EXTENSION
@@ -62,15 +60,15 @@ private:
 	}
 
 public:
-	RWSection(int32_t id, int32_t version);
-	RWSection(int32_t id, RWSection* parent);
-	RWSection(uint8_t* rawData);
+	RWSection(uint32_t id, uint32_t version);
+	RWSection(uint32_t id, RWSection* parent);
+	RWSection(uint8_t* rawData, size_t dataSize);
 	RWSection(const RWSection& other);
 	~RWSection();
 
-	int32_t getID() const { return id; }
-	int32_t getSize() const { return size; }
-	int32_t getVersion() const { return version; }
+	uint32_t getID() const { return id; }
+	uint32_t getSize() const { return size; }
+	uint32_t getVersion() const { return version; }
 	uint64_t getAbsoluteOffset() const { return offset; }
 	void setAbsoluteOffset(uint64_t offset) { this->offset = offset; }
 	RWSection* getParent() { return parent; }
@@ -82,49 +80,55 @@ public:
 
 	void computeAbsoluteOffsets(uint64_t offset = 0);
 
-	void setID(int32_t id) { this->id = id; }
-	void setVersion(int32_t version) { this->version = version; }
-	void setData(uint8_t* data, int32_t size);
+	void setID(uint32_t id) { this->id = id; }
+	void setVersion(uint32_t version) { this->version = version; }
+	void setData(uint8_t* data, uint32_t size);
 
 	void addChild(RWSection* child);
 	void insertChild(ChildIterator it, RWSection* sect);
 	void removeChild(RWSection* child);
 
+	ChildList& getChildren() { ensureContainer(); return children; }
 	ChildIterator getChildBegin() { ensureContainer(); return children.begin(); }
 	ChildIterator getChildEnd() { ensureContainer(); return children.end(); }
-	ChildIterator nextChild(int32_t id, ChildIterator it);
-	ChildIterator getChildIterator(int32_t id);
-	ChildIterator getLastChildIterator(int32_t id);
-	ChildIterator getChildIteratorByIndex(uint32_t idx) { return idx > children.size() ? children.end() : children.begin() + idx; }
+	ChildIterator nextChild(uint32_t id, ChildIterator it);
+	ChildIterator getChildIterator(uint32_t id);
+	ChildIterator getLastChildIterator(uint32_t id);
+	ChildIterator getChildIteratorByIndex(int idx)
+			{ return (idx < 0  ||  idx > children.size()) ? children.end() : children.begin() + idx; }
 	int getChildCount() { ensureContainer(); return children.size(); }
-	RWSection* getChild(int32_t id);
-	RWSection* getLastChild(int32_t id);
-	RWSection& operator[](int32_t id) { return *getChild(id); }
-	int indexOf(const RWSection* child)
-			{ ensureContainer(); return find(children.begin(), children.end(), child) - children.begin(); }
-	RWSection* getChildByIndex(uint32_t idx) { return idx >= children.size() ? NULL : children[idx]; }
+	RWSection* getChild(uint32_t id);
+	RWSection* getLastChild(uint32_t id);
+	RWSection& operator[](uint32_t id) { return *getChild(id); }
+	int indexOf(const RWSection* child);
+	RWSection* getChildByIndex(int idx) { return (idx < 0  ||  idx >= children.size()) ? NULL : children[idx]; }
 
 	void setDataSection(bool ds) { if (ds) ensureData(); else ensureContainer(); }
 	void setContainerSection(bool cs) { setDataSection(!cs); }
 
-	void toRawData(uint8_t* data);
-	uint8_t* toRawData() { uint8_t* data = new uint8_t[size+12]; toRawData(data); return data; }
+	void toRawData(uint8_t* data, size_t bufSize);
+	uint8_t* toRawData() { uint8_t* data = new uint8_t[size+12]; toRawData(data, size+12); return data; }
 	void write(ostream* stream);
 	void write(const File& file);
 
 	void printDebug(int ind = 0);
 
+	CString getDescription() const
+			{ return RWGetSectionName(id).append(" (").append(size).append(" bytes @ 0x").appendHex(offset).append(")"); }
+
 private:
 	RWSection() : parent(NULL), data(NULL) {}
-	void childResized(int32_t change) { size += change; if (parent) parent->childResized(change); }
+	void childResized(uint32_t change) { size += change; if (parent) parent->childResized(change); }
 	void ensureContainer();
 	void ensureData();
 	void clearChildren();
 
 private:
-	int32_t id;
-	int32_t size;
-	int32_t version;
+	// These three values HAVE to be the first members, and remain in this order!
+	uint32_t id;
+	uint32_t size;
+	uint32_t version;
+
 	uint64_t offset;
 	RWSection* parent;
 	uint8_t* data;

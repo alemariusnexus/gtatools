@@ -26,6 +26,10 @@
 #include <gtaformats/config.h>
 
 
+
+#pragma pack(push, 1)
+
+
 class COLSurface {
 	friend class COLLoader;
 
@@ -51,5 +55,7 @@ private:
 	uint8_t brightness;
 	uint8_t light;
 };
+
+#pragma pack(pop)
 
 #endif /* COLSURFACE_H_ */

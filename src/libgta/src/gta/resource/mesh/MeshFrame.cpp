@@ -30,7 +30,7 @@ using std::find;
 
 MeshFrame::MeshFrame(const DFFFrame* frame)
 		: absModelMatrixValid(false),
-		  ibm(frame->getBone() ? frame->getBone()->getInverseBoneMatrix() : Matrix4::Identity), name(0),
+		  ibm(frame->getBone() ? frame->getBone()->getInverseBoneMatrix() : Matrix4::Identity),
 		  boneID(frame->getBone() ? frame->getBone()->getIndex() : -1),
 		  boneNum(frame->getBone() ? frame->getBone()->getNumber() : -1), parent(NULL)
 {

@@ -28,6 +28,10 @@
 
 
 
+
+#pragma pack(push, 1)
+
+
 class COLFaceGroup {
 	friend class COLLoader;
 
@@ -55,5 +59,8 @@ private:
 	uint16_t startFace;
 	uint16_t endFace;
 };
+
+
+#pragma pack(pop)
 
 #endif /* COLFACEGROUP_H_ */

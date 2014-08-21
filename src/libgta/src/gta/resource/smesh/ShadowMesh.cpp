@@ -45,7 +45,7 @@ ShadowMesh::ShadowMesh(const COLShadowMesh& smesh)
 {
 	memcpy(vertices, smesh.getVertices(), numVertices*3*sizeof(float));
 
-	const COLFace* faces = smesh.getFaces();
+	const COLFace* faces = &(*smesh.getFaces().begin());
 
 	for (uint32_t i = 0 ; i < numFaces ; i++) {
 		memcpy(indices + i*3, faces + i, 3*sizeof(uint32_t));

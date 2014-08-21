@@ -59,7 +59,7 @@ COLWidget::COLWidget(const File& file, QWidget *parent)
 
 	while ((model = col.loadModel(stream))) {
 		models << model;
-		ui.modelList->addItem(model->getName());
+		ui.modelList->addItem(model->getName().get());
 	}
 
 	System* sys = System::getInstance();

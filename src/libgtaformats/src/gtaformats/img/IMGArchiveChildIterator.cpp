@@ -36,7 +36,7 @@ File IMGArchiveChildIterator::getNext() const
 	if (currentIt == img->getEntryEnd())
 		return File();
 
-	File retFile(archiveFile, CString((*currentIt)->name));
+	File retFile(archiveFile, CString(currentIt->name));
 
 	const_cast<IMGArchiveChildIterator*>(this)->currentIt++;
 

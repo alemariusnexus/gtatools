@@ -205,9 +205,21 @@ void Vehicle::updatePhysics(btDiscreteDynamicsWorld* physWorld, uint64_t timePas
 	// Update suspension
 
 #if 1
+	float gravity = rb->getTotalForce().length();
+
 	for (WheelInfo& wheel : wheels) {
 		updateWheelSuspension(wheel, timePassed / 1000.0f);
 	}
+
+	float combinedForce = 0.0f;
+
+	for (WheelInfo& wheel : wheels) {
+		combinedForce += wheel.suspensionForce;
+	}
+
+	printf("Gravity: %.3f\n", rb->getGravity().length() / rb->getInvMass());
+
+	printf("Combined suspension force: %.3fN\n", combinedForce);
 #endif
 
 	rb->applyForce(forwardWS*force, Vector3::Zero);
@@ -300,7 +312,7 @@ bool Vehicle::castWheelRay(btDiscreteDynamicsWorld* physWorld, WheelInfo& wheel)
 		}
 
 		if (lbWheel) {
-			printf("Suspension Offset: %f\n", wheel.currentSuspensionOffset);
+			//printf("Suspension Offset: %f\n", wheel.currentSuspensionOffset);
 		}
 
 		/*if (wheel.dummyName == "wheel_lf_dummy") {
@@ -366,7 +378,7 @@ void Vehicle::updateWheelSuspension(WheelInfo& wheel, float timeStep)
 	}
 
 	if (lbWheel) {
-		printf("Force: %f, dt: %f\n", wheel.suspensionForce, timeStep);
+		//printf("Force: %f, dt: %f\n", wheel.suspensionForce, timeStep);
 	}
 
 	//rb->applyForce(wheel.contactNormalWS * force, wheel.contactPoint);

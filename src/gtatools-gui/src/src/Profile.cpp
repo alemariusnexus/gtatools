@@ -171,7 +171,7 @@ void Profile::loadResourceRecurse(const File& file)
 			resourceLoadingQueue.enqueue(file);
 		} catch (Exception& ex) {
 			sys->log(LogEntry::warning(tr("Error loading resource file %1: %2. The resource file will not be "
-					"used for certain operations.").arg(file.getPath().toString().get()).arg(ex.getMessage()),
+					"used for certain operations.").arg(file.getPath().toString().get()).arg(ex.getMessage().get()),
 					&ex));
 		}
 	}
@@ -190,7 +190,7 @@ void Profile::loadSingleResource()
 			engine->addResource(file);
 		} catch (Exception& ex) {
 			sys->log(LogEntry::warning(tr("Error loading resource file %1: %2. The resource file will not be "
-					"used for certain operations.").arg(file.getPath().toString().get()).arg(ex.getMessage()),
+					"used for certain operations.").arg(file.getPath().toString().get()).arg(ex.getMessage().get()),
 					&ex));
 		}
 
