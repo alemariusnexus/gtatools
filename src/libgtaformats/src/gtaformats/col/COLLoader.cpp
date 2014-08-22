@@ -65,6 +65,7 @@ COLModel* COLLoader::loadModel(istream* stream)
 
 		model->name.reserve(20);
 		stream->read(model->name.mget(), 20);
+		model->name.resize();
 
 		// Unknown, maybe part of the name, but IMG entry names are only 20 bytes without .col extension
 		// TODO: But maybe these bytes can be used for COL files outside an IMG archive?
@@ -382,6 +383,7 @@ CString COLLoader::loadModelName(istream* stream)
 	size = FromLittleEndian32(size);
 
 	stream->read(name.mget(), 20);
+	name.resize();
 	numRead += stream->gcount();
 
 	stream->ignore(size-20);

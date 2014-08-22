@@ -122,7 +122,7 @@ bool RWGetSectionInfo(uint32_t id, RWSectionInfo* info);
 
 bool RWGetSectionName(uint32_t id, char* dest);
 
-inline CString RWGetSectionName(uint32_t id) { CString name(128); RWGetSectionName(id, name.mget()); return name; }
+inline CString RWGetSectionName(uint32_t id) { CString name(128); RWGetSectionName(id, name.mget()); name.resize(); return name; }
 
 
 inline bool RWGetSectionShortName(uint32_t id, char* dest)
@@ -137,7 +137,7 @@ inline bool RWGetSectionShortName(uint32_t id, char* dest)
 	}
 }
 
-inline CString RWGetSectionShortName(uint32_t id) { CString name(128); RWGetSectionShortName(id, name.mget()); return name; }
+inline CString RWGetSectionShortName(uint32_t id) { CString name(128); RWGetSectionShortName(id, name.mget()); name.resize(); return name; }
 
 
 
