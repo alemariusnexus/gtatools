@@ -114,7 +114,7 @@ public:
 	void printDebug(int ind = 0);
 
 	CString getDescription() const
-			{ return RWGetSectionName(id).append(" (").append(size).append(" bytes @ 0x").appendHex(offset).append(")"); }
+			{ return RWGetSectionName(id).append(" (").append(size).append(" bytes @ 0x").append(offset, 16).append(")"); }
 
 private:
 	RWSection() : parent(NULL), data(NULL) {}
