@@ -33,13 +33,13 @@
 #include <nxcommon/util.h>
 #include <nxcommon/file/File.h>
 #include <nxcommon/ProgressObserver.h>
-#include <nxcommon/thread/Thread.h>
-#include <nxcommon/thread/Mutex.h>
 #include <istream>
 #include <ostream>
 #include <algorithm>
 #include <utility>
 #include <list>
+#include <thread>
+#include <mutex>
 
 using std::istream;
 using std::ostream;
@@ -47,6 +47,8 @@ using std::vector;
 using std::distance;
 using std::pair;
 using std::list;
+using std::thread;
+using std::mutex;
 
 
 
@@ -106,13 +108,14 @@ private:
 	};
 
 
-	class SectionCalculatorThread : public Thread
+	class SectionCalculatorThread
 	{
 	public:
 		virtual void run();
 
 	public:
-		Mutex* mutex;
+		thread thr;
+		mutex* mtx;
 		uint32_t* nextSect;
 		PVSDatabase* pvs;
 		list<PVSSceneObjectContainer*>::iterator beg, end;

@@ -499,7 +499,7 @@ void PVSDatabase::calculatePVS(unsigned int numThreads)
 	if (uncalculatedObjCount == 0)
 		return;
 
-	Mutex* mutex = new Mutex;
+	mutex mtx;
 	SectionCalculatorThread* threads = new SectionCalculatorThread[numThreads];
 
 	list<PVSSceneObjectContainer*> uncalculatedObjs;
@@ -515,16 +515,16 @@ void PVSDatabase::calculatePVS(unsigned int numThreads)
 	uint32_t nextSect = 0;
 
 	for (unsigned int i = 0 ; i < numThreads ; i++) {
-		threads[i].mutex = mutex;
+		threads[i].mtx = &mtx;
 		threads[i].nextSect = &nextSect;
 		threads[i].pvs = this;
 		threads[i].beg = uncalculatedObjs.begin();
 		threads[i].end = uncalculatedObjs.end();
-		threads[i].start();
+		threads[i].thr = thread(&SectionCalculatorThread::run, threads+i);
 	}
 
 	while (nextSect < numSects) {
-		mutex->lock();
+		mtx.lock();
 
 		vector<ProgressObserver*>::iterator pit;
 		for (pit = progressObservers.begin() ; pit != progressObservers.end() ; pit++) {
@@ -532,13 +532,13 @@ void PVSDatabase::calculatePVS(unsigned int numThreads)
 			obsv->progressChanged(nextSect, numSects);
 		}
 
-		mutex->unlock();
+		mtx.unlock();
 
 		SleepMilliseconds(50);
 	}
 
 	for (unsigned int i = 0 ; i < numThreads ; i++) {
-		threads[i].join();
+		threads[i].thr.join();
 	}
 
 	list<PVSSceneObjectContainer*>::iterator it;
@@ -550,19 +550,18 @@ void PVSDatabase::calculatePVS(unsigned int numThreads)
 	uncalculatedObjCount = 0;
 
 	delete[] threads;
-	delete mutex;
 }
 
 
 void PVSDatabase::SectionCalculatorThread::run()
 {
-	mutex->lock();
+	mtx->lock();
 
 	while (*nextSect < pvs->numSects) {
 		PVSSection* sect = pvs->sections[*nextSect];
 		(*nextSect)++;
 
-		mutex->unlock();
+		mtx->unlock();
 
 		unsigned int i = 0;
 
@@ -592,10 +591,10 @@ void PVSDatabase::SectionCalculatorThread::run()
 			}
 		}
 
-		mutex->lock();
+		mtx->lock();
 	}
 
-	mutex->unlock();
+	mtx->unlock();
 }
 
 

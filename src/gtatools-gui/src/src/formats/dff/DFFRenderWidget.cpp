@@ -26,7 +26,6 @@
 #include "../../System.h"
 #include "../../ProfileManager.h"
 #include <nxcommon/file/File.h>
-#include <nxcommon/thread/Mutex.h>
 #include <gta/GLException.h>
 #include <QtCore/QFile>
 #include <QtGui/QMessageBox>

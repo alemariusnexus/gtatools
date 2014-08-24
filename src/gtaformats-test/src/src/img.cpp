@@ -36,7 +36,7 @@ using std::distance;
 
 struct IMGExpectedEntry {
 	CString name;
-	int32_t size;
+	uint32_t size;
 	uint32_t checksumLen;
 	uint32_t checksum;
 };
@@ -661,7 +661,7 @@ TEST(IMGWriteTest, CheckResizePack)
 
 	struct ResizeRequest {
 		CString name;
-		int32_t size;
+		uint32_t size;
 	};
 
 	ResizeRequest resizes[] = {
@@ -856,7 +856,7 @@ TEST(IMGWriteTest, CheckCombinedGTA3IMG)
 			{"cj_commerciax.txd",			5,		IMG_BLOCKS2BYTES(5),		0xC604DF6C},
 	};
 
-	int32_t numEntriesBefore = img.getEntryCount();
+	uint32_t numEntriesBefore = img.getEntryCount();
 
 	unsigned int numExtracts = sizeof(extracts) / sizeof(IMGExpectedEntry);
 
