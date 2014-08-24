@@ -299,130 +299,132 @@ void TestTXDConversion(TXDTextureHeader* tex, uint8_t* rawData, const File& conv
 
 TEST(TXDReadTest, CheckOriginalTXDsSA)
 {
-	TXDExpectedTexture hudTexes[] = {
-			{"radardisc", "", 0x00000300, DXT3, 64, 64, 2, 1, true, 0x00000000, 0x00000000, 0x00001102, 0x50383B09},
-			{"skipicon", "", 0x00000300, DXT3, 128, 128, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xE61465F3},
-			{"siterocket", "", 0x00000100, DXT1, 32, 32, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xD48AA56E},
-			{"siteM16", "", 0x00000300, DXT3, 64, 64, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xB4B3D76F},
-			{"radar_ZERO", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x0BE93DEF},
-			{"radar_WOOZIE", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x0F3AF575},
-			{"radar_waypoint", "", 0x00000300, DXT3, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x560428A9},
-			{"radar_tshirt", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xAF6C012E},
-			{"radar_truck", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x50BD3355},
-			{"radar_triadsCasino", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x2B8AF58C},
-			{"radar_triads", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x0FAA2DCC},
-			{"radar_TorenoRanch", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x1BBB1976},
-			{"radar_TORENO", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x2C57BD89},
-			{"radar_THETRUTH", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xCCF06D6B},
-			{"radar_tattoo", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x0CA3C537},
-			{"radar_SWEET", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xB869B9D7},
-			{"radar_spray", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xEDCDA29E},
-			{"radar_school", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xC6EDBC94},
-			{"radar_saveGame", "", 0x00000200, DXT1, 16, 16, 2, 1, false, 0x00000000, 0x00000000, 0x00001101, 0xEA59E00A},
-			{"radar_RYDER", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xE5DECC1F},
-			{"radar_runway", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x199B0332},
-			{"radar_race", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x593E6E29},
-			{"radar_qmark", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x13853FDB},
-			{"radar_propertyR", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xBD6BE494},
-			{"radar_propertyG", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xB5D9BD7C},
-			{"radar_police", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x35C3BB5E},
-			{"radar_pizza", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xF79234DE},
-			{"radar_OGLOC", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xDD99DC4F},
-			{"radar_north", "", 0x00000300, DXT3, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xAEE94E91},
-			{"radar_modGarage", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xFC86811E},
-			{"radar_MCSTRAP", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xFC52B8FE},
-			{"radar_mafiaCasino", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xD4004977},
-			{"radar_MADDOG", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x65F31863},
-			{"radar_LocoSyndicate", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x3BA8DB7D},
-			{"radar_light", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x3B72C9E0},
-			{"radar_impound", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xBE15940E},
-			{"radar_hostpital", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x544600CC},
-			{"radar_gym", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x217926FC},
-			{"radar_girlfriend", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xA8C68904},
-			{"radar_gangY", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x9BC2F3CA},
-			{"radar_gangP", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x832890F2},
-			{"radar_gangN", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x55E83090},
-			{"radar_gangG", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x4A8B69AD},
-			{"radar_gangB", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x0E19810F},
-			{"radar_Flag", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x315FE615},
-			{"radar_fire", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xF686C071},
-			{"radar_enemyAttack", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x970A2BCB},
-			{"radar_emmetGun", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xFCE153AE},
-			{"radar_diner", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x076068B4},
-			{"radar_dateFood", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x92B8BD7B},
-			{"radar_dateDrink", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x98EA823A},
-			{"radar_dateDisco", "", 0x00000300, DXT3, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x120394B3},
-			{"radar_CRASH1", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xCF20044C},
-			{"radar_CJ", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xC5F15EA6},
-			{"radar_chicken", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x8EEE6557},
-			{"radar_CESARVIAPANDO", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x14EF5C0D},
-			{"radar_centre", "", 0x00000300, DXT3, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xD538904A},
-			{"radar_CATALINAPINK", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xEE0EBEE0},
-			{"radar_cash", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xF69E7F33},
-			{"radar_burgerShot", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x015AB4AA},
-			{"radar_bulldozer", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x3ABBA8B6},
-			{"radar_boatyard", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x757A9A09},
-			{"radar_BIGSMOKE", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xC5858737},
-			{"radar_barbers", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x8F4612E3},
-			{"radar_ammugun", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x9BA12012},
-			{"radar_airYard", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x0BD27EEF},
-			{"radarRingPlane", "", 0x00000300, DXT3, 64, 64, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xD4F51C86},
-			{"fist", "", 0x00000300, DXT3, 64, 64, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x6CFB8C34},
-			{"arrow", "", 0x00000300, DXT3, 32, 32, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x673FC372}
-	};
+	if (gtasaEnabled) {
+		TXDExpectedTexture hudTexes[] = {
+				{"radardisc", "", 0x00000300, DXT3, 64, 64, 2, 1, true, 0x00000000, 0x00000000, 0x00001102, 0x50383B09},
+				{"skipicon", "", 0x00000300, DXT3, 128, 128, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xE61465F3},
+				{"siterocket", "", 0x00000100, DXT1, 32, 32, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xD48AA56E},
+				{"siteM16", "", 0x00000300, DXT3, 64, 64, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xB4B3D76F},
+				{"radar_ZERO", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x0BE93DEF},
+				{"radar_WOOZIE", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x0F3AF575},
+				{"radar_waypoint", "", 0x00000300, DXT3, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x560428A9},
+				{"radar_tshirt", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xAF6C012E},
+				{"radar_truck", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x50BD3355},
+				{"radar_triadsCasino", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x2B8AF58C},
+				{"radar_triads", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x0FAA2DCC},
+				{"radar_TorenoRanch", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x1BBB1976},
+				{"radar_TORENO", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x2C57BD89},
+				{"radar_THETRUTH", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xCCF06D6B},
+				{"radar_tattoo", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x0CA3C537},
+				{"radar_SWEET", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xB869B9D7},
+				{"radar_spray", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xEDCDA29E},
+				{"radar_school", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xC6EDBC94},
+				{"radar_saveGame", "", 0x00000200, DXT1, 16, 16, 2, 1, false, 0x00000000, 0x00000000, 0x00001101, 0xEA59E00A},
+				{"radar_RYDER", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xE5DECC1F},
+				{"radar_runway", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x199B0332},
+				{"radar_race", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x593E6E29},
+				{"radar_qmark", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x13853FDB},
+				{"radar_propertyR", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xBD6BE494},
+				{"radar_propertyG", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xB5D9BD7C},
+				{"radar_police", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x35C3BB5E},
+				{"radar_pizza", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xF79234DE},
+				{"radar_OGLOC", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xDD99DC4F},
+				{"radar_north", "", 0x00000300, DXT3, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xAEE94E91},
+				{"radar_modGarage", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xFC86811E},
+				{"radar_MCSTRAP", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xFC52B8FE},
+				{"radar_mafiaCasino", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xD4004977},
+				{"radar_MADDOG", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x65F31863},
+				{"radar_LocoSyndicate", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x3BA8DB7D},
+				{"radar_light", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x3B72C9E0},
+				{"radar_impound", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xBE15940E},
+				{"radar_hostpital", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x544600CC},
+				{"radar_gym", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x217926FC},
+				{"radar_girlfriend", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xA8C68904},
+				{"radar_gangY", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x9BC2F3CA},
+				{"radar_gangP", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x832890F2},
+				{"radar_gangN", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x55E83090},
+				{"radar_gangG", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x4A8B69AD},
+				{"radar_gangB", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x0E19810F},
+				{"radar_Flag", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x315FE615},
+				{"radar_fire", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xF686C071},
+				{"radar_enemyAttack", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x970A2BCB},
+				{"radar_emmetGun", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xFCE153AE},
+				{"radar_diner", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x076068B4},
+				{"radar_dateFood", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x92B8BD7B},
+				{"radar_dateDrink", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x98EA823A},
+				{"radar_dateDisco", "", 0x00000300, DXT3, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x120394B3},
+				{"radar_CRASH1", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xCF20044C},
+				{"radar_CJ", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xC5F15EA6},
+				{"radar_chicken", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x8EEE6557},
+				{"radar_CESARVIAPANDO", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x14EF5C0D},
+				{"radar_centre", "", 0x00000300, DXT3, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xD538904A},
+				{"radar_CATALINAPINK", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xEE0EBEE0},
+				{"radar_cash", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xF69E7F33},
+				{"radar_burgerShot", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x015AB4AA},
+				{"radar_bulldozer", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x3ABBA8B6},
+				{"radar_boatyard", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x757A9A09},
+				{"radar_BIGSMOKE", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xC5858737},
+				{"radar_barbers", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x8F4612E3},
+				{"radar_ammugun", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x9BA12012},
+				{"radar_airYard", "", 0x00000100, DXT1, 16, 16, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x0BD27EEF},
+				{"radarRingPlane", "", 0x00000300, DXT3, 64, 64, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xD4F51C86},
+				{"fist", "", 0x00000300, DXT3, 64, 64, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x6CFB8C34},
+				{"arrow", "", 0x00000300, DXT3, 32, 32, 2, 1, true, 0x00000000, 0x00000000, 0x00001101, 0x673FC372}
+		};
 
-	TXDExpectedTexture bistroTexes[] = {
-			{"vent_64", "", 0x00000600, NONE, 64, 64, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0xBC84C8EB},
-			{"Tablecloth", "", 0x00000600, NONE, 128, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0x04F5DC3F},
-			{"sw_wallbrick_01", "", 0x00000600, NONE, 128, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0xE34352D3},
-			{"sw_door11", "", 0x00000600, NONE, 64, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0xD1548922},
-			{"StainedGlass", "", 0x00000600, NONE, 128, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0x636B630C},
-			{"SaltNPeppa", "", 0x00000600, NONE, 128, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0x3ACAE6E6},
-			{"rest_wall4", "", 0x00000600, NONE, 128, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0x3B03DDE0},
-			{"Plate", "", 0x00000600, NONE, 128, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0x864341C0},
-			{"Panel", "", 0x00000600, NONE, 128, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0x6A5513C4},
-			{"mp_snow", "", 0x00000600, NONE, 128, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0x0850CDD8},
-			{"mottled_grey_64HV", "", 0x00000600, NONE, 64, 64, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0x88868044},
-			{"marblekb_256128", "", 0x00000600, NONE, 128, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0x0A61BEE5},
-			{"Marble2", "", 0x00000600, NONE, 128, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0xE51756E3},
-			{"Marble", "", 0x00000600, NONE, 128, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0xE35D68EE},
-			{"DinerFloor", "", 0x00000600, NONE, 128, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0x707E6ECC},
-			{"deco_chair_1", "", 0x00000600, NONE, 256, 256, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0x71A0C5B7},
-			{"Cutlery", "", 0x00000500, NONE, 128, 128, 4, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xF28A8A82},
-			{"concretebig3_256", "", 0x00000600, NONE, 128, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0x8893A340},
-			{"Coffemachine", "", 0x00000600, NONE, 128, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0x0A70B893},
-			{"Candle_Holder", "", 0x00000600, NONE, 128, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0xBB6EE547},
-			{"Cakes", "", 0x00000600, NONE, 128, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0x918B92B6},
-			{"Cabinet", "", 0x00000600, NONE, 128, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0xEF2371A4},
-			{"Bow_Abattoir_Conc2", "", 0x00000600, NONE, 128, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0xED25E5BB},
-			{"BistroMenu", "", 0x00000600, NONE, 128, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0xC862BF65},
-			{"barbersflr1_LA", "", 0x00000600, NONE, 128, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0x24DDC6C2},
-			{"ahoodfence2", "", 0x00000600, NONE, 128, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0xD6B9CEAA}
-	};
+		TXDExpectedTexture bistroTexes[] = {
+				{"vent_64", "", 0x00000600, NONE, 64, 64, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0xBC84C8EB},
+				{"Tablecloth", "", 0x00000600, NONE, 128, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0x04F5DC3F},
+				{"sw_wallbrick_01", "", 0x00000600, NONE, 128, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0xE34352D3},
+				{"sw_door11", "", 0x00000600, NONE, 64, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0xD1548922},
+				{"StainedGlass", "", 0x00000600, NONE, 128, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0x636B630C},
+				{"SaltNPeppa", "", 0x00000600, NONE, 128, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0x3ACAE6E6},
+				{"rest_wall4", "", 0x00000600, NONE, 128, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0x3B03DDE0},
+				{"Plate", "", 0x00000600, NONE, 128, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0x864341C0},
+				{"Panel", "", 0x00000600, NONE, 128, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0x6A5513C4},
+				{"mp_snow", "", 0x00000600, NONE, 128, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0x0850CDD8},
+				{"mottled_grey_64HV", "", 0x00000600, NONE, 64, 64, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0x88868044},
+				{"marblekb_256128", "", 0x00000600, NONE, 128, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0x0A61BEE5},
+				{"Marble2", "", 0x00000600, NONE, 128, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0xE51756E3},
+				{"Marble", "", 0x00000600, NONE, 128, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0xE35D68EE},
+				{"DinerFloor", "", 0x00000600, NONE, 128, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0x707E6ECC},
+				{"deco_chair_1", "", 0x00000600, NONE, 256, 256, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0x71A0C5B7},
+				{"Cutlery", "", 0x00000500, NONE, 128, 128, 4, 1, true, 0x00000000, 0x00000000, 0x00001101, 0xF28A8A82},
+				{"concretebig3_256", "", 0x00000600, NONE, 128, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0x8893A340},
+				{"Coffemachine", "", 0x00000600, NONE, 128, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0x0A70B893},
+				{"Candle_Holder", "", 0x00000600, NONE, 128, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0xBB6EE547},
+				{"Cakes", "", 0x00000600, NONE, 128, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0x918B92B6},
+				{"Cabinet", "", 0x00000600, NONE, 128, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0xEF2371A4},
+				{"Bow_Abattoir_Conc2", "", 0x00000600, NONE, 128, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0xED25E5BB},
+				{"BistroMenu", "", 0x00000600, NONE, 128, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0xC862BF65},
+				{"barbersflr1_LA", "", 0x00000600, NONE, 128, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0x24DDC6C2},
+				{"ahoodfence2", "", 0x00000600, NONE, 128, 128, 4, 1, false, 0x00000000, 0x00000000, 0x00001101, 0xD6B9CEAA}
+		};
 
-	struct TXDTest {
-		CString txdPath;
-		TXDExpectedTexture* exTexes;
-		unsigned int numExTexes;
-	};
+		struct TXDTest {
+			CString txdPath;
+			TXDExpectedTexture* exTexes;
+			unsigned int numExTexes;
+		};
 
-	TXDTest tests[] = {
-			{"models/hud.txd", hudTexes, sizeof(hudTexes) / sizeof(TXDExpectedTexture)},
-			{"models/gta3.img/bistro.txd", bistroTexes, sizeof(bistroTexes) / sizeof(TXDExpectedTexture)}
-	};
+		TXDTest tests[] = {
+				{"models/hud.txd", hudTexes, sizeof(hudTexes) / sizeof(TXDExpectedTexture)},
+				{"models/gta3.img/bistro.txd", bistroTexes, sizeof(bistroTexes) / sizeof(TXDExpectedTexture)}
+		};
 
 
-	for (unsigned int i = 0 ; i < sizeof(tests) / sizeof(TXDTest) ; i++) {
-		TXDTest& test = tests[i];
+		for (unsigned int i = 0 ; i < sizeof(tests) / sizeof(TXDTest) ; i++) {
+			TXDTest& test = tests[i];
 
-		TXDArchive txd(File(gtasaRoot, test.txdPath.get()));
+			TXDArchive txd(File(gtasaRoot, test.txdPath.get()));
 
-		{
-			char traceMsg[1024];
-			sprintf(traceMsg, "TXD archive test #%d (%s)", i, test.txdPath.get());
-			SCOPED_TRACE(traceMsg);
+			{
+				char traceMsg[1024];
+				sprintf(traceMsg, "TXD archive test #%d (%s)", i, test.txdPath.get());
+				SCOPED_TRACE(traceMsg);
 
-			TestTXDContents(&txd, test.exTexes, test.numExTexes);
+				TestTXDContents(&txd, test.exTexes, test.numExTexes);
+			}
 		}
 	}
 }
@@ -430,53 +432,55 @@ TEST(TXDReadTest, CheckOriginalTXDsSA)
 
 TEST(TXDReadTest, CheckOriginalTXDsVC)
 {
-	TXDExpectedTexture miscTexes[] = {
-			{"wheel_sport64", "", 0x00000200, DXT1, 64, 64, 2, 1, false, 0x00000000, 0x00000000, 0x00001106, 0x99E52938},
-			{"wheel_saloon64", "", 0x00000200, DXT1, 64, 64, 2, 1, false, 0x00000000, 0x00000000, 0x00001106, 0x2A37A70F},
-			{"wheel_classic64", "", 0x00000200, DXT1, 64, 64, 2, 1, false, 0x00000000, 0x00000000, 0x00001106, 0x1D7AAB7D},
-			{"wheel_lighttruck64", "", 0x00000200, DXT1, 64, 64, 2, 1, false, 0x00000000, 0x00000000, 0x00001106, 0x48D4C477},
-			{"wheel_lightvan64", "", 0x00000200, DXT1, 64, 64, 2, 1, false, 0x00000000, 0x00000000, 0x00001106, 0x531824EF},
-			{"wheel_alloy64", "", 0x00000200, DXT1, 64, 64, 2, 1, false, 0x00000000, 0x00000000, 0x00001106, 0x7ECB868D},
-			{"whee_rim64", "", 0x00000200, DXT1, 64, 64, 2, 1, false, 0x00000000, 0x00000000, 0x00001106, 0x8FD23871},
-			{"wheel_truck64", "", 0x00000200, DXT1, 64, 64, 2, 1, false, 0x00000000, 0x00000000, 0x00001106, 0x417750BA},
-			{"wheel_offroad64", "", 0x00000200, DXT1, 64, 64, 2, 1, false, 0x00000000, 0x00000000, 0x00001106, 0xF7FA6EF1},
-			{"tyre64a", "", 0x00000200, DXT1, 64, 64, 2, 1, false, 0x00000000, 0x00000000, 0x00001106, 0x422997D8},
-			{"wheel_smallcar64", "", 0x00000200, DXT1, 64, 64, 2, 1, false, 0x00000000, 0x00000000, 0x00001106, 0x51D9A607}
-	};
+	if (gtavcEnabled) {
+		TXDExpectedTexture miscTexes[] = {
+				{"wheel_sport64", "", 0x00000200, DXT1, 64, 64, 2, 1, false, 0x00000000, 0x00000000, 0x00001106, 0x99E52938},
+				{"wheel_saloon64", "", 0x00000200, DXT1, 64, 64, 2, 1, false, 0x00000000, 0x00000000, 0x00001106, 0x2A37A70F},
+				{"wheel_classic64", "", 0x00000200, DXT1, 64, 64, 2, 1, false, 0x00000000, 0x00000000, 0x00001106, 0x1D7AAB7D},
+				{"wheel_lighttruck64", "", 0x00000200, DXT1, 64, 64, 2, 1, false, 0x00000000, 0x00000000, 0x00001106, 0x48D4C477},
+				{"wheel_lightvan64", "", 0x00000200, DXT1, 64, 64, 2, 1, false, 0x00000000, 0x00000000, 0x00001106, 0x531824EF},
+				{"wheel_alloy64", "", 0x00000200, DXT1, 64, 64, 2, 1, false, 0x00000000, 0x00000000, 0x00001106, 0x7ECB868D},
+				{"whee_rim64", "", 0x00000200, DXT1, 64, 64, 2, 1, false, 0x00000000, 0x00000000, 0x00001106, 0x8FD23871},
+				{"wheel_truck64", "", 0x00000200, DXT1, 64, 64, 2, 1, false, 0x00000000, 0x00000000, 0x00001106, 0x417750BA},
+				{"wheel_offroad64", "", 0x00000200, DXT1, 64, 64, 2, 1, false, 0x00000000, 0x00000000, 0x00001106, 0xF7FA6EF1},
+				{"tyre64a", "", 0x00000200, DXT1, 64, 64, 2, 1, false, 0x00000000, 0x00000000, 0x00001106, 0x422997D8},
+				{"wheel_smallcar64", "", 0x00000200, DXT1, 64, 64, 2, 1, false, 0x00000000, 0x00000000, 0x00001106, 0x51D9A607}
+		};
 
-	TXDExpectedTexture portabarrierTexes[] = {
-			{"Stop2_64", "Stop2_64a", 0x00002500, NONE, 64, 64, 1, 1, true, 0x00000000, 0x00000000, 0x00001106, 0xF5EE32C2},
-			{"banding_blue_64HV", "", 0x00002600, NONE, 64, 64, 1, 1, false, 0x00000000, 0x00000000, 0x00001106, 0x74FD4B5F},
-			{"banding8_64HV", "", 0x00002600, NONE, 64, 64, 1, 1, false, 0x00000000, 0x00000000, 0x00001106, 0xADCFD06D},
-			{"cratetop128", "", 0x00002600, NONE, 128, 128, 1, 1, false, 0x00000000, 0x00000000, 0x00001106, 0x098AE6C2},
-			{"glass_64a", "glass2_64alpha", 0x00002500, NONE, 64, 64, 1, 1, true, 0x00000000, 0x00000000, 0x00001106, 0xCDDC8999},
-			{"bareboards_64a", "", 0x00002600, NONE, 64, 64, 1, 1, false, 0x00000000, 0x00000000, 0x00001106, 0xBE3E9AF1},
-			{"redband_64Ha", "", 0x00002600, NONE, 64, 64, 1, 1, false, 0x00000000, 0x00000000, 0x00001106, 0x6054D3BA},
-			{"chevron_red_64HVa", "", 0x00002600, NONE, 64, 64, 1, 1, false, 0x00000000, 0x00000000, 0x00001106, 0xE83231D0}
-	};
+		TXDExpectedTexture portabarrierTexes[] = {
+				{"Stop2_64", "Stop2_64a", 0x00002500, NONE, 64, 64, 1, 1, true, 0x00000000, 0x00000000, 0x00001106, 0xF5EE32C2},
+				{"banding_blue_64HV", "", 0x00002600, NONE, 64, 64, 1, 1, false, 0x00000000, 0x00000000, 0x00001106, 0x74FD4B5F},
+				{"banding8_64HV", "", 0x00002600, NONE, 64, 64, 1, 1, false, 0x00000000, 0x00000000, 0x00001106, 0xADCFD06D},
+				{"cratetop128", "", 0x00002600, NONE, 128, 128, 1, 1, false, 0x00000000, 0x00000000, 0x00001106, 0x098AE6C2},
+				{"glass_64a", "glass2_64alpha", 0x00002500, NONE, 64, 64, 1, 1, true, 0x00000000, 0x00000000, 0x00001106, 0xCDDC8999},
+				{"bareboards_64a", "", 0x00002600, NONE, 64, 64, 1, 1, false, 0x00000000, 0x00000000, 0x00001106, 0xBE3E9AF1},
+				{"redband_64Ha", "", 0x00002600, NONE, 64, 64, 1, 1, false, 0x00000000, 0x00000000, 0x00001106, 0x6054D3BA},
+				{"chevron_red_64HVa", "", 0x00002600, NONE, 64, 64, 1, 1, false, 0x00000000, 0x00000000, 0x00001106, 0xE83231D0}
+		};
 
-	struct TXDTest {
-		CString txdPath;
-		TXDExpectedTexture* exTexes;
-		unsigned int numExTexes;
-	};
+		struct TXDTest {
+			CString txdPath;
+			TXDExpectedTexture* exTexes;
+			unsigned int numExTexes;
+		};
 
-	TXDTest tests[] = {
-			{"models/MISC.TXD", miscTexes, sizeof(miscTexes) / sizeof(TXDExpectedTexture)},
-			{"models/gta3.img/portabarrier.txd", portabarrierTexes, sizeof(portabarrierTexes) / sizeof (TXDExpectedTexture)}
-	};
+		TXDTest tests[] = {
+				{"models/MISC.TXD", miscTexes, sizeof(miscTexes) / sizeof(TXDExpectedTexture)},
+				{"models/gta3.img/portabarrier.txd", portabarrierTexes, sizeof(portabarrierTexes) / sizeof (TXDExpectedTexture)}
+		};
 
-	for (unsigned int i = 0 ; i < sizeof(tests) / sizeof(TXDTest) ; i++) {
-		TXDTest& test = tests[i];
+		for (unsigned int i = 0 ; i < sizeof(tests) / sizeof(TXDTest) ; i++) {
+			TXDTest& test = tests[i];
 
-		TXDArchive txd(File(gtavcRoot, test.txdPath.get()));
+			TXDArchive txd(File(gtavcRoot, test.txdPath.get()));
 
-		{
-			char traceMsg[1024];
-			sprintf(traceMsg, "TXD archive test #%d (%s)", i, test.txdPath.get());
-			SCOPED_TRACE(traceMsg);
+			{
+				char traceMsg[1024];
+				sprintf(traceMsg, "TXD archive test #%d (%s)", i, test.txdPath.get());
+				SCOPED_TRACE(traceMsg);
 
-			TestTXDContents(&txd, test.exTexes, test.numExTexes);
+				TestTXDContents(&txd, test.exTexes, test.numExTexes);
+			}
 		}
 	}
 }

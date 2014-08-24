@@ -378,51 +378,55 @@ void TestIMGMove(const File& imgFile, IMGArchive::MoveMode mmode)
 
 TEST(IMGReadTest, CheckGTA3IMGSA)
 {
-	IMGArchive img(File(gtasaRoot, "models/gta3.img"));
+	if (gtasaEnabled) {
+		IMGArchive img(File(gtasaRoot, "models/gta3.img"));
 
-	IMGArchive::IMGVersion ver = img.getVersion();
+		IMGArchive::IMGVersion ver = img.getVersion();
 
-	EXPECT_EQ(IMGArchive::VER2, ver);
-	EXPECT_EQ(16316, img.getEntryCount());
+		EXPECT_EQ(IMGArchive::VER2, ver);
+		EXPECT_EQ(16316, img.getEntryCount());
 
-	// Check for some hand-chosen entries...
+		// Check for some hand-chosen entries...
 
-	IMGExpectedEntry exEntries[] = {
-			{"bbb_lr_slv1.dff",			5,		2048,	0x4AE89F2E},
-			{"bbb_lr_slv2.dff",			3,		2048,	0xCAF0C1ED},
-			{"airport_05_sfse.dff",		31,		2048,	0xA8C98B2A},
-			{"land2_sfn14.dff",			6,		2048,	0x9B435A04},
-			{"lodebuild12_lvs.dff",		2,		2048,	0xAC4E020C},
-			{"lodassedge03.dff",		1,		2048,	0xC6CC3B03},
-			{"lahills_stream4.ipl",		4,		2048,	0x345B37C6},
-			{"lahills_stream3.ipl",		5,		2048,	0x7F47F2E4},
-			{"laeexaminerbuild1.dff",	100,	2048,	0x4562DEAD},
-			{"sex.ifp",					124,	2048,	0x97ECB763},
-			{"lhand.txd",				129,	2048,	0xFED12604},
-			{"veh_mods.col",			12,		2048,	0xABF280AC},
-			{"fbmp_a_f.dff",			28,		2048,	0xD0284B87},
-			{"des_byofficeint.dff",		37,		2048,	0xCD740D6B}
-	};
+		IMGExpectedEntry exEntries[] = {
+				{"bbb_lr_slv1.dff",			5,		2048,	0x4AE89F2E},
+				{"bbb_lr_slv2.dff",			3,		2048,	0xCAF0C1ED},
+				{"airport_05_sfse.dff",		31,		2048,	0xA8C98B2A},
+				{"land2_sfn14.dff",			6,		2048,	0x9B435A04},
+				{"lodebuild12_lvs.dff",		2,		2048,	0xAC4E020C},
+				{"lodassedge03.dff",		1,		2048,	0xC6CC3B03},
+				{"lahills_stream4.ipl",		4,		2048,	0x345B37C6},
+				{"lahills_stream3.ipl",		5,		2048,	0x7F47F2E4},
+				{"laeexaminerbuild1.dff",	100,	2048,	0x4562DEAD},
+				{"sex.ifp",					124,	2048,	0x97ECB763},
+				{"lhand.txd",				129,	2048,	0xFED12604},
+				{"veh_mods.col",			12,		2048,	0xABF280AC},
+				{"fbmp_a_f.dff",			28,		2048,	0xD0284B87},
+				{"des_byofficeint.dff",		37,		2048,	0xCD740D6B}
+		};
 
-	TestIMGContents(&img, exEntries, sizeof(exEntries) / sizeof(IMGExpectedEntry));
+		TestIMGContents(&img, exEntries, sizeof(exEntries) / sizeof(IMGExpectedEntry));
+	}
 }
 
 
 TEST(IMGReadTest, CheckGTA3IMGVC)
 {
-	IMGArchive img(File(gtavcRoot, "models/gta3.img"));
+	if (gtavcEnabled) {
+		IMGArchive img(File(gtavcRoot, "models/gta3.img"));
 
-	IMGArchive::IMGVersion ver = img.getVersion();
+		IMGArchive::IMGVersion ver = img.getVersion();
 
-	EXPECT_EQ(IMGArchive::VER1, ver);
-	EXPECT_EQ(6043, img.getEntryCount());
+		EXPECT_EQ(IMGArchive::VER1, ver);
+		EXPECT_EQ(6043, img.getEntryCount());
 
-	// Check for some hand-chosen entries...
+		// Check for some hand-chosen entries...
 
-	/*IMGExpectedEntry exEntries[] = {
-	};
+		/*IMGExpectedEntry exEntries[] = {
+		};
 
-	TestIMGContents(&img, exEntries, sizeof(exEntries) / sizeof(IMGExpectedEntry));*/
+		TestIMGContents(&img, exEntries, sizeof(exEntries) / sizeof(IMGExpectedEntry));*/
+	}
 }
 
 
@@ -791,367 +795,369 @@ TEST(IMGWriteTest, CheckMoveSwap)
 
 TEST(IMGWriteTest, CheckCombinedGTA3IMG)
 {
-	File imgFile(testRootDir, "gta3.img");
-	File exDir(testRootDir, "extracted");
+	if (gtasaEnabled) {
+		File imgFile(testRootDir, "gta3.img");
+		File exDir(testRootDir, "extracted");
 
 
-	exDir.mkdir();
+		exDir.mkdir();
 
-	File(gtasaRoot, "models/gta3.img").copyTo(imgFile);
+		File(gtasaRoot, "models/gta3.img").copyTo(imgFile);
 
-	IMGArchive img(imgFile, IMGArchive::ReadWrite);
+		IMGArchive img(imgFile, IMGArchive::ReadWrite);
 
 
-	// ********** ADD A NEW ENTRY **********
+		// ********** ADD A NEW ENTRY **********
 
-	IMGArchive::EntryIterator it = img.addEntry("FuBarHi2gA4uUU.1u7", 15);
-
-	it = img.getEntryByName("FuBarHi2gA4uUU.1u7");
-	EXPECT_NE(img.getEntryEnd(), it) << "Failed to add entry!";
-
-	if (it != img.getEntryEnd()) {
-		IMGArchive::EntryIterator pos = img.getEntryByName("hedge09_sfn_cm.dff");
-		EXPECT_NE(img.getEntryEnd(), pos) << "Entry hedge09_sfn_cm.dff not found!";
-
-		iostream* stream = (iostream*) img.gotoEntry(it);
-
-		const char* str = "This is a dummy file added by gtaformats-test.";
-		stream->write(str, strlen(str));
-		stream->ignore(12*IMG_BLOCK_SIZE);
-		stream->write(str, strlen(str));
-
-		delete stream;
-
-		img.moveEntries(pos, it, img.getEntryEnd(), IMGArchive::MoveToEnd);
+		IMGArchive::EntryIterator it = img.addEntry("FuBarHi2gA4uUU.1u7", 15);
 
 		it = img.getEntryByName("FuBarHi2gA4uUU.1u7");
-		EXPECT_NE(img.getEntryEnd(), it) << "Entry wasn't found after moving!";
+		EXPECT_NE(img.getEntryEnd(), it) << "Failed to add entry!";
 
-		const char* eo1[] = {
-				"hedge03sfn_cm.dff", "hedge04_sfn_cm.dff", "FuBarHi2gA4uUU.1u7"
+		if (it != img.getEntryEnd()) {
+			IMGArchive::EntryIterator pos = img.getEntryByName("hedge09_sfn_cm.dff");
+			EXPECT_NE(img.getEntryEnd(), pos) << "Entry hedge09_sfn_cm.dff not found!";
+
+			iostream* stream = (iostream*) img.gotoEntry(it);
+
+			const char* str = "This is a dummy file added by gtaformats-test.";
+			stream->write(str, strlen(str));
+			stream->ignore(12*IMG_BLOCK_SIZE);
+			stream->write(str, strlen(str));
+
+			delete stream;
+
+			img.moveEntries(pos, it, img.getEntryEnd(), IMGArchive::MoveToEnd);
+
+			it = img.getEntryByName("FuBarHi2gA4uUU.1u7");
+			EXPECT_NE(img.getEntryEnd(), it) << "Entry wasn't found after moving!";
+
+			const char* eo1[] = {
+					"hedge03sfn_cm.dff", "hedge04_sfn_cm.dff", "FuBarHi2gA4uUU.1u7"
+			};
+
+			{
+				SCOPED_TRACE("Order test after moving added entry");
+				TestIMGOrder(&img, eo1, sizeof(eo1) / sizeof(const char*));
+			}
+		}
+
+
+		// ********** EXTRACT SOME ENTRIES **********
+
+		IMGExpectedEntry extracts[] = {
+				{"lodcuntw09.dff",				11,		IMG_BLOCKS2BYTES(11),		0x28F60629},
+				{"cunteground43a.dff",			2,		IMG_BLOCKS2BYTES(2),		0xAA39F981},
+				{"miragebuild04.dff",			2,		IMG_BLOCKS2BYTES(2),		0x4E6C0F5C},
+				{"bonaplazagr_lan.dff",			8,		IMG_BLOCKS2BYTES(8),		0x867568C0},
+				{"packing_carates04.dff",		6,		IMG_BLOCKS2BYTES(6),		0x289C3522},
+				{"bbb_lr_slv1.dff",				5,		IMG_BLOCKS2BYTES(5),		0x095BBBD0},
+				{"mall_sfse.txd",				111,	IMG_BLOCKS2BYTES(111),		0xC2E9FD59},
+				{"midtownshops_sfs.txd",		112,	IMG_BLOCKS2BYTES(112),		0xDF24DF20},
+				{"vgsbboardsigns01.dff",		1,		IMG_BLOCKS2BYTES(1),		0x5BE3EED5},
+				{"bikdrug.txd",					65,		IMG_BLOCKS2BYTES(65),		0x082AFAAC},
+				{"lahills_stream4.ipl",			4,		IMG_BLOCKS2BYTES(4),		0x0A596771},
+				{"seabed7.col",					5,		IMG_BLOCKS2BYTES(5),		0x1400435A},
+				{"cj_commerciax.txd",			5,		IMG_BLOCKS2BYTES(5),		0xC604DF6C},
 		};
 
+		uint32_t numEntriesBefore = img.getEntryCount();
+
+		unsigned int numExtracts = sizeof(extracts) / sizeof(IMGExpectedEntry);
+
 		{
-			SCOPED_TRACE("Order test after moving added entry");
-			TestIMGOrder(&img, eo1, sizeof(eo1) / sizeof(const char*));
+			SCOPED_TRACE("Content test before extraction");
+			TestIMGContents(&img, extracts, numExtracts);
 		}
-	}
 
+		for (unsigned int i = 0 ; i < numExtracts ; i++) {
+			IMGExpectedEntry& exEntry = extracts[i];
+			IMGArchive::EntryIterator it = img.getEntryByName(exEntry.name.get());
 
-	// ********** EXTRACT SOME ENTRIES **********
+			EXPECT_NE(img.getEntryEnd(), it) << "Extraction test entry #" << i << " (" << exEntry.name.get()
+					<< ") not found!";
 
-	IMGExpectedEntry extracts[] = {
-			{"lodcuntw09.dff",				11,		IMG_BLOCKS2BYTES(11),		0x28F60629},
-			{"cunteground43a.dff",			2,		IMG_BLOCKS2BYTES(2),		0xAA39F981},
-			{"miragebuild04.dff",			2,		IMG_BLOCKS2BYTES(2),		0x4E6C0F5C},
-			{"bonaplazagr_lan.dff",			8,		IMG_BLOCKS2BYTES(8),		0x867568C0},
-			{"packing_carates04.dff",		6,		IMG_BLOCKS2BYTES(6),		0x289C3522},
-			{"bbb_lr_slv1.dff",				5,		IMG_BLOCKS2BYTES(5),		0x095BBBD0},
-			{"mall_sfse.txd",				111,	IMG_BLOCKS2BYTES(111),		0xC2E9FD59},
-			{"midtownshops_sfs.txd",		112,	IMG_BLOCKS2BYTES(112),		0xDF24DF20},
-			{"vgsbboardsigns01.dff",		1,		IMG_BLOCKS2BYTES(1),		0x5BE3EED5},
-			{"bikdrug.txd",					65,		IMG_BLOCKS2BYTES(65),		0x082AFAAC},
-			{"lahills_stream4.ipl",			4,		IMG_BLOCKS2BYTES(4),		0x0A596771},
-			{"seabed7.col",					5,		IMG_BLOCKS2BYTES(5),		0x1400435A},
-			{"cj_commerciax.txd",			5,		IMG_BLOCKS2BYTES(5),		0xC604DF6C},
-	};
+			if (it != img.getEntryEnd()) {
+				istream* stream = img.gotoEntry(it);
 
-	uint32_t numEntriesBefore = img.getEntryCount();
+				File outFile(exDir, exEntry.name.get());
+				outFile.copyFrom(stream);
 
-	unsigned int numExtracts = sizeof(extracts) / sizeof(IMGExpectedEntry);
-
-	{
-		SCOPED_TRACE("Content test before extraction");
-		TestIMGContents(&img, extracts, numExtracts);
-	}
-
-	for (unsigned int i = 0 ; i < numExtracts ; i++) {
-		IMGExpectedEntry& exEntry = extracts[i];
-		IMGArchive::EntryIterator it = img.getEntryByName(exEntry.name.get());
-
-		EXPECT_NE(img.getEntryEnd(), it) << "Extraction test entry #" << i << " (" << exEntry.name.get()
-				<< ") not found!";
-
-		if (it != img.getEntryEnd()) {
-			istream* stream = img.gotoEntry(it);
-
-			File outFile(exDir, exEntry.name.get());
-			outFile.copyFrom(stream);
-
-			img.removeEntry(it);
-		}
-	}
-
-	EXPECT_EQ(numEntriesBefore - numExtracts, img.getEntryCount()) << "Wrong entry count after extraction!";
-
-
-	// ********** ADD THE ENTRIES AGAIN, BUT UNDER THEIR NEW NAME **********
-
-	for (unsigned int i = 0 ; i < numExtracts ; i++) {
-		IMGExpectedEntry& exEntry = extracts[i];
-
-		File inFile(exDir, exEntry.name.get());
-
-		char newName[24];
-		sprintf(newName, "GFT15671-test%d.418", i);
-
-		IMGArchive::EntryIterator it = img.addEntry(newName, IMG_BYTES2BLOCKS(inFile.getSize()));
-
-		iostream* stream = (iostream*) img.gotoEntry(it);
-		inFile.copyTo(stream);
-		delete stream;
-
-		inFile.remove();
-	}
-
-	EXPECT_EQ(numEntriesBefore, img.getEntryCount()) << "Wrong entry count after adding extracted entries!";
-
-	numEntriesBefore = img.getEntryCount();
-
-
-	// ********** AND RENAME THEM TO THEIR OLD NAME **********
-
-	for (unsigned int i = 0 ; i < numExtracts ; i++) {
-		IMGExpectedEntry& exEntry = extracts[i];
-
-		char newName[24];
-		sprintf(newName, "GFT15671-test%d.418", i);
-
-		IMGArchive::EntryIterator it = img.getEntryByName(newName);
-
-		EXPECT_NE(img.getEntryEnd(), it) << "Renamed entry #" << i << " (" << newName << ")"
-				<< " could not be found!";
-
-		if (it != img.getEntryEnd()) {
-			img.renameEntry(it, exEntry.name.get());
-		}
-	}
-
-	{
-		SCOPED_TRACE("Content test after extraction and renaming");
-		TestIMGContents(&img, extracts, numExtracts);
-	}
-
-
-	// ********** SWAP SOME ENTRIES **********
-
-	struct SwapRequest {
-		const char* r1BeginName;
-		const char* r1EndName;
-		const char* r2EndName;
-		const char* expectedOrder1[20];
-		const char* expectedOrder2[20];
-		const char* expectedOrder3[20];
-	};
-
-	SwapRequest swapRequests[] = {
-			{	"des_wgarage.txd", "countryn_3.col", "countryn_8.col",
-				{	"des_wdam.txd", "countryn_3.col", "countryn_4.col", "countryn_5.col", "countryn_6.col",
-					"countryn_7.col", "des_wgarage.txd", "des_wires.txd", "des_woodbr.txd",
-					"des_wtownmain.txd", "lod_countryn.txd", "mp_ranchcut.txd", "countryn_1.col",
-					"countryn_2.col", "countryn_8.col", "countryn_9.col", NULL
-				},
-				NULL,
-				NULL
-			},
-
-			{	"hotelbits_sfe02.dff", "vgnntrainfence05b.dff", "swfotr1.txd",
-				{	"grnwhite_sfe.dff", "hotelbits_sfe01.dff", "vgnntrainfence05b.dff", "vgnorthcoast02.dff",
-					"vgnorthcoast02b.dff", "vgnorthcoast03.dff", NULL
-				},
-				{	"swfori.txd", "swfost.txd", "hotelbits_sfe02.dff", "hotelbits_sfe03.dff",
-					"hotelbits_sfe04.dff", "hotelbits_sfe05.dff", NULL
-				},
-				{	"vgnntrainfence04b.dff", "vgnntrainfence05.dff", "swfotr1.txd", "swfyri.txd",
-					"swfyst.txd", NULL
-				}
+				img.removeEntry(it);
 			}
-	};
-
-	unsigned int numSwapRequests = sizeof(swapRequests) / sizeof(SwapRequest);
-
-	for (unsigned int i = 0 ; i < numSwapRequests ; i++) {
-		SwapRequest& swap = swapRequests[i];
-
-		IMGArchive::EntryIterator r1Begin = img.getEntryByName(swap.r1BeginName);
-		IMGArchive::EntryIterator r1End = img.getEntryByName(swap.r1EndName);
-		IMGArchive::EntryIterator r2End = img.getEntryByName(swap.r2EndName);
-
-		EXPECT_NE(img.getEntryEnd(), r1Begin) << "Range 1 begin entry for swap request #" << i << " ("
-				<< swap.r1BeginName << ") was not found!";
-		EXPECT_NE(img.getEntryEnd(), r1End) << "Range 1 end entry for swap request #" << i << " ("
-				<< swap.r1EndName << ") was not found!";
-		EXPECT_NE(img.getEntryEnd(), r2End) << "Range 2 end entry for swap request #" << i << " ("
-				<< swap.r2EndName << ") was not found!";
-
-		ASSERT_NO_THROW({
-			img.swapConsecutive(r1Begin, r1End, r2End);
-		}) << "Exception thrown during swap test #" << i << "!";
-
-		if (swap.expectedOrder1) {
-			char traceMsg[64];
-			sprintf(traceMsg, "Order test 1 in swap test #%d", i);
-			SCOPED_TRACE(traceMsg);
-
-			unsigned int len;
-			for (len = 0 ; swap.expectedOrder1[len] ; len++);
-
-			TestIMGOrder(&img, swap.expectedOrder1, len);
 		}
-		if (swap.expectedOrder2) {
-			char traceMsg[64];
-			sprintf(traceMsg, "Order test 2 in swap test #%d", i);
-			SCOPED_TRACE(traceMsg);
 
-			unsigned int len;
-			for (len = 0 ; swap.expectedOrder2[len] ; len++);
+		EXPECT_EQ(numEntriesBefore - numExtracts, img.getEntryCount()) << "Wrong entry count after extraction!";
 
-			TestIMGOrder(&img, swap.expectedOrder2, len);
+
+		// ********** ADD THE ENTRIES AGAIN, BUT UNDER THEIR NEW NAME **********
+
+		for (unsigned int i = 0 ; i < numExtracts ; i++) {
+			IMGExpectedEntry& exEntry = extracts[i];
+
+			File inFile(exDir, exEntry.name.get());
+
+			char newName[24];
+			sprintf(newName, "GFT15671-test%d.418", i);
+
+			IMGArchive::EntryIterator it = img.addEntry(newName, IMG_BYTES2BLOCKS(inFile.getSize()));
+
+			iostream* stream = (iostream*) img.gotoEntry(it);
+			inFile.copyTo(stream);
+			delete stream;
+
+			inFile.remove();
 		}
-		if (swap.expectedOrder3) {
-			char traceMsg[64];
-			sprintf(traceMsg, "Order test 3 in swap test #%d", i);
-			SCOPED_TRACE(traceMsg);
 
-			unsigned int len;
-			for (len = 0 ; swap.expectedOrder3[len] ; len++);
+		EXPECT_EQ(numEntriesBefore, img.getEntryCount()) << "Wrong entry count after adding extracted entries!";
 
-			TestIMGOrder(&img, swap.expectedOrder3, len);
+		numEntriesBefore = img.getEntryCount();
+
+
+		// ********** AND RENAME THEM TO THEIR OLD NAME **********
+
+		for (unsigned int i = 0 ; i < numExtracts ; i++) {
+			IMGExpectedEntry& exEntry = extracts[i];
+
+			char newName[24];
+			sprintf(newName, "GFT15671-test%d.418", i);
+
+			IMGArchive::EntryIterator it = img.getEntryByName(newName);
+
+			EXPECT_NE(img.getEntryEnd(), it) << "Renamed entry #" << i << " (" << newName << ")"
+					<< " could not be found!";
+
+			if (it != img.getEntryEnd()) {
+				img.renameEntry(it, exEntry.name.get());
+			}
 		}
-	}
 
-	EXPECT_EQ(numEntriesBefore, img.getEntryCount()) << "Entry count changed during swap test!";
-
-	{
-		SCOPED_TRACE("Content test after swap test");
-		TestIMGContents(&img, extracts, numExtracts);
-	}
+		{
+			SCOPED_TRACE("Content test after extraction and renaming");
+			TestIMGContents(&img, extracts, numExtracts);
+		}
 
 
-	// ********** MOVE SOME ENTRIES **********
+		// ********** SWAP SOME ENTRIES **********
 
-	struct MoveRequest {
-		const char* posName;
-		const char* begName;
-		const char* endName;
-		IMGArchive::MoveMode mmode;
-		const char* expectedOrder1[20];
-		const char* expectedOrder2[20];
-		const char* expectedOrder3[20];
-	};
+		struct SwapRequest {
+			const char* r1BeginName;
+			const char* r1EndName;
+			const char* r2EndName;
+			const char* expectedOrder1[20];
+			const char* expectedOrder2[20];
+			const char* expectedOrder3[20];
+		};
 
-	MoveRequest moves[] = {
-			{	"psycho.txd", "bonaplazagr_lan.dff", "bikdrug.txd", IMGArchive::MoveToEnd,
-				{	"player.txd", "poolguy.txd", "bonaplazagr_lan.dff", "packing_carates04.dff",
-					"bbb_lr_slv1.dff", "mall_sfse.txd", "midtownshops_sfs.txd", "vgsbboardsigns01.dff",
+		SwapRequest swapRequests[] = {
+				{	"des_wgarage.txd", "countryn_3.col", "countryn_8.col",
+					{	"des_wdam.txd", "countryn_3.col", "countryn_4.col", "countryn_5.col", "countryn_6.col",
+						"countryn_7.col", "des_wgarage.txd", "des_wires.txd", "des_woodbr.txd",
+						"des_wtownmain.txd", "lod_countryn.txd", "mp_ranchcut.txd", "countryn_1.col",
+						"countryn_2.col", "countryn_8.col", "countryn_9.col", NULL
+					},
+					NULL,
 					NULL
 				},
-				NULL,
-				NULL
-			},
 
-			{	"elmdead_hi.dff", "wheel_lr3.dff", "des_miscbits.txd", IMGArchive::MoveToEnd,
-				{	"cedar2_hi.dff", "cedar3_hi.dff", "wheel_lr3.dff", "wheel_lr4.dff", "wheel_lr5.dff",
+				{	"hotelbits_sfe02.dff", "vgnntrainfence05b.dff", "swfotr1.txd",
+					{	"grnwhite_sfe.dff", "hotelbits_sfe01.dff", "vgnntrainfence05b.dff", "vgnorthcoast02.dff",
+						"vgnorthcoast02b.dff", "vgnorthcoast03.dff", NULL
+					},
+					{	"swfori.txd", "swfost.txd", "hotelbits_sfe02.dff", "hotelbits_sfe03.dff",
+						"hotelbits_sfe04.dff", "hotelbits_sfe05.dff", NULL
+					},
+					{	"vgnntrainfence04b.dff", "vgnntrainfence05.dff", "swfotr1.txd", "swfyri.txd",
+						"swfyst.txd", NULL
+					}
+				}
+		};
+
+		unsigned int numSwapRequests = sizeof(swapRequests) / sizeof(SwapRequest);
+
+		for (unsigned int i = 0 ; i < numSwapRequests ; i++) {
+			SwapRequest& swap = swapRequests[i];
+
+			IMGArchive::EntryIterator r1Begin = img.getEntryByName(swap.r1BeginName);
+			IMGArchive::EntryIterator r1End = img.getEntryByName(swap.r1EndName);
+			IMGArchive::EntryIterator r2End = img.getEntryByName(swap.r2EndName);
+
+			EXPECT_NE(img.getEntryEnd(), r1Begin) << "Range 1 begin entry for swap request #" << i << " ("
+					<< swap.r1BeginName << ") was not found!";
+			EXPECT_NE(img.getEntryEnd(), r1End) << "Range 1 end entry for swap request #" << i << " ("
+					<< swap.r1EndName << ") was not found!";
+			EXPECT_NE(img.getEntryEnd(), r2End) << "Range 2 end entry for swap request #" << i << " ("
+					<< swap.r2EndName << ") was not found!";
+
+			ASSERT_NO_THROW({
+				img.swapConsecutive(r1Begin, r1End, r2End);
+			}) << "Exception thrown during swap test #" << i << "!";
+
+			if (swap.expectedOrder1) {
+				char traceMsg[64];
+				sprintf(traceMsg, "Order test 1 in swap test #%d", i);
+				SCOPED_TRACE(traceMsg);
+
+				unsigned int len;
+				for (len = 0 ; swap.expectedOrder1[len] ; len++);
+
+				TestIMGOrder(&img, swap.expectedOrder1, len);
+			}
+			if (swap.expectedOrder2) {
+				char traceMsg[64];
+				sprintf(traceMsg, "Order test 2 in swap test #%d", i);
+				SCOPED_TRACE(traceMsg);
+
+				unsigned int len;
+				for (len = 0 ; swap.expectedOrder2[len] ; len++);
+
+				TestIMGOrder(&img, swap.expectedOrder2, len);
+			}
+			if (swap.expectedOrder3) {
+				char traceMsg[64];
+				sprintf(traceMsg, "Order test 3 in swap test #%d", i);
+				SCOPED_TRACE(traceMsg);
+
+				unsigned int len;
+				for (len = 0 ; swap.expectedOrder3[len] ; len++);
+
+				TestIMGOrder(&img, swap.expectedOrder3, len);
+			}
+		}
+
+		EXPECT_EQ(numEntriesBefore, img.getEntryCount()) << "Entry count changed during swap test!";
+
+		{
+			SCOPED_TRACE("Content test after swap test");
+			TestIMGContents(&img, extracts, numExtracts);
+		}
+
+
+		// ********** MOVE SOME ENTRIES **********
+
+		struct MoveRequest {
+			const char* posName;
+			const char* begName;
+			const char* endName;
+			IMGArchive::MoveMode mmode;
+			const char* expectedOrder1[20];
+			const char* expectedOrder2[20];
+			const char* expectedOrder3[20];
+		};
+
+		MoveRequest moves[] = {
+				{	"psycho.txd", "bonaplazagr_lan.dff", "bikdrug.txd", IMGArchive::MoveToEnd,
+					{	"player.txd", "poolguy.txd", "bonaplazagr_lan.dff", "packing_carates04.dff",
+						"bbb_lr_slv1.dff", "mall_sfse.txd", "midtownshops_sfs.txd", "vgsbboardsigns01.dff",
+						NULL
+					},
+					NULL,
 					NULL
 				},
-				{	"des_clifftown.txd", "des_dinerw.txd", "des_farmstuff.txd", NULL
-				},
-				NULL
-			},
 
-			{	"lod_sfs037.dff", "crates.dff", "burbdoor.dff", IMGArchive::MoveSwap,
-				{	"counts_lights01.dff", "count_ammundoor.dff", "burbdoor.dff", "burbdoor2.dff",
-					"busdepot_lod.dff", NULL
+				{	"elmdead_hi.dff", "wheel_lr3.dff", "des_miscbits.txd", IMGArchive::MoveToEnd,
+					{	"cedar2_hi.dff", "cedar3_hi.dff", "wheel_lr3.dff", "wheel_lr4.dff", "wheel_lr5.dff",
+						NULL
+					},
+					{	"des_clifftown.txd", "des_dinerw.txd", "des_farmstuff.txd", NULL
+					},
+					NULL
 				},
-				{	"lod_sfs035.dff", "lod_sfs036.dff", "crates.dff", "crates01.dff", "cstwnland03.dff",
-					"cstwnland_lod.dff", NULL
-				},
-				{	"countrys_stream4.ipl", "bigsprunkpole.dff", "lod_sfs037.dff", "lod_sfs047.dff",
-					"lod_sfs049.dff", NULL
-				}
-			},
 
-			// The following is a full archive swap operation!
-			{	"bbb_lr_slv2.dff", "lodstrd2_las2.dff", NULL, IMGArchive::MoveSwap,
-				{	NULL, "lodstrd2_las2.dff", "lodstrd3_las2.dff", "lodstripbar02.dff", NULL
+				{	"lod_sfs037.dff", "crates.dff", "burbdoor.dff", IMGArchive::MoveSwap,
+					{	"counts_lights01.dff", "count_ammundoor.dff", "burbdoor.dff", "burbdoor2.dff",
+						"busdepot_lod.dff", NULL
+					},
+					{	"lod_sfs035.dff", "lod_sfs036.dff", "crates.dff", "crates01.dff", "cstwnland03.dff",
+						"cstwnland_lod.dff", NULL
+					},
+					{	"countrys_stream4.ipl", "bigsprunkpole.dff", "lod_sfs037.dff", "lod_sfs047.dff",
+						"lod_sfs049.dff", NULL
+					}
 				},
-				{	"bbb_lr_slv2.dff", "bntl_b_ov.dff", "bntl_b_sq.dff", NULL
-				},
-				{	"lodstormbrid_las2.dff", "lodstpshp1a_las2.dff", NULL
+
+				// The following is a full archive swap operation!
+				{	"bbb_lr_slv2.dff", "lodstrd2_las2.dff", NULL, IMGArchive::MoveSwap,
+					{	NULL, "lodstrd2_las2.dff", "lodstrd3_las2.dff", "lodstripbar02.dff", NULL
+					},
+					{	"bbb_lr_slv2.dff", "bntl_b_ov.dff", "bntl_b_sq.dff", NULL
+					},
+					{	"lodstormbrid_las2.dff", "lodstpshp1a_las2.dff", NULL
+					}
 				}
+		};
+
+		unsigned int numMoves = sizeof(moves) / sizeof(MoveRequest);
+
+		for (unsigned int i = 0 ; i < numMoves ; i++) {
+			MoveRequest& move = moves[i];
+
+			IMGArchive::EntryIterator pos = img.getEntryByName(move.posName);
+			IMGArchive::EntryIterator beg = img.getEntryByName(move.begName);
+
+			EXPECT_NE(img.getEntryEnd(), pos) << "Insertion position iterator for move request #" << i << "("
+					<< move.posName << ") was not found!";
+			EXPECT_NE(img.getEntryEnd(), beg) << "Begin iterator for move request #" << i << "("
+					<< move.begName << ") was not found!";
+
+			IMGArchive::EntryIterator end;
+
+			if (move.endName) {
+				end = img.getEntryByName(move.endName);
+				EXPECT_NE(img.getEntryEnd(), end) << "End iterator for move request #" << i << "("
+						<< move.endName << ") was not found!";
+			} else {
+				end = img.getEntryEnd();
 			}
-	};
 
-	unsigned int numMoves = sizeof(moves) / sizeof(MoveRequest);
+			ASSERT_NO_THROW({
+				img.moveEntries(pos, beg, end, move.mmode);
+			}) << "Exception thrown during move test #" << i << "!";
 
-	for (unsigned int i = 0 ; i < numMoves ; i++) {
-		MoveRequest& move = moves[i];
+			if (move.expectedOrder1) {
+				char traceMsg[64];
+				sprintf(traceMsg, "Order test 1 in move test #%d", i);
+				SCOPED_TRACE(traceMsg);
 
-		IMGArchive::EntryIterator pos = img.getEntryByName(move.posName);
-		IMGArchive::EntryIterator beg = img.getEntryByName(move.begName);
+				unsigned int len;
+				for (len = 0 ; move.expectedOrder1[len] ; len++);
 
-		EXPECT_NE(img.getEntryEnd(), pos) << "Insertion position iterator for move request #" << i << "("
-				<< move.posName << ") was not found!";
-		EXPECT_NE(img.getEntryEnd(), beg) << "Begin iterator for move request #" << i << "("
-				<< move.begName << ") was not found!";
+				TestIMGOrder(&img, move.expectedOrder1, len);
+			}
+			if (move.expectedOrder2) {
+				char traceMsg[64];
+				sprintf(traceMsg, "Order test 2 in move test #%d", i);
+				SCOPED_TRACE(traceMsg);
 
-		IMGArchive::EntryIterator end;
+				unsigned int len;
+				for (len = 0 ; move.expectedOrder2[len] ; len++);
 
-		if (move.endName) {
-			end = img.getEntryByName(move.endName);
-			EXPECT_NE(img.getEntryEnd(), end) << "End iterator for move request #" << i << "("
-					<< move.endName << ") was not found!";
-		} else {
-			end = img.getEntryEnd();
+				TestIMGOrder(&img, move.expectedOrder2, len);
+			}
+			if (move.expectedOrder3) {
+				char traceMsg[64];
+				sprintf(traceMsg, "Order test 3 in move test #%d", i);
+				SCOPED_TRACE(traceMsg);
+
+				unsigned int len;
+				for (len = 0 ; move.expectedOrder3[len] ; len++);
+
+				TestIMGOrder(&img, move.expectedOrder3, len);
+			}
 		}
 
-		ASSERT_NO_THROW({
-			img.moveEntries(pos, beg, end, move.mmode);
-		}) << "Exception thrown during move test #" << i << "!";
+		EXPECT_EQ(numEntriesBefore, img.getEntryCount()) << "Entry count changed during move test!";
 
-		if (move.expectedOrder1) {
-			char traceMsg[64];
-			sprintf(traceMsg, "Order test 1 in move test #%d", i);
-			SCOPED_TRACE(traceMsg);
-
-			unsigned int len;
-			for (len = 0 ; move.expectedOrder1[len] ; len++);
-
-			TestIMGOrder(&img, move.expectedOrder1, len);
+		{
+			SCOPED_TRACE("Content test after move test");
+			TestIMGContents(&img, extracts, numExtracts);
 		}
-		if (move.expectedOrder2) {
-			char traceMsg[64];
-			sprintf(traceMsg, "Order test 2 in move test #%d", i);
-			SCOPED_TRACE(traceMsg);
 
-			unsigned int len;
-			for (len = 0 ; move.expectedOrder2[len] ; len++);
+		exDir.remove();
 
-			TestIMGOrder(&img, move.expectedOrder2, len);
-		}
-		if (move.expectedOrder3) {
-			char traceMsg[64];
-			sprintf(traceMsg, "Order test 3 in move test #%d", i);
-			SCOPED_TRACE(traceMsg);
 
-			unsigned int len;
-			for (len = 0 ; move.expectedOrder3[len] ; len++);
-
-			TestIMGOrder(&img, move.expectedOrder3, len);
-		}
+		img.sync();
 	}
-
-	EXPECT_EQ(numEntriesBefore, img.getEntryCount()) << "Entry count changed during move test!";
-
-	{
-		SCOPED_TRACE("Content test after move test");
-		TestIMGContents(&img, extracts, numExtracts);
-	}
-
-	exDir.remove();
-
-
-	img.sync();
 }
 
 
