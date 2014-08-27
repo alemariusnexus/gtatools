@@ -49,6 +49,7 @@ public:
 	typedef FrameList::const_iterator ConstFrameIterator;
 
 public:
+	~IFPObject();
 	void setName(const CString& n) { name = n; }
 	void setFrameType(FrameType type) { frameType = type; }
 	void setBoneID(int32_t id) { boneID = id; }

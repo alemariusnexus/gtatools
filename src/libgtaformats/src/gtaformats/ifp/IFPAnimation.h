@@ -38,6 +38,7 @@ public:
 	typedef ObjectList::const_iterator ConstObjectIterator;
 
 public:
+	~IFPAnimation();
 	void setName(const CString& n) { name = n; }
 	CString getName() const { return name; }
 	ObjectIterator getObjectBegin() { return objs.begin(); }

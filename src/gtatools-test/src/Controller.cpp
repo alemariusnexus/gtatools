@@ -1047,6 +1047,12 @@ bool Controller::paint()
 }
 
 
+void Controller::shutdown()
+{
+
+}
+
+
 void Controller::addResource(const File& file)
 {
 	if (file.isDirectoryOrArchiveDirectory()) {

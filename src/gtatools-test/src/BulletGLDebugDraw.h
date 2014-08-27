@@ -24,12 +24,14 @@
 #define BULLETGLDEBUGDRAW_H_
 
 #include <btBulletDynamicsCommon.h>
+#include <gta/Shader.h>
 #include <gta/ShaderProgram.h>
 
 
 class BulletGLDebugDraw : public btIDebugDraw {
 public:
 	BulletGLDebugDraw();
+	~BulletGLDebugDraw();
 	virtual void drawLine(const btVector3& from,const btVector3& to,const btVector3& fromColor, const btVector3& toColor);
 	virtual void drawLine(const btVector3& from, const btVector3& to, const btVector3& color);
 	virtual void drawTriangle(const btVector3& a,const btVector3& b,const btVector3& c,const btVector3& color,btScalar alpha);
@@ -46,6 +48,8 @@ public:
 	void update();
 
 private:
+	Shader* vertexShader;
+	Shader* fragmentShader;
 	ShaderProgram* program;
 	GLint vertexAttrib, colorAttrib;
 	GLuint vertexColorsUniform, texturedUniform, mvpMatrixUniform;

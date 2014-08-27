@@ -56,6 +56,7 @@ public:
 public:
 	MapSceneObject();
 	MapSceneObject(const MapSceneObject& other);
+	virtual ~MapSceneObject();
 
 	virtual SceneObject* clone() const { return new MapSceneObject(*this); }
 	virtual bool isEnabled() const

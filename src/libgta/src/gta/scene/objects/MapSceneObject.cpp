@@ -52,6 +52,12 @@ MapSceneObject::MapSceneObject(const MapSceneObject& other)
 }
 
 
+MapSceneObject::~MapSceneObject()
+{
+	delete rb;
+}
+
+
 void MapSceneObject::addLODInstance(MapSceneObjectLODInstance* inst)
 {
 	if (inst->getSceneObject()) {

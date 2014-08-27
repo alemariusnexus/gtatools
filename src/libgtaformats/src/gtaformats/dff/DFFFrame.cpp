@@ -47,6 +47,8 @@ DFFFrame::~DFFFrame()
 
 	if (ltm)
 		delete ltm;
+
+	delete bone;
 }
 
 

@@ -388,6 +388,8 @@ int main(int argc, char** argv)
 			//printf("Actual Frame Time: %ums\n", (unsigned int) (e-s));
 		}
 
+		renderer.shutdown();
+
 		SDL_Quit();
 	} catch (Exception& ex) {
 		printf("Exception caught: %s\n", ex.what());

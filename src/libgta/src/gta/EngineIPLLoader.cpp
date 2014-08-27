@@ -202,10 +202,10 @@ void EngineIPLLoader::load(const File& file, Scene::ObjectList& objects, GameInf
 		// *			BUILD LOD HIERARCHY FOR GTA SA				*
 		// **********************************************************
 
-		// Key is the IPL local index of the hierarchy's root object
-		map<uint32_t, TemporaryLODHierarchy*> tmpHierarchies;
-
 		if (ver == GameInfo::GTASA) {
+			// Key is the IPL local index of the hierarchy's root object
+			map<uint32_t, TemporaryLODHierarchy*> tmpHierarchies;
+
 			uint32_t nextUnusedIdx = saLocalObjs.size();
 
 			uint32_t numObjs = saLocalObjs.size();
@@ -347,6 +347,8 @@ void EngineIPLLoader::load(const File& file, Scene::ObjectList& objects, GameInf
 
 					delete iobj;
 				}
+
+				delete h;
 
 				objects.push_back(obj);
 			}

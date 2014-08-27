@@ -39,12 +39,12 @@ BulletGLDebugDraw::BulletGLDebugDraw()
 		  lineVertices(new float[BT_GL_DEBUG_DRAW_REALLOC_SIZE*3]),
 		  lineColors(new float[BT_GL_DEBUG_DRAW_REALLOC_SIZE*3])
 {
-	Shader* vertexShader = new Shader(GL_VERTEX_SHADER);
+	vertexShader = new Shader(GL_VERTEX_SHADER);
 	vertexShader->loadSourceCode(CString((const char*) res_btgldebugdraw_vertex_shader_data,
 			sizeof(res_btgldebugdraw_vertex_shader_data)));
 	vertexShader->compile();
 
-	Shader* fragmentShader = new Shader(GL_FRAGMENT_SHADER);
+	fragmentShader = new Shader(GL_FRAGMENT_SHADER);
 	fragmentShader->loadSourceCode(CString((const char*) res_btgldebugdraw_fragment_shader_data,
 			sizeof(res_btgldebugdraw_fragment_shader_data)));
 	fragmentShader->compile();
@@ -64,6 +64,17 @@ BulletGLDebugDraw::BulletGLDebugDraw()
 
 	glEnableVertexAttribArray(vertexAttrib);
 	glEnableVertexAttribArray(colorAttrib);
+}
+
+
+BulletGLDebugDraw::~BulletGLDebugDraw()
+{
+	delete[] lineVertices;
+	delete[] lineColors;
+
+	delete program;
+	delete vertexShader;
+	delete fragmentShader;
 }
 
 

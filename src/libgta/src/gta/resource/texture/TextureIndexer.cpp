@@ -48,7 +48,7 @@ void TextureIndexer::resourceAdded(const File& file)
 
 		char texName[33];
 
-		CString lTxdName(txdName);
+		CString lTxdName = CString::from(txdName);
 
 		//hash_t txdHash = Hash(txdName);
 

@@ -38,6 +38,7 @@ public:
 	void init();
 	void reshape(int w, int h);
 	bool paint();
+	void shutdown();
 	void keyPressed(SDL_keysym evt);
 	void keyReleased(SDL_keysym evt);
 	void mouseButtonPressed(Uint8 button, int x, int y);

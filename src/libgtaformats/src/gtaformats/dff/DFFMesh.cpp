@@ -41,8 +41,7 @@ DFFMesh::~DFFMesh() {
 		delete *it;
 	}
 
-	if (integratedCOLModel)
-		delete integratedCOLModel;
+	delete integratedCOLModel;
 }
 
 

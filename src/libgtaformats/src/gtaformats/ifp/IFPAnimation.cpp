@@ -22,3 +22,11 @@
 
 #include "IFPAnimation.h"
 
+
+
+IFPAnimation::~IFPAnimation()
+{
+	for (IFPObject* obj : objs) {
+		delete obj;
+	}
+}

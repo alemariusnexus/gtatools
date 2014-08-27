@@ -81,6 +81,12 @@ Scene::Scene()
 Scene::~Scene()
 {
 	delete streamer;
+	delete physicsWorld;
+	delete reGenerator;
+
+	for (SceneObject* obj : objects) {
+		delete obj;
+	}
 }
 
 

@@ -22,3 +22,11 @@
 
 #include "IFPObject.h"
 
+
+
+IFPObject::~IFPObject()
+{
+	for (IFPRotFrame* f : frames) {
+		delete f;
+	}
+}
