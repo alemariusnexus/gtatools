@@ -57,9 +57,6 @@
 #include <SDL_video.h>
 #include <SDL_syswm.h>
 
-#include <unistd.h>
-#include <sys/time.h>
-
 using std::ifstream;
 using std::vector;
 using std::queue;

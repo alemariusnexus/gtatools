@@ -23,7 +23,7 @@
 #ifndef COLRENDERWIDGET_H_
 #define COLRENDERWIDGET_H_
 
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <QtCore/QSet>
 #include <gtaformats/col/COLModel.h>
 #include <gta/render/DefaultRenderer.h>

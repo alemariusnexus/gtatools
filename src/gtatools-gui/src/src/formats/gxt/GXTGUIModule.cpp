@@ -21,7 +21,7 @@
  */
 
 #include "GXTGUIModule.h"
-#include <QtGui/QFileDialog>
+#include <QFileDialog>
 #include <nxcommon/file/File.h>
 #include <QtCore/QSettings>
 #include "../../gui/MainWindow.h"
@@ -79,7 +79,7 @@ void GXTGUIModule::onStringListMatch(bool checked)
 	QString fname = QFileDialog::getOpenFileName(mainWindow, tr("Choose a string list file"));
 
 	if (!fname.isNull()) {
-		File file(fname.toAscii().constData());
+		File file(fname.toLocal8Bit().constData());
 		QMap<QString, GXTTable*> tables = gxtWidget->getTables();
 		GXTFormatHandler::getInstance()->stringListMatch(file, tables, mainWindow);
 		gxtWidget->reloadCurrentTable();

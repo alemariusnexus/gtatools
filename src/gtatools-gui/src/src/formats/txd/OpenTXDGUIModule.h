@@ -24,7 +24,7 @@
 #define OPENTXDGUIMODULE_H_
 
 #include "../../gui/GUIModule.h"
-#include <QtGui/QAction>
+#include <QAction>
 #include <QtCore/QLinkedList>
 
 

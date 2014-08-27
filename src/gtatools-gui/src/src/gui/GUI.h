@@ -25,7 +25,7 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QLinkedList>
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <nxcommon/file/FileFinder.h>
 #include <nxcommon/file/File.h>
 

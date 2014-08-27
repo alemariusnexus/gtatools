@@ -21,7 +21,7 @@
  */
 
 #include "DFFTextureSourceSelectDialog.h"
-#include <QtGui/QFileDialog>
+#include <QFileDialog>
 
 
 

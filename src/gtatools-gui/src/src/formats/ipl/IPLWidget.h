@@ -23,10 +23,10 @@
 #ifndef IPLWIDGET_H_
 #define IPLWIDGET_H_
 
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <ui_IPLWidget.h>
 #include <nxcommon/file/File.h>
-#include <QtGui/QBrush>
+#include <QBrush>
 
 
 

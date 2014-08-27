@@ -26,23 +26,23 @@
 #include "../ProfileManager.h"
 #include "../formats/EntityManager.h"
 #include "../formats/EntityHandler.h"
-#include <QtGui/QBoxLayout>
+#include <QBoxLayout>
 #include <QtCore/QList>
 #include <QtCore/QSettings>
 #include "ConfigWidget.h"
-#include <QtGui/QMenu>
+#include <QMenu>
 #include "../formats/txd/TXDGUIModule.h"
 #include "../formats/ide/IDEGUIModule.h"
 #include "../formats/rwbs/RWBSGUIModule.h"
 #include "../System.h"
 #include "DefaultGUIModule.h"
-#include <QtGui/QProgressBar>
-#include <QtGui/QHeaderView>
-#include <QtGui/QLayout>
-#include <QtGui/QTableWidget>
+#include <QProgressBar>
+#include <QHeaderView>
+#include <QLayout>
+#include <QTableWidget>
 #include <QtCore/QTimer>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/qdockwidget.h>
+#include <QHBoxLayout>
+#include <qdockwidget.h>
 
 
 MainWindow::MainWindow()

@@ -23,7 +23,7 @@
 #ifndef PVSDIALOG_H_
 #define PVSDIALOG_H_
 
-#include <QtGui/QDialog>
+#include <QDialog>
 #include <ui_PVSDialog.h>
 #include <nxcommon/ProgressObserver.h>
 #include "../Task.h"

@@ -24,8 +24,8 @@
 #include "GXTWidget.h"
 #include <QtCore/QFile>
 #include <QtCore/QTextStream>
-#include <QtGui/QFileDialog>
-#include <QtGui/QMessageBox>
+#include <QFileDialog>
+#include <QMessageBox>
 #include "../../DisplayedFile.h"
 #include <nxcommon/exception/Exception.h>
 #include "../../System.h"
@@ -158,13 +158,13 @@ void GXTFormatHandler::stringListMatch(const File& matchFile, const QMap<QString
 
 			if (kv.size() == 1) {
 				keyName = line;
-				keyHash = Crc32(line.toAscii().constData());
+				keyHash = Crc32(line.toLocal8Bit().constData());
 			} else {
 				keyHash = kv[0].toUInt(NULL, 16);
 				keyName = kv[1];
 			}
 
-			currentTable->setKeyName(keyHash, keyName.toAscii().constData());
+			currentTable->setKeyName(keyHash, keyName.toLocal8Bit().constData());
 		}
 	}
 

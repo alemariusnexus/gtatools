@@ -30,9 +30,9 @@
 #include <gta/render/DefaultRenderer.h>
 #include <gta/MapItemDefinition.h>
 #include <gta/StaticMapItemDefinition.h>
-#include <QtGui/QMouseEvent>
-#include <QtGui/QImage>
-#include <QtGui/QImageWriter>
+#include <QMouseEvent>
+#include <QImage>
+#include <QImageWriter>
 #include <fstream>
 #include <gta/GLException.h>
 #include "../../System.h"

@@ -24,7 +24,7 @@
 #define GUIMODULE_H_
 
 #include <QtCore/QObject>
-#include <QtGui/QMenu>
+#include <QMenu>
 #include <nxcommon/file/File.h>
 #include <QtCore/QLinkedList>
 

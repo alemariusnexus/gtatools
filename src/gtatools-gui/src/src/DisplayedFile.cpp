@@ -23,7 +23,7 @@
 #include "DisplayedFile.h"
 #include "formats/EntityHandler.h"
 #include "System.h"
-#include <QtGui/QFileDialog>
+#include <QFileDialog>
 
 
 

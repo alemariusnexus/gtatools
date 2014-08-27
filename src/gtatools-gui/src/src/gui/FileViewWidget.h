@@ -24,7 +24,7 @@
 #define FILEVIEWWIDGET_H_
 
 #include <ui_FileViewWidget.h>
-#include <QtGui/QWidget>
+#include <QWidget>
 #include "../DisplayedFile.h"
 
 

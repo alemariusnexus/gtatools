@@ -26,8 +26,8 @@
 #include <ui_IFPAnimationViewerWidget.h>
 #include <gta/Animation.h>
 #include <gta/resource/animation/AnimationPackage.h>
-#include <QtGui/QWidget>
-#include <QtGui/QDoubleSpinBox>
+#include <QWidget>
+#include <QDoubleSpinBox>
 #include <QtCore/QTimer>
 #include "IFPAnimationViewerRenderWidget.h"
 #include "IFPFrameItemModel.h"

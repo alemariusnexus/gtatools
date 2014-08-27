@@ -28,8 +28,8 @@
 #include <gtaformats/txd/TXDTextureHeader.h>
 #include <gtaformats/config.h>
 #include <QtCore/QLinkedList>
-#include <QtGui/QFileDialog>
-#include <QtGui/QImageWriter>
+#include <QFileDialog>
+#include <QImageWriter>
 #include "TXDFormatHandler.h"
 #include "../../System.h"
 

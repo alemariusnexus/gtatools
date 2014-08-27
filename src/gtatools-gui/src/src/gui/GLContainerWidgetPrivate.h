@@ -23,8 +23,8 @@
 #ifndef GLCONTAINERWIDGETPRIVATE_H_
 #define GLCONTAINERWIDGETPRIVATE_H_
 
-#include <QtGui/QWidget>
-#include <QtGui/QCloseEvent>
+#include <QWidget>
+#include <QCloseEvent>
 
 
 class GLContainerWidgetPrivate : public QWidget {

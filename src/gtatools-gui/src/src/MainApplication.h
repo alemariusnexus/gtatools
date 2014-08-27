@@ -23,7 +23,7 @@
 #ifndef MAINAPPLICATION_H_
 #define MAINAPPLICATION_H_
 
-#include <QtGui/QApplication>
+#include <QApplication>
 
 
 class MainApplication : public QApplication

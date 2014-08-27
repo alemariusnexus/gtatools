@@ -25,7 +25,7 @@
 
 #include <gtatools-gui/config.h>
 #include <ui_HexEditorDecoder.h>
-#include <QtGui/QWidget>
+#include <QWidget>
 #include "HexEditor.h"
 #include <QtCore/QtEndian>
 #include <nxcommon/util.h>

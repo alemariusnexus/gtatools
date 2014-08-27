@@ -23,7 +23,7 @@
 #ifndef LOGCONSOLE_H_
 #define LOGCONSOLE_H_
 
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <ui_LogConsole.h>
 #include <QtCore/QString>
 #include "../LogEntry.h"

@@ -23,12 +23,12 @@
 #include "TXDWidget.h"
 #include <gtatools-gui/config.h>
 #include <QtCore/QSettings>
-#include <QtGui/QLayout>
-#include <QtGui/QTabWidget>
+#include <QLayout>
+#include <QTabWidget>
 #include "../../System.h"
 #include <QtCore/QString>
 #include "TXDFormatHandler.h"
-#include <QtGui/QMessageBox>
+#include <QMessageBox>
 #include <gtaformats/txd/TXDException.h>
 
 
@@ -56,7 +56,11 @@ TXDWidget::TXDWidget(DisplayedFile* dfile, const QString& selectedTex, QWidget* 
 
 	ui.textureTableToolBarWidget->layout()->addWidget(textureTableToolBar);
 
+#if QT_VERSION >= 0x050000
+	ui.textureTable->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+#else
 	ui.textureTable->verticalHeader()->setResizeMode(QHeaderView::Fixed);
+#endif
 
 	loadConfigUiSettings();
 

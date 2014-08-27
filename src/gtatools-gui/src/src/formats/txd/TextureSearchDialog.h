@@ -24,10 +24,10 @@
 #define TEXTURESEARCHDIALOG_H_
 
 #include <ui_TextureSearchDialog.h>
-#include <QtGui/QDialog>
+#include <QDialog>
 #include <QtCore/QLinkedList>
 #include <nxcommon/file/File.h>
-#include <QtGui/QProgressDialog>
+#include <QProgressDialog>
 #include "../../Task.h"
 #include "TextureFileFinder.h"
 

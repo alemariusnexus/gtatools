@@ -256,7 +256,7 @@ void IPLWidget::instanceTableCellDoubleClicked(int row, int col)
 		if (!results.empty()) {
 			SystemQueryResult result = results.first();
 
-			File file(result["file"].toString().toAscii().constData());
+			File file(result["file"].toString().toLocal8Bit().constData());
 			int line = result["line"].toInt();
 			EntityOpenRequest req;
 			req.setAttribute("type", "file");

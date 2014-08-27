@@ -23,16 +23,16 @@
 #ifndef IMAGEDISPLAYWIDGET_H_
 #define IMAGEDISPLAYWIDGET_H_
 
-#include <QtGui/QWidget>
-#include <QtGui/QScrollArea>
-#include <QtGui/QToolBar>
-#include <QtGui/QToolButton>
-#include <QtGui/QSlider>
-#include <QtGui/QImage>
-#include <QtGui/QPixmap>
-#include <QtGui/QAction>
-#include <QtGui/QComboBox>
-#include <QtGui/QLabel>
+#include <QWidget>
+#include <QScrollArea>
+#include <QToolBar>
+#include <QToolButton>
+#include <QSlider>
+#include <QImage>
+#include <QPixmap>
+#include <QAction>
+#include <QComboBox>
+#include <QLabel>
 #include "ImageDisplayLabel.h"
 #include "PercentageValidator.h"
 

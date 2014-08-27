@@ -23,9 +23,9 @@
 #ifndef RWBSSECTIONTREE_H_
 #define RWBSSECTIONTREE_H_
 
-#include <QtGui/QTreeView>
-#include <QtGui/QAction>
-#include <QtGui/QUndoCommand>
+#include <QTreeView>
+#include <QAction>
+#include <QUndoCommand>
 #include "RWBSSectionModel.h"
 #include "../../gui/HTMLItemViewDelegate.h"
 

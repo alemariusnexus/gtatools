@@ -25,22 +25,22 @@
 
 #include <nxcommon/file/File.h>
 #include "ui_MainFrame.h"
-#include <QtGui/QMainWindow>
+#include <QMainWindow>
 #include "../Profile.h"
 #include "GUIModule.h"
 #include <QtCore/QAbstractItemModel>
-#include <QtGui/QMenu>
+#include <QMenu>
 #include <QtCore/QPoint>
-#include <QtGui/QProgressBar>
-#include <QtGui/QTabWidget>
-#include <QtGui/QLabel>
+#include <QProgressBar>
+#include <QTabWidget>
+#include <QLabel>
 #include <QtCore/QMap>
 #include "../EntityOpenRequest.h"
 #include "FileViewWidget.h"
 #include "FileTree.h"
-#include <QtGui/QAction>
+#include <QAction>
 #include "../DisplayedFile.h"
-#include <QtGui/QCloseEvent>
+#include <QCloseEvent>
 
 
 class MainWindow : public QMainWindow {

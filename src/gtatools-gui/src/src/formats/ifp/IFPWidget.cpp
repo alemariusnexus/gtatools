@@ -22,7 +22,7 @@
 
 #include "IFPWidget.h"
 #include <gtaformats/ifp/IFPLoader.h>
-#include <QtGui/QListWidgetItem>
+#include <QListWidgetItem>
 #include <algorithm>
 
 using std::advance;

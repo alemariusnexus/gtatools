@@ -22,10 +22,10 @@
 
 #include <gta/gl.h>
 #include "DFFFormatHandler.h"
-#include <QtGui/QApplication>
+#include <QApplication>
 #include "DFFWidget.h"
 #include "../../System.h"
-#include <QtGui/QFileDialog>
+#include <QFileDialog>
 #include "DFFXMLDumpDialog.h"
 #include "../../DisplayedFile.h"
 

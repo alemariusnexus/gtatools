@@ -25,10 +25,10 @@
 
 #include <ui_TXDWidget.h>
 #include <nxcommon/file/File.h>
-#include <QtGui/QWidget>
-#include <QtGui/QTableWidget>
-#include <QtGui/QToolBar>
-#include <QtGui/QSlider>
+#include <QWidget>
+#include <QTableWidget>
+#include <QToolBar>
+#include <QSlider>
 #include <gtaformats/txd/TXDArchive.h>
 #include <gtaformats/txd/TXDTextureHeader.h>
 #include "OpenTXDGUIModule.h"

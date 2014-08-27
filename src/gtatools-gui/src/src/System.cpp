@@ -22,12 +22,13 @@
 
 #include "System.h"
 #include "formats/EntityManager.h"
-#include <QtGui/QMessageBox>
+#include <gta/gl.h>
 #include <QtCore/QFile>
 #include <QtCore/QDateTime>
 #include <QtCore/QThread>
-#include <QtGui/QInputDialog>
-#include <QtGui/QMessageBox>
+#include <QInputDialog>
+#include <QMessageBox>
+#include <QtOpenGL/QGLFormat>
 #include "DisplayedFile.h"
 #include "ProfileManager.h"
 #include <gta/scene/Scene.h>
@@ -121,7 +122,83 @@ void System::destroyInstance()
 
 void System::initializeGL()
 {
-	sharedWidget = new QGLWidget;
+	// We will destroy and rebuild it with the chosen OpenGL format in the end, but we need to have a valid current OpenGL
+	// context for calling some of the methods below.
+	//sharedWidget = new QGLWidget;
+	//sharedWidget->makeCurrent();
+
+	struct _GLVersion
+	{
+		unsigned int majorVer;
+		unsigned int minorVer;
+	};
+
+	// Array of all the OpenGL versions that gtatools-gui might work with. We will try to build a context with the first entry
+	// in this array, and if that fails, we go on trying the next one and so on.
+	_GLVersion glVersionsToTry[] = {
+			{ 4, 3 },
+			{ 4, 2 },
+			{ 4, 1 },
+			{ 4, 0 },
+			{ 3, 3 },
+			{ 3, 2 },
+			{ 3, 1 },
+			{ 3, 0 }
+	};
+
+	QGLFormat::OpenGLVersionFlags vflags = QGLFormat::openGLVersionFlags();
+
+	QGLFormat defaultGlFormat;
+	defaultGlFormat.setDoubleBuffer(true);
+	defaultGlFormat.setDirectRendering(true);
+	defaultGlFormat.setDepth(true);
+	defaultGlFormat.setAlpha(true);
+
+	// NOTE: This line is VERY important. GLEW (tested with version 1.11) does not work with OpenGL 3.2+ Core Contexts,
+	// apparently because it calls glGetString(GL_EXTENSIONS), which is deprecated and therefore returns an error on the
+	// Core profile, which makes GLEW fail at basically everything.
+	// This issue is described in http://www.opengl.org/wiki/OpenGL_Loading_Library. Quote:
+	//
+	// 		"GLEW has a problem with core contexts. It calls glGetString(GL_EXTENSIONS), which causes GL_INVALID_ENUM on GL
+	//		 3.2+ core context as soon as glewInit() is called. It also doesn't fetch the function pointers. The solution
+	//		 is for GLEW to use glGetStringi instead. The current version of GLEW is 1.10.0 but they still haven't corrected
+	// 		 it. The only fix is to use glewExperimental for now"
+	//
+	// Instead of using glewExperimental, we simply use the compatibility profile (which is probably a good idea in general,
+	// god knows how many "deprecated" (-> compatibility!) features I use in libgta that might fail with a core context...
+	defaultGlFormat.setProfile(QGLFormat::CompatibilityProfile);
+
+	int majorVer = 0;
+	int minorVer = 0;
+	bool foundMatching = false;
+
+	for (size_t i = 0 ; i < sizeof(glVersionsToTry)/sizeof(_GLVersion) ; i++) {
+		_GLVersion ver = glVersionsToTry[i];
+
+		defaultGlFormat.setVersion(ver.majorVer, ver.minorVer);
+
+		sharedWidget = new QGLWidget(defaultGlFormat);
+		sharedWidget->makeCurrent();
+
+		majorVer = sharedWidget->format().majorVersion();
+		minorVer = sharedWidget->format().minorVersion();
+
+		if (majorVer > ver.majorVer  ||  (majorVer == ver.majorVer  &&  minorVer >= ver.minorVer)) {
+			foundMatching = true;
+			break;
+		} else {
+			delete sharedWidget;
+		}
+	}
+
+	if (!foundMatching) {
+		fprintf(stderr, "ERROR: OpenGL >= 3.0 seems to be unsupported on the system. gtatools-gui will need at least OpenGL "
+				"3.0 to work correctly!\n");
+	}
+
+	printf("Using OpenGL version %d.%d\n", majorVer, minorVer);
+
+	QGLFormat::setDefaultFormat(defaultGlFormat);
 }
 
 
@@ -137,7 +214,7 @@ void System::unhandeledException(Exception& ex)
 	printf("%s\n%s\n", ex.what(), bt.get());
 
 	logfile.write("UNHANDELED EXCEPTION REPORT ");
-	logfile.write(dt.toString(Qt::ISODate).toAscii().constData());
+	logfile.write(dt.toString(Qt::ISODate).toLocal8Bit().constData());
 	logfile.write(" gtatools version ");
 	logfile.write(GTATOOLS_VERSION);
 	logfile.write("\n\n");

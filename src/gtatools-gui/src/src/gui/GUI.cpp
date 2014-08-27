@@ -24,8 +24,8 @@
 #include "../System.h"
 #include "../ProfileManager.h"
 #include "../TaskFileFinder.h"
-#include <QtGui/QInputDialog>
-#include <QtGui/QMessageBox>
+#include <QInputDialog>
+#include <QMessageBox>
 
 
 

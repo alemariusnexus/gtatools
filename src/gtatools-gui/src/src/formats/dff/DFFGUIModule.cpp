@@ -22,7 +22,7 @@
 
 #include <gtatools-gui/config.h>
 #include "DFFGUIModule.h"
-#include <QtGui/QMenu>
+#include <QMenu>
 #include "../../gui/MainWindow.h"
 #include "DFFWidget.h"
 #include "../../System.h"

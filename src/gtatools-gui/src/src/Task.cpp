@@ -21,16 +21,16 @@
  */
 
 #include "Task.h"
-#include <deque>
+#include <list>
 #include <QtCore/QMutex>
 #include <QtCore/QThread>
 #include <QtCore/QTimer>
 #include "gui/MainWindow.h"
 
-using std::deque;
+using std::list;
 
 
-deque<Task*> taskQueue;
+list<Task*> taskQueue;
 QMutex taskQueueMutex;
 
 
@@ -54,7 +54,7 @@ Task::~Task()
 
 	bool current = isCurrent();
 
-	taskQueue.erase(taskQueue.begin() + queuePos);
+	taskQueue.erase(queueIt);
 
 	if (current) {
 		if (!taskQueue.empty()) {
@@ -89,8 +89,8 @@ void Task::start(int min, int max, const QString& message)
 	this->message = message;
 
 	taskQueueMutex.lock();
-	queuePos = taskQueue.size();
 	taskQueue.push_back(this);
+	queueIt = --taskQueue.end();
 	display();
 	taskQueueMutex.unlock();
 }

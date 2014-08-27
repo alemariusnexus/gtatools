@@ -29,7 +29,7 @@
 #include "../Profile.h"
 #include <nxcommon/file/File.h>
 #include "StaticFile.h"
-#include <QtGui/QWidget>
+#include <QWidget>
 
 
 class FileItemModel : public QAbstractItemModel

@@ -150,8 +150,8 @@ Mesh* COLMeshConverter::convert(const COLBox& box)
 
 Mesh* COLMeshConverter::convert(const COLModel& model)
 {
-	const COLSphere* spheres = &(*model.getSpheres().begin());
-	const COLBox* boxes = &(*model.getBoxes().begin());
+	const COLSphere* spheres = model.getSphereCount() != 0 ? &model.getSpheres()[0] : NULL;
+	const COLBox* boxes = model.getBoxCount() != 0 ? &model.getBoxes()[0] : NULL;
 
 	GLuint dataBuffer;
     glGenBuffers(1, &dataBuffer);
@@ -194,7 +194,8 @@ Mesh* COLMeshConverter::convert(const COLModel& model)
     uint32_t* modelIndices;
     unsigned int modelIndexCount;
 
-    convertVertexModel(model.getVertices(), model.getVertexCount(), &(*model.getFaces().begin()), model.getFaceCount(),
+    convertVertexModel(model.getVertices(), model.getVertexCount(),
+    		model.getFaceCount() != 0 ? &model.getFaces()[0] : NULL, model.getFaceCount(),
     		modelVertexCount, modelVertices, modelColors, modelIndices, modelIndexCount);
     vertexCount += modelVertexCount;
 

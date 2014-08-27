@@ -29,7 +29,7 @@
 #include <QtCore/QList>
 #include <QtCore/QLinkedList>
 #include <QtCore/QSet>
-#include <QtGui/QUndoCommand>
+#include <QUndoCommand>
 #include <gtaformats/rwbs/RWSection.h>
 #include "../../CompoundUndoCommand.h"
 

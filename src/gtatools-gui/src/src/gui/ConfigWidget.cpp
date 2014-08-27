@@ -137,7 +137,7 @@ void ConfigWidget::apply()
 
 		profile->setName(profileWidget->getProfileName());
 
-		GameInfo info(profileWidget->getVersionMode(), File(profileWidget->getRootDirectory().toAscii().constData()));
+		GameInfo info(profileWidget->getVersionMode(), File(profileWidget->getRootDirectory().toLocal8Bit().constData()));
 		profile->setGameInfo(info);
 
 		// ********** Set the new engine resources **********

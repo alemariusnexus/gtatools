@@ -23,8 +23,8 @@
 #ifndef TESTWINDOW_H_
 #define TESTWINDOW_H_
 
-#include <QtGui/QMainWindow>
-#include <QtGui/QTextEdit>
+#include <QMainWindow>
+#include <QTextEdit>
 #include <QtCore/QList>
 
 

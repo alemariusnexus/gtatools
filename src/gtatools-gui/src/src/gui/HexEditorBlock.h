@@ -23,8 +23,8 @@
 #ifndef HEXEDITORBLOCK_H_
 #define HEXEDITORBLOCK_H_
 
-#include <QtGui/QColor>
-#include <QtGui/QBrush>
+#include <QColor>
+#include <QBrush>
 #include <QtCore/QList>
 
 

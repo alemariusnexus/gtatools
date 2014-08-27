@@ -23,8 +23,8 @@
 #include "GLBaseWidget.h"
 #include <gta/Engine.h>
 #include <QtCore/QPoint>
-#include <QtGui/QMouseEvent>
-#include <QtGui/QKeyEvent>
+#include <QMouseEvent>
+#include <QKeyEvent>
 #include "../System.h"
 
 

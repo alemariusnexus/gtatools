@@ -24,7 +24,7 @@
 #define DFFWIDGET_H_
 
 #include <ui_DFFWidget.h>
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <nxcommon/file/File.h>
 #include <gtaformats/gtadff.h>
 #include "DFFRenderWidget.h"
@@ -33,7 +33,7 @@
 #include <QtOpenGL/qgl.h>
 #include <gta/resource/texture/ManagedTextureSource.h>
 #include "../../gui/GLContainerWidget.h"
-#include <QtGui/QCloseEvent>
+#include <QCloseEvent>
 #include "../../DisplayedFile.h"
 #include "DFFGeometryItemModel.h"
 

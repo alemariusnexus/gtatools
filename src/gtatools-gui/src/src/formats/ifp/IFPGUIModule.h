@@ -24,7 +24,7 @@
 #define IFPGUIMODULE_H_
 
 #include "../../gui/GUIModule.h"
-#include <QtGui/QAction>
+#include <QAction>
 
 
 class IFPGUIModule : public GUIModule

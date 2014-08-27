@@ -25,8 +25,8 @@
 
 #include <QtCore/QString>
 #include <QtCore/QLinkedList>
-#include <QtGui/QUndoStack>
-#include <QtGui/QWidget>
+#include <QUndoStack>
+#include <QWidget>
 
 class DisplayedEntityHandler;
 

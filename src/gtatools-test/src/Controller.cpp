@@ -1051,8 +1051,27 @@ void Controller::addResource(const File& file)
 {
 	if (file.isDirectoryOrArchiveDirectory()) {
 		if (file.guessContentType() != CONTENT_TYPE_DIR) {
+            /*bool list = false;
+
+            size_t numChildren = 0;
+
+            if (file.getFileName() == "gta3.img") {
+                list = true;
+            }
+
+            if (list) {
+                numChildren = file.getChildCount(false, true);
+            }
+
+            size_t i = 0;*/
 			for (File child : file.getChildren()) {
+                /*if (list) {
+                    printf("Loading resource %u / %u\n", (unsigned int) (i + 1), (unsigned int) numChildren);
+                }*/
+
 				addResource(child);
+
+                //i++;
 			}
 		}
 	} else {

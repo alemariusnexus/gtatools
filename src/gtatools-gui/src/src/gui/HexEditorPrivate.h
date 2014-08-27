@@ -24,10 +24,10 @@
 #define HEXEDITORPRIVATE_H_
 
 #include <QtCore/QTimer>
-#include <QtGui/QWidget>
-#include <QtGui/QFontMetrics>
-#include <QtGui/QPen>
-#include <QtGui/QBrush>
+#include <QWidget>
+#include <QFontMetrics>
+#include <QPen>
+#include <QBrush>
 #include <nxcommon/file/File.h>
 #include <cmath>
 #include "HexEditorDocument.h"

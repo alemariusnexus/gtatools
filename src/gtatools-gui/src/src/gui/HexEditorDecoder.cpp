@@ -21,8 +21,8 @@
  */
 
 #include "HexEditorDecoder.h"
-#include <QtGui/QIntValidator>
-#include <QtGui/QDoubleValidator>
+#include <QIntValidator>
+#include <QDoubleValidator>
 #include "../Int64Validator.h"
 #include "../UInt64Validator.h"
 #include <nxcommon/util.h>

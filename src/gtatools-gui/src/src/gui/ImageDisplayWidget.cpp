@@ -21,8 +21,8 @@
  */
 
 #include "ImageDisplayWidget.h"
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QLineEdit>
+#include <QVBoxLayout>
+#include <QLineEdit>
 #include "PercentageValidator.h"
 
 
@@ -123,6 +123,8 @@ void ImageDisplayWidget::setZoomFactorRange(float min, float max)
 	QStringList zoomBoxEntries;
 
 	float factor, lastFactor;
+	lastFactor = min;
+
 	for (factor = zoomMin ; factor < zoomMax-0.1f ; factor *= 2.0f) {
 		if (lastFactor < 1.0f  &&  factor > 1.0f  &&  fabs(factor-lastFactor) > 0.1f) {
 			zoomBoxEntries << "100%";

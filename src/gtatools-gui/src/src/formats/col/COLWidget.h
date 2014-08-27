@@ -24,7 +24,7 @@
 #ifndef COLWIDGET_H
 #define COLWIDGET_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 #include "ui_COLWidget.h"
 #include <gtaformats/gtacol.h>
 #include <QtCore/QList>

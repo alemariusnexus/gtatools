@@ -27,7 +27,7 @@
 #include <QtCore/QString>
 #include <QtCore/QObject>
 #include "../gui/GUIModule.h"
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <QtCore/QLinkedList>
 #include <QtCore/QHash>
 #include <QtCore/QVariant>

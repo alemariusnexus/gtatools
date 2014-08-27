@@ -24,7 +24,7 @@
 #include "FileItemModel.h"
 #include "../formats/EntityManager.h"
 #include <cstring>
-#include <QtGui/QProgressDialog>
+#include <QProgressDialog>
 #include <QtCore/QSettings>
 
 

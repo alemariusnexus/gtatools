@@ -22,10 +22,10 @@
 
 #include <gtatools-gui/config.h>
 #include "MainApplication.h"
-#include <QtGui/QWidget>
-#include <QtGui/QTreeView>
+#include <QWidget>
+#include <QTreeView>
 #include <QtCore/QDir>
-#include <QtGui/QFileSystemModel>
+#include <QFileSystemModel>
 #include "gui/FileItemModel.h"
 #include "Profile.h"
 #include "ProfileManager.h"
@@ -39,7 +39,7 @@
 #include <QtCore/QLibraryInfo>
 #include "System.h"
 #include <nxcommon/exception/Exception.h>
-#include <QtGui/QMessageBox>
+#include <QMessageBox>
 #include <QtCore/QTimer>
 #include <gta/Engine.h>
 #include <nxcommon/ResourceCache.h>
@@ -75,9 +75,10 @@ void listRecurse(const File& file, int ind = 0)
 int main(int argc, char** argv)
 {
 #ifdef _WIN32
-	printf("INFO: stdout/stderr are being redirected to files stdout.log and stderr.log from now on!\n");
+	/*printf("INFO: stdout/stderr are being redirected to files stdout.log and stderr.log from now on!\n");
+	fflush(stdout);
 
-	/*freopen("stdout.log", "a", stdout);
+	freopen("stdout.log", "a", stdout);
 	freopen("stderr.log", "a", stderr);*/
 #endif
 

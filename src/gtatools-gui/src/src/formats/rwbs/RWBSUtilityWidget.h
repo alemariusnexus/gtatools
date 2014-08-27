@@ -27,8 +27,8 @@
 #include "../../System.h"
 #include "../../DisplayedFile.h"
 #include "../../DefaultDisplayedEntityHandler.h"
-#include <QtGui/QWidget>
-#include <QtGui/QStackedWidget>
+#include <QWidget>
+#include <QStackedWidget>
 #include <QtCore/QMap>
 
 

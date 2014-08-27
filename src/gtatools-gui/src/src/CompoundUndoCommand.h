@@ -23,7 +23,7 @@
 #ifndef COMPOUNDUNDOCOMMAND_H_
 #define COMPOUNDUNDOCOMMAND_H_
 
-#include <QtGui/QUndoCommand>
+#include <QUndoCommand>
 #include <QtCore/QList>
 
 

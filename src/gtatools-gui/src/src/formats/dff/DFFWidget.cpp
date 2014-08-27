@@ -22,9 +22,9 @@
 
 #include <gtatools-gui/config.h>
 #include "DFFWidget.h"
-#include <QtGui/QListWidget>
+#include <QListWidget>
 #include "../../System.h"
-#include <QtGui/QFileDialog>
+#include <QFileDialog>
 #include "DFFXMLDumpDialog.h"
 #include <QtCore/QFile>
 #include <QtCore/QTextStream>
@@ -33,8 +33,8 @@
 #include <nxcommon/strutil.h>
 #include <gta/resource/texture/ManagedTextureSource.h>
 #include <gta/resource/texture/StaticTextureSource.h>
-#include <QtGui/QMessageBox>
-#include <QtGui/QInputDialog>
+#include <QMessageBox>
+#include <QInputDialog>
 #include "../../gui/GLContainerWidget.h"
 #include <gtaformats/rwbs/RWBSException.h>
 #include "DFFTextureSourceDialog.h"
@@ -515,7 +515,7 @@ void DFFWidget::texSrcChanged(int index)
 			texSrc = new StaticTextureSource(&txd);
 		}
 	} else {
-		texSrc = new ManagedTextureSource(source.toAscii().constData());
+		texSrc = new ManagedTextureSource(source.toLocal8Bit().constData());
 	}
 
 	renderWidget->setTextureSource(texSrc);

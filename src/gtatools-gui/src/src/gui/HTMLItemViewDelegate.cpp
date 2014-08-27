@@ -21,10 +21,10 @@
  */
 
 #include "HTMLItemViewDelegate.h"
-#include <QtGui/QStyleOptionViewItemV4>
-#include <QtGui/QTextDocument>
-#include <QtGui/QAbstractTextDocumentLayout>
-#include <QtGui/QPainter>
+#include <QStyleOptionViewItemV4>
+#include <QTextDocument>
+#include <QAbstractTextDocumentLayout>
+#include <QPainter>
 
 
 

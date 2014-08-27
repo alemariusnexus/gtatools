@@ -23,11 +23,11 @@
 #ifndef GXTWIDGET_H_
 #define GXTWIDGET_H_
 
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <QtCore/QMap>
 #include <QtCore/QLinkedList>
 #include <QtCore/QVector>
-#include <QtGui/QSortFilterProxyModel>
+#include <QSortFilterProxyModel>
 #include <ui_GXTWidget.h>
 #include <nxcommon/file/File.h>
 #include "GXTTableModel.h"

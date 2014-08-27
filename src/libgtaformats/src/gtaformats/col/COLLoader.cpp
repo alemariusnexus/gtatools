@@ -85,8 +85,16 @@ COLModel* COLLoader::loadModel(istream* stream)
 			reader.readU32(&numSpheres);
 			model->spheres.resize(numSpheres);
 
-			COLSphere* spheres = &(*model->spheres.begin());
-			stream->read((char*) spheres, numSpheres*20);
+			// COLSphere* spheres = &(*model->spheres.begin());
+            // NOTE: The line above is invalid if the vector is empty, because in that case begin() is not dereferencable. MSVC
+            //      crashes with an assertion failure in that case. Sames goes for out-of-bounds indices and operator[]. Use the
+			//		code below instead. Hell, even stream->read(NULL, 0) is invalid and crashes on MSVC...
+			COLSphere* spheres = NULL;
+
+			if (numSpheres != 0) {
+				spheres = &model->spheres[0];
+				stream->read((char*) spheres, numSpheres*20);
+			}
 
 			// Unfortunately, radius and center are swapped in COL1
 			for (uint32_t i = 0 ; i < numSpheres ; i++) {
@@ -102,8 +110,12 @@ COLModel* COLLoader::loadModel(istream* stream)
 			reader.readU32(&numBoxes);
 			model->boxes.resize(numBoxes);
 
-			COLBox* boxes = &(*model->boxes.begin());
-			stream->read((char*) boxes, numBoxes*28);
+			COLBox* boxes = NULL;
+
+			if (numBoxes != 0) {
+				boxes = &model->boxes[0];
+				stream->read((char*) boxes, numBoxes*28);
+			}
 
 			reader.readU32(&numVertices);
 			model->vertices = new float[numVertices*3];
@@ -112,8 +124,12 @@ COLModel* COLLoader::loadModel(istream* stream)
 			reader.readU32(&numFaces);
 			model->faces.resize(numFaces);
 
-			COLFace* faces = &(*model->faces.begin());
-			stream->read((char*) faces, numFaces*16);
+			COLFace* faces = NULL;
+
+			if (numFaces != 0) {
+				faces = &model->faces[0];
+				stream->read((char*) faces, numFaces*16);
+			}
 
 #ifndef GTAFORMATS_LITTLE_ENDIAN
 			for (uint32_t i = 0 ; i < numBoxes ; i++) {
@@ -161,16 +177,23 @@ COLModel* COLLoader::loadModel(istream* stream)
 			model->boxes.resize(numBoxes);
 			model->faces.resize(numFaces);
 
-			stream->seekg(colStart+sphereOffset+4, istream::beg);
-			COLSphere* spheres = &(*model->spheres.begin());
-			stream->read((char*) spheres, numSpheres*20);
+			COLSphere* spheres = NULL;
+			COLBox* boxes = NULL;
 
-			stream->seekg(colStart+boxOffset+4, istream::beg);
-			COLBox* boxes = &(*model->boxes.begin());
-			stream->read((char*) boxes, numBoxes*28);
+			if (numSpheres != 0) {
+				stream->seekg(colStart+sphereOffset+4, istream::beg);
+				spheres = &model->spheres[0];
+				stream->read((char*) spheres, numSpheres*20);
+			}
+
+			if (numBoxes != 0) {
+				stream->seekg(colStart+boxOffset+4, istream::beg);
+				boxes = &model->boxes[0];
+				stream->read((char*) boxes, numBoxes*28);
+			}
 
 			stream->seekg(colStart+faceOffset+4, istream::beg);
-			COLFace* faces = &(*model->faces.begin());
+			COLFace* faces = numFaces != 0 ? &model->faces[0] : NULL;
 
 #ifndef GTAFORMATS_LITTLE_ENDIAN
 			for (uint32_t i = 0 ; i < numSpheres ; i++) {
@@ -244,9 +267,13 @@ COLModel* COLLoader::loadModel(istream* stream)
 
 				model->faceGroups.resize(numFaceGroups);
 
-				COLFaceGroup* faceGroups = &(*model->faceGroups.begin());
-				stream->seekg((streamoff) stream->tellg() - numFaceGroups*28, istream::beg);
-				stream->read((char*) faceGroups, numFaceGroups*28);
+				COLFaceGroup* faceGroups = NULL;
+
+				if (numFaceGroups != 0) {
+					faceGroups = &model->faceGroups[0];
+					stream->seekg((streamoff) stream->tellg() - numFaceGroups*28, istream::beg);
+					stream->read((char*) faceGroups, numFaceGroups*28);
+				}
 
 	#ifndef GTAFORMATS_LITTLE_ENDIAN
 				for (uint32_t i = 0 ; i < numFaceGroups ; i++) {
@@ -268,7 +295,7 @@ COLModel* COLLoader::loadModel(istream* stream)
 					shadowMesh = new COLShadowMesh;
 
 					shadowMesh->faces.resize(numShadowMeshFaces);
-					COLFace* shadowMeshFaces = &(*shadowMesh->faces.begin());
+					COLFace* shadowMeshFaces = numShadowMeshFaces != 0 ? &shadowMesh->faces[0] : NULL;
 					stream->seekg(colStart+shadowMeshFaceOffset+4, istream::beg);
 
 					// In COL2/3 there isn't a field for the number of vertices, so we have to find the greatest vertex index

@@ -24,7 +24,7 @@
 #define IMGGUIMODULE_H_
 
 #include "../../gui/GUIModule.h"
-#include <QtGui/QAction>
+#include <QAction>
 #include <QtCore/QHash>
 #include <QtCore/QString>
 #include <QtCore/QVariant>

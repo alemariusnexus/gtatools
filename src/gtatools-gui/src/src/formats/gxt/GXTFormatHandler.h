@@ -27,7 +27,7 @@
 #include <gtaformats/gxt/GXTTable.h>
 #include <QtCore/QLinkedList>
 #include <QtCore/QMap>
-#include <QtGui/QWidget>
+#include <QWidget>
 
 
 

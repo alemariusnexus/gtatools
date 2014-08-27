@@ -24,7 +24,7 @@
 #define INT64VALIDATOR_H_
 
 #include <gtatools-gui/config.h>
-#include <QtGui/QValidator>
+#include <QValidator>
 
 
 class Int64Validator : public QValidator {

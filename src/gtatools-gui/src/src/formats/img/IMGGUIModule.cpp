@@ -22,8 +22,8 @@
 
 #include "IMGGUIModule.h"
 #include "../../System.h"
-#include <QtGui/QFileDialog>
-#include <QtGui/QMessageBox>
+#include <QFileDialog>
+#include <QMessageBox>
 
 
 

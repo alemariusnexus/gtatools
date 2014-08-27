@@ -23,7 +23,7 @@
 #ifndef DFFTEXTURESOURCESELECTDIALOG_H_
 #define DFFTEXTURESOURCESELECTDIALOG_H_
 
-#include <QtGui/QDialog>
+#include <QDialog>
 #include <ui_DFFTextureSourceSelectDialog.h>
 
 

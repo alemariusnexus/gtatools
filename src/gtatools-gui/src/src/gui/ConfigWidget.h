@@ -24,7 +24,7 @@
 #define CONFIGWIDGET_H_
 
 #include <ui_ConfigWidget.h>
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <QtCore/QList>
 #include "../Profile.h"
 

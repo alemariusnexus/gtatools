@@ -23,9 +23,9 @@
 #ifndef FIXEDSIZELINEEDIT_H_
 #define FIXEDSIZELINEEDIT_H_
 
-#include <QtGui/QLineEdit>
-#include <QtGui/QFont>
-#include <QtGui/QFontMetrics>
+#include <QLineEdit>
+#include <QFont>
+#include <QFontMetrics>
 
 
 class FixedSizeLineEdit : public QLineEdit

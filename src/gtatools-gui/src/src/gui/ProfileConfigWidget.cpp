@@ -21,7 +21,7 @@
  */
 
 #include "ProfileConfigWidget.h"
-#include <QtGui/QFileDialog>
+#include <QFileDialog>
 #include <nxcommon/file/File.h>
 
 

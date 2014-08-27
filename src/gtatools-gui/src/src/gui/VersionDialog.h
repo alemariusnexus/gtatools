@@ -25,8 +25,8 @@
 
 #include <gtatools-gui/config.h>
 #include <ui_VersionDialog.h>
-#include <QtGui/QDialog>
-#include <QtGui/QWidget>
+#include <QDialog>
+#include <QWidget>
 
 
 class VersionDialog : public QDialog {

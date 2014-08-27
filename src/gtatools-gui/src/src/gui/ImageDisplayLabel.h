@@ -23,10 +23,10 @@
 #ifndef IMAGEDISPLAYLABEL_H_
 #define IMAGEDISPLAYLABEL_H_
 
-#include <QtGui/QLabel>
-#include <QtGui/QMouseEvent>
-#include <QtGui/QResizeEvent>
-#include <QtGui/QTransform>
+#include <QLabel>
+#include <QMouseEvent>
+#include <QResizeEvent>
+#include <QTransform>
 
 
 class ImageDisplayLabel : public QLabel {

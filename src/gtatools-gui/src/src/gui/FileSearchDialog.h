@@ -24,11 +24,11 @@
 #define FILESEARCHDIALOG_H_
 
 #include <ui_FileSearchDialog.h>
-#include <QtGui/QDialog>
-#include <QtGui/QWidget>
+#include <QDialog>
+#include <QWidget>
 #include <QtCore/QLinkedList>
 #include <QtCore/QList>
-#include <QtGui/QProgressDialog>
+#include <QProgressDialog>
 #include "../Task.h"
 #include <nxcommon/file/FileFinder.h>
 

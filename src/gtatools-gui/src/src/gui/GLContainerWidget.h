@@ -25,7 +25,7 @@
 
 #include <ui_GLContainerWidget.h>
 #include "GLBaseWidget.h"
-#include <QtGui/QToolBar>
+#include <QToolBar>
 
 
 

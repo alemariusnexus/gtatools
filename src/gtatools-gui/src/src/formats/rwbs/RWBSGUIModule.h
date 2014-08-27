@@ -27,8 +27,8 @@
 #include "../../gui/HexEditor.h"
 #include "RWBSUtilityWidget.h"
 #include "RWBSAnalyzerWidget.h"
-#include <QtGui/QAction>
-#include <QtGui/QDockWidget>
+#include <QAction>
+#include <QDockWidget>
 
 
 class RWBSGUIModule : public GUIModule {

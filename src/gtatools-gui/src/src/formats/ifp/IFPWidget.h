@@ -24,7 +24,7 @@
 #define IFPWIDGET_H_
 
 #include <ui_IFPWidget.h>
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <nxcommon/file/File.h>
 #include <gtaformats/ifp/IFPAnimation.h>
 #include <QtCore/QList>

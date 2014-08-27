@@ -23,7 +23,7 @@
 #ifndef HTMLITEMVIEWDELEGATE_H_
 #define HTMLITEMVIEWDELEGATE_H_
 
-#include <QtGui/QStyledItemDelegate>
+#include <QStyledItemDelegate>
 
 
 class HTMLItemViewDelegate : public QStyledItemDelegate

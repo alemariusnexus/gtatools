@@ -23,11 +23,11 @@
 #ifndef IDEWIDGET_H_
 #define IDEWIDGET_H_
 
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <ui_IDEWidget.h>
 #include <nxcommon/file/File.h>
 #include <QtCore/QLinkedList>
-#include <QtGui/QBrush>
+#include <QBrush>
 #include "../../EntityOpenRequest.h"
 
 

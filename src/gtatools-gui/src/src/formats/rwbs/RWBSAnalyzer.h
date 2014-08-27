@@ -24,8 +24,8 @@
 #define RWBSANALYZER_H_
 
 #include <QtCore/QObject>
-#include <QtGui/QWidget>
-#include <QtGui/QTextEdit>
+#include <QWidget>
+#include <QTextEdit>
 #include <gtaformats/rwbs/RWSection.h>
 #include <nxcommon/script/luasys.h>
 

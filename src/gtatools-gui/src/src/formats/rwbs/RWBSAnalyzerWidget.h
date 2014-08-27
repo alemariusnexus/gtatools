@@ -26,7 +26,7 @@
 #include <ui_RWBSAnalyzerWidget.h>
 #include <QtCore/QList>
 #include <QtCore/QMap>
-#include <QtGui/QTextEdit>
+#include <QTextEdit>
 #include "RWBSAnalyzer.h"
 #include "../../System.h"
 

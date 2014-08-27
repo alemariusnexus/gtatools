@@ -27,12 +27,12 @@
 #include "MainWindow.h"
 #include <QtCore/QObject>
 #include <QtCore/QMap>
-#include <QtGui/QAction>
-#include <QtGui/QMenu>
-#include <QtGui/QUndoGroup>
+#include <QAction>
+#include <QMenu>
+#include <QUndoGroup>
 #include "../EntityOpenRequest.h"
 #include "FileTree.h"
-#include <QtGui/QDockWidget>
+#include <QDockWidget>
 #include "LogConsole.h"
 
 

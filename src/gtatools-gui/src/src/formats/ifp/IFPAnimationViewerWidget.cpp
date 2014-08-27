@@ -32,7 +32,7 @@
 #include <gta/resource/mesh/ManagedMeshPointer.h>
 #include <gta/resource/texture/StaticTextureSource.h>
 #include <gta/resource/texture/ManagedTextureSource.h>
-#include <QtGui/QFileDialog>
+#include <QFileDialog>
 
 
 

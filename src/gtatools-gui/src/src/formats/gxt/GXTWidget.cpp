@@ -27,7 +27,7 @@
 #include <gtaformats/gta.h>
 #include <nxcommon/util.h>
 #include <QtCore/QSettings>
-#include <QtGui/QMessageBox>
+#include <QMessageBox>
 #include <cstdio>
 #include "../../System.h"
 #include "GXTFormatHandler.h"
@@ -127,8 +127,14 @@ void GXTWidget::displayTable(const QString& tablename)
 	ui.table->setModel(proxyModel);
 
 	QHeaderView* header = ui.table->horizontalHeader();
+
+#if QT_VERSION >= 0x050000
+	header->setSectionResizeMode(QHeaderView::Stretch);
+	header->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+#else
 	header->setResizeMode(QHeaderView::Stretch);
 	header->setResizeMode(0, QHeaderView::ResizeToContents);
+#endif
 }
 
 
@@ -152,7 +158,7 @@ void GXTWidget::applyFilter()
 	QString filter = ui.filterField->text();
 
 	if (ui.hashBox->isChecked()) {
-		filter = QString("0x%1").arg((uint32_t) Crc32(filter.toAscii().constData()), 0, 16);
+		filter = QString("0x%1").arg((uint32_t) Crc32(filter.toLocal8Bit().constData()), 0, 16);
 	}
 
 	if (ui.regexBox->isChecked()) {

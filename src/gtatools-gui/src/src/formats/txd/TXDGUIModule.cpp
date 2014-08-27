@@ -21,7 +21,7 @@
  */
 
 #include "TXDGUIModule.h"
-#include <QtGui/QAction>
+#include <QAction>
 #include "../../gui/MainWindow.h"
 #include "TextureSearchDialog.h"
 #include "TXDFormatHandler.h"

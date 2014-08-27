@@ -30,9 +30,9 @@
 #include <gtaformats/ide/IDEWeapon.h>
 #include <nxcommon/file/DefaultFileFinder.h>
 #include <QtCore/QRegExp>
-#include <QtGui/QMessageBox>
-#include <QtGui/QInputDialog>
-#include <QtGui/QColor>
+#include <QMessageBox>
+#include <QInputDialog>
+#include <QColor>
 #include "../../System.h"
 #include "../../ProfileManager.h"
 #include "../../Profile.h"

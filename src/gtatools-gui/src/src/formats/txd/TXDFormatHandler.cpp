@@ -25,9 +25,9 @@
 #include "TXDWidget.h"
 #include <cstdio>
 #include <QtCore/QString>
-#include <QtGui/QFileDialog>
-#include <QtGui/QImage>
-#include <QtGui/QImageWriter>
+#include <QFileDialog>
+#include <QImage>
+#include <QImageWriter>
 #include "../../System.h"
 #include "../../ProfileManager.h"
 #include "TextureSearchDialog.h"
@@ -203,9 +203,9 @@ void TXDFormatHandler::systemQuerySent(const SystemQuery& query, QList<SystemQue
 		FileFinder* txdFinder = NULL;
 
 		if (!txdName.isNull())
-			txdFinder = new DefaultFileFinder(txdFileName.toAscii().constData(), false);
+			txdFinder = new DefaultFileFinder(txdFileName.toLocal8Bit().constData(), false);
 
-		DefaultFileFinder texFinder(tex.toAscii().constData(), false);
+		DefaultFileFinder texFinder(tex.toLocal8Bit().constData(), false);
 
 		TextureFileFinder finder(&texFinder, txdFinder);
 

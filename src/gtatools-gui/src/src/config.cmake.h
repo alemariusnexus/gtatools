@@ -23,11 +23,12 @@
 #ifndef GTATOOLS_GUI_CONFIG_CMAKE_H_
 #define GTATOOLS_GUI_CONFIG_CMAKE_H_
 
+// This _MUST_ be the first file included. Especially, it _MUST_ be included before windows.h...
+#include <gta/config.h>
+
 #ifdef _MSC_VER
 #include <windows.h>
 #endif
-
-#include <gta/config.h>
 
 #ifdef GTA_USE_OPENGL_ES
 #define GTATOOLS_GUI_USE_OPENGL_ES

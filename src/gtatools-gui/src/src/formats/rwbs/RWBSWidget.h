@@ -32,7 +32,7 @@
 #include "../../gui/HexEditorDocument.h"
 #include "RWBSAnalyzer.h"
 #include <QtCore/QList>
-#include <QtGui/QUndoStack>
+#include <QUndoStack>
 
 extern "C" {
 

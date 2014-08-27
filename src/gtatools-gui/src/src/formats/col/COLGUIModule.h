@@ -24,7 +24,7 @@
 #define COLGUIMODULE_H_
 
 #include "../../gui/GUIModule.h"
-#include <QtGui/QAction>
+#include <QAction>
 
 
 class COLGUIModule : public GUIModule {

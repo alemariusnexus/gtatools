@@ -26,9 +26,9 @@
 #include "HexEditorPrivate.h"
 #include "../UndoDecorator.h"
 #include "../NullUndoDecorator.h"
-#include <QtGui/QAbstractScrollArea>
-#include <QtGui/QScrollBar>
-#include <QtGui/QUndoStack>
+#include <QAbstractScrollArea>
+#include <QScrollBar>
+#include <QUndoStack>
 #include <QtCore/QTimer>
 
 

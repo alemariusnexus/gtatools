@@ -25,7 +25,7 @@
 
 #include "../../gui/GUIModule.h"
 #include "../../Profile.h"
-#include <QtGui/QAction>
+#include <QAction>
 
 
 

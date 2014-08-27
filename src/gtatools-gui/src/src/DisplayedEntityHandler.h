@@ -24,7 +24,7 @@
 #define DISPLAYEDENTITYHANDLER_H_
 
 #include <QtCore/QObject>
-#include <QtGui/QUndoStack>
+#include <QUndoStack>
 #include "DisplayedEntity.h"
 
 

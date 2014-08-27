@@ -23,8 +23,8 @@
 #ifndef FILETREE_H_
 #define FILETREE_H_
 
-#include <QtGui/QTreeView>
-#include <QtGui/QWidget>
+#include <QTreeView>
+#include <QWidget>
 #include <QtCore/QModelIndex>
 #include <QtCore/QPoint>
 #include "FileItemModel.h"
@@ -32,7 +32,7 @@
 #include <QtCore/QString>
 #include <QtCore/QVariant>
 #include "../EntityOpenRequest.h"
-#include <QtGui/QSortFilterProxyModel>
+#include <QSortFilterProxyModel>
 #include "../DisplayedFile.h"
 
 

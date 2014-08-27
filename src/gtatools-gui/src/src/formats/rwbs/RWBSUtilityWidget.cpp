@@ -23,7 +23,7 @@
 #include "RWBSUtilityWidget.h"
 #include "RWBSGUIModule.h"
 #include <gtaformats/img/IMGArchive.h>
-#include <QtGui/QVBoxLayout>
+#include <QVBoxLayout>
 #include "../../System.h"
 
 

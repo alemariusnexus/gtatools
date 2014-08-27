@@ -206,8 +206,8 @@ void COLRenderWidget::buildRenderingEntities()
 		MeshGenerator mg;
 		COLMeshConverter conv;
 
-		const COLSphere* spheres = &(*model->getSpheres().begin());
-		const COLBox* boxes = &(*model->getBoxes().begin());
+		const COLSphere* spheres = model->getSphereCount() != 0 ? &model->getSpheres()[0] : NULL;
+		const COLBox* boxes = model->getBoxCount() != 0 ? &model->getBoxes()[0] : NULL;
 
 		uint32_t numSpheres = model->getSphereCount();
 		uint32_t numBoxes = model->getBoxCount();
@@ -238,8 +238,8 @@ void COLRenderWidget::buildRenderingEntities()
 
 		if (model->getVertexCount() != 0) {
 			const float* vertices = model->getVertices();
-			const COLFace* faces = &(*model->getFaces().begin());
-			const COLFaceGroup* faceGroups = &(*model->getFaceGroups().begin());
+			const COLFace* faces = model->getFaceCount() != 0 ? &model->getFaces()[0] : NULL;
+			const COLFaceGroup* faceGroups = model->getFaceGroupCount() != 0 ? &model->getFaceGroups()[0] : NULL;
 
 			uint32_t numFaces = model->getFaceCount();
 			uint32_t faceGroupCount = model->getFaceGroupCount();

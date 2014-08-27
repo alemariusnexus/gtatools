@@ -21,8 +21,8 @@
  */
 
 #include "ImageDisplayLabel.h"
-#include <QtGui/QImage>
-#include <QtGui/QBitmap>
+#include <QImage>
+#include <QBitmap>
 #include "TXDFormatHandler.h"
 #include "../../System.h"
 

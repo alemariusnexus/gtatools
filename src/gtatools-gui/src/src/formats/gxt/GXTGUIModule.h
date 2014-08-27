@@ -24,7 +24,7 @@
 #define GXTGUIMODULE_H_
 
 #include "../../gui/GUIModule.h"
-#include <QtGui/QAction>
+#include <QAction>
 
 
 class GXTWidget;

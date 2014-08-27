@@ -41,7 +41,7 @@
 #include "DisplayedEntity.h"
 #include "DisplayedFile.h"
 #include <nxcommon/file/FileFinder.h>
-#include <QtGui/QImage>
+#include <QImage>
 #include "LogEntry.h"
 
 

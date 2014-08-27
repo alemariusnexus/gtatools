@@ -24,11 +24,11 @@
 #include "HexEditorContentTraverser.h"
 #include <nxcommon/Color4.h>
 #include <nxcommon/util.h>
-#include <QtGui/QPainter>
-#include <QtGui/QPaintEvent>
-#include <QtGui/QApplication>
-#include <QtGui/QClipboard>
-#include <QtGui/QToolTip>
+#include <QPainter>
+#include <QPaintEvent>
+#include <QApplication>
+#include <QClipboard>
+#include <QToolTip>
 #include <QtCore/QByteArray>
 #include <QtCore/QFile>
 #include <cstdio>
@@ -46,10 +46,13 @@ HexEditorPrivate::HexEditorPrivate(QWidget* parent)
 		  temporaryOverwriteMode(false), cursorBlink(false), cursorAscii(false), numLines(0), bytesPerLine(0),
 		  lineDisplayOffset(0), currentByteEdited(false), editable(true)
 {
-	QFont font("", 10);
+	QFont font("Monospace", 10);
 	font.setFixedPitch(true);
 	font.setKerning(false);
+	font.setStyleHint(QFont::Monospace);
 	setFont(font);
+
+	printf("FP: %s\n", font.fixedPitch() ? "yes" : "true");
 
 	setData(QByteArray());
 
@@ -415,7 +418,7 @@ void HexEditorPrivate::mouseMoveEvent(QMouseEvent* evt)
 
 void HexEditorPrivate::keyPressEvent(QKeyEvent* evt)
 {
-	char c = evt->text()[0].toAscii();
+	char c = evt->text()[0].toLatin1();
 
 	if (cursorAscii  &&  c >= 0x20  &&  c <= 0x7E) {
 		// Insert or replace an ASCII character.
@@ -585,7 +588,7 @@ void HexEditorPrivate::keyPressEvent(QKeyEvent* evt)
 				selText.append(' ');
 			}
 
-			selText.append(QString(sel.mid(i, 1).toHex().toUpper()).toAscii().constData());
+			selText.append(QString(sel.mid(i, 1).toHex().toUpper()).toLocal8Bit().constData());
 		}
 
 		QClipboard* cb = QApplication::clipboard();
@@ -603,7 +606,7 @@ void HexEditorPrivate::keyPressEvent(QKeyEvent* evt)
 
 		QClipboard* cb = QApplication::clipboard();
 		QString text = cb->text();
-		QByteArray data = QByteArray::fromHex(text.toAscii());
+		QByteArray data = QByteArray::fromHex(text.toLocal8Bit());
 		insert(data);
 	}
 }

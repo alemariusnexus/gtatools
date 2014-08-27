@@ -23,7 +23,7 @@
 #ifndef UNDODECORATOR_H_
 #define UNDODECORATOR_H_
 
-#include <QtGui/QUndoCommand>
+#include <QUndoCommand>
 
 
 class UndoDecorator : public QObject

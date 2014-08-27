@@ -499,7 +499,7 @@ void Profile::systemQuerySent(const SystemQuery& query, QList<SystemQueryResult>
 	if (query.getName() == "FindMeshTextures") {
 		QString meshName = query["meshName"].toString();
 		char** textures;
-		int numTexes = findTexturesForMesh(LowerHash(meshName.toAscii().constData()), textures);
+		int numTexes = findTexturesForMesh(LowerHash(meshName.toLocal8Bit().constData()), textures);
 		QStringList texNames;
 
 		for (int i = 0 ; i < numTexes ; i++) {

@@ -21,6 +21,7 @@
  */
 
 #include "VersionDialog.h"
+#include "../System.h"
 #include <gta/gl.h>
 #include <gtaformats/config.h>
 #include <cstdio>
@@ -34,10 +35,12 @@ VersionDialog::VersionDialog(QWidget* parent)
 {
 	ui.setupUi(this);
 
+	System::getInstance()->getSharedGLWidget()->makeCurrent();
+
 	// glGetString() needs an active rendering context, so we have to create a temporary QGLWidget to
 	// receive OpenGL version information.
-	QGLWidget glw;
-	glw.makeCurrent();
+	// QGLWidget glw;
+	// glw.makeCurrent();
 
 	ui.gtatoolsVersionLabel->setText(GTATOOLS_VERSION);
 	ui.qtVersionLabel->setText(qVersion());

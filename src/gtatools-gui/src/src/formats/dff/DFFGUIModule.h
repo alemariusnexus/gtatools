@@ -25,7 +25,7 @@
 
 #include "../../gui/GUIModule.h"
 #include <QtCore/QObject>
-#include <QtGui/QAction>
+#include <QAction>
 
 
 class DFFWidget;

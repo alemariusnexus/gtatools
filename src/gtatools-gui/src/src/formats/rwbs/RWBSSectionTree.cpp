@@ -21,8 +21,8 @@
  */
 
 #include "RWBSSectionTree.h"
-#include <QtGui/QMenu>
-#include <QtGui/QMessageBox>
+#include <QMenu>
+#include <QMessageBox>
 #include "RWBSSectionDialog.h"
 
 

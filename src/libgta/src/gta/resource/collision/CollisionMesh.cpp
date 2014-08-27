@@ -30,7 +30,7 @@ CollisionMesh::CollisionMesh(const COLModel& model)
 {
 	memcpy(vertices, model.getVertices(), numVertices*3*sizeof(float));
 
-	const COLFace* faces = &(*model.getFaces().begin());
+	const COLFace* faces = model.getFaceCount() != 0 ? &model.getFaces()[0] : NULL;
 
 	for (size_t i = 0 ; i < numFaces ; i++) {
 		const COLFace& face = faces[i];

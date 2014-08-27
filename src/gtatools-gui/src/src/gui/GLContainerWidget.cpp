@@ -21,7 +21,7 @@
  */
 
 #include "GLContainerWidget.h"
-#include <QtGui/QCloseEvent>
+#include <QCloseEvent>
 
 
 

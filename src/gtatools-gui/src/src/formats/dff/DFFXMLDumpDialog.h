@@ -25,7 +25,7 @@
 
 
 #include <ui_DFFXMLDumpDialog.h>
-#include <QtGui/QDialog>
+#include <QDialog>
 
 
 class DFFXMLDumpDialog : public QDialog

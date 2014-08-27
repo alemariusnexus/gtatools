@@ -23,7 +23,7 @@
 #ifndef PERCENTAGEVALIDATOR_H_
 #define PERCENTAGEVALIDATOR_H_
 
-#include <QtGui/QDoubleValidator>
+#include <QDoubleValidator>
 
 
 class PercentageValidator : public QDoubleValidator

@@ -22,8 +22,8 @@
 
 #include "HexEditor.h"
 #include "HexEditorUndoCommand.h"
-#include <QtGui/QScrollBar>
-#include <QtGui/QPaintEvent>
+#include <QScrollBar>
+#include <QPaintEvent>
 #include <algorithm>
 
 using std::min;

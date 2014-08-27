@@ -24,9 +24,12 @@
 #define TASK_H_
 
 #include <QtCore/QObject>
-#include <QtGui/QProgressBar>
-#include <QtGui/QLabel>
+#include <QProgressBar>
+#include <QLabel>
 #include <cstdio>
+#include <list>
+
+using std::list;
 
 class MainWindow;
 
@@ -61,6 +64,7 @@ private:
 	QProgressBar* pb;
 	QLabel* label;
 	QString message;
+	list<Task*>::iterator queueIt;
 	int minimum;
 	int maximum;
 	int currentValue;

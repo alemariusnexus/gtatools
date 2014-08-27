@@ -24,13 +24,13 @@
 #define TXDFORMATHANDLER_H_
 
 #include "../EntityHandler.h"
-#include <QtGui/QImage>
+#include <QImage>
 #include <gtaformats/txd/TXDArchive.h>
 #include <gtaformats/txd/TXDTextureHeader.h>
 #include <gtaformats/config.h>
 #include <QtCore/QLinkedList>
-#include <QtGui/QWidget>
-#include <QtGui/QImage>
+#include <QWidget>
+#include <QImage>
 #include "../../System.h"
 
 

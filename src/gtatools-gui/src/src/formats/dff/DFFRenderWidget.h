@@ -28,7 +28,7 @@
 #include <QtCore/QLinkedList>
 #include <QtCore/QMap>
 #include <QtOpenGL/qgl.h>
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <gtaformats/gtadff.h>
 #include <nxcommon/math/Matrix4.h>
 #include <gta/resource/mesh/Mesh.h>
@@ -43,8 +43,8 @@
 #include <gta/render/DefaultRenderer.h>
 #include <gta/render/RenderingEntity.h>
 #include <gta/render/TestShaderPlugin.h>
-#include <QtGui/QMouseEvent>
-#include <QtGui/QKeyEvent>
+#include <QMouseEvent>
+#include <QKeyEvent>
 #include <QtCore/QPoint>
 #include "../../Profile.h"
 #include "../../ProfileManager.h"

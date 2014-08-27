@@ -28,7 +28,7 @@
 #include <gtaformats/dff/DFFMesh.h>
 #include <gtaformats/dff/DFFFrame.h>
 #include <QtCore/QTextStream>
-#include <QtGui/QWidget>
+#include <QWidget>
 
 
 class DFFFormatHandler: public EntityHandler {

@@ -27,7 +27,7 @@
 #include "../formats/EntityHandler.h"
 #include "../formats/EntityManager.h"
 #include <QtCore/QLinkedList>
-#include <QtGui/QStandardItemModel>
+#include <QStandardItemModel>
 #include <QtCore/QTime>
 #include <QtCore/QSettings>
 
@@ -81,10 +81,19 @@ void FileTree::showProfile(Profile* profile)
 	connect(this, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(fileSelected(const QModelIndex&)));
 
 	header()->setStretchLastSection(false);
+
+#if QT_VERSION >= 0x050000
+	header()->setSectionResizeMode(0, QHeaderView::Stretch);
+#else
 	header()->setResizeMode(0, QHeaderView::Stretch);
+#endif
 
 	if (header()->count() > 1) {
+#if QT_VERSION >= 0x050000
+		header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+#else
 		header()->setResizeMode(1, QHeaderView::ResizeToContents);
+#endif
 	}
 
 	setSortingEnabled(true);
