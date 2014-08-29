@@ -31,7 +31,7 @@
 #include <QMessageBox>
 #include <gta/resource/mesh/StaticMeshPointer.h>
 #include <gta/resource/mesh/Submesh.h>
-#include <gta/StaticMapItemDefinition.h>
+#include <gta/MapItemDefinition.h>
 #include <gta/scene/Scene.h>
 #include <gta/render/DefaultRenderer.h>
 #include <gta/render/DefaultRenderingMesh.h>

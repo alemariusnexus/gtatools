@@ -34,7 +34,7 @@
 #include <gta/resource/collision/CollisionModelBulletConverter.h>
 #include <gta/resource/physics/StaticPhysicsPointer.h>
 #include <gta/resource/physics/ManagedPhysicsPointer.h>
-#include <gta/StaticMapItemDefinition.h>
+#include <gta/MapItemDefinition.h>
 #include <BulletDynamics/Vehicle/btRaycastVehicle.h>
 #include <BulletCollision/NarrowPhaseCollision/btRaycastCallback.h>
 
@@ -120,7 +120,7 @@ MapSceneObject* VehicleController::generateFloor()
 	CollisionShapePointer* colPtr = new StaticCollisionShapePointer(colModel);
 	PhysicsPointer* physPtr = new StaticPhysicsPointer(colShape);
 
-	StaticMapItemDefinition* def = new StaticMapItemDefinition(meshPtr, texSrc, colPtr, NULL, physPtr, FLOOR_HALF_WIDTH * 3.0f, 0);
+	MapItemDefinition* def = new MapItemDefinition(meshPtr, texSrc, colPtr, NULL, physPtr, FLOOR_HALF_WIDTH * 3.0f, 0);
 
 	MapSceneObjectLODInstance* lodInst = new MapSceneObjectLODInstance(def);
 

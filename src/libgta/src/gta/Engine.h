@@ -26,6 +26,7 @@
 #include <gta/config.h>
 #include "Camera.h"
 #include "GameInfo.h"
+#include "ItemManager.h"
 #include <nxcommon/ResourceCache.h>
 #include "EngineIPLLoader.h"
 #include "scene/parts/VisualSceneObject.h"
@@ -53,6 +54,7 @@ using std::string;
 using std::less;
 using std::equal_to;
 using std::shared_ptr;
+using std::unique_ptr;
 
 
 class ResourceObserver;
@@ -91,16 +93,18 @@ public:
 	void addViewportObserver(ViewportObserver* observer);
 	void removeViewportObserver(ViewportObserver* observer);
 
-	StringResourceCache* getMeshCache() { return meshCache; }
-	StringResourceCache* getTextureCache() { return texCache; }
-	StringResourceCache* getCollisionMeshCache() { return colCache; }
-	StringResourceCache* getAnimationCache() { return animCache; }
-	StringResourceCache* getPhysicsCache() { return physicsCache; }
+	StringResourceCache* getMeshCache() { return meshCache.get(); }
+	StringResourceCache* getTextureCache() { return texCache.get(); }
+	StringResourceCache* getCollisionMeshCache() { return colCache.get(); }
+	StringResourceCache* getAnimationCache() { return animCache.get(); }
+	StringResourceCache* getPhysicsCache() { return physicsCache.get(); }
 
-	MeshIndexer* getMeshIndexer() { return meshIndexer; }
-	TextureIndexer* getTextureIndexer() { return texIndexer; }
-	CollisionMeshIndexer* getCollisionMeshIndexer() { return colIndexer; }
-	AnimationIndexer* getAnimationIndexer() { return animIndexer; }
+	MeshIndexer* getMeshIndexer() { return meshIndexer.get(); }
+	TextureIndexer* getTextureIndexer() { return texIndexer.get(); }
+	CollisionMeshIndexer* getCollisionMeshIndexer() { return colIndexer.get(); }
+	AnimationIndexer* getAnimationIndexer() { return animIndexer.get(); }
+
+	ItemManager* getItemManager() { return itemManager.get(); }
 
 	void setCamera(Camera* cam) { camera = cam; }
 	Camera* getCamera() { return camera; }
@@ -141,6 +145,7 @@ public:
 
 private:
 	Engine();
+	~Engine();
 	void iplRecurse(File* file, const File& rootDir, GameInfo gameInfo = GameInfo());
 
 private:
@@ -149,17 +154,10 @@ private:
 private:
 	GameInfo defGameInfo;
 
-	vector<ResourceObserver*> resObservers;
-	vector<ViewportObserver*> vpObservers;
-
-	Camera* camera;
-	Matrix4 projectionMatrix;
-	Scene* scene;
-
-	MeshIndexer* meshIndexer;
-	TextureIndexer* texIndexer;
-	CollisionMeshIndexer* colIndexer;
-	AnimationIndexer* animIndexer;
+	unique_ptr<MeshIndexer> meshIndexer;
+	unique_ptr<TextureIndexer> texIndexer;
+	unique_ptr<CollisionMeshIndexer> colIndexer;
+	unique_ptr<AnimationIndexer> animIndexer;
 
 	MeshCacheLoader* meshCacheLoader;
 	TextureCacheLoader* texCacheLoader;
@@ -167,11 +165,21 @@ private:
 	AnimationCacheLoader* animCacheLoader;
 	PhysicsCacheLoader* physicsCacheLoader;
 
-	StringResourceCache* meshCache;
-	StringResourceCache* texCache;
-	StringResourceCache* colCache;
-	StringResourceCache* animCache;
-	StringResourceCache* physicsCache;
+	unique_ptr<StringResourceCache> meshCache;
+	unique_ptr<StringResourceCache> texCache;
+	unique_ptr<StringResourceCache> colCache;
+	unique_ptr<StringResourceCache> animCache;
+	unique_ptr<StringResourceCache> physicsCache;
+
+	unique_ptr<ItemManager> itemManager;
+
+	Camera* camera;
+	Scene* scene;
+
+	Matrix4 projectionMatrix;
+
+	vector<ResourceObserver*> resObservers;
+	vector<ViewportObserver*> vpObservers;
 
 	int8_t gameHours, gameMinutes;
 

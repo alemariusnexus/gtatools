@@ -64,14 +64,7 @@ private:
 	bool increaseTime;
 	bool increaseTimeHold;
 
-	VisualSceneObject* lastSelectedObj;
-
-	TestShaderPlugin* selPlugin;
-
-	//Vehicle* veh;
 	VehicleController* veh;
-
-	uint64_t lastPhysTimePassed;
 };
 
 #endif /* CONTROLLER_H_ */

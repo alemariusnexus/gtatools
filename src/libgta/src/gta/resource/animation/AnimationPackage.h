@@ -27,15 +27,16 @@
 #include <nxcommon/ResourceCache.h>
 #include <nxcommon/strutil.h>
 #include <nxcommon/CString.h>
-#include <map>
+#include <nxcommon/cxx11hash.h>
+#include <unordered_map>
 
-using std::map;
+using std::unordered_map;
 
 
 
 class AnimationPackage {
 private:
-	typedef map<CString, Animation*> AnimMap;
+	typedef unordered_map<CString, Animation*, CXX11Hash<CString> > AnimMap;
 
 public:
 	typedef AnimMap::iterator AnimIterator;

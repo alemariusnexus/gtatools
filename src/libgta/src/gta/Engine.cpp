@@ -88,12 +88,31 @@ void Engine::destroy()
 
 
 Engine::Engine()
-		: defGameInfo(GameInfo()), camera(NULL), scene(NULL), gameHours(8), gameMinutes(0), viewWidth(-1),
+		: meshIndexer(new MeshIndexer),
+		  texIndexer(new TextureIndexer),
+		  colIndexer(new CollisionMeshIndexer),
+		  animIndexer(new AnimationIndexer),
+
+		  meshCacheLoader(new MeshCacheLoader(meshIndexer.get(), colIndexer.get())),
+		  texCacheLoader(new TextureCacheLoader(texIndexer.get())),
+		  colCacheLoader(new CollisionMeshCacheLoader(colIndexer.get())),
+		  animCacheLoader(new AnimationCacheLoader(animIndexer.get())),
+		  physicsCacheLoader(new PhysicsCacheLoader),
+
+		  meshCache(new StringResourceCache(meshCacheLoader, 0)),
+		  texCache(new StringResourceCache(texCacheLoader, 0)),
+		  colCache(new StringResourceCache(colCacheLoader, 0)),
+		  animCache(new StringResourceCache(animCacheLoader, 0)),
+		  physicsCache(new StringResourceCache(physicsCacheLoader, 0)),
+
+		  itemManager(new ItemManager),
+
+		  defGameInfo(GameInfo()), camera(NULL), scene(NULL), gameHours(8), gameMinutes(0), viewWidth(-1),
 		  viewHeight(-1), testMem(0), freezeVisibility(false), shaderPluginAPI(new DefaultShaderPluginAPI)
 {
 	FileSystem::getInstance()->registerArchiveHandler(IMGArchiveHandler::getInstance());
 
-	meshIndexer = new MeshIndexer;
+	/*meshIndexer = new MeshIndexer;
 	texIndexer = TextureIndexer::getInstance();
 	colIndexer = new CollisionMeshIndexer;
 	animIndexer = new AnimationIndexer;
@@ -108,13 +127,29 @@ Engine::Engine()
 	texCache = new StringResourceCache(texCacheLoader, 0);
 	colCache = new StringResourceCache(colCacheLoader, 0);
 	animCache = new StringResourceCache(animCacheLoader, 0);
-	physicsCache = new StringResourceCache(physicsCacheLoader, 0);
+	physicsCache = new StringResourceCache(physicsCacheLoader, 0);*/
 
-	addResourceObserver(meshIndexer);
-	addResourceObserver(texIndexer);
-	addResourceObserver(colIndexer);
-	addResourceObserver(animIndexer);
-	addResourceObserver(ItemManager::getInstance());
+	addResourceObserver(meshIndexer.get());
+	addResourceObserver(texIndexer.get());
+	addResourceObserver(colIndexer.get());
+	addResourceObserver(animIndexer.get());
+	addResourceObserver(itemManager.get());
+}
+
+
+Engine::~Engine()
+{
+	delete shaderPluginAPI;
+
+	/*delete meshIndexer;
+	delete colIndexer;
+	delete animIndexer;
+
+	delete meshCache;
+	delete texCache;
+	delete colCache;
+	delete animCache;
+	delete physicsCache;*/
 }
 
 

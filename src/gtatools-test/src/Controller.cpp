@@ -43,7 +43,7 @@
 #include <gta/resource/mesh/StaticMeshPointer.h>
 #include <gta/resource/collision/StaticCollisionShapePointer.h>
 #include <gta/resource/physics/StaticPhysicsPointer.h>
-#include <gta/StaticMapItemDefinition.h>
+#include <gta/MapItemDefinition.h>
 #include <gta/ItemManager.h>
 #include <gta/render/DefaultRenderer.h>
 #include <gta/resource/texture/TextureIndexer.h>
@@ -70,11 +70,9 @@
 #include <gta/scene/objects/PointLightSource.h>
 #include <gta/scene/objects/SpotLightSource.h>
 #include <gta/scene/objects/AmbientLightSource.h>
-#include <gta/scene/objects/AnimatedMapSceneObject.h>
 #include <gta/scene/objects/MapSceneObject.h>
 #include <gta/scene/objects/SimpleDynamicSceneObject.h>
 #include <gta/scene/objects/Vehicle.h>
-#include <gta/AnimatedMapItemDefinition.h>
 #include <gta/resource/animation/AnimationCacheEntry.h>
 #include <gta/resource/smesh/ShadowMesh.h>
 #include <gta/resource/smesh/ShadowVolumeGenerator.h>
@@ -102,46 +100,12 @@ Controller::Controller()
 		  moveForwardFactor(0.0f), moveSidewardFactor(0.0f), moveUpFactor(0.0f), firstFrame(true),
 		  framesSinceLastMeasure(0), lastMouseX(-1), lastMouseY(-1), printCacheStatistics(false),
 		  programRunning(true), forceStatisticsUpdate(false), freeRunning(false), increaseTime(false),
-		  increaseTimeHold(false),
-		  lastSelectedObj(NULL),
-		  lastPhysTimePassed(0)
+		  increaseTimeHold(false)
 {
 }
 
 
 
-class TestViewpoint : public StreamingViewpoint
-{
-public:
-	TestViewpoint(Vector3 pos, float sdMul) : pos(pos), sdMul(sdMul) {}
-	virtual Vector3 getStreamingViewpointPosition() const { return pos; }
-	virtual uint32_t getStreamingFlags() const { return FrustumCulling; }
-	virtual uint32_t getStreamingBuckets() const { return StreamingManager::VisibleBucket; }
-	virtual float getStreamingDistanceMultiplier() const { return sdMul; }
-
-private:
-	Vector3 pos;
-	float sdMul;
-};
-
-
-
-ShadowMesh* shadowMesh;
-ShaderProgram* testProgram;
-ShaderProgram* envProgram;
-
-float* testVertices;
-uint32_t* testIndices;
-uint32_t numTestVertices;
-uint32_t numTestIndices;
-
-
-#define FLOOR_RESOLUTION 200
-#define FLOOR_HALF_LENGTH 100.0f
-#define FLOOR_Z_VARIANCE 50.0f
-
-float floorVerts[(FLOOR_RESOLUTION+1) * (FLOOR_RESOLUTION+1) * 3];
-uint32_t floorInds[FLOOR_RESOLUTION*FLOOR_RESOLUTION*6];
 
 
 SpotLightSource* sl;
@@ -155,18 +119,6 @@ Vector3 slBasePos(-1974.994873f, 254.986267f, 200.536682f);
 void Controller::init()
 {
 	Engine* engine = Engine::getInstance();
-
-
-	/*File dir(GTASA_PATH "/models/gta3.img");
-
-	printf("\n\n---------- GTA3.IMG ----------\n");
-	for (File child : dir.getChildren()) {
-		printf("%s\n", child.getPath().getFileName().get());
-	}
-	printf("---------- END GTA3.IMG ----------\n\n");
-
-	exit(0);*/
-
 
 	GameInfo::VersionMode ver;
 
@@ -185,12 +137,6 @@ void Controller::init()
 
 	GameInfo gameInfo(ver, File(GTASA_PATH));
 	engine->setDefaultGameInfo(gameInfo);
-
-	printf("Initializing Bullet...\n");
-
-
-
-	//world->setGravity(btVector3(0.0f, 0.0f, -9.81f));
 
 #ifndef GT_USE_OPENGL_ES
 	glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
@@ -227,15 +173,10 @@ void Controller::init()
 
 	Scene* scene = new Scene;
 
-	//scene->setPhysicsWorld(world);
-
 	Camera* cam = new Camera;
 	engine->setCamera(cam);
 
 	scene->addStreamingViewpoint(cam);
-
-	//TestViewpoint* vp1 = new TestViewpoint(Vector3(500.0f, 0.0f, 0.0f), 1.0f);
-	//scene->addStreamingViewpoint(vp1);
 
 	debugDrawer = new BulletGLDebugDraw;
 	scene->getPhysicsWorld()->setDebugDrawer(debugDrawer);
@@ -263,12 +204,11 @@ void Controller::init()
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	//engine->getMeshCache()->resize(40 * 1000000); // 40MB
-	engine->getMeshCache()->resize(100 * 1000000); // 40MB
+	engine->getMeshCache()->resize(100 * 1000000); // 100MB
 	engine->getTextureCache()->resize(150 * 1000000); // 150MB
-	engine->getCollisionMeshCache()->resize(30 * 1000000);
-	engine->getAnimationCache()->resize(100 * 1000000);
-	engine->getPhysicsCache()->resize(100 * 1000000);
+	engine->getCollisionMeshCache()->resize(30 * 1000000); // 30MB
+	engine->getAnimationCache()->resize(100 * 1000000); // 100MB
+	engine->getPhysicsCache()->resize(100 * 1000000); // 100MB
 
 
 	printf("Loading resources...\n");
@@ -281,7 +221,6 @@ void Controller::init()
 	addResource(File(GTASA_PATH "/models/gta3.img"));
 
 	addResource(File(GTASA_PATH "/anim/ped.ifp"));
-	//engine->addResource(File(GTASA_PATH ""));
 	engine->addResource(File(GTASA_PATH "/models/generic/vehicle.txd"));
 
 	printf("Loading DAT files...\n");
@@ -303,25 +242,9 @@ void Controller::init()
 		break;
 	}
 
-
-	selPlugin = new TestShaderPlugin(0);
-
-	//engine->loadDAT(File(GTASA_PATH "/data/test.dat"), File(GTASA_PATH));
-
-
-
-	/*PointLightSource* pl = new PointLightSource;
-	//pl->setDiffuseColor(Vector4(1.0f, 1.0f, 1.0f, 0.0f));
-	pl->setAmbientColor(Vector3(0.5f, 0.0f, 0.0f));
-	pl->setPosition(Vector3(-1974.994873f, 258.986267f, 42.536682f));
-	pl->setLinearAttenuation(0.01f);
-	//pl->setSpecularColor(Vector4(5.0f, 5.0f, 5.0f, 0.0f));
-	//pl->setShininess(96.0f);
-	scene->addSceneObject(pl);*/
-
 	sl = new SpotLightSource;
 	sl->setShadowCastingEnabled(false);
-	//sl->setDiffuseColor(Vector4(5.0f, 0.0f, 0.0f, 0.0f));
+	sl->setDiffuseColor(Vector4(5.0f, 0.0f, 0.0f, 0.0f));
 	sl->setAmbientColor(Vector3(0.2f, 0.2f, 0.2f));
 	sl->setPosition(slBasePos);
 	sl->setDirection(Vector3::UnitZ);
@@ -332,101 +255,12 @@ void Controller::init()
 	al->setAmbientColor(Vector3(0.2f, 0.2f, 0.2f));
 	scene->addSceneObject(al);
 
-	/*DirectionalLightSource* dl = new DirectionalLightSource;
-	dl->setDiffuseColor(Vector4(0.0f, 0.0f, 0.5f, 0.0f));
-	dl->setDirection(Vector3::UnitZ);
-	scene->addSceneObject(dl);*/
-
-	/*DirectionalLightSource* dl = new DirectionalLightSource;
-	dl->setShadowCastingEnabled(false);
-	dl->setAmbientColor(Vector3(0.5f, 0.5f, 0.0f));
-	Vector3 dir(1.0f, 0.0f, 1.0f);
-	dir.normalize();
-	dl->setDirection(dir);
-	scene->addSceneObject(dl);*/
-
-	/*DirectionalLightSource* dl2 = new DirectionalLightSource;
-	dl2->setAmbientColor(Vector3(0.1f, 0.1f, 0.1f));
-	Vector3 dir2(1.0f, 0.5f, 1.0f);
-	dir2.normalize();
-	dl2->setDirection(dir2);
-	scene->addSceneObject(dl2);*/
-
-	// -1974.994873f, 258.986267f, 42.536682f
 
 
-	CString testMeshName;
-
-	switch (gameInfo.getVersionMode()) {
-	case GameInfo::GTASA:
-		testMeshName = CString("jizzy");
-		break;
-	case GameInfo::GTAVC:
-		testMeshName = CString("hmori");
-		break;
-	case GameInfo::GTAIII:
-		testMeshName = CString("medic");
-		break;
-	}
-
-
-	AnimationCacheEntry* pedEntry = (AnimationCacheEntry*) engine->getAnimationCache()->getEntryPointer(CString("ped")).getEntry();
-
-	AnimationPackage* anpk = pedEntry->getPackage();
-
-	CString* AnimationData = new CString[anpk->getAnimationCount() * 4];
-
-	AnimationPackage::AnimIterator it;
-	int idx = 0;
-	for (it = anpk->getAnimationBegin() ; it != anpk->getAnimationEnd() ; it++, idx++) {
-		Animation* anim = it->second;
-		CString name = it->first;
-
-		AnimationData[idx*4] = CString(testMeshName);
-		AnimationData[idx*4 + 1] = CString(testMeshName);
-		AnimationData[idx*4 + 2] = CString("ped");
-		AnimationData[idx*4 + 3] = CString(name);
-	}
-
-	//size_t numObjs = anpk->getAnimationCount();
-	size_t numObjs = 0;
-
-	/*CString AnimationData[] = {
-			"jizzy",					"jizzy",					"ped",					"arrestgun"
-	};
-
-	size_t numObjs = sizeof(AnimationData) / (sizeof(CString) * 4);*/
-
-
-
-
-	for (size_t j = 0 ; j < 1 ; j++) {
-		for (size_t i = 0 ; i < numObjs ; i++) {
-			ManagedMeshPointer* meshPtr = new ManagedMeshPointer(AnimationData[i*4]);
-			ManagedTextureSource* texSrc = new ManagedTextureSource(AnimationData[i*4 + 1]);
-			ManagedAnimationPackagePointer* animPtr = new ManagedAnimationPackagePointer(AnimationData[i*4 + 2]);
-
-			AnimatedMapItemDefinition* def = new AnimatedMapItemDefinition(meshPtr, texSrc, NULL, NULL, NULL, animPtr, 100.0f, 0);
-
-			AnimatedMapSceneObject* obj = new AnimatedMapSceneObject;
-
-			MapSceneObjectLODInstance* lodInst = new MapSceneObjectLODInstance(def);
-			obj->addLODInstance(lodInst);
-
-			obj->setCurrentAnimation(AnimationData[i*4 + 3]);
-			obj->setModelMatrix(Matrix4::translation(2.0f * i, -2.0f * (j+1), 10.0f));
-
-			scene->addSceneObject(obj);
-		}
-	}
-
-
-	TextureIndexer* txdIdx = TextureIndexer::getInstance();
+	TextureIndexer* txdIdx = Engine::getInstance()->getTextureIndexer();
 
 	TextureArchive* infernusArchive = txdIdx->findArchive("infernus");
 	TextureArchive* vehicleArchive = txdIdx->findArchive("vehicle");
-
-	printf("IA: %p,   VA: %p\n", infernusArchive, vehicleArchive);
 
 	infernusArchive->setParent(vehicleArchive);
 
@@ -438,280 +272,11 @@ void Controller::init()
 #endif
 
 
-	for (int j = 0 ; j < 0 ; j++) {
-		float testRadius = 0.371362;
-
-		MeshGenerator mg;
-
-		Mesh* mesh = mg.createSphere(testRadius, 50, 50);
-
-		for (Mesh::SubmeshIterator it = mesh->getSubmeshBegin() ; it != mesh->getSubmeshEnd() ; it++) {
-			Submesh* submesh = *it;
-			Material* mat = new Material;
-			mat->setColor(255, 0, 0, 50);
-			mesh->addMaterial(mat);
-			submesh->setMaterial(mat);
-		}
-
-		MeshClump* clump = new MeshClump;
-
-		MeshFrame* rootFrame = new MeshFrame;
-		clump->setRootFrame(rootFrame);
-
-		clump->addMesh(mesh);
-
-		StaticMeshPointer* meshPtr = new StaticMeshPointer(clump);
-
-		btSphereShape* shape = new btSphereShape(testRadius);
-		StaticPhysicsPointer* physPtr = new StaticPhysicsPointer(shape);
-
-		SimpleDynamicSceneObject* sdObj = new SimpleDynamicSceneObject(meshPtr, NULL, NULL, NULL, physPtr, 250.0f, 20.0f, Matrix4::translation(2.0f, 2.0f + j*3.0f, 204.5f));
-		btRigidBody* rb = sdObj->getRigidBody();
-
-		rb->setRestitution(0.0f);
-		rb->forceActivationState(DISABLE_DEACTIVATION);
-		//rb->setLinearVelocity(btVector3(20.0f, 0.0f, 0.0f));
-		//rb->applyForce(btVector3(1.0f, 0.0f, 0.0f), btVector3(0.0f, 0.0f, 0.0f));
-
-		sdObj->setBoundingSphere(Vector3::Zero, testRadius);
-
-		scene->addSceneObject(sdObj);
-	}
-
-	/*veh = new Vehicle("infernus", Matrix4::translation(0.0f, 0.0f, 500.0f) * Matrix4::rotationY(0.5f));
-
-	veh->setBoundingSphere(Vector3::Zero, 25.0f);
-
-	scene->addSceneObject(veh);*/
-
-	/*MeshGenerator mg;
-
-	float halfLenX = 1.0f;
-	float halfLenY = 1.0f;
-	float halfLenZ = 1.0f;
-
-	Vector3 boxMin(-halfLenX, -halfLenY, -halfLenZ);
-	Vector3 boxMax(halfLenX, halfLenY, halfLenZ);
-
-	//Mesh* mesh = mg.createBox(boxMin, boxMax);
-	Mesh* mesh = mg.createSphere(5.0f, 100, 100);
-	mesh->setBounds(0.0f, 0.0f, 0.0f, 5.0f);
-
-	MeshClump* clump = new MeshClump;
-	MeshFrame* frame = new MeshFrame;
-	frame->setModelMatrix(Matrix4::translation(0.0f, 0.0f, 0.0f));
-	clump->setRootFrame(frame);
-	mesh->setFrame(frame);
-	clump->addMesh(mesh);
-
-	for (Mesh::SubmeshIterator it = mesh->getSubmeshBegin() ; it != mesh->getSubmeshEnd() ; it++) {
-		Submesh* submesh = *it;
-
-		Material* mat = new Material;
-		mat->setColor(0, 0, 255, 255);
-
-		submesh->setMaterial(mat);
-	}
-
-	StaticMeshPointer* meshPtr = new StaticMeshPointer(clump);
-
-	CollisionModel* cmodel = new CollisionModel;
-	cmodel->setBoundingSphere(Vector3::Zero, 5.0f);
-	cmodel->setBoundingBox(Vector3(-5.0f, -5.0f, -5.0f), Vector3(5.0f, 5.0f, 5.0f));
-
-	CollisionSphere* sphere = new CollisionSphere(Vector3::Zero, 5.0f);
-	cmodel->addSphere(sphere);
-
-	StaticCollisionShapePointer* colPtr = new StaticCollisionShapePointer(cmodel);
-
-	StaticMapItemDefinition* def = new StaticMapItemDefinition(meshPtr, NULL, colPtr, NULL, 250.0f);
-
-	MapSceneObject* obj = new MapSceneObject;
-
-	MapSceneObjectLODInstance* lodInst = new MapSceneObjectLODInstance(def);
-	obj->addLODInstance(lodInst);
-
-	float angle = 45.0f;
-	obj->setModelMatrix(Matrix4::translation(Vector3(0.0f, 0.0f, 50.0f)) * Matrix4::rotation((angle / 180.0f) * M_PI, Vector3::UnitY));
-
-	//scene->addSceneObject(obj);
-
-
-
-
-	Vector3 rayStart(0.3f, -2.0f, 30.0f);
-	//Vector3 rayStart(2392.345215f, -1.829378f, 30);
-	//Vector3 rayStart(2414.333252f, -1.863295f, 27.659145f);
-	Vector3 rayDir(1.0f, 0.0f, 0.0f);
-
-	float rayLen = 10000.0f;
-
-
-
-	rayDir.normalize();
-
-
-	RayCaster rc;
-
-	Scene::ObjectList olist;
-	olist.push_back(obj);
-
-	CollisionRayCastingHandler<Scene::ObjectIterator> rch;
-	rch.setSceneObjects(scene->getSceneObjectBegin(), scene->getSceneObjectEnd());
-	//rch.setSceneObjects(olist.begin(), olist.end());
-
-	rc.setHandler(&rch);
-
-	uint64_t s, e;
-
-	s = GetTickcount();
-	rc.castRay(rayStart, rayDir, RayCaster::Sorted | RayCaster::CalculateIntersectionPosition);
-	e = GetTickcount();
-	uint64_t t1 = e-s;
-	s = GetTickcount();
-	rc.castRay(rayStart, rayDir, RayCaster::Sorted | RayCaster::CalculateIntersectionPosition);
-	e = GetTickcount();
-	uint64_t t2 = e-s;
-
-	printf("Raycasting took %ums (first: %ums)\n", t2, t1);
-
-	uint32_t numRes = 0;
-	for (CollisionRayCastingHandler<Scene::ObjectIterator>::ResultIterator it = rch.getResultBegin() ; it != rch.getResultEnd() ; it++) {
-		CollisionRayCastingHandler<Scene::ObjectIterator>::ObjectResult& res = *it;
-
-		unsigned int numR;
-		float r[2];
-
-		if ((res.flags & CollisionRayCastingHandler<Scene::ObjectIterator>::ObjectResultFlagSphere)  !=  0) {
-			r[0] = res.sphereRes.rayRa;
-			r[1] = res.sphereRes.rayRb;
-			numR = 2;
-		} else if ((res.flags & CollisionRayCastingHandler<Scene::ObjectIterator>::ObjectResultFlagBox)  !=  0) {
-			memcpy(r, res.boxRes.intersectionRayR, sizeof(r));
-			numR = 2;
-		} else {
-			r[0] = res.meshRes.rayR;
-			numR = 1;
-		}
-
-		for (unsigned int i = 0 ; i < numR ; i++) {
-			Vector3 pos = rayStart + rayDir*r[i];
-
-			MeshGenerator mg;
-
-			Mesh* mesh = mg.createSphere(0.1f, 10, 10);
-
-			MeshClump* clump = new MeshClump;
-			MeshFrame* frame = new MeshFrame;
-			frame->setModelMatrix(Matrix4::translation(0.0f, 0.0f, 0.0f));
-			clump->setRootFrame(frame);
-			mesh->setFrame(frame);
-			clump->addMesh(mesh);
-
-			for (Mesh::SubmeshIterator it = mesh->getSubmeshBegin() ; it != mesh->getSubmeshEnd() ; it++) {
-				Submesh* submesh = *it;
-
-				Material* mat = new Material;
-				mat->setColor(0, 0, 255, 255);
-
-				submesh->setMaterial(mat);
-			}
-
-			StaticMeshPointer* meshPtr = new StaticMeshPointer(clump);
-			StaticMapItemDefinition* def = new StaticMapItemDefinition(meshPtr, NULL, NULL, NULL, 250.0f);
-
-			MapSceneObject* obj = new MapSceneObject;
-
-			MapSceneObjectLODInstance* lodInst = new MapSceneObjectLODInstance(def);
-			obj->addLODInstance(lodInst);
-
-			obj->setModelMatrix(Matrix4::translation(pos));
-
-			scene->addSceneObject(obj);
-
-			printf("* INTERSECTION at position %f, %f, %f (R%u: %f)\n", pos.getX(), pos.getY(), pos.getZ(), i, r[i]);
-		}
-
-		dynamic_cast<VisualSceneObject*>(res.obj)->selected = true;
-
-		numRes++;
-	}
-
-	printf("%u Raycasting Results!\n", numRes);
-
-
-	float* vertices = new float[2*3];
-	uint32_t* indices = new uint32_t[2];
-
-	vertices[0] = rayStart.getX();
-	vertices[1] = rayStart.getY();
-	vertices[2] = rayStart.getZ();
-
-	vertices[3] = rayStart.getX() + rayDir.getX() * rayLen;
-	vertices[4] = rayStart.getY() + rayDir.getY() * rayLen;
-	vertices[5] = rayStart.getZ() + rayDir.getZ() * rayLen;
-
-	indices[0] = 0;
-	indices[1] = 1;
-
-	mesh = new Mesh(2, VertexFormatLines, 0, vertices);
-	Vector3 bsCenter = rayStart + rayDir*rayLen*0.5f;
-	mesh->setBounds(bsCenter.getX(), bsCenter.getY(), bsCenter.getZ(), rayLen*0.5f);
-
-	Submesh* submesh = new Submesh(mesh, 2, indices);
-
-	Material* mat = new Material;
-	mat->setColor(255, 0, 0, 255);
-
-	submesh->setMaterial(mat);
-
-	mesh->addMaterial(mat);
-	mesh->addSubmesh(submesh);
-
-	float sphereRadius = 0.25f;
-	Mesh* sphereMesh = mg.createSphere(sphereRadius, 10, 10, rayStart - rayDir*sphereRadius);
-
-	Material* sphereMat = new Material;
-	sphereMat->setColor(255, 255, 0, 255);
-
-	(*sphereMesh->getSubmeshBegin())->setMaterial(sphereMat);
-	sphereMesh->addMaterial(sphereMat);
-
-	MeshFrame* rootFrame = new MeshFrame;
-	mesh->setFrame(rootFrame);
-	sphereMesh->setFrame(rootFrame);
-
-	clump = new MeshClump;
-	clump->setRootFrame(rootFrame);
-	clump->addMesh(mesh);
-	clump->addMesh(sphereMesh);
-
-	delete[] vertices;
-	delete[] indices;
-
-
-	meshPtr = new StaticMeshPointer(clump);
-
-	def = new StaticMapItemDefinition(meshPtr, NULL, NULL, NULL, rayLen + 200.0f, 0);
-
-	lodInst = new MapSceneObjectLODInstance(def);
-
-	obj = new MapSceneObject;
-	obj->addLODInstance(lodInst);
-
-	//obj->setModelMatrix(Matrix4::translation(0.0f, 0.0f, 50.0f));
-
-	scene->addSceneObject(obj);*/
-
-
-
-
 	PVSDatabase* pvs = scene->getStreamingManager()->getPVSDatabase();
 
 	File pvsFile(GTASA_PATH "/visibility.pvs");
 
 	bool pvsBuilt = false;
-#if 0
 	if (pvsFile.exists()) {
 		printf("Loading PVS data from file '%s'...\n", pvsFile.getPath().toString().get());
 
@@ -740,7 +305,6 @@ void Controller::init()
 			}
 		}
 	}
-#endif
 	if (!pvsBuilt) {
 		printf("Building PVS data from scratch. This may take some time...\n");
 		pvs->calculateSections(1000.0f, 1000.0f, 2000.0f);
@@ -756,104 +320,8 @@ void Controller::init()
 
 
 	printf("\n\n\n\n");
-
-	/*for (int i = 0 ; i < 0 ; i++) {
-		//Vector3 pos(RandomFloat(-50.0f, 50.0f), RandomFloat(-50.0f, 50.0f), RandomFloat(100.0f, 200.0f));
-		Vector3 pos(sl->getPosition());
-
-		MeshGenerator mg;
-
-		Mesh* mesh = mg.createSphere(0.1f, 10, 10);
-		mesh->setDynamicLightingEnabled(true);
-
-		MeshClump* clump = new MeshClump;
-		MeshFrame* frame = new MeshFrame;
-		frame->setModelMatrix(Matrix4::translation(0.0f, 0.0f, 0.0f));
-		clump->setRootFrame(frame);
-		mesh->setFrame(frame);
-		clump->addMesh(mesh);
-
-		for (Mesh::SubmeshIterator it = mesh->getSubmeshBegin() ; it != mesh->getSubmeshEnd() ; it++) {
-			Submesh* submesh = *it;
-
-			Material* mat = new Material;
-			mat->setColor(0, 0, 0, 255);
-
-			submesh->setMaterial(mat);
-		}
-
-		btSphereShape* shape = new btSphereShape(2.5f);
-		StaticCollisionShapePointer* colPtr = new StaticCollisionShapePointer(shape);
-
-		StaticMeshPointer* meshPtr = new StaticMeshPointer(clump);
-		StaticMapItemDefinition* def = new StaticMapItemDefinition(meshPtr, new NullTextureSource(), colPtr, NULL, 503.456f);
-
-		MapSceneObject* obj = new MapSceneObject;
-
-		MapSceneObjectLODInstance* lodInst = new MapSceneObjectLODInstance(def);
-		obj->addLODInstance(lodInst);
-
-		obj->setModelMatrix(Matrix4::translation(pos));
-
-		btRigidBody* rb = obj->getRigidBody();
-
-		btVector3 inertia;
-		shape->calculateLocalInertia(1.0f, inertia);
-
-		obj->setMass(1.0f);
-		rb->setRestitution(RandomFloat(0.0f, 1.0f));
-
-		scene->addSceneObject(obj);*/
-
-		/*btScalar mass = 100.0f;
-		btCollisionShape* shape;
-
-		if (RandomBool()) {
-			shape = new btSphereShape(RandomFloat(1.0f, 15.0f));
-		} else {
-			shape = new btBoxShape(btVector3(RandomFloat(1.0f, 10.0f), RandomFloat(1.0f, 10.0f), RandomFloat(1.0f, 10.0f)));
-		}
-
-		btVector3 inertia;
-		shape->calculateLocalInertia(mass, inertia);
-		btTransform trf(btQuaternion(0.0f, 0.0f, 0.0f, 1.0f),
-				btVector3(RandomFloat(-50.0f, 50.0f), RandomFloat(-50.0f, 50.0f), RandomFloat(100.0f, 200.0f)));
-		btDefaultMotionState* motionState = new btDefaultMotionState(trf);
-		btRigidBody::btRigidBodyConstructionInfo info(mass, motionState, shape, inertia);
-		btRigidBody* rigidBody = new btRigidBody(info);
-		rigidBody->setRestitution(RandomFloat(0.0f, 1.0f));
-		//rigidBody->applyCentralForce(btVector3(RandomFloat(0.1f, 10.0f), RandomFloat(0.1f, 10.0f), RandomFloat(0.1f, 10.0f)));
-		world->addRigidBody(rigidBody);
-		//rigidBody->setLinearVelocity(btVector3(RandomFloat(-20.0, 20.0f), RandomFloat(-20.0f, 20.0f), RandomFloat(-20.0f, 20.0f)));*/
-	//}
-
-	// <------ X+
-	// V Y+
-	Vector3 dir(0.0f, 2.0f, -1.0f);
-	dir.normalize();
-	cam->setPosition(0.0f, -7.5f, 205.0f);
-	cam->lookAt(dir, Vector3::UnitX.cross(dir));
-
-	//cam->setPosition(-1955.232544f, -58.526737f, 49.788841f);
-	//cam->lookAt(Vector3(0.595735f, 0.704997f, -0.384810f), Vector3(0.248370f, 0.293923f, 0.922996f));
-
-	//cam->setPosition(-2067.237549f, -2.653352f, 115.438286f);
-	//cam->lookAt(Vector3(0.860327f, -0.065335f, -0.505538f), Vector3(0.499779f, -0.037955f, 0.865321f));
-
-	//cam->setPosition(-2076.432861f, -1.954256f, 120.847687f);
-	//cam->lookAt(Vector3(0.860327f, -0.065335f, -0.505538f), Vector3(0.499779f, -0.037955f, 0.865321f));
-
-	//cam->setPosition(2148.097168f, -1520.077026f, 58.264038f);
-	//cam->lookAt(Vector3(0.065757f, -0.875112f, -0.479432f), Vector3(0.035923f, -0.478085f, 0.877579f));
-
-	//cam->setPosition(-110.013428f, -270.041931f, 23.978954f);
-	//cam->lookAt(Vector3(0.068262f, -0.908477f, -0.412323f), Vector3(0.031236f, -0.415701f, 0.908965f));
-
-	GLException::checkError("After init");
 }
 
-
-Vector4 lightPos = Vector4(0.0f, 0.0f, 75.0f, 1.0f);
 
 
 void Controller::reshape(int w, int h)
@@ -877,24 +345,11 @@ void Controller::reshape(int w, int h)
 	float f = 3000.0;
 
 	engine->getCamera()->getFrustum().setDistances(l, r, t, b, n ,f);
-
-	/*// glFrustum(l, r, b, t, n, f):
-	engine->setProjectionMatrix(Matrix4 (
-		2*n/(r-l),		0,				0,					0,
-		0,				2*n/(t-b),		0, 					0,
-		(r+l)/(r-l),	(t+b)/(t-b),	(-(f+n))/(f-n),		-1,
-		0,				0,				(-2*f*n)/(f-n),		0
-	));*/
-
-	GLException::checkError("After reshape");
 }
 
 
 bool Controller::paint()
 {
-	uint64_t absS, absE;
-	absS = GetTickcountMicroseconds();
-
 	uint64_t time = GetTickcount();
 
 	Engine* engine = Engine::getInstance();
@@ -929,10 +384,6 @@ bool Controller::paint()
 	cam->lookAt(target, up);
 #endif
 
-	//Matrix4 mm = veh->getModelMatrix();
-	//const float* a = mm.toArray();
-	//veh->setModelMatrix(Matrix4::translation(a[12], a[13]+0.25f, a[14]));
-
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -943,20 +394,13 @@ bool Controller::paint()
 	slPos += Vector3(sin(slAngle), cos(slAngle), 0.0f) * 50.0f;
 	sl->setPosition(slPos);
 
-	uint64_t s, e;
-	s = GetTickcountMicroseconds();
-
 	if (!firstFrame) {
 		engine->renderFrame();
 	}
 
-	e = GetTickcountMicroseconds();
-	uint64_t t1 = e-s;
-
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glUseProgram(0);
-
 
 	lastFrameStart = time;
 
@@ -987,7 +431,6 @@ bool Controller::paint()
 		DefaultRenderer* renderer = (DefaultRenderer*) engine->getScene()->getRenderer();
 
 		sprintf(transMode, "Depth Peeling (%d passes/frame)", renderer->dpNumPasses);
-		//sprintf(transMode, "Depth Peeling (%d passes/frame)", 0);
 
 		Scene* scene = engine->getScene();
 
@@ -1010,8 +453,6 @@ bool Controller::paint()
 		forceStatisticsUpdate = false;
 	}
 
-	s = GetTickcountMicroseconds();
-
 	if (freeRunning  ||  increaseTime) {
 		engine->advanceFrame(timePassed);
 
@@ -1029,16 +470,6 @@ bool Controller::paint()
 #endif
 	}
 
-	//veh->update();
-
-	e = GetTickcountMicroseconds();
-
-	absE = GetTickcountMicroseconds();
-
-	//printf("Frame Time: %ums\n", (unsigned int) ((absE-absS) / 1000.0f));
-
-	//printf("Took %uus (%uus / %uus)\n", (unsigned int) (absE-absS), (unsigned int) t1, (unsigned int) (e-s));
-
 	GLException::checkError("After paint");
 
 	firstFrame = false;
@@ -1049,45 +480,19 @@ bool Controller::paint()
 
 void Controller::shutdown()
 {
+	Engine* engine = Engine::getInstance();
 
+	delete engine->getScene();
+	delete engine->getCamera();
+
+	Engine::destroy();
 }
 
 
 void Controller::addResource(const File& file)
 {
-	if (file.isDirectoryOrArchiveDirectory()) {
-		if (file.guessContentType() != CONTENT_TYPE_DIR) {
-            /*bool list = false;
-
-            size_t numChildren = 0;
-
-            if (file.getFileName() == "gta3.img") {
-                list = true;
-            }
-
-            if (list) {
-                numChildren = file.getChildCount(false, true);
-            }
-
-            size_t i = 0;*/
-			for (File child : file.getChildren()) {
-                /*if (list) {
-                    printf("Loading resource %u / %u\n", (unsigned int) (i + 1), (unsigned int) numChildren);
-                }*/
-
-				addResource(child);
-
-                //i++;
-			}
-		}
-	} else {
-		try {
-			Engine::getInstance()->addResource(file);
-		} catch (Exception& ex) {
-			fprintf(stderr, "ERROR loading resource file %s: %s\n", file.getPath().toString().get(),
-					ex.what());
-		}
-	}
+	Engine::getInstance()->addResource(file);
+	return;
 }
 
 
@@ -1149,16 +554,8 @@ void Controller::keyPressed(SDL_keysym evt)
 	} else if (k == SDLK_b) {
 		Renderer* renderer = engine->getScene()->getRenderer();
 		renderer->setWireframeRendering(!renderer->isWireframeRendering());
-	} else if (k == SDLK_u) {
-		Camera* cam = Engine::getInstance()->getCamera();
-		lightPos = Vector4(cam->getPosition(), 0.0f);
-	} else if (k == SDLK_z) {
-		Camera* cam = Engine::getInstance()->getCamera();
-		lightPos = Vector4(cam->getPosition(), 1.0f);
 	} else if (k == SDLK_i) {
 		sl->setEnabled(!sl->isEnabled());
-	} else if (k == SDLK_o) {
-		sl->setShadowCastingEnabled(!sl->isShadowCastingEnabled());
 	} else if (k == SDLK_g) {
 		engine->setFreezeVisibility(!engine->isVisibilityFrozen());
 	} else if (k == SDLK_t) {
@@ -1226,118 +623,6 @@ void Controller::mouseButtonDoubleClicked(int x, int y)
 #ifdef ENABLE_VEHICLE_TEST
 	veh->mouseButtonDoubleClicked(x, y);
 #endif
-
-	Engine* engine = Engine::getInstance();
-	Camera* cam = engine->getCamera();
-	Matrix4 pMatrix = engine->getProjectionMatrix();
-	Matrix4 vMatrix = Matrix4::lookAt(cam->getTarget(), cam->getUp())
-			* Matrix4::translation(-cam->getPosition());
-	Scene* scene = engine->getScene();
-
-	int w = engine->getViewportWidth();
-	int h = engine->getViewportHeight();
-
-	Vector3 point1, point2;
-	bool par = UnProject(Vector3(x, h-y, 0.0f), vMatrix, pMatrix, 0, 0, w, h, point1);
-	bool pbr = UnProject(Vector3(x, h-y, 0.5f), vMatrix, pMatrix, 0, 0, w, h, point2);
-
-	Vector3 rayStart = point1;
-	Vector3 rayDir = point2-point1;
-
-	rayDir.normalize();
-
-	float rayLen = 1000.0f;
-
-	RayCaster rc;
-
-	CollisionRayCastingHandler<Scene::ObjectIterator> rch;
-	rch.setSceneObjects(scene->getSceneObjectBegin(), scene->getSceneObjectEnd());
-
-	rc.setHandler(&rch);
-	rc.castRay(point1, rayDir, RayCaster::Sorted | RayCaster::CalculateIntersectionPosition, 1);
-
-	if (lastSelectedObj) {
-		//lastSelectedObj->selected = false;
-		dynamic_cast<MapSceneObject*>(lastSelectedObj)->getShaderPluginRegistry().uninstallPlugin(selPlugin);
-	}
-
-	if (rch.getResultBegin() != rch.getResultEnd()) {
-		CollisionRayCastingHandler<Scene::ObjectIterator>::ObjectResult& res = *rch.getResultBegin();
-		VisualSceneObject* vobj = dynamic_cast<VisualSceneObject*>(res.obj);
-		MapSceneObject* mobj = dynamic_cast<MapSceneObject*>(vobj);
-		//vobj->selected = true;
-		mobj->getShaderPluginRegistry().installPlugin(selPlugin);
-		lastSelectedObj = vobj;
-	} else {
-		lastSelectedObj = NULL;
-	}
-
-
-
-	/*MeshGenerator mg;
-
-	float* vertices = new float[2*3];
-	uint32_t* indices = new uint32_t[2];
-
-	vertices[0] = rayStart.getX();
-	vertices[1] = rayStart.getY();
-	vertices[2] = rayStart.getZ();
-
-	vertices[3] = rayStart.getX() + rayDir.getX() * rayLen;
-	vertices[4] = rayStart.getY() + rayDir.getY() * rayLen;
-	vertices[5] = rayStart.getZ() + rayDir.getZ() * rayLen;
-
-	indices[0] = 0;
-	indices[1] = 1;
-
-	Mesh* mesh = new Mesh(2, VertexFormatLines, 0, vertices);
-	Vector3 bsCenter = rayStart + rayDir*rayLen*0.5f;
-	mesh->setBounds(bsCenter.getX(), bsCenter.getY(), bsCenter.getZ(), rayLen*0.5f);
-
-	Submesh* submesh = new Submesh(mesh, 2, indices);
-
-	Material* mat = new Material;
-	mat->setColor(255, 0, 0, 255);
-
-	submesh->setMaterial(mat);
-
-	mesh->addMaterial(mat);
-	mesh->addSubmesh(submesh);
-
-	float sphereRadius = 0.25f;
-	Mesh* sphereMesh = mg.createSphere(sphereRadius, 10, 10, rayStart - rayDir*sphereRadius);
-
-	Material* sphereMat = new Material;
-	sphereMat->setColor(255, 255, 0, 255);
-
-	(*sphereMesh->getSubmeshBegin())->setMaterial(sphereMat);
-	sphereMesh->addMaterial(sphereMat);
-
-	MeshFrame* rootFrame = new MeshFrame;
-	mesh->setFrame(rootFrame);
-	sphereMesh->setFrame(rootFrame);
-
-	MeshClump* clump = new MeshClump;
-	clump->setRootFrame(rootFrame);
-	clump->addMesh(mesh);
-	clump->addMesh(sphereMesh);
-
-	delete[] vertices;
-	delete[] indices;
-
-
-	StaticMeshPointer* meshPtr = new StaticMeshPointer(clump);
-
-	StaticMapItemDefinition* def = new StaticMapItemDefinition(meshPtr, NULL, NULL, NULL, rayLen + 200.0f, 0);
-
-	MapSceneObjectLODInstance* lodInst = new MapSceneObjectLODInstance(def);
-
-	MapSceneObject* obj = new MapSceneObject;
-	obj->addLODInstance(lodInst);
-
-	//obj->setModelMatrix(Matrix4::translation(0.0f, 0.0f, 50.0f));
-
-	scene->addSceneObject(obj);*/
 }
 
 

@@ -32,6 +32,20 @@ StreamingManager::StreamingManager()
 }
 
 
+StreamingManager::~StreamingManager()
+{
+	uint8_t curIdx = updateCounter % 2;
+
+	ObjectList& curVisList = lastVisibleObjects[curIdx];
+
+	// Stream out all objects that are currently streamed in. This guarantees that all streamed-in objects will eventually
+	// get streamed-out, so we can use the stream-out handler to clean up after the objects.
+	for (SceneObject* obj : curVisList) {
+		streamed(obj, 0, obj->lastVisibleBuckets);
+	}
+}
+
+
 void StreamingManager::addViewpoint(StreamingViewpoint* vp)
 {
 	vps.push_back(vp);

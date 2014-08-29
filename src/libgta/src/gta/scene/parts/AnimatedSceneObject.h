@@ -24,7 +24,6 @@
 #define ANIMATEDSCENEOBJECT_H_
 
 #include "VisualSceneObject.h"
-#include "../../AnimatedMapItemDefinition.h"
 #include <nxcommon/math/Matrix4.h>
 #include <nxcommon/CString.h>
 

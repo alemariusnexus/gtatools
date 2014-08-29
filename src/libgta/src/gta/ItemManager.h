@@ -33,11 +33,10 @@ using std::unordered_map;
 
 
 class ItemManager : public ResourceObserver {
+	friend class Engine;
+
 private:
 	typedef unordered_map<int32_t, ItemDefinition*> ItemMap;
-
-public:
-	static ItemManager* getInstance() { static ItemManager inst; return &inst; }
 
 public:
 	~ItemManager();

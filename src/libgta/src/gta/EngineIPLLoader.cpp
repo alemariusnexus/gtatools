@@ -25,7 +25,6 @@
 #include "ItemManager.h"
 #include "MapItemDefinition.h"
 #include "scene/objects/MapSceneObject.h"
-#include "scene/objects/AnimatedMapSceneObject.h"
 #include "EngineException.h"
 #include <gtaformats/ipl/IPLReader.h>
 #include <gtaformats/ipl/IPLInstance.h>
@@ -105,7 +104,7 @@ void EngineIPLLoader::load(const File& file, Scene::ObjectList& objects, GameInf
 					}
 
 					int32_t id = inst->getID();
-					ItemManager* itemMgr = ItemManager::getInstance();
+					ItemManager* itemMgr = Engine::getInstance()->getItemManager();
 					MapItemDefinition* def = (MapItemDefinition*) itemMgr->getItem(id);
 
 					if (def) {
@@ -285,11 +284,6 @@ void EngineIPLLoader::load(const File& file, Scene::ObjectList& objects, GameInf
 						h->insts.push_back(iobj);
 						MapItemDefinition* def = iobj->lodInst->getDefinition();
 
-						if (def->getType() == ItemTypeAnimatedMapItem)
-							h->animated = true;
-						else
-							h->animated = false;
-
 						IndexedSceneObject* ciobj = iobj;
 						while (!ciobj->isLeaf) {
 							ciobj = saLocalObjs[ciobj->saLodChildIndex];
@@ -311,20 +305,13 @@ void EngineIPLLoader::load(const File& file, Scene::ObjectList& objects, GameInf
 				TemporaryLODHierarchy* h = hit->second;
 
 				list<IndexedSceneObject*>::iterator iit;
-				MapSceneObject* obj;
 
 				Matrix4 modelMatrix = Matrix4::fromQuaternionVector(h->rootInst->pos,
 						h->rootInst->rot);
 
-				if (h->animated) {
-					AnimatedMapSceneObject* aobj = new AnimatedMapSceneObject;
-					aobj->setModelMatrix(modelMatrix);
-					aobj->setAutoPickDefaultAnimation(true);
-					obj = aobj;
-				} else {
-					obj = new MapSceneObject;
-					obj->setModelMatrix(modelMatrix);
-				}
+				MapSceneObject* obj = new MapSceneObject;
+				obj->setModelMatrix(modelMatrix);
+				obj->setAutoPickDefaultAnimation(true);
 
 				obj->setDefinitionInfo(h->rootInst->defInfo);
 
@@ -439,12 +426,16 @@ void EngineIPLLoader::load(const File& file, Scene::ObjectList& objects, GameInf
 						}
 					}
 
-					MapSceneObject* obj;
+
 
 					Matrix4 modelMatrix = Matrix4::fromQuaternionVector(iobj->pos, iobj->rot);
 
-					bool animated = iobj->lodInst->getDefinition()->getType() == ItemTypeAnimatedMapItem
-							||  (lodChild  &&  lodChild->lodInst->getDefinition()->getType() == ItemTypeAnimatedMapItem);
+					MapSceneObject* obj = new MapSceneObject;
+					obj->setModelMatrix(modelMatrix);
+					obj->setAutoPickDefaultAnimation(true);
+
+					/*bool animated = iobj->lodInst->getDefinition()->getType() == ItemTypeAnimatedMapItem
+							||  (lodChild  &&  lodChild->lodInst->getDefinition()->getType() == ItemTypeAnimatedMapItem);*
 
 					if (animated) {
 						AnimatedMapSceneObject* aobj = new AnimatedMapSceneObject;
@@ -454,7 +445,7 @@ void EngineIPLLoader::load(const File& file, Scene::ObjectList& objects, GameInf
 					} else {
 						obj = new MapSceneObject;
 						obj->setModelMatrix(modelMatrix);
-					}
+					}*/
 
 					obj->setDefinitionInfo(iobj->defInfo);
 

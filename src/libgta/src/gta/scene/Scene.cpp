@@ -78,6 +78,9 @@ Scene::Scene()
 }
 
 
+int64_t streamCount = 0;
+
+
 Scene::~Scene()
 {
 	delete streamer;
@@ -130,8 +133,10 @@ void Scene::streamed(SceneObject* obj, uint32_t inBuckets, uint32_t outBuckets)
 {
 	if ((inBuckets & StreamingManager::VisibleBucket)  !=  0) {
 		curVisObjs.push_back(dynamic_cast<VisualSceneObject*>(obj));
+		streamCount++;
 	} else if ((outBuckets & StreamingManager::VisibleBucket)  !=  0) {
 		curVisObjs.remove(dynamic_cast<VisualSceneObject*>(obj));
+		streamCount--;
 	}
 
 	if ((inBuckets & StreamingManager::PhysicsBucket)  !=  0) {

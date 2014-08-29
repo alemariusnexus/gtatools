@@ -45,20 +45,13 @@ private:
 	typedef unordered_map<CString, TextureArchive*, CXX11Hash<CString> > ArchiveMap;
 
 public:
-	static TextureIndexer* getInstance()
-	{
-		static TextureIndexer inst;
-		return &inst;
-	}
-
-public:
+	TextureIndexer() {}
 	~TextureIndexer();
 	virtual void resourceAdded(const File& file);
 	virtual void resourcesCleared();
 	TextureArchive* findArchive(const CString& name);
 
 private:
-	TextureIndexer() {}
 
 private:
 	ArchiveMap archives;

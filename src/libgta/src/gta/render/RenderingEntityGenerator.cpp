@@ -24,7 +24,6 @@
 
 #include "DefaultRenderingMesh.h"
 
-#include "../scene/objects/AnimatedMapSceneObject.h"
 #include "../scene/objects/MapSceneObject.h"
 #include "../scene/objects/SimpleDynamicSceneObject.h"
 
@@ -45,12 +44,12 @@ void RenderingEntityGenerator::generate(list<VisualSceneObject*>::iterator beg, 
 
 		SceneObject::typeflags_t tf = sobj->getTypeFlags();
 
-		AnimatedMapSceneObject* aobj = dynamic_cast<AnimatedMapSceneObject*>(sobj);
+		/*AnimatedMapSceneObject* aobj = dynamic_cast<AnimatedMapSceneObject*>(sobj);
 
 		if (aobj) {
 			generateFromAnimatedMapSceneObject(aobj, outList);
 			continue;
-		}
+		}*/
 
 		MapSceneObject* mobj = dynamic_cast<MapSceneObject*>(sobj);
 
@@ -196,7 +195,7 @@ RenderingMesh* RenderingEntityGenerator::generateFromMesh(Mesh* mesh, MeshPointe
 }
 
 
-void RenderingEntityGenerator::generateFromMapSceneObject(MapSceneObject* mobj, list<RenderingEntity*>& outList)
+/*void RenderingEntityGenerator::generateFromMapSceneObject(MapSceneObject* mobj, list<RenderingEntity*>& outList)
 {
 	MapSceneObject::LODInstanceMapIterator beg, end;
 
@@ -207,27 +206,30 @@ void RenderingEntityGenerator::generateFromMapSceneObject(MapSceneObject* mobj, 
 
 		generateFromStaticMapSceneObjectLODInstance(mobj, lodInst, outList);
 	}
-}
+}*/
 
 
-void RenderingEntityGenerator::generateFromAnimatedMapSceneObject(AnimatedMapSceneObject* aobj, list<RenderingEntity*>& outList)
+void RenderingEntityGenerator::generateFromMapSceneObject(MapSceneObject* mobj, list<RenderingEntity*>& outList)
 {
 	MapSceneObject::LODInstanceMapIterator beg, end;
 
-	aobj->getRenderingLODInstances(beg, end);
+	mobj->getRenderingLODInstances(beg, end);
 
 	for (MapSceneObject::LODInstanceMapIterator it = beg ; it != end ; it++) {
 		MapSceneObjectLODInstance* lodInst = *it;
 
-		if (lodInst->getDefinition()->getType() == ItemTypeAnimatedMapItem) {
+		generateFromMapSceneObjectLODInstance(mobj, lodInst, outList);
+
+		/*if (lodInst->getDefinition()->getType() == ItemTypeAnimatedMapItem) {
 			generateFromAnimatedMapSceneObjectLODInstance(aobj, lodInst, outList);
 		} else {
 			generateFromStaticMapSceneObjectLODInstance(aobj, lodInst, outList);
-		}
+		}*/
 	}
 }
 
 
+#if 0
 void RenderingEntityGenerator::generateFromStaticMapSceneObjectLODInstance(MapSceneObject* mobj,
 		MapSceneObjectLODInstance* lodInst, list<RenderingEntity*>& outList)
 {
@@ -265,14 +267,16 @@ void RenderingEntityGenerator::generateFromStaticMapSceneObjectLODInstance(MapSc
 		outList.push_back(rm);
 	}
 }
+#endif
 
 
-void RenderingEntityGenerator::generateFromAnimatedMapSceneObjectLODInstance(AnimatedMapSceneObject* aobj,
+void RenderingEntityGenerator::generateFromMapSceneObjectLODInstance(MapSceneObject* mobj,
 		MapSceneObjectLODInstance* lodInst, list<RenderingEntity*>& outList)
 {
-	AnimatedMapItemDefinition* def = (AnimatedMapItemDefinition*) lodInst->getDefinition();
+	//AnimatedMapItemDefinition* def = (AnimatedMapItemDefinition*) lodInst->getDefinition();
+	MapItemDefinition* def = lodInst->getDefinition();
 
-	CString canimName = aobj->getCurrentAnimation();
+	CString canimName = mobj->getCurrentAnimation();
 
 	AnimationPackage* apkg = NULL;
 	AnimationPackagePointer* apkgPtr = def->getAnimationPackagePointer();
@@ -287,12 +291,11 @@ void RenderingEntityGenerator::generateFromAnimatedMapSceneObjectLODInstance(Ani
 		anim = apkg->find(canimName);
 	}
 
-	if (!anim) {
+	/*if (!anim) {
 		// If the mesh has no valid current animation, we can simply render it as a static mesh.
 		generateFromStaticMapSceneObjectLODInstance(aobj, lodInst, outList);
 		return;
-	}
-
+	}*/
 
 	MeshPointer* mptr = def->getMeshPointer();
 	MeshClump* meshClump = mptr->get(true);
@@ -304,15 +307,21 @@ void RenderingEntityGenerator::generateFromAnimatedMapSceneObjectLODInstance(Ani
 
 	Matrix4 modelMat = lodInst->getModelMatrix();
 
-	Animator animator(meshClump, anim);
+	Animator* animator = NULL;
+	Matrix4* boneMats = NULL;
+	uint32_t boneCount = 0;
 
-	int32_t boneCount = animator.getBoneCount();
+	if (anim) {
+		animator = new Animator(meshClump, anim);
 
-	Matrix4* boneMats = new Matrix4[boneCount];
+		boneCount = animator->getBoneCount();
 
-	animator.setTime(aobj->getAnimationTime());
+		boneMats = new Matrix4[boneCount];
 
-	memcpy(boneMats, animator.getBoneMatrices(), boneCount*sizeof(Matrix4));
+		animator->setTime(mobj->getAnimationTime());
+
+		memcpy(boneMats, animator->getBoneMatrices(), boneCount*sizeof(Matrix4));
+	}
 
 
 	MeshClump::MeshIterator mit;
@@ -329,11 +338,13 @@ void RenderingEntityGenerator::generateFromAnimatedMapSceneObjectLODInstance(Ani
 
 		int16_t boneIdx = -1;
 
-		if (mesh->getBoneIndexOffset() == -1) {
-			if (!animator.hasPseudoBoneNumbers())
-				boneIdx = frame->getBoneNumber();
-			else
-				boneIdx = animator.getPseudoBoneNumber(frame);
+		if (anim) {
+			if (mesh->getBoneIndexOffset() == -1) {
+				if (!animator->hasPseudoBoneNumbers())
+					boneIdx = frame->getBoneNumber();
+				else
+					boneIdx = animator->getPseudoBoneNumber(frame);
+			}
 		}
 
 		RenderingPrimitiveFormat rpf;
@@ -353,13 +364,21 @@ void RenderingEntityGenerator::generateFromAnimatedMapSceneObjectLODInstance(Ani
 			break;
 		}
 
-		Matrix4* boneMatsCpy = new Matrix4[boneCount];
-		memcpy(boneMatsCpy, boneMats, boneCount*sizeof(Matrix4));
+		Matrix4* boneMatsCpy = NULL;
 
-		uint32_t flags = RenderingMesh::IsAnimated | RenderingMesh::EnableShaderPluginUniformBuffers;
+		if (anim) {
+			boneMatsCpy = new Matrix4[boneCount];
+			memcpy(boneMatsCpy, boneMats, boneCount*sizeof(Matrix4));
+		}
 
-		if (lodInst->hasAlphaTransparency()  ||  aobj->selected)
+		uint32_t flags = RenderingMesh::EnableShaderPluginUniformBuffers;
+
+		if (anim) {
+			flags |= RenderingMesh::IsAnimated;
+		}
+		if (lodInst->hasAlphaTransparency()  ||  mobj->selected) {
 			flags |= RenderingMesh::HasTransparency;
+		}
 
 		DefaultRenderingMesh* rm = new DefaultRenderingMesh (
 				rpf,
@@ -376,7 +395,7 @@ void RenderingEntityGenerator::generateFromAnimatedMapSceneObjectLODInstance(Ani
 				mesh->getBoneIndexOffset(), mesh->getBoneIndexStride(),
 				mesh->getBoneWeightOffset(), mesh->getBoneWeightStride()
 				);
-		rm->setPluginRegistry(aobj->getShaderPluginRegistry());
+		rm->setPluginRegistry(mobj->getShaderPluginRegistry());
 
 		rm->setModelMatrix(fModelMat);
 
@@ -394,6 +413,8 @@ void RenderingEntityGenerator::generateFromAnimatedMapSceneObjectLODInstance(Ani
 
 		outList.push_back(rm);
 	}
+
+	delete animator;
 }
 
 

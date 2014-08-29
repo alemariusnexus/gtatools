@@ -56,6 +56,7 @@ private:
 
 public:
 	StreamingManager();
+	~StreamingManager();
 	void addViewpoint(StreamingViewpoint* vp);
 	void addSceneObject(SceneObject* obj);
 	void addStreamingListener(StreamingListener* l);

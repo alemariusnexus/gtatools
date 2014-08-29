@@ -26,7 +26,6 @@
 #include "RenderingEntity.h"
 #include "../scene/parts/VisualSceneObject.h"
 #include "../scene/objects/MapSceneObject.h"
-#include "../scene/objects/AnimatedMapSceneObject.h"
 #include "../scene/objects/SimpleDynamicSceneObject.h"
 #include "../scene/objects/Vehicle.h"
 #include "RenderingMesh.h"
@@ -56,9 +55,9 @@ private:
 			MeshFrame* frame, Matrix4 preMulMat = Matrix4::Identity);
 
 	void generateFromMapSceneObject(MapSceneObject* mobj, list<RenderingEntity*>& outList);
-	void generateFromAnimatedMapSceneObject(AnimatedMapSceneObject* aobj, list<RenderingEntity*>& outList);
-	void generateFromStaticMapSceneObjectLODInstance(MapSceneObject* mobj, MapSceneObjectLODInstance* lodInst, list<RenderingEntity*>& outList);
-	void generateFromAnimatedMapSceneObjectLODInstance(AnimatedMapSceneObject* aobj, MapSceneObjectLODInstance* lodInst, list<RenderingEntity*>& outList);
+	//void generateFromAnimatedMapSceneObject(AnimatedMapSceneObject* aobj, list<RenderingEntity*>& outList);
+	void generateFromMapSceneObjectLODInstance(MapSceneObject* mobj, MapSceneObjectLODInstance* lodInst, list<RenderingEntity*>& outList);
+	//void generateFromAnimatedMapSceneObjectLODInstance(AnimatedMapSceneObject* aobj, MapSceneObjectLODInstance* lodInst, list<RenderingEntity*>& outList);
 	void generateFromSimpleDynamicSceneObject(SimpleDynamicSceneObject* obj, list<RenderingEntity*>& outList);
 	void generateFromVehicle(Vehicle* veh, list<RenderingEntity*>& outList);
 

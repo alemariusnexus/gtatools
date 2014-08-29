@@ -275,3 +275,34 @@ void MapSceneObject::lockRigidBodyCollisionShape(bool locked)
 	CollisionModel* model = colPtr->get(true);
 }
 
+
+CString MapSceneObject::getCurrentAnimation() const
+{
+	if (!curAnim.isNull()) {
+		return curAnim;
+	} else if (autoPickDefaultAnim) {
+		ConstLODInstanceMapIterator beg, end;
+		getRenderingLODInstances(beg, end);
+
+		if (beg == end) {
+			// No rendering LOD instance
+			return CString();
+		} else {
+			for (ConstLODInstanceMapIterator it = beg ; it != end ; it++) {
+				const MapSceneObjectLODInstance* lodInst = *it;
+				const MapItemDefinition* def = lodInst->getDefinition();
+
+				CString defaultAnim = def->getDefaultAnimation();
+
+				if (!defaultAnim.isNull()) {
+					return defaultAnim;
+				}
+			}
+
+			return CString();
+		}
+	} else {
+		return CString();
+	}
+}
+

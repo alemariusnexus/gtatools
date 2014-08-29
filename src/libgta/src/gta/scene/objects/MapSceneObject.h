@@ -26,6 +26,7 @@
 #include "../parts/VisualSceneObject.h"
 #include "../parts/PVSSceneObject.h"
 #include "../parts/RigidBodySceneObject.h"
+#include "../parts/AnimatedSceneObject.h"
 #include "../../MapItemDefinition.h"
 #include "../StreamingManager.h"
 #include "../../render/ShaderPluginRegistry.h"
@@ -38,7 +39,7 @@ using std::multiset;
 
 
 class MapSceneObject : public virtual VisualSceneObject, public virtual PVSSceneObject,
-		public virtual RigidBodySceneObject
+		public virtual RigidBodySceneObject, public virtual AnimatedSceneObject
 {
 private:
 	class LODInstanceComparator
@@ -124,6 +125,15 @@ public:
 	const ShaderPluginRegistry& getShaderPluginRegistry() const { return shaderPluginReg; }
 	void setShaderPluginRegistry(const ShaderPluginRegistry& reg) { shaderPluginReg = reg; }
 
+	virtual void setAnimationTime(float t) { animTime = t; }
+	virtual float getAnimationTime() const { return animTime; }
+	virtual void setCurrentAnimation(const CString& name) { curAnim = name; }
+	virtual CString getCurrentAnimation() const;
+	virtual bool isAutoAnimationEnabled() const { return autoAnim; }
+	void setAutoAnimationEnabled(bool aa) { autoAnim = aa; }
+	void setAutoPickDefaultAnimation(bool ap) { autoPickDefaultAnim = ap; }
+	bool isAutoPickDefaultAnimation() const { return autoPickDefaultAnim; }
+
 private:
 	virtual void updateRenderingDistance(float dist, float sdMultiplier);
 	virtual void resetRenderingDistance();
@@ -148,6 +158,11 @@ private:
 	Vector3 colBoundingBoxExtY;
 	Vector3 colBoundingBoxExtZ;
 	bool boundsValid;
+
+	CString curAnim;
+	float animTime;
+	bool autoAnim;
+	bool autoPickDefaultAnim;
 
 	ShaderPluginRegistry shaderPluginReg;
 

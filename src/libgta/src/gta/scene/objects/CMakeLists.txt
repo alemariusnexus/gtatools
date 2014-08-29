@@ -18,7 +18,7 @@
 # Additional permissions are granted, which are listed in the file
 # GPLADDITIONS.
 
-SET(FILES MapSceneObject MapSceneObjectLODInstance AnimatedMapSceneObject SimpleDynamicSceneObject Vehicle)
+SET(FILES MapSceneObject MapSceneObjectLODInstance SimpleDynamicSceneObject Vehicle)
 
 FOREACH(FILE ${FILES})
     SET(SRCS ${SRCS} "gta/scene/objects/${FILE}")
