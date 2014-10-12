@@ -25,11 +25,16 @@
 
 #include <SDL.h>
 #include <nxcommon/file/File.h>
+#include <nxcommon/tinyxml2.h>
 #include <gta/scene/parts/VisualSceneObject.h>
 #include <gta/render/TestShaderPlugin.h>
 #include <gta/scene/objects/Vehicle.h>
 #include "VehicleController.h"
 #include "BulletGLDebugDraw.h"
+
+
+using namespace tinyxml2;
+
 
 
 class Controller {
@@ -46,10 +51,14 @@ public:
 	void mouseButtonReleased(Uint8 button, int x, int y);
 	void mouseMotion(int x, int y);
 
+	XMLDocument* getConfigDocument() { return &configDoc; }
+
 private:
 	void addResource(const File& file);
 
 private:
+	XMLDocument configDoc;
+	File gtaRootPath;
 	uint64_t lastFrameStart, lastMeasuredFrameStart;
 	float moveFactor;
 	float moveForwardFactor, moveSidewardFactor, moveUpFactor;
@@ -57,7 +66,6 @@ private:
 	int framesSinceLastMeasure;
 	int lastMouseX, lastMouseY;
 	bool printCacheStatistics;
-	BulletGLDebugDraw* debugDrawer;
 	bool programRunning;
 	bool forceStatisticsUpdate;
 	bool freeRunning;

@@ -29,7 +29,7 @@
 #include "ide/IDEFormatHandler.h"
 #include "dff/DFFFormatHandler.h"
 #include "col/COLFormatHandler.h"
-/*#include "ifp/IFPFormatHandler.h"*/
+#include "ifp/IFPFormatHandler.h"
 
 
 
@@ -43,7 +43,7 @@ EntityManager::EntityManager()
 	registerEntityHandler(new IDEFormatHandler);
 	registerEntityHandler(DFFFormatHandler::getInstance());
 	registerEntityHandler(new COLFormatHandler);
-	/*registerEntityHandler(new IFPFormatHandler);*/
+	registerEntityHandler(new IFPFormatHandler);
 }
 
 

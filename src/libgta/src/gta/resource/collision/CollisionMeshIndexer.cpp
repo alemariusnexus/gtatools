@@ -49,11 +49,11 @@ void CollisionMeshIndexer::resourceAdded(const File& file)
 	} else if (file.guessContentType() == CONTENT_TYPE_DFF) {
 		DFFLoader dff;
 
-		DFFMesh* mesh = dff.loadMesh(file);
+		bool hasModel = false;
 
-		COLModel* model = mesh->getIntegratedCOLModel();
+		istream* stream = file.openInputStream(istream::in | istream::binary);
 
-		if (model) {
+		if (dff.hasIntegratedCOLModel(stream, hasModel)) {
 			CString fname = file.getPath().getFileName();
 			char* lMeshName = new char[fname.length() + 1];
 			strtolower(lMeshName, fname.get());
@@ -65,7 +65,7 @@ void CollisionMeshIndexer::resourceAdded(const File& file)
 			index.insert(pair<CString, CollisionMeshIndexEntry*>(CString::from(lMeshName).lower(), entry));
 		}
 
-		delete mesh;
+		delete stream;
 	}
 }
 

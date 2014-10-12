@@ -34,13 +34,6 @@ SET(CPACK_SOURCE_IGNORE_FILES "\\\\.svn;.*~")
 INCLUDE(CPack)
 INCLUDE(CheckSymbolExists)
 
-SET(GT_GTASA_PATH "" CACHE PATH "Path to the GTA San Andreas root directory")
-SET(GT_WINDOW_WIDTH "512" CACHE STRING "Width in pixels of the GL window")
-SET(GT_WINDOW_HEIGHT "512" CACHE STRING "Height in pixels of the GL window")
-SET(GT_WINDOW_POS_X "0" CACHE STRING "X position of the GL window")
-SET(GT_WINDOW_POS_Y "0" CACHE STRING "X position of the GL window")
-SET(GT_WINDOW_FULLSCREEN OFF CACHE BOOL "Whether to use a fullscreen window")
-SET(GT_DRAW_DIST_MULTIPLIER "1.0f" CACHE STRING "Draw distances will be multiplied by this factor")
 
 
 IF(NOT TARGET nxcommon)

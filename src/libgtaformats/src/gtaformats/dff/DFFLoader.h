@@ -34,6 +34,12 @@ public:
 	DFFMesh* loadMesh(RWSection* clump);
 	DFFMesh* loadMesh(istream* stream);
 	DFFMesh* loadMesh(const File& file);
+
+	bool hasIntegratedCOLModel(istream* stream, bool& hasModel);
+
+private:
+	bool gotoClumpSection(istream* stream, RWSectionHeader* outHeader);
+	RWSection* loadClumpSection(istream* stream);
 };
 
 #endif /* DFFLOADER_H_ */

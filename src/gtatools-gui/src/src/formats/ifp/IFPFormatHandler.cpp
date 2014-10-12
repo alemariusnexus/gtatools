@@ -22,6 +22,8 @@
 
 #include "IFPFormatHandler.h"
 #include "IFPWidget.h"
+#include "IFPAnimationViewerWidget.h"
+#include "IFPAnimationViewerEntity.h"
 #include "../../DisplayedFile.h"
 #include "../../System.h"
 
@@ -36,24 +38,41 @@ IFPFormatHandler::IFPFormatHandler()
 
 bool IFPFormatHandler::canHandle(const EntityOpenRequest& req) const
 {
-	QVariant fileVar = req.getAttribute("file");
+	QString type = req.getAttribute("type").toString();
 
-	if (fileVar.isNull())
-		return false;
+	if (type == "file") {
+		QVariant fileVar = req.getAttribute("file");
 
-	File file(fileVar.toString().toLocal8Bit().constData());
+		if (fileVar.isNull())
+			return false;
 
-	return file.guessContentType() == CONTENT_TYPE_IFP;
+		File file(fileVar.toString().toLocal8Bit().constData());
+
+		return file.guessContentType() == CONTENT_TYPE_IFP;
+	} else if (type == "IFP::AnimViewer") {
+		return true;
+	}
+
+	return false;
 }
 
 
 DisplayedEntity* IFPFormatHandler::openEntity(const EntityOpenRequest& request)
 {
-	File file(request.getAttribute("file").toString().toLocal8Bit().constData());
+	QString type = request.getAttribute("type").toString();
 
-	IFPWidget* widget = new IFPWidget(file);
+	if (type == "file") {
+		File file(request.getAttribute("file").toString().toLocal8Bit().constData());
 
-	DisplayedFile* dfile = new DisplayedFile(file, this, widget);
+		IFPWidget* widget = new IFPWidget(file);
 
-	return dfile;
+		DisplayedFile* dfile = new DisplayedFile(file, this, widget);
+
+		return dfile;
+	} else {
+		IFPAnimationViewerWidget* viewer = new IFPAnimationViewerWidget;
+		IFPAnimationViewerEntity* ent = new IFPAnimationViewerEntity(viewer);
+
+		return ent;
+	}
 }

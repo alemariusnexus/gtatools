@@ -262,6 +262,10 @@ COLModel* COLLoader::loadModel(istream* stream)
 			uint32_t numFaceGroups = 0;
 
 			if ((flags & COLModel::FlagFaceGroups) != 0) {
+				// There is no face group offset. We have to go to the beginning of the face section, go back 4 bytes, read the
+				// number of face groups, and then go back 28*numFaceGroups + 4 bytes (28 is the size of a single face group, the
+				// + 4 is because we have just read the face group count).
+
 				stream->seekg(colStart+faceOffset, istream::beg);
 				reader.readU32(&numFaceGroups);
 
@@ -271,11 +275,13 @@ COLModel* COLLoader::loadModel(istream* stream)
 
 				if (numFaceGroups != 0) {
 					faceGroups = &model->faceGroups[0];
-					stream->seekg((streamoff) stream->tellg() - numFaceGroups*28, istream::beg);
+
+					stream->seekg((streamoff) stream->tellg() - numFaceGroups*28 - 4, istream::beg);
+
 					stream->read((char*) faceGroups, numFaceGroups*28);
 				}
 
-	#ifndef GTAFORMATS_LITTLE_ENDIAN
+#ifndef GTAFORMATS_LITTLE_ENDIAN
 				for (uint32_t i = 0 ; i < numFaceGroups ; i++) {
 					COLFaceGroup& group = faceGroups[i];
 					group.vmin = Vector3(SwapEndiannessF32(group.vmin.getX()),
@@ -285,7 +291,7 @@ COLModel* COLLoader::loadModel(istream* stream)
 					group.startFace = SwapEndianness16(group.startFace);
 					group.endFace = SwapEndianness16(group.endFace);
 				}
-	#endif
+#endif
 			}
 
 			COLShadowMesh* shadowMesh = NULL;

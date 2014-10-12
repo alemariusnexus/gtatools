@@ -483,6 +483,7 @@ TEST(UtilTest, CheckCRC32)
 
 TEST(UtilTest, CheckFile)
 {
+	// Does not have to exist.
 	File testFile("/home/alemariusnexus/A Path With Whitespaces/hello.txt");
 
 	FilePath testPath = testFile.getPath();

@@ -44,13 +44,14 @@ using std::max;
 
 
 RWSection::RWSection(uint32_t id, uint32_t version)
-		: id(id), size(0), version(version), offset(0), parent(NULL), data(NULL)
+		: header(id, 0, version), offset(0), parent(NULL), data(NULL)
 {
 }
 
 
 RWSection::RWSection(uint32_t id, RWSection* parent)
-		: id(id), size(0), version(parent->version), offset(0), parent(parent), data(NULL)
+		//: id(id), size(0), version(parent->version), offset(0), parent(parent), data(NULL)
+		: header(id, 0, parent->header.version), offset(0), parent(parent), data(NULL)
 {
 	parent->addChild(this);
 }
@@ -64,27 +65,27 @@ RWSection::RWSection(uint8_t* rawData, size_t dataSize)
 				<< dataSize << " bytes.");
 	}
 
-	id = FromLittleEndian32(*((uint32_t*) rawData));
-	size = FromLittleEndian32(*((uint32_t*) (rawData+4)));
-	version = FromLittleEndian32(*((uint32_t*) (rawData+8)));
+	header.setID(FromLittleEndian32(*((uint32_t*) rawData)));
+	header.setSize(FromLittleEndian32(*((uint32_t*) (rawData+4))));
+	header.setVersion(FromLittleEndian32(*((uint32_t*) (rawData+8))));
 
 	dataSize -= 12;
 	rawData += 12;
 
-	bool dataSect = !isContainerSection(id);
+	bool dataSect = !isContainerSection(header.id);
 
-	if (dataSize < size) {
+	if (dataSize < header.size) {
 		throw RWBSException(CString("Premature end of RWBS data: Section ") << getDescription() << " ended after "
 				<< dataSize << " bytes.", __FILE__, __LINE__);
 	}
 
 	if (dataSect) {
-		data = new uint8_t[size];
-		memcpy(data, rawData, size);
+		data = new uint8_t[header.size];
+		memcpy(data, rawData, header.size);
 	} else {
 		uint32_t numRead = 0;
 
-		while (numRead < size) {
+		while (numRead < header.size) {
 			RWSection* child;
 
 			try {
@@ -96,20 +97,20 @@ RWSection::RWSection(uint8_t* rawData, size_t dataSize)
 			child->parent = this;
 			children.push_back(child);
 
-			numRead += child->size + 12;
-			rawData += child->size + 12;
-			dataSize -= child->size + 12;
+			numRead += child->header.size + 12;
+			rawData += child->header.size + 12;
+			dataSize -= child->header.size + 12;
 		}
 	}
 }
 
 
 RWSection::RWSection(const RWSection& other)
-		: id(other.id), size(other.size), version(other.version), offset(other.offset), parent(other.parent),
-		  data(other.data ? new uint8_t[size] : NULL)
+		: header(other.header), offset(other.offset), parent(other.parent),
+		  data(other.data ? new uint8_t[header.size] : NULL)
 {
 	if (data) {
-		memcpy(data, other.data, size);
+		memcpy(data, other.data, header.size);
 	}
 
 	for (ConstChildIterator it = other.children.begin() ; it != other.children.end() ; it++) {
@@ -121,38 +122,14 @@ RWSection::RWSection(const RWSection& other)
 }
 
 
-RWSection* RWSection::readSection(istream* stream, RWSection* lastRead)
+RWSection* RWSection::readSectionBody(istream* stream, const RWSectionHeader& header)
 {
-	// Check if there is data to read
-	stream->peek();
-	if (stream->eof()) {
-		return NULL;
-	}
-
 	RWSection* sect = new RWSection;
-	stream->read((char*) sect, 12);
 
-#ifndef GTAFORMATS_LITTLE_ENDIAN
-	sect->id = SwapEndianness32(sect->id);
-	sect->size = SwapEndianness32(sect->size);
-	sect->version = SwapEndianness32(sect->version);
-#endif
-
-	if (lastRead) {
-		// Do some heuristic checks to see if the data we read is actually a section. For files in IMG
-		// archives, there might be some junk after the actual section data (to fill the IMG section). If it
-		// seems to be an invalid section, we assume this is the end of the RWBS file.
-		if (		lastRead->version != sect->version
-				||	(sect->id == 0  &&  sect->size == 0  &&  sect->version == 0)
-		) {
-			delete sect;
-			return NULL;
-		}
-	}
-
+	sect->header = header;
 	sect->offset = 0;
 
-	bool dataSect = !isContainerSection(sect->id);
+	bool dataSect = !isContainerSection(sect->header.id);
 
 	if (dataSect) {
 		sect->data = NULL;
@@ -162,7 +139,7 @@ RWSection* RWSection::readSection(istream* stream, RWSection* lastRead)
 		// allocating a buffer of that size.
 
 		do {
-			uint32_t numToBeRead = min(sect->size-numRead, SINGLE_READ_BUFFER_SIZE);
+			uint32_t numToBeRead = min(sect->header.size-numRead, SINGLE_READ_BUFFER_SIZE);
 			uint8_t* newData = new uint8_t[numRead + numToBeRead];
 
 			if (sect->data) {
@@ -174,9 +151,9 @@ RWSection* RWSection::readSection(istream* stream, RWSection* lastRead)
 
 			stream->read((char*) (newData + numRead), numToBeRead);
 			numRead += stream->gcount();
-		} while (numRead < sect->size  &&  !stream->eof());
+		} while (numRead < sect->header.size  &&  !stream->eof());
 
-		if (stream->eof()  &&  numRead != sect->size) {
+		if (stream->eof()  &&  numRead != sect->header.size) {
 			CString desc = sect->getDescription();
 			delete sect;
 			throw RWBSException(CString("Premature end of RWBS file: Data section ") << desc << " ended after "
@@ -186,9 +163,9 @@ RWSection* RWSection::readSection(istream* stream, RWSection* lastRead)
 		sect->data = NULL;
 		uint32_t numRead = 0;
 
-		lastRead = sect;
+		RWSection* lastRead = sect;
 
-		while (numRead < sect->size) {
+		while (numRead < sect->header.size) {
 			RWSection* child;
 
 			try {
@@ -206,7 +183,7 @@ RWSection* RWSection::readSection(istream* stream, RWSection* lastRead)
 			}
 
 			child->parent = sect;
-			numRead += child->size+12;
+			numRead += child->header.size+12;
 			sect->children.push_back(child);
 
 			lastRead = child;
@@ -214,6 +191,18 @@ RWSection* RWSection::readSection(istream* stream, RWSection* lastRead)
 	}
 
 	return sect;
+}
+
+
+RWSection* RWSection::readSection(istream* stream, RWSection* lastRead)
+{
+	RWSectionHeader header;
+
+	if (!RWSectionHeader::readSectionHeader(&header, stream, lastRead ? &lastRead->header : NULL)) {
+		return NULL;
+	}
+
+	return readSectionBody(stream, header);
 }
 
 
@@ -225,17 +214,17 @@ void RWSection::ensureContainer()
 	uint32_t numRead = 0;
 	uint8_t* data = this->data;
 
-	while (numRead < size) {
-		if (size-numRead < 12) {
+	while (numRead < header.size) {
+		if (header.size-numRead < 12) {
 			clearChildren();
-			throw RWBSException(CString("Section ") << getDescription() << " is not a valid container section: " << size-numRead
+			throw RWBSException(CString("Section ") << getDescription() << " is not a valid container section: " << header.size-numRead
 					<< " dangling bytes at section end.", __FILE__, __LINE__);
 		}
 
 		RWSection* child;
 
 		try {
-			child = new RWSection(data, size - numRead);
+			child = new RWSection(data, header.size - numRead);
 		} catch (exception&) {
 			clearChildren();
 			throw;
@@ -244,8 +233,8 @@ void RWSection::ensureContainer()
 		child->parent = this;
 		children.push_back(child);
 
-		numRead += 12 + child->size;
-		data += 12 + child->size;
+		numRead += 12 + child->header.size;
+		data += 12 + child->header.size;
 	}
 
 	delete[] this->data;
@@ -258,20 +247,20 @@ void RWSection::ensureData()
 	if (data)
 		return;
 
-	data = new uint8_t[size+12];
+	data = new uint8_t[header.size+12];
 	uint8_t* offsetData = data;
 
 	for (ChildIterator it = children.begin() ; it != children.end() ; it++) {
 		RWSection* child = *it;
 
 		try {
-			child->toRawData(offsetData, size+12 - (offsetData-data));
+			child->toRawData(offsetData, header.size+12 - (offsetData-data));
 		} catch (exception&) {
 			delete[] data;
 			throw;
 		}
 
-		offsetData += child->size + 12;
+		offsetData += child->header.size + 12;
 	}
 
 	for (ChildIterator it = children.begin() ; it != children.end() ; it++) {
@@ -305,7 +294,7 @@ void RWSection::computeAbsoluteOffsets(uint64_t offset)
 		for (ChildIterator it = children.begin() ; it != children.end() ; it++) {
 			RWSection* child = *it;
 			child->computeAbsoluteOffsets(offset);
-			offset += child->size + 12;
+			offset += child->header.size + 12;
 		}
 	}
 }
@@ -331,21 +320,21 @@ bool RWSection::canBeConvertedToContainerSection() const
 	int32_t numRead = 0;
 	uint8_t* data = this->data;
 
-	while (numRead < size) {
-		if (size-numRead < 12) {
+	while (numRead < header.size) {
+		if (header.size-numRead < 12) {
 			return false;
 		}
 
 		RWSection* child = NULL;
 
 		try {
-			child = new RWSection(data, size - numRead);
+			child = new RWSection(data, header.size - numRead);
 		} catch (RWBSException& ex) {
 			return false;
 		}
 
-		numRead += 12 + child->size;
-		data += 12 + child->size;
+		numRead += 12 + child->header.size;
+		data += 12 + child->header.size;
 
 		delete child;
 	}
@@ -364,9 +353,9 @@ void RWSection::setData(uint8_t* data, uint32_t size)
 	this->data = data;
 
 	if (parent)
-		parent->childResized(size - this->size);
+		parent->childResized(size - header.size);
 
-	this->size = size;
+	header.size = size;
 }
 
 
@@ -383,12 +372,12 @@ void RWSection::insertChild(ChildIterator it, RWSection* sect)
 	ensureContainer();
 
 	children.insert(it, sect);
-	size += sect->size + 12;
+	header.size += sect->header.size + 12;
 
 	sect->parent = this;
 
 	if (parent)
-		parent->childResized(sect->size + 12);
+		parent->childResized(sect->header.size + 12);
 }
 
 
@@ -397,10 +386,10 @@ void RWSection::removeChild(RWSection* child)
 	ensureContainer();
 
 	children.erase(find(children.begin(), children.end(), child));
-	size -= child->size + 12;
+	header.size -= child->header.size + 12;
 
 	if (parent)
-		parent->childResized(-child->size - 12);
+		parent->childResized(-child->header.size - 12);
 
 	child->parent = NULL;
 }
@@ -414,7 +403,7 @@ RWSection::ChildIterator RWSection::nextChild(uint32_t id, ChildIterator it)
 	while (it != children.end()) {
 		RWSection* sect = *it;
 
-		if (sect->id == id) {
+		if (sect->header.id == id) {
 			break;
 		}
 
@@ -441,7 +430,7 @@ RWSection::ChildIterator RWSection::getLastChildIterator(uint32_t id)
 		it--;
 		RWSection* sect = *it;
 
-		if (sect->id == id) {
+		if (sect->header.id == id) {
 			return it;
 		}
 	} while (it != children.begin());
@@ -491,9 +480,9 @@ int RWSection::indexOf(const RWSection* child)
 
 void RWSection::toRawData(uint8_t* data, size_t bufSize)
 {
-	if (bufSize < 12+size) {
+	if (bufSize < 12+header.size) {
 		throw RWBSException(CString("RWSection::toRawData() called with an undersized buffer. We need at least ")
-				<< 12+size << " bytes but got only " << bufSize << " bytes.", __FILE__, __LINE__);
+				<< 12+header.size << " bytes but got only " << bufSize << " bytes.", __FILE__, __LINE__);
 	}
 
 #ifdef GTAFORMATS_LITTLE_ENDIAN
@@ -509,13 +498,13 @@ void RWSection::toRawData(uint8_t* data, size_t bufSize)
 	bufSize -= 12;
 
 	if (isDataSection()) {
-		memcpy(data+offset, this->data, size);
+		memcpy(data+offset, this->data, header.size);
 	} else {
 		for (ChildIterator it = children.begin() ; it != children.end() ; it++) {
 			RWSection* child = *it;
 			child->toRawData(data+offset, bufSize);
-			offset += child->size + 12;
-			bufSize -= child->size + 12;
+			offset += child->header.size + 12;
+			bufSize -= child->header.size + 12;
 		}
 	}
 }
@@ -532,7 +521,7 @@ void RWSection::write(ostream* stream)
 	writer.writeArrayCopyU32((uint32_t*) this, 3);
 
 	if (data) {
-		stream->write((char*) data, size);
+		stream->write((char*) data, header.size);
 	} else {
 		for (ChildIterator it = children.begin() ; it != children.end() ; it++) {
 			RWSection* child = *it;

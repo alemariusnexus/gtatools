@@ -61,6 +61,7 @@ public:
 	void addSceneObject(SceneObject* obj);
 	void addStreamingListener(StreamingListener* l);
 	void update();
+	void clear();
 	PVSDatabase* getPVSDatabase() { return &pvs; }
 
 private:

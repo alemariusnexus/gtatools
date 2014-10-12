@@ -170,6 +170,7 @@ void Engine::addResource(const File& file, void (*callback)())
 
 		for (it = resObservers.begin() ; it != resObservers.end() ; it++) {
 			ResourceObserver* observer = *it;
+
 			observer->resourceAdded(file);
 		}
 

@@ -23,18 +23,18 @@
 #ifndef IFPFORMATHANDLER_H_
 #define IFPFORMATHANDLER_H_
 
-#include "../FormatHandler.h"
+#include "../EntityHandler.h"
 #include "IFPGUIModule.h"
 
 
-class IFPFormatHandler : public FormatHandler
+class IFPFormatHandler : public EntityHandler
 {
 	Q_OBJECT
 
 public:
 	IFPFormatHandler();
-	virtual QString getFormatName(const File* file = NULL) const { return tr("IFP Animation Package"); }
-	virtual QLinkedList<QString> getFileFormatExtensions() const { return QLinkedList<QString>() << "ifp"; }
+	virtual QString getFileFormatName(const File& file) const { return tr("IFP Animation Package"); }
+	virtual QLinkedList<QString> getFileFormatExtensions(const File&) const { return QLinkedList<QString>() << "ifp"; }
 	virtual bool canHandle(const EntityOpenRequest& req) const;
 	virtual DisplayedEntity* openEntity(const EntityOpenRequest& request);
 

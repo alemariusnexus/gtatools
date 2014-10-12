@@ -63,8 +63,14 @@ void IFPGUIModule::animViewerRequested(bool)
 {
 	System* sys = System::getInstance();
 
-	IFPAnimationViewerWidget* viewer = new IFPAnimationViewerWidget;
+	EntityOpenRequest req;
+
+	req.setAttribute("type", "IFP::AnimViewer");
+
+	sys->openEntity(req);
+
+	/*IFPAnimationViewerWidget* viewer = new IFPAnimationViewerWidget;
 	IFPAnimationViewerEntity* ent = new IFPAnimationViewerEntity(viewer);
 
-	sys->openEntity(ent);
+	sys->openEntity(ent);*/
 }

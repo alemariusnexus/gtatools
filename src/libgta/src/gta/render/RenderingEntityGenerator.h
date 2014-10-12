@@ -50,8 +50,10 @@ public:
 	void generate(list<VisualSceneObject*>::iterator beg, list<VisualSceneObject*>::iterator end, list<RenderingEntity*>& outList);
 
 private:
-	RenderingSubmesh* generateFromSubmesh(Submesh* submesh, TextureSource* texSrc, RenderingMesh* rmesh, bool debug = false);
-	RenderingMesh* generateFromMesh(Mesh* mesh, MeshPointer* mptr, TextureSource* texSrc, const Matrix4& modelMat, bool transparent,
+	RenderingSubmesh* generateFromSubmesh(Submesh* submesh, TextureSource* texSrc, RenderingMesh* rmesh);
+	RenderingMesh* generateFromMesh(Mesh* mesh, MeshPointer* mptr, TextureSource* texSrc,
+			//Animation* anim, AnimationPackagePointer* animPtr,
+			const Matrix4& modelMat, bool transparent,
 			MeshFrame* frame, Matrix4 preMulMat = Matrix4::Identity);
 
 	void generateFromMapSceneObject(MapSceneObject* mobj, list<RenderingEntity*>& outList);

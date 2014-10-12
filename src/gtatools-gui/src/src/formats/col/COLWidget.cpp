@@ -25,6 +25,7 @@
 #include "COLGUIModule.h"
 #include "../../System.h"
 #include <QtCore/QSettings>
+#include <QtGui/QFileSystemModel>
 
 
 
@@ -34,18 +35,6 @@ COLWidget::COLWidget(const File& file, QWidget *parent)
 	ui.setupUi(this);
 
 	ui.collisionMeshMainSplitter->setSizes(QList<int>() << width() / 3 << (width() / 3) * 2);
-
-	sphereBoxTabber = new QTabWidget;
-	sphereBoxTabber->setParent(ui.sphereBoxInfoWidget);
-	ui.sphereBoxInfoWidgetLayout->addWidget(sphereBoxTabber);
-
-	vmeshTabber = new QTabWidget;
-	vmeshTabber->setParent(ui.vmeshInfoWidget);
-	ui.vmeshInfoWidgetLayout->addWidget(vmeshTabber);
-
-	smeshTabber = new QTabWidget;
-	smeshTabber->setParent(ui.smeshTab);
-	ui.smeshTabLayout->addWidget(smeshTabber);
 
 	renderContainer = new GLContainerWidget(ui.renderWidgetContainer);
 	ui.renderWidgetContainer->layout()->addWidget(renderContainer);
@@ -279,7 +268,19 @@ void COLWidget::currentModelChanged(int index)
 
 	renderWidget->update();
 
+	disconnect(entityModel, SIGNAL(sphereDisplayStateChanged(COLSphere*, bool)), this, SLOT(sphereDisplayStateChanged(COLSphere*, bool)));
+	disconnect(entityModel, SIGNAL(boxDisplayStateChanged(COLBox*, bool)), this, SLOT(boxDisplayStateChanged(COLBox*, bool)));
+	disconnect(entityModel, SIGNAL(faceDisplayStateChanged(COLFace*, bool)), this, SLOT(faceDisplayStateChanged(COLFace*, bool)));
+
 	COLEntityItemModel* newModel = new COLEntityItemModel(model);
+
+	connect(newModel, SIGNAL(sphereDisplayStateChanged(COLSphere*, bool)), this, SLOT(sphereDisplayStateChanged(COLSphere*, bool)));
+	connect(newModel, SIGNAL(boxDisplayStateChanged(COLBox*, bool)), this, SLOT(boxDisplayStateChanged(COLBox*, bool)));
+	connect(newModel, SIGNAL(faceDisplayStateChanged(COLFace*, bool)), this, SLOT(faceDisplayStateChanged(COLFace*, bool)));
+
+	/*ui.entityTree->setModel(NULL);
+	ui.entityTree->setModel(fsModel);*/
+
 	ui.entityTree->setModel(NULL);
 	ui.entityTree->setModel(newModel);
 
@@ -398,4 +399,26 @@ void COLWidget::collisionMeshMainSplitterValueChanged(int pos, int idx)
 	settings.setValue("gui_geometry_COLWidget/collisionMeshMainSplitter_state",
 			ui.collisionMeshMainSplitter->saveState());
 }
+
+
+void COLWidget::sphereDisplayStateChanged(COLSphere* sphere, bool displayed)
+{
+	renderWidget->setSphereEnabled(sphere, displayed);
+	renderWidget->update();
+}
+
+
+void COLWidget::boxDisplayStateChanged(COLBox* box, bool displayed)
+{
+	renderWidget->setBoxEnabled(box, displayed);
+	renderWidget->update();
+}
+
+
+void COLWidget::faceDisplayStateChanged(COLFace* face, bool displayed)
+{
+	renderWidget->setFaceEnabled(face, displayed);
+	renderWidget->update();
+}
+
 

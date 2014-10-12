@@ -25,7 +25,7 @@
 
 #include "../../gui/GLBaseWidget.h"
 #include <gta/scene/Scene.h>
-#include <gta/scene/objects/AnimatedMapSceneObject.h>
+#include <gta/render/DefaultRenderer.h>
 #include <gta/scene/objects/MapSceneObject.h>
 
 
@@ -61,8 +61,9 @@ protected:
 	virtual void paintGL();
 
 private:
-	AnimatedMapItemDefinition* def;
-	AnimatedMapSceneObject* obj;
+	DefaultRenderer* renderer;
+	MapItemDefinition* def;
+	MapSceneObject* obj;
 	CString curAnim;
 	float curTime;
 	float boneLength;

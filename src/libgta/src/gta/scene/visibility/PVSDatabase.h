@@ -180,11 +180,15 @@ public:
 
 	size_t getUncalculatedObjectCount() const { return uncalculatedObjCount; }
 
+	void setEnabled(bool enabled) { this->enabled = enabled; }
+	bool isEnabled() const { return enabled; }
+
 private:
 	PVSSection* findSection(float x, float y, float z);
 	InternalSceneObjectFileGroup* getFileGroup(const CString& relPath);
 
 private:
+	bool enabled;
 	list<PVSSceneObjectContainer*> objects;
 	FileGroupMap fileGroups;
 	vector<ProgressObserver*> progressObservers;

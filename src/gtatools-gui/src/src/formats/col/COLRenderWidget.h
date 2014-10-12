@@ -46,8 +46,11 @@ public:
 	void displayModel(COLModel* model);
 
 	void setBoxEnabled(uint32_t boxIdx, bool enabled);
+	void setBoxEnabled(const COLBox* box, bool enabled) { setBoxEnabled(box - &model->getBoxes()[0], enabled); }
 	void setSphereEnabled(uint32_t sphereIdx, bool enabled);
+	void setSphereEnabled(const COLSphere* sphere, bool enabled) { setSphereEnabled(sphere - &model->getSpheres()[0], enabled); }
 	void setFaceEnabled(uint32_t faceIdx, bool enabled);
+	void setFaceEnabled(const COLFace* face, bool enabled) { setFaceEnabled(face - &model->getFaces()[0], enabled); }
 
 protected:
 	virtual void initializeGL();

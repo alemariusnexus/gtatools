@@ -24,6 +24,7 @@
 #define COLENTITYITEMMODEL_H_
 
 #include <QtCore/QAbstractItemModel>
+#include <QtCore/QSet>
 #include <gtaformats/col/COLModel.h>
 
 
@@ -31,6 +32,22 @@
 class COLEntityItemModel : public QAbstractItemModel
 {
 	Q_OBJECT
+
+private:
+	enum ItemIndexType
+	{
+		Invalid,
+
+		Spheres,
+		Boxes,
+		Faces,
+		FaceGroups,
+
+		Sphere,
+		Box,
+		FaceGroup,
+		Face
+	};
 
 public:
 	COLEntityItemModel(COLModel* model);
@@ -43,6 +60,14 @@ public:
 	QModelIndex parent(const QModelIndex& index) const;
 	bool setData(const QModelIndex& index, const QVariant& data, int role = Qt::EditRole);
 
+signals:
+	void sphereDisplayStateChanged(COLSphere* sphere, bool displayed);
+	void boxDisplayStateChanged(COLBox* box, bool displayed);
+	void faceDisplayStateChanged(COLFace* face, bool displayed);
+
+private:
+	ItemIndexType getItemIndexType(const QModelIndex& idx, uint32_t& idxInModel);
+
 private:
 	COLModel* model;
 
@@ -50,6 +75,15 @@ private:
 	char boxCountDummy;
 	char faceGroupCountDummy;
 	char faceCountDummy;
+
+	bool spheresEnabled;
+	bool boxesEnabled;
+	bool faceGroupsEnabled;
+	bool facesEnabled;
+	QSet<uint32_t> enabledBoxes;
+	QSet<uint32_t> enabledSpheres;
+	QSet<uint32_t> enabledFaceGroups;
+	QSet<uint32_t> enabledFaces;
 };
 
 #endif /* COLENTITYITEMMODEL_H_ */

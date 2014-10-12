@@ -59,6 +59,14 @@ Engine::StringResourceCache::Entry* CollisionMeshCacheLoader::load(CString name)
 		model = dffMesh->getIntegratedCOLModel();
 	}
 
+	if (!model) {
+		if (dffMesh) {
+			delete dffMesh;
+		}
+
+		return NULL;
+	}
+
 	CollisionModel* mmodel = new CollisionModel(*model);
 	cachesize_t size = mmodel->getCacheSize();
 

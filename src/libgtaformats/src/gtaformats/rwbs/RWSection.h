@@ -24,6 +24,7 @@
 #define RWSECTION_H_
 
 #include "rwbs.h"
+#include "RWSectionHeader.h"
 #include <vector>
 #include <istream>
 #include <ostream>
@@ -46,18 +47,10 @@ public:
 
 public:
 	static RWSection* readSection(istream* stream, RWSection* lastRead = NULL);
+	static RWSection* readSectionBody(istream* stream, const RWSectionHeader& header);
 
 private:
-	static bool isContainerSection(uint32_t id)
-	{
-		return (
-			id == RW_SECTION_CLUMP  ||  id == RW_SECTION_FRAMELIST  ||  id == RW_SECTION_EXTENSION
-			||  id == RW_SECTION_GEOMETRYLIST  ||  id == RW_SECTION_GEOMETRY
-			||  id == RW_SECTION_MATERIALLIST  ||  id == RW_SECTION_MATERIAL  ||  id == RW_SECTION_TEXTURE
-			||  id == RW_SECTION_ATOMIC ||  id == RW_SECTION_TEXTUREDICTIONARY
-			||  id == RW_SECTION_TEXTURENATIVE
-		);
-	}
+	static bool isContainerSection(uint32_t id) { return RWSectionHeader::isContainerSection(id); }
 
 public:
 	RWSection(uint32_t id, uint32_t version);
@@ -66,9 +59,9 @@ public:
 	RWSection(const RWSection& other);
 	~RWSection();
 
-	uint32_t getID() const { return id; }
-	uint32_t getSize() const { return size; }
-	uint32_t getVersion() const { return version; }
+	uint32_t getID() const { return header.id; }
+	uint32_t getSize() const { return header.size; }
+	uint32_t getVersion() const { return header.version; }
 	uint64_t getAbsoluteOffset() const { return offset; }
 	void setAbsoluteOffset(uint64_t offset) { this->offset = offset; }
 	RWSection* getParent() { return parent; }
@@ -80,8 +73,8 @@ public:
 
 	void computeAbsoluteOffsets(uint64_t offset = 0);
 
-	void setID(uint32_t id) { this->id = id; }
-	void setVersion(uint32_t version) { this->version = version; }
+	void setID(uint32_t id) { header.id = id; }
+	void setVersion(uint32_t version) { header.version = version; }
 	void setData(uint8_t* data, uint32_t size);
 
 	void addChild(RWSection* child);
@@ -107,27 +100,24 @@ public:
 	void setContainerSection(bool cs) { setDataSection(!cs); }
 
 	void toRawData(uint8_t* data, size_t bufSize);
-	uint8_t* toRawData() { uint8_t* data = new uint8_t[size+12]; toRawData(data, size+12); return data; }
+	uint8_t* toRawData() { uint8_t* data = new uint8_t[header.size+12]; toRawData(data, header.size+12); return data; }
 	void write(ostream* stream);
 	void write(const File& file);
 
 	void printDebug(int ind = 0);
 
 	CString getDescription() const
-			{ return RWGetSectionName(id).append(" (").append(size).append(" bytes @ 0x").append(offset, 16).append(")"); }
+			{ return RWGetSectionName(header.id).append(" (").append(header.size).append(" bytes @ 0x").append(offset, 16).append(")"); }
 
 private:
 	RWSection() : parent(NULL), data(NULL) {}
-	void childResized(uint32_t change) { size += change; if (parent) parent->childResized(change); }
+	void childResized(uint32_t change) { header.size += change; if (parent) parent->childResized(change); }
 	void ensureContainer();
 	void ensureData();
 	void clearChildren();
 
 private:
-	// These three values HAVE to be the first members, and remain in this order!
-	uint32_t id;
-	uint32_t size;
-	uint32_t version;
+	RWSectionHeader header;
 
 	uint64_t offset;
 	RWSection* parent;

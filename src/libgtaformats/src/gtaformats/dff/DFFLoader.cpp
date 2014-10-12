@@ -44,21 +44,39 @@ struct IndexedDFFFrame
 
 
 
+bool DFFLoader::gotoClumpSection(istream* stream, RWSectionHeader* outHeader)
+{
+	while (RWSectionHeader::readSectionHeader(outHeader, stream, NULL)  &&  outHeader->getID() != RW_SECTION_CLUMP) {
+		stream->ignore(outHeader->getSize());
+	}
+
+	if (outHeader->getID() == RW_SECTION_CLUMP) {
+		return true;
+	}
+
+	return false;
+}
+
+
+RWSection* DFFLoader::loadClumpSection(istream* stream)
+{
+	RWSectionHeader header;
+
+	if (gotoClumpSection(stream, &header)) {
+		return RWSection::readSectionBody(stream, header);
+	}
+
+	return NULL;
+}
+
 
 DFFMesh* DFFLoader::loadMesh(istream* stream)
 {
-	RWSection* sect = NULL;
+	RWSection* sect = loadClumpSection(stream);
 
-	while ((sect = RWSection::readSection(stream, NULL))  !=  NULL) {
-		if (sect->getID() == RW_SECTION_CLUMP) {
-			break;
-		}
-
-		delete sect;
-	}
-
-	if (!sect)
+	if (!sect) {
 		return NULL;
+	}
 
 	DFFMesh* mesh = loadMesh(sect);
 	delete sect;
@@ -179,20 +197,36 @@ DFFMesh* DFFLoader::loadMesh(RWSection* clump)
 		RWSection* hAnimPlg = frameListExt->getChild(RW_SECTION_HANIM_PLG);
 
 		if (hAnimPlg) {
+			// We have a hierarchical animation plugin (HANIM_PLG) section. Such a section can exist for each frame, but
+			// does not have to. If it is present for a frame, this means that the frame acts as a bone for an animation,
+			// and the frame gets assigned a bone ID. HANIM_PLG also doubles as a section that describes the types and
+			// properties of bones when the boneCount property is not zero. This code currently assumes that all this
+			// additional bone information is contained completely in a single HANIM_PLG section, and not spread across
+			// multiple (which seems to be the case in all of the original DFF meshes).
+
 			uint8_t* adata = hAnimPlg->getData();
+
+			// The bone ID of this specific frame.
 			int32_t boneID = FromLittleEndian32(*((int32_t*) (adata+4)));
+
+			// Number of bones for which additional properties are stored. See above.
 			int32_t boneCount = FromLittleEndian32(*((int32_t*) (adata+8)));
+
 			adata += 12;
 
 			indexedFrames[i].boneID = boneID;
 
 			if (boneCount != 0) {
+				// We have additional bone data in this section.
+
 				adata += 8;
 
 				mesh->boneCount = boneCount;
 
 				boneFrames = new DFFFrame*[boneCount];
 
+				// We assume that all bone detail data is contained in a single section. If we have multiple sections
+				// containing bone detail, we keep the data of the more recent section.
 				for (map<int32_t, DFFBone*>::iterator it = bonesByNum.begin() ; it != bonesByNum.end() ; it++)
 					delete it->second;
 
@@ -616,4 +650,56 @@ DFFMesh* DFFLoader::loadMesh(RWSection* clump)
 		delete[] boneFrames;
 
 	return mesh;
+}
+
+
+bool DFFLoader::hasIntegratedCOLModel(istream* stream, bool& hasModel)
+{
+	RWSectionHeader clumpHeader;
+
+	if (!gotoClumpSection(stream, &clumpHeader)) {
+		return false;
+	}
+
+	uint32_t numRead = 0;
+
+	while (numRead < clumpHeader.getSize()) {
+		RWSectionHeader header;
+
+		if (!RWSectionHeader::readSectionHeader(&header, stream, &clumpHeader)) {
+			hasModel = false;
+			return true;
+		}
+
+		numRead += 12;
+
+		if (header.getID() == RW_SECTION_EXTENSION) {
+			uint32_t inumRead = 0;
+
+			while (inumRead < header.getSize()) {
+				RWSectionHeader iheader;
+
+				if (!RWSectionHeader::readSectionHeader(&iheader, stream, &header)) {
+					hasModel = false;
+					return true;
+				}
+
+				inumRead += 12;
+
+				if (iheader.getID() == RW_SECTION_COLLISION_MODEL) {
+					hasModel = true;
+					return true;
+				}
+
+				stream->ignore(iheader.getSize());
+				inumRead += iheader.getSize();
+			}
+		} else {
+			stream->ignore(header.getSize());
+			numRead += header.getSize();
+		}
+	}
+
+	hasModel = false;
+	return true;
 }

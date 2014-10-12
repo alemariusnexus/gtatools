@@ -58,7 +58,7 @@ struct IPVSSection
 
 
 PVSDatabase::PVSDatabase()
-		: sections(NULL), numSects(0), uncalculatedObjCount(0)
+		: enabled(true), sections(NULL), numSects(0), uncalculatedObjCount(0)
 {
 }
 
@@ -80,6 +80,10 @@ PVSSection* PVSDatabase::findSection(float x, float y, float z)
 bool PVSDatabase::queryPVS(PVSSceneObjectIterator& beg, PVSSceneObjectIterator& end, const Vector3& pos,
 			float distMultiplier, float* chosenDistMultiplier)
 {
+	if (!enabled) {
+		return false;
+	}
+
 	PVSSection* sect = findSection(pos.getX(), pos.getY(), pos.getZ());
 
 	if (sect) {

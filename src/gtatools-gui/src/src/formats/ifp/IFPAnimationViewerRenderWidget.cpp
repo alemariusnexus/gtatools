@@ -88,8 +88,9 @@ MeshClump* IFPAnimationViewerRenderWidget::buildReducedMesh(MeshClump* clump)
 
 
 IFPAnimationViewerRenderWidget::IFPAnimationViewerRenderWidget(QWidget* parent)
-		: GLBaseWidget(parent), def(NULL), obj(NULL), curTime(0.0f), boneLength(0.025f), boneRendering(false),
-		  scene(NULL), boneMesh(NULL), meshPtr(NULL), boneMeshPtr(NULL), texSrc(NULL), anpkPtr(NULL)
+		: GLBaseWidget(parent), renderer(NULL), def(NULL), obj(NULL), curTime(0.0f), boneLength(0.025f),
+		  boneRendering(false), scene(NULL), boneMesh(NULL), meshPtr(NULL), boneMeshPtr(NULL), texSrc(NULL),
+		  anpkPtr(NULL)
 {
 
 }
@@ -208,8 +209,10 @@ void IFPAnimationViewerRenderWidget::rebuildDisplayedObject()
 		else
 			mptr = meshPtr;
 
-		def = new AnimatedMapItemDefinition(mptr, texSrc, NULL, NULL, anpkPtr, 500.0f, 0);
-		obj = new AnimatedMapSceneObject;
+		def = new MapItemDefinition(mptr, texSrc, NULL, NULL, NULL, 500.0f, 0);
+		def->setAnimationPackagePointer(anpkPtr);
+
+		obj = new MapSceneObject;
 		MapSceneObjectLODInstance* inst = new MapSceneObjectLODInstance(def);
 		obj->addLODInstance(inst);
 		obj->setAutoAnimationEnabled(false);
@@ -226,11 +229,11 @@ void IFPAnimationViewerRenderWidget::initializeGL()
 {
 	GLBaseWidget::initializeGL();
 
-	DefaultRenderer* renderer = new DefaultRenderer;
+	cam.setPosition(0.0f, 4.0f, 0.0f);
 
 	scene = new Scene;
-	scene->setRenderer(renderer);
 	scene->addStreamingViewpoint(&cam);
+	scene->getStreamingManager()->getPVSDatabase()->setEnabled(false);
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 }
@@ -239,6 +242,17 @@ void IFPAnimationViewerRenderWidget::initializeGL()
 void IFPAnimationViewerRenderWidget::resizeGL(int w, int h)
 {
 	GLBaseWidget::resizeGL(w, h);
+
+	Engine* engine = Engine::getInstance();
+	engine->setViewportSize(getViewportWidth(), getViewportHeight());
+
+	if (renderer) {
+		delete renderer;
+	}
+
+	renderer = new DefaultRenderer;
+
+	scene->setRenderer(renderer);
 }
 
 
@@ -252,5 +266,8 @@ void IFPAnimationViewerRenderWidget::paintGL()
 
 	engine->setScene(scene);
 
+	engine->advanceFrame(0);
 	engine->renderFrame();
+
+	printf("VisObjs: %u\n", scene->getLastVisibleObjectCount());
 }

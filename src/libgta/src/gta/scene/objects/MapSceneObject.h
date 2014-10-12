@@ -74,7 +74,7 @@ public:
 	virtual SceneObjectDefinitionInfo* getDefinitionInfo() { return defInfo; }
 
 	virtual typeflags_t getTypeFlags() const
-			{ return TypeFlagVisual | TypeFlagPVS | TypeFlagRigidBody; }
+			{ return TypeFlagVisual | TypeFlagPVS | TypeFlagRigidBody | TypeFlagAnimated; }
 	virtual uint32_t getStreamingBuckets() const { return StreamingManager::VisibleBucket | StreamingManager::PhysicsBucket; }
 
 	virtual void setEnabled(bool enabled) { this->enabled = enabled; }

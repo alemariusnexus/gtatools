@@ -232,6 +232,8 @@ void Scene::streamed(SceneObject* obj, uint32_t inBuckets, uint32_t outBuckets)
 
 void Scene::clear()
 {
+	streamer->clear();
+
 	objects.clear();
 	animObjs.clear();
 }
@@ -246,12 +248,21 @@ void Scene::updateVisibility()
 
 void Scene::update(uint64_t timePassed)
 {
-	for (ObjectIterator it = animObjs.begin() ; it != animObjs.end() ; it++) {
+	/*for (ObjectIterator it = animObjs.begin() ; it != animObjs.end() ; it++) {
 		SceneObject* obj = *it;
 		AnimatedSceneObject* aobj = dynamic_cast<AnimatedSceneObject*>(obj);
 
-		if (aobj->isAutoAnimationEnabled())
+		if (aobj->isAutoAnimationEnabled()) {
 			aobj->increaseAnimationTime(timePassed / 1000.0f);
+		}
+	}*/
+
+	for (SceneObject* obj : curVisObjs) {
+		AnimatedSceneObject* aobj = dynamic_cast<AnimatedSceneObject*>(obj);
+
+		if (aobj  &&  aobj->isAutoAnimationEnabled()) {
+			aobj->increaseAnimationTime(timePassed / 1000.0f);
+		}
 	}
 
 	physicsWorld->stepSimulation(timePassed/1000.0f, 0);

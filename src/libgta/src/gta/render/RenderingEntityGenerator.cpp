@@ -44,13 +44,6 @@ void RenderingEntityGenerator::generate(list<VisualSceneObject*>::iterator beg, 
 
 		SceneObject::typeflags_t tf = sobj->getTypeFlags();
 
-		/*AnimatedMapSceneObject* aobj = dynamic_cast<AnimatedMapSceneObject*>(sobj);
-
-		if (aobj) {
-			generateFromAnimatedMapSceneObject(aobj, outList);
-			continue;
-		}*/
-
 		MapSceneObject* mobj = dynamic_cast<MapSceneObject*>(sobj);
 
 		if (mobj) {
@@ -75,7 +68,7 @@ void RenderingEntityGenerator::generate(list<VisualSceneObject*>::iterator beg, 
 }
 
 
-RenderingSubmesh* RenderingEntityGenerator::generateFromSubmesh(Submesh* submesh, TextureSource* texSrc, RenderingMesh* rmesh, bool debug)
+RenderingSubmesh* RenderingEntityGenerator::generateFromSubmesh(Submesh* submesh, TextureSource* texSrc, RenderingMesh* rmesh)
 {
 	Material* mat = submesh->getMaterial();
 
@@ -116,18 +109,15 @@ RenderingSubmesh* RenderingEntityGenerator::generateFromSubmesh(Submesh* submesh
 
 
 RenderingMesh* RenderingEntityGenerator::generateFromMesh(Mesh* mesh, MeshPointer* mptr, TextureSource* texSrc,
+		//Animation* anim, AnimationPackagePointer* animPtr,
 		const Matrix4& modelMat, bool transparent, MeshFrame* frame, Matrix4 preMulMat)
 {
-	Matrix4 fModelMat = modelMat;
+#if 1
 
-	bool isChassis = false;
+	Matrix4 fModelMat = modelMat;
 
 	if (frame) {
 		fModelMat = fModelMat * frame->getAbsoluteModelMatrix() * preMulMat;
-
-		if (frame->getName().lower() == "chassis") {
-			isChassis = true;
-		}
 	} else {
 		fModelMat = fModelMat * preMulMat;
 	}
@@ -181,17 +171,99 @@ RenderingMesh* RenderingEntityGenerator::generateFromMesh(Mesh* mesh, MeshPointe
 	for (sit = mesh->getSubmeshBegin() ; sit != mesh->getSubmeshEnd() ; sit++) {
 		Submesh* submesh = *sit;
 
-		bool debug = false;
-
-		if (isChassis  &&  numSubmeshes == 0)
-			debug = true;
-
-		generateFromSubmesh(submesh, texSrc, rm, debug);
+		generateFromSubmesh(submesh, texSrc, rm);
 
 		numSubmeshes++;
 	}
 
 	return rm;
+
+#else
+
+	Matrix4 fModelMat = modelMat;
+
+	if (frame) {
+		fModelMat = fModelMat * frame->getAbsoluteModelMatrix() * preMulMat;
+	} else {
+		fModelMat = fModelMat * preMulMat;
+	}
+
+	int16_t boneIdx = -1;
+
+	if (anim) {
+		if (mesh->getBoneIndexOffset() == -1) {
+			if (!animator->hasPseudoBoneNumbers())
+				boneIdx = frame->getBoneNumber();
+			else
+				boneIdx = animator->getPseudoBoneNumber(frame);
+		}
+	}
+
+	RenderingPrimitiveFormat rpf;
+
+	switch (mesh->getVertexFormat()) {
+	case VertexFormatPoints:
+		rpf = RenderingPrimitivePoints;
+		break;
+	case VertexFormatLines:
+		rpf = RenderingPrimitiveLines;
+		break;
+	case VertexFormatTriangles:
+		rpf = RenderingPrimitiveTriangles;
+		break;
+	case VertexFormatTriangleStrips:
+		rpf = RenderingPrimitiveTriangleStrip;
+		break;
+	}
+
+	Matrix4* boneMatsCpy = NULL;
+
+	if (anim) {
+		boneMatsCpy = new Matrix4[boneCount];
+		memcpy(boneMatsCpy, boneMats, boneCount*sizeof(Matrix4));
+	}
+
+	uint32_t flags = RenderingMesh::EnableShaderPluginUniformBuffers;
+
+	if (anim) {
+		flags |= RenderingMesh::IsAnimated;
+	}
+	if (lodInst->hasAlphaTransparency()  ||  mobj->selected) {
+		flags |= RenderingMesh::HasTransparency;
+	}
+
+	DefaultRenderingMesh* rm = new DefaultRenderingMesh (
+			rpf,
+			flags,
+			mesh->getVertexCount(), boneCount,
+			boneMatsCpy,
+			boneIdx,
+			mesh->getDataBuffer(), mesh->getIndexBuffer(),
+			mesh->getVertexOffset(), mesh->getVertexStride(),
+			mesh->getSubmeshIDOffset(), mesh->getSubmeshIDStride(),
+			mesh->getNormalOffset(), mesh->getNormalStride(),
+			mesh->getTexCoordOffset(), mesh->getTexCoordStride(),
+			mesh->getVertexColorOffset(), mesh->getVertexColorStride(),
+			mesh->getBoneIndexOffset(), mesh->getBoneIndexStride(),
+			mesh->getBoneWeightOffset(), mesh->getBoneWeightStride()
+			);
+	rm->setPluginRegistry(mobj->getShaderPluginRegistry());
+
+	rm->setModelMatrix(fModelMat);
+
+	rm->meshPtr = mptr->clone();
+	rm->meshPtr->lock();
+
+	mptr->release();
+
+	Mesh::SubmeshIterator sit;
+	for (sit = mesh->getSubmeshBegin() ; sit != mesh->getSubmeshEnd() ; sit++) {
+		Submesh* submesh = *sit;
+
+		generateFromSubmesh(submesh, texSrc, rm);
+	}
+
+#endif
 }
 
 
@@ -328,6 +400,12 @@ void RenderingEntityGenerator::generateFromMapSceneObjectLODInstance(MapSceneObj
 	for (mit = meshClump->getMeshBegin() ; mit != meshClump->getMeshEnd() ; mit++) {
 		Mesh* mesh = *mit;
 
+#if 0
+		//RenderingMesh* rmesh = generateFromMesh(mesh, mptr, texSrc, anim, animPtr, modelMat, lodInst->hasAlphaTransparency(), mesh->getFrame());
+		RenderingMesh* rmesh = generateFromMesh(mesh, mptr, texSrc, modelMat, lodInst->hasAlphaTransparency(), mesh->getFrame());
+
+		outList.push_back(rmesh);
+#else
 		MeshFrame* frame = mesh->getFrame();
 
 		Matrix4 fModelMat = modelMat;
@@ -412,9 +490,14 @@ void RenderingEntityGenerator::generateFromMapSceneObjectLODInstance(MapSceneObj
 		}
 
 		outList.push_back(rm);
+#endif
 	}
 
 	delete animator;
+
+	if (apkgPtr) {
+		apkgPtr->release();
+	}
 }
 
 

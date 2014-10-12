@@ -225,16 +225,9 @@ void Mesh::init(int flags, const float* vertices, const float* normals, const fl
 		currentOffs += 4;
 	}
 	if (boneWeights) {
-		boneWeightOffs += currentOffs;
+		boneWeightOffs = currentOffs;
 		currentOffs += 4*4;
 	}
-
-	/*vertexStride = currentOffs - 3*4;
-	normalStride = currentOffs - 3*4;
-	texCoordStride = currentOffs - 2*4;
-	vertexColorStride = currentOffs - 4;
-	boneIndexStride = currentOffs - 4;
-	boneWeightStride = currentOffs - 4*4;*/
 
 	vertexStride = currentOffs;
 	submeshIDStride = currentOffs;

@@ -29,6 +29,7 @@
 #include <nxcommon/math/intersection.h>
 #include <nxcommon/math/project.h>
 #include <nxcommon/file/DefaultFileFinder.h>
+#include <nxcommon/file/FileException.h>
 #include <gtaformats/gtadff.h>
 #include <gtaformats/gtaide.h>
 #include <gtaformats/gtaipl.h>
@@ -266,10 +267,6 @@ void initWindowSystem(int w, int h)
 	SDL_GL_GetAttribute(SDL_GL_ALPHA_SIZE, &a);
 	SDL_GL_GetAttribute(SDL_GL_STENCIL_SIZE, &ssize);
 
-	//ostream* out = File("/home/alemariusnexus/test.log").openOutputStream();
-	//*out << "Framebuffer: R" << r << " G" << g << " B" << b << " A" << a << " D" << dsize << " S" << ssize << "\n";
-	//delete out;
-
 	printf("Framebuffer: R%d G%d B%d A%d D%d S%d\n", r, g, b, a, dsize, ssize);
 #endif
 }
@@ -278,32 +275,64 @@ void initWindowSystem(int w, int h)
 int main(int argc, char** argv)
 {
 	try {
+		Controller controller;
+
+		XMLDocument* configDoc = controller.getConfigDocument();
+
+		File executableDir;
+
+		try {
+			executableDir = File::getExecutableFile().getParent();
+		} catch (FileException& ex) {
+			fprintf(stderr, "WARNING: Executable directory could not be found. Cause: %s\n", ex.what());
+		}
+
+		File configFile("config.xml");
+
+		if (!configFile.isRegularFile()) {
+			configFile = File(executableDir, "config.xml");
+
+			if (!configFile.isRegularFile()) {
+				fprintf(stderr, "ERROR: config.xml was not found!\n");
+				exit(1);
+			}
+		}
+
+		printf("Using config.xml: %s\n", configFile.getCanonicalFile().toString().get());
+
+		if (configDoc->LoadFile(configFile.toString().get()) != XML_NO_ERROR) {
+			fprintf(stderr, "ERROR: Error loading config.xml: %s\n", configDoc->GetErrorStr1());
+			exit(1);
+		}
+
+		XMLElement* windowGeomElem = configDoc->RootElement()->FirstChildElement("window")->FirstChildElement("geometry");
+
+		unsigned int windowWidth = windowGeomElem->UnsignedAttribute("width");
+		unsigned int windowHeight = windowGeomElem->UnsignedAttribute("height");
+
 		if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 			printf("ERROR Initializing SDL\n");
 		}
 
+		// To prevent SDL from writing stdout/stderr to a file on Windows
 		//freopen("CON", "w", stdout);
 		//freopen("CON", "w", stderr);
 
 		SDL_EnableUNICODE(1);
 		//SDL_ShowCursor(SDL_DISABLE); // We'll use the CEGUI cursor
 
-		initWindowSystem(WINDOW_WIDTH, WINDOW_HEIGHT);
+		initWindowSystem(windowWidth, windowHeight);
 
 		SDL_WM_SetCaption(WINDOW_BASE_TITLE, NULL);
 
-		Controller renderer;
-
-		renderer.init();
-		renderer.reshape(WINDOW_WIDTH, WINDOW_HEIGHT);
+		controller.init();
+		controller.reshape(windowWidth, windowHeight);
 
 		uint64_t lastClickTime = 0;
 
 		bool running = true;
 		while (running) {
-			uint64_t s = GetTickcount();
-
-			if (!renderer.paint()) {
+			if (!controller.paint()) {
 				break;
 			}
 
@@ -335,17 +364,17 @@ int main(int argc, char** argv)
 						break;
 					}
 
-					renderer.keyPressed(evt.key.keysym);
+					controller.keyPressed(evt.key.keysym);
 					break;
 				case SDL_KEYUP:
-					renderer.keyReleased(evt.key.keysym);
+					controller.keyReleased(evt.key.keysym);
 					break;
 				case SDL_MOUSEBUTTONDOWN:
 					if (evt.button.button == SDL_BUTTON_LEFT) {
 						time = GetTickcount();
 
 						if (time-lastClickTime < 300) {
-							renderer.mouseButtonDoubleClicked(evt.button.x, evt.button.y);
+							controller.mouseButtonDoubleClicked(evt.button.x, evt.button.y);
 							lastClickTime = 0;
 						} else {
 							lastClickTime = time;
@@ -354,10 +383,10 @@ int main(int argc, char** argv)
 						lastClickTime = 0;
 					}
 
-					renderer.mouseButtonPressed(evt.button.button, evt.button.x, evt.button.y);
+					controller.mouseButtonPressed(evt.button.button, evt.button.x, evt.button.y);
 					break;
 				case SDL_MOUSEBUTTONUP:
-					renderer.mouseButtonReleased(evt.button.button, evt.button.x, evt.button.y);
+					controller.mouseButtonReleased(evt.button.button, evt.button.x, evt.button.y);
 					break;
 				case SDL_MOUSEMOTION:
 					lastMMEvt = evt;
@@ -374,21 +403,19 @@ int main(int argc, char** argv)
 	#endif
 					SDL_FreeSurface(surface);
 					initWindowSystem(evt.resize.w, evt.resize.h);
-					renderer.reshape(evt.resize.w, evt.resize.h);
+					controller.reshape(evt.resize.w, evt.resize.h);
 					break;
 				}
 			}
 
 			if (hasMMEvt) {
-				renderer.mouseMotion(lastMMEvt.motion.x, lastMMEvt.motion.y);
+				controller.mouseMotion(lastMMEvt.motion.x, lastMMEvt.motion.y);
 			}
-
-			uint64_t e = GetTickcount();
-
-			//printf("Actual Frame Time: %ums\n", (unsigned int) (e-s));
 		}
 
-		renderer.shutdown();
+		controller.shutdown();
+
+		printf("Program terminated normally.\n");
 
 		SDL_Quit();
 	} catch (Exception& ex) {

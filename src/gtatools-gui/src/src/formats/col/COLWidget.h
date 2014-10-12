@@ -54,16 +54,16 @@ private slots:
 	void loadConfigUiSettings();
 	void collisionMeshMainSplitterValueChanged(int pos, int idx);
 
+	void sphereDisplayStateChanged(COLSphere* sphere, bool displayed);
+	void boxDisplayStateChanged(COLBox* box, bool displayed);
+	void faceDisplayStateChanged(COLFace* face, bool displayed);
+
 private:
     Ui::COLWidget ui;
     QList<COLModel*> models;
     COLRenderWidget* renderWidget;
     QList<int> vmeshFaceIndexMap;
     bool currentlyCompact;
-
-    QTabWidget* sphereBoxTabber;
-    QTabWidget* vmeshTabber;
-    QTabWidget* smeshTabber;
 
     GLContainerWidget* renderContainer;
     COLEntityItemModel* entityModel;
