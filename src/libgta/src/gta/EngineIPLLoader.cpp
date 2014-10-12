@@ -399,6 +399,8 @@ void EngineIPLLoader::load(const File& file, Scene::ObjectList& objects, GameInf
 
 								float nearestDist;
 								childIt = childRange.first;
+								bool first = true;
+
 								for (; childIt != childRange.second ; childIt++) {
 									IndexedSceneObject* ciobj = childIt->second;
 
@@ -411,9 +413,10 @@ void EngineIPLLoader::load(const File& file, Scene::ObjectList& objects, GameInf
 									Vector3 distVec = cPos - basePos;
 									float dist = distVec.length();
 
-									if (childIt == childRange.first  ||  dist < nearestDist) {
+									if (first  ||  dist < nearestDist) {
 										nearestDist = dist;
 										nearestChildIt = childIt;
+										first = false;
 									}
 								}
 							}

@@ -98,13 +98,12 @@ IFPAnimationViewerRenderWidget::IFPAnimationViewerRenderWidget(QWidget* parent)
 
 IFPAnimationViewerRenderWidget::~IFPAnimationViewerRenderWidget()
 {
-	delete obj;
-	delete def;
 	delete scene->getRenderer();
 	delete scene;
 	delete meshPtr;
 	delete texSrc;
 	delete anpkPtr;
+	delete def;
 }
 
 
@@ -268,6 +267,4 @@ void IFPAnimationViewerRenderWidget::paintGL()
 
 	engine->advanceFrame(0);
 	engine->renderFrame();
-
-	printf("VisObjs: %u\n", scene->getLastVisibleObjectCount());
 }

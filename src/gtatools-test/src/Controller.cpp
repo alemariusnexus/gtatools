@@ -653,7 +653,8 @@ void Controller::keyPressed(SDL_keysym evt)
 		moveSidewardFactor = -1.0f;
 	} else if (k == SDLK_q) {
 		moveUpFactor = 1.0f;
-	} else if (k == SDLK_y) {
+	} else if (k == SDLK_y  ||  k == SDLK_z) {
+		// y and z for English and German keyboard layout.
 		moveUpFactor = -1.0f;
 	} else if (k == SDLK_p) {
 		Camera* cam = engine->getCamera();
@@ -726,6 +727,7 @@ void Controller::keyReleased(SDL_keysym evt)
 		break;
 	case SDLK_q:
 	case SDLK_y:
+	case SDLK_z:
 		moveUpFactor = 0.0f;
 		break;
 	case SDLK_0:

@@ -182,6 +182,10 @@ void Profile::loadSingleResource()
 {
 	System* sys = System::getInstance();
 
+	if (sys->isShuttingDown()) {
+		return;
+	}
+
 	if (resourceLoadingQueue.size() != 0) {
 		File file = resourceLoadingQueue.dequeue();
 		Engine* engine = Engine::getInstance();

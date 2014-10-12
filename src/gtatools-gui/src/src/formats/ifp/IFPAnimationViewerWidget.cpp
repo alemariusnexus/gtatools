@@ -41,11 +41,11 @@ IFPAnimationViewerWidget::IFPAnimationViewerWidget(QWidget* parent)
 {
 	ui.setupUi(this);
 
-	ui.animTimeBeginButton->setIcon(QIcon::fromTheme("media-skip-backward"));
-	ui.animTimeEndButton->setIcon(QIcon::fromTheme("media-skip-forward"));
-	ui.animTimeBackwardButton->setIcon(QIcon::fromTheme("media-seek-backward"));
-	ui.animTimeForwardButton->setIcon(QIcon::fromTheme("media-seek-forward"));
-	ui.animTimePlayButton->setIcon(QIcon::fromTheme("media-playback-start"));
+	ui.animTimeBeginButton->setIcon(QIcon::fromTheme("media-skip-backward", QIcon(":/src/resource/media-skip-backward.png")));
+	ui.animTimeEndButton->setIcon(QIcon::fromTheme("media-skip-forward", QIcon(":/src/resource/media-skip-forward.png")));
+	ui.animTimeBackwardButton->setIcon(QIcon::fromTheme("media-seek-backward", QIcon(":/src/resource/media-seek-backward.png")));
+	ui.animTimeForwardButton->setIcon(QIcon::fromTheme("media-seek-forward", QIcon(":/src/resource/media-seek-forward.png")));
+	ui.animTimePlayButton->setIcon(QIcon::fromTheme("media-playback-start", QIcon(":/src/resource/media-playback-start.png")));
 
 	boneSizeSpinner = new QDoubleSpinBox(this);
 	boneSizeSpinner->setMinimum(0.0);
@@ -310,11 +310,11 @@ void IFPAnimationViewerWidget::animTimePlayRequested()
 {
 	if (animPlayTimer.isActive()) {
 		animPlayTimer.stop();
-		ui.animTimePlayButton->setIcon(QIcon::fromTheme("media-playback-start"));
+		ui.animTimePlayButton->setIcon(QIcon::fromTheme("media-playback-start", QIcon(":/src/resource/media-playback-start.png")));
 	} else {
 		lastPlayTime = GetTickcount();
 		animPlayTimer.start();
-		ui.animTimePlayButton->setIcon(QIcon::fromTheme("media-playback-pause"));
+		ui.animTimePlayButton->setIcon(QIcon::fromTheme("media-playback-pause", QIcon(":/src/resource/media-playback-pause.png")));
 	}
 }
 

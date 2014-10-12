@@ -25,7 +25,7 @@
 #include "COLGUIModule.h"
 #include "../../System.h"
 #include <QtCore/QSettings>
-#include <QtGui/QFileSystemModel>
+#include <QFileSystemModel>
 
 
 

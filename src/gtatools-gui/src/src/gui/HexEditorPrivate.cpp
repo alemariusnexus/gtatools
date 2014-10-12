@@ -52,8 +52,6 @@ HexEditorPrivate::HexEditorPrivate(QWidget* parent)
 	font.setStyleHint(QFont::Monospace);
 	setFont(font);
 
-	printf("FP: %s\n", font.fixedPitch() ? "yes" : "true");
-
 	setData(QByteArray());
 
 	setAddressColor(QColor(Qt::lightGray).lighter(100));
@@ -97,8 +95,6 @@ void HexEditorPrivate::updateContentLineCount(int num)
 
 void HexEditorPrivate::setFont(const QFont& font)
 {
-	printf("#### setFont()\n");
-
 	QWidget::setFont(font);
 
 	QFontMetricsF fm(font);

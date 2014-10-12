@@ -33,13 +33,13 @@ using std::shared_ptr;
 
 class StaticMeshPointer : public MeshPointer {
 public:
-	StaticMeshPointer(MeshClump* mesh) : mesh(shared_ptr<MeshClump>(mesh)) {}
+	StaticMeshPointer(MeshClump* mesh) : mesh(mesh) {}
 	StaticMeshPointer(const StaticMeshPointer& other) : mesh(other.mesh) {}
-	virtual MeshClump* get(bool lock = false) { return mesh.get(); }
+	virtual MeshClump* get(bool lock = false) { return mesh; }
 	virtual MeshPointer* clone() const { return new StaticMeshPointer(*this); }
 
 private:
-	shared_ptr<MeshClump> mesh;
+	MeshClump* mesh;
 };
 
 #endif /* STATICMESHPOINTER_H_ */

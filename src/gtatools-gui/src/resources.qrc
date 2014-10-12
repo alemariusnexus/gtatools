@@ -16,5 +16,12 @@
         <file>src/resource/document-save.png</file>
         <file>src/resource/document-save-as.png</file>
         <file>src/resource/view-fullscreen.png</file>
+        <file>src/resource/media-playback-pause.png</file>
+        <file>src/resource/media-playback-start.png</file>
+        <file>src/resource/media-playback-stop.png</file>
+        <file>src/resource/media-seek-backward.png</file>
+        <file>src/resource/media-seek-forward.png</file>
+        <file>src/resource/media-skip-backward.png</file>
+        <file>src/resource/media-skip-forward.png</file>
     </qresource>
 </RCC>
