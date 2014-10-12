@@ -54,7 +54,7 @@
             <item>
              <widget class="QLineEdit" name="modelField">
               <property name="text">
-               <string>C:/Users/alemariusnexus/stest/jizzy.dff</string>
+               <string/>
               </property>
              </widget>
             </item>
@@ -100,7 +100,7 @@
             <item>
              <widget class="QLineEdit" name="txdField">
               <property name="text">
-               <string>C:/Users/alemariusnexus/stest/jizzy.txd</string>
+               <string/>
               </property>
              </widget>
             </item>
@@ -132,7 +132,7 @@
             <item>
              <widget class="QLineEdit" name="animField">
               <property name="text">
-               <string>C:/Users/alemariusnexus/stest/ped.ifp</string>
+               <string/>
               </property>
              </widget>
             </item>
