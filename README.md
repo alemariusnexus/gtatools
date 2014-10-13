@@ -58,3 +58,9 @@ Some hints for building gtatools from source:
 * When using the prebuilt dependencies, CMake will not find many libraries automatically. Look for them in the lib/ directory of the dependency package and specify them manually in CMake (you might have to enable advanced mode).
 * If you get missing symbol errors for GLEW, especially in Visual Studio, try adding /DGLEW_STATIC to CMAKE_CXX_FLAGS.
 * For running gtatools-test, you'll need to place a small config.xml in either the directory containing the executable, or the executable's working directory. You can find a sample config.xml [here](http://alemariusnexus.com/gtatools/files/config.xml).
+
+
+
+# Licensing
+
+gtatools is licensed under the [GNU General Public License 3.0 (GPLv3)](http://www.gnu.org/copyleft/gpl.html), or any later version of that license. This means that you are allowed to use, redistribute and modify gtatools as long as you comply to the terms of the GPLv3. In particular, this means if you link to gtatools' libraries, your program must be open-source, too. If you feel that you have some really good reasons for using gtatools in a closed-source project, please contact me via E-Mail.
