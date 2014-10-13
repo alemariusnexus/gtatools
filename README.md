@@ -13,11 +13,18 @@ gtatools currently consists of the following parts:
 * **gtatools-test**: A simple and ugly prototyping program used to test new features. Most of the time, it just renders the static map along with some testing stuff for features that are currently tested.
 
 
+
+# Binaries and Prebuilt Dependencies
+
+Binaries and prebuilt dependencies for Windows can be downloaded [here](http://alemariusnexus.com/gtatools).
+
+
+
 # Building and Dependencies
 
-GTATools uses CMake >= 3.0 as its build system. It is meant to be built from the $ROOT/src directory. Building from a component directory might work, but it is rarely tested, so don't do it.
+GTATools uses CMake >= 3.0 as its build system (prior versions will **not** work). It is meant to be built from the $ROOT/src directory. Building from a component directory might work, but it is rarely tested, so don't do it.
 
-To compile GTATools, you need a recent compiler with decent support for C++11. The only officially supported compiler is GCC (on Windows: MinGW). Clang is sometimes tested and should work without too much hassle. **The Visual C++ compiler is currently not supported**, because I just don't have the nerves to fiddle around with it.
+To compile GTATools, you need a recent compiler with decent support for C++11. The mainly supported compiler is GCC. On Windows, you should use MinGW-w64 (still 32-bit). The original MinGW will probably not work because of some missing C++11 standard library features. The Visual Studio 2013 compiler is also somehow supported, though you have to prepare for a storm of compile-time warnings. Earlier versions of Visual Studio are not supported.
 
 The components of GTATools depend on the following libraries. Note that this might change quite rapidly as GTATools is evolving:
 
@@ -42,3 +49,12 @@ The components of GTATools depend on the following libraries. Note that this mig
   * **libgta**: Including all its dependencies
   * **Qt 4**: Qt 5 is not supported yet.
 
+Prebuilt dependencies for Windows can be downloaded [here](http://alemariusnexus.com/gtatools).
+
+Some hints for building gtatools from source:
+
+* You can compile libnxcommon along with gtatools. See the file src/README_NXCOMMON for more information.
+* libnxcommon must be compiled with support for Bullet (if you want to build libgta) and Qt4/Qt5 (if you want to build gtatools-gui). Look for the CMake variables NXCOMMON_BULLET_SUPPORT and NXCOMMON_QT_SUPPORT.
+* When using the prebuilt dependencies, CMake will not find many libraries automatically. Look for them in the lib/ directory of the dependency package and specify them manually in CMake (you might have to enable advanced mode).
+* If you get missing symbol errors for GLEW, especially in Visual Studio, try adding /DGLEW_STATIC to CMAKE_CXX_FLAGS.
+* For running gtatools-test, you'll need to place a small config.xml in either the directory containing the executable, or the executable's working directory. You can find a sample config.xml [here](http://alemariusnexus.com/gtatools/files/config.xml).
