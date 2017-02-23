@@ -121,8 +121,10 @@ SET(SRCS main Controller VehicleController SphericalCameraController BulletGLDeb
 FILE(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/config/gtatools-test")
 CONFIGURE_FILE(config.cmake.h "${CMAKE_BINARY_DIR}/config/gtatools-test/config.h")
 
-CREATE_RESOURCE(shaders/btgldebugdraw_vertex.glsl btgldebugdraw_vertex_shader)
-CREATE_RESOURCE(shaders/btgldebugdraw_fragment.glsl btgldebugdraw_fragment_shader)
+ADD_CUSTOM_TARGET(gtatools-test_res)
+
+CREATE_RESOURCE(gtatools-test_res shaders/btgldebugdraw_vertex.glsl btgldebugdraw_vertex_shader)
+CREATE_RESOURCE(gtatools-test_res shaders/btgldebugdraw_fragment.glsl btgldebugdraw_fragment_shader)
 
 INCLUDE_DIRECTORIES(${INCLUDES})
 
@@ -130,6 +132,7 @@ ADD_EXECUTABLE (
     gtatools-test
     ${SRCS} ${MOC_COMPILED_SRCS} ${UIC_COMPILED_SRCS}
 )
+ADD_DEPENDENCIES(gtatools-test gtatools-test_res)
 TARGET_COMPILE_DEFINITIONS(gtatools-test PRIVATE -DWIN32_LEAN_AND_MEAN)
 
 TARGET_LINK_LIBRARIES(gtatools-test ${LIBRARIES})

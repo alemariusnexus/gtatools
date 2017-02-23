@@ -155,58 +155,58 @@ ENDIF(UNIX)
 
 #INCLUDE_DIRECTORIES(${INCLUDES})
 
-CREATE_RESOURCE(gta/shaders/test_vertex.glsl test_vertex_shader)
-CREATE_RESOURCE(gta/shaders/test_vertex2.glsl test_vertex2_shader)
+ADD_CUSTOM_TARGET(libgta_res)
 
-CREATE_RESOURCE(gta/shaders/test_fragment.glsl test_fragment_shader)
-CREATE_RESOURCE(gta/shaders/test_fragment2.glsl test_fragment2_shader)
+CREATE_RESOURCE(libgta_res gta/shaders/test_vertex.glsl test_vertex_shader)
+CREATE_RESOURCE(libgta_res gta/shaders/test_vertex2.glsl test_vertex2_shader)
 
-CREATE_RESOURCE(gta/shaders/dp_test_vertex.glsl dp_test_vertex_shader)
-CREATE_RESOURCE(gta/shaders/dp_test_fragment.glsl dp_test_fragment_shader)
+CREATE_RESOURCE(libgta_res gta/shaders/test_fragment.glsl test_fragment_shader)
+CREATE_RESOURCE(libgta_res gta/shaders/test_fragment2.glsl test_fragment2_shader)
 
-CREATE_RESOURCE(gta/shaders/global.glsl global_shader)
-CREATE_RESOURCE(gta/shaders/global_vertex.glsl global_vertex_shader)
-CREATE_RESOURCE(gta/shaders/global_fragment.glsl global_fragment_shader)
+CREATE_RESOURCE(libgta_res gta/shaders/dp_test_vertex.glsl dp_test_vertex_shader)
+CREATE_RESOURCE(libgta_res gta/shaders/dp_test_fragment.glsl dp_test_fragment_shader)
 
-CREATE_RESOURCE(gta/shaders/vertex_default.glsl vertex_default_shader)
-CREATE_RESOURCE(gta/shaders/fragment_default.glsl fragment_default_shader)
+CREATE_RESOURCE(libgta_res gta/shaders/global.glsl global_shader)
+CREATE_RESOURCE(libgta_res gta/shaders/global_vertex.glsl global_vertex_shader)
+CREATE_RESOURCE(libgta_res gta/shaders/global_fragment.glsl global_fragment_shader)
 
-CREATE_RESOURCE(gta/shaders/static/shade_vertex.glsl shade_vertex_shader)
-CREATE_RESOURCE(gta/shaders/static/shade_fragment.glsl shade_fragment_shader)
+CREATE_RESOURCE(libgta_res gta/shaders/vertex_default.glsl vertex_default_shader)
+CREATE_RESOURCE(libgta_res gta/shaders/fragment_default.glsl fragment_default_shader)
 
-CREATE_RESOURCE(gta/shaders/depth_peeling/peel_layer_vertex.glsl dp_peel_layer_vertex_shader)
-CREATE_RESOURCE(gta/shaders/depth_peeling/peel_layer_fragment.glsl dp_peel_layer_fragment_shader)
+CREATE_RESOURCE(libgta_res gta/shaders/static/shade_vertex.glsl shade_vertex_shader)
+CREATE_RESOURCE(libgta_res gta/shaders/static/shade_fragment.glsl shade_fragment_shader)
 
-CREATE_RESOURCE(gta/shaders/depth_peeling/blend_layer_vertex.glsl dp_blend_layer_vertex_shader)
-CREATE_RESOURCE(gta/shaders/depth_peeling/blend_layer_fragment.glsl dp_blend_layer_fragment_shader)
+CREATE_RESOURCE(libgta_res gta/shaders/depth_peeling/peel_layer_vertex.glsl dp_peel_layer_vertex_shader)
+CREATE_RESOURCE(libgta_res gta/shaders/depth_peeling/peel_layer_fragment.glsl dp_peel_layer_fragment_shader)
 
-CREATE_RESOURCE(gta/shaders/depth_peeling/blend_final_vertex.glsl dp_blend_final_vertex_shader)
-CREATE_RESOURCE(gta/shaders/depth_peeling/blend_final_fragment.glsl dp_blend_final_fragment_shader)
+CREATE_RESOURCE(libgta_res gta/shaders/depth_peeling/blend_layer_vertex.glsl dp_blend_layer_vertex_shader)
+CREATE_RESOURCE(libgta_res gta/shaders/depth_peeling/blend_layer_fragment.glsl dp_blend_layer_fragment_shader)
 
-CREATE_RESOURCE(gta/shaders/weighted_average/vertex.glsl wavg_vertex_shader)
-CREATE_RESOURCE(gta/shaders/weighted_average/fragment.glsl wavg_fragment_shader)
+CREATE_RESOURCE(libgta_res gta/shaders/depth_peeling/blend_final_vertex.glsl dp_blend_final_vertex_shader)
+CREATE_RESOURCE(libgta_res gta/shaders/depth_peeling/blend_final_fragment.glsl dp_blend_final_fragment_shader)
 
-CREATE_RESOURCE(gta/shaders/weighted_average/final_vertex.glsl wavg_final_vertex_shader)
-CREATE_RESOURCE(gta/shaders/weighted_average/final_fragment.glsl wavg_final_fragment_shader)
+CREATE_RESOURCE(libgta_res gta/shaders/weighted_average/vertex.glsl wavg_vertex_shader)
+CREATE_RESOURCE(libgta_res gta/shaders/weighted_average/fragment.glsl wavg_fragment_shader)
 
-CREATE_RESOURCE(gta/shaders/cegui/cegui_vertex.glsl cegui_vertex_shader)
-CREATE_RESOURCE(gta/shaders/cegui/cegui_fragment.glsl cegui_fragment_shader)
+CREATE_RESOURCE(libgta_res gta/shaders/weighted_average/final_vertex.glsl wavg_final_vertex_shader)
+CREATE_RESOURCE(libgta_res gta/shaders/weighted_average/final_fragment.glsl wavg_final_fragment_shader)
 
-CREATE_RESOURCE(gta/shaders/debug/render_depth_2d_vertex.glsl render_depth_2d_vertex_shader)
-CREATE_RESOURCE(gta/shaders/debug/render_depth_2d_fragment.glsl render_depth_2d_fragment_shader)
+CREATE_RESOURCE(libgta_res gta/shaders/cegui/cegui_vertex.glsl cegui_vertex_shader)
+CREATE_RESOURCE(libgta_res gta/shaders/cegui/cegui_fragment.glsl cegui_fragment_shader)
 
-CREATE_RESOURCE(gta/shaders/debug/render_depth_rect_vertex.glsl render_depth_rect_vertex_shader)
-CREATE_RESOURCE(gta/shaders/debug/render_depth_rect_fragment.glsl render_depth_rect_fragment_shader)
+CREATE_RESOURCE(libgta_res gta/shaders/debug/render_depth_2d_vertex.glsl render_depth_2d_vertex_shader)
+CREATE_RESOURCE(libgta_res gta/shaders/debug/render_depth_2d_fragment.glsl render_depth_2d_fragment_shader)
 
-CREATE_RESOURCE(gta/shaders/anim/shade_vertex.glsl anim_shade_vertex_shader)
-CREATE_RESOURCE(gta/shaders/anim/shade_fragment.glsl anim_shade_fragment_shader)
+CREATE_RESOURCE(libgta_res gta/shaders/debug/render_depth_rect_vertex.glsl render_depth_rect_vertex_shader)
+CREATE_RESOURCE(libgta_res gta/shaders/debug/render_depth_rect_fragment.glsl render_depth_rect_fragment_shader)
 
-CREATE_RESOURCE(gta/shaders/anim/shade_vertex.glsl anim_shade_vertex_shader)
-CREATE_RESOURCE(gta/shaders/anim/shade_fragment.glsl anim_shade_fragment_shader)
+CREATE_RESOURCE(libgta_res gta/shaders/anim/shade_vertex.glsl anim_shade_vertex_shader)
+CREATE_RESOURCE(libgta_res gta/shaders/anim/shade_fragment.glsl anim_shade_fragment_shader)
 
-CREATE_RESOURCE(gta/shaders/lighting_vertex.glsl lighting_vertex_shader)
+CREATE_RESOURCE(libgta_res gta/shaders/lighting_vertex.glsl lighting_vertex_shader)
 
 ADD_LIBRARY(gta STATIC ${SRCS})
+ADD_DEPENDENCIES(gta libgta_res)
 TARGET_LINK_LIBRARIES(gta PUBLIC ${LIBRARIES} nxcommon gtaformats)
 TARGET_INCLUDE_DIRECTORIES(gta PUBLIC ${INCLUDES} $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}> $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 TARGET_ADD_INSTALL_STATE_DEFINE(gta GTA)
