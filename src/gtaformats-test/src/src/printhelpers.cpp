@@ -24,11 +24,6 @@
 
 
 
-ostream& operator<<(ostream& stream, const CString& cstr)
-{
-	return stream << cstr.get();
-}
-
 
 ostream& operator<<(ostream& stream, const FilePath& fp)
 {
