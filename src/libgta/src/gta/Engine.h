@@ -56,6 +56,8 @@ using std::equal_to;
 using std::shared_ptr;
 using std::unique_ptr;
 
+using gta::Camera;
+
 
 class ResourceObserver;
 class MeshCacheLoader;

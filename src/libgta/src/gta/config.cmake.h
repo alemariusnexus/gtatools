@@ -40,4 +40,5 @@
 #cmakedefine GTA_USE_OPENGL_ES
 #cmakedefine GTA_VISIBILITY_PVS
 
+
 #endif /* CONFIG_CMAKE_H_ */

@@ -26,7 +26,7 @@
 #include "../../gui/GUIModule.h"
 #include "../../gui/HexEditor.h"
 #include "RWBSUtilityWidget.h"
-#include "RWBSAnalyzerWidget.h"
+//#include "RWBSAnalyzerWidget.h"
 #include <QAction>
 #include <QDockWidget>
 

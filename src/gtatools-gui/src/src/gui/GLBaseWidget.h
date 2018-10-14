@@ -33,6 +33,8 @@
 #include <gta/Camera.h>
 #include <nxcommon/math/Matrix4.h>
 
+using gta::Camera;
+
 
 class GLBaseWidget : public QGLWidget {
 	Q_OBJECT

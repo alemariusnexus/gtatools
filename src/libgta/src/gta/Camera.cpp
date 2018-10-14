@@ -25,43 +25,8 @@
 
 
 
-void Camera::rotateHorizontal(float angle)
+namespace gta
 {
-	Matrix4 rot = Matrix4::rotationZ(angle);
-	Vector3 target = rot * getTarget();
-	Vector3 up = rot * getUp();
-	target.normalize();
-	up.normalize();
-	frustum.setDirection(target, up);
-}
 
 
-void Camera::rotateVertical(float angle)
-{
-	Vector3 side = getUp().cross(getTarget());
-	Vector3 target = Matrix4::rotation(angle, side) * getTarget();
-	Vector3 up = getTarget().cross(side);
-	target.normalize();
-	up.normalize();
-	frustum.setDirection(target, up);
-}
-
-
-void Camera::move(float length)
-{
-	setPosition(getPosition() + getTarget() * length);
-}
-
-
-void Camera::moveSideways(float length)
-{
-	Vector3 side = getUp().cross(getTarget());
-	side.normalize();
-	setPosition(getPosition() + side * length);
-}
-
-
-void Camera::moveUp(float length)
-{
-	setPosition(getPosition() + getUp() * length);
 }

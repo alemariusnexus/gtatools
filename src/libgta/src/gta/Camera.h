@@ -20,40 +20,27 @@
 	GPLADDITIONS.
  */
 
-#ifndef CAMERA_H_
-#define CAMERA_H_
+#ifndef GTA_CAMERA_H_
+#define GTA_CAMERA_H_
 
 #include <gta/config.h>
 #include <nxcommon/math/Vector3.h>
 #include <nxcommon/math/Frustum.h>
+#include <nxcommon/gl/Camera.h>
 #include "scene/StreamingViewpoint.h"
 #include "scene/StreamingManager.h"
 
 
 
-class Camera : public StreamingViewpoint {
+namespace gta
+{
+
+
+class Camera : public nxcommon::Camera, public StreamingViewpoint {
 public:
-	/*Camera(	const Vector3& position = Vector3(),
-			const Vector3& target = Vector3(0.0f, -1.0f, 0.0f),
-			const Vector3& up = Vector3(0.0f, 0.0f, 1.0f)
-	) : position(position), target(target), up(up) {}*/
 	Camera(const Frustum& frustum = Frustum(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
 			Vector3::Zero, Vector3::NegativeUnitY, Vector3::UnitZ))
-			: frustum(frustum) {}
-	const Vector3& getPosition() const { return frustum.getPosition(); }
-	const Vector3& getTarget() const { return frustum.getFrontDirection(); }
-	const Vector3& getUp() const { return frustum.getUpDirection(); }
-	void setPosition(const Vector3& pos) { frustum.setPosition(pos); }
-	void setPosition(float x, float y, float z) { setPosition(Vector3(x, y, z)); }
-	void lookAt(const Vector3& target, const Vector3& up) { frustum.setDirection(target, up); }
-	void rotateHorizontal(float angle);
-	void rotateVertical(float angle);
-	void move(float length);
-	void moveSideways(float length);
-	void moveUp(float length);
-	const Frustum& getFrustum() const { return frustum; }
-	Frustum& getFrustum() { return frustum; }
-	void setFrustum(const Frustum& f) { frustum = f; }
+			: nxcommon::Camera(frustum) {}
 
 	virtual Vector3 getStreamingViewpointPosition() const { return getPosition(); }
 	virtual uint32_t getStreamingFlags() const { return FrustumCulling; }
@@ -61,10 +48,8 @@ public:
 	virtual uint32_t getBuckets() const { return StreamingManager::VisibleBucket | StreamingManager::PhysicsBucket; }
 	virtual float getStreamingDistanceMultiplier() const { return 1.0f; }
 	virtual Frustum getCullingFrustum() const { return frustum; }
-
-private:
-	//Vector3 position, target, up;
-	Frustum frustum;
 };
 
-#endif /* CAMERA_H_ */
+}
+
+#endif /* GTA_CAMERA_H_ */
