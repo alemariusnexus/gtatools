@@ -24,7 +24,7 @@
 #define TEXTUREFILEFINDER_H_
 
 #include <nxcommon/file/FileFinder.h>
-#include <QtCore/QMap>
+#include <QMap>
 
 
 

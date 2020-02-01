@@ -23,7 +23,7 @@
 #ifndef PROFILEMANAGER_H_
 #define PROFILEMANAGER_H_
 
-#include <QtCore/QList>
+#include <QList>
 #include "Profile.h"
 
 

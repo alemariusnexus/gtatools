@@ -25,7 +25,7 @@
 #include <gta/Engine.h>
 #include <gta/scene/visibility/PVSDatabase.h>
 #include <QFileDialog>
-#include <QtCore/QThread>
+#include <QThread>
 
 
 

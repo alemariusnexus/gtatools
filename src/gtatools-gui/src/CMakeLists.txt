@@ -24,6 +24,8 @@ PROJECT(prj-gtatools-gui C CXX)
 CMAKE_POLICY(SET CMP0020 OLD)
 CMAKE_POLICY(SET CMP0028 NEW)
 
+SET(GTATOOLS_INSTALL_ENABLED OFF CACHE BOOL "If true, CMake INSTALL commands will be run for gtatools.")
+
 INCLUDE(CheckSymbolExists)
 
 ADD_SUBDIRECTORY(src)
@@ -34,6 +36,9 @@ ENDIF()
 
 IF(NOT NXCOMMON_QT_SUPPORT STREQUAL "qt4"  AND  NOT NXCOMMON_QT_SUPPORT STREQUAL "qt5")
     MESSAGE(SEND_ERROR "libnxcommon was built without Qt support. You need to build it with either Qt4 or Qt5 support in order to build gtatools-gui!")
+ENDIF()
+IF(NOT NXCOMMON_LUA_ENABLED)
+    MESSAGE(SEND_ERROR "libnxcommon was built without Lua support. You need to build it with Lua support enabled for gtatools-gui!")
 ENDIF()
 
 IF(NOT TARGET gtaformats)
@@ -185,5 +190,8 @@ ADD_EXECUTABLE(gtatools-gui ${EXECUTABLE_PROPERTIES} ${SRCS} ${MOC_COMPILED_SRCS
         ${QT_RESOURCE_FILES})
 TARGET_LINK_LIBRARIES(gtatools-gui ${LIBRARIES})
 
-INSTALL(TARGETS gtatools-gui DESTINATION bin)
+
+IF(GTATOOLS_INSTALL_ENABLED)
+    INSTALL(TARGETS gtatools-gui DESTINATION bin)
+ENDIF()
 

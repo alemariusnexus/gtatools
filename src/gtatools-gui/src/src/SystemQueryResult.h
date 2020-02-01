@@ -23,8 +23,8 @@
 #ifndef SYSTEMQUERYRESULT_H_
 #define SYSTEMQUERYRESULT_H_
 
-#include <QtCore/QVariant>
-#include <QtCore/QHash>
+#include <QVariant>
+#include <QHash>
 
 
 class SystemQueryResult {

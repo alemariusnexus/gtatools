@@ -26,10 +26,11 @@
 #include "../ProfileManager.h"
 #include "../formats/EntityHandler.h"
 #include "../formats/EntityManager.h"
-#include <QtCore/QLinkedList>
+#include <QLinkedList>
 #include <QStandardItemModel>
-#include <QtCore/QTime>
-#include <QtCore/QSettings>
+#include <QTime>
+#include <QSettings>
+#include <QHeaderView>
 
 
 

@@ -22,7 +22,7 @@
 
 #include "GLBaseWidget.h"
 #include <gta/Engine.h>
-#include <QtCore/QPoint>
+#include <QPoint>
 #include <QMouseEvent>
 #include <QKeyEvent>
 #include "../System.h"

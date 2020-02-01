@@ -23,7 +23,7 @@
 #ifndef HEXEDITORUNDOCOMMAND_H_
 #define HEXEDITORUNDOCOMMAND_H_
 
-#include <QtCore/QObject>
+#include <QObject>
 #include <QUndoCommand>
 #include "HexEditor.h"
 

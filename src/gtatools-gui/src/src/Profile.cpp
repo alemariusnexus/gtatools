@@ -31,7 +31,7 @@
 #include <gtaformats/dat/ResourceDATLoader.h>
 #include <gta/render/DefaultRenderer.h>
 #include <gta/scene/visibility/PVSDatabase.h>
-#include <QtCore/QTimer>
+#include <QTimer>
 
 using std::pair;
 using std::distance;

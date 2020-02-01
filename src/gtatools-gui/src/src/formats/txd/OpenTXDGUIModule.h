@@ -25,7 +25,7 @@
 
 #include "../../gui/GUIModule.h"
 #include <QAction>
-#include <QtCore/QLinkedList>
+#include <QLinkedList>
 
 
 class TXDWidget;

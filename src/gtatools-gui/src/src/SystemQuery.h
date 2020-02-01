@@ -23,9 +23,9 @@
 #ifndef SYSTEMQUERY_H_
 #define SYSTEMQUERY_H_
 
-#include <QtCore/QString>
-#include <QtCore/QHash>
-#include <QtCore/QVariant>
+#include <QString>
+#include <QHash>
+#include <QVariant>
 
 
 class SystemQuery {

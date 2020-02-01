@@ -26,6 +26,8 @@ CMAKE_POLICY(SET CMP0028 NEW)
 
 INCLUDE(TestBigEndian)
 
+SET(GTATOOLS_INSTALL_ENABLED OFF CACHE BOOL "If true, CMake INSTALL commands will be run for gtatools.")
+
 SET(GTAFORMATS_ENABLE_PVRTEXLIB OFF CACHE BOOL "Whether we use the proprietary PVRTexLib for PVRTC-compressed textures (a gtatools extension).")
 SET(GTAFORMATS_ENABLE_SQUISH ON CACHE BOOL "Whether we use libsquish for DXT-compressed textures. If false, those textures are not supported directly by the library")
 
@@ -92,32 +94,34 @@ TARGET_ADD_INSTALL_STATE_DEFINE(gtaformats GTAFORMATS)
 SET(GTATOOLS_CMAKE_MODULE_DIR_BUILD "${CMAKE_CURRENT_SOURCE_DIR}/../../cmakemodules")
 SET(GTATOOLS_CMAKE_MODULE_DIR_INSTALL ".") # Relative to the export file
 
-INSTALL(TARGETS gtaformats EXPORT LibgtaformatsTargets DESTINATION lib)
-INSTALL(	DIRECTORY gtaformats
-		DESTINATION include
-		FILES_MATCHING
-			PATTERN *.h
-			PATTERN .svn EXCLUDE
-			PATTERN *.cmake.h EXCLUDE
-	)
-INSTALL(    FILES "${CMAKE_CURRENT_BINARY_DIR}/gtaformats/config.h"
-        DESTINATION "include/gtaformats"
+IF(GTATOOLS_INSTALL_ENABLED)
+    INSTALL(TARGETS gtaformats EXPORT LibgtaformatsTargets DESTINATION lib)
+    INSTALL(	DIRECTORY gtaformats
+            DESTINATION include
+            FILES_MATCHING
+                PATTERN *.h
+                PATTERN .svn EXCLUDE
+                PATTERN *.cmake.h EXCLUDE
+        )
+    INSTALL(    FILES "${CMAKE_CURRENT_BINARY_DIR}/gtaformats/config.h"
+            DESTINATION "include/gtaformats"
+        )
+
+    EXPORT (
+        EXPORT LibgtaformatsTargets
+        FILE "${CMAKE_CURRENT_BINARY_DIR}/cmakecfg/LibgtaformatsTargets.cmake"
     )
 
-EXPORT (
-    EXPORT LibgtaformatsTargets
-    FILE "${CMAKE_CURRENT_BINARY_DIR}/cmakecfg/LibgtaformatsTargets.cmake"
-)
+    CONFIGURE_FILE(LibgtaformatsConfig.cmake.in "${CMAKE_CURRENT_BINARY_DIR}/cmakecfg/LibgtaformatsConfig.cmake" @ONLY)
 
-CONFIGURE_FILE(LibgtaformatsConfig.cmake.in "${CMAKE_CURRENT_BINARY_DIR}/cmakecfg/LibgtaformatsConfig.cmake" @ONLY)
+    INSTALL (
+        EXPORT LibgtaformatsTargets
+        FILE LibgtaformatsTargets.cmake
+        DESTINATION lib/cmake
+    )
 
-INSTALL (
-    EXPORT LibgtaformatsTargets
-    FILE LibgtaformatsTargets.cmake
-    DESTINATION lib/cmake
-)
-
-INSTALL (
-    FILES "${CMAKE_CURRENT_BINARY_DIR}/cmakecfg/LibgtaformatsConfig.cmake"
-    DESTINATION lib/cmake
-)
+    INSTALL (
+        FILES "${CMAKE_CURRENT_BINARY_DIR}/cmakecfg/LibgtaformatsConfig.cmake"
+        DESTINATION lib/cmake
+    )
+ENDIF()

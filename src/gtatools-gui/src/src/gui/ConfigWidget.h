@@ -25,7 +25,7 @@
 
 #include <ui_ConfigWidget.h>
 #include <QWidget>
-#include <QtCore/QList>
+#include <QList>
 #include "../Profile.h"
 
 

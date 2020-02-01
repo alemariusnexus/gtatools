@@ -25,7 +25,7 @@
 
 #include "EntityHandler.h"
 #include "../EntityOpenRequest.h"
-#include <QtCore/QLinkedList>
+#include <QLinkedList>
 
 
 class EntityManager {

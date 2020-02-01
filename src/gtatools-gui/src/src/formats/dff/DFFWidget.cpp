@@ -26,10 +26,10 @@
 #include "../../System.h"
 #include <QFileDialog>
 #include "DFFXMLDumpDialog.h"
-#include <QtCore/QFile>
-#include <QtCore/QTextStream>
+#include <QFile>
+#include <QTextStream>
 #include "DFFFormatHandler.h"
-#include <QtCore/QSettings>
+#include <QSettings>
 #include <nxcommon/strutil.h>
 #include <gta/resource/texture/ManagedTextureSource.h>
 #include <gta/resource/texture/StaticTextureSource.h>

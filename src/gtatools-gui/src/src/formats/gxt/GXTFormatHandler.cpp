@@ -22,8 +22,8 @@
 
 #include "GXTFormatHandler.h"
 #include "GXTWidget.h"
-#include <QtCore/QFile>
-#include <QtCore/QTextStream>
+#include <QFile>
+#include <QTextStream>
 #include <QFileDialog>
 #include <QMessageBox>
 #include "../../DisplayedFile.h"

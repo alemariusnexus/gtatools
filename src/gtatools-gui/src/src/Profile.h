@@ -23,12 +23,12 @@
 #ifndef PROFILE_H_
 #define PROFILE_H_
 
-#include <QtCore/QLinkedList>
-#include <QtCore/QList>
-#include <QtCore/QString>
-#include <QtCore/QFile>
-#include <QtCore/QMetaType>
-#include <QtCore/QQueue>
+#include <QLinkedList>
+#include <QList>
+#include <QString>
+#include <QFile>
+#include <QMetaType>
+#include <QQueue>
 #include <nxcommon/file/File.h>
 #include <gta/resource/ResourceObserver.h>
 #include <gta/Engine.h>

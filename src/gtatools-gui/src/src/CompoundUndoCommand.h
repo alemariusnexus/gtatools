@@ -24,7 +24,7 @@
 #define COMPOUNDUNDOCOMMAND_H_
 
 #include <QUndoCommand>
-#include <QtCore/QList>
+#include <QList>
 
 
 class CompoundUndoCommand : public QUndoCommand

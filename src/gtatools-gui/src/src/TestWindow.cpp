@@ -21,7 +21,7 @@
  */
 
 #include "TestWindow.h"
-#include <QtCore/QFile>
+#include <QFile>
 #include <QBoxLayout>
 #include <QAction>
 

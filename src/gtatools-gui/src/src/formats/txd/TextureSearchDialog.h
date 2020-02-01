@@ -25,7 +25,7 @@
 
 #include <ui_TextureSearchDialog.h>
 #include <QDialog>
-#include <QtCore/QLinkedList>
+#include <QLinkedList>
 #include <nxcommon/file/File.h>
 #include <QProgressDialog>
 #include "../../Task.h"

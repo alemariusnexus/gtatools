@@ -26,7 +26,7 @@
 #include <gtaformats/gxt/GXTTable.h>
 #include <gtaformats/gta.h>
 #include <nxcommon/util.h>
-#include <QtCore/QSettings>
+#include <QSettings>
 #include <QMessageBox>
 #include <cstdio>
 #include "../../System.h"

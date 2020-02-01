@@ -29,7 +29,7 @@
 #include <QAbstractScrollArea>
 #include <QScrollBar>
 #include <QUndoStack>
-#include <QtCore/QTimer>
+#include <QTimer>
 
 
 class HexEditor : public QAbstractScrollArea {

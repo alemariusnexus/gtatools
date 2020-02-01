@@ -24,16 +24,16 @@
 #define SYSTEM_H_
 
 #include <gta/gl.h>
-#include <QtCore/QObject>
+#include <QObject>
 #include <nxcommon/file/File.h>
 #include <nxcommon/exception/Exception.h>
 #include "gui/GUIModule.h"
-#include <QtCore/QLinkedList>
+#include <QLinkedList>
 #include "gui/MainWindow.h"
-#include <QtCore/QHash>
-#include <QtCore/QVariant>
-#include <QtCore/QString>
-#include <QtOpenGL/QGLWidget>
+#include <QHash>
+#include <QVariant>
+#include <QString>
+#include <QGLWidget>
 #include "Task.h"
 #include "EntityOpenRequest.h"
 #include "SystemQuery.h"

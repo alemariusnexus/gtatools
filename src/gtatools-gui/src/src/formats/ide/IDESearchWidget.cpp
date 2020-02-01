@@ -26,7 +26,7 @@
 #include "../../System.h"
 #include "../../RegexFileFinder.h"
 #include <nxcommon/file/DefaultFileFinder.h>
-#include <QtCore/QSettings>
+#include <QSettings>
 
 
 

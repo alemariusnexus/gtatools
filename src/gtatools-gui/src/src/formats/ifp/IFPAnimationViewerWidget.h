@@ -28,7 +28,7 @@
 #include <gta/resource/animation/AnimationPackage.h>
 #include <QWidget>
 #include <QDoubleSpinBox>
-#include <QtCore/QTimer>
+#include <QTimer>
 #include "IFPAnimationViewerRenderWidget.h"
 #include "IFPFrameItemModel.h"
 #include "../../gui/GLContainerWidget.h"

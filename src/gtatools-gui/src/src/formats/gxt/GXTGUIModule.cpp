@@ -23,7 +23,7 @@
 #include "GXTGUIModule.h"
 #include <QFileDialog>
 #include <nxcommon/file/File.h>
-#include <QtCore/QSettings>
+#include <QSettings>
 #include "../../gui/MainWindow.h"
 #include "GXTFormatHandler.h"
 #include "GXTWidget.h"

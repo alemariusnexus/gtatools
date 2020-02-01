@@ -29,7 +29,7 @@
 #include "../../DefaultDisplayedEntityHandler.h"
 #include <QWidget>
 #include <QStackedWidget>
-#include <QtCore/QMap>
+#include <QMap>
 
 
 

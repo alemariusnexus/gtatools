@@ -22,6 +22,8 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
 PROJECT(prj-gta C CXX)
 
+SET(GTATOOLS_INSTALL_ENABLED OFF CACHE BOOL "If true, CMake INSTALL commands will be run for gtatools.")
+
 IF(NOT TARGET nxcommon)
     FIND_PACKAGE(Nxcommon REQUIRED CONFIG)
 ENDIF()
@@ -31,6 +33,9 @@ INCLUDE(NxResourceCompiler)
 
 IF(NOT NXCOMMON_BULLET_SUPPORT)
     MESSAGE(SEND_ERROR "libnxcommon was built without Bullet support. You need to build it with Bullet support enabled!")
+ENDIF()
+IF(NOT NXCOMMON_OPENGL_ENABLED)
+    MESSAGE(SEND_ERROR "libnxcommon was built without OpenGL support. You need to build it with OpenGL support enabled!")
 ENDIF()
 
 IF(NOT TARGET gtaformats)
@@ -209,35 +214,38 @@ ADD_LIBRARY(gta STATIC ${SRCS})
 ADD_DEPENDENCIES(gta libgta_res)
 TARGET_LINK_LIBRARIES(gta PUBLIC ${LIBRARIES} nxcommon gtaformats)
 TARGET_INCLUDE_DIRECTORIES(gta PUBLIC ${INCLUDES} $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}> $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
-TARGET_ADD_INSTALL_STATE_DEFINE(gta GTA)
 
-INSTALL(TARGETS gta EXPORT LibgtaTargets DESTINATION lib)
-INSTALL(	DIRECTORY gta
-		DESTINATION include
-		FILES_MATCHING
-			PATTERN *.h
-			PATTERN .svn EXCLUDE
-			PATTERN *.cmake.h EXCLUDE
-	)
-INSTALL(    FILES "${CMAKE_CURRENT_BINARY_DIR}/gta/config.h"
-        DESTINATION "include/gta"
+IF(GTATOOLS_INSTALL_ENABLED)
+    TARGET_ADD_INSTALL_STATE_DEFINE(gta GTA)
+
+    INSTALL(TARGETS gta EXPORT LibgtaTargets DESTINATION lib)
+    INSTALL(	DIRECTORY gta
+            DESTINATION include
+            FILES_MATCHING
+                PATTERN *.h
+                PATTERN .svn EXCLUDE
+                PATTERN *.cmake.h EXCLUDE
+        )
+    INSTALL(    FILES "${CMAKE_CURRENT_BINARY_DIR}/gta/config.h"
+            DESTINATION "include/gta"
+        )
+
+    EXPORT (
+        EXPORT LibgtaTargets
+        FILE "${CMAKE_CURRENT_BINARY_DIR}/cmakecfg/LibgtaTargets.cmake"
     )
 
-EXPORT (
-    EXPORT LibgtaTargets
-    FILE "${CMAKE_CURRENT_BINARY_DIR}/cmakecfg/LibgtaTargets.cmake"
-)
+    CONFIGURE_FILE(LibgtaConfig.cmake.in "${CMAKE_CURRENT_BINARY_DIR}/cmakecfg/LibgtaConfig.cmake" @ONLY)
 
-CONFIGURE_FILE(LibgtaConfig.cmake.in "${CMAKE_CURRENT_BINARY_DIR}/cmakecfg/LibgtaConfig.cmake" @ONLY)
+    INSTALL (
+        EXPORT LibgtaTargets
+        FILE LibgtaTargets.cmake
+        DESTINATION lib/cmake
+    )
 
-INSTALL (
-    EXPORT LibgtaTargets
-    FILE LibgtaTargets.cmake
-    DESTINATION lib/cmake
-)
-
-INSTALL (
-    FILES "${CMAKE_CURRENT_BINARY_DIR}/cmakecfg/LibgtaConfig.cmake"
-    DESTINATION lib/cmake
-)
+    INSTALL (
+        FILES "${CMAKE_CURRENT_BINARY_DIR}/cmakecfg/LibgtaConfig.cmake"
+        DESTINATION lib/cmake
+    )
+ENDIF()
 

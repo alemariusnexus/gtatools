@@ -31,7 +31,7 @@
 #include "../../BatchingUndoDecorator.h"
 #include "../../gui/HexEditorDocument.h"
 //#include "RWBSAnalyzer.h"
-#include <QtCore/QList>
+#include <QList>
 #include <QUndoStack>
 
 extern "C" {

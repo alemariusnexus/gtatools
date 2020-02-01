@@ -24,7 +24,7 @@
 #define LOGENTRY_H_
 
 #include <nxcommon/exception/Exception.h>
-#include <QtCore/QString>
+#include <QString>
 
 
 

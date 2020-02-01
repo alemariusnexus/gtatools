@@ -23,7 +23,7 @@
 #ifndef DISPLAYEDENTITYHANDLER_H_
 #define DISPLAYEDENTITYHANDLER_H_
 
-#include <QtCore/QObject>
+#include <QObject>
 #include <QUndoStack>
 #include "DisplayedEntity.h"
 

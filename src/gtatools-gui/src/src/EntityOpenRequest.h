@@ -24,9 +24,9 @@
 #define ENTITYOPENREQUEST_H_
 
 #include <nxcommon/file/File.h>
-#include <QtCore/QHash>
-#include <QtCore/QString>
-#include <QtCore/QVariant>
+#include <QHash>
+#include <QString>
+#include <QVariant>
 
 
 

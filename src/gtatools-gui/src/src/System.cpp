@@ -23,12 +23,12 @@
 #include "System.h"
 #include "formats/EntityManager.h"
 #include <gta/gl.h>
-#include <QtCore/QFile>
-#include <QtCore/QDateTime>
-#include <QtCore/QThread>
+#include <QFile>
+#include <QDateTime>
+#include <QThread>
 #include <QInputDialog>
 #include <QMessageBox>
-#include <QtOpenGL/QGLFormat>
+#include <QGLFormat>
 #include "DisplayedFile.h"
 #include "ProfileManager.h"
 #include <gta/scene/Scene.h>

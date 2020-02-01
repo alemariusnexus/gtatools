@@ -28,7 +28,7 @@
 #include <gta/resource/collision/COLMeshConverter.h>
 #include <gta/GLException.h>
 #include <gta/Engine.h>
-#include <QtCore/QLinkedList>
+#include <QLinkedList>
 #include <algorithm>
 #include "../../System.h"
 

@@ -23,12 +23,12 @@
 #ifndef RWBSSECTIONMODEL_H_
 #define RWBSSECTIONMODEL_H_
 
-#include <QtCore/QAbstractItemModel>
-#include <QtCore/QModelIndex>
-#include <QtCore/QVariant>
-#include <QtCore/QList>
-#include <QtCore/QLinkedList>
-#include <QtCore/QSet>
+#include <QAbstractItemModel>
+#include <QModelIndex>
+#include <QVariant>
+#include <QList>
+#include <QLinkedList>
+#include <QSet>
 #include <QUndoCommand>
 #include <gtaformats/rwbs/RWSection.h>
 #include "../../CompoundUndoCommand.h"

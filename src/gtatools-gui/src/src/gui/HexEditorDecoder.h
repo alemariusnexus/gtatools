@@ -27,7 +27,7 @@
 #include <ui_HexEditorDecoder.h>
 #include <QWidget>
 #include "HexEditor.h"
-#include <QtCore/QtEndian>
+#include <QtEndian>
 #include <nxcommon/util.h>
 
 

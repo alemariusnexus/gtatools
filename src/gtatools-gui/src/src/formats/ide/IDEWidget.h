@@ -26,7 +26,7 @@
 #include <QWidget>
 #include <ui_IDEWidget.h>
 #include <nxcommon/file/File.h>
-#include <QtCore/QLinkedList>
+#include <QLinkedList>
 #include <QBrush>
 #include "../../EntityOpenRequest.h"
 

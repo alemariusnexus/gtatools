@@ -24,7 +24,7 @@
 #define COLRENDERWIDGET_H_
 
 #include <QWidget>
-#include <QtCore/QSet>
+#include <QSet>
 #include <gtaformats/col/COLModel.h>
 #include <gta/render/DefaultRenderer.h>
 #include <gta/render/RenderingMesh.h>

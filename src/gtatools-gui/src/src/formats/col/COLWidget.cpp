@@ -24,7 +24,7 @@
 #include "COLWidget.h"
 #include "COLGUIModule.h"
 #include "../../System.h"
-#include <QtCore/QSettings>
+#include <QSettings>
 #include <QFileSystemModel>
 
 

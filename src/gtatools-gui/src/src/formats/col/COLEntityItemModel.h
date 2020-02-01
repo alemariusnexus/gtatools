@@ -23,8 +23,8 @@
 #ifndef COLENTITYITEMMODEL_H_
 #define COLENTITYITEMMODEL_H_
 
-#include <QtCore/QAbstractItemModel>
-#include <QtCore/QSet>
+#include <QAbstractItemModel>
+#include <QSet>
 #include <gtaformats/col/COLModel.h>
 
 

@@ -25,9 +25,9 @@
 
 #include <gtaformats/dff/DFFGeometry.h>
 #include <gtaformats/dff/DFFGeometryPart.h>
-#include <QtCore/QAbstractItemModel>
-#include <QtCore/QList>
-#include <QtCore/QLinkedList>
+#include <QAbstractItemModel>
+#include <QList>
+#include <QLinkedList>
 #include <algorithm>
 
 using std::find;

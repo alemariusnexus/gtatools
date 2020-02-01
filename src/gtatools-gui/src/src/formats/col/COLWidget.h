@@ -27,7 +27,7 @@
 #include <QWidget>
 #include "ui_COLWidget.h"
 #include <gtaformats/gtacol.h>
-#include <QtCore/QList>
+#include <QList>
 #include "COLRenderWidget.h"
 #include "../../gui/GLContainerWidget.h"
 #include "COLEntityItemModel.h"

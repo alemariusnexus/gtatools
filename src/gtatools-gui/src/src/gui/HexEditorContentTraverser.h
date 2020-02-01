@@ -23,9 +23,9 @@
 #ifndef HEXEDITORCONTENTTRAVERSER_H_
 #define HEXEDITORCONTENTTRAVERSER_H_
 
-#include <QtCore/QObject>
-#include <QtCore/QList>
-#include <QtCore/QMultiMap>
+#include <QObject>
+#include <QList>
+#include <QMultiMap>
 #include "HexEditorBlock.h"
 #include "HexEditorDocument.h"
 

@@ -26,8 +26,8 @@
 #include <ui_FileSearchDialog.h>
 #include <QDialog>
 #include <QWidget>
-#include <QtCore/QLinkedList>
-#include <QtCore/QList>
+#include <QLinkedList>
+#include <QList>
 #include <QProgressDialog>
 #include "../Task.h"
 #include <nxcommon/file/FileFinder.h>

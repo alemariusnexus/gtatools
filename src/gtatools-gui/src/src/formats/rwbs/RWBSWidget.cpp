@@ -25,7 +25,7 @@
 #include "../../System.h"
 #include "../../gui/HexEditorUndoCommand.h"
 #include <gtaformats/img/IMGArchive.h>
-#include <QtCore/QSettings>
+#include <QSettings>
 #include <QPushButton>
 
 

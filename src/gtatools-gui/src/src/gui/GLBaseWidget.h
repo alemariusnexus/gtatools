@@ -26,8 +26,8 @@
 #include <gtatools-gui/config.h>
 #include <gta/gl.h>
 #include <QWidget>
-#include <QtOpenGL/QGLWidget>
-#include <QtCore/QFile>
+#include <QGLWidget>
+#include <QFile>
 #include <gta/Shader.h>
 #include <gta/ShaderProgram.h>
 #include <gta/Camera.h>

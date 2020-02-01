@@ -23,10 +23,10 @@
 #ifndef GUIMODULE_H_
 #define GUIMODULE_H_
 
-#include <QtCore/QObject>
+#include <QObject>
 #include <QMenu>
 #include <nxcommon/file/File.h>
-#include <QtCore/QLinkedList>
+#include <QLinkedList>
 
 
 class MainWindow;

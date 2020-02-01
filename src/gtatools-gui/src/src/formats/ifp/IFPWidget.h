@@ -27,7 +27,7 @@
 #include <QWidget>
 #include <nxcommon/file/File.h>
 #include <gtaformats/ifp/IFPAnimation.h>
-#include <QtCore/QList>
+#include <QList>
 
 
 

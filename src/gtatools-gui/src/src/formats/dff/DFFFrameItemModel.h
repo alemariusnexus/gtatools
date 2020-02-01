@@ -25,8 +25,8 @@
 
 #include <gtaformats/dff/DFFFrame.h>
 #include <gtaformats/dff/DFFMesh.h>
-#include <QtCore/QAbstractItemModel>
-#include <QtCore/QVariant>
+#include <QAbstractItemModel>
+#include <QVariant>
 
 
 class DFFFrameItemModel : public QAbstractItemModel

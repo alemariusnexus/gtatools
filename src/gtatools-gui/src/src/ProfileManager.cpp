@@ -22,9 +22,9 @@
 
 #include <gtatools-gui/config.h>
 #include "ProfileManager.h"
-#include <QtCore/QSettings>
-#include <QtCore/QString>
-#include <QtCore/QTimer>
+#include <QSettings>
+#include <QString>
+#include <QTimer>
 #include <nxcommon/file/File.h>
 #include <nxcommon/exception/OutOfBoundsException.h>
 #include "System.h"

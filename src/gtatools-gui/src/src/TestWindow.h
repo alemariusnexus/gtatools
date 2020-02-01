@@ -25,7 +25,7 @@
 
 #include <QMainWindow>
 #include <QTextEdit>
-#include <QtCore/QList>
+#include <QList>
 
 
 class TestWindow : public QMainWindow
