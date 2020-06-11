@@ -9,7 +9,7 @@ gtatools currently consists of the following parts:
 * **libgta**: A library that provides an engine which should work as a base for creating programs using the GTA files. This also includes the rendering system based on OpenGL
 * **gtaimg**: A command line tool to work with IMG archives
 * **gtatxd**: A command line tool to work with TXD archives
-* **gtatools-gui**: A GUI tool based on Qt4 which currently serves as a debugging and testing tool for gtatools, but may also be useful to work with GTA files
+* **gtatools-gui**: A GUI tool based on Qt4/Qt5 which currently serves as a debugging and testing tool for gtatools, but may also be useful to work with GTA files
 * **gtatools-test**: A simple and ugly prototyping program used to test new features. Most of the time, it just renders the static map along with some testing stuff for features that are currently tested.
 
 
@@ -26,7 +26,7 @@ Binaries and prebuilt dependencies for Windows can be downloaded [here](http://a
 
 # Building and Dependencies
 
-**There is now a [new, more detailed guide](http://alemariusnexus.com/gtatools/building.htm) for building gtatools.**
+**There is a [more detailed guide](http://alemariusnexus.com/gtatools/building.htm) for building gtatools. Note that this guide is quite outdated, but it might still provide some good hints.**
 
 The components of GTATools depend on the following libraries. Note that this might change quite rapidly as GTATools is evolving:
 
@@ -37,7 +37,7 @@ The components of GTATools depend on the following libraries. Note that this mig
   * **libgtaformats**: Including all its dependencies
   * **OpenGL**: Version >= 3.0 is needed.
   * **GLEW**: OpenGL extension wrangler library
-  * **Lua**
+  * **LuaJIT**: LuaJIT 2.1 is required. Note that vanilla Lua will probably not work (and if it does, then it WILL stop working sooner or later)
   * **Bullet**: The Bullet physics engine (version 2.x).
   * **CEGUI**
 * **gtaimg**:
@@ -49,9 +49,9 @@ The components of GTATools depend on the following libraries. Note that this mig
 * **gtatools-gui**:
   * **libgtaformats**: Including all its dependencies
   * **libgta**: Including all its dependencies
-  * **Qt 4**: Qt 5 is not supported yet.
+  * **Qt 4/5**: Qt5 is now the preferred option, but Qt4 should still work. Change it through NXCOMMON_QT_SUPPORT in CMake
 
-Prebuilt dependencies for Windows can be downloaded [here](http://alemariusnexus.com/gtatools).
+~~Prebuilt dependencies for Windows can be downloaded [here](http://alemariusnexus.com/gtatools).~~ Do not use them. They are old, horrible, and might not even work with newer versions anymore. For now you'll have to take care of the dependencies manually I'm afraid.
 
 
 
