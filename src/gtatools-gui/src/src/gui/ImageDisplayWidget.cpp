@@ -23,6 +23,7 @@
 #include "ImageDisplayWidget.h"
 #include <QVBoxLayout>
 #include <QLineEdit>
+#include <cmath>
 #include "PercentageValidator.h"
 
 

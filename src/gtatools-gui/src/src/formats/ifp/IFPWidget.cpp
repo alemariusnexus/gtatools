@@ -100,7 +100,6 @@ void IFPWidget::currentObjectChanged(int row)
 
 	ui.boneIDLabel->setText(QString("%1").arg(obj->getBoneID()));
 
-	printf("Object has %d frames\n", obj->getFrameCount());
 	ui.frameNumSpinner->setRange(0, obj->getFrameCount()-1);
 	ui.frameNumSlider->setRange(0, obj->getFrameCount()-1);
 	ui.frameNumSpinner->setValue(0);

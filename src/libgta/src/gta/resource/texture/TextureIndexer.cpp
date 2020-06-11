@@ -24,6 +24,7 @@
 #include <gtaformats/txd/TXDArchive.h>
 #include <gtaformats/txd/TXDTextureHeader.h>
 #include <nxcommon/strutil.h>
+#include <nxcommon/log.h>
 #include <cstring>
 #include <cstdio>
 #include <utility>
@@ -55,8 +56,8 @@ void TextureIndexer::resourceAdded(const File& file)
 #ifndef NDEBUG
 		if (archives.find(txdName) != archives.end()) {
 			char* oldPath = dbgArchivePaths.find(txdName)->second;
-			fprintf(stderr, "WARNING: Conflicting resources: A TXD archive with the same name as %s was "
-					"already added! Previous resource: %s\n", file.getPath().toString().get(), oldPath);
+			LogWarning("Conflicting resources: A TXD archive with the same name as %s was "
+					"already added! Previous resource: %s", file.getPath().toString().get(), oldPath);
 		}
 #endif
 

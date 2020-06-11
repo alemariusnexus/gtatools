@@ -102,10 +102,10 @@ void GLDebugInit()
 	rdVertexRectShaderData = (const char*) res_render_depth_rect_vertex_shader_data;
 	rdFragmentRectShaderData = (const char*) res_render_depth_rect_fragment_shader_data;
 
-	rdVertex2dShaderDataLen = sizeof(res_render_depth_2d_vertex_shader_data);
-	rdFragment2dShaderDataLen = sizeof(res_render_depth_2d_fragment_shader_data);
-	rdVertexRectShaderDataLen = sizeof(res_render_depth_rect_vertex_shader_data);
-	rdFragmentRectShaderDataLen = sizeof(res_render_depth_rect_fragment_shader_data);
+	rdVertex2dShaderDataLen = res_render_depth_2d_vertex_shader_size;
+	rdFragment2dShaderDataLen = res_render_depth_2d_fragment_shader_size;
+	rdVertexRectShaderDataLen = res_render_depth_rect_vertex_shader_size;
+	rdFragmentRectShaderDataLen = res_render_depth_rect_fragment_shader_size;
 
 
 	Shader* rdVertex2dShader = new Shader(GL_VERTEX_SHADER, "Render Depth Buffer 2D Vertex Shader");

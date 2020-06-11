@@ -30,6 +30,7 @@
 #include <QStandardItemModel>
 #include <QtCore/QTime>
 #include <QtCore/QSettings>
+#include <QHeaderView>
 
 
 
@@ -191,6 +192,7 @@ void FileTree::entityOpened(DisplayedEntity* ent)
 				if (index.isValid()) {
 					QModelIndex idx = proxyModel->mapFromSource(index);
 					setCurrentIndex(idx);
+					scrollTo(idx, FileTree::PositionAtCenter);
 				}
 			}
 		}

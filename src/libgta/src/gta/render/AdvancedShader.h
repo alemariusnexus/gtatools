@@ -34,6 +34,7 @@ class AdvancedShader
 public:
 	AdvancedShader(GLenum type, const CString& name = CString());
 	void setSourceCode(const CString& code) { this->code = code; }
+	CString getSourceCode() const { return code; }
 
 private:
 	void compile(const CString& headerCode);

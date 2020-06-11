@@ -46,7 +46,7 @@ DPTestShaderPlugin::DPTestShaderPlugin()
 
 
 	data = (const char*) res_dp_test_vertex_shader_data;
-	dataLen = sizeof(res_dp_test_vertex_shader_data);
+	dataLen = res_dp_test_vertex_shader_size;
 
 	char* code = new char[headerCode.length() + dataLen + 32];
 	CString resCode(data, dataLen);
@@ -59,7 +59,7 @@ DPTestShaderPlugin::DPTestShaderPlugin()
 
 
 	data = (const char*) res_dp_test_fragment_shader_data;
-	dataLen = sizeof(res_dp_test_fragment_shader_data);
+	dataLen = res_dp_test_fragment_shader_size;
 
 	char* fcode = new char[fheaderCode.length() + dataLen + 32];
 	CString fresCode(data, dataLen);

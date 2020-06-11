@@ -21,6 +21,7 @@
  */
 
 #include "VehicleController.h"
+#include <nxcommon/log.h>
 #include <gta/scene/objects/SimpleDynamicSceneObject.h>
 #include <gta/scene/objects/MapSceneObject.h>
 #include <gta/scene/objects/MapSceneObjectLODInstance.h>
@@ -135,7 +136,7 @@ MapSceneObject* VehicleController::generateFloor()
 
 void VehicleController::init()
 {
-	printf("VHC Init\n");
+	LogInfo("VHC Init\n");
 
 	MapSceneObject* floor = generateFloor();
 	floor->setModelMatrix(Matrix4::translation(0.0f, 0.0f, 200.0f));

@@ -25,6 +25,7 @@
 #include <cstring>
 #include <cstdio>
 #include <utility>
+#include <nxcommon/log.h>
 
 using std::pair;
 
@@ -183,7 +184,7 @@ void ShaderProgram::link()
 
 		size_t nameLen = !name.isNull() ? name.length() : 16;
 		char* errmsg = new char[actualLength + 64 + nameLen];
-		sprintf(errmsg, "Error linking shader program \"%s\" [#%d]. Info log:\n\n%s",
+		sprintf(errmsg, "Error linking shader program \"%s\" [#%d]. Build log:\n\n%s",
 				!name.isNull() ? name.get() : "[UNNAMED]", program, log);
 		GLException ex(errmsg, __FILE__, __LINE__);
 		delete[] errmsg;
@@ -202,14 +203,15 @@ void ShaderProgram::link()
 			clog.trim();
 
 			if (clog.length() != 0) {
-				printf("\nSuccessfully compiled shader program \"%s\" [#%d]. Build log:\n==========\n%s\n==========\n\n",
-						!name.isNull() ? name.get() : "[UNNAMED]", program, clog.get());
+				LogMultiDebug("Successfully linked shader program \"%s\" [#%d]. Build log:\n%s",
+						!name.isNull() ? name.get() : "[UNNAMED]", program,
+						clog.indented("    ", true).get());
 			} else {
-				printf("Successfully compiled shader program \"%s\" [#%d]. Build log is empty\n",
+				LogMultiVerbose("Successfully linked shader program \"%s\" [#%d]. Build log is empty.",
 						!name.isNull() ? name.get() : "[UNNAMED]", program);
 			}
 		} else {
-			printf("\nSuccessfully compiled shader program \"%s\" [#%d]. Build log is empty\n\n",
+			LogMultiVerbose("Successfully linked shader program \"%s\" [#%d]. Build log is empty.",
 					!name.isNull() ? name.get() : "[UNNAMED]", program);
 		}
 	}

@@ -41,7 +41,7 @@ using std::distance;
 
 
 Profile::Profile(const QString& name)
-		: name(QString(name)), stopResourceLoading(false)
+		: name(QString(name)), stopResourceLoading(false), resourceIndexFunctional(false)
 {
 	connect(ProfileManager::getInstance(), SIGNAL(currentProfileChanged(Profile*, Profile*)), this,
 			SLOT(currentProfileChanged(Profile*, Profile*)));
@@ -129,6 +129,8 @@ void Profile::doLoadResourceIndex()
 {
 	Engine* engine = Engine::getInstance();
 	System* sys = System::getInstance();
+
+	resourceIndexFunctional = false;
 
 	ResourceIterator it;
 
@@ -240,6 +242,10 @@ void Profile::loadSingleDAT()
 		QTimer::singleShot(0, this, SLOT(loadSingleDAT()));
 	} else {
 		delete datLoadingTask;
+
+		resourceIndexFunctional = true;
+
+		emit resourceIndexInitialized();
 	}
 }
 

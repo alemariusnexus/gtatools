@@ -55,10 +55,10 @@ TestShaderPlugin::TestShaderPlugin(uint32_t num)
 
 	if (num == 0) {
 		data = (const char*) res_test_vertex_shader_data;
-		dataLen = sizeof(res_test_vertex_shader_data);
+		dataLen = res_test_vertex_shader_size;
 	} else if (num == 1) {
 		data = (const char*) res_test_vertex2_shader_data;
-		dataLen = sizeof(res_test_vertex2_shader_data);
+		dataLen = res_test_vertex2_shader_size;
 	}
 
 	char* code = new char[headerCode.length() + dataLen + 32];
@@ -73,10 +73,10 @@ TestShaderPlugin::TestShaderPlugin(uint32_t num)
 
 	if (num == 0) {
 		data = (const char*) res_test_fragment_shader_data;
-		dataLen = sizeof(res_test_fragment_shader_data);
+		dataLen = res_test_fragment_shader_size;
 	} else if (num == 1) {
 		data = (const char*) res_test_fragment2_shader_data;
-		dataLen = sizeof(res_test_fragment2_shader_data);
+		dataLen = res_test_fragment2_shader_size;
 	}
 
 	char* fcode = new char[fheaderCode.length() + dataLen + 32];

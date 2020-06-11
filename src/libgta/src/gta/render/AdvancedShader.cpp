@@ -21,6 +21,7 @@
  */
 
 #include "AdvancedShader.h"
+#include <nxcommon/log.h>
 
 
 

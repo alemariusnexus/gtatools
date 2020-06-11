@@ -33,7 +33,6 @@
 COLSphereBoxRenderWidget::COLSphereBoxRenderWidget(QWidget* parent)
 		: GLBaseWidget(parent), scene(NULL)
 {
-	printf("Creating COLSphereBoxRenderWidget\n");
 }
 
 

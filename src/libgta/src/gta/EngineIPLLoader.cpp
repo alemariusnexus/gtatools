@@ -26,6 +26,7 @@
 #include "MapItemDefinition.h"
 #include "scene/objects/MapSceneObject.h"
 #include "EngineException.h"
+#include <nxcommon/log.h>
 #include <gtaformats/ipl/IPLReader.h>
 #include <gtaformats/ipl/IPLInstance.h>
 #include <queue>
@@ -178,7 +179,7 @@ void EngineIPLLoader::load(const File& file, Scene::ObjectList& objects, GameInf
 							}
 						}
 					} else {
-						printf("WARNING: Object with ID %d (%s) not found!\n", id, inst->getModelName().get());
+						LogWarning("Object with ID %d (%s) not found!", id, inst->getModelName().get());
 
 						if (ver == GameInfo::GTASA) {
 							saLocalObjs.push_back(NULL);

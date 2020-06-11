@@ -34,6 +34,12 @@ public:
 	static void checkError(const CString& = CString());
 	static void checkFramebufferStatus(GLenum target, const CString& msg = CString());
 
+#ifndef NDEBUG
+	static void checkDebugError(const CString& msg = CString()) { checkError(msg); }
+#else
+	static void checkDebugError(const CString& msg = CString()) {}
+#endif
+
 public:
 	GLException(const CString& message, const CString& srcFile = CString(), int srcLine = -1,
 			Exception* nestedException = NULL)

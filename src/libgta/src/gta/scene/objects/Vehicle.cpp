@@ -27,6 +27,7 @@
 #include "../../resource/collision/ManagedCollisionShapePointer.h"
 #include "../../resource/physics/ManagedPhysicsPointer.h"
 #include <BulletCollision/NarrowPhaseCollision/btRaycastCallback.h>
+#include <nxcommon/log.h>
 
 
 
@@ -88,7 +89,7 @@ void Vehicle::createWheel(const CString& dummyName)
 
 	glUnmapBuffer(GL_ARRAY_BUFFER);
 
-	printf("Wheel radius: %f\n", wheel.radius);
+	LogDebug("Wheel radius: %f", wheel.radius);
 
 	wheel.maxSuspensionCompression = 0.1f;
 	wheel.maxSuspensionRelaxation = 0.25f;
@@ -217,9 +218,9 @@ void Vehicle::updatePhysics(btDiscreteDynamicsWorld* physWorld, uint64_t timePas
 		combinedForce += wheel.suspensionForce;
 	}
 
-	printf("Gravity: %.3f\n", rb->getGravity().length() / rb->getInvMass());
+	LogDebug("Gravity: %.3f", rb->getGravity().length() / rb->getInvMass());
 
-	printf("Combined suspension force: %.3fN\n", combinedForce);
+	LogDebug("Combined suspension force: %.3fN", combinedForce);
 #endif
 
 	rb->applyForce(forwardWS*force, Vector3::Zero);

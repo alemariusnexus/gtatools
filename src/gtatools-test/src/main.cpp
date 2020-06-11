@@ -23,6 +23,7 @@
 #include <gta/gl.h>
 #include <cstdio>
 #include <fstream>
+#include <nxcommon/config.cmake.h>
 #include <nxcommon/math/Matrix4.h>
 #include <nxcommon/util.h>
 #include <nxcommon/strutil.h>
@@ -30,6 +31,8 @@
 #include <nxcommon/math/project.h>
 #include <nxcommon/file/DefaultFileFinder.h>
 #include <nxcommon/file/FileException.h>
+#include <nxcommon/log.h>
+#include <gtaformats/config.h>
 #include <gtaformats/gtadff.h>
 #include <gtaformats/gtaide.h>
 #include <gtaformats/gtaipl.h>
@@ -102,21 +105,21 @@ void initWindowSystem(int w, int h)
 	SDL_VERSION(&wmInfo.version);
 
 	if (!SDL_GetWMInfo(&wmInfo)) {
-		printf("Error\n");
+		LogError("Error in SDL_GetWMInfo()");
 		exit(-1);
 	}
 
 	eglDisplay = eglGetDisplay((EGLNativeDisplayType) wmInfo.info.x11.display);
 
 	if (eglDisplay == EGL_NO_DISPLAY) {
-		cerr << "ERROR: No display available!" << endl;
+		LogError("No EGL display available!");
 		return;
 	}
 
 	EGLint major, minor;
 
 	if (!eglInitialize(eglDisplay, &major, &minor)) {
-		cerr << "ERROR: Could not initialize EGL (error code 0x" << hex << eglGetError() << dec << ")!" << endl;
+		LogError("Could not initialize EGL (error code 0x%X)!", eglGetError());
 		return;
 	}
 
@@ -134,15 +137,15 @@ void initWindowSystem(int w, int h)
 	EGLint numConfigs;
 
     if (!eglGetConfigs(eglDisplay, NULL, 0, &numConfigs)) {
-        cerr << "ERROR: Unable to get EGL configs (error code 0x" << hex << eglGetError() << dec << ")!" << endl;
+        LogError("Unable to get EGL configs (error code 0x%X)!", eglGetError());
         return;
     }
 
 
-    printf("************* EGL CONFIGS *************\n");
+    LogInfo("************* EGL CONFIGS *************");
 
-    printf("#  R  G  B  A  D  S  CAV  CONF \n");
-    printf("-------------------------------\n");
+    LogInfo("#  R  G  B  A  D  S  CAV  CONF ");
+    LogInfo("-------------------------------");
 
     EGLConfig* configs = new EGLConfig[numConfigs];
 
@@ -160,50 +163,52 @@ void initWindowSystem(int w, int h)
         eglGetConfigAttrib(eglDisplay, configs[i], EGL_CONFIG_CAVEAT, &cav);
         eglGetConfigAttrib(eglDisplay, configs[i], EGL_CONFORMANT, &conf);
 
-        printf("%-2d %-2d %-2d %-2d %-2d %-2d %-2d ", i, r, g, b, a, d, s);
+        char cfgLine[256];
+
+        sprintf(cfgLine, "%-2d %-2d %-2d %-2d %-2d %-2d %-2d ", i, r, g, b, a, d, s);
 
         if (cav == EGL_NONE)
-        	printf("none ");
+        	strcat(cfgLine, "none ");
         else if (cav == EGL_SLOW_CONFIG)
-        	printf("slow ");
+        	strcat(cfgLine, "slow ");
         else if (cav == EGL_NON_CONFORMANT_CONFIG)
-        	printf("ncon ");
+        	strcat(cfgLine, "ncon ");
 
         if ((conf & EGL_OPENGL_ES_BIT) != 0)
-        	printf("1");
+        	strcat(cfgLine, "1");
         else
-        	printf(" ");
+        	strcat(cfgLine, " ");
 
         if ((conf & EGL_OPENGL_ES2_BIT) != 0)
-        	printf("2");
+        	strcat(cfgLine, "2");
         else
-        	printf(" ");
+        	strcat(cfgLine, " ");
 
         if ((conf & EGL_OPENVG_BIT) != 0)
-        	printf("V");
+        	strcat(cfgLine, "V");
         else
-        	printf(" ");
+        	strcat(cfgLine, " ");
 
         if ((conf & EGL_OPENGL_BIT) != 0)
-        	printf("G");
+        	strcat(cfgLine, "G");
         else
-        	printf(" ");
+        	strcat(cfgLine, " ");
 
-        printf("\n");
+        LogInfo("%s", cfgLine);
     }
 
-    printf("************* END EGL CONFIGS *************\n");
+    LogInfo("************* END EGL CONFIGS *************");
 
 
     EGLConfig config;
 
 	if (!eglChooseConfig(eglDisplay, eglAttribs, &config, 1, &numConfigs)) {
-		cerr << "ERROR: Could not choose config (error code 0x" << hex << eglGetError() << dec << ")!" << endl;
+		LogError("Could not choose config (error code 0x%X)!", eglGetError());
 		return;
 	}
 
 	if (numConfigs < 1) {
-		cerr << "ERROR: no matching config could be found (error code 0x" << hex << eglGetError() << dec << ")!" << endl;
+		LogError("No matching config could be found (error code 0x%X)!", eglGetError());
 		return;
 	}
 
@@ -215,12 +220,12 @@ void initWindowSystem(int w, int h)
 	eglGetConfigAttrib(eglDisplay, config, EGL_ALPHA_SIZE, &alphaSize);
 	eglGetConfigAttrib(eglDisplay, config, EGL_DEPTH_SIZE, &depthSize);
 
-	printf("Framebuffer: R%d G%d B%d A%d D%d\n", redSize, greenSize, blueSize, alphaSize, depthSize);
+	LogInfo("Framebuffer: R%d G%d B%d A%d D%d", redSize, greenSize, blueSize, alphaSize, depthSize);
 
 	eglSurface = eglCreateWindowSurface(eglDisplay, config, (EGLNativeWindowType) wmInfo.info.x11.window, NULL);
 
 	if (eglSurface == EGL_NO_SURFACE) {
-		cerr << "ERROR: Creating surface failed (error code 0x" << hex << eglGetError() << dec << ")!" << endl;
+		LogError("Creating surface failed (error code 0x%X)!", eglGetError());
 		return;
 	}
 
@@ -233,13 +238,13 @@ void initWindowSystem(int w, int h)
 		eglContext = eglCreateContext(eglDisplay, config, EGL_NO_CONTEXT, eglContextAttribs);
 
 		if (eglContext == EGL_NO_CONTEXT) {
-			cerr << "ERROR: Creating GLES2 context failed (error code 0x" << hex << eglGetError() << dec << ")!" << endl;
+			LogError("Creating GLES2 context failed (error code 0x%X)!", eglGetError());
 			return;
 		}
 	}
 
 	if (!eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext)) {
-		cerr << "ERROR making GLES2 context current (error code 0x" << hex << eglGetError() << dec << ")!" << endl;
+		LogError("Error making GLES2 context current (error code 0x%X)!", eglGetError());
 		return;
 	}
 
@@ -267,7 +272,7 @@ void initWindowSystem(int w, int h)
 	SDL_GL_GetAttribute(SDL_GL_ALPHA_SIZE, &a);
 	SDL_GL_GetAttribute(SDL_GL_STENCIL_SIZE, &ssize);
 
-	printf("Framebuffer: R%d G%d B%d A%d D%d S%d\n", r, g, b, a, dsize, ssize);
+	LogInfo("Framebuffer: R%d G%d B%d A%d D%d S%d", r, g, b, a, dsize, ssize);
 #endif
 }
 
@@ -275,6 +280,11 @@ void initWindowSystem(int w, int h)
 int main(int argc, char** argv)
 {
 	try {
+		SetLogLevel(LOG_LEVEL_DEBUG);
+
+		LogInfo("Using gtatools version %s", GTATOOLS_VERSION);
+		LogInfo("Using nxcommon version %s", NXCOMMON_VERSION);
+
 		Controller controller;
 
 		XMLDocument* configDoc = controller.getConfigDocument();
@@ -284,7 +294,7 @@ int main(int argc, char** argv)
 		try {
 			executableDir = File::getExecutableFile().getParent();
 		} catch (FileException& ex) {
-			fprintf(stderr, "WARNING: Executable directory could not be found. Cause: %s\n", ex.what());
+			LogWarning("Executable directory could not be found. Cause: %s", ex.what());
 		}
 
 		File configFile("config.xml");
@@ -293,15 +303,15 @@ int main(int argc, char** argv)
 			configFile = File(executableDir, "config.xml");
 
 			if (!configFile.isRegularFile()) {
-				fprintf(stderr, "ERROR: config.xml was not found!\n");
+				LogError("config.xml was not found!\n");
 				exit(1);
 			}
 		}
 
-		printf("Using config.xml: %s\n", configFile.getCanonicalFile().toString().get());
+		LogInfo("Using config.xml: %s", configFile.getCanonicalFile().toString().get());
 
 		if (configDoc->LoadFile(configFile.toString().get()) != XML_NO_ERROR) {
-			fprintf(stderr, "ERROR: Error loading config.xml: %s\n", configDoc->GetErrorStr1());
+			LogError("Error loading config.xml: %s\n", configDoc->GetErrorStr1());
 			exit(1);
 		}
 
@@ -311,7 +321,8 @@ int main(int argc, char** argv)
 		unsigned int windowHeight = windowGeomElem->UnsignedAttribute("height");
 
 		if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-			printf("ERROR Initializing SDL\n");
+			LogError("Error Initializing SDL");
+			exit(1);
 		}
 
 		// To prevent SDL from writing stdout/stderr to a file on Windows
@@ -396,7 +407,6 @@ int main(int argc, char** argv)
 					running = false;
 					break;
 				case SDL_VIDEORESIZE:
-					printf("RESIZED!\n");
 	#ifdef GT_USE_OPENGL_ES
 					//eglDestroyContext(eglDisplay, eglContext);
 					eglDestroySurface(eglDisplay, eglSurface);
@@ -415,15 +425,15 @@ int main(int argc, char** argv)
 
 		controller.shutdown();
 
-		printf("Program terminated normally.\n");
+		LogInfo("Program terminated normally.");
 
 		SDL_Quit();
 	} catch (Exception& ex) {
-		printf("Exception caught: %s\n", ex.what());
+		LogMultiError("Exception caught: %s", ex.what());
 		CString bt = ex.getBacktrace();
 
 		if (!bt.isNull()) {
-			printf("STACK TRACE:\n----------------------------\n%s\n----------------------------\n", bt.get());
+			LogMultiError("STACK TRACE:\n----------------------------\n%s\n----------------------------", bt.get());
 		}
 
 		exit(1);

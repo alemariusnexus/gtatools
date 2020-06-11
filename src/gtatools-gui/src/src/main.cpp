@@ -21,6 +21,8 @@
  */
 
 #include <gtatools-gui/config.h>
+#include <nxcommon/config.cmake.h>
+#include <gtaformats/config.h>
 #include "MainApplication.h"
 #include <QWidget>
 #include <QTreeView>
@@ -41,6 +43,7 @@
 #include <nxcommon/exception/Exception.h>
 #include <QMessageBox>
 #include <QtCore/QTimer>
+#include <QtCore/QCommandLineParser>
 #include <gta/Engine.h>
 #include <nxcommon/ResourceCache.h>
 #include <signal.h>
@@ -50,26 +53,11 @@
 #include <fstream>
 #include <nxcommon/util.h>
 #include <nxcommon/file/DefaultFileFinder.h>
+#include <nxcommon/log.h>
 #include "TestWindow.h"
 
 using std::ofstream;
 
-
-
-void listRecurse(const File& file, int ind = 0)
-{
-	for (File child : file.getChildren()) {
-		for (int i = 0 ; i < ind ; i++) {
-			printf("  ");
-		}
-
-		printf("%s\n", child.getPath().getFileName().get());
-
-		if (child.isDirectory()) {
-			listRecurse(child, ind+1);
-		}
-	}
-}
 
 
 int main(int argc, char** argv)
@@ -85,9 +73,12 @@ int main(int argc, char** argv)
 	try {
 		MainApplication app(argc, argv);
 
+		SetLogLevel(LOG_LEVEL_DEBUG);
+
 		app.setOrganizationName("gtatools");
 		app.setApplicationName("gtatools-gui");
 		app.setOrganizationDomain("gtatools.googlecode.com");
+		app.setApplicationVersion(GTATOOLS_VERSION);
 
 		QTranslator qtTrans;
 		qtTrans.load("qt_" + QLocale::system().name(), QLibraryInfo::location(QLibraryInfo::TranslationsPath));
@@ -112,10 +103,10 @@ int main(int argc, char** argv)
 			sys->unhandeledException(ex);
 		}
 	} catch (Exception& ex) {
-		fprintf(stderr, "### Caught unhandeled exception ###\n%s\n", ex.what());
+		LogMultiError("Caught unhandeled exception: %s", ex.what());
 
 		if (!ex.getBacktrace().isNull()) {
-			fprintf(stderr, "### Backtrace ###\n%s\n", ex.getBacktrace().get());
+			LogMultiError("### Backtrace ###\n%s", ex.getBacktrace().get());
 		}
 	}
 }

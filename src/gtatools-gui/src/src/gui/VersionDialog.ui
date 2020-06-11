@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>246</width>
-    <height>175</height>
+    <height>314</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -57,73 +57,87 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
+      <item row="2" column="0">
        <widget class="QLabel" name="label_4">
         <property name="text">
          <string>Qt Version</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
+      <item row="2" column="1">
        <widget class="QLabel" name="qtVersionLabel">
         <property name="text">
          <string notr="true">-</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="0">
+      <item row="3" column="0">
        <widget class="QLabel" name="label_7">
         <property name="text">
          <string>Linked Against Qt</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
+      <item row="3" column="1">
        <widget class="QLabel" name="qtLinkVersionLabel">
         <property name="text">
          <string notr="true">-</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="0">
+      <item row="4" column="0">
        <widget class="QLabel" name="label_8">
         <property name="text">
          <string>OpenGL Vendor</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="1">
+      <item row="4" column="1">
        <widget class="QLabel" name="glVendorLabel">
         <property name="text">
          <string notr="true">-</string>
         </property>
        </widget>
       </item>
-      <item row="4" column="0">
+      <item row="5" column="0">
        <widget class="QLabel" name="label_10">
         <property name="text">
          <string>OpenGL Renderer</string>
         </property>
        </widget>
       </item>
-      <item row="4" column="1">
+      <item row="5" column="1">
        <widget class="QLabel" name="glRendererLabel">
         <property name="text">
          <string notr="true">-</string>
         </property>
        </widget>
       </item>
-      <item row="5" column="0">
+      <item row="6" column="0">
        <widget class="QLabel" name="label_12">
         <property name="text">
          <string>OpenGL Version</string>
         </property>
        </widget>
       </item>
-      <item row="5" column="1">
+      <item row="6" column="1">
        <widget class="QLabel" name="glVersionLabel">
         <property name="text">
          <string notr="true">-</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Nxcommon Version</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLabel" name="nxcommonVersionLabel">
+        <property name="text">
+         <string>-</string>
         </property>
        </widget>
       </item>

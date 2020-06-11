@@ -26,6 +26,7 @@
 #include <QtCore/QFile>
 #include <QtCore/QDateTime>
 #include <QtCore/QThread>
+#include <QtCore/QCommandLineParser>
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QtOpenGL/QGLFormat>
@@ -34,6 +35,7 @@
 #include <gta/scene/Scene.h>
 #include <gta/scene/visibility/PVSDatabase.h>
 #include <nxcommon/ResourceCache.h>
+#include <nxcommon/log.h>
 
 
 
@@ -64,6 +66,8 @@ System::System()
 
 	dummyTexImage = QImage(dummyTexData, dummyTexW, dummyTexH, QImage::Format_RGB888);
 	dummyTexImage = dummyTexImage.scaled(128, 128);
+
+	connect(this, SIGNAL(startupDone()), this, SLOT(startupDoneSlot()));
 }
 
 
@@ -82,6 +86,19 @@ void System::initialize()
 
 void System::initializeInstance()
 {
+	QCommandLineParser cli;
+
+	cli.setApplicationDescription(tr("gtatools-gui - A GUI program for working with files of the 3D GTA series"));
+	cli.addHelpOption();
+	cli.addVersionOption();
+
+	cli.addPositionalArgument(tr("FILE"), tr("File to open on startup"), tr("[FILE...]"));
+
+	cli.process(*qApp);
+
+	LogInfo("Using gtatools version %s", GTATOOLS_VERSION);
+	LogInfo("Using nxcommon version %s", NXCOMMON_VERSION);
+
 	initializeGL();
 
 	Engine* engine = Engine::getInstance();
@@ -90,7 +107,15 @@ void System::initializeInstance()
 	engine->getTextureCache()->resize(25 * 1000000); // 25MB
 	engine->getAnimationCache()->resize(10 * 1000000); // 10MB
 
-	ProfileManager::getInstance()->loadProfiles();
+
+	for (QString posArg : cli.positionalArguments()) {
+		startupOpenFiles << File(CString(posArg));
+	}
+
+
+	ProfileManager* profMgr = ProfileManager::getInstance();
+
+	profMgr->loadProfiles();
 
 	MainWindow* win = new MainWindow;
 	win->show();
@@ -103,7 +128,54 @@ void System::initializeInstance()
 
 	initializing = false;
 
+	connect(profMgr->getCurrentProfile(), SIGNAL(resourceIndexInitialized()), this, SLOT(profileResourceIndexInitialized()));
+
 	emit initializationDone();
+
+	if (profMgr->getProfileCount() == 0) {
+		emit startupDone();
+	}
+}
+
+
+void System::profileResourceIndexInitialized()
+{
+	// TODO: This will never get called if the initial profile loading is cancelled (e.g. by switching to another
+	// profile while it is in progress). Make it work in that case as well.
+
+	Profile* prof = (Profile*) sender();
+
+	disconnect(prof, SIGNAL(resourceIndexInitialized()), this, SLOT(profileResourceIndexInitialized()));
+
+	emit startupDone();
+}
+
+
+void System::startupDoneSlot()
+{
+	QLinkedList<File> invalidFiles;
+
+	for (File file : startupOpenFiles) {
+		if (file.exists()) {
+			if (!openFile(file)) {
+				invalidFiles << file;
+			}
+		} else {
+			invalidFiles << file;
+		}
+	}
+
+	if (!invalidFiles.empty()) {
+		QString text = QString("<html>%1\n<ul>").arg(tr("The following files could not be opened:"));
+
+		for (File file : invalidFiles) {
+			text.append(QString("<li>%1</li>").arg(file.toString().get()));
+		}
+
+		text.append("</ul></html>");
+
+		QMessageBox::warning(mainWindow, tr("Error Opening Files"), text);
+	}
 }
 
 
@@ -192,11 +264,11 @@ void System::initializeGL()
 	}
 
 	if (!foundMatching) {
-		fprintf(stderr, "ERROR: OpenGL >= 3.0 seems to be unsupported on the system. gtatools-gui will need at least OpenGL "
-				"3.0 to work correctly!\n");
+		LogError("OpenGL >= 3.0 seems to be unsupported on the system. gtatools-gui will need at least OpenGL "
+				"3.0 to work correctly!");
 	}
 
-	printf("Using OpenGL version %d.%d\n", majorVer, minorVer);
+	LogInfo("Using OpenGL version %d.%d", majorVer, minorVer);
 
 	QGLFormat::setDefaultFormat(defaultGlFormat);
 }
@@ -211,7 +283,7 @@ void System::unhandeledException(Exception& ex)
 	QFile logfile(logfileName);
 	logfile.open(QFile::WriteOnly);
 
-	printf("%s\n%s\n", ex.what(), bt.get());
+	LogError("%s\n%s\n", ex.what(), bt.get());
 
 	logfile.write("UNHANDELED EXCEPTION REPORT ");
 	logfile.write(dt.toString(Qt::ISODate).toLocal8Bit().constData());
@@ -235,8 +307,8 @@ void System::unhandeledException(Exception& ex)
 	if (QThread::currentThread() == qApp->thread()) {
 		QMessageBox::critical(NULL, tr("Unhandeled Exception"), exText);
 	} else {
-		fprintf(stderr, "### Unhandeled exception caught ###\n");
-		fprintf(stderr, "%s\n", exText.toLocal8Bit().constData());
+		LogError("### Unhandeled exception caught ###");
+		LogError("%s", exText.toLocal8Bit().constData());
 	}
 }
 

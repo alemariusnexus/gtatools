@@ -69,6 +69,23 @@ Engine* Engine::instance = NULL;
 
 
 
+void _EngineGLDebugMessageCallback (
+		GLenum source,
+		GLenum type,
+		GLuint id,
+		GLenum severity,
+		GLsizei length,
+		const GLchar* message,
+		const void* userParam
+) {
+	Engine* engine = (Engine*) userParam;
+
+	engine->onGLDebugMessage(source, type, id, severity, length, message, userParam);
+}
+
+
+
+
 Engine* Engine::getInstance()
 {
 	if (!instance)
@@ -128,6 +145,12 @@ Engine::Engine()
 	colCache = new StringResourceCache(colCacheLoader, 0);
 	animCache = new StringResourceCache(animCacheLoader, 0);
 	physicsCache = new StringResourceCache(physicsCacheLoader, 0);*/
+
+#ifndef NDEBUG
+	oglDebugLogLevel = GL_DEBUG_SEVERITY_NOTIFICATION;
+#else
+	oglDebugLogLevel = GL_DEBUG_SEVERITY_MEDIUM;
+#endif
 
 	addResourceObserver(meshIndexer.get());
 	addResourceObserver(texIndexer.get());
@@ -317,4 +340,118 @@ void Engine::advanceGameTime(int8_t h, int8_t m)
 	int16_t absTime = ((gameHours*60 + gameMinutes) + (h*60 + m)) % (24*60);
 	gameHours = absTime / 60;
 	gameMinutes = absTime % 60;
+}
+
+
+void Engine::setupDebug()
+{
+	if (gtaglIsVersionSupported(4, 3)) {
+		glDebugMessageCallback(&_EngineGLDebugMessageCallback, this);
+	}
+}
+
+
+void Engine::onGLDebugMessage (
+		GLenum source,
+		GLenum type,
+		GLuint id,
+		GLenum severity,
+		GLsizei length,
+		const GLchar* message,
+		const void* userParam
+) {
+	if (oglDebugLogLevel == GL_INVALID_ENUM) {
+		return;
+	}
+	if (oglDebugLogLevel == GL_DEBUG_SEVERITY_HIGH) {
+		if (severity != GL_DEBUG_SEVERITY_HIGH) {
+			return;
+		}
+	}
+	if (oglDebugLogLevel == GL_DEBUG_SEVERITY_MEDIUM) {
+		if (severity != GL_DEBUG_SEVERITY_HIGH  &&  severity != GL_DEBUG_SEVERITY_MEDIUM) {
+			return;
+		}
+	}
+	if (oglDebugLogLevel == GL_DEBUG_SEVERITY_LOW) {
+		if (severity == GL_DEBUG_SEVERITY_NOTIFICATION) {
+			return;
+		}
+	}
+
+	const char* srcStr = "???";
+	const char* typeStr = "???";
+	const char* sevStr = "???";
+
+	switch (source) {
+	case GL_DEBUG_SOURCE_API:
+		srcStr = "API";
+		break;
+	case GL_DEBUG_SOURCE_APPLICATION:
+		srcStr = "APP";
+		break;
+	case GL_DEBUG_SOURCE_OTHER:
+		srcStr = "OTH";
+		break;
+	case GL_DEBUG_SOURCE_SHADER_COMPILER:
+		srcStr = "SHC";
+		break;
+	case GL_DEBUG_SOURCE_THIRD_PARTY:
+		srcStr = "THP";
+		break;
+	case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
+		srcStr = "WSY";
+		break;
+	}
+
+	switch (type) {
+	case GL_DEBUG_TYPE_ERROR:
+		typeStr = "ERR";
+		break;
+	case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+		typeStr = "DEP";
+		break;
+	case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+		typeStr = "UND";
+		break;
+	case GL_DEBUG_TYPE_PORTABILITY:
+		typeStr = "POR";
+		break;
+	case GL_DEBUG_TYPE_PERFORMANCE:
+		typeStr = "PRF";
+		break;
+	case GL_DEBUG_TYPE_MARKER:
+		typeStr = "MRK";
+		break;
+	case GL_DEBUG_TYPE_PUSH_GROUP:
+		typeStr = "PSH";
+		break;
+	case GL_DEBUG_TYPE_POP_GROUP:
+		typeStr = "POP";
+		break;
+	case GL_DEBUG_TYPE_OTHER:
+		typeStr = "OTH";
+		break;
+	}
+
+	switch (severity) {
+	case GL_DEBUG_SEVERITY_LOW:
+		sevStr = "LOW";
+		break;
+	case GL_DEBUG_SEVERITY_MEDIUM:
+		sevStr = "MED";
+		break;
+	case GL_DEBUG_SEVERITY_HIGH:
+		sevStr = "HIG";
+		break;
+	case GL_DEBUG_SEVERITY_NOTIFICATION:
+		sevStr = "NOT";
+		break;
+	}
+
+	if (length < 0) {
+		length = strlen(message);
+	}
+
+	printf("GLDEBUG [%s][%s][%s](%u) - %.s\n", sevStr, srcStr, typeStr, (unsigned int) id, (char*) message, (int) length);
 }

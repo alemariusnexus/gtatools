@@ -44,7 +44,6 @@ using std::ofstream;
 COLMeshRenderWidget::COLMeshRenderWidget(QWidget* parent)
 		: GLBaseWidget(parent), scene(NULL), obj(NULL), pickObj(NULL), colors(NULL), pickedFace(-1)
 {
-	printf("Creating COLMeshRenderWidget\n");
 }
 
 
@@ -78,7 +77,6 @@ void COLMeshRenderWidget::render(const float* vertices, int32_t vertexCount, con
 {
 	return;
 	try {
-		printf("1===>\n");
 		GLBaseWidget::initializeGL();
 
 		makeCurrent();
@@ -92,8 +90,6 @@ void COLMeshRenderWidget::render(const float* vertices, int32_t vertexCount, con
 		uint32_t* modelIndices;
 		conv.convertVertexModel(vertices, vertexCount, faces, faceCount, modelVertexCount, modelVertices, modelColors,
 				modelIndices, modelIndexCount);
-
-		printf("Colors: %p\n", modelColors);
 
 		Mesh* mesh = new Mesh(modelVertexCount, VertexFormatTriangles, MeshVertexColors, modelVertices, NULL,
 				NULL, modelColors);
@@ -154,14 +150,9 @@ void COLMeshRenderWidget::render(const float* vertices, int32_t vertexCount, con
 		MapSceneObjectLODInstance* pickInst = new MapSceneObjectLODInstance(pickDef);
 		pickObj->addLODInstance(inst);
 
-		printf("<====\n");
-
 		if (scene) {
 			updateGL();
-			printf("FUCKING UPDATED\n");
 		}
-
-		printf("HAHAHA\n");
 	} catch (Exception& ex) {
 		System::getInstance()->unhandeledException(ex);
 	}
@@ -172,10 +163,10 @@ bool inited = false;
 
 void COLMeshRenderWidget::initializeGL()
 {
-	printf("Initializing %p\n", this);
-
 	//GLBaseWidget::initializeGL();
 	gtaglInit();
+
+	Engine::getInstance()->setupDebug();
 
 	GLuint s = glCreateShader(GL_VERTEX_SHADER);
 	printf("%s\n", glIsShader(s) == GL_TRUE ? "true" : "false");
@@ -245,7 +236,7 @@ void COLMeshRenderWidget::paintGL()
 
 void COLMeshRenderWidget::mouseDoubleClickEvent(QMouseEvent* evt)
 {
-	fprintf(stderr, "WARNING: COL picking is currently unsupported due to changes in the API!");
+	LogWarning("COL picking is currently unsupported due to changes in the API!");
 
 	/*if (pickItem) {
 		makeCurrent();

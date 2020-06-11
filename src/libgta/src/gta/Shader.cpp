@@ -24,6 +24,7 @@
 #include "GLException.h"
 #include <cstring>
 #include <cstdio>
+#include <nxcommon/log.h>
 #include <res_global_shader.h>
 #include <res_global_vertex_shader.h>
 #include <res_global_fragment_shader.h>
@@ -95,15 +96,13 @@ void Shader::loadSourceCode(const CString& code)
 
 	CString newCode(prepCode);
 
-	newCode.append(CString((const char*) res_global_shader_data, sizeof(res_global_shader_data)));
+	newCode.append(res_global_shader_asCString());
 	newCode.append("\n\n#line 0\n");
 
 	if (type == GL_VERTEX_SHADER) {
-		newCode.append(CString((const char*) res_global_vertex_shader_data,
-				sizeof(res_global_vertex_shader_data)));
+		newCode.append(res_global_vertex_shader_asCString());
 	} else {
-		newCode.append(CString((const char*) res_global_fragment_shader_data,
-				sizeof(res_global_fragment_shader_data)));
+		newCode.append(res_global_fragment_shader_asCString());
 	}
 
 	newCode.append("\n\n#line 0\n");
@@ -172,7 +171,7 @@ void Shader::compile()
 
 		size_t nameLen = !name.isNull() ? name.length() : 16;
 		char* errmsg = new char[actualLength + nameLen + 64];
-		sprintf(errmsg, "Error compiling shader \"%s\" [#%d]. Info log:\n\n%s",
+		sprintf(errmsg, "Error compiling shader \"%s\" [#%d]. Build log:\n\n%s",
 				!name.isNull() ? name.get() : "[UNNAMED]", shader, log);
 		delete[] log;
 		GLException ex(errmsg, __FILE__, __LINE__);
@@ -182,7 +181,7 @@ void Shader::compile()
 		GLint maxLength;
 		GLint actualLength;
 		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
-		
+
 		if (maxLength != 0) {
 			char* log = new char[maxLength];
 			glGetShaderInfoLog(shader, maxLength, &actualLength, log);
@@ -191,14 +190,15 @@ void Shader::compile()
 			clog.trim();
 
 			if (clog.length() != 0) {
-				printf("\nSuccessfully compiled shader \"%s\" [#%d]. Build log:\n==========\n%s\n==========\n\n",
-						!name.isNull() ? name.get() : "[UNNAMED]", shader, clog.get());
+				LogMultiDebug("Successfully compiled shader \"%s\" [#%d]. Build log:\n%s",
+						!name.isNull() ? name.get() : "[UNNAMED]", shader,
+						clog.indented("    ", true).get());
 			} else {
-				printf("Successfully compiled shader \"%s\" [#%d]. Build log is empty\n",
+				LogMultiVerbose("Successfully compiled shader \"%s\" [#%d]. Build log is empty.",
 						!name.isNull() ? name.get() : "[UNNAMED]", shader);
 			}
 		} else {
-			printf("\nSuccessfully compiled shader \"%s\" [#%d]. Build log is empty\n\n",
+			LogMultiVerbose("Successfully compiled shader \"%s\" [#%d]. Build log is empty.",
 					!name.isNull() ? name.get() : "[UNNAMED]", shader);
 		}
 	}

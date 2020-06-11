@@ -24,13 +24,14 @@
 #include "gl.h"
 #include <cstring>
 #include <cstdio>
+#include <nxcommon/log.h>
 #include "Engine.h"
 
 
 
 void GLException::checkError(const CString& msg)
 {
-	return;
+	//return;
 	GLenum error = glGetError();
 
 	if (error != GL_NO_ERROR) {
@@ -57,7 +58,7 @@ void GLException::checkError(const CString& msg)
 			sprintf(errname, "[UNKNOWN: 0x%X]", error);
 		}
 
-		printf("Buffer memory before exception: %u bytes\n", Engine::getInstance()->getTestMem());
+		LogError("Buffer memory before exception: %u bytes", Engine::getInstance()->getTestMem());
 
 		char* errmsg = new char[128+strlen(msg)];
 		sprintf(errmsg, "OpenGL error %s (%u) [%s]", errname, error, msg.get());

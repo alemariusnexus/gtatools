@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>817</width>
-    <height>188</height>
+    <height>248</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -26,7 +26,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>-32767</string>
+         <string notr="true">-32767</string>
         </property>
        </widget>
       </item>
@@ -37,6 +37,9 @@
           <horstretch>1</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="text">
+         <string notr="true"/>
         </property>
        </widget>
       </item>
@@ -55,6 +58,9 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="text">
+         <string notr="true"/>
+        </property>
        </widget>
       </item>
       <item row="3" column="1">
@@ -66,7 +72,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>65535</string>
+         <string notr="true">65535</string>
         </property>
        </widget>
       </item>
@@ -77,6 +83,9 @@
           <horstretch>1</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="text">
+         <string notr="true"/>
         </property>
        </widget>
       </item>
@@ -132,6 +141,9 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="text">
+         <string notr="true"/>
+        </property>
        </widget>
       </item>
       <item row="0" column="7">
@@ -143,7 +155,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>1589768.678469468</string>
+         <string notr="true">1589768.678469468</string>
         </property>
        </widget>
       </item>
@@ -156,7 +168,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>255</string>
+         <string notr="true">255</string>
         </property>
        </widget>
       </item>
@@ -176,7 +188,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>-255</string>
+         <string notr="true">-255</string>
         </property>
        </widget>
       </item>
@@ -194,6 +206,9 @@
           <horstretch>1</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="text">
+         <string notr="true"/>
         </property>
         <property name="readOnly">
          <bool>true</bool>
@@ -215,6 +230,9 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="text">
+         <string notr="true"/>
+        </property>
        </widget>
       </item>
       <item row="2" column="6">
@@ -233,7 +251,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>−2147483649</string>
+         <string notr="true">−2147483649</string>
         </property>
        </widget>
       </item>

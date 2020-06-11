@@ -79,36 +79,30 @@ CEGUIGL2Renderer::CEGUIGL2Renderer()
 #ifdef GTA_USE_OPENGL_ES
 
 	vshader = new Shader(GL_VERTEX_SHADER);
-	vshader->loadSourceCode((const char*) res_glsles2_cegui_vertex_shader_data,
-			sizeof(res_glsles2_cegui_vertex_shader_data));
+	vshader->loadSourceCode(res_glsles2_cegui_vertex_shader_asCString());
 	vshader->compile();
 
 	fshader = new Shader(GL_FRAGMENT_SHADER);
-	fshader->loadSourceCode((const char*) res_glsles2_cegui_fragment_shader_data,
-			sizeof(res_glsles2_cegui_fragment_shader_data));
+	fshader->loadSourceCode(res_glsles2_cegui_fragment_shader_asCString());
 	fshader->compile();
 
 #else
 
 	if (gtaglIsVersionSupported(3, 1)) {
 		vshader = new Shader(GL_VERTEX_SHADER);
-		vshader->loadSourceCode((const char*) res_glsl140_cegui_vertex_shader_data,
-				sizeof(res_glsl140_cegui_vertex_shader_data));
+		vshader->loadSourceCode(res_glsl140_cegui_vertex_shader_asCString());
 		vshader->compile();
 
 		fshader = new Shader(GL_FRAGMENT_SHADER);
-		fshader->loadSourceCode((const char*) res_glsl140_cegui_fragment_shader_data,
-				sizeof(res_glsl140_cegui_fragment_shader_data));
+		fshader->loadSourceCode(res_glsl140_cegui_fragment_shader_asCString());
 		fshader->compile();
 	} else {
 		vshader = new Shader(GL_VERTEX_SHADER);
-		vshader->loadSourceCode((const char*) res_glsl110_cegui_vertex_shader_data,
-				sizeof(res_glsl110_cegui_vertex_shader_data));
+		vshader->loadSourceCode(res_glsl110_cegui_vertex_shader_asCString());
 		vshader->compile();
 
 		fshader = new Shader(GL_FRAGMENT_SHADER);
-		fshader->loadSourceCode((const char*) res_glsl110_cegui_fragment_shader_data,
-				sizeof(res_glsl110_cegui_fragment_shader_data));
+		fshader->loadSourceCode(res_glsl110_cegui_fragment_shader_asCString());
 		fshader->compile();
 	}
 

@@ -24,6 +24,7 @@
 #include "script/RWBSScriptByteReader.h"
 #include "script/ScriptRWSection.h"
 #include <nxcommon/script/math/luamath.h>
+#include <nxcommon/log.h>
 
 
 
@@ -37,7 +38,7 @@ RWBSAnalyzer* RWBSAnalyzer::load(const File& scriptFile)
 
 	if (luaL_dofile(lua, scriptFile.getPath().toString().get()) != LUA_OK) {
 		const char* errmsg = lua_tostring(lua, -1);
-		fprintf(stderr, "Error loading Lua script: %s\n", errmsg);
+		LogError("Error loading Lua script: %s", errmsg);
 		lua_close(lua);
 		return NULL;
 	}
@@ -49,7 +50,7 @@ RWBSAnalyzer* RWBSAnalyzer::load(const File& scriptFile)
 	lua_getglobal(lua, "GetAnalyzerInfo");
 	if (lua_pcall(lua, 0, 1, 0) != LUA_OK) {
 		const char* errmsg = lua_tostring(lua, -1);
-		fprintf(stderr, "Error calling GetAnalyzerInfo(): %s\n", errmsg);
+		LogError("Error calling GetAnalyzerInfo(): %s", errmsg);
 		lua_close(lua);
 		return NULL;
 	}
@@ -107,7 +108,7 @@ void RWBSAnalyzer::notifyCurrentSectionChanged(RWSection* sect)
 
 	if (lua_pcall(lua, 1, 1, 0) != LUA_OK) {
 		const char* errmsg = lua_tostring(lua, -1);
-		fprintf(stderr, "Error calling CurrentSectionChanged(): %s\n", errmsg);
+		LogError("Error calling CurrentSectionChanged(): %s", errmsg);
 	}
 
 	if (resultsValid  &&  lua_toboolean(lua, -1)) {

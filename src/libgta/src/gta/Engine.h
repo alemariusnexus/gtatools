@@ -145,10 +145,23 @@ public:
 	ShaderPluginAPI* getShaderPluginAPI() { return shaderPluginAPI; }
 	void setShaderPluginAPI(ShaderPluginAPI* api) { shaderPluginAPI = api; }
 
+	void setupDebug();
+
 private:
 	Engine();
 	~Engine();
 	void iplRecurse(File* file, const File& rootDir, GameInfo gameInfo = GameInfo());
+
+public:
+	void onGLDebugMessage (
+			GLenum source,
+			GLenum type,
+			GLuint id,
+			GLenum severity,
+			GLsizei length,
+			const GLchar* message,
+			const void* userParam
+			);
 
 private:
 	static Engine* instance;
@@ -194,6 +207,8 @@ private:
 	bool freezeVisibility;
 
 	ShaderPluginAPI* shaderPluginAPI;
+
+	GLenum oglDebugLogLevel;
 };
 
 #endif /* ENGINE_H_ */

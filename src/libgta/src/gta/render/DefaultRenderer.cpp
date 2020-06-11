@@ -32,6 +32,8 @@
 #include "../scene/objects/AmbientLightSource.h"
 #include "../scene/objects/SpotLightSource.h"
 
+#include <nxcommon/log.h>
+
 
 #include <res_vertex_default_shader.h>
 #include <res_fragment_default_shader.h>
@@ -65,75 +67,18 @@ DefaultRenderer::DefaultRenderer()
 {
 	programCache = new AdvancedShaderProgramCache(new AdvancedShaderProgramCacheLoader(this), 50);
 
+	GLException::checkDebugError("DefaultRenderer::DefaultRenderer() - begin");
+
 	setupShaders();
 	setupFBOs();
 	setupBuffers();
+
+	GLException::checkDebugError("DefaultRenderer::DefaultRenderer() - end");
 }
 
 
 void DefaultRenderer::setupShaders()
 {
-	const char* vertexDefaultData;
-	const char* fragmentDefaultData;
-	const char* shadeVertexShaderData;
-	const char* shadeFragmentShaderData;
-	const char* animShadeVertexShaderData;
-	const char* animShadeFragmentShaderData;
-	const char* lightingVertexShaderData;
-
-	const char* dpPeelLayerVertexShaderData;
-	const char* dpPeelLayerFragmentShaderData;
-	const char* dpBlendLayerVertexShaderData;
-	const char* dpBlendLayerFragmentShaderData;
-	const char* dpBlendFinalVertexShaderData;
-	const char* dpBlendFinalFragmentShaderData;
-
-	int vertexDefaultDataLen;
-	int fragmentDefaultDataLen;
-	int shadeVertexShaderDataLen;
-	int shadeFragmentShaderDataLen;
-	int animShadeVertexShaderDataLen;
-	int animShadeFragmentShaderDataLen;
-	int lightingVertexShaderDataLen;
-
-	int dpPeelLayerVertexShaderDataLen;
-	int dpPeelLayerFragmentShaderDataLen;
-	int dpBlendLayerVertexShaderDataLen;
-	int dpBlendLayerFragmentShaderDataLen;
-	int dpBlendFinalVertexShaderDataLen;
-	int dpBlendFinalFragmentShaderDataLen;
-
-	vertexDefaultData					= (const char*) res_vertex_default_shader_data;
-	fragmentDefaultData					= (const char*) res_fragment_default_shader_data;
-	shadeVertexShaderData				= (const char*) res_shade_vertex_shader_data;
-	shadeFragmentShaderData				= (const char*) res_shade_fragment_shader_data;
-	animShadeVertexShaderData			= (const char*) res_anim_shade_vertex_shader_data;
-	animShadeFragmentShaderData			= (const char*) res_anim_shade_fragment_shader_data;
-	lightingVertexShaderData			= (const char*) res_lighting_vertex_shader_data;
-
-	dpPeelLayerVertexShaderData			= (const char*) res_dp_peel_layer_vertex_shader_data;
-	dpPeelLayerFragmentShaderData		= (const char*) res_dp_peel_layer_fragment_shader_data;
-	dpBlendLayerVertexShaderData		= (const char*) res_dp_blend_layer_vertex_shader_data;
-	dpBlendLayerFragmentShaderData		= (const char*) res_dp_blend_layer_fragment_shader_data;
-	dpBlendFinalVertexShaderData		= (const char*) res_dp_blend_final_vertex_shader_data;
-	dpBlendFinalFragmentShaderData		= (const char*) res_dp_blend_final_fragment_shader_data;
-
-	vertexDefaultDataLen					= sizeof(res_vertex_default_shader_data);
-	fragmentDefaultDataLen					= sizeof(res_fragment_default_shader_data);
-	shadeVertexShaderDataLen				= sizeof(res_shade_vertex_shader_data);
-	shadeFragmentShaderDataLen				= sizeof(res_shade_fragment_shader_data);
-	animShadeVertexShaderDataLen			= sizeof(res_anim_shade_vertex_shader_data);
-	animShadeFragmentShaderDataLen			= sizeof(res_anim_shade_fragment_shader_data);
-	lightingVertexShaderDataLen				= sizeof(res_lighting_vertex_shader_data);
-
-	dpPeelLayerVertexShaderDataLen			= sizeof(res_dp_peel_layer_vertex_shader_data);
-	dpPeelLayerFragmentShaderDataLen		= sizeof(res_dp_peel_layer_fragment_shader_data);
-	dpBlendLayerVertexShaderDataLen			= sizeof(res_dp_blend_layer_vertex_shader_data);
-	dpBlendLayerFragmentShaderDataLen		= sizeof(res_dp_blend_layer_fragment_shader_data);
-	dpBlendFinalVertexShaderDataLen			= sizeof(res_dp_blend_final_vertex_shader_data);
-	dpBlendFinalFragmentShaderDataLen		= sizeof(res_dp_blend_final_fragment_shader_data);
-
-
 #ifdef GTA_USE_OPENGL_ES
 	glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, &maxVertexUniformComponents);
 	maxVertexUniformComponents *= 4;
@@ -144,52 +89,46 @@ void DefaultRenderer::setupShaders()
 
 	shaders.dpPeelLayerVertexShader = new AdvancedShader(GL_VERTEX_SHADER,
 			"Depth Peeling Transparency Algorithm Peel Layer Vertex Shader");
-	shaders.dpPeelLayerVertexShader->setSourceCode(CString(dpPeelLayerVertexShaderData,
-			dpPeelLayerVertexShaderDataLen));
+	shaders.dpPeelLayerVertexShader->setSourceCode(res_dp_peel_layer_vertex_shader_asCString());
 
 	shaders.dpPeelLayerFragmentShader = new AdvancedShader(GL_FRAGMENT_SHADER,
 			"Depth Peeling Transparency Algorithm Peel Layer Fragment Shader");
-	shaders.dpPeelLayerFragmentShader->setSourceCode(CString(dpPeelLayerFragmentShaderData,
-			dpPeelLayerFragmentShaderDataLen));
+	shaders.dpPeelLayerFragmentShader->setSourceCode(res_dp_peel_layer_fragment_shader_asCString());
 
 	shaders.dpBlendLayerVertexShader = new AdvancedShader(GL_VERTEX_SHADER,
 			"Depth Peeling Transparency Algorithm Blend Layer Vertex Shader");
-	shaders.dpBlendLayerVertexShader->setSourceCode(CString(dpBlendLayerVertexShaderData,
-			dpBlendLayerVertexShaderDataLen));
+	shaders.dpBlendLayerVertexShader->setSourceCode(res_dp_blend_layer_vertex_shader_asCString());
 
 	shaders.dpBlendLayerFragmentShader = new AdvancedShader(GL_FRAGMENT_SHADER,
 			"Depth Peeling Transparency Algorithm Blend Layer Fragment Shader");
-	shaders.dpBlendLayerFragmentShader->setSourceCode(CString(dpBlendLayerFragmentShaderData,
-			dpBlendLayerFragmentShaderDataLen));
+	shaders.dpBlendLayerFragmentShader->setSourceCode(res_dp_blend_layer_fragment_shader_asCString());
 
 	shaders.dpBlendFinalVertexShader = new AdvancedShader(GL_VERTEX_SHADER,
 			"Depth Peeling Transparency Algorithm Blend Final Vertex Shader");
-	shaders.dpBlendFinalVertexShader->setSourceCode(CString(dpBlendFinalVertexShaderData,
-			dpBlendFinalVertexShaderDataLen));
+	shaders.dpBlendFinalVertexShader->setSourceCode(res_dp_blend_final_vertex_shader_asCString());
 
 	shaders.dpBlendFinalFragmentShader = new AdvancedShader(GL_FRAGMENT_SHADER,
 			"Depth Peeling Transparency Algorithm Blend Final Fragment Shader");
-	shaders.dpBlendFinalFragmentShader->setSourceCode(CString(dpBlendFinalFragmentShaderData,
-			dpBlendFinalFragmentShaderDataLen));
+	shaders.dpBlendFinalFragmentShader->setSourceCode(res_dp_blend_final_fragment_shader_asCString());
 
 
 	shaders.shadeVertexShader = new AdvancedShader(GL_VERTEX_SHADER, "Static Vertex Shader");
-	shaders.shadeVertexShader->setSourceCode(CString(shadeVertexShaderData, shadeVertexShaderDataLen));
+	shaders.shadeVertexShader->setSourceCode(res_shade_vertex_shader_asCString());
 
 	shaders.shadeFragmentShader = new AdvancedShader(GL_FRAGMENT_SHADER, "Static Fragment Shader");
-	shaders.shadeFragmentShader->setSourceCode(CString(shadeFragmentShaderData, shadeFragmentShaderDataLen));
+	shaders.shadeFragmentShader->setSourceCode(res_shade_fragment_shader_asCString());
 
 	shaders.vertexDefaultShader = new AdvancedShader(GL_VERTEX_SHADER, "Default Opaque Vertex Shader");
-	shaders.vertexDefaultShader->setSourceCode(CString(vertexDefaultData, vertexDefaultDataLen));
+	shaders.vertexDefaultShader->setSourceCode(res_vertex_default_shader_asCString());
 
 	shaders.fragmentDefaultShader = new AdvancedShader(GL_FRAGMENT_SHADER, "Default Opaque Fragment Shader");
-	shaders.fragmentDefaultShader->setSourceCode(CString(fragmentDefaultData, fragmentDefaultDataLen));
+	shaders.fragmentDefaultShader->setSourceCode(res_fragment_default_shader_asCString());
 
 	CString animShadeVertexShaderCode = CString("");
 	if (maxVertexUniformComponents >= 2048) {
 		animShadeVertexShaderCode.append("#define GTAGL_BONE_MATRIX_UNIFORM_ARRAY_100\n#line 0\n");
 	}
-	animShadeVertexShaderCode.append(CString(animShadeVertexShaderData, animShadeVertexShaderDataLen));
+	animShadeVertexShaderCode.append(res_anim_shade_vertex_shader_asCString());
 
 	/*svVertexShader = new Shader(GL_VERTEX_SHADER, "Test Vertex Shader");
 	svVertexShader->loadSourceCode(File("/home/alemariusnexus/test_vertex.glsl"));
@@ -221,14 +160,16 @@ void DefaultRenderer::setupShaders()
 	shaders.animShadeVertexShader->setSourceCode(animShadeVertexShaderCode);
 
 	shaders.animShadeFragmentShader = new AdvancedShader(GL_FRAGMENT_SHADER, "Animated Fragment Shader");
-	shaders.animShadeFragmentShader->setSourceCode(CString(animShadeFragmentShaderData, animShadeFragmentShaderDataLen));
+	shaders.animShadeFragmentShader->setSourceCode(res_anim_shade_fragment_shader_asCString());
 
 	shaders.lightingVertexShader = new AdvancedShader(GL_VERTEX_SHADER, "Lighting Vertex Shader");
-	shaders.lightingVertexShader->setSourceCode(CString(lightingVertexShaderData, lightingVertexShaderDataLen));
+	shaders.lightingVertexShader->setSourceCode(res_lighting_vertex_shader_asCString());
 
 
 	programs.dpBlendLayerProgram = NULL;
 	programs.dpBlendFinalProgram = NULL;
+
+	GLException::checkDebugError("DefaultRenderer::setupShaders() - after setup");
 }
 
 
@@ -365,6 +306,8 @@ void DefaultRenderer::setupFBOs()
 	glGenTextures(2, fbos.dpPingPongDepthStencilTexes);
 	glGenTextures(2, fbos.dpPingPongColorTexes);
 	glGenTextures(2, fbos.dpOpaqueTexes);
+
+	GLException::checkDebugError("DefaultRenderer::setupFBOs() - after FBO generation");
 
 
 	int viewW = engine->getViewportWidth();
@@ -547,6 +490,8 @@ void DefaultRenderer::setupFBOs()
 	}
 #endif
 
+	GLException::checkDebugError("DefaultRenderer::setupFBOs() - after FBO texture initialization");
+
 
 
 	gtaglBindFramebuffer(GTAGL_FRAMEBUFFER, 0);
@@ -572,6 +517,8 @@ void DefaultRenderer::setupBuffers()
 			255, 255, 255, 255
 	};
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, dummyTexData);
+
+	GLException::checkDebugError("DefaultRenderer::setupBuffers() - after buffer setup");
 }
 
 
@@ -834,6 +781,8 @@ void DefaultRenderer::render()
 	s = GetTickcountMicroseconds();
 #endif
 
+	GLException::checkDebugError("DefaultRenderer::render() - begin");
+
 	Engine* engine = Engine::getInstance();
 
 	Camera* cam = engine->getCamera();
@@ -940,6 +889,8 @@ void DefaultRenderer::render()
 	// *											*
 	// **********************************************
 
+	GLException::checkDebugError("DefaultRenderer::render() - Render scene begin");
+
 	glEnable(GL_DEPTH_TEST);
 	//glDisable(GL_DEPTH_TEST);
 
@@ -1000,6 +951,8 @@ void DefaultRenderer::render()
 
 		ptr.release();
 	}
+
+	GLException::checkDebugError("DefaultRenderer::render() - after opaque ambient lighting pass");
 
 #if 1
 
@@ -1080,6 +1033,8 @@ void DefaultRenderer::render()
 
 	glDisable(GL_STENCIL_TEST);
 
+	GLException::checkDebugError("DefaultRenderer::render() - after opaque dynamic lighting passes");
+
 #ifdef TIME_RENDERING
 	e = GetTickcountMicroseconds();
 	uint64_t t4 = e-s;
@@ -1116,6 +1071,8 @@ void DefaultRenderer::render()
 	GLenum dpTexTarget = gtaglIsVersionSupported(3, 1) ? GL_TEXTURE_RECTANGLE : GL_TEXTURE_2D;
 #endif
 
+	GLException::checkDebugError("DefaultRenderer::render() - after transparent rendering setup");
+
 
 #ifdef TIME_RENDERING
 	e = GetTickcountMicroseconds();
@@ -1145,6 +1102,8 @@ void DefaultRenderer::render()
 
 		// Back to texture unit 2 (the render* methods rely on it to be active)
 		glActiveTexture(GL_TEXTURE2);
+
+		GLException::checkDebugError("DefaultRenderer::render() - after depth peeling per-pass setup");
 
 
 
@@ -1193,6 +1152,8 @@ void DefaultRenderer::render()
 
 			ptr.release();
 		}
+
+		GLException::checkDebugError("DefaultRenderer::render() - after depth peeling ambient lighting pass");
 
 		// Dynamic lighting passes
 
@@ -1267,6 +1228,10 @@ void DefaultRenderer::render()
 		glDisable(GL_STENCIL_TEST);
 		glDepthMask(GL_TRUE);
 
+		GLException::checkDebugError("DefaultRenderer::render() - after depth peeling dynamic lighting passes");
+
+		GLException::checkDebugError("DefaultRenderer::render() - TEST 1");
+
 
 		glDisableVertexAttribArray(VertexAttributeLocationVertex);
 		glDisableVertexAttribArray(VertexAttributeLocationNormal);
@@ -1276,10 +1241,16 @@ void DefaultRenderer::render()
 		glDisableVertexAttribArray(VertexAttributeLocationBoneWeight);
 		glDisableVertexAttribArray(VertexAttributeLocationSubmeshIndex);
 
+		GLException::checkDebugError("DefaultRenderer::render() - TEST 2");
+
 		// Our front-to-back blending equation. The source alpha is premultiplied in the fragment shader
 		glBlendFuncSeparate(GL_DST_ALPHA, GL_ONE, GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);
 
+		GLException::checkDebugError("DefaultRenderer::render() - TEST 3");
+
 		programs.dpBlendLayerProgram->makeCurrent();
+
+		GLException::checkDebugError("DefaultRenderer::render() - TEST 4");
 
 		glDisable(GL_DEPTH_TEST);
 
@@ -1288,23 +1259,37 @@ void DefaultRenderer::render()
 		if (wireframeRendering)
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
+		GLException::checkDebugError("DefaultRenderer::render() - TEST 5");
+
 		// Render a screen-size plane with the contents of the output color buffer
 		glBindBuffer(GL_ARRAY_BUFFER, planeDataBuf);
+		GLException::checkDebugError("DefaultRenderer::render() - TEST 5.1");
 		glEnableVertexAttribArray(dpShaderLocations.dpBlendLayerVertexAttrib);
+		GLException::checkDebugError("DefaultRenderer::render() - TEST 5.2");
 		glVertexAttribPointer(dpShaderLocations.dpBlendLayerVertexAttrib, 2, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+
+		GLException::checkDebugError("DefaultRenderer::render() - TEST 6");
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(dpTexTarget, fbos.dpPingPongColorTexes[outputIdx]);
 		glUniform1i(dpShaderLocations.dpBlendLayerTexUniform, 0);
 
+		GLException::checkDebugError("DefaultRenderer::render() - TEST 7");
+
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+		GLException::checkDebugError("DefaultRenderer::render() - TEST 8");
 
 		glDisableVertexAttribArray(dpShaderLocations.dpBlendLayerVertexAttrib);
 
 		glEnable(GL_DEPTH_TEST);
 
+		GLException::checkDebugError("DefaultRenderer::render() - TEST 9");
+
 		if (wireframeRendering)
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+		GLException::checkDebugError("DefaultRenderer::render() - after depth peeling blend pass");
 	}
 
 
@@ -1347,6 +1332,8 @@ void DefaultRenderer::render()
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+	GLException::checkDebugError("DefaultRenderer::render() - after blending of opaque and transparent layers");
+
 
 	gtaglBindFramebuffer(GTAGL_FRAMEBUFFER, 0);
 
@@ -1388,26 +1375,27 @@ void DefaultRenderer::render()
 
 	numObjects = 0;
 
+	GLException::checkDebugError("DefaultRenderer::render() - end");
+
 #ifdef TIME_RENDERING
 	e = GetTickcountMicroseconds();
 	uint64_t t10 = e-s;
 
 	absE = GetTickcountMicroseconds();
 
-	fprintf(stderr, "=== RENDER TIMING ===\n");
-	fprintf(stderr, "Absolute:        %uus\n", (unsigned int) (absE-absS));
-	fprintf(stderr, "T1:              %uus\n", (unsigned int) t1);
-	fprintf(stderr, "T2:              %uus\n", (unsigned int) t2);
-	fprintf(stderr, "T3:              %uus\n", (unsigned int) t3);
-	fprintf(stderr, "T4:              %uus\n", (unsigned int) t4);
-	fprintf(stderr, "T5:              %uus\n", (unsigned int) t5);
-	fprintf(stderr, "T6:              %uus\n", (unsigned int) t6);
-	fprintf(stderr, "T7:              %uus\n", (unsigned int) t7);
-	fprintf(stderr, "T8:              %uus\n", (unsigned int) t8);
-	fprintf(stderr, "T9:              %uus\n", (unsigned int) t9);
-	fprintf(stderr, "T10:             %uus\n", (unsigned int) t10);
-
-	fprintf(stderr, "\n");
+	LogVerbose("=== RENDER TIMING ===");
+	LogVerbose("Absolute:        %uus", (unsigned int) (absE-absS));
+	LogVerbose("T1:              %uus", (unsigned int) t1);
+	LogVerbose("T2:              %uus", (unsigned int) t2);
+	LogVerbose("T3:              %uus", (unsigned int) t3);
+	LogVerbose("T4:              %uus", (unsigned int) t4);
+	LogVerbose("T5:              %uus", (unsigned int) t5);
+	LogVerbose("T6:              %uus", (unsigned int) t6);
+	LogVerbose("T7:              %uus", (unsigned int) t7);
+	LogVerbose("T8:              %uus", (unsigned int) t8);
+	LogVerbose("T9:              %uus", (unsigned int) t9);
+	LogVerbose("T10:             %uus", (unsigned int) t10);
+	LogVerbose("=== END RENDER TIMING ===");
 #endif
 }
 

@@ -63,6 +63,7 @@
 #include <nxcommon/CRC32.h>
 #include <nxcommon/file/DefaultFileFinder.h>
 #include <nxcommon/math/project.h>
+#include <nxcommon/log.h>
 #include <gta/resource/animation/ManagedAnimationPackagePointer.h>
 #include <gta/gldebug.h>
 #include <gta/scene/visibility/PVSDatabase.h>
@@ -124,7 +125,7 @@ void Controller::init()
 	gtaRootPath = File(configDoc.RootElement()->FirstChildElement("game")->FirstChildElement("rootpath")->GetText());
 
 	if (!gtaRootPath.isDirectory()) {
-		fprintf(stderr, "ERROR: Game root path '%s' is not a directory!\n", gtaRootPath.toString().get());
+		LogError("Game root path '%s' is not a directory!", gtaRootPath.toString().get());
 		exit(1);
 	}
 
@@ -136,15 +137,15 @@ void Controller::init()
 	// Determine the game version
 	if (File(gtaRootPath, "gta_sa.exe").exists()) {
 		ver = GameInfo::GTASA;
-		printf("Found GTA San Andreas installation!\n");
+		LogInfo("Found GTA San Andreas installation!");
 	} else if (File(gtaRootPath, "gta-vc.exe").exists()) {
 		ver = GameInfo::GTAVC;
-		printf("Found GTA Vice City installation!\n");
+		LogInfo("Found GTA Vice City installation!");
 	} else if (File(gtaRootPath, "gta3.exe").exists()) {
 		ver = GameInfo::GTAIII;
-		printf("Found GTA III installation!\n");
+		LogInfo("Found GTA III installation!");
 	} else {
-		fprintf(stderr, "ERROR: Unable to guess GTA version!\n");
+		LogError("Unable to guess GTA version!");
 		exit(1);
 	}
 
@@ -162,13 +163,15 @@ void Controller::init()
 	// Also calls glewInit()
 	gtaglInit();
 
+	engine->setupDebug();
+
 
 	// Show OpenGL information for debugging purposes.
-	printf("OpenGL Version: %s\n", glGetString(GL_VERSION));
-	printf("OpenGL Vendor: %s\n", glGetString(GL_VENDOR));
-	printf("OpenGL Renderer: %s\n", glGetString(GL_RENDERER));
+	LogInfo("OpenGL Version: %s", glGetString(GL_VERSION));
+	LogInfo("OpenGL Vendor: %s", glGetString(GL_VENDOR));
+	LogInfo("OpenGL Renderer: %s", glGetString(GL_RENDERER));
 
-	printf("---------- SUPPORTED EXTENSIONS ----------\n");
+	LogInfo("---------- SUPPORTED EXTENSIONS ----------");
 	const char* extStr = gtaglGetSupportedExtensions();
 	char* extStrCpy = new char[strlen(extStr)+1];
 	strcpy(extStrCpy, extStr);
@@ -176,17 +179,17 @@ void Controller::init()
 	char* ext;
 	ext = strtok(extStrCpy, " ");
 	while (ext) {
-		printf("%s\n", ext);
+		LogInfo("%s", ext);
 		ext = strtok(NULL, " ");
 	}
-	printf("---------- END SUPPORTED EXTENSIONS ----------\n");
+	LogInfo("---------- END SUPPORTED EXTENSIONS ----------");
 
 	delete[] extStrCpy;
 
 
 
 
-	printf("Initializing scene...\n");
+	LogInfo("Initializing scene...");
 
 	Scene* scene = new Scene;
 
@@ -234,7 +237,7 @@ void Controller::init()
 
 	// This will create indices of various files, to be able to find models, textures etc. quickly by name.
 
-	printf("Loading resources...\n");
+	LogInfo("Loading resources...");
 
 	if (gameInfo.getVersionMode() == GameInfo::GTASA) {
 		addResource(File(gtaRootPath, "/models/gta_int.img"));
@@ -251,7 +254,7 @@ void Controller::init()
 
 	// This will mainly load the item definitions from IDE files and MapSceneObjects from IPL files.
 
-	printf("Loading DAT files...\n");
+	LogInfo("Loading DAT files...");
 	engine->loadDAT(File(gtaRootPath, "/data/default.dat"), gtaRootPath);
 
 	switch (gameInfo.getVersionMode()) {
@@ -388,56 +391,58 @@ void Controller::init()
 	// Load PVS data from a file. This is still a bit experimental and may fail, so it's disabled by default.
 
 	if (pvsFile.exists()) {
-		printf("Loading PVS data from file '%s'...\n", pvsFile.getPath().toString().get());
+		LogInfo("Loading PVS data from file '%s'...", pvsFile.getPath().toString().get());
 
 		PVSDatabase::LoadingResult res = pvs->load(pvsFile, engine->getDefaultGameInfo().getRootDirectory());
 
 		if (res == PVSDatabase::ResultOK) {
 			size_t numUncalculated = pvs->getUncalculatedObjectCount();
 			if (numUncalculated != 0) {
-				printf("Building PVS data from scratch for %u (of %u) missing or potentially modified "
-						"objects...\n", numUncalculated, scene->getSceneObjectCount());
+				LogInfo("Building PVS data from scratch for %u (of %u) missing or potentially modified "
+						"objects...", numUncalculated, scene->getSceneObjectCount());
 				//pvs->calculatePVS();
 			}
 
 			pvsBuilt = true;
-			printf("PVS data successfully loaded!\n");
+			LogInfo("PVS data successfully loaded!");
 		} else {
-			printf("WARNING: PVS data was NOT successfully loaded: ");
+			const char* errstr = "";
 
 			switch (res) {
 			case PVSDatabase::ResultInvalidFormat:
-				printf("Invalid format in file\n");
+				errstr = "Invalid format in file";
 				break;
 			case PVSDatabase::ResultWrongVersion:
-				printf("Unsupported file version\n");
+				errstr = "Unsupported file version";
 				break;
 			}
+
+			LogWarning("PVS data was NOT successfully loaded: %s", errstr);
 		}
 	}
 #endif
 
 	if (!pvsBuilt) {
-		printf("Building PVS data from scratch. This may take some time...\n");
+		LogInfo("Building PVS data from scratch. This may take some time...");
 		pvs->calculateSections(1000.0f, 1000.0f, 2000.0f);
 		pvs->calculatePVS(8);
-		printf("Writing PVS data to file '%s'\n", pvsFile.getPath().toString().get());
+		LogInfo("Writing PVS data to file '%s'", pvsFile.getPath().toString().get());
 
 #if 0
 		pvs->save(pvsFile);
 #endif
 
-		printf("PVS data successfully built!\n");
+		LogInfo("PVS data successfully built!");
 
 		pvsBuilt = true;
 	}
 
-	//pvs->setEnabled(false);
+	pvs->setEnabled(false);
 
 
 	cam->setPosition(0.0f, 0.0f, 50.0f);
 
-	printf("\n\n\n\n");
+	LogInfo("");
 }
 
 
@@ -662,8 +667,8 @@ void Controller::keyPressed(SDL_keysym evt)
 		Vector3 t = cam->getTarget();
 		Vector3 up = cam->getUp();
 
-		printf("cam->setPosition(%ff, %ff, %ff);\n", p.getX(), p.getY(), p.getZ());
-		printf("cam->lookAt(Vector3(%ff, %ff, %ff), Vector3(%ff, %ff, %ff));\n",
+		LogInfo("cam->setPosition(%ff, %ff, %ff);", p.getX(), p.getY(), p.getZ());
+		LogInfo("cam->lookAt(Vector3(%ff, %ff, %ff), Vector3(%ff, %ff, %ff));",
 				t.getX(), t.getY(), t.getZ(), up.getX(), up.getY(), up.getZ());
 	} else if (k == SDLK_x) {
 		programRunning = false;

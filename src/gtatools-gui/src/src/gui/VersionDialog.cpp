@@ -22,6 +22,7 @@
 
 #include "VersionDialog.h"
 #include "../System.h"
+#include <nxcommon/config.h>
 #include <gta/gl.h>
 #include <gtaformats/config.h>
 #include <cstdio>
@@ -43,6 +44,7 @@ VersionDialog::VersionDialog(QWidget* parent)
 	// glw.makeCurrent();
 
 	ui.gtatoolsVersionLabel->setText(GTATOOLS_VERSION);
+	ui.nxcommonVersionLabel->setText(NXCOMMON_VERSION);
 	ui.qtVersionLabel->setText(qVersion());
 	ui.qtLinkVersionLabel->setText(QT_VERSION_STR);
 	ui.glVendorLabel->setText((const char*) glGetString(GL_VENDOR));

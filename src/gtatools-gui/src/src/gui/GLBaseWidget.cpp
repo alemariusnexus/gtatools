@@ -53,6 +53,8 @@ void GLBaseWidget::initializeGL()
 	if (!initialized)
 		gtaglInit();
 
+	Engine::getInstance()->setupDebug();
+
 	initialized = true;
 }
 

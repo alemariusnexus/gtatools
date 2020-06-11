@@ -40,13 +40,11 @@ BulletGLDebugDraw::BulletGLDebugDraw()
 		  lineColors(new float[BT_GL_DEBUG_DRAW_REALLOC_SIZE*3])
 {
 	vertexShader = new Shader(GL_VERTEX_SHADER);
-	vertexShader->loadSourceCode(CString((const char*) res_btgldebugdraw_vertex_shader_data,
-			sizeof(res_btgldebugdraw_vertex_shader_data)));
+	vertexShader->loadSourceCode(res_btgldebugdraw_vertex_shader_asCString());
 	vertexShader->compile();
 
 	fragmentShader = new Shader(GL_FRAGMENT_SHADER);
-	fragmentShader->loadSourceCode(CString((const char*) res_btgldebugdraw_fragment_shader_data,
-			sizeof(res_btgldebugdraw_fragment_shader_data)));
+	fragmentShader->loadSourceCode(res_btgldebugdraw_fragment_shader_asCString());
 	fragmentShader->compile();
 
 	program = new ShaderProgram;

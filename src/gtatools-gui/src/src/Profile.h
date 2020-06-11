@@ -87,6 +87,7 @@ public:
 	int findTexturesForMesh(hash_t meshName, char**& textures);
 	void updateResourceIndex() { if (isCurrent()) loadResourceIndex(); }
 	bool isCurrent() const;
+	bool isResourceIndexFunctional() const { return resourceIndexFunctional; }
 	virtual void resourceAdded(const File& file);
 
 private:
@@ -128,6 +129,7 @@ private:
 	Task* resourceLoadingTask;
 	Task* datLoadingTask;
 	bool stopResourceLoading;
+	bool resourceIndexFunctional;
 };
 
 //Q_DECLARE_METATYPE(Profile)

@@ -88,6 +88,7 @@ signals:
 	void systemQuerySent(const SystemQuery& query, QList<SystemQueryResult>& results);
 	void aboutToQuit();
 	void initializationDone();
+	void startupDone();
 
 	void entityOpened(DisplayedEntity* entity);
 	void entityClosed(DisplayedEntity* entity);
@@ -101,6 +102,8 @@ private:
 	DisplayedEntity* findSignatureOpenEntity(const QByteArray& sig);
 
 private slots:
+	void profileResourceIndexInitialized();
+	void startupDoneSlot();
 	void destroyInstance();
 
 private:
@@ -110,6 +113,7 @@ private:
 	MainWindow* mainWindow;
 	QLinkedList<GUIModule*> installedGUIModules;
 	QLinkedList<DisplayedEntity*> openEntities;
+	QLinkedList<File> startupOpenFiles;
 	DisplayedEntity* currentEntity;
 	QGLWidget* sharedWidget;
 	QImage dummyTexImage;

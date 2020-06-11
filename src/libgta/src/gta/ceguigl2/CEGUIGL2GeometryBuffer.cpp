@@ -24,6 +24,7 @@
 #include "CEGUIGL2Renderer.h"
 #include "../gl.h"
 #include "../GLException.h"
+#include <nxcommon/log.h>
 
 
 
@@ -106,8 +107,8 @@ void CEGUIGL2GeometryBuffer::setTranslation(const CEGUI::Vector3& t)
 void CEGUIGL2GeometryBuffer::setRotation(const CEGUI::Vector3& r)
 {
 	if (r.d_x != 0.0f  ||  r.d_y != 0.0f  ||  r.d_z != 0.0f) {
-		fprintf(stderr, "WARNING: A CEGUIGL2GeometryBuffer was rotated. Rotation is not fully supported yet and "
-				"will break hit testing!\n");
+		LogWarning("A CEGUIGL2GeometryBuffer was rotated. Rotation is not fully supported yet and "
+				"will break hit testing!");
 	}
 
 	rot = r;

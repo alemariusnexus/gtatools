@@ -22,6 +22,7 @@
 
 #include "AdvancedShaderProgram.h"
 #include "../Engine.h"
+#include <nxcommon/log.h>
 
 
 AdvancedShaderProgram::AdvancedShaderProgram(const CString& programName)
