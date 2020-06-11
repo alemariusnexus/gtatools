@@ -24,15 +24,15 @@
 #define GXTWIDGET_H_
 
 #include <QWidget>
-#include <QtCore/QMap>
-#include <QtCore/QLinkedList>
-#include <QtCore/QVector>
+#include <QMap>
+#include <QLinkedList>
+#include <QVector>
 #include <QSortFilterProxyModel>
 #include <ui_GXTWidget.h>
 #include <nxcommon/file/File.h>
 #include "GXTTableModel.h"
 #include "GXTGUIModule.h"
-#include <QtCore/QSettings>
+#include <QSettings>
 #include "../../EntityOpenRequest.h"
 
 

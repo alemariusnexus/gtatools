@@ -24,22 +24,25 @@
 #define SCENEOBJECTDEFINITIONINFO_H_
 
 #include "SceneObjectFileGroup.h"
+#include <memory>
+
+using std::shared_ptr;
 
 
 class SceneObjectDefinitionInfo {
 public:
-	SceneObjectDefinitionInfo(SceneObjectFileGroup* group, uint32_t id);
+	SceneObjectDefinitionInfo(const shared_ptr<SceneObjectFileGroup>& group, uint32_t id);
 	SceneObjectDefinitionInfo(const SceneObjectDefinitionInfo& other)
 			: group(other.group), id(other.id), fixed(other.fixed) {}
-	SceneObjectFileGroup* getFileGroup() { return group; }
+	shared_ptr<SceneObjectFileGroup> getFileGroup() { return group; }
 	uint32_t getID() const { return id; }
-	void setFileGroup(SceneObjectFileGroup* group) { this->group = group; }
+	void setFileGroup(const shared_ptr<SceneObjectFileGroup>& group) { this->group = group; }
 	void setID(uint32_t id) { this->id = id; }
 	void markAsFixed() { fixed = true; }
 	bool isFixed() const { return fixed; }
 
 private:
-	SceneObjectFileGroup* group;
+	shared_ptr<SceneObjectFileGroup> group;
 	uint32_t id;
 	bool fixed;
 };

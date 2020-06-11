@@ -38,6 +38,17 @@ DefaultShaderPluginAPI::DefaultShaderPluginAPI()
 }
 
 
+DefaultShaderPluginAPI::~DefaultShaderPluginAPI()
+{
+	for (ShaderPluginAPIHook* hook : vertexHooks) {
+		delete hook;
+	}
+	for (ShaderPluginAPIHook* hook : fragmentHooks) {
+		delete hook;
+	}
+}
+
+
 void DefaultShaderPluginAPI::defineVertexHook(const CString& baseName, const CString& paramList, const CString& paramNameList)
 {
 	ShaderPluginAPIHook* hook = new ShaderPluginAPIHook(baseName, paramList, paramNameList);

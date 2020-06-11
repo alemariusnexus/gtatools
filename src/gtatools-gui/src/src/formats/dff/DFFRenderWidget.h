@@ -25,9 +25,9 @@
 
 #include <gtatools-gui/config.h>
 #include <gta/gl.h>
-#include <QtCore/QLinkedList>
-#include <QtCore/QMap>
-#include <QtOpenGL/qgl.h>
+#include <QLinkedList>
+#include <QMap>
+#include <qgl.h>
 #include <QWidget>
 #include <gtaformats/gtadff.h>
 #include <nxcommon/math/Matrix4.h>
@@ -45,7 +45,7 @@
 #include <gta/render/TestShaderPlugin.h>
 #include <QMouseEvent>
 #include <QKeyEvent>
-#include <QtCore/QPoint>
+#include <QPoint>
 #include "../../Profile.h"
 #include "../../ProfileManager.h"
 #include "../../gui/GLBaseWidget.h"

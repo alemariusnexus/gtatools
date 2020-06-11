@@ -24,7 +24,7 @@
 
 
 
-SceneObjectDefinitionInfo::SceneObjectDefinitionInfo(SceneObjectFileGroup* group, uint32_t id)
+SceneObjectDefinitionInfo::SceneObjectDefinitionInfo(const shared_ptr<SceneObjectFileGroup>& group, uint32_t id)
 		: group(group), id(id), fixed(false)
 {
 }

@@ -24,6 +24,8 @@ PROJECT(prj-gtaformats-test C CXX)
 
 CMAKE_POLICY(SET CMP0020 NEW)
 
+SET(GTATOOLS_INSTALL_ENABLED OFF CACHE BOOL "If true, CMake INSTALL commands will be run for gtatools.")
+
 ADD_SUBDIRECTORY(src)
 
 IF(NOT TARGET nxcommon)
@@ -93,5 +95,8 @@ ADD_EXECUTABLE(gtaformats-test ${SRCS})
 TARGET_LINK_LIBRARIES(gtaformats-test PUBLIC ${LIBRARIES})
 TARGET_INCLUDE_DIRECTORIES(gtaformats-test PUBLIC ${INCLUDES})
 
-INSTALL(TARGETS gtaformats-test DESTINATION bin)
+
+IF(GTATOOLS_INSTALL_ENABLED)
+    INSTALL(TARGETS gtaformats-test DESTINATION bin)
+ENDIF()
 

@@ -23,8 +23,8 @@
 #ifndef GUI_H_
 #define GUI_H_
 
-#include <QtCore/QObject>
-#include <QtCore/QLinkedList>
+#include <QObject>
+#include <QLinkedList>
 #include <QWidget>
 #include <nxcommon/file/FileFinder.h>
 #include <nxcommon/file/File.h>

@@ -32,13 +32,7 @@ using std::pair;
 
 MeshIndexer::~MeshIndexer()
 {
-	IndexMap::iterator it;
-
-	for (it = index.begin() ; it != index.end() ; it++) {
-		delete it->second.file;
-	}
-
-	index.clear();
+	resourcesCleared();
 }
 
 
@@ -52,7 +46,12 @@ void MeshIndexer::resourceAdded(const File& file)
 
 		IndexEntry entry;
 		entry.file = new File(file);
-		index.insert(pair<CString, IndexEntry>(CString::from(lMeshName), entry));
+
+		auto res = index.insert(pair<CString, IndexEntry>(CString::from(lMeshName), entry));
+
+		if (!res.second) {
+			delete entry.file;
+		}
 	}
 }
 

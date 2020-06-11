@@ -23,12 +23,12 @@
 #ifndef PROFILE_H_
 #define PROFILE_H_
 
-#include <QtCore/QLinkedList>
-#include <QtCore/QList>
-#include <QtCore/QString>
-#include <QtCore/QFile>
-#include <QtCore/QMetaType>
-#include <QtCore/QQueue>
+#include <QLinkedList>
+#include <QList>
+#include <QString>
+#include <QFile>
+#include <QMetaType>
+#include <QQueue>
 #include <nxcommon/file/File.h>
 #include <gta/resource/ResourceObserver.h>
 #include <gta/Engine.h>
@@ -50,7 +50,7 @@ public:
 	typedef QLinkedList<File>::iterator ResourceIterator;
 
 private:
-	typedef multimap<hash_t, char*> MeshTexMap;
+	typedef multimap<hash_t, CString> MeshTexMap;
 
 public:
 	Profile(const QString& name);
@@ -84,7 +84,7 @@ public:
 	void setName(const QString& name);
 	void synchronize();
 	bool containsFile(const File& file);
-	int findTexturesForMesh(hash_t meshName, char**& textures);
+	QLinkedList<CString> findTexturesForMesh(hash_t meshName);
 	void updateResourceIndex() { if (isCurrent()) loadResourceIndex(); }
 	bool isCurrent() const;
 	bool isResourceIndexFunctional() const { return resourceIndexFunctional; }

@@ -25,12 +25,12 @@
 
 #include <QTreeView>
 #include <QWidget>
-#include <QtCore/QModelIndex>
-#include <QtCore/QPoint>
+#include <QModelIndex>
+#include <QPoint>
 #include "FileItemModel.h"
-#include <QtCore/QHash>
-#include <QtCore/QString>
-#include <QtCore/QVariant>
+#include <QHash>
+#include <QString>
+#include <QVariant>
 #include "../EntityOpenRequest.h"
 #include <QSortFilterProxyModel>
 #include "../DisplayedFile.h"

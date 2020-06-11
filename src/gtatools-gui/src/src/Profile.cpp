@@ -31,7 +31,7 @@
 #include <gtaformats/dat/ResourceDATLoader.h>
 #include <gta/render/DefaultRenderer.h>
 #include <gta/scene/visibility/PVSDatabase.h>
-#include <QtCore/QTimer>
+#include <QTimer>
 
 using std::pair;
 using std::distance;
@@ -230,6 +230,8 @@ void Profile::loadSingleDAT()
 			}
 		}
 
+		delete in;
+
 		/*Scene* oldScene = engine->getScene();
 		if (engine->getScene() != scene)
 			engine->setScene(scene);
@@ -349,37 +351,30 @@ void Profile::resourceAdded(const File& file)
 		IDEStatement* stmt;
 
 		while ((stmt = ide.readStatement())  !=  NULL) {
-			const char* meshName;
-			const char* texName;
+			CString meshName;
+			CString texName;
 
 			idetype_t type = stmt->getType();
 
 			if (type == IDETypeStaticObject  ||  type == IDETypeTimedObject) {
 				IDEStaticObject* sobj = (IDEStaticObject*) stmt;
-				meshName = sobj->getModelName().get();
-				texName = sobj->getTXDArchiveName().get();
+				meshName = sobj->getModelName();
+				texName = sobj->getTXDArchiveName();
 			} else if (type == IDETypeAnimation) {
 				IDEAnimation* anim = (IDEAnimation*) stmt;
-				meshName = anim->getModelName().get();
-				texName = anim->getTXDArchiveName().get();
+				meshName = anim->getModelName();
+				texName = anim->getTXDArchiveName();
 			} else if (type == IDETypePedestrian) {
 				IDEPedestrian* ped = (IDEPedestrian*) stmt;
-				meshName = ped->getModelName().get();
-				texName = ped->getTXDArchiveName().get();
+				meshName = ped->getModelName();
+				texName = ped->getTXDArchiveName();
 			} else if (type == IDETypeWeapon) {
 				IDEWeapon* weap = (IDEWeapon*) stmt;
-				meshName = weap->getModelName().get();
-				texName = weap->getTXDArchiveName().get();
+				meshName = weap->getModelName();
+				texName = weap->getTXDArchiveName();
 			}
 
-			char* lMeshName = new char[strlen(meshName)+1];
-			strtolower(lMeshName, meshName);
-			char* lTexName = new char[strlen(texName)+1];
-			strtolower(lTexName, texName);
-
-			meshTextures.insert(pair<hash_t, char*>(Hash(lMeshName), lTexName));
-
-			delete[] lMeshName;
+			meshTextures.insert(pair<hash_t, CString>(Hash(meshName.lower().get()), texName.lower()));
 
 			delete stmt;
 		}
@@ -387,21 +382,18 @@ void Profile::resourceAdded(const File& file)
 }
 
 
-int Profile::findTexturesForMesh(hash_t meshName, char**& textures)
+QLinkedList<CString> Profile::findTexturesForMesh(hash_t meshName)
 {
+	QLinkedList<CString> textures;
+
 	pair<MeshTexMap::iterator, MeshTexMap::iterator> range = meshTextures.equal_range(meshName);
 
-	int numElements = distance(range.first, range.second);
-
-	textures = new char*[numElements];
-
 	MeshTexMap::iterator it;
-	int i = 0;
-	for (it = range.first ; it != range.second ; it++, i++) {
-		textures[i] = it->second;
+	for (it = range.first ; it != range.second ; it++) {
+		textures << it->second;
 	}
 
-	return numElements;
+	return textures;
 }
 
 
@@ -508,15 +500,12 @@ void Profile::systemQuerySent(const SystemQuery& query, QList<SystemQueryResult>
 {
 	if (query.getName() == "FindMeshTextures") {
 		QString meshName = query["meshName"].toString();
-		char** textures;
-		int numTexes = findTexturesForMesh(LowerHash(meshName.toLocal8Bit().constData()), textures);
+		QLinkedList<CString> textures = findTexturesForMesh(LowerHash(meshName.toLocal8Bit().constData()));
 		QStringList texNames;
 
-		for (int i = 0 ; i < numTexes ; i++) {
-			texNames << textures[i];
+		for (CString tex : textures) {
+			texNames << tex;
 		}
-
-		delete[] textures;
 
 		SystemQueryResult res;
 		res["textures"] = QVariant(texNames);

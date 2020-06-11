@@ -24,7 +24,7 @@
 #define REGEXFILEFINDER_H_
 
 #include <nxcommon/file/FileFinder.h>
-#include <QtCore/QRegExp>
+#include <QRegExp>
 
 
 

@@ -51,6 +51,7 @@ public:
 	PVSSection(float x1, float y1, float z1, float x2, float y2, float z2)
 			: x1(x1), y1(y1), z1(z1), x2(x2), y2(y2), z2(z2)
 			{}
+	~PVSSection();
 	void getFirstCorner(float& x, float& y, float& z) const { x = x1; y = y1; z = z1; }
 	void getSecondCorner(float& x, float& y, float& z) const { x = x2; y = y2; z = z2; }
 	bool intersectsSphere(float sx, float sy, float sz, float sr) const

@@ -25,8 +25,8 @@
 
 #include "../EntityHandler.h"
 #include <gtaformats/gxt/GXTTable.h>
-#include <QtCore/QLinkedList>
-#include <QtCore/QMap>
+#include <QLinkedList>
+#include <QMap>
 #include <QWidget>
 
 

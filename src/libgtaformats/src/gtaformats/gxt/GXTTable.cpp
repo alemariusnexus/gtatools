@@ -39,6 +39,8 @@ GXTTable::~GXTTable()
 	for (it = entries.begin() ; it != entries.end() ; it++) {
 		delete[] it->second;
 	}
+
+	delete keyNames;
 }
 
 

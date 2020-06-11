@@ -27,7 +27,7 @@
 #include <gtaformats/txd/TXDArchive.h>
 #include <gtaformats/txd/TXDTextureHeader.h>
 #include <gtaformats/config.h>
-#include <QtCore/QLinkedList>
+#include <QLinkedList>
 #include <QFileDialog>
 #include <QImageWriter>
 #include "TXDFormatHandler.h"

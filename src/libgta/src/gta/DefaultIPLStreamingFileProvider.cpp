@@ -26,6 +26,12 @@
 
 
 
+
+DefaultIPLStreamingFileProvider::~DefaultIPLStreamingFileProvider()
+{
+}
+
+
 void DefaultIPLStreamingFileProvider::addSearchDirectory(const File& file)
 {
 	searchDirs.push_back(file);

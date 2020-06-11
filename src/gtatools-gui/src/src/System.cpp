@@ -23,13 +23,13 @@
 #include "System.h"
 #include "formats/EntityManager.h"
 #include <gta/gl.h>
-#include <QtCore/QFile>
-#include <QtCore/QDateTime>
-#include <QtCore/QThread>
-#include <QtCore/QCommandLineParser>
+#include <QFile>
+#include <QDateTime>
+#include <QThread>
+#include <QCommandLineParser>
 #include <QInputDialog>
 #include <QMessageBox>
-#include <QtOpenGL/QGLFormat>
+#include <QGLFormat>
 #include "DisplayedFile.h"
 #include "ProfileManager.h"
 #include <gta/scene/Scene.h>
@@ -128,7 +128,9 @@ void System::initializeInstance()
 
 	initializing = false;
 
-	connect(profMgr->getCurrentProfile(), SIGNAL(resourceIndexInitialized()), this, SLOT(profileResourceIndexInitialized()));
+	if (profMgr->getCurrentProfile()) {
+		connect(profMgr->getCurrentProfile(), SIGNAL(resourceIndexInitialized()), this, SLOT(profileResourceIndexInitialized()));
+	}
 
 	emit initializationDone();
 
@@ -182,6 +184,8 @@ void System::startupDoneSlot()
 void System::destroyInstance()
 {
 	emit aboutToQuit();
+
+	disconnect(qApp, SIGNAL(lastWindowClosed()), this, SLOT(destroyInstance()));
 
 	shuttingDown = true;
 

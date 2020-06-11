@@ -46,7 +46,7 @@ private:
 
 public:
 	TextureIndexer() {}
-	~TextureIndexer();
+	virtual ~TextureIndexer();
 	virtual void resourceAdded(const File& file);
 	virtual void resourcesCleared();
 	TextureArchive* findArchive(const CString& name);

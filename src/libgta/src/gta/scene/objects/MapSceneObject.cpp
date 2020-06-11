@@ -58,7 +58,12 @@ MapSceneObject::MapSceneObject(const MapSceneObject& other)
 
 MapSceneObject::~MapSceneObject()
 {
+	delete defInfo;
 	delete rb;
+
+	for (MapSceneObjectLODInstance* lodInst : lodInsts) {
+		delete lodInst;
+	}
 }
 
 

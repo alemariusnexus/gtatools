@@ -27,8 +27,8 @@
 #include "../formats/EntityManager.h"
 #include "../formats/EntityHandler.h"
 #include <QBoxLayout>
-#include <QtCore/QList>
-#include <QtCore/QSettings>
+#include <QList>
+#include <QSettings>
 #include "ConfigWidget.h"
 #include <QMenu>
 #include "../formats/txd/TXDGUIModule.h"
@@ -40,7 +40,7 @@
 #include <QHeaderView>
 #include <QLayout>
 #include <QTableWidget>
-#include <QtCore/QTimer>
+#include <QTimer>
 #include <QHBoxLayout>
 #include <qdockwidget.h>
 

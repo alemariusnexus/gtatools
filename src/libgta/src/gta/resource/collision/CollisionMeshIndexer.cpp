@@ -30,6 +30,12 @@ using std::pair;
 
 
 
+CollisionMeshIndexer::~CollisionMeshIndexer()
+{
+	resourcesCleared();
+}
+
+
 void CollisionMeshIndexer::resourceAdded(const File& file)
 {
 	if (file.guessContentType() == CONTENT_TYPE_COL) {
@@ -42,7 +48,12 @@ void CollisionMeshIndexer::resourceAdded(const File& file)
 			CollisionMeshIndexEntry* entry = new CollisionMeshIndexEntry;
 			entry->file = new File(file);
 			entry->index = i++;
-			index.insert(pair<CString, CollisionMeshIndexEntry*>(name.lower(), entry));
+
+			auto res = index.insert(pair<CString, CollisionMeshIndexEntry*>(name.lower(), entry));
+
+			if (!res.second) {
+				delete entry;
+			}
 		}
 
 		delete stream;
@@ -62,7 +73,12 @@ void CollisionMeshIndexer::resourceAdded(const File& file)
 			CollisionMeshIndexEntry* entry = new CollisionMeshIndexEntry;
 			entry->file = new File(file);
 			entry->index = 0;
-			index.insert(pair<CString, CollisionMeshIndexEntry*>(CString::from(lMeshName).lower(), entry));
+
+			auto res = index.insert(pair<CString, CollisionMeshIndexEntry*>(CString::from(lMeshName).lower(), entry));
+
+			if (!res.second) {
+				delete entry;
+			}
 		}
 
 		delete stream;

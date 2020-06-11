@@ -23,7 +23,7 @@
 #ifndef PROFILEMANAGER_H_
 #define PROFILEMANAGER_H_
 
-#include <QtCore/QList>
+#include <QList>
 #include "Profile.h"
 
 
@@ -50,6 +50,7 @@ public:
 	void saveProfiles();
 	void addProfile(Profile* profile);
 	bool removeProfile(Profile* profile);
+	void clearProfiles() { setProfiles(QList<Profile*>()); }
 	void setProfiles(const QList<Profile*>& profiles);
 
 private:
@@ -72,6 +73,7 @@ private:
 private:
 	QList<Profile*> profiles;
 	Profile* currentProfile;
+	bool destroying;
 };
 
 #endif /* PROFILEMANAGER_H_ */

@@ -31,6 +31,12 @@ AdvancedShader::AdvancedShader(GLenum type, const CString& name)
 }
 
 
+AdvancedShader::~AdvancedShader()
+{
+	delete shader;
+}
+
+
 void AdvancedShader::compile(const CString& headerCode)
 {
 	CString combinedCode = headerCode;

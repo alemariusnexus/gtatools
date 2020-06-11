@@ -25,7 +25,7 @@
 
 #include <gtaformats/ide/IDEStatement.h>
 #include <nxcommon/file/FileFinder.h>
-#include <QtCore/QMap>
+#include <QMap>
 
 
 

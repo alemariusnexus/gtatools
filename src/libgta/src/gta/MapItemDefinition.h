@@ -50,6 +50,7 @@ public:
 	MapItemDefinition(const IDEAnimation* aobj);
 	MapItemDefinition() : meshPtr(NULL), texSrc(NULL), colPtr(NULL), smeshPtr(NULL), physicsPtr(NULL), animPtr(NULL),
 			drawDist(0.0f), flags(0), timeOn(0), timeOff(0) {}
+	virtual ~MapItemDefinition();
 
 	MeshPointer* getMeshPointer() { return meshPtr; }
 	TextureSource* getTextureSource() { return texSrc; }

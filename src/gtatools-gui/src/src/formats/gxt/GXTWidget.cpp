@@ -26,7 +26,7 @@
 #include <gtaformats/gxt/GXTTable.h>
 #include <gtaformats/gta.h>
 #include <nxcommon/util.h>
-#include <QtCore/QSettings>
+#include <QSettings>
 #include <QMessageBox>
 #include <cstdio>
 #include "../../System.h"
@@ -53,6 +53,8 @@ GXTWidget::GXTWidget(const EntityOpenRequest& request, QWidget* parent)
 		tables[table->getName().get()] = table;
 	}
 
+	delete[] headers;
+
 	rebuildTableList();
 
 	connect(ui.tableList, SIGNAL(currentRowChanged(int)), this, SLOT(currentTableChanged(int)));
@@ -72,9 +74,8 @@ GXTWidget::~GXTWidget()
 {
 	System::getInstance()->uninstallGUIModule(&guiModule);
 
-	if (model) {
-		delete model;
-	}
+	delete model;
+	delete proxyModel;
 
 	QLinkedList<File*>::iterator it;
 

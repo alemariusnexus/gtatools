@@ -24,7 +24,7 @@
 #define STATICFILE_H_
 
 #include <nxcommon/file/File.h>
-#include <QtCore/QList>
+#include <QList>
 
 
 class StaticFile {

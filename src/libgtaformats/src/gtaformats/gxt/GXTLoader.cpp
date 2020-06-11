@@ -69,6 +69,14 @@ GXTLoader::GXTLoader(const File& file, Encoding encoding)
 }
 
 
+GXTLoader::~GXTLoader()
+{
+	if (autoClose) {
+		delete stream;
+	}
+}
+
+
 void GXTLoader::init()
 {
 #ifdef GTAFORMATS_LITTLE_ENDIAN

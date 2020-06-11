@@ -28,13 +28,13 @@
 #include <QMainWindow>
 #include "../Profile.h"
 #include "GUIModule.h"
-#include <QtCore/QAbstractItemModel>
+#include <QAbstractItemModel>
 #include <QMenu>
-#include <QtCore/QPoint>
+#include <QPoint>
 #include <QProgressBar>
 #include <QTabWidget>
 #include <QLabel>
-#include <QtCore/QMap>
+#include <QMap>
 #include "../EntityOpenRequest.h"
 #include "FileViewWidget.h"
 #include "FileTree.h"

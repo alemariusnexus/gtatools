@@ -29,8 +29,11 @@
 #include <gta/scene/parts/VisualSceneObject.h>
 #include <gta/render/TestShaderPlugin.h>
 #include <gta/scene/objects/Vehicle.h>
+#include <gta/MapItemDefinition.h>
+#include <gta/IPLStreamingFileProvider.h>
 #include "VehicleController.h"
 #include "BulletGLDebugDraw.h"
+#include <vector>
 
 
 using namespace tinyxml2;
@@ -40,6 +43,7 @@ using namespace tinyxml2;
 class Controller {
 public:
 	Controller();
+	~Controller();
 	void init();
 	void reshape(int w, int h);
 	bool paint();
@@ -73,6 +77,9 @@ private:
 	bool increaseTimeHold;
 
 	VehicleController* veh;
+
+	std::vector<ItemDefinition*> itemDefs;
+	std::vector<IPLStreamingFileProvider*> iplSfProvs;
 };
 
 #endif /* CONTROLLER_H_ */

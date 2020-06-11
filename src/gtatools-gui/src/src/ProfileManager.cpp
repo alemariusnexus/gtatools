@@ -22,9 +22,9 @@
 
 #include <gtatools-gui/config.h>
 #include "ProfileManager.h"
-#include <QtCore/QSettings>
-#include <QtCore/QString>
-#include <QtCore/QTimer>
+#include <QSettings>
+#include <QString>
+#include <QTimer>
 #include <nxcommon/file/File.h>
 #include <nxcommon/exception/OutOfBoundsException.h>
 #include "System.h"
@@ -35,7 +35,7 @@ ProfileManager* ProfileManager::instance = NULL;
 
 
 ProfileManager::ProfileManager(QObject* parent)
-		: QObject(parent), currentProfile(NULL)
+		: QObject(parent), currentProfile(NULL), destroying(false)
 {
 	connect(this, SIGNAL(currentProfileChanged(Profile*, Profile*)), this,
 			SLOT(currentProfileChangedSlot(Profile*, Profile*)));
@@ -44,6 +44,8 @@ ProfileManager::ProfileManager(QObject* parent)
 
 ProfileManager::~ProfileManager()
 {
+	destroying = true;
+	clearProfiles();
 }
 
 
@@ -173,15 +175,19 @@ void ProfileManager::saveProfiles()
 
 void ProfileManager::currentProfileChangedSlot(Profile* oldProfile, Profile* newProfile)
 {
-	QSettings settings;
+	if (!destroying) {
+		QSettings settings;
 
-	if (newProfile != NULL) {
-		settings.setValue("main/current_profile", indexOfProfile(newProfile));
-	} else {
-		settings.setValue("main/current_profile", -1);
+		if (newProfile != NULL) {
+			settings.setValue("main/current_profile", indexOfProfile(newProfile));
+		} else {
+			settings.setValue("main/current_profile", -1);
+		}
+
+		fflush(stdout);
+
+		settings.sync();
 	}
-
-	settings.sync();
 }
 
 

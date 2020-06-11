@@ -25,8 +25,8 @@
 
 #include "GUIModule.h"
 #include "MainWindow.h"
-#include <QtCore/QObject>
-#include <QtCore/QMap>
+#include <QObject>
+#include <QMap>
 #include <QAction>
 #include <QMenu>
 #include <QUndoGroup>

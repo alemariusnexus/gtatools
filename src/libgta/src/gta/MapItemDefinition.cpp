@@ -57,3 +57,14 @@ MapItemDefinition::MapItemDefinition(const IDEAnimation* aobj)
 	}
 }
 
+
+MapItemDefinition::~MapItemDefinition()
+{
+	delete meshPtr;
+	delete texSrc;
+	delete colPtr;
+	delete smeshPtr;
+	delete physicsPtr;
+	delete animPtr;
+}
+

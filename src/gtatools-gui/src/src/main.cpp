@@ -26,24 +26,24 @@
 #include "MainApplication.h"
 #include <QWidget>
 #include <QTreeView>
-#include <QtCore/QDir>
+#include <QDir>
 #include <QFileSystemModel>
 #include "gui/FileItemModel.h"
 #include "Profile.h"
 #include "ProfileManager.h"
 #include <nxcommon/file/File.h>
 #include "gui/MainWindow.h"
-#include <QtCore/QSettings>
+#include <QSettings>
 #include "Profile.h"
-#include <QtCore/QMetaType>
+#include <QMetaType>
 #include "gui/ConfigWidget.h"
-#include <QtCore/QTranslator>
-#include <QtCore/QLibraryInfo>
+#include <QTranslator>
+#include <QLibraryInfo>
 #include "System.h"
 #include <nxcommon/exception/Exception.h>
 #include <QMessageBox>
-#include <QtCore/QTimer>
-#include <QtCore/QCommandLineParser>
+#include <QCommandLineParser>
+#include <QTimer>
 #include <gta/Engine.h>
 #include <nxcommon/ResourceCache.h>
 #include <signal.h>
@@ -96,6 +96,8 @@ int main(int argc, char** argv)
 
 		try {
 			int v = app.exec();
+
+			LogInfo("Program terminated normally.");
 
 			return v;
 		} catch (Exception& ex) {

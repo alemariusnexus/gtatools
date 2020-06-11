@@ -24,15 +24,15 @@
 #include <gtatools-gui/config.h>
 #include "../../ProfileManager.h"
 #include "../../Profile.h"
-#include <QtCore/QString>
-#include <QtCore/QStringList>
+#include <QString>
+#include <QStringList>
 #include <QInputDialog>
 #include <QMessageBox>
 #include "../../System.h"
 #include <nxcommon/file/DefaultFileFinder.h>
 #include "../../RegexFileFinder.h"
 #include "../../gui/GUI.h"
-#include <QtCore/QSettings>
+#include <QSettings>
 
 
 

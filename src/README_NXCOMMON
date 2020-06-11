@@ -1,8 +1,7 @@
 You can build nxcommon/libnxcommon along with gtatools. To do so, place the root folder of a nxcommon source distribution
 under the name "nxcommon" into this directory, so that ${CMAKE_SOURCE_DIR}/nxcommon/src/CMakeLists.txt is found.
-You have
-to do this before building up a CMake cache. If you do so with an old CMake cache, nxcommon will not be found, so you
-have to delete and rebuild your cache from scratch.
+You have to do this before building up a CMake cache. If you do so with an old CMake cache, nxcommon will not be found,
+so you have to delete and rebuild your cache from scratch.
 
 NOTE: You HAVE to place the root folder of nxcommon here, NOT just the one of libnxcommon, because some CMake utility
 	functions might be missing otherwise!

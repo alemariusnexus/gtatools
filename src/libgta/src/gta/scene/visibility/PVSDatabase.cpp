@@ -63,6 +63,21 @@ PVSDatabase::PVSDatabase()
 }
 
 
+PVSDatabase::~PVSDatabase()
+{
+	for (PVSSceneObjectContainer* obj : objects) {
+		delete obj;
+	}
+	for (auto it = fileGroups.begin() ; it != fileGroups.end() ; it++) {
+		delete it->second;
+	}
+	for (uint32_t i = 0 ; i < numSects ; i++) {
+		delete sections[i];
+	}
+	delete[] sections;
+}
+
+
 PVSSection* PVSDatabase::findSection(float x, float y, float z)
 {
 	for (uint32_t i = 0 ; i < numSects ; i++) {
@@ -179,7 +194,7 @@ void PVSDatabase::save(ostream* out, int flags)
 	// Store the data for each file group...
 	for (FileGroupIterator it = fileGroups.begin() ; it != fileGroups.end() ; it++) {
 		InternalSceneObjectFileGroup* igroup = it->second;
-		SceneObjectFileGroup* group = igroup->getFileGroup();
+		shared_ptr<SceneObjectFileGroup> group = igroup->getFileGroup();
 
 		CString relPath = group->getRelativePath();
 		uint32_t len = relPath.length()+1;
@@ -383,7 +398,7 @@ PVSDatabase::LoadingResult PVSDatabase::load(istream* stream, const File& rootDi
 		stream->read(relPath, len);
 
 		InternalSceneObjectFileGroup* igroup = getFileGroup(relPath);
-		SceneObjectFileGroup* group = igroup ? igroup->getFileGroup() : NULL;
+		shared_ptr<SceneObjectFileGroup> group = igroup ? igroup->getFileGroup() : shared_ptr<SceneObjectFileGroup>();
 
 		uint32_t checksum = reader->readU32();
 

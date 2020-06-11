@@ -25,7 +25,7 @@
 
 #include <QWidget>
 #include <ui_LogConsole.h>
-#include <QtCore/QString>
+#include <QString>
 #include "../LogEntry.h"
 
 

@@ -24,7 +24,7 @@
 #include "TXDGUIModule.h"
 #include "TXDWidget.h"
 #include <cstdio>
-#include <QtCore/QString>
+#include <QString>
 #include <QFileDialog>
 #include <QImage>
 #include <QImageWriter>

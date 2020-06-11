@@ -25,9 +25,9 @@
 
 #include "../../gui/GUIModule.h"
 #include <QAction>
-#include <QtCore/QHash>
-#include <QtCore/QString>
-#include <QtCore/QVariant>
+#include <QHash>
+#include <QString>
+#include <QVariant>
 #include "../../DisplayedFile.h"
 
 

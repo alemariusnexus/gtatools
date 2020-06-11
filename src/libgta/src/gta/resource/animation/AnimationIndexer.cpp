@@ -30,9 +30,7 @@ using std::pair;
 
 AnimationIndexer::~AnimationIndexer()
 {
-	for (AnimMap::iterator it = index.begin() ; it != index.end() ; it++) {
-		delete it->second;
-	}
+	resourcesCleared();
 }
 
 
@@ -43,7 +41,13 @@ void AnimationIndexer::resourceAdded(const File& file)
 		size_t len = fname.length();
 		CString lname(fname.get(), len-4);
 		lname.lower();
-		index.insert(pair<CString, File*>(lname, new File(file)));
+
+		File* newFile = new File(file);
+		auto res = index.insert(pair<CString, File*>(lname, newFile));
+
+		if (!res.second) {
+			delete newFile;
+		}
 	}
 }
 

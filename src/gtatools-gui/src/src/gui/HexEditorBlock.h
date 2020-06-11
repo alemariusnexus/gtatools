@@ -25,7 +25,7 @@
 
 #include <QColor>
 #include <QBrush>
-#include <QtCore/QList>
+#include <QList>
 
 
 

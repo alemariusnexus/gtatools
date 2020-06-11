@@ -36,6 +36,12 @@ Animator::Animator(MeshClump* clump, Animation* anim)
 }
 
 
+Animator::~Animator()
+{
+	delete[] boneMats;
+}
+
+
 bool Animator::checkBoneNumberValidity(MeshFrame* frame)
 {
 	if (frame->getBoneNumber() != -1) {

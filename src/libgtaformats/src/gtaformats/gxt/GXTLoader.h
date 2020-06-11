@@ -51,6 +51,7 @@ public:
 public:
 	GXTLoader(istream* stream, Encoding encoding = None, bool autoClose = false);
 	GXTLoader(const File& file, Encoding encoding = None);
+	~GXTLoader();
 	void setEncoding(Encoding encoding) { this->encoding = encoding; }
 	Encoding getEncoding() const { return encoding; }
 	int32_t getTableCount() const { return numTables; }

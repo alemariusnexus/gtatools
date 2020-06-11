@@ -122,6 +122,18 @@ RWSection::RWSection(const RWSection& other)
 }
 
 
+RWSection::~RWSection()
+{
+	if (data) {
+		delete[] data;
+	} else {
+		for (ChildIterator it = children.begin() ; it != children.end() ; it++) {
+			delete *it;
+		}
+	}
+}
+
+
 RWSection* RWSection::readSectionBody(istream* stream, const RWSectionHeader& header)
 {
 	RWSection* sect = new RWSection;
@@ -295,18 +307,6 @@ void RWSection::computeAbsoluteOffsets(uint64_t offset)
 			RWSection* child = *it;
 			child->computeAbsoluteOffsets(offset);
 			offset += child->header.size + 12;
-		}
-	}
-}
-
-
-RWSection::~RWSection()
-{
-	if (data) {
-		delete[] data;
-	} else {
-		for (ChildIterator it = children.begin() ; it != children.end() ; it++) {
-			delete *it;
 		}
 	}
 }

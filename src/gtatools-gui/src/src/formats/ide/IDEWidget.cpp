@@ -29,7 +29,7 @@
 #include <gtaformats/ide/IDEPedestrian.h>
 #include <gtaformats/ide/IDEWeapon.h>
 #include <nxcommon/file/DefaultFileFinder.h>
-#include <QtCore/QRegExp>
+#include <QRegExp>
 #include <QMessageBox>
 #include <QInputDialog>
 #include <QColor>

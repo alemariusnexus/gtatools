@@ -28,7 +28,7 @@
 #include <gta/resource/collision/COLMeshConverter.h>
 #include <gta/GLException.h>
 #include <gta/Engine.h>
-#include <QtCore/QLinkedList>
+#include <QLinkedList>
 #include <algorithm>
 #include "../../System.h"
 
@@ -42,6 +42,14 @@ using std::max;
 COLRenderWidget::COLRenderWidget(QWidget* parent)
 		: GLBaseWidget(parent), renderer(NULL), model(NULL)
 {
+}
+
+
+COLRenderWidget::~COLRenderWidget()
+{
+	delete renderer;
+
+	releaseRenderingEntities();
 }
 
 

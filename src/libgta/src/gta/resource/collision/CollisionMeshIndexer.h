@@ -47,6 +47,7 @@ private:
 	typedef unordered_map<CString, CollisionMeshIndexEntry*, CXX11Hash<CString> > IndexMap;
 
 public:
+	virtual ~CollisionMeshIndexer();
 	virtual void resourceAdded(const File& file);
 	virtual void resourcesCleared();
 	CollisionMeshIndexEntry* getCollisionMesh(CString name);

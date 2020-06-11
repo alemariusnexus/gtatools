@@ -22,9 +22,9 @@
 
 #include "Task.h"
 #include <list>
-#include <QtCore/QMutex>
-#include <QtCore/QThread>
-#include <QtCore/QTimer>
+#include <QMutex>
+#include <QThread>
+#include <QTimer>
 #include "gui/MainWindow.h"
 
 using std::list;

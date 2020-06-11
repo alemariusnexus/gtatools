@@ -24,7 +24,7 @@
 #define DFFGUIMODULE_H_
 
 #include "../../gui/GUIModule.h"
-#include <QtCore/QObject>
+#include <QObject>
 #include <QAction>
 
 

@@ -21,6 +21,7 @@
  */
 
 #include "ImageDisplayWidget.h"
+#include <cmath>
 #include <QVBoxLayout>
 #include <QLineEdit>
 #include <cmath>

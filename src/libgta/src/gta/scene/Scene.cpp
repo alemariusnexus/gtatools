@@ -58,13 +58,15 @@ struct SortableSceneObject
 
 Scene::Scene()
 		: streamer(new StreamingManager()), renderer(NULL), reGenerator(new RenderingEntityGenerator),
-		  pvsEnabled(false), fcEnabled(true), physicsWorld(NULL), freezeVisibility(false)
+		  pvsEnabled(false), fcEnabled(true),
+		  physicsConfig(NULL), physicsDispatcher(NULL), physicsBroadphase(NULL), physicsSolver(NULL), physicsWorld(NULL),
+		  freezeVisibility(false)
 {
-	btDefaultCollisionConfiguration* config = new btDefaultCollisionConfiguration();
-	btCollisionDispatcher* dispatcher = new btCollisionDispatcher(config);
-	btBroadphaseInterface* broadphase = new btDbvtBroadphase();
-	btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver();
-	physicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, config);
+	physicsConfig = new btDefaultCollisionConfiguration();
+	physicsDispatcher = new btCollisionDispatcher(physicsConfig);
+	physicsBroadphase = new btDbvtBroadphase();
+	physicsSolver = new btSequentialImpulseConstraintSolver();
+	physicsWorld = new btDiscreteDynamicsWorld(physicsDispatcher, physicsBroadphase, physicsSolver, physicsConfig);
 
 	physicsWorld->setGravity(btVector3(0.0f, 0.0f, -9.81f));
 
@@ -83,8 +85,16 @@ int64_t streamCount = 0;
 
 Scene::~Scene()
 {
+	delete testPlugin;
+
 	delete streamer;
+
 	delete physicsWorld;
+	delete physicsSolver;
+	delete physicsBroadphase;
+	delete physicsDispatcher;
+	delete physicsConfig;
+
 	delete reGenerator;
 
 	for (SceneObject* obj : objects) {

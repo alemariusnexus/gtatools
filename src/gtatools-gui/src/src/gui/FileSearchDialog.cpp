@@ -29,9 +29,9 @@
 #include "../TaskFileFinder.h"
 #include "GUI.h"
 #include <nxcommon/file/DefaultFileFinder.h>
-#include <QtCore/QRegExp>
-#include <QtCore/QSettings>
-#include <QtCore/QLinkedList>
+#include <QRegExp>
+#include <QSettings>
+#include <QLinkedList>
 
 
 

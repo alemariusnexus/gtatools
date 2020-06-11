@@ -23,7 +23,7 @@
 #ifndef SYSTEMQUERYHANDLER_H_
 #define SYSTEMQUERYHANDLER_H_
 
-#include <QtCore/QObject>
+#include <QObject>
 #include "SystemQueryResult.h"
 
 

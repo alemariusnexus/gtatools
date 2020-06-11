@@ -23,7 +23,7 @@
 #ifndef HEXEDITORPRIVATE_H_
 #define HEXEDITORPRIVATE_H_
 
-#include <QtCore/QTimer>
+#include <QTimer>
 #include <QWidget>
 #include <QFontMetrics>
 #include <QPen>

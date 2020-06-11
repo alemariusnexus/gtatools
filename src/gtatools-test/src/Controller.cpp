@@ -43,7 +43,6 @@
 #include <gta/resource/mesh/StaticMeshPointer.h>
 #include <gta/resource/collision/StaticCollisionShapePointer.h>
 #include <gta/resource/physics/StaticPhysicsPointer.h>
-#include <gta/MapItemDefinition.h>
 #include <gta/ItemManager.h>
 #include <gta/render/DefaultRenderer.h>
 #include <gta/resource/texture/TextureIndexer.h>
@@ -105,6 +104,11 @@ Controller::Controller()
 		  framesSinceLastMeasure(0), lastMouseX(-1), lastMouseY(-1), printCacheStatistics(false),
 		  programRunning(true), forceStatisticsUpdate(false), freeRunning(true), increaseTime(false),
 		  increaseTimeHold(false)
+{
+}
+
+
+Controller::~Controller()
 {
 }
 
@@ -213,6 +217,8 @@ void Controller::init()
 		sfProv->addSearchDirectory(gtaintimgFile);
 
 		engine->getIPLLoader()->setStreamingFileProvider(sfProv);
+
+		iplSfProvs.push_back(sfProv);
 	}
 
 	glDisable(GL_SCISSOR_TEST);
@@ -359,6 +365,7 @@ void Controller::init()
 			MapItemDefinition* def = new MapItemDefinition (
 					new ManagedMeshPointer(test.meshName), new ManagedTextureSource(test.txdName), NULL, NULL, NULL,
 					500.0f, 0);
+			itemDefs.push_back(def);
 			def->setAnimationPackagePointer(new ManagedAnimationPackagePointer(test.ifpName));
 
 			MapSceneObject* mobj = new MapSceneObject;
@@ -619,8 +626,19 @@ void Controller::shutdown()
 {
 	Engine* engine = Engine::getInstance();
 
+	Renderer* renderer = engine->getScene()->getRenderer();
+
 	delete engine->getScene();
 	delete engine->getCamera();
+
+	delete renderer;
+
+	for (ItemDefinition* def : itemDefs) {
+		delete def;
+	}
+	for (IPLStreamingFileProvider* sfProv : iplSfProvs) {
+		delete sfProv;
+	}
 
 	Engine::destroy();
 }

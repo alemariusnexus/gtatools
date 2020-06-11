@@ -23,8 +23,8 @@
 #ifndef IFPFRAMEITEMMODEL_H_
 #define IFPFRAMEITEMMODEL_H_
 
-#include <QtCore/QAbstractItemModel>
-#include <QtCore/QVariant>
+#include <QAbstractItemModel>
+#include <QVariant>
 #include <gta/resource/mesh/MeshClump.h>
 
 

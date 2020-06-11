@@ -32,7 +32,7 @@
 #include <gta/scene/objects/MapSceneObject.h>
 #include <nxcommon/math/Matrix4.h>
 #include <gtaformats/col/COLSphere.h>
-#include <QtCore/QLinkedList>
+#include <QLinkedList>
 
 
 class COLSphereBoxRenderWidget : public GLBaseWidget {

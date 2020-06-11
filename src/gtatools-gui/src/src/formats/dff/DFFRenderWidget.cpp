@@ -27,7 +27,7 @@
 #include "../../ProfileManager.h"
 #include <nxcommon/file/File.h>
 #include <gta/GLException.h>
-#include <QtCore/QFile>
+#include <QFile>
 #include <QMessageBox>
 #include <gta/resource/mesh/StaticMeshPointer.h>
 #include <gta/resource/mesh/Submesh.h>

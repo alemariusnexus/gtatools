@@ -23,7 +23,7 @@
 #ifndef TASK_H_
 #define TASK_H_
 
-#include <QtCore/QObject>
+#include <QObject>
 #include <QProgressBar>
 #include <QLabel>
 #include <cstdio>

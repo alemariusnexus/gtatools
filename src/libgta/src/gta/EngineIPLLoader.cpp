@@ -34,12 +34,14 @@
 #include <utility>
 #include <algorithm>
 #include <set>
+#include <memory>
 
 using std::queue;
 using std::multimap;
 using std::pair;
 using std::find;
 using std::set;
+using std::shared_ptr;
 
 
 
@@ -79,7 +81,7 @@ void EngineIPLLoader::load(const File& file, Scene::ObjectList& objects, GameInf
 			streamingFiles.pop();
 
 			File relFile = sfile.relativeTo(info.getRootDirectory());
-			SceneObjectFileGroup* group = new SceneObjectFileGroup(relFile.getPath().toString());
+			shared_ptr<SceneObjectFileGroup> group = std::make_shared<SceneObjectFileGroup>(relFile.getPath().toString());
 
 			group->setChecksum(sfile.crc32());
 

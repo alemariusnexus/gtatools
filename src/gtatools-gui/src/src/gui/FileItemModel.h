@@ -23,9 +23,9 @@
 #ifndef FILEITEMMODEL_H_
 #define FILEITEMMODEL_H_
 
-#include <QtCore/QAbstractItemModel>
-#include <QtCore/QMap>
-#include <QtCore/QList>
+#include <QAbstractItemModel>
+#include <QMap>
+#include <QList>
 #include "../Profile.h"
 #include <nxcommon/file/File.h>
 #include "StaticFile.h"

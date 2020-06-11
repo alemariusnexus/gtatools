@@ -24,13 +24,13 @@
 #define ENTITYHANDLER_H_
 
 #include <nxcommon/file/File.h>
-#include <QtCore/QString>
-#include <QtCore/QObject>
+#include <QString>
+#include <QObject>
 #include "../gui/GUIModule.h"
 #include <QWidget>
-#include <QtCore/QLinkedList>
-#include <QtCore/QHash>
-#include <QtCore/QVariant>
+#include <QLinkedList>
+#include <QHash>
+#include <QVariant>
 #include "../EntityOpenRequest.h"
 #include "../DisplayedEntity.h"
 

@@ -22,7 +22,7 @@
 
 #include "DefaultGUIModule.h"
 #include <QDesktopServices>
-#include <QtCore/QUrl>
+#include <QUrl>
 #include <QActionGroup>
 #include "../Profile.h"
 #include "../ProfileManager.h"

@@ -53,22 +53,30 @@ void TextureIndexer::resourceAdded(const File& file)
 
 		//hash_t txdHash = Hash(txdName);
 
-#ifndef NDEBUG
-		if (archives.find(txdName) != archives.end()) {
+		/*if (archives.find(txdName) != archives.end()) {
 			char* oldPath = dbgArchivePaths.find(txdName)->second;
 			LogWarning("Conflicting resources: A TXD archive with the same name as %s was "
 					"already added! Previous resource: %s", file.getPath().toString().get(), oldPath);
-		}
-#endif
+		}*/
 
 		TextureArchive* archive = new TextureArchive(lTxdName, file);
-		archives[lTxdName] = archive;
 
+		auto res = archives.insert(pair<CString, TextureArchive*>(lTxdName, archive));
+
+		if (res.second) {
 #ifndef NDEBUG
-		char* path = new char[file.getPath().toString().length() + 1];
-		strcpy(path, file.getPath().toString().get());
-		dbgArchivePaths.insert(pair<CString, char*>(lTxdName, path));
+			char* path = new char[file.getPath().toString().length() + 1];
+			strcpy(path, file.getPath().toString().get());
+			dbgArchivePaths.insert(pair<CString, char*>(lTxdName, path));
 #endif
+		} else {
+			char* oldPath = dbgArchivePaths.find(txdName)->second;
+			LogWarning("Conflicting resources: A TXD archive with the same name as %s was "
+					"already added! Previous resource: %s", file.getPath().toString().get(), oldPath);
+
+			delete res.first->second;
+			res.first->second = archive;
+		}
 	}
 }
 

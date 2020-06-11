@@ -493,6 +493,8 @@ void RenderingEntityGenerator::generateFromMapSceneObjectLODInstance(MapSceneObj
 #endif
 	}
 
+	delete[] boneMats;
+
 	delete animator;
 
 	if (apkgPtr) {

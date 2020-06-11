@@ -883,6 +883,8 @@ TEST(IMGWriteTest, CheckCombinedGTA3IMG)
 				File outFile(exDir, exEntry.name.get());
 				outFile.copyFrom(stream);
 
+				delete stream;
+
 				img.removeEntry(it);
 			}
 		}

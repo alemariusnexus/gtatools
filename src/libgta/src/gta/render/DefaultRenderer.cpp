@@ -77,6 +77,21 @@ DefaultRenderer::DefaultRenderer()
 }
 
 
+DefaultRenderer::~DefaultRenderer()
+{
+	destroyBuffers();
+	destroyFBOs();
+	destroyShaderPrograms();
+	destroyShaders();
+
+	delete programCache;
+
+	delete[] normalMatrices;
+	delete[] mvpMatrices;
+	delete[] mvMatrices;
+}
+
+
 void DefaultRenderer::setupShaders()
 {
 #ifdef GTA_USE_OPENGL_ES
@@ -170,6 +185,57 @@ void DefaultRenderer::setupShaders()
 	programs.dpBlendFinalProgram = NULL;
 
 	GLException::checkDebugError("DefaultRenderer::setupShaders() - after setup");
+}
+
+
+void DefaultRenderer::destroyShaders()
+{
+	delete shaders.lightingVertexShader;
+	delete shaders.animShadeFragmentShader;
+	delete shaders.animShadeVertexShader;
+	delete shaders.fragmentDefaultShader;
+	delete shaders.vertexDefaultShader;
+	delete shaders.shadeFragmentShader;
+	delete shaders.shadeVertexShader;
+
+	delete shaders.dpBlendFinalFragmentShader;
+	delete shaders.dpBlendFinalVertexShader;
+	delete shaders.dpBlendLayerFragmentShader;
+	delete shaders.dpBlendLayerVertexShader;
+	delete shaders.dpPeelLayerFragmentShader;
+	delete shaders.dpPeelLayerVertexShader;
+}
+
+
+void DefaultRenderer::destroyShaderPrograms()
+{
+	delete programs.dpBlendLayerProgram;
+	delete programs.dpBlendFinalProgram;
+
+	// NOTE: The other shader programs are destroyed together with the programCache.
+}
+
+
+void DefaultRenderer::destroyFBOs()
+{
+	gtaglDeleteFramebuffers(1, &fbos.dpOpaqueFBO);
+	gtaglDeleteFramebuffers(2, fbos.dpPingPongFBOs);
+
+	gtaglDeleteFramebuffers(1, &fbos.dpFBO);
+
+	glDeleteTextures(2, fbos.dpOpaqueTexes);
+	glDeleteTextures(2, fbos.dpPingPongColorTexes);
+	glDeleteTextures(2, fbos.dpPingPongDepthStencilTexes);
+
+	glDeleteTextures(1, &fbos.dpColorTex);
+}
+
+
+void DefaultRenderer::destroyBuffers()
+{
+	glDeleteTextures(1, &dummyTex);
+
+	glDeleteBuffers(1, &planeDataBuf);
 }
 
 
@@ -809,6 +875,10 @@ void DefaultRenderer::render()
 
 	if (numObjects > currentMatrixAllocSize  ||  !mvMatrices) {
 		currentMatrixAllocSize = numObjects + 100;
+
+		delete[] mvMatrices;
+		delete[] mvpMatrices;
+		delete[] normalMatrices;
 
 		mvMatrices = new Matrix4[currentMatrixAllocSize];
 		mvpMatrices = new Matrix4[currentMatrixAllocSize];

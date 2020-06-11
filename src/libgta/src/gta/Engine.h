@@ -174,6 +174,7 @@ private:
 	unique_ptr<CollisionMeshIndexer> colIndexer;
 	unique_ptr<AnimationIndexer> animIndexer;
 
+	// These are owned by the ResourceCaches below
 	MeshCacheLoader* meshCacheLoader;
 	TextureCacheLoader* texCacheLoader;
 	CollisionMeshCacheLoader* colCacheLoader;

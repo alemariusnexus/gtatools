@@ -23,7 +23,7 @@
 #include "RWBSSectionDialog.h"
 #include <gtaformats/rwbs/RWSection.h>
 #include <gtaformats/gta.h>
-#include <QtCore/QString>
+#include <QString>
 #include "../../UInt64Validator.h"
 
 

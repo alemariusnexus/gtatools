@@ -23,8 +23,8 @@
 #ifndef DISPLAYEDENTITY_H_
 #define DISPLAYEDENTITY_H_
 
-#include <QtCore/QString>
-#include <QtCore/QLinkedList>
+#include <QString>
+#include <QLinkedList>
 #include <QUndoStack>
 #include <QWidget>
 

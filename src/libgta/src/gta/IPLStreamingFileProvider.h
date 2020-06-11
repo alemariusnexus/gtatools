@@ -35,6 +35,7 @@ public:
 	typedef list<File> StreamingFileList;
 
 public:
+	virtual ~IPLStreamingFileProvider() {}
 	virtual void findStreamingFiles(const File& file, StreamingFileList& sfiles) = 0;
 };
 

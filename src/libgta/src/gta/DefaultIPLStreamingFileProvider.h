@@ -29,6 +29,7 @@
 class DefaultIPLStreamingFileProvider : public IPLStreamingFileProvider
 {
 public:
+	virtual ~DefaultIPLStreamingFileProvider();
 	virtual void findStreamingFiles(const File& file, StreamingFileList& sfiles);
 	void addSearchDirectory(const File& file);
 

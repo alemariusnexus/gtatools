@@ -24,10 +24,10 @@
 #define DFFFORMATHANDLER_H_
 
 #include "../EntityHandler.h"
-#include <QtOpenGL/qgl.h>
+#include <qgl.h>
 #include <gtaformats/dff/DFFMesh.h>
 #include <gtaformats/dff/DFFFrame.h>
-#include <QtCore/QTextStream>
+#include <QTextStream>
 #include <QWidget>
 
 

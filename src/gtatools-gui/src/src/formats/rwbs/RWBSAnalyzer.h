@@ -23,7 +23,7 @@
 #ifndef RWBSANALYZER_H_
 #define RWBSANALYZER_H_
 
-#include <QtCore/QObject>
+#include <QObject>
 #include <QWidget>
 #include <QTextEdit>
 #include <gtaformats/rwbs/RWSection.h>

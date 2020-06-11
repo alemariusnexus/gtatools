@@ -119,7 +119,13 @@ private:
 	int nextStaticObjID;
 	bool pvsEnabled;
 	bool fcEnabled;
+
+	btDefaultCollisionConfiguration* physicsConfig;
+	btCollisionDispatcher* physicsDispatcher;
+	btBroadphaseInterface* physicsBroadphase;
+	btSequentialImpulseConstraintSolver* physicsSolver;
 	btDiscreteDynamicsWorld* physicsWorld;
+
 	StreamingViewpointList svList;
 
 	VisualObjectList curVisObjs;

@@ -32,6 +32,7 @@ class DefaultShaderPluginAPI : public ShaderPluginAPI
 {
 public:
 	DefaultShaderPluginAPI();
+	virtual ~DefaultShaderPluginAPI();
 	virtual void getVertexHooks(list<ShaderPluginAPIHook*>& hooks);
 	virtual void getFragmentHooks(list<ShaderPluginAPIHook*>& hooks);
 

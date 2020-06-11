@@ -25,6 +25,14 @@
 
 
 
+PVSSection::~PVSSection()
+{
+	for (PVSVisibilitySet* set : sets) {
+		delete set;
+	}
+}
+
+
 PVSVisibilitySet* PVSSection::getVisibilitySet(float multiplier)
 {
 	PVSVisibilitySet* nearestSet = NULL;

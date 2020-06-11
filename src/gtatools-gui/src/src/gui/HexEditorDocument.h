@@ -23,10 +23,10 @@
 #ifndef HEXEDITORDOCUMENT_H_
 #define HEXEDITORDOCUMENT_H_
 
-#include <QtCore/QObject>
-#include <QtCore/QByteArray>
-#include <QtCore/QLinkedList>
-#include <QtCore/QMultiMap>
+#include <QObject>
+#include <QByteArray>
+#include <QLinkedList>
+#include <QMultiMap>
 #include "HexEditorBlock.h"
 
 

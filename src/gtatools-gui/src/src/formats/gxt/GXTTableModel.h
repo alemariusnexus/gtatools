@@ -24,9 +24,9 @@
 #define GXTTABLEMODEL_H_
 
 #include <gtaformats/config.h>
-#include <QtCore/QAbstractTableModel>
-#include <QtCore/QVector>
-#include <QtCore/QMap>
+#include <QAbstractTableModel>
+#include <QVector>
+#include <QMap>
 #include <gtaformats/gxt/GXTTable.h>
 
 

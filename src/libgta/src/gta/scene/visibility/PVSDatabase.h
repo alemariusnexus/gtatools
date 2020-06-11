@@ -40,6 +40,7 @@
 #include <list>
 #include <thread>
 #include <mutex>
+#include <memory>
 
 using std::istream;
 using std::ostream;
@@ -49,6 +50,7 @@ using std::pair;
 using std::list;
 using std::thread;
 using std::mutex;
+using std::shared_ptr;
 
 
 
@@ -92,8 +94,9 @@ private:
 		typedef ObjectMap::const_iterator ConstObjectIterator;
 
 	public:
-		InternalSceneObjectFileGroup(SceneObjectFileGroup* fg) : fg(fg) {}
-		SceneObjectFileGroup* getFileGroup() { return fg; }
+		InternalSceneObjectFileGroup(const shared_ptr<SceneObjectFileGroup>& fg) : fg(fg) {}
+		~InternalSceneObjectFileGroup() {}
+		shared_ptr<SceneObjectFileGroup> getFileGroup() { return fg; }
 		void addSceneObject(PVSSceneObjectContainer* obj);
 		PVSSceneObjectContainer* getObject(uint32_t id);
 		ObjectIterator getObjectBegin() { return objs.begin(); }
@@ -103,7 +106,7 @@ private:
 		size_t getObjectCount() const { return objs.size(); }
 
 	private:
-		SceneObjectFileGroup* fg;
+		shared_ptr<SceneObjectFileGroup> fg;
 		ObjectMap objs;
 	};
 
@@ -145,6 +148,7 @@ public:
 
 public:
 	PVSDatabase();
+	virtual ~PVSDatabase();
 
 	void calculatePVS(unsigned int numThreads = 1);
 
@@ -235,7 +239,7 @@ void PVSDatabase::addObjects(ItType beg, ItType end)
 			objects.push_back(cont);
 
 		if (info) {
-			SceneObjectFileGroup* group = info->getFileGroup();
+			shared_ptr<SceneObjectFileGroup> group = info->getFileGroup();
 			InternalSceneObjectFileGroup* igroup = NULL;
 
 			FileGroupIterator it;

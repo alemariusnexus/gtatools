@@ -29,8 +29,8 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QToolTip>
-#include <QtCore/QByteArray>
-#include <QtCore/QFile>
+#include <QByteArray>
+#include <QFile>
 #include <cstdio>
 #include <cmath>
 #include <algorithm>

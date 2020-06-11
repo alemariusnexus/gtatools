@@ -209,6 +209,7 @@ private:
 
 public:
 	DefaultRenderer();
+	virtual ~DefaultRenderer();
 
 	//virtual void enqueueForRendering(RenderingEntity* entity);
 	//virtual void enqueueForRendering(LightSource* ls);
@@ -230,6 +231,11 @@ private:
 	void setupShaders();
 	void setupFBOs();
 	void setupBuffers();
+
+	void destroyShaders();
+	void destroyShaderPrograms();
+	void destroyFBOs();
+	void destroyBuffers();
 
 	void initializeUniforms(AdvancedShaderProgram* program);
 	void setupDynamicLighting(bool enabled);
@@ -263,10 +269,10 @@ private:
 		AdvancedShader* animShadeVertexShader;
 		AdvancedShader* animShadeFragmentShader;
 		AdvancedShader* lightingVertexShader;
-		AdvancedShader* svVertexShader;
+		/*AdvancedShader* svVertexShader;
 		AdvancedShader* svFragmentShader;
 		AdvancedShader* svBlendVertexShader;
-		AdvancedShader* svBlendFragmentShader;
+		AdvancedShader* svBlendFragmentShader;*/
 
 		AdvancedShader* dpPeelLayerVertexShader;
 		AdvancedShader* dpPeelLayerFragmentShader;
@@ -277,8 +283,8 @@ private:
 	} shaders;
 
 	struct {
-		AdvancedShaderProgram* svProgram;
-		AdvancedShaderProgram* svBlendProgram;
+		/*AdvancedShaderProgram* svProgram;
+		AdvancedShaderProgram* svBlendProgram;*/
 
 		AdvancedShaderProgram* dpBlendLayerProgram;
 		AdvancedShaderProgram* dpBlendFinalProgram;

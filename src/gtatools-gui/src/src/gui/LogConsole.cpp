@@ -23,7 +23,7 @@
 #include "LogConsole.h"
 #include <gtatools-gui/config.h>
 #include "../System.h"
-#include <QtCore/QSettings>
+#include <QSettings>
 #include <cassert>
 
 

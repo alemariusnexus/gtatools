@@ -33,6 +33,7 @@ class AdvancedShader
 {
 public:
 	AdvancedShader(GLenum type, const CString& name = CString());
+	~AdvancedShader();
 	void setSourceCode(const CString& code) { this->code = code; }
 	CString getSourceCode() const { return code; }
 

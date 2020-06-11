@@ -32,7 +32,7 @@
 #include <gtaformats/txd/TXDArchive.h>
 #include <gtaformats/txd/TXDTextureHeader.h>
 #include "OpenTXDGUIModule.h"
-#include <QtCore/QLinkedList>
+#include <QLinkedList>
 #include "../../DisplayedFile.h"
 #include "../../gui/ImageDisplayWidget.h"
 

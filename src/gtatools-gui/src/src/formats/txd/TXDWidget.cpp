@@ -22,11 +22,11 @@
 
 #include "TXDWidget.h"
 #include <gtatools-gui/config.h>
-#include <QtCore/QSettings>
+#include <QSettings>
 #include <QLayout>
 #include <QTabWidget>
 #include "../../System.h"
-#include <QtCore/QString>
+#include <QString>
 #include "TXDFormatHandler.h"
 #include <QMessageBox>
 #include <gtaformats/txd/TXDException.h>

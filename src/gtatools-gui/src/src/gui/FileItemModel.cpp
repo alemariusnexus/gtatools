@@ -25,7 +25,7 @@
 #include "../formats/EntityManager.h"
 #include <cstring>
 #include <QProgressDialog>
-#include <QtCore/QSettings>
+#include <QSettings>
 
 
 FileItemModel::FileItemModel(Profile* profile, QWidget* parent)
