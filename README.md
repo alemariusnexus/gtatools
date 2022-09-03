@@ -15,18 +15,18 @@ gtatools currently consists of the following parts:
 
 # Further Information #
 
-For screenshots, building and usage guides and other stuff, check out gtatools' page [on my server](http://alemariusnexus.com/gtatools).
+For screenshots, building and usage guides and other stuff, check out gtatools' page [on my server](http://dlerch.de/gtatools).
 
 
 # Binaries and Prebuilt Dependencies
 
-Binaries and prebuilt dependencies for Windows can be downloaded [here](http://alemariusnexus.com/gtatools).
+Binaries and prebuilt dependencies for Windows can be downloaded [here](http://dlerch.de/gtatools).
 
 
 
 # Building and Dependencies
 
-**There is a [more detailed guide](http://alemariusnexus.com/gtatools/building.htm) for building gtatools. Note that this guide is quite outdated, but it might still provide some good hints.**
+**There is a [more detailed guide](http://dlerch.de/gtatools/building.htm) for building gtatools. Note that this guide is quite outdated, but it might still provide some good hints.**
 
 The components of GTATools depend on the following libraries. Note that this might change quite rapidly as GTATools is evolving:
 
@@ -51,7 +51,7 @@ The components of GTATools depend on the following libraries. Note that this mig
   * **libgta**: Including all its dependencies
   * **Qt 4/5**: Qt5 is now the preferred option, but Qt4 should still work. Change it through NXCOMMON_QT_SUPPORT in CMake
 
-~~Prebuilt dependencies for Windows can be downloaded [here](http://alemariusnexus.com/gtatools).~~ Do not use them. They are old, horrible, and might not even work with newer versions anymore. For now you'll have to take care of the dependencies manually I'm afraid.
+~~Prebuilt dependencies for Windows can be downloaded [here](http://dlerch.de/gtatools).~~ Do not use them. They are old, horrible, and might not even work with newer versions anymore. For now you'll have to take care of the dependencies manually I'm afraid.
 
 
 
